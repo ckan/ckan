@@ -133,7 +133,7 @@ class Context(TypedDict, total=False):
     table_names: list[str]
     plugin_data: dict[Any, Any]
     original_package: dict[str, Any]
-    package_update_unchanged: str
+    changed_entities: dict[str, set[str]]
 
 
 class AuthResult(TypedDict, total=False):

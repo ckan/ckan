@@ -308,8 +308,6 @@ def package_update(
             ) != dict(data_dict, metadata_modified=None, resources=None)
     if not dataset_changed and original_package.get('resources'
             ) == data_dict.get('resources'):
-        # flag no change for caller
-        context['package_update_unchanged'] = 'before validation'
         return pkg.id if return_id_only else original_package
 
     res_deps = []
@@ -440,6 +438,13 @@ def package_update(
         if not context.get('defer_commit'):
             model.repo.commit()
 
+        # return ids of changed entities via context because return value is
+        # the action's "result" data
+        context.setdefault(
+            'changed_entities', {}
+        ).setdefault(
+            'packages', set()
+        ).add(pkg.id)
         log.debug('Updated object %s' % pkg.name)
     else:
         log.debug('No update for object %s' % pkg.name)
@@ -449,8 +454,6 @@ def package_update(
         return pkg.id
 
     if not change and original_package:
-        # flag no change for caller
-        context['package_update_unchanged'] = 'after validation'
         return original_package
 
     # we could update the dataset so we should still be able to read it.

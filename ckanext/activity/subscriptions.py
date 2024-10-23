@@ -157,7 +157,7 @@ def package_changed(sender: str, **kwargs: Any):
     result: types.ActionResult.PackageUpdate = kwargs["result"]
     data_dict = kwargs["data_dict"]
     context = kwargs["context"]
-    if context.get('package_update_unchanged'):
+    if not context.get('changed_entities', {}).get('packages', set()):
         return
 
     if not result:

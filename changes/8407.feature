@@ -9,3 +9,7 @@ metadata_modified may now be set by sysadmins which is useful for harvesting or 
 The allow_partial_update context parameter has been removed, now normal API
 users may call package_update without passing resources. In this case the existing
 resources will remain untouched instead of being deleted.
+
+package_update and actions that call it now report whether there was a real change by
+adding the package id to a new changed_entities context value or changed_entities
+envelope value for API calls.
