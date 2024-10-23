@@ -377,6 +377,26 @@ class TestUser(object):
         )
         assert "belongs to a registered user" in response
 
+    def test_email_case_insensitive_change_on_existed_email(self, app, user):
+        """ Ensure we detect email case-insensitive duplicates """
+        factories.User(email="EXISTED@email.com")
+        email_lower = "existed@email.com"
+        env = {"Authorization": user["token"]}
+
+        response = app.post(
+            url=url_for("user.edit"),
+            data={
+                "email": email_lower,
+                "save": "",
+                "old_password": "correct123",
+                "password1": "",
+                "password2": "",
+                "name": user["name"],
+            },
+            extra_environ=env
+        )
+        assert "belongs to a registered user" in response
+
     def test_edit_user_logged_in_username_change(self, app, user):
 
         headers = {"Authorization": user["token"]}
