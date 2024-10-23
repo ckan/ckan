@@ -1,6 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
-
+import logging
 from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 import datetime
@@ -27,6 +27,9 @@ from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import Group, ApiToken
+
+
+log = logging.getLogger(__name__)
 
 
 def last_active_check():
@@ -90,8 +93,32 @@ class User(core.StatefulObjectMixin,
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
-    def by_email(cls, email: str) -> Optional[Self]:
-        return meta.Session.query(cls).filter_by(email=email).first()
+    def by_email(cls, email: str, raise_on_duplicated: bool=False) -> Optional[Self]:
+        """ Get a user object by email address
+            Even if we try to avoid duplicated emails, extensions may allow it
+            Also, older CKAN instances can have duplicated emails
+        """
+        all_insensitive_users = meta.Session.query(cls).filter(
+            func.lower(cls.email) == func.lower(email)
+        ).all()
+        if len(all_insensitive_users) == 0:
+            return None
+
+        if len(all_insensitive_users) > 1:
+            # Try to get only active users
+            active_users = [
+                u for u in all_insensitive_users
+                if u.state == core.State.ACTIVE
+            ]
+            if len(active_users) == 1:
+                return active_users[0]
+            user_names = [user.name for user in all_insensitive_users]
+            log.error(f"Multiple users found for email {email}: {user_names}")
+            if raise_on_duplicated:
+                raise Exception(f"Multiple users found for email {email}")
+
+        return all_insensitive_users[0]
+
 
     @classmethod
     def get(cls, user_reference: Optional[str]) -> Optional[Self]:
