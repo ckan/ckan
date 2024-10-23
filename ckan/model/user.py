@@ -99,7 +99,7 @@ class User(core.StatefulObjectMixin,
             Also, older CKAN instances can have duplicated emails
         """
         all_users = meta.Session.query(
-            cls.name, cls.email, cls.state
+            cls
         ).filter(
             func.lower(cls.email) == func.lower(email)
         ).all()
