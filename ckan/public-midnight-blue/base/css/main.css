@@ -14073,3 +14073,46 @@ td.diff_header {
   border-top-right-radius: none;
   border-radius: 6px;
 }
+
+.col.stage {
+  padding: 12px 4px;
+  border-radius: 8px;
+  background: #F2F4F7;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  padding-left: 4px;
+
+}
+
+
+.col.stage > .row {
+  padding-left: 14px;
+}
+
+
+.col.stage >  .row > .step {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.icon-stage > .fa.fa-check-circle {
+  color: green;
+  position: relative;
+  top: 4px;
+
+}
+
+.col.stage >  .row > .step-name {
+  color: #101828;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.8px;
+  line-height: normal;
+}
+
+.accordion-body {
+  padding: 0px;
+}
