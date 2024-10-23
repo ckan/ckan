@@ -1,6 +1,5 @@
 # encoding: utf-8
 from __future__ import annotations
-import logging
 from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 import datetime
@@ -27,9 +26,6 @@ from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import Group, ApiToken
-
-
-log = logging.getLogger(__name__)
 
 
 def last_active_check():
@@ -114,8 +110,6 @@ class User(core.StatefulObjectMixin,
             ]
             if len(active_users) == 1:
                 return active_users[0]
-            user_names = [user.name for user in all_users]
-            log.error(f"Multiple users found for email {email}: {user_names}")
             if raise_on_duplicated:
                 raise Exception(f"Multiple users found for email {email}")
 
