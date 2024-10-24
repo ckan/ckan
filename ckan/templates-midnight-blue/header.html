@@ -67,7 +67,7 @@
         {% endif %}
       {% endblock %}
       <nav class="navbar navbar-expand-lg navbar-light">
-        <hgroup class="{{ g.header_class }} navbar-left col-md-2">
+        <div class="{{ g.header_class }} navbar-left col-md-2">
           {% block header_logo %}
             {% if g.site_logo %}
               <a class="logo" href="{{ h.url_for('home.index') }}">
@@ -81,7 +81,7 @@
               {% endif %}
             {% endif %}
           {% endblock %}
-        </hgroup>
+        </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation-toggle"
           aria-controls="main-navigation-toggle" aria-expanded="false" aria-label="{{ _('Toggle navigation') }}">
           <span class="fa fa-bars"></span>
