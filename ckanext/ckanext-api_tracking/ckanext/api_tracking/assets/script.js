@@ -1,4 +1,4 @@
-ckan.module("task1-module", function ($, _) {
+ckan.module("api_tracking-module", function ($, _) {
   "use strict";
   return {
     options: {

@@ -24,7 +24,8 @@ class ExtendedTrackingSummary(model.TrackingSummary):
                 model.tracking_summary_table.c.package_id != '~~not~found~~',
                 model.tracking_summary_table.c.tracking_date >= start_date,
                 model.tracking_summary_table.c.tracking_date < end_date,
-                model.tracking_summary_table.c.url.like(f'%/dataset/{package_name}%')
+                # model.tracking_summary_table.c.url.like(f'%/dataset/{package_name}%'),
+                func.replace(model.tracking_summary_table.c.url, '/dataset/', '').in_(package_name) if data_dict['package_name'] != [""] else True
             ).group_by(
                 model.tracking_summary_table.c.url,
                 model.tracking_summary_table.c.tracking_date,
@@ -37,12 +38,12 @@ class ExtendedTrackingSummary(model.TrackingSummary):
             raise ValidationError(f"Database query error: {e}")
 
         results = query.all()
-        include_resource = data_dict.get('include_resource', False)
+        include_resource = data_dict.get('include_resources', False)
 
         try:
             urls_and_counts = [
                 {
-                    'dataset': row.url.replace('/dataset/', ''),
+                    'package': row.url.replace('/dataset/', ''),
                     'date': row.tracking_date.strftime('%Y-%m-%d'),
                     'view': row.total_count,
                     'include_resources': cls._get_resources(row) if include_resource else []
@@ -102,9 +103,9 @@ class ExtendedTrackingSummary(model.TrackingSummary):
 
                     if resource_info:
                         resource_details.append({
-                            'resource_id': resource_info.id,
                             'resource_name': resource_info.name,
-                            'view': res.count
+                            'resource_id': resource_info.id,
+                            'resource_view': res.count
                         })
                 except Exception as e:
                     raise ValidationError(f"Error fetching resource details: {e}")
