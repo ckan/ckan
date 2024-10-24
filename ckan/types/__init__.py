@@ -93,7 +93,6 @@ class Context(TypedDict, total=False):
     reset_password: bool
     save: bool
     active: bool
-    allow_partial_update: bool
     for_update: bool
     for_edit: bool
     for_view: bool
@@ -134,6 +133,7 @@ class Context(TypedDict, total=False):
     table_names: list[str]
     plugin_data: dict[Any, Any]
     original_package: dict[str, Any]
+    changed_entities: dict[str, set[str]]
 
 
 class AuthResult(TypedDict, total=False):

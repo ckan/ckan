@@ -192,7 +192,8 @@ def package_create(
             data['creator_user_id'] = user_obj.id
             include_plugin_data = user_obj.sysadmin and plugin_data
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_data)
+    pkg, _change = model_save.package_dict_save(
+        data, context, include_plugin_data)
 
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
@@ -200,6 +201,9 @@ def package_create(
     if data.get('resources'):
         for index, resource in enumerate(data['resources']):
             resource['id'] = pkg.resources[index].id
+
+    if not data.get('metadata_modified'):
+        pkg.metadata_modified = datetime.datetime.utcnow()
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -292,6 +296,9 @@ def resource_create(context: Context,
         plugin.before_resource_create(context, data_dict)
 
     original_package = dict(pkg_dict)
+
+    # allow metadata_modified to be updated
+    pkg_dict.pop('metadata_modified', None)
     pkg_dict['resources'] = list(pkg_dict.get('resources', []))
 
     pkg_dict['resources'].append(data_dict)

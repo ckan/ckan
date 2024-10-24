@@ -466,6 +466,31 @@ class TestIDatasetFormPlugin(object):
             == result["resources"][0]["custom_resource_text"]
         )
 
+    def test_resource_validation_dependencies(self):
+        helpers.call_action(
+            "package_create",
+            name='res-val-dep',
+            state='draft',
+            resources=[{
+                'url': 'http://example.com',
+                'draft_only_todo': 'need to fix this',
+            }, {
+                'url': 'http://example.com',
+                'draft_only_todo': 'need to fix this one too',
+            }],
+        )
+        with pytest.raises(plugins.toolkit.ValidationError) as err:
+            helpers.call_action(
+                "package_update",
+                name='res-val-dep',
+                state='active',
+            )
+        assert err.value.error_dict == {
+            'resources': [
+                {'draft_only_todo': ['must be blank when published']},
+                {'draft_only_todo': ['must be blank when published']},
+            ]}
+
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform")
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
