@@ -12,8 +12,8 @@ $layoutTrimBackgroundColor: #fff;
 $layoutTrimBorderColor: #ccc;
 $logoMaxHeight: 60px;
 
-$navLinkColor: #333;
-$navActiveBackgroundColor: #f6f6f6;
+$navLinkColor: $gray-900;
+$navActiveBackgroundColor: $gray-100;
 
 // Module Variables
 $moduleBackgroundColor: #fff;
@@ -35,19 +35,18 @@ $genericBorderColor: #ddd;
 
 $breadcrumbTextColor: #505050;
 
-$mastheadTextColor: #fff;
+$mastheadTextColor: $black;
 $mastheadLinkColor: $mastheadTextColor;
-$mastheadBackgroundColor: #005d7a;
-$mastheadBackgroundColorStart: #005d7a;
-$mastheadBackgroundColorEnd: #00536b;
+$mastheadBackgroundColor: $white;
 
-$navItemActiveTextColor: #FFF;
-$navItemActiveBackgroundColor: #647A82;
-$navItemActiveArrowSize: 6px;
+$navItemActiveTextColor: $white;
+$navItemActiveBackgroundColor: $gray-500;
+$navItemActiveArrowSize: $spacer-1;
 
 $pillTextColor: $navItemActiveTextColor;
 $pillBackgroundColor: darken($navItemActiveBackgroundColor, 10%);
 
+$footerBackgroundColor: $brand-700;
 $footerTextColor: #CCDEE3;
 $footerLinkColor: $footerTextColor;
 
