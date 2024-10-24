@@ -15,3 +15,8 @@ def validate_month(value):
         return value
     except ValueError:
         raise toolkit.Invalid('Date format should be YYYY-MM')
+
+def validate_bool(value):
+    if value not in [True, False]:
+        raise ValueError("include_resources should be True or False")
+    return value

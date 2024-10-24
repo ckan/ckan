@@ -10,7 +10,7 @@ from ckan.types import CKANApp
 from .helpers import generate_user_key, get_data_type
 
 
-class Task2Plugin(p.SingletonPlugin):
+class API_Tracking_Plugin(p.SingletonPlugin):
     p.implements(p.IMiddleware, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
