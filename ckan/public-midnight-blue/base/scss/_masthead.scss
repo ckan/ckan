@@ -142,8 +142,8 @@ $notificationsBg: #C9403A;
                 &.active {
                     a {
                         border-radius: $border-radius-sm;
-                        background-color: $brand-50;
-                        color: $brand-800;
+                        background-color: $brand-100;
+                        color: $brand-900;
                     }
                 }
                 &.active {
@@ -172,7 +172,7 @@ $notificationsBg: #C9403A;
                         padding: $nav-link-padding-y $nav-link-padding-x;
                         @include font-size($nav-link-font-size);
                         font-weight: $nav-link-font-weight;
-                        color: $brand-800;
+                        color: $brand-900;
                         text-decoration: if($link-decoration == none, null, none);
                         @include transition($nav-link-transition);
 

@@ -69,19 +69,19 @@ $colors: (
 // scss-docs-end colors-map
 
 // brand colors
-$brand-50: #D2DAEA;
-$brand-100: #93a1b8;
-$brand-200: #6d83ab;
-$brand-300: #4c669e;
-$brand-400: #2f4b91;
-$brand-500: #153084;
-$brand-600: #0a1d5e;
-$brand-700: #030d38;
-$brand-800: #000312;
+$brand-100: #D2DAEA;
+$brand-200: #93a1b8;
+$brand-300: #6d83ab;
+$brand-400: #4c669e;
+$brand-500: #2f4b91;
+$brand-600: #153084;
+$brand-700: #0a1d5e;
+$brand-800: #030d38;
+$brand-900: #000312;
 // brand colors
 
 // scss-docs-start theme-color-variables
-$primary:       $brand-500 !default;
+$primary:       $brand-600 !default;
 $secondary:     $gray-600 !default;
 $success:       $green !default;
 $info:          $cyan !default;
