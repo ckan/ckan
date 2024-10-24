@@ -50,7 +50,7 @@ respectively.
      enable them again, the installation process will iterate over all folders in
      the ``src`` directory, reinstall the requirements listed in
      ``pip-requirements.txt`` and ``requirements.txt`` files and run
-     ``python setup.py develop`` for each. If you are using a custom extension
+     ``pip install -e .`` for each. If you are using a custom extension
      which does not use this requirements file name or is located elsewhere,
      you will need to manually reinstall it.
 

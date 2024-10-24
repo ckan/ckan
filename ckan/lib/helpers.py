@@ -2030,7 +2030,10 @@ def member_count(group: str) -> int:
         u'id': group,
         u'object_type': u'user'
     }
-    return len(logic.get_action(u'member_list')(context, data_dict))
+    try:
+        return len(logic.get_action(u'member_list')(context, data_dict))
+    except logic.NotAuthorized:
+        return 0
 
 
 @core_helper

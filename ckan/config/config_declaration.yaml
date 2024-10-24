@@ -141,6 +141,7 @@ groups:
         placeholder: egg:ckan
 
       - key: SECRET_KEY
+        legacy_key: beaker.session.secret
         validators: not_empty
         required: true
         placeholder_callable: secrets:token_urlsafe
@@ -155,6 +156,9 @@ groups:
             python -c "import secrets; print(secrets.token_urlsafe(20))"
 
           When used in a cluster environment, the value must be the same on every machine.
+
+          If not provided, for backwards compatibility with earlier configurations the value of
+          ``beaker.session.secret`` will be used.
 
 
       - key: ckan.legacy_route_mappings
