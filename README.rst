@@ -1,4 +1,4 @@
-CKAN: The Open Source Data Portal Software
+Greenhub: The Open Source Data Portal Software
 ==========================================
 
 .. image:: https://img.shields.io/badge/license-AGPL-blue.svg?style=flat
@@ -99,4 +99,4 @@ This material is copyright (c) 2006-2023 Open Knowledge Foundation and contribut
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:
 
-http://www.fsf.org/licensing/licenses/agpl-3.0.html
+ittp://www.fsf.org/licensing/licenses/agpl-3.0.html
