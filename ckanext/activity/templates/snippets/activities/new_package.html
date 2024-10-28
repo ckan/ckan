@@ -12,7 +12,7 @@
   <br />
   <span class="date" aria-label="{{ _('Activity occurred on: {time}').format(time=h.render_datetime(activity.timestamp, with_hours=True)) }}">
     {{ h.time_ago_from_timestamp(activity.timestamp) }}
-    {% if can_show_activity_detail %}
+    {% if can_show_activity %}
       &nbsp;|&nbsp;
       <a href="{{ h.url_for('activity.package_history', id=activity.object_id, activity_id=activity.id) }}">
         {{ _('View this version') }}
