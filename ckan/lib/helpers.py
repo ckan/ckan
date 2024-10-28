@@ -789,7 +789,7 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
         url_for(*args, **kwargs),
         cls=cls,
         title=title,
-        aria_current = aria_current
+        aria_current=aria_current
     )
 
 

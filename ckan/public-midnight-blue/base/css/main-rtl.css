@@ -14130,7 +14130,7 @@ td.diff_header {
 .account-masthead .account ul li a {
   display: block;
   text-decoration: none;
-  color: #404040;
+  color: #153084;
   font-size: 13px;
   font-weight: bold;
   padding: 0 10px;
@@ -14146,7 +14146,7 @@ td.diff_header {
   left: -9999px;
 }
 .account-masthead .account ul li a:hover {
-  color: #262626;
+  color: #11266a;
   background-color: #d9d9d9;
   text-decoration: none;
 }
@@ -14154,7 +14154,7 @@ td.diff_header {
   font-weight: 300;
 }
 .account-masthead .account ul li .btn-link {
-  color: #000;
+  border-radius: 0;
 }
 .account-masthead .account .notifications a span.badge {
   font-size: 12px;

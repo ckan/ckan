@@ -17,7 +17,7 @@ $notificationsBg: #C9403A;
                 a {
                     display: block;
                     text-decoration: none;
-                    color: mix($mastheadBackgroundColor, $mastheadLinkColor, 25%);
+                    color: $link-color;
                     font-size: 13px;
                     font-weight: bold;
                     padding: 0 10px;
@@ -32,7 +32,7 @@ $notificationsBg: #C9403A;
                         left: -9999px;
                     }
                     &:hover {
-                        color: mix($mastheadBackgroundColor, $mastheadLinkColor, 15%);
+                        color: $link-hover-color;
                         background-color: darken($mastheadBackgroundColor, 15%);
                         text-decoration: none;
                     }
@@ -41,7 +41,7 @@ $notificationsBg: #C9403A;
                     }
                 }
                 .btn-link {
-                    color: $black;
+                    border-radius: 0;
                 }
             }
         }
