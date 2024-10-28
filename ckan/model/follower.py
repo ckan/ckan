@@ -10,9 +10,7 @@ import sqlalchemy.orm
 from typing_extensions import Self
 
 import ckan.model
-import ckan.model.meta as meta
-import ckan.model.core as core
-import ckan.model.domain_object as domain_object
+from ckan.model import domain_object, meta, core
 
 from ckan.types import Query
 
@@ -125,7 +123,6 @@ class ModelFollowingModel(domain_object.DomainObject,
                 cls.follower_id == follower_alias.id,
                 cls.object_id == object_alias.id,
                 follower_alias.state != core.State.DELETED,
-                object_alias.state != core.State.DELETED,
                 object_alias.id == object_id))
 
         return query
