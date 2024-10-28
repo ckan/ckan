@@ -7,6 +7,9 @@ $notificationsBg: #C9403A;
     .account {
         float: right;
         ul {
+            display: inline-flex;
+            justify-content: center;
+            align-items: baseline;
             li {
                 display: block;
                 float: left;
@@ -36,10 +39,9 @@ $notificationsBg: #C9403A;
                     &.sub {
                         font-weight: 300;
                     }
-                    .btn {
-                        vertical-align: 1px;
-                        margin-left: 3px;
-                    }
+                }
+                .btn-link {
+                    color: $black;
                 }
             }
         }
@@ -68,7 +70,6 @@ $notificationsBg: #C9403A;
         }
         &.authed {
             .image {
-                padding: 0 6px;
                 img {
                     @include border-radius(4px);
                 }

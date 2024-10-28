@@ -14117,6 +14117,11 @@ td.diff_header {
 .account-masthead .account {
   float: right;
 }
+.account-masthead .account ul {
+  display: inline-flex;
+  justify-content: center;
+  align-items: baseline;
+}
 .account-masthead .account ul li {
   display: block;
   float: left;
@@ -14148,9 +14153,8 @@ td.diff_header {
 .account-masthead .account ul li a.sub {
   font-weight: 300;
 }
-.account-masthead .account ul li a .btn {
-  vertical-align: 1px;
-  margin-left: 3px;
+.account-masthead .account ul li .btn-link {
+  color: #000;
 }
 .account-masthead .account .notifications a span.badge {
   font-size: 12px;
@@ -14168,9 +14172,6 @@ td.diff_header {
 .account-masthead .account .notifications.notifications-important a span.badge {
   color: #000;
   background-color: #C9403A;
-}
-.account-masthead .account.authed .image {
-  padding: 0 6px;
 }
 .account-masthead .account.authed .image img {
   border-radius: 4px;
