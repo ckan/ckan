@@ -423,6 +423,7 @@ def package_update(
 
         # Needed to let extensions know the new resources ids
         model.Session.flush()
+        assert changed_resources  # pyright
         resiter = iter(changed_resources)
         uploaditer = iter(resource_uploads)
         for i in range(len(pkg.resources)):
