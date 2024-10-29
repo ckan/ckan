@@ -22,6 +22,8 @@ def get_data_type(url):
     try:
         if check_resource(url):
             return 'resource'
+        elif check_download(url):
+            return 'download'
         elif check_dataset(url):
             return 'page'
         return None
@@ -32,9 +34,7 @@ def get_data_type(url):
 def check_dataset(url):
     try:
         pattern1 = r'^/dataset/([^/]+)$'
-        # pattern2 = r'^/dataset/([^/]+)/resource/([^/]+)$'
         match1 = re.match(pattern1, url)
-        # match2 = re.match(pattern2, url)
             
         if match1:
             package_name = match1.group(1) 
@@ -48,6 +48,27 @@ def check_dataset(url):
     return False
 
 def check_resource(url):
+    try:
+        pattern = r'^/dataset/([^/]+)/resource/([^/]+)$'
+        match = re.match(pattern, url)
+        if match:
+            resource_id = match.group(2)
+            package_name = url.split('/resource/')[0].split('/')[-1]
+            resource = meta.Session.query(model.Resource).join(
+                model.Package,  
+                model.Resource.package_id == model.Package.id
+            ).filter(
+                model.Resource.id == resource_id,
+                model.Package.name == package_name,
+            ).first()
+            print(resource)
+            return resource is not None
+    except Exception as e:
+        CKANApp.logger.error(f"Error checking resource: {e}")
+        
+    return False
+
+def check_download(url):
     try:
         pattern = r'^(.*/resource/([^/]+)/download/.*)'
         match = re.match(pattern, url)
