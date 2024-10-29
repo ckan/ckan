@@ -1,0 +1,42 @@
+{#
+Adds a block of custom form fields.
+
+extras - The fields to add.
+errors - A dict of errors for the fields.
+limit  - The total number of fields that should be output.
+Example:
+
+  {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
+
+#}
+{% import "macros/form.html" as form %}
+
+<div data-module="custom-fields">
+  {% for extra in extras %}
+    {% set prefix = 'extras__%d__' % loop.index0 %}
+    {{ form.custom(
+      names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
+      id='field-extras-%d' % loop.index,
+      label=_('Custom Field'),
+      values=(extra.key, extra.value, extra.deleted),
+      error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
+    ) }}
+  {% endfor %}
+
+  {# Add a max of 3 empty columns #}
+  {% set total_extras = extras|count %}
+  {% set empty_extras = (limit or 3) - total_extras %}
+  {% if empty_extras <= 0 %}{% set empty_extras = 1 %}{% endif %}
+
+  {% for extra in range(total_extras, total_extras + empty_extras) %}
+    {% set index = loop.index0 + (extras|count) %}
+    {% set prefix = 'extras__%d__' % index %}
+    {{ form.custom(
+      names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
+      id='field-extras-%d' % index,
+      label=_('Custom Field'),
+      values=(extra.key, extra.value, extra.deleted),
+      error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
+    ) }}
+  {% endfor %}
+</div>
