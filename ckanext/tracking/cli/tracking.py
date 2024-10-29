@@ -4,14 +4,14 @@ import datetime
 import csv
 
 from typing import NamedTuple, Optional
-
+import re
 import click
 import sqlalchemy as sa
 
 import ckan.model as model
 import ckan.logic as logic
 from ckan.cli import error_shout
-
+from ckan.common import config
 
 class ViewCount(NamedTuple):
     id: str
@@ -129,6 +129,8 @@ def export_tracking(engine: model.Engine, output_filename: str):
 
 def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
     package_url = '/dataset/'
+    root_path = config.get('ckan.root_path')
+    root_path = re.sub('/{{LANG}}', '', root_path)
     # clear out existing data before adding new
     with engine.begin() as conn:
         conn.execute(
@@ -141,12 +143,13 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
 
         conn.execute(
             sa.text("""
-            SELECT DISTINCT url, user_key,
+            SELECT DISTINCT REPLACE(url, :root_path, '') AS tracking_url, user_key,
             CAST(access_timestamp AS Date) AS tracking_date,
             tracking_type INTO tracking_tmp
             FROM tracking_raw
             WHERE CAST(access_timestamp as Date)=:date
-            """), {"date": summary_date}
+            """),
+            {"root_path": root_path, "date": summary_date}
         )
 
         conn.execute(
@@ -155,7 +158,7 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
             (url, count, tracking_date, tracking_type)
             SELECT url, count(user_key), tracking_date, tracking_type
             FROM tracking_tmp
-            GROUP BY url, tracking_date, tracking_type;
+            GROUP BY tracking_url, tracking_date, tracking_type;
             """)
         )
         conn.execute(
