@@ -1,4 +1,5 @@
 import hashlib
+import logging
 
 from urllib.parse import unquote
 
@@ -7,6 +8,9 @@ from ckan.common import request
 from ckan.types import Response
 
 from ckanext.tracking.model import TrackingRaw
+
+
+logger = logging.getLogger(__name__)
 
 
 def track_request(response: Response) -> Response:
@@ -35,12 +39,13 @@ def track_request(response: Response) -> Response:
         key = h.hexdigest()
         # store key/data here
         try:
+            logger.debug(f"Tracking {data.get('type')} for {data.get('url')}")
             TrackingRaw.create(
                 user_key=key,
                 url=data.get("url"),
                 tracking_type=data.get("type")
             )
         except Exception as e:
-            raise e
+            logger.error("Error tracking request", e)
 
     return response
