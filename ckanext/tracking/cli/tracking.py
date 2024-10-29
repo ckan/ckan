@@ -156,7 +156,7 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
             sa.text("""
             INSERT INTO tracking_summary
             (url, count, tracking_date, tracking_type)
-            SELECT url, count(user_key), tracking_date, tracking_type
+            SELECT tracking_url, count(user_key), tracking_date, tracking_type
             FROM tracking_tmp
             GROUP BY tracking_url, tracking_date, tracking_type;
             """)
