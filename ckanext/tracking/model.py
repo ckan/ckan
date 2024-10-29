@@ -69,9 +69,7 @@ Index('tracking_raw_access_timestamp', 'access_timestamp')
 class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
 
     __tablename__ = 'tracking_summary'
-    # id = Column(
-    #     "id", types.UnicodeText, primary_key=True, default=_types.make_uuid
-    # )
+
     url = Column("url", types.UnicodeText, nullable=False, primary_key=True)
     package_id = Column("package_id", types.UnicodeText)
     tracking_type = Column("tracking_type", types.Unicode(10), nullable=False)
