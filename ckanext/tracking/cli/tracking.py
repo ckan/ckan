@@ -13,6 +13,7 @@ import ckan.logic as logic
 from ckan.cli import error_shout
 from ckan.common import config
 
+
 class ViewCount(NamedTuple):
     id: str
     name: str
