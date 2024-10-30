@@ -2,14 +2,23 @@ from ckan.types import (
     Validator
 )
 from ckan.logic.schema import validator_args
-
-from .validators import validate_date
     
 @validator_args    
-def resources_statistics_combined_schema(not_empty: Validator, ignore_missing: Validator):
+def resources_statistics_combined_schema(not_empty: Validator, ignore_missing: Validator, isodate: Validator):
     return {
         'organizations': [ignore_missing, not_empty],
         'package_name': [ignore_missing, not_empty],
-        'start_date': [ignore_missing, not_empty, validate_date],
-        'end_date': [ignore_missing, not_empty, validate_date],
+        'start_date': [ignore_missing, not_empty, isodate],
+        'end_date': [ignore_missing, not_empty, isodate],
+    }
+    
+@validator_args    
+def users_statistics_combined_schema(not_empty: Validator, ignore_missing: Validator, 
+                                     boolean_validator: Validator, isodate: Validator,
+                                     int_validator: Validator):
+    return {
+        'sys_admin': [ignore_missing, not_empty, boolean_validator],
+        'recent_active_days': [ignore_missing, not_empty, int_validator],
+        'start_date': [ignore_missing, not_empty, isodate],
+        'end_date': [ignore_missing, not_empty, isodate],
     }

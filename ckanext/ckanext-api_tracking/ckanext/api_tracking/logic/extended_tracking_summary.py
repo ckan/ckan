@@ -9,8 +9,8 @@ class ExtendedTrackingSummary(model.TrackingSummary):
     @classmethod
     def get_urls_and_counts_all(cls, data_dict):
         
-        start_date = datetime.datetime.strptime(data_dict.get('start_date'), '%Y-%m-%d')
-        end_date = datetime.datetime.strptime(data_dict.get('end_date'), '%Y-%m-%d') + datetime.timedelta(days=1)
+        start_date = data_dict.get('start_date')
+        end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
         package_name = data_dict['package_name']
         
         try:

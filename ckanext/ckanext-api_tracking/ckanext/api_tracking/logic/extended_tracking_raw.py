@@ -9,8 +9,8 @@ class ExtendedTrackingRaw(model.TrackingSummary):
     @classmethod
     def get_by_user(cls, data_dict):
         
-        start_date = datetime.datetime.strptime(data_dict.get('start_date'), '%Y-%m-%d')
-        end_date = datetime.datetime.strptime(data_dict.get('end_date'), '%Y-%m-%d') + datetime.timedelta(days=1)
+        start_date = data_dict.get('start_date')
+        end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
         user_names = data_dict['user_name']
         package_name = data_dict['package_name']
         include_resources = data_dict.get('include_resources')
@@ -63,7 +63,7 @@ class ExtendedTrackingRaw(model.TrackingSummary):
                     'date': row.date, 
                     'package': row.url.replace('/dataset/', ''),
                     'package_id': cls._get_package_id(row),
-                    'include_resource': cls._fetch_resources(row) if include_resources else None,
+                    'include_resources': cls._fetch_resources(row) if include_resources else None,
                     'package_view': row.request_count
                 })
         except Exception as e:

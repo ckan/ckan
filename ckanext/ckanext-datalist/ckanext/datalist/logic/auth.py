@@ -1,6 +1,6 @@
 import ckan.plugins.toolkit as tk
 
-def resources_statistics(context, data_dict):
+def user_check(context, data_dict):
     user = context.get('user')
     if not user:
         raise tk.NotAuthorized("You don't have access to use this function")
@@ -9,5 +9,5 @@ def resources_statistics(context, data_dict):
 
 def get_auth_functions():
     return {
-        'resources_statistics': resources_statistics,
+        'user_check': user_check,
     }

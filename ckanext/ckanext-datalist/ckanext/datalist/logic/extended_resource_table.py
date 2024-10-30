@@ -9,8 +9,8 @@ class ExtendedResourceTable(model.Resource):
     @classmethod
     def get_resources_statistics(cls, data_dict):
         
-        start_date = datetime.datetime.strptime(data_dict.get('start_date'), '%Y-%m-%d')
-        end_date = datetime.datetime.strptime(data_dict.get('end_date'), '%Y-%m-%d') + datetime.timedelta(days=1)
+        start_date = data_dict.get('start_date')
+        end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
         organizations = data_dict['organizations']
         package_name = data_dict['package_name']
         

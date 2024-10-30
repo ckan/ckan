@@ -1,6 +1,6 @@
 import ckan.plugins.toolkit as tk
 
-def tracking_by_user(context, data_dict):
+def tracking_access(context, data_dict):
     user = context.get('user')
     if not user:
         raise tk.NotAuthorized("You don't have access to use this function")
@@ -9,5 +9,5 @@ def tracking_by_user(context, data_dict):
 
 def get_auth_functions():
     return {
-        'tracking_by_user': tracking_by_user,
+        'tracking_access': tracking_access,
     }
