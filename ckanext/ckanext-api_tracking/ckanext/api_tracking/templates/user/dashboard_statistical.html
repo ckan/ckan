@@ -1,0 +1,37 @@
+{% ckan_extends %}
+
+{% block page_primary_action %}
+
+{% endblock %}
+
+{% block primary_content_inner %}
+  {{ super() }}
+  <form method="GET" action="{{ url_for('api_tracking.get_tracking_view') }}">
+    <input type="date" name="start_date" required />
+    <input type="date" name="end_date" required />
+    <input type="submit" value="Filter" />
+  </form>
+
+  {% if data %}
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>User</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in data %}
+          <tr>
+            <td>a/td>
+            <td>{{ entry.user_name }}</td>
+            <td>c</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No data available for the selected date range.</p>
+  {% endif %}
+{% endblock %}
