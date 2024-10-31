@@ -423,11 +423,17 @@ def package_update(
 
         # Needed to let extensions know the new resources ids
         model.Session.flush()
-        for index, (resource, upload) in enumerate(
-                zip(data.get('resources', []), resource_uploads)):
-            resource['id'] = pkg.resources[index].id
+        if changed_resources:
+            resiter = iter(changed_resources)
+            uploaditer = iter(resource_uploads)
+            for i in range(len(pkg.resources)):
+                if i in copy_resources:
+                    continue
+                resource = next(resiter)
+                upload = next(uploaditer)
+                resource['id'] = pkg.resources[i].id
 
-            upload.upload(resource['id'], uploader.get_max_resource_size())
+                upload.upload(resource['id'], uploader.get_max_resource_size())
 
         for item in plugins.PluginImplementations(plugins.IPackageController):
             item.edit(pkg)
