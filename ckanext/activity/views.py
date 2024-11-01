@@ -158,6 +158,7 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
         resource["has_views"] = len(resource_views) > 0
     except NotFound:
         # Resource has been deleted since this version
+        resource_views = []
         resource["has_views"] = False
 
     current_resource_view = None
