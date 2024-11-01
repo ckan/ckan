@@ -42,19 +42,8 @@ def users_statistics(context, data_dict):
     if errors:
             raise ValidationError(errors)
         
-    if 'start_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        data_dict['start_date'] = current_date
-    
-    if 'end_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        data_dict['end_date'] = current_date
-        
-    if 'sys_admin' not in data_dict:
-        data_dict['sys_admin'] = [""]
-        
     if 'recent_active_days' not in data_dict:
-        data_dict['recent_active_days'] = -1
-    
+        data_dict['recent_active_days'] = 1
+            
     urls_and_counts = ExtendedUserTable.get_users_statistics(data_dict)
     return urls_and_counts

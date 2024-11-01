@@ -8,6 +8,6 @@ setup(
     # http://babel.pocoo.org/docs/messages/#extraction-method-mapping-and-configuration
     entry_points='''
         [ckan.plugins]
-        api_tracking=ckanext.api_tracking.plugin:API_Tracking_Plugin
+        api_tracking_2=ckanext.api_tracking_2.plugin:API_Tracking_Plugin_2
     ''',
 )
