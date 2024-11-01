@@ -716,6 +716,95 @@ class TestPackage:
             status=404,
         )
 
+    def test_read_dataset_as_it_used_to_be_after_deleting_resource(self, app):
+        user = factories.User()
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"])
+        activity = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .one()
+        )
+
+        helpers.call_action(
+            "resource_delete",
+            context={"user": user["name"]},
+            id=resource["id"],
+        )
+
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.package_history",
+                id=dataset["name"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert helpers.body_contains(response, "Dataset title")
+        assert helpers.body_contains(response, resource["name"])
+
+    def test_read_resource_as_it_used_to_be(self, app):
+        user = factories.User()
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"], title="Original title")
+        activity = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .one()
+        )
+
+        helpers.call_action(
+            "resource_update",
+            context={"user": user["name"]},
+            id=resource["id"],
+            name="Updated title",
+            package_id=dataset["id"],
+        )
+
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.resource_history",
+                id=dataset["name"],
+                resource_id=resource["id"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert helpers.body_contains(response, "Updated title")
+
+    def test_read_deleted_resource_as_it_used_to_be(self, app):
+        user = factories.User()
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"])
+        activity = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .one()
+        )
+
+        helpers.call_action(
+            "resource_delete",
+            context={"user": user["name"]},
+            id=resource["id"],
+        )
+
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.resource_history",
+                id=dataset["name"],
+                resource_id=resource["id"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert helpers.body_contains(response, resource["name"])
+
     def test_changes(self, app):
         user = factories.UserWithToken()
         dataset = factories.Dataset(title="First title", user=user)
