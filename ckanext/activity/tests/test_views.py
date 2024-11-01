@@ -717,21 +717,23 @@ class TestPackage:
         )
 
     def test_read_dataset_as_it_used_to_be_after_deleting_resource(self, app):
-        user = factories.User()
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"])
-        activity = (
+        activity_list = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .one()
+            .all()
         )
+        # Get latest activity (creating the resource)
+        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_delete",
-            context={"user": user["name"]},
+            context={"user": dataset["creator_user_id"]},
             id=resource["id"],
         )
 
+        # View as a sysadmin so we can see old versions of the dataset
         sysadmin = factories.SysadminWithToken()
         headers = {"Authorization": sysadmin["token"]}
         response = app.get(
@@ -746,23 +748,25 @@ class TestPackage:
         assert helpers.body_contains(response, resource["name"])
 
     def test_read_resource_as_it_used_to_be(self, app):
-        user = factories.User()
         dataset = factories.Dataset(title="Dataset title")
-        resource = factories.Resource(package_id=dataset["id"], title="Original title")
-        activity = (
+        resource = factories.Resource(package_id=dataset["id"], name="Original name")
+        activity_list = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .one()
+            .all()
         )
+        # Get latest activity (creating the resource)
+        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_update",
-            context={"user": user["name"]},
+            context={"user": dataset["creator_user_id"]},
             id=resource["id"],
-            name="Updated title",
+            name="Updated name",
             package_id=dataset["id"],
         )
 
+        # View as a sysadmin so we can see old versions of the dataset
         sysadmin = factories.SysadminWithToken()
         headers = {"Authorization": sysadmin["token"]}
         response = app.get(
@@ -774,24 +778,26 @@ class TestPackage:
             ),
             headers=headers,
         )
-        assert helpers.body_contains(response, "Updated title")
+        assert helpers.body_contains(response, "Original name")
 
     def test_read_deleted_resource_as_it_used_to_be(self, app):
-        user = factories.User()
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"])
-        activity = (
+        activity_list = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .one()
+            .all()
         )
+        # Get latest activity (creating the resource)
+        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_delete",
-            context={"user": user["name"]},
+            context={"user": dataset["creator_user_id"]},
             id=resource["id"],
         )
 
+        # View as a sysadmin so we can see old versions of the dataset
         sysadmin = factories.SysadminWithToken()
         headers = {"Authorization": sysadmin["token"]}
         response = app.get(
