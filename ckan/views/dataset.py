@@ -561,10 +561,22 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    url = h.url_for(
-                        u'{}_resource.new'.format(package_type),
-                        id=pkg_dict[u'name']
-                    )
+                    if request.form[u'save'] == "go-resources":
+                        last_added_resource = pkg_dict[u'resources'][-1]
+                        url = h.url_for(
+                            u'{}_resource.edit'.format(package_type), 
+                            id=pkg_dict.get('id'),
+                            resource_id=last_added_resource.get('id'))
+                    elif request.form[u'save'] == "go-metadata-preview":
+                        url = h.url_for(
+                            u'{}.preview'.format(package_type),
+                            id=pkg_dict.get('id')
+                        )
+                    else:
+                        url = h.url_for(
+                            u'{}_resource.new'.format(package_type),
+                            id=pkg_dict[u'name']
+                        )
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.form[u'save'] not in [
@@ -1222,10 +1234,70 @@ class CollaboratorEditView(MethodView):
             u'package/collaborators/collaborator_new.html', extra_vars)
 
 
+
+class PreviedDatasetView(MethodView):
+    
+    def post(self, package_type: str, id: str) -> Response:
+        save_action = request.form.get(u'save')
+        context: Context = {
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
+        }
+        if save_action == u'save-draft':
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+        
+        elif save_action == u'go-dataset':
+            return h.redirect_to(u'{}.edit'.format(package_type), id=id)
+        
+        elif save_action == u'go-resources':
+            data_dict = get_action(u'package_show')(context, {u'id': id})
+            resource = data_dict[u'resources'][-1]
+            return h.redirect_to(u'{}_resource.edit'.format(package_type), id=id, resource_id=resource[u'id'])
+
+        data_dict = get_action(u'package_show')(context, {u'id': id})
+        get_action(u'package_update')(
+            Context(context, allow_state_change=True),
+            dict(data_dict, state=u'active')
+        )
+        return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
+    def get(self, package_type: str, 
+            id: str,
+            data: Optional[dict[str, Any]] = None,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None) -> Union[Response, str]:
+        context: Context = {
+            u'user': current_user.name,
+            u'auth_user_obj': current_user,
+            u'for_view': True
+        }
+
+        try:
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        except (NotFound, NotAuthorized):
+            return base.abort(
+                404, _(u'The dataset {id} could not be found.').format(id=id)
+            )
+        
+        package_type = pkg_dict[u'type'] or package_type
+        extra_vars: dict[str, Any] = {
+            u'data': data,
+             u'error_summary': error_summary,
+            u'action': u'preview',
+            u'dataset_type': package_type,
+            u'pkg_name': id,
+            u'pkg_dict': pkg_dict
+        }
+        if pkg_dict[u'state'].startswith(u'draft'):
+            extra_vars[u'stage'] = ['complete', u'complete', u'active']
+            return base.render(u"package/preview_draft.html", extra_vars)
+        return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
 def register_dataset_plugin_rules(blueprint: Blueprint):
     blueprint.add_url_rule(u'/', view_func=search, strict_slashes=False)
     blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
     blueprint.add_url_rule(u'/<id>', view_func=read)
+    blueprint.add_url_rule(u'/<id>/preview', view_func=PreviedDatasetView.as_view(str(u'preview')))
     blueprint.add_url_rule(u'/resources/<id>', view_func=resources)
     blueprint.add_url_rule(
         u'/edit/<id>', view_func=EditView.as_view(str(u'edit'))

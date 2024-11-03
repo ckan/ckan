@@ -84,7 +84,7 @@
     {% endblock %}
     {% if stage %}
       {% block save_button %}
-        <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Next: Review Dataset') }}{% endblock %}</button>
+        <button class="btn btn-primary" name="save" value="go-metadata-preview" type="submit">{% block save_button_text %}{{ _('Next: Review Dataset') }}{% endblock %}</button>
       {% endblock %}
     {% else %}
       {% block add_button %}
