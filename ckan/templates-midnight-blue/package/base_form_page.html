@@ -4,6 +4,20 @@
 {% set s2 = stage[1] or 'uncomplete' %}
 {% set s3 = stage[2] or 'uncomplete' %}
 
+{% macro render_step(step_count, description, is_complete) %}
+<div class="col stage">
+  <div class="row">
+    <span class="step">Step {{ step_count }}</span>
+    <span class="step-name">{{ description }}</span>
+  </div>
+  {% if is_complete == 'complete' %}
+  <div class="icon-stage">
+    <i class="fa fa-check-circle" aria-hidden="true"></i>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
 
 {% block primary_content %}
   <section class="module">
@@ -30,40 +44,34 @@
           </h2>
           <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-              <div class="col stage">
-                <div class="row">
-                  <span class="step">Step 1</span>
-                  <span class="step-name">Create Dataset</span>
-                </div>
-                {% if s1 == 'complete' %}
-                <div class="icon-stage">
-                  <i class="fa fa-check-circle" aria-hidden="true"></i>
-                </div>
-                {% endif %}
-               
-              </div>
-              <div class="col stage">
-                <div class="row">
-                  <span class="step">Step 2</span>
-                  <span class="step-name">Add Data</span>
-                </div>
-                {% if s2 == 'complete' %}
-                <div class="icon-stage">
-                  <i class="fa fa-check-circle" aria-hidden="true"></i>
-                </div>
-                {% endif %}
-              </div>
-              <div class="col stage">
-                <div class="row">
-                  <span class="step">Step 3</span>
-                  <span class="step-name">Preview Dataset</span>
-                </div>
-                {% if s3 == 'complete' %}
-                <div class="icon-stage">
-                  <i class="fa fa-check-circle" aria-hidden="true"></i>
-                </div>
-                {% endif %}
-              </div>
+
+             {% if s1 != 'complete' %}
+               {{ render_step(1, 'Create Dataset', s1) }}
+             {% else %}
+              <button class="stage-nohiglight" type="button"  onclick="submitForm('go-dataset')">
+                {{ render_step(1, 'Create Dataset', s1) }}
+              </button>
+             {% endif %}
+
+             {% if s2 != 'complete' %}
+               {{ render_step(2, 'Add Data', s2) }}
+             {% else %}
+              <button class="stage-nohiglight" type="button"  onclick="submitForm('go-resources')">
+                {{ render_step(2, 'Add Data', s2) }}
+              </button>
+             {% endif %}
+              
+            {% if s1 == 'complete' or s2 == 'complete' %}
+            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-metadata-preview')">
+              {{ render_step(3, 'Preview Dataset', s1 if s1 == 'complete' else s2) }}
+            </button>
+             
+            {% else %}
+              {{ render_step(3, 'Preview Dataset', s3) }}
+            {% endif %}
+             
+              
+              
             </div>
           </div>
         </div>
@@ -83,9 +91,15 @@
       </div>
     </section>
   {% endblock %}
+  {% block scripts %}
+  {{ super() }}
+  {% asset 'base/draft-package' %}
+  {% endblock %}
 
   {% block resources_module %}
     {# TODO: Pass in a list of previously created resources and the current package dict #}
     {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
   {% endblock %}
 {% endblock %}
+
+
