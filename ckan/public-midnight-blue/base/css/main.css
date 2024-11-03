@@ -13981,11 +13981,11 @@ td.diff_header {
 }
 
 .stage-nohiglight {
-  display: inline-block; /* Ensures the button behaves like a block element */
-  padding: 0; /* Removes extra padding */
-  border: none; /* Removes button border */
-  background: none; /* Removes default button background */
-  width: auto; /* Keeps width auto to not expand the content */
+  display: inline-block;
+  padding: 0; 
+  border: none; 
+  background: none; 
+  width: 100%;
   cursor: pointer;
   text-align: left;
 }
@@ -14116,3 +14116,4 @@ td.diff_header {
 .accordion-body {
   padding: 0px;
 }
+

@@ -63,3 +63,11 @@ view-filters:
       - vendor/qs
   contents:
     - view-filters.js
+
+draft-package:
+  output: base/%(version)s_draft-package.js
+  extra:
+    preload:
+      - vendor/jquery
+  contents:
+    - draft-package.js
