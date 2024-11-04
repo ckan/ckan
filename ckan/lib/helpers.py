@@ -26,7 +26,9 @@ from typing import (
     Any, Callable, Match, NoReturn, cast, Dict,
     Iterable, Optional, TypeVar, Union)
 
+
 import dominate.tags as dom_tags
+from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
@@ -802,7 +804,7 @@ def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs['href'] = url
     if label == '' or label is None:
         label = url
-    return literal(str(dom_tags.a(label, **attrs)))
+    return literal(str(dom_tags.a(raw_dom_tags(label), **attrs)))
 
 
 @core_helper
