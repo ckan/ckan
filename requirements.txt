@@ -119,7 +119,7 @@ requests==2.32.3
     # via
     #   -r requirements.in
     #   pysolr
-rq==1.16.2
+rq==2.0.0
     # via -r requirements.in
 simplejson==3.19.3
     # via -r requirements.in
