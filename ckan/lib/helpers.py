@@ -451,7 +451,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
-                            if value is None:
+                            if value is None or (isinstance(val, dict) and not val):
                                 continue
                             query_args.append(
                                 u'{}={}'.format(
@@ -460,7 +460,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 )
                             )
                     else:
-                        if val is None:
+                        if val is None or (isinstance(val, dict) and not val):
                             continue
                         query_args.append(
                             u'{}={}'.format(
@@ -468,6 +468,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 quote(str(val))
                             )
                         )
+
                 if query_args:
                     my_url += '?'
                 my_url += '&'.join(query_args)
