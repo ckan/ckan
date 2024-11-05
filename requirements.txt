@@ -154,7 +154,7 @@ webassets==2.0
     # via -r requirements.in
 webencodings==0.5.1
     # via bleach
-werkzeug[watchdog]==3.0.3
+werkzeug[watchdog]==3.0.6
     # via
     #   -r requirements.in
     #   flask
