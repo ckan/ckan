@@ -617,7 +617,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
     content_disposition = u'attachment; filename="{name}.csv"'.format(
                                     name=file_name)
     content_type = b'text/csv; charset=utf-8'
-    response.headers['Content-Type'] = content_type  # type: ignore
+    response.headers['Content-Type'] = content_type
     response.headers['Content-Disposition'] = content_disposition
 
     return response
