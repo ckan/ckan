@@ -441,13 +441,11 @@ pygments_style = 'sphinx'
 # Options for HTML output
 # -----------------------
 
-extra_css_files = ['_static/css/custom.css']
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if not on_rtd:
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_sidebars = {
     '**':  ['globaltoc.html'],
@@ -458,7 +456,6 @@ html_context = {
     'is_master': is_master,
     'is_supported': is_supported,
     'is_latest_version': is_latest_version,
-    'extra_css_files': extra_css_files,
     'latest_minor_version': latest_minor_version,
 }
 
@@ -488,6 +485,9 @@ html_context = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_css_files = [
+    'css/custom.css'
+]
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 #html_last_updated_fmt = '%b %d, %Y'
