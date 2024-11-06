@@ -15,7 +15,7 @@ services:
   ckan-redis:
     networks:
       - default
-    image: "redis:3"
+    image: "redis:7"
 
   ckan-solr:
     networks:
