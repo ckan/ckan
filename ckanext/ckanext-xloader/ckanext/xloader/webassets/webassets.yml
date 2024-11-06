@@ -1,0 +1,4 @@
+main-css:
+  output: ckanext-xloader/%(version)s_xloader.css
+  contents:
+    - css/xloader.css

@@ -15,7 +15,7 @@ from .helpers import generate_user_key, get_data_type
 import ckan.plugins.toolkit as toolkit
 from ckan.common import CKANConfig
 import ckan.plugins.toolkit as toolkit
-import ckanext.api_tracking.views as ct
+import ckanext.api_tracking.views as views
 
 
 class API_Tracking_Plugin(p.SingletonPlugin):
@@ -24,11 +24,9 @@ class API_Tracking_Plugin(p.SingletonPlugin):
     p.implements(p.IAuthFunctions)
     p.implements(p.IConfigurer)
     p.implements(p.IBlueprint)
-
-    # Đăng ký blueprint
+   
     def get_blueprint(self):
-        return ct.get_blueprints()
-
+        return views.get_blueprints()
     
     def update_config(self, config: CKANConfig):
 
@@ -70,7 +68,6 @@ class API_Tracking_Plugin(p.SingletonPlugin):
             'tracking_urls_and_counts': tracking_urls_and_counts
         }
         
-
     def get_auth_functions(self):
         return auth.get_auth_functions()
 

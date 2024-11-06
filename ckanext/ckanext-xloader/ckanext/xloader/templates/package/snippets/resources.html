@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+{% block resources_list_edit_dropdown_inner %}
+  {{ super() }}
+  {% if h.is_resource_supported_by_xloader(resource) %}
+    <li>{% link_for _('DataStore'), named_route='xloader.resource_data', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='cloud-upload' %}</li>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,156 @@
+version: 1
+groups:
+  - annotation: ckanext-xloader settings
+    options:
+      - key: ckanext.xloader.jobs_db.uri
+        default: sqlite:////tmp/xloader_jobs.db
+        description: |
+            The connection string for the jobs database used by XLoader. The
+            default of an sqlite file is fine for development. For production use a
+            Postgresql database.
+        validators: not_missing
+        required: true
+      - key: ckanext.xloader.api_token
+        example: eyJ0eXAiOiJKV1QiLCJh.eyJqdGkiOiJ0M2VNUFlQWFg0VU.8QgV8em4RA
+        description: |
+            Uses a specific API token for the xloader_submit action instead of the
+            apikey of the site_user. Will be mandatory when dropping support for
+            CKAN 2.9.
+        required: false
+      - key: ckanext.xloader.formats
+        example: csv application/csv xls application/vnd.ms-excel
+        description: |
+            The formats that are accepted. If the value of the resource.format is
+            anything else then it won't be 'xloadered' to DataStore (and will therefore
+            only be available to users in the form of the original download/link).
+            Case insensitive. Defaults are listed in plugin.py.
+        required: false
+      - key: ckanext.xloader.max_content_length
+        default: 1_000_000_000
+        example: 100000
+        description: |
+            The maximum file size that XLoader will attempt to load.
+        type: int
+        required: false
+      - key: ckanext.xloader.use_type_guessing
+        default: False
+        example: False
+        description: |
+            By default, xloader will first try to add tabular data to the DataStore
+            with a direct PostgreSQL COPY. This is relatively fast, but does not
+            guess column types. If this fails, xloader falls back to a method more
+            like DataPusher's behaviour. This has the advantage that the column types
+            are guessed. However it is more error prone and far slower.
+            To always skip the direct PostgreSQL COPY and use type guessing, set
+            this option to True.
+        type: bool
+        required: false
+        legacy_key: ckanext.xloader.just_load_with_messytables
+      - key: ckanext.xloader.strict_type_guessing
+        default: True
+        example: False
+        description: |
+            Use with ckanext.xloader.use_type_guessing to set strict true or false
+            for type guessing. If set to False, the types will always fallback to string type.
+
+            Strict means that a type will not be guessed if parsing fails for a single cell in the column.
+        type: bool
+      - key: ckanext.xloader.max_type_guessing_length
+        default: 0
+        example: 100000
+        description: |
+            The maximum file size that will be passed to Tabulator if the
+            use_type_guessing flag is enabled. Larger files will use COPY even if
+            the flag is set. Defaults to 1/10 of the maximum content length.
+        type: int
+        required: false
+      - key: ckanext.xloader.parse_dates_dayfirst
+        default: False
+        example: False
+        description: |
+            Whether ambiguous dates should be parsed day first. Defaults to False.
+            If set to True, dates like '01.02.2022' will be parsed as day = 01,
+            month = 02.
+            NB: isoformat dates like '2022-01-02' will be parsed as YYYY-MM-DD, and
+            this option will not override that.
+            See https://dateutil.readthedocs.io/en/stable/parser.html#dateutil.parser.parse
+            for more details.
+        type: bool
+        required: false
+      - key: ckanext.xloader.parse_dates_yearfirst
+        default: False
+        example: False
+        description: |
+            Whether ambiguous dates should be parsed year first. Defaults to False.
+            If set to True, dates like '01.02.03' will be parsed as year = 2001,
+            month = 02, day = 03. See https://dateutil.readthedocs.io/en/stable/parser.html#dateutil.parser.parse
+            for more details.
+        type: bool
+        required: false
+      - key: ckanext.xloader.job_timeout
+        default: 3600
+        example: 3600
+        description: |
+            The maximum time for the loading of a resource before it is aborted.
+            Give an amount in seconds. Default is 60 minutes
+        type: int
+        required: false
+      - key: ckanext.xloader.ignore_hash
+        default: False
+        example: False
+        description: |
+            Ignore the file hash when submitting to the DataStore, if set to True
+            resources are always submitted (if their format matches), if set to
+            False (default), resources are only submitted if their hash has changed.
+        type: bool
+        required: false
+      - key: ckanext.xloader.max_excerpt_lines
+        default: 0
+        example: 100
+        description: |
+            When loading a file that is bigger than `max_content_length`, xloader can
+            still try and load some of the file, which is useful to display a
+            preview. Set this option to the desired number of lines/rows that it
+            loads in this case.
+            If the file-type is supported (CSV, TSV) an excerpt with the number of
+            `max_excerpt_lines` lines will be submitted while the `max_content_length`
+            is not exceeded.
+            If set to 0 (default) files that exceed the `max_content_length` will
+            not be loaded into the datastore.
+        type: int
+        required: false
+      - key: ckanext.xloader.ssl_verify
+        default: True
+        example: True
+        description: |
+            Requests verifies SSL certificates for HTTPS requests. Setting verify to
+            False should only be enabled during local development or testing. Default
+            to True.
+        type: bool
+        required: false
+      - key: ckanext.xloader.clean_datastore_tables
+        default: False
+        example: True
+        description: |
+          Enqueue jobs to remove Datastore tables from Resources that have a format
+          that is not in ckanext.xloader.formats after a Resource is updated.
+        type: bool
+        required: false
+      - key: ckanext.xloader.show_badges
+        default: True
+        example: False
+        description: |
+          Controls whether or not the status badges display in the front end.
+        type: bool
+        required: false
+      - key: ckanext.xloader.debug_badges
+        default: False
+        example: True
+        description: |
+          Controls whether or not the status badges display all of the statuses. By default,
+          the badges will display "pending", "running", and "error". With debug_badges enabled,
+          they will also display "complete", "active", "inactive", and "unknown".
+        type: bool
+        required: false
+
+

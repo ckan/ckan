@@ -1,37 +1,67 @@
 {% ckan_extends %}
 
 {% block page_primary_action %}
-
+  <form method="GET" action="{{ url_for('tracking_blueprint.get_statistical_date') }}">
+    <div class="row mb-3">
+      <div class="col">
+        <label for="start_date" class="form-label">Start Date:</label>
+        <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}" required />
+      </div>
+      <div class="col">
+        <label for="end_date" class="form-label">End Date:</label>
+        <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}" required />
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
 {% endblock %}
 
 {% block primary_content_inner %}
   {{ super() }}
-  <form method="GET" action="{{ url_for('api_tracking.get_tracking_view') }}">
-    <input type="date" name="start_date" required />
-    <input type="date" name="end_date" required />
-    <input type="submit" value="Filter" />
-  </form>
 
-  {% if data %}
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>User</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for entry in data %}
+  <div class="container mt-4">
+    <h1 class="text-center">Dashboard Statistical</h1>
+
+    {% if urls_and_counts %}
+      <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
           <tr>
-            <td>a/td>
-            <td>{{ entry.user_name }}</td>
-            <td>c</td>
+            <th>User Name</th>
+            <th>Date of access</th>
+            <th>Name Package</th>
+            <th>Package Views</th>
+            <th>Resources</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No data available for the selected date range.</p>
-  {% endif %}
+        </thead>
+        <tbody>
+          {% for url in urls_and_counts %}
+            {% for tracking in url.tracking %}
+              <tr>
+                <td>{{ url.user_name }}</td>
+                <td>{{ tracking.date }}</td>
+                <td>{{ tracking.package }}</td>
+                <td>{{ tracking.package_view }}</td>
+                <td>
+                  {% if tracking.include_resources %}
+                    <ul>
+                      {% for resource in tracking.include_resources %}
+                        <li>
+                          <strong>Resource Name:</strong> {{ resource.resource_name }} <br />
+                          <strong>Resource Views:</strong> {{ resource.resource_view }}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    No resources available
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="alert alert-warning text-center" role="alert">No tracking data available.</div>
+    {% endif %}
+  </div>
 {% endblock %}

@@ -1,0 +1,23 @@
+{% ckan_extends %}
+
+{% block resource_item_explore_inner %}
+  {{ super() }}
+  {% if h.is_resource_supported_by_xloader(res) %}
+    <li>{% link_for _('DataStore'), named_route='xloader.resource_data', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='cloud-upload' %}</li>
+  {% endif %}
+{% endblock %}
+
+{% block resource_item_explore_links %}
+  {% if h.check_ckan_version(max_version='2.10') and h.is_resource_supported_by_xloader(res) %}
+    <li>{% link_for _('DataStore'), named_route='xloader.resource_data', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='cloud-upload' %}</li>
+  {% endif %}
+  {{ super() }}
+{% endblock %}
+
+{% block resource_item_title %}
+  {{ super() }}
+  {{ h.xloader_badge(res) }}
+  {% asset 'ckanext-xloader/main-css' %}
+{% endblock %}
+
+

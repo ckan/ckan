@@ -1,0 +1,7 @@
+ckantoolkit
+requests[security]>=2.11.1
+six>=1.12.0
+tabulator==1.53.5
+Unidecode==1.0.22
+python-dateutil>=2.8.2
+chardet==5.2.0

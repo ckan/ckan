@@ -31,8 +31,7 @@ def tracking_urls_and_counts(context, data_dict):
 
 @side_effect_free
 def tracking_by_user(context, data_dict):
-    toolkit.check_access("tracking_by_user", context, data_dict)
-
+    # toolkit.check_access("tracking_by_user", context, data_dict)
     schema = tracking_by_user_combined_schema()
     data_dict, errors = toolkit.navl_validate(data_dict, schema)
     

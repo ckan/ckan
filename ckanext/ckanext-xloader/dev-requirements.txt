@@ -1,0 +1,5 @@
+responses==0.10.9
+mock==2.0.0
+flake8
+pytest-ckan
+pytest-cov
