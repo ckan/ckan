@@ -1,0 +1,14 @@
+# datalist-js:
+#   filter: rjsmin
+#   output: ckanext-datalist/%(version)s-datalist.js
+#   contents:
+#     - js/datalist.js
+#   extra:
+#     preload:
+#       - base/main
+
+# datalist-css:
+#   filter: cssrewrite
+#   output: ckanext-datalist/%(version)s-datalist.css
+#   contents:
+#     - css/datalist.css
