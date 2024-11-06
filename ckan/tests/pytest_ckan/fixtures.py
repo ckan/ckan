@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """This is a collection of pytest fixtures for use in tests.
 
-All fixtures below available anywhere under the root of CKAN
-repository. Any external CKAN extension should be able to include them
-by adding next lines under root `conftest.py`
-
-.. literalinclude:: /../conftest.py
+All fixtures below are available wherever CKAN is installed.
+Any external CKAN extension should be able to include them directly into
+their tests.
 
 There are three type of fixtures available in CKAN:
 
