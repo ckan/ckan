@@ -24,6 +24,10 @@ CKAN: The Open Source Data Portal Software
     :target: https://gitter.im/ckan/chat
     :alt: Chat on Gitter
 
+.. image:: https://img.shields.io/badge/Gurubase-Ask%20CKAN%20Guru-006BFF.svg?style=flat
+    :target: https://gurubase.io/g/ckan
+    :alt: Ask CKAN Guru
+
 **CKAN is the world’s leading open-source data portal platform**.
 CKAN makes it easy to publish, share and work with data. It's a data management
 system that provides a powerful platform for cataloging, storing and accessing
