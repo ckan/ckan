@@ -270,9 +270,14 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 
     # can the resources be previewed?
     for resource in pkg_dict["resources"]:
-        resource_views = tk.get_action("resource_view_list")(
-            context, {"id": resource["id"]}
-        )
+        # Avoid 500 error on deleted resources
+        try:
+            resource_views = tk.get_action("resource_view_list")(
+                context, {"id": resource["id"]}
+            )
+        except tk.ObjectNotFound:
+            resource_views = []
+
         resource["has_views"] = len(resource_views) > 0
 
     package_type = pkg_dict["type"] or "dataset"
