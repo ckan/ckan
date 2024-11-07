@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import sqlalchemy as sa
 from collections import OrderedDict
 from typing import Any, Optional, Union
 
@@ -45,8 +46,8 @@ lookup_group_plugin = lib_plugins.lookup_group_plugin
 lookup_group_controller = lib_plugins.lookup_group_controller
 
 
-def _get_group_template(template_type: str,
-                        group_type: Optional[str] = None) -> str:
+def _get_group_template(
+        template_type: str, group_type: Optional[str] = None) -> str:
     group_plugin = lookup_group_plugin(group_type)
     method = getattr(group_plugin, template_type)
     try:
@@ -103,10 +104,30 @@ def _guess_group_type(expecting_name: bool = False) -> str:
     return gt
 
 
+def _get_total_group_count(group_type: str, q: Optional[str] = None) -> int:
+    """
+    Calculate the total number of groups or organizations for pagination.
+    """
+    total_count_query = model.Session.query(
+        sa.func.count(model.Group.id)
+    ).filter(model.Group.state == "active", model.Group.type == group_type)
+    if q:
+        q_like = f"%{q}%"
+        total_count_query = total_count_query.filter(
+            sa.or_(
+                model.Group.name.ilike(q_like),
+                model.Group.title.ilike(q_like),
+                model.Group.description.ilike(q_like),
+            )
+        )
+    return total_count_query.scalar()
+
+
 def index(group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {}
     page = h.get_page_number(request.args) or 1
     items_per_page = config.get('ckan.datasets_per_page')
+    page = h.get_page_number(request.args) or 1
 
     context: Context = {
         u'user': current_user.name,
@@ -139,18 +160,21 @@ def index(group_type: str, is_organization: bool) -> str:
         context['user_is_admin'] = current_user.sysadmin  # type: ignore
 
     try:
-        data_dict_global_results: dict[str, Any] = {
-            u'all_fields': False,
+        data_dict: dict[str, Any] = {
+            u'all_fields': True,
             u'q': q,
             u'sort': sort_by,
             u'type': group_type or u'group',
             u'include_dataset_count': True,
             u'include_member_count': True,
+            u'include_extras': True,
+            u'limit': items_per_page,
+            u'offset': (page - 1) * items_per_page,
         }
-
         action_name = 'organization_list' if is_organization else 'group_list'
-        global_results = get_action(action_name)(
-            context, data_dict_global_results)
+        page_results = get_action(action_name)(context, data_dict)
+        total_count = _get_total_group_count(group_type, q)
+
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg: Any = e.error_dict['message']
@@ -159,29 +183,17 @@ def index(group_type: str, is_organization: bool) -> str:
         h.flash_error(msg)
         extra_vars["page"] = Page([], 0)
         extra_vars["group_type"] = group_type
-        return base.render(
-            _get_group_template(u'index_template', group_type), extra_vars)
 
-    data_dict_page_results: dict[str, Any] = {
-        u'all_fields': True,
-        u'q': q,
-        u'sort': sort_by,
-        u'type': group_type or u'group',
-        u'limit': items_per_page,
-        u'offset': items_per_page * (page - 1),
-        u'include_extras': True,
-        u'include_dataset_count': True,
-        u'include_member_count': True,
-    }
-
-    action_name = 'organization_list' if is_organization else 'group_list'
-    page_results = get_action(action_name)(context, data_dict_page_results)
+        group_template = _get_group_template(u'index_template', group_type)
+        return base.render(group_template, extra_vars)
 
     extra_vars["page"] = Page(
-        collection=global_results,
+        collection=page_results,
         page=page,
         url=h.pager_url,
-        items_per_page=items_per_page, )
+        item_count=total_count,
+        items_per_page=items_per_page
+    )
 
     extra_vars["page"].items = page_results
     extra_vars["group_type"] = group_type
@@ -190,16 +202,17 @@ def index(group_type: str, is_organization: bool) -> str:
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
     g.page = extra_vars["page"]
-    return base.render(
-        _get_group_template(u'index_template', group_type), extra_vars)
+    group_template = _get_group_template(u'index_template', group_type)
+    return base.render(group_template, extra_vars)
 
 
 def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     u''' This is common code used by both read and bulk_process'''
     extra_vars: dict[str, Any] = {}
+
     context: Context = {
         u'user': current_user.name,
-        u'schema': _db_to_form_schema(group_type=group_type),
+        u'schema': _db_to_form_schema(group_type),
         u'for_view': True,
         u'extras_as_string': True
     }
@@ -347,7 +360,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     g.page = extra_vars["page"]
 
     extra_vars["group_type"] = group_type
-    _setup_template_variables(context, {u'id': id}, group_type=group_type)
+    _setup_template_variables(context, {'id': id}, group_type)
     return extra_vars
 
 
@@ -386,13 +399,14 @@ def _get_group_dict(id: str, is_organization: bool) -> dict[str, Any]:
         base.abort(404, msg)
 
 
-def read(group_type: str,
-         is_organization: bool,
-         id: Optional[str] = None) -> Union[str, Response]:
+def read(
+        group_type: str,
+        is_organization: bool,
+        id: Optional[str] = None) -> Union[str, Response]:
     extra_vars = {}
     context: Context = {
         u'user': current_user.name,
-        u'schema': _db_to_form_schema(group_type=group_type),
+        u'schema': _db_to_form_schema(group_type),
         u'for_view': True
     }
     data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
@@ -425,8 +439,7 @@ def read(group_type: str,
         url_with_name = h.url_for(u'{}.read'.format(group_type),
                                   id=group_dict['name'])
 
-        return h.redirect_to(
-            h.add_url_param(alternative_url=url_with_name))
+        return h.redirect_to(h.add_url_param(alternative_url=url_with_name))
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -447,9 +460,8 @@ def read(group_type: str,
     extra_vars["group_dict"] = group_dict
     extra_vars["am_following"] = am_following
 
-    return base.render(
-        _get_group_template(u'read_template', g.group_dict['type']),
-        extra_vars)
+    group_template = _get_group_template(u'read_template', group_type)
+    return base.render(group_template, extra_vars)
 
 
 def about(id: str, group_type: str, is_organization: bool) -> str:
@@ -465,7 +477,7 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
                    _(u'User %r not authorized to edit members of %s') %
                    (current_user.name, id))
 
-    _setup_template_variables(context, {u'id': id}, group_type=group_type)
+    _setup_template_variables(context, {'id': id}, group_type)
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -476,8 +488,8 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {u"group_dict": group_dict,
                                   u"group_type": group_type}
 
-    return base.render(
-        _get_group_template(u'about_template', group_type), extra_vars)
+    group_template = _get_group_template(u'about_template', group_type)
+    return base.render(group_template, extra_vars)
 
 
 def members(id: str, group_type: str, is_organization: bool) -> str:
@@ -568,7 +580,6 @@ def member_dump(id: str, group_type: str, is_organization: bool):
                    else _(u'Group not found'))
 
     context: Context = {'user': current_user.name}
-
     try:
         action_name = (
             "organization_member_create"
@@ -623,8 +634,10 @@ def member_dump(id: str, group_type: str, is_organization: bool):
     return response
 
 
-def member_delete(id: str, group_type: str,
-                  is_organization: bool) -> Union[Response, str]:
+def member_delete(
+        id: str,
+        group_type: str,
+        is_organization: bool) -> Union[Response, str]:
     extra_vars = {}
     if u'cancel' in request.form:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
@@ -680,8 +693,10 @@ def member_delete(id: str, group_type: str,
     return base.render(template_name, extra_vars)
 
 
-def follow(id: str, group_type: str,
-           is_organization: bool) -> Union[Response, str]:
+def follow(
+        id: str,
+        group_type: str,
+        is_organization: bool) -> Union[Response, str]:
     '''Start following this group.'''
     data_dict = {
         'id': id,
@@ -798,9 +813,8 @@ def admins(id: str, group_type: str, is_organization: bool) -> str:
         u"admins": admins
     }
 
-    return base.render(
-        _get_group_template(u'admins_template', group_dict['type']),
-        extra_vars)
+    group_template = _get_group_template(u'admins_template', group_type)
+    return base.render(group_template, extra_vars)
 
 
 class BulkProcessView(MethodView):
@@ -812,7 +826,7 @@ class BulkProcessView(MethodView):
 
         context: Context = {
             u'user': current_user.name,
-            u'schema': _db_to_form_schema(group_type=group_type),
+            u'schema': _db_to_form_schema(group_type),
             u'for_view': True,
             u'extras_as_string': True
         }
@@ -853,9 +867,10 @@ class BulkProcessView(MethodView):
         extra_vars['group_dict'] = group_dict
         extra_vars['group'] = group
 
-        return base.render(
-            _get_group_template(u'bulk_process_template', group_type),
-            extra_vars)
+        group_template = _get_group_template(
+            u'bulk_process_template', group_type
+        )
+        return base.render(group_template, extra_vars)
 
     def post(
             self, id: str, group_type: str,
@@ -963,8 +978,10 @@ class CreateGroupView(MethodView):
 
         return context
 
-    def post(self, group_type: str,
-             is_organization: bool) -> Union[Response, str]:
+    def post(self,
+             group_type: str,
+             is_organization: bool
+             ) -> Union[Response, str]:
 
         context = self._prepare(is_organization)
         try:
@@ -1020,10 +1037,10 @@ class CreateGroupView(MethodView):
             u'action': u'new',
             u'group_type': group_type
         }
-        _setup_template_variables(
-            context, data, group_type=group_type)
-        form = base.render(
-            _get_group_template(u'group_form', group_type), extra_vars)
+
+        _setup_template_variables(context, data, group_type)
+        group_template = _get_group_template(u'group_form', group_type)
+        form = base.render(group_template, extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -1031,8 +1048,8 @@ class CreateGroupView(MethodView):
         g.form = form
 
         extra_vars["form"] = form
-        return base.render(
-            _get_group_template(u'new_template', group_type), extra_vars)
+        group_template = _get_group_template(u'new_template', group_type)
+        return base.render(group_template, extra_vars)
 
 
 class EditGroupView(MethodView):
@@ -1126,9 +1143,9 @@ class EditGroupView(MethodView):
             u'group_type': group_type
         }
 
-        _setup_template_variables(context, data, group_type=group_type)
-        form = base.render(
-            _get_group_template(u'group_form', group_type), extra_vars)
+        _setup_template_variables(context, data, group_type)
+        group_template = _get_group_template(u'group_form', group_type)
+        form = base.render(group_template, extra_vars)
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -1139,8 +1156,8 @@ class EditGroupView(MethodView):
         g.group_dict = group_dict
 
         extra_vars["form"] = form
-        return base.render(
-            _get_group_template(u'edit_template', group_type), extra_vars)
+        group_template = _get_group_template(u'edit_template', group_type)
+        return base.render(group_template, extra_vars)
 
 
 class DeleteGroupView(MethodView):

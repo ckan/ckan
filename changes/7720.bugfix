@@ -1,0 +1,2 @@
+Refactored group.py to remove mutable global state (is_org) and optimize group/org 
+index view for improved performance and thread safety on /group/ and /organization/ pages.

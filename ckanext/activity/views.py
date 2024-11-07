@@ -9,18 +9,16 @@ from flask import Blueprint
 
 import ckan.plugins.toolkit as tk
 import ckan.model as model
+from ckan.lib.plugins import lookup_package_plugin
 from ckan.views.group import (
     # TODO: don't use hidden funcitons
-    _get_group_template,
+    _get_group_template
 )
 
 from ckan.common import request as ckan_request
 
 # TODO: don't use hidden funcitons
 from ckan.views.user import _extra_template_variables
-
-# TODO: don't use hidden funcitons
-from ckan.views.dataset import _setup_template_variables
 
 from ckan.types import Context, Response
 from .model import Activity
@@ -276,7 +274,9 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
         resource["has_views"] = len(resource_views) > 0
 
     package_type = pkg_dict["type"] or "dataset"
-    _setup_template_variables(context, {"id": id}, package_type=package_type)
+    lookup_package_plugin(package_type).setup_template_variables(
+        context, data_dict
+    )
 
     return tk.render(
         "package/history.html",
@@ -515,8 +515,9 @@ def group_activity(id: str, group_type: str, is_organization: bool) -> str:
     """Render this group's public activity stream page."""
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
-
     context: Context = {"user": tk.g.user, "for_view": True}
+
+    is_org = group_type == "organization"
 
     try:
         action_name = "organization_show" if is_organization else "group_show"
