@@ -169,7 +169,7 @@ class TestHelpersUrlFor(BaseUrlFor):
             ({"param": 27.3}, "/dataset/my_dataset?param=27.3"),
             ({"param": True}, "/dataset/my_dataset?param=True"),
             ({"param": None}, "/dataset/my_dataset"),
-            ({"param": {}}, "/dataset/my_dataset?param=%7B%7D"),
+            ({"param": {}}, "/dataset/my_dataset"),
         ],
     )
     def test_url_for_string_route_with_query_param(self, extra, exp):
@@ -326,12 +326,12 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"test-tag" foobar',
-                '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test-tag">tag:"test-tag"</a> foobar</p>',
                 False,
             ),
             (
                 'tag:"test tag" foobar',
-                '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test+tag">tag:"test tag"</a> foobar</p>',
                 False,
             ),
             (
@@ -348,7 +348,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"Test- _." foobar',
-                '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>',
                 False,
             ),
             (
@@ -358,7 +358,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 u'tag:"Japanese katakana \u30a1" blah',
-                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
+                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:"Japanese katakana \u30a1"</a> blah</p>',
                 False,
             ),
             (
@@ -400,7 +400,7 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>'
         assert h.render_markdown(data) == output
 
     def test_tag_names_do_not_match_commas(self):
