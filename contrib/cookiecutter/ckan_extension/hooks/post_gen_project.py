@@ -38,9 +38,9 @@ def recut():
     # get context
     context = {}
 
-{%- for key, value in cookiecutter.items() -%}
+{% for key, value in cookiecutter.items() %}
     context["{{key}}"] = {{ value.__repr__() | safe }}
-{%- endfor -%}
+{% endfor %}
 
     # Process keywords
     keywords = context['keywords'].strip().split()
