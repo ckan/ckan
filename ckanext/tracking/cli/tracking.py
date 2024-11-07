@@ -56,10 +56,6 @@ def update_all(start_date: Optional[str] = None):
             .order_by(desc(ts.tracking_date))
             .first()
         )
-        # sql = sa.text("""
-        # SELECT tracking_date from tracking_summary
-        # ORDER BY tracking_date DESC LIMIT 1;
-        # """)
         if result:
             date = result
             date += datetime.timedelta(-2)
@@ -81,13 +77,9 @@ def update_all(start_date: Optional[str] = None):
 
 
 def _total_views():
-    # sql = sa.text("""
-    # SELECT p.id, p.name, COALESCE(SUM(s.count), 0) AS total_views
-    # FROM package AS p
-    # LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
-    # GROUP BY p.id, p.name
-    # ORDER BY total_views DESC
-    # """)
+    '''
+    Total views for each package
+    '''
     stmt = (
         select(
             ts.package_id,
@@ -101,14 +93,9 @@ def _total_views():
 
 
 def _recent_views(measure_from: datetime.date):
-    # sql = sa.text("""
-    # SELECT p.id, p.name, COALESCE(SUM(s.count), 0) AS total_views
-    # FROM package AS p
-    # LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
-    # WHERE s.tracking_date >= :from
-    # GROUP BY p.id, p.name
-    # ORDER BY total_views DESC
-    # """)
+    '''
+    Recent views for each package
+    '''
     stmt = (
         select(
             ts.package_id,
@@ -124,7 +111,9 @@ def _recent_views(measure_from: datetime.date):
 
 
 def export_tracking(output_filename: str):
-    """Write tracking summary to a csv file."""
+    '''
+    Write tracking summary to a csv file.
+    '''
     headings = [
         "dataset id",
         "dataset name",
@@ -149,28 +138,11 @@ def export_tracking(output_filename: str):
 
 
 def update_tracking(summary_date: datetime.datetime):
+    '''
+    Update the tracking_summary table with data from tracking_raw
+    '''
     package_url = "/dataset/"
-# clear out existing data before adding new data
-# with engine.begin() as conn:
-#     conn.execute(
-#         sa.text("""
-#         DELETE FROM tracking_summary
-#         WHERE tracking_date=:date;
-#         """),
-#         {"date": summary_date}
-#     )
     session.query(ts).filter(ts.tracking_date == summary_date).delete()
-# KEEP THIS COMMENTED OUT UNTIL WE ARE SURE THE ABOVE WORKS
-# insert new data into tracking_summary from tracking_raw
-# conn.execute(
-#     sa.text("""
-#     SELECT DISTINCT url, user_key,
-#     CAST(access_timestamp AS Date) AS tracking_date,
-#     tracking_type INTO tracking_tmp
-#     FROM tracking_raw
-#     WHERE CAST(access_timestamp as Date)=:date
-#     """), {"date": summary_date}
-# )
     tracking_tmp = (
         session.query(
             tr.url,
@@ -184,12 +156,6 @@ def update_tracking(summary_date: datetime.datetime):
         .distinct()
         .subquery()
     )
-# for url, user_key, tracking_date, tracking_type in tracking_tmp:
-#     summary = TrackingSummary(url=url,
-#                               count=1,
-#                               tracking_date=tracking_date,
-#                               tracking_type=tracking_type)
-#     session.add(summary)
     summary = session.query(
         tracking_tmp.c.url,
         tracking_tmp.c.tracking_date,
@@ -211,21 +177,6 @@ def update_tracking(summary_date: datetime.datetime):
             recent_views=0,
         )
         session.add(summary_row)
-# KEEP THIS COMMENTED OUT UNTIL WE ARE SURE THE ABOVE WORKS
-# conn.execute(
-#     sa.text("""
-#     INSERT INTO tracking_summary
-#     (url, count, tracking_date, tracking_type)
-#     SELECT url, count(user_key), tracking_date, tracking_type
-#     FROM tracking_tmp
-#     GROUP BY url, tracking_date, tracking_type;
-#     """)
-# )
-# conn.execute(
-#     sa.text("""
-#     DROP TABLE tracking_tmp;
-#     """)
-# )
     session.commit()
     update_tracking_summary_with_package_id(package_url)
 
@@ -306,63 +257,8 @@ def update_tracking_summary_with_package_id(package_url: str):
 
     session.commit()
 
-# KEEP THIS COMMENTED OUT UNTIL WE ARE SURE THE ABOVE WORKS
-# with engine.begin() as conn:
-#     conn.execute(sa.text("""
-#     UPDATE tracking_summary t
-#     SET package_id =
-#     COALESCE(
-#       (SELECT id FROM package p WHERE p.name =
-#        regexp_replace (' ' || t.url, '^[ ]{1}(/\\w{2}){0,1}' || :url, '')),
-#       '~~not~found~~'
-#     )
-#     WHERE t.package_id IS NULL
-#     AND tracking_type = 'page'
-#     """), {"url": package_url})
-
-#     # update summary totals for resources
-#     conn.execute(sa.text("""
-#     UPDATE tracking_summary t1
-#     SET running_total = (
-#     SELECT sum(count)
-#     FROM tracking_summary t2
-#     WHERE t1.url = t2.url
-#     AND t2.tracking_date <= t1.tracking_date
-#     )
-#     ,recent_views = (
-#     SELECT sum(count)
-#     FROM tracking_summary t2
-#     WHERE t1.url = t2.url
-#     AND t2.tracking_date <= t1.tracking_date
-#     AND t2.tracking_date >= t1.tracking_date - 14
-#     )
-#     WHERE t1.running_total = 0 AND tracking_type = 'resource'
-#     """))
-
-#     # update summary totals for pages
-#     conn.execute(sa.text("""
-#     UPDATE tracking_summary t1
-#     SET running_total = (
-#     SELECT sum(count)
-#     FROM tracking_summary t2
-#     WHERE t1.package_id = t2.package_id
-#     AND t2.tracking_date <= t1.tracking_date
-#     )
-#     ,recent_views = (
-#     SELECT sum(count)
-#     FROM tracking_summary t2
-#     WHERE t1.package_id = t2.package_id
-#     AND t2.tracking_date <= t1.tracking_date
-#     AND t2.tracking_date >= t1.tracking_date - 14
-#     )
-#     WHERE t1.running_total = 0 AND tracking_type = 'page'
-#     AND t1.package_id IS NOT NULL
-#     AND t1.package_id != '~~not~found~~'
-#     """))
-
 
 def update_tracking_solr(start_date: datetime.datetime):
-
     results = (
         session.query(ts.package_id)
         .filter(
@@ -372,15 +268,6 @@ def update_tracking_solr(start_date: datetime.datetime):
         .distinct()
         .all()
     )
-    # KEEP THIS COMMENTED OUT UNTIL WE ARE SURE THE ABOVE WORKS
-    # sql = sa.text("""
-    # SELECT package_id FROM tracking_summary
-    # where package_id!='~~not~found~~'
-    # and tracking_date >= :date
-    # """)
-    # with engine.connect() as conn:
-    #     results = conn.execute(sql, {"date": start_date})
-
     package_ids: set[str] = set()
     for row in results:
         package_ids.add(row[0])
