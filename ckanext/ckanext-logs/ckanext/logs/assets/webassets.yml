@@ -1,0 +1,14 @@
+# logs-js:
+#   filter: rjsmin
+#   output: ckanext-logs/%(version)s-logs.js
+#   contents:
+#     - js/logs.js
+#   extra:
+#     preload:
+#       - base/main
+
+# logs-css:
+#   filter: cssrewrite
+#   output: ckanext-logs/%(version)s-logs.css
+#   contents:
+#     - css/logs.css

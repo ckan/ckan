@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block build_extra_admin_nav %}
+  {{ super() }}
+  {{ h.build_nav('logs.index', _("Logs")) }}
+{% endblock %}

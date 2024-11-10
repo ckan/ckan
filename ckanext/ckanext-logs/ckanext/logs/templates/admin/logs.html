@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+
+{% block primary_content_inner %}
+<h1 class="page-heading">
+  {% block page_heading %}{{ _('Logs') }}{% endblock %}
+</h1>
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle"></i>
+  {{error}}
+</div>
+{% else %}
+<style>
+th, td {
+  word-wrap: break-word;
+}
+</style>
+<table class="table table-header table-hover table-bordered" style="table-layout: fixed;">
+  <thead>
+    <tr>
+      <th>{{ _('Time') }}</th>
+      <th>{{ _('Level') }}</th>
+      <th>{{ _('Details') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in page.items %}
+    <tr>
+      <td>{{ log["_source"]["@timestamp"] }}</td>
+      <td>{{ log["_source"]["level"] }}</td>
+      <td>{{ log["_source"]["message"] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% block page_pagination %}
+{{ page.pager(q=q, start_time=start_time, end_time=end_time) }}
+{% endblock %}
+
+{% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+{% snippet 'admin/snippets/search_logs.html', q=q, start_time=start_time, end_time=end_time %}
+{% endblock %}

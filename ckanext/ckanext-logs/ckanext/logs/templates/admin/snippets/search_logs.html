@@ -1,0 +1,27 @@
+{% import 'macros/form.html' as form %}
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+
+<section class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+        <i class="fa fa-info-circle"></i>
+        {{ _('Logs') }}
+    </h2>
+    <div class="module-content">
+        <p>{{_('Support searching and filtering system logs with a time range.') }}</p>
+        <form class="field-bordered" action="{% url_for 'logs.index' %}" method="get" id="logs-search-form">
+            {{ form.input('q', label=_('Search logs'), placeholder=_('Search'), value=q, classes=[]) }}
+
+            {{ form.input('start_time', type='date', label=_('Start date'), placeholder=_('Start date'),
+            value=start_time, classes=[]) }}
+
+            {{ form.input('end_time', type='date', label=_('End date'), placeholder=_('End date'),
+            value=end_time, classes=[]) }}
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn btn-primary">{{ _('Search') }}</button>
+            </div>
+        </form>
+    </div>
+</section>
