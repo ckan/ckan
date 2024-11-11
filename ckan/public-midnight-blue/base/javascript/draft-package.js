@@ -1,4 +1,3 @@
-console.log('draft-package.js');
 function submitForm(value) {
     const datasetForm = document.getElementById('dataset-edit');
     const resourceForm = document.getElementById('resource-edit');
