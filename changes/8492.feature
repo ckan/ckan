@@ -1,0 +1,1 @@
+Adds new logo and updates UI header in `midnight-blue` theme.
