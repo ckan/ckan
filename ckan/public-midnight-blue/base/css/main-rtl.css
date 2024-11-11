@@ -71,7 +71,7 @@
   --bs-dark-border-subtle: #adb5bd;
   --bs-white-rgb: 255, 255, 255;
   --bs-black-rgb: 0, 0, 0;
-  --bs-font-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --bs-font-sans-serif: "Noto Sans", serif;
   --bs-font-monospace: SFMono-Regular, Menlo, fMonaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
   --bs-body-font-family: var(--bs-font-sans-serif);
@@ -14797,6 +14797,20 @@ td.diff_header {
   align-items: center;
 }
 
+/*@font-face {
+    font-family: 'Noto Sans';
+    src: url('../../../base/fonts/NotoSans-Italic-VariableFont_wdth\,wght.ttf') format('ttf'),
+         url('../../../base/fonts/NotoSans-VariableFont_wdth\,wght.ttf') format('ttf');
+    font-weight: 400;
+    font-style: normal;
+} */
+@font-face {
+  font-family: "Noto Sans";
+  src: url("../../../base/fonts/NotoSans-VariableFont_wdth,wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900; /* Adjust the weight range if different */
+  font-stretch: 75% 125%; /* Optional: adjust based on the width range */
+}
 @media (min-width: 576px) {
   .wrapper:before {
     left: initial;

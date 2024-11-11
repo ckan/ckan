@@ -416,7 +416,7 @@ $aspect-ratios: (
 
 // scss-docs-start font-variables
 // stylelint-disable value-keyword-case
-$font-family-sans-serif:      'Helvetica Neue', Helvetica, Arial, sans-serif !default;
+$font-family-sans-serif:      "Noto Sans", serif !default;
 $font-family-monospace:       SFMono-Regular, Menlo,  fMonaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
 // stylelint-enable value-keyword-case
 $font-family-base:            var(--#{$variable-prefix}font-sans-serif) !default;
