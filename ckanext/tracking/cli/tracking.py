@@ -5,6 +5,7 @@ import csv
 
 from typing import NamedTuple, Optional
 
+import re
 import click
 import sqlalchemy as sa
 from sqlalchemy import desc, func, select, cast
@@ -14,6 +15,7 @@ from ckan.model import Package
 from ckan.model.meta import Session as session
 import ckan.logic as logic
 from ckan.cli import error_shout
+from ckan.common import config
 
 from ckanext.tracking.model import (TrackingSummary as ts,
                                     TrackingRaw as tr)
@@ -142,10 +144,12 @@ def update_tracking(summary_date: datetime.datetime):
     Update the tracking_summary table with data from tracking_raw
     '''
     package_url = "/dataset/"
+    root_path = config.get('ckan.root_path')
+    root_path = re.sub('/{{LANG}}', '', root_path)
     session.query(ts).filter(ts.tracking_date == summary_date).delete()
     tracking_tmp = (
         session.query(
-            tr.url,
+            func.replace(tr.url, root_path, '').label("tracking_url"),
             tr.user_key,
             cast(tr.access_timestamp, sa.Date)
             .label("tracking_date"),
@@ -157,18 +161,18 @@ def update_tracking(summary_date: datetime.datetime):
         .subquery()
     )
     summary = session.query(
-        tracking_tmp.c.url,
+        tracking_tmp.c.tracking_url,
         tracking_tmp.c.tracking_date,
         tracking_tmp.c.tracking_type,
         func.count(tracking_tmp.c.user_key).label("count"),
     ).group_by(
-        tracking_tmp.c.url,
+        tracking_tmp.c.tracking_url,
         tracking_tmp.c.tracking_date,
         tracking_tmp.c.tracking_type,
     )
-    for url, tracking_date, tracking_type, count in summary:
+    for tracking_url, tracking_date, tracking_type, count in summary:
         summary_row = ts(
-            url=url,
+            url=tracking_url,
             count=count,
             tracking_date=tracking_date,
             tracking_type=tracking_type,
