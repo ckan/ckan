@@ -736,6 +736,17 @@ def get_flashed_messages(**kwargs: Any):
     return _flask_get_flashed_messages(**kwargs)
 
 
+@core_helper
+def page_is_active(menu_item: str) -> bool:
+    '''Returns whether the current link is the active page or not'''
+    controller, action = menu_item.split('.')
+    item = {
+        'action': action,
+        'controller': controller
+    }
+    return _link_active(item)
+
+
 def _link_active(kwargs: Any) -> bool:
     ''' creates classes for the link_to calls '''
     blueprint, endpoint = p.toolkit.get_endpoint()
@@ -770,26 +781,15 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
             text = literal('<i class="fa fa-%s"></i> ' % icon) + text
         return text
 
-    def _link_aria_current(kwargs: Any):
-        ''' Adds aria-current="page" to active navigation menu items '''
-        suppress_active_class = kwargs.pop('suppress_active_class', False)
-        if not suppress_active_class and _link_active(kwargs):
-            aria_current = "page"
-        else:
-            aria_current = None
-        return aria_current
-
     icon = kwargs.pop('icon', None)
     cls = _link_class(kwargs)
     title = kwargs.pop('title', kwargs.pop('title_', None))
-    aria_current = _link_aria_current(kwargs)
 
     return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
         cls=cls,
-        title=title,
-        aria_current=aria_current
+        title=title
     )
 
 
@@ -948,6 +948,7 @@ def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
         'controller': controller
     }
     item.update(kw)
+    print(item)
     active = _link_active(item)
     # Remove highlight controllers so that they won't appear in generated urls.
     item.pop('highlight_controllers', False)

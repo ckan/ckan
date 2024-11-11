@@ -1,4 +1,5 @@
 {% set dataset_type = h.default_package_type() %}
+{% import 'macros/nav_link.html' as nav %}
 
 {% block header_wrapper %}
   {% block header_account %}
@@ -9,7 +10,7 @@
             <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
               <ul class="list-unstyled">
                 {% block header_account_logged %}
-                  <!-- {% if c.userobj.sysadmin %} -->
+                  {% if c.userobj.sysadmin %}
                     <li>
                       <a href="{{ h.url_for('admin.index') }}" aria-label="{{ _('Sysadmin settings') }}" data-bs-title="{{ _('Sysadmin settings') }}" data-bs-toggle="tooltip">
                         <i class="fa fa-gavel" aria-hidden="true"></i>
@@ -92,13 +93,11 @@
               {% block header_site_navigation_tabs %}
                 {% set org_type = h.default_group_type('organization') %}
                 {% set group_type = h.default_group_type('group') %}
-                {{ h.build_nav_main(
-                  (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ["dataset", "resource"]),
-                  (org_type ~ '.index',
-                    h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), ['organization']),
-                  (group_type ~ '.index',
-                    h.humanize_entity_type('group', group_type, 'main nav') or _('Groups'), ['group']),
-                  ('home.about', _('About')) ) }}
+
+                {{ nav.link(dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets')) }}
+                {{ nav.link(org_type ~ '.index', h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations')) }}
+                {{ nav.link(group_type ~ '.index', h.humanize_entity_type('group', group_type, 'main nav') or _('Groups')) }}
+                {{ nav.link('home.about', _('About')) }}
               {% endblock %}
             </ul>
           {% endblock %}
