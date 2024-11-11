@@ -7,7 +7,7 @@ from ckan.plugins.toolkit import ValidationError
 class ExtendedResourceTable(model.Resource):
 
     @classmethod
-    def get_resources_statistics(cls, data_dict):
+    def get_resources_statistics(cls, data_dict, limit, offset):
         
         start_date = data_dict.get('start_date')
         end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
@@ -48,7 +48,8 @@ class ExtendedResourceTable(model.Resource):
             ).order_by(
                 model.Resource.created
             )
-
+            
+            query = query.limit(limit).offset(offset)
             result = query.all()
             
         except Exception as e:

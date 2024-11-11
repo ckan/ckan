@@ -28,8 +28,11 @@ def resources_statistics(context, data_dict):
         
     if 'package_name' not in data_dict:
         data_dict['package_name'] = [""]
+        
+    limit = data_dict.get('limit', 10)  
+    offset = data_dict.get('offset', 0) 
     
-    urls_and_counts = ExtendedResourceTable.get_resources_statistics(data_dict)
+    urls_and_counts = ExtendedResourceTable.get_resources_statistics(data_dict, limit=limit, offset=offset)
     return urls_and_counts
 
 @side_effect_free

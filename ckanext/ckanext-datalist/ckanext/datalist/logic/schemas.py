@@ -5,12 +5,15 @@ from ckan.logic.schema import validator_args
 from .validators import max_30_days_validator
     
 @validator_args    
-def resources_statistics_combined_schema(not_empty: Validator, ignore_missing: Validator, isodate: Validator):
+def resources_statistics_combined_schema(not_empty: Validator, ignore_missing: Validator, isodate: Validator,
+                                         int_validator: Validator):
     return {
         'organizations': [ignore_missing, not_empty],
         'package_name': [ignore_missing, not_empty],
         'start_date': [ignore_missing, not_empty, isodate],
         'end_date': [ignore_missing, not_empty, isodate],
+        'limit': [ignore_missing, not_empty, int_validator],
+        'offset': [ignore_missing, not_empty, int_validator]
     }
  
 @validator_args    

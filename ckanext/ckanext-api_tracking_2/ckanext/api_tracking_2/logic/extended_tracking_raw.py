@@ -7,7 +7,7 @@ from ckan.plugins.toolkit import ValidationError
 class ExtendedTrackingRaw(model.TrackingSummary):
 
     @classmethod
-    def get_by_user(cls, data_dict):
+    def get_by_user(cls, data_dict, limit=10, offset=0):
         
         start_date = data_dict.get('start_date')
         end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
@@ -45,6 +45,7 @@ class ExtendedTrackingRaw(model.TrackingSummary):
         except Exception as e:
             raise ValidationError(f"Database query error: {e}")
             
+        query = query.limit(limit).offset(offset)    
         results = query.all()
 
         user_tracking_data = {}

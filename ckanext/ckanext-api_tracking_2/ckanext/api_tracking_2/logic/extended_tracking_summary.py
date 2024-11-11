@@ -7,7 +7,7 @@ from ckan.plugins.toolkit import ValidationError
 class ExtendedTrackingSummary(model.TrackingSummary):
 
     @classmethod
-    def get_urls_and_counts_all(cls, data_dict):
+    def get_urls_and_counts_all(cls, data_dict, limit, offset):
         
         start_date = data_dict.get('start_date')
         end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
@@ -37,6 +37,7 @@ class ExtendedTrackingSummary(model.TrackingSummary):
         except Exception as e:
             raise ValidationError(f"Database query error: {e}")
 
+        query = query.limit(limit).offset(offset)
         results = query.all()
         include_resource = data_dict.get('include_resources', False)
 
