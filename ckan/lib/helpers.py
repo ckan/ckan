@@ -784,7 +784,6 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
     icon = kwargs.pop('icon', None)
     cls = _link_class(kwargs)
     title = kwargs.pop('title', kwargs.pop('title_', None))
-
     return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
@@ -948,7 +947,6 @@ def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
         'controller': controller
     }
     item.update(kw)
-    print(item)
     active = _link_active(item)
     # Remove highlight controllers so that they won't appear in generated urls.
     item.pop('highlight_controllers', False)
