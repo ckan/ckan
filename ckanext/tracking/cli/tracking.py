@@ -145,11 +145,15 @@ def update_tracking(summary_date: datetime.datetime):
     '''
     package_url = "/dataset/"
     root_path = config.get('ckan.root_path')
-    root_path = re.sub('/{{LANG}}', '', root_path)
+    if root_path:
+        root_path = re.sub('/{{LANG}}', '', root_path)
+    else:
+        root_path = None  # No need for replacement if root_path is not set
     session.query(ts).filter(ts.tracking_date == summary_date).delete()
     tracking_tmp = (
         session.query(
-            func.replace(tr.url, root_path, '').label("tracking_url"),
+            func.replace(tr.url, root_path, '').label("tracking_url")
+            if root_path else tr.url.label("tracking_url"),
             tr.user_key,
             cast(tr.access_timestamp, sa.Date)
             .label("tracking_date"),
