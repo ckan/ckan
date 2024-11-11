@@ -144,16 +144,13 @@ def update_tracking(summary_date: datetime.datetime):
     Update the tracking_summary table with data from tracking_raw
     '''
     package_url = "/dataset/"
-    root_path = config.get('ckan.root_path')
-    if root_path:
-        root_path = re.sub('/{{LANG}}', '', root_path)
-    else:
-        root_path = None  # No need for replacement if root_path is not set
+    rp = config.get('ckan.root_path', '')
+    root_path = re.sub('/{{LANG}}', '', rp) if rp else ''
+    url = (func.replace(tr.url, root_path, '').label("tracking_url") if root_path else tr.url)
     session.query(ts).filter(ts.tracking_date == summary_date).delete()
     tracking_tmp = (
         session.query(
-            func.replace(tr.url, root_path, '').label("tracking_url")
-            if root_path else tr.url.label("tracking_url"),
+            url,
             tr.user_key,
             cast(tr.access_timestamp, sa.Date)
             .label("tracking_date"),
@@ -165,12 +162,12 @@ def update_tracking(summary_date: datetime.datetime):
         .subquery()
     )
     summary = session.query(
-        tracking_tmp.c.tracking_url,
+        tracking_tmp.c.tracking_url if root_path else tracking_tmp.c.url,
         tracking_tmp.c.tracking_date,
         tracking_tmp.c.tracking_type,
         func.count(tracking_tmp.c.user_key).label("count"),
     ).group_by(
-        tracking_tmp.c.tracking_url,
+        tracking_tmp.c.tracking_url if root_path else tracking_tmp.c.url,
         tracking_tmp.c.tracking_date,
         tracking_tmp.c.tracking_type,
     )
