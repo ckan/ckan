@@ -1,7 +1,6 @@
 {% extends "user/read_base.html" %}
 
 {% set user = user_dict %}
-{% set org_type = h.default_group_type('organization') %}
 {% set orgs_available = h.organizations_available(permission='manage_group',
   include_dataset_count=True,
   include_member_count=True,
