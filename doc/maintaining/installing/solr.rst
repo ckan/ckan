@@ -23,7 +23,7 @@ There are pre-configured Docker images for Solr for each CKAN version. Make sure
 
    .. parsed-literal::
 
-    docker run --name ckan-solr -p 8983:8983 -d ckan/ckan-solr:|current_release_version|-solr9
+    docker run --name ckan-solr -p 8983:8983 -d ckan/ckan-solr:|current_minor_version|-solr9
 
 You can now jump to the `Next steps <#next-steps-with-solr>`_ section.
 
