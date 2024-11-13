@@ -1,10 +1,57 @@
 {% ckan_extends %}
 
 {% block content_primary_nav %}
-<ul class="nav nav-tabs">
-  {% block dashboard_nav_links %}
-    {{super()}}
-    {{ h.build_nav_icon('dashboard.statistical', h.humanize_entity_type('statistical', 'Statistical', 'label') or _('Statistical'), icon='users') }}
-  {% endblock dashboard_nav_links %}
-</ul>
+  <ul class="nav nav-tabs">
+    {% block dashboard_nav_links %}
+      {{ super() }}
+
+      <link rel="stylesheet" href="/statistical.css" />
+      <script src="{{ url_for('static', filename='') }}"></script>
+      <!-- Bootstrap JS (from a CDN or your local file) -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+      <script>
+        $(document).ready(function () {
+          $('#package_name').select2({
+            placeholder: 'Select Package Names', // Placeholder text when nothing is selected
+            allowClear: true, // Option to clear the selection
+            width: '100%' // Ensures it fills the parent container's width
+          })
+        
+          // Kiểm tra xem form gửi đúng cách không
+          $('form').on('submit', function (e) {
+            var selectedPackages = $('#package_name').val()
+            console.log('Selected Packages:', selectedPackages) // In ra danh sách các giá trị đã chọn
+          })
+        })
+      </script>
+
+      <script>
+        var $jq = jQuery.noConflict()
+        $jq(document).ready(function () {
+          $jq('#dataTable').DataTable()
+        })
+      </script>
+
+      <script>
+        function validateDates() {
+          const startDate = document.getElementById('start_date').value
+          const endDate = document.getElementById('end_date').value
+        
+          if (startDate && endDate && startDate > endDate) {
+            alert('Ngày kết thúc không được bé hơn ngày bắt đầu.')
+            return false // Prevent form submission
+          }
+          return true // Proceed with form submission if dates are valid
+        }
+      </script>
+
+      {{ h.build_nav_icon('dashboard.statistical', h.humanize_entity_type('statistical', 'Statistical', 'label') or _('Statistical'), icon='users') }}
+    {% endblock %}
+  </ul>
 {% endblock %}

@@ -7,10 +7,10 @@ from ckan.plugins.toolkit import ValidationError
 class ExtendedTrackingRaw(model.TrackingSummary):
 
     @classmethod
-    def get_by_user(cls, data_dict):
+    def get_by_user(cls, data_dict, limit=10, offset=0):
         
-        start_date = datetime.datetime.strptime(data_dict.get('start_date'), '%Y-%m-%d')
-        end_date = datetime.datetime.strptime(data_dict.get('end_date'), '%Y-%m-%d') + datetime.timedelta(days=1)
+        start_date = data_dict.get('start_date')
+        end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
         user_names = data_dict['user_name']
         package_name = data_dict['package_name']
         include_resources = data_dict.get('include_resources')
@@ -45,6 +45,7 @@ class ExtendedTrackingRaw(model.TrackingSummary):
         except Exception as e:
             raise ValidationError(f"Database query error: {e}")
             
+        query = query.limit(limit).offset(offset)    
         results = query.all()
 
         user_tracking_data = {}
@@ -63,17 +64,26 @@ class ExtendedTrackingRaw(model.TrackingSummary):
                     'date': row.date, 
                     'package': row.url.replace('/dataset/', ''),
                     'package_id': cls._get_package_id(row),
-                    'include_resources': cls._get_resources(row) if include_resources else None,    
+                    'include_resources': cls._fetch_resources(row) if include_resources else None,
                     'package_view': row.request_count
                 })
         except Exception as e:
             raise ValidationError(f"Error processing results: {e}")
 
         return list(user_tracking_data.values())
+    
+    @classmethod
+    def _get_package_id(cls, row):
+        id_query = meta.Session.query(model.Package.id).filter(
+            model.Package.name == row.url.replace('/dataset/', '')
+        ).first()
+        return id_query.id if id_query else None
 
     @classmethod
-    def _get_resources(cls, row):
+    def _fetch_resources(cls, row): 
         """Helper function to fetch resources including id and name."""
+
+        resource_details = []
 
         try:
             package_id_query = meta.Session.query(
@@ -84,62 +94,60 @@ class ExtendedTrackingRaw(model.TrackingSummary):
 
             if not package_id_query:
                 return []
-
-            resource_query = meta.Session.query(
-                model.tracking_raw_table.c.url,
-                func.count(model.tracking_raw_table.c.url).label('count')
+            
+            resources_id_query = meta.Session.query(
+                model.Resource.id
             ).filter(
-                model.tracking_raw_table.c.url.like(f'%{package_id_query.package_id}%'),
-                func.date(model.tracking_raw_table.c.access_timestamp) == row.date,
-                model.tracking_raw_table.c.user_key == row.user_key
-            ).group_by(
-                model.tracking_raw_table.c.url,
+                model.Resource.package_id == package_id_query.package_id
             )
-            resources = resource_query.all()
-
-        except Exception as e:
-            raise ValidationError(f"Error fetching resources: {e}")
-
-        resource_details = []
-
-        for res in resources:
-            resource_url = res.url
-
-            resource_id = None
-            if '/resource/' in resource_url:
-                resource_id = resource_url.split('/resource/')[1].split('/')[0]
-
-            if resource_id:
-                try:
+            
+            for res in resources_id_query:
+                resource_id = res.id
+                
+                resource_query = meta.Session.query(
+                    model.tracking_raw_table.c.url,
+                ).filter(
+                    model.tracking_raw_table.c.url.like(f'%/{res.id}%'), 
+                    func.date(model.tracking_raw_table.c.access_timestamp) == row.date,
+                    model.tracking_raw_table.c.user_key == row.user_key,
+                    model.tracking_raw_table.c.tracking_type.in_(['download', 'resource'])            
+                ).group_by(
+                    model.tracking_raw_table.c.url,
+                ).first()
+                
+                if resource_query:
                     resource_info = meta.Session.query(
                         model.Resource.id,
                         model.Resource.name
                     ).filter(
                         model.Resource.id == resource_id
                     ).first()
-
+                    
                     if resource_info:
                         resource_details.append({
                             'resource_name': resource_info.name,
                             'resource_id': resource_info.id,
-                            'resource_view': res.count
+                            'download_count': cls._get_view_count(resource_id, row, "download"),
+                            'resource_view': cls._get_view_count(resource_id, row, "resource")
                         })
-                except Exception as e:
-                    raise ValidationError(f"Error fetching resource details: {e}")
+
+        except Exception as e:
+            raise ValidationError(f"Error fetching resources: {e}")   
 
         return resource_details
-    
-    @classmethod
-    def _get_package_id(cls, row):
-        id_query = meta.Session.query(
-            model.Package.id,
-            ).filter(
-            model.Package.name == row.url.replace('/dataset/', '')
-            ).first()
 
-        if id_query:
-            package_id = id_query.id
-        else:
-            package_id = None
-        
-        return package_id
+    @classmethod
+    def _get_view_count(cls, resource_id, row, tracking_type):
+        try:
+            resource_query = meta.Session.query(
+                func.count(model.tracking_raw_table.c.url).label('count')
+            ).filter(
+                model.tracking_raw_table.c.url.like(f'%{resource_id}%'),
+                func.date(model.tracking_raw_table.c.access_timestamp) == row.date,
+                model.tracking_raw_table.c.user_key == row.user_key,
+                model.tracking_raw_table.c.tracking_type == tracking_type
+            ).first()
+            return resource_query.count if resource_query else 0
+
+        except Exception as e:
+            raise ValidationError(f"Error fetching {tracking_type} view count: {e}")

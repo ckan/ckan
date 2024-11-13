@@ -36,7 +36,7 @@ class API_Tracking_Plugin(p.SingletonPlugin):
         # plugin.py file.
         toolkit.add_template_directory(config, 'templates')
         toolkit.add_public_directory(config, 'public')
-        toolkit.add_resource("assert", 'api_tracking')
+        toolkit.add_resource("assets", 'api_tracking')
 
     def make_middleware(self, app: CKANApp, config):
         @app.after_request
