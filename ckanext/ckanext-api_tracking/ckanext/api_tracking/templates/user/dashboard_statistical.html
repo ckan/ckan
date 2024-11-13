@@ -60,7 +60,9 @@
                       {% for package in urls_and_counts %}
                           <tr>
                               <td>{{ loop.index + ((current_page - 1) * limit) }}</td>
-                              <td>{{ package.package }}</td>
+                              <td><a href="{{ url_for('dataset.read', id=package.package) }}" target="_blank">
+                                {{ package.package }}
+                              </a></td>
                               <td>{{ package.package_view }}</td>
                           </tr>
                       {% endfor %}
