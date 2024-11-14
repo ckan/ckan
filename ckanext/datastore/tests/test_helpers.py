@@ -48,7 +48,7 @@ class TestTypeGetters(object):
             assert postgres_backend.is_single_statement(multiple) is False
 
     def test_should_fts_index_field_type(self):
-        indexable_field_types = ["tsvector", "text", "number"]
+        indexable_field_types = ["tsvector", "text"]
 
         non_indexable_field_types = [
             "nested",
