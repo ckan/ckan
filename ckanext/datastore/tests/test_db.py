@@ -45,7 +45,7 @@ class TestCreateIndexes(object):
     ):
         _get_fields.return_value = [
             {"id": "text", "type": "text"},
-            {"id": "number", "type": "number"},
+            {"id": "tsvector", "type": "tsvector"},
             {"id": "nested", "type": "nested"},
             {"id": "date", "type": "date"},
             {"id": "text array", "type": "text[]"},
@@ -62,7 +62,7 @@ class TestCreateIndexes(object):
             "text", connection, resource_id, "english"
         )
         self._assert_created_index_on(
-            "number", connection, resource_id, "english", cast=True
+            "tsvector", connection, resource_id,
         )
 
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
