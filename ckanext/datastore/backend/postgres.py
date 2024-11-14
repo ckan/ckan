@@ -722,7 +722,8 @@ def _build_fts_indexes(
 
     full_text_field = {'type': 'tsvector', 'id': '_full_text'}
     for field in [full_text_field] + fields:
-        if not datastore_helpers.should_fts_index_field_type(field['type']):
+        if field['id'] != '_full_text' and not (
+                datastore_helpers.should_fts_index_field_type(field['type'])):
             continue
 
         field_str = field['id']
