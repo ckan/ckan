@@ -1,0 +1,224 @@
+1.1.2 2024-10-25
+================
+
+Feat:
+* Frontend Status Badges by @JVickery-TBS in https://github.com/ckan/ckanext-xloader/pull/224
+
+Fix:
+* Fix automated PyPI publishing by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/231
+
+
+**Full Changelog**: https://github.com/ckan/ckanext-xloader/compare/1.1.1...1.1.2
+
+1.1.1 2024-10-16
+================
+
+* feat: Add pypi cicd publish via github action via environment controls by @duttonw in https://github.com/ckan/ckanext-xloader/pull/228
+
+
+**Full Changelog**: https://github.com/ckan/ckanext-xloader/compare/1.1.0...1.1.1
+
+1.1.0 2024-10-16
+================
+
+Fixes: 
+* feat: Add pypi cicd publish via github action via environment controls by @duttonw in https://github.com/ckan/ckanext-xloader/pull/228
+
+
+**Full Changelog**: https://github.com/ckan/ckanext-xloader/compare/1.1.0...1.1.1
+
+
+1.1.0 2024-10-15
+================
+
+
+Fixes: 
+
+* add README note about running on separate server, #191 by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/192
+* Use IDomainObjectModification Implementation by @JVickery-TBS in https://github.com/ckan/ckanext-xloader/pull/198
+* Hide excessive numbers of resource_data log entries, #187 by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/188
+* #182 Type guessing fixes by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/186
+* Document the ckan.download_proxy setting, #176 by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/204
+* Conditional DataStore Tab in Resource Edit by @JVickery-TBS in https://github.com/ckan/ckanext-xloader/pull/190
+* Make locking behaviour more robust by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/205
+* Delete Datastore Table Button by @JVickery-TBS in https://github.com/ckan/ckanext-xloader/pull/197
+* Quality of life improvements by @duttonw in https://github.com/ckan/ckanext-xloader/pull/195
+* Clean Datastore Tables Job by @JVickery-TBS in https://github.com/ckan/ckanext-xloader/pull/196
+* strip extra space for column name by @mutantsan in https://github.com/ckan/ckanext-xloader/pull/210
+* Skip empty lines instead of erroring by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/208
+* add more options for maintainers to expedite XLoader runs, GitHub #202 by @ThrawnCA in https://github.com/ckan/ckanext-xloader/pull/212
+* Add Mixed Integers Type Guessing to NUMERIC Tests by @JVickery-TBS in https://github.com/ckan/ckanext-xloader/pull/217
+* PY2 & PY3 String/Binary Fixes by @JVickery-TBS in https://github.com/ckan/ckanext-xloader/pull/203
+* In plugin.py, there is an fix of resource format key error by @Nisha1293 in https://github.com/ckan/ckanext-xloader/pull/209
+* CKAN 2.11 support by @amercader in https://github.com/ckan/ckanext-xloader/pull/220
+
+New Contributors:
+
+* @JVickery-TBS made their first contribution in https://github.com/ckan/ckanext-xloader/pull/198
+* @duttonw made their first contribution in https://github.com/ckan/ckanext-xloader/pull/195
+* @mutantsan made their first contribution in https://github.com/ckan/ckanext-xloader/pull/210
+* @Nisha1293 made their first contribution in https://github.com/ckan/ckanext-xloader/pull/209
+
+**Full Changelog**: https://github.com/ckan/ckanext-xloader/compare/1.0.1...1.1.0
+
+
+1.0.1 2024-04-04
+================
+
+Fixes:
+
+* Include config_declaration.yaml into MANIFEST by @pdelboca in https://github.com/ckan/ckanext-xloader/pull/183
+
+
+**Full Changelog**: https://github.com/ckan/ckanext-xloader/compare/1.0.0...1.0.1
+
+1.0.1 2024-04-04
+================
+
+Fixes:
+
+* Fixed date parsing while fetching entries for task_status by @muhammed-ajmal in https://github.com/ckan/ckanext-xloader/pull/179
+* Drop support for old CKAN versions and add CSRF support by @pdelboca in https://github.com/ckan/ckanext-xloader/pull/180
+* Refactor test_jobs.py by @pdelboca in https://github.com/ckan/ckanext-xloader/pull/181
+
+New Contributors:
+
+* @muhammed-ajmal made their first contribution in https://github.com/ckan/ckanext-xloader/pull/179
+
+**Full Changelog**: https://github.com/ckan/ckanext-xloader/compare/0.12.2...1.0.0
+
+
+
+
+0.9.0 2021-10-01
+================
+
+Fixes:
+
+* Fix SQLAlchemy session exception on CKAN 2.9 #140
+* Fix xloader status timestamps #141
+* Fix to correctly report exceptions in stdout #141
+
+
+0.8.1 2021-08-30
+================
+
+Features:
+
+* Add ssl_verify option to callback_xloader_hook #136
+
+Fixes:
+
+* Fix bytes / str concat #138
+* Stream request needs to be explicited closed #139
+
+
+0.8.0 2021-06-11
+================
+
+Features:
+* Click CLI for CKAN >= 2.9 #128
+
+Fixes:
+* Submit private datasets when using the `submit all` command #121
+* Send user context to the resource patch function #134
+* Add documentation for ssl_verify #135
+
+
+0.7.0 2020-11-23
+================
+
+Features:
+* Python 3 support #113
+* CKAN 2.9 support #113
+
+Fixes:
+* Update resource hash after load to datastore #116
+
+
+0.6.1 2020-05-03
+================
+
+Features:
+* Add 'just_load_with_messytables' option #96
+
+Fixes:
+* When getting the resource from CKAN, it now copes with the edge case that CKAN hasn't quite added the resource yet - now it successfully retries #94
+
+
+0.6.0 2020-04-27
+================
+
+Release withdrawn
+
+
+0.5.0 2019-12-04
+================
+
+Features:
+* migrate_types CLI command added for freezing/migrating data dictionaries created with datapusher #85
+
+Fixes:
+* DataStore tab missing from resource manage page, due to templates missing from PyPI package #74
+
+
+0.4.1 2019-11-13
+================
+
+Fixes:
+* populate_full_text_trigger error when doing 'datastore set-permissions' #72
+* '%' in column name causes TypeError("'dict' object does not support indexing") #65
+* numpy >= 1.16 causes 'RuntimeError: implement_array_function' on CKAN startup #79
+* CKAN 2.9 compatibility - fix error about 'resource_revision_table' #81
+
+
+v0.4.0 2019-06-21
+=================
+
+Features:
+* 'ignore_hash' config option added to bypass the hash check which can skip loads #34
+* File size is logged #35
+* Retries are no done when downloading CSV #39
+* xloader_status action now available to GET (not just POST) #46
+* ANALYZE run after load, needed for CKAN 2.9 resource preview speed-up #47
+* CLI load of multiple datasets now resumes following an error with a resource #57
+* Added 'max_excerpt_lines' config to load an excerpt of files larger than max_content_length #63
+
+Fixes:
+* Unicode characters in CSV headers caused error #28
+* Column headers longer than 63 characters caused error #14
+* Floats in CSV headers caused error #49
+* Integers in xlsx header caused error #53
+* Extraneous commas in combination with non-ascii chars caused error #51
+* CSV with no rows caused error #38
+* Template compatibility with CKAN 2.9 #40
+* CLI submitted resources with non-xloader formats #43
+* ckanext.xloader.max_content_length wasn't working #62
+* KeyError: 'resource_id' when xloading a resource #68
+
+
+v0.3.1 2018-01-22
+=================
+
+* Fix for exception about 'ckan.datapusher.url' not being set when you check xload status #26
+
+
+v0.3.0 2017-11-17
+=================
+
+* Trigger any resource_views to be created straight after load, rather than wait for the index.
+
+
+v0.2.0 2017-11-10
+=================
+
+* Renamed ckanext-xloader
+* Added to PyPI
+* The user is given access to the data earlier in the job - the column indexing now occurs afterwards, since this is only an optimization for queries and takes much longer than the load itself
+* Fixed exception during error-handling for files too long and of non-accepted schemes
+
+
+v0.1 2017-11-03
+===============
+
+* Initial code, named ckanext-shift.

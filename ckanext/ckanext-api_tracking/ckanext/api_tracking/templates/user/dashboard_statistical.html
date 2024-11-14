@@ -1,0 +1,76 @@
+{% extends 'user/dashboard.html' %}
+
+{% block page_primary_action %}
+<div class="container mt-5">
+  <form action="{{ url_for('dashboard.statistical') }}" method="post" class="p-4 border rounded shadow-sm" onsubmit="return validateDates()">
+    <h4 class="mb-4">Filter Tracking Datasets</h4>
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}" max="{{ today }}">
+        </div>
+        <div class="col-md-6">
+            <label for="end_date" class="form-label">End Date</label>
+            <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}" max="{{ today }}">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="package_name" class="form-label">Package Name</label>
+          <select id="package_name" name="package_name" class="form-control select2" multiple="multiple">
+            {% for package in urls_and_counts %}
+              <option value="{{ package.package }}" 
+                  {% if package.package in package_name %}selected{% endif %}>
+                {{ package.package }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="user_name" class="form-label">User Name</label>
+          <input type="text" id="user_name" name="user_name" class="form-control" 
+                 placeholder="Enter user name" value="{{ user_name | join(', ') }}">
+            </div>
+        </div>
+    </div>
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary px-4">Filter</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block primary_content_inner %}
+  {{ super() }}
+        <div class="container mt-4">
+          <h1 class="text-center">Tracking Datasets</h1>
+  
+          {% if urls_and_counts %}
+              <table id="dataTable" class="table table-striped table-bordered">
+                  <thead>
+                      <tr>
+                          <th>STT</th>
+                          <th>Package Name</th>
+                          <th>Package Views</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for package in urls_and_counts %}
+                          <tr>
+                              <td>{{ loop.index + ((current_page - 1) * limit) }}</td>
+                              <td><a href="{{ url_for('dataset.read', id=package.package) }}" target="_blank">
+                                {{ package.package }}
+                              </a></td>
+                              <td>{{ package.package_view }}</td>
+                          </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          {% else %}
+              <div class="alert alert-warning text-center" role="alert">No tracking data available.</div>
+          {% endif %}
+      </div>
+  </div>
+{% endblock %}

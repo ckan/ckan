@@ -1,0 +1,136 @@
+{% extends "package/resource_edit_base.html" %}
+
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %}
+
+{% block primary_content_inner %}
+
+  {% set show_table = true %}
+
+  {% block upload_ds_button %}
+    {% set action = h.url_for('xloader.resource_data', id=pkg.name, resource_id=res.id) %}
+    <form method="post" action="{{ action }}" class="datapusher-form mb-3 mr-3 d-inline-block">
+      {{ h.csrf_input() if 'csrf_input' in h }}
+      <button class="btn btn-primary" name="save" type="submit">
+        <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
+      </button>
+    </form>
+  {% endblock %}
+
+  <div class="clear-fix mx-1 d-inline-block"></div>
+
+  {% block delete_ds_button %}
+    {% if res.datastore_active %}
+      {% set delete_action = h.url_for('xloader.delete_datastore_table', id=pkg.id, resource_id=res.id) %}
+      <form method="post" action="{{ delete_action }}" class="mb-3 d-inline-block">
+        {{ h.csrf_input() if 'csrf_input' in h }}
+        <a href="{{ delete_action }}"
+          class="btn btn-danger"
+          type="submit"
+          data-module="confirm-action"
+          data-module-with-data=true
+          data-module-content="{{ _('Are you sure you want to delete the DataStore and Data Dictionary?') }}"
+          >{% block delete_datastore_button_text %}<i class="fa fa-trash-alt"></i> {{ _('Delete from DataStore') }}{% endblock %}</a>
+      </form>
+    {% endif %}
+  {% endblock %}
+
+  {% if status.error and status.error.message %}
+    {% set show_table = false %}
+    <div class="alert alert-error">
+      <strong>{{ _('Upload error:') }}</strong> {{ status.error.message }}
+    </div>
+  {% elif status.task_info and status.task_info.error %}
+    <div class="alert alert-error">
+      {% if status.task_info.error is mapping %}
+        <strong>{{ _('Error:') }}</strong> {{ status.task_info.error.message }}
+        {% for error_key, error_value in status.task_info.error.items() %}
+          {% if error_key != "message" and error_value %}
+            <br>
+            <strong>{{ error_key }}</strong>:
+            {{ error_value }}
+          {% endif %}
+        {% endfor %}
+      {% elif status.task_info.error is iterable %}
+        <strong>{{ _('Error traceback:') }}</strong>
+        <pre>{{ ''.join(status.task_info.error) }}</pre>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <table class="table table-bordered">
+    <colgroup>
+      <col width="150">
+      <col>
+    </colgroup>
+    <tr>
+      <th>{{ _('Status') }}</th>
+      <td>{{ h.xloader_status_description(status) }}</td>
+    </tr>
+    <tr>
+      <th>{{ _('Last updated') }}</th>
+      {% if status.status %}
+        <td><span class="date" title="{{ h.render_datetime(status.last_updated, with_hours=True) }}">{{ h.time_ago_from_timestamp(status.last_updated) }}</span></td>
+      {% else %}
+        <td>{{ _('Never') }}</td>
+      {% endif %}
+    </tr>
+  </table>
+
+  {% if status.status and status.task_info and show_table %}
+    <h3>{{ _('Upload Log') }}</h3>
+    <ul class="activity">
+      {% set items = status.task_info.logs %}
+      {% set rows = rows or 50 %}
+      {% set skipped_rows = (items | length) - (rows * 2) %}
+      {% if skipped_rows > 1 %}
+        <li class="item no-avatar">
+          <i class="fa icon fa-exclamation"></i>
+          <p>
+            {{ skipped_rows }} out of {{ items | length }} logs will be hidden.
+            <br>
+            <span class="date">
+              <a href="?rows={{rows * 2}}">Show more</a>&nbsp; &nbsp;<a href="?rows={{ items | length }}">Show all</a>
+            </span>
+          </p>
+        </li>
+      {% endif %}
+      {% for item in items %}
+        {# Truncate very long loops, showing just the start and end #}
+        {% if loop.index <= rows or loop.revindex <= rows
+           or (loop.index == rows + 1 and loop.revindex == rows + 1) %}
+        {% set icon = 'ok' if item.level == 'INFO' else 'exclamation' %}
+        {% set class = ' failure' if icon == 'exclamation' else ' success' %}
+        {% set popover_content = 'test' %}
+        <li class="item no-avatar{{ class }}">
+          <i class="fa icon fa-{{ icon }}"></i>
+          <p>
+            {% for line in item.message.strip().split('\n') %}
+              {{ line | urlize }}<br>
+            {% endfor %}
+            <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
+              {{ h.time_ago_from_timestamp(item.timestamp) }}
+              <a href="#" data-bs-target="popover" data-target="popover" data-bs-content="<dl>{% for key, value in item.items() %}<dt>{{ key }}</dt><dd>{{ h.clean_html(value|string) }}</dd>{% endfor %}</dl>" data-content="<dl>{% for key, value in item.items() %}<dt>{{ key }}</dt><dd>{{ h.clean_html(value|string) }}</dd>{% endfor %}</dl>" data-bs-html="true" data-html="true">{{ _('Details') }}</a>
+            </span>
+          </p>
+        </li>
+        {% elif loop.index == rows + 1 %}
+          <li class="item no-avatar">
+            <i class="fa icon fa-exclamation"></i>
+            <p>
+              Skipping {{ skipped_rows }} logs...
+              <br>
+              <span class="date">
+                <a href="?rows={{rows * 2}}">Show more</a>&nbsp; &nbsp;<a href="?rows={{ items | length }}">Show all</a>
+              </span>
+            </p>
+          </li>
+        {% endif %}
+      {% endfor %}
+      <li class="item no-avatar">
+        <i class="fa icon fa-info"></i>
+        <p class="muted">{{ _('End of log') }}</p>
+      </li>
+    </ul>
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,60 @@
+.loader-badge {
+  margin-left: 10px;
+  background: #555;
+  color: #fff;
+  border-radius: 3px;
+  display: inline-block;
+  font-size: 14px;
+  vertical-align: middle;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+a.loader-badge {
+ text-decoration: none;
+}
+
+.loader-badge:hover,
+.loader-badge:focus {
+  color: #fff;
+}
+
+.prefix,
+.status {
+  display: inline-block;
+  padding: 2px 6px;
+}
+
+.loader-badge .status {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.loader-badge .status.active {
+    background: #97C50F;
+}
+
+.loader-badge .status.complete {
+    background: #1081C2;
+}
+
+.loader-badge .status.error {
+    background: #D9634D;
+}
+
+.loader-badge .status.inactive {
+  background: #F27E3F;
+}
+
+.loader-badge .status.pending {
+  background: #9B9B9B;
+}
+
+.loader-badge .status.running {
+    background: #D8B124;
+}
+
+.loader-badge .status.unknown {
+  background: #9D9D9D;
+}
+

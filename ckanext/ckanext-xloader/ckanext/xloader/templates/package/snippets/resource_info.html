@@ -1,0 +1,7 @@
+{% ckan_extends %}
+
+{% block resource_info %}
+  {{ super() }}
+  {{ h.xloader_badge(res) }}
+  {% asset 'ckanext-xloader/main-css' %}
+{% endblock %}

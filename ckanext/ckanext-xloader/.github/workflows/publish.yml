@@ -1,0 +1,173 @@
+---
+name: Publish to pypi
+on:
+  push:
+  #On versioned releases
+    tags:
+      - '*.*.*'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      force:
+        type: choice
+        description: Retry Publish Version
+        options:
+          - No
+          - Yes
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'pypi'
+        type: choice
+        options:
+          - pypi
+          - testpypi
+      dryRun:
+        description: 'Dry Run deployment (set to false to deploy)'
+        required: true
+        type: boolean
+        default: true
+
+
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install requirements
+        run: pip install flake8 pycodestyle
+      - name: Check syntax
+        run: flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics --extend-exclude ckan
+
+  test:
+    needs: lint
+    strategy:
+      matrix:
+        ckan-version: ["2.11", "2.10", 2.9]
+      fail-fast: false
+
+    name: CKAN ${{ matrix.ckan-version }}
+    runs-on: ubuntu-latest
+    container:
+      image: ckan/ckan-dev:${{ matrix.ckan-version }}
+    services:
+      solr:
+        image: ckan/ckan-solr:${{ matrix.ckan-version }}-solr9
+      postgres:
+        image: ckan/ckan-postgres-dev:${{ matrix.ckan-version }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+          image: redis:3
+    env:
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+      CKAN_SOLR_URL: http://solr:8983/solr/ckan
+      CKAN_REDIS_URL: redis://redis:6379/1
+
+    steps:
+    - uses: actions/checkout@v4
+    - if: ${{ matrix.ckan-version == 2.9 }}
+      run: pip install "setuptools>=44.1.0,<71"
+    - name: Install requirements
+      run: |
+        pip install -r requirements.txt
+        pip install -r dev-requirements.txt
+        pip install -e .
+        pip install -U requests[security]
+        # Replace default path to CKAN core config file with the one on the container
+        sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
+    - name: Setup extension (CKAN >= 2.9)
+      run: |
+        ckan -c test.ini db init
+    - name: Run tests
+      run: pytest --ckan-ini=test.ini --cov=ckanext.xloader --disable-warnings ckanext/xloader/tests
+
+  publish:
+    needs: test
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    name: Publish Package
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || 'pypi' }}
+      url: ${{ steps.version.outputs.url }}
+    concurrency:
+      group: ${{ github.event.inputs.environment }}-deployment
+      cancel-in-progress: false
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment || 'pypi' }}
+    steps:
+      - name: Get Git Tag and set url from environment
+        id: version
+        run: |
+          #!/bin/bash
+
+          TAG_VALUE=${GITHUB_REF/refs\/tags\//}
+          echo "version=${TAG_VALUE}" >> $GITHUB_OUTPUT
+
+          # Extract the repository name (minus the owner/org)
+          reponame=$(basename $GITHUB_REPOSITORY)
+          echo "reponame=${reponame}" >> $GITHUB_OUTPUT
+
+          if [ "$env.ENVIRONMENT" == "testpypi" ]; then
+            url="https://test.pypi.com/p/$reponame"
+            echo "environment=${env.ENVIRONMENT}" >> $GITHUB_OUTPUT
+          else
+            url="https://pypi.com/p/$reponame"
+            echo "environment=pypi" >> $GITHUB_OUTPUT
+          fi
+
+          echo "url=${url}" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate tag version
+        if: ${{ startsWith(github.ref, 'refs/tags') }}
+        run: |
+          PYTHON_VERSION=$(grep -E "\bversion='[^']+'" setup.py | awk -F "'" '{print $2}')
+          if [ "${{ steps.version.outputs.version }}" != "$PYTHON_VERSION" ]; then
+            echo "Version mismatch; tag version is [${{ steps.version.outputs.version }}] but Python version is [$PYTHON_VERSION]"
+            exit 1
+          fi
+
+      - name: Build package ${{ steps.version.outputs.reponame }} @ ${{ steps.version.outputs.version }}
+        run: |
+          pip install build
+          pip install twine
+          python -m build
+      - name: Publish package distributions to PyPI
+        if: ${{ startsWith(github.ref, 'refs/tags') && steps.version.outputs.environment == 'pypi' && github.event.inputs.dryRun != 'true' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+#        with:
+#          skip-existing: true
+#          verbose: true
+#          print-hash: true
+      - name: Test Publish package distributions to PyPI
+        if: ${{ startsWith(github.ref, 'refs/tags') && steps.version.outputs.environment == 'testpypi' && github.event.inputs.dryRun == 'true' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+#          skip-existing: true
+#          verbose: true
+#          print-hash: true
+      - name: Summary output
+        if: ${{ startsWith(github.ref, 'refs/tags') && github.event.inputs.dryRun != 'true' }}
+        run:
+          echo "Published ${{ steps.version.outputs.repo_name }} @ ${{ steps.version.outputs.version }} to ${{ steps.version.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: (TEST RUN) Test Publish package distributions to PyPI
+        if: ${{ github.event.inputs.dryRun == 'true' }}
+        run:
+          echo "Dry run deployment, did not publish" >> $GITHUB_STEP_SUMMARY

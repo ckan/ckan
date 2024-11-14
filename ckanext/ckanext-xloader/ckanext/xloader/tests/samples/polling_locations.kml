@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="OGRGeoJSON" id="OGRGeoJSON">
+	<SimpleField name="OBJECTID" type="int"></SimpleField>
+	<SimpleField name="X" type="float"></SimpleField>
+	<SimpleField name="Y" type="float"></SimpleField>
+	<SimpleField name="PollLocID" type="string"></SimpleField>
+	<SimpleField name="Ward" type="string"></SimpleField>
+	<SimpleField name="Precinct" type="string"></SimpleField>
+	<SimpleField name="Location" type="string"></SimpleField>
+	<SimpleField name="Address" type="string"></SimpleField>
+	<SimpleField name="VoterEntra" type="string"></SimpleField>
+	<SimpleField name="HPEntrance" type="string"></SimpleField>
+	<SimpleField name="Comment" type="string"></SimpleField>
+	<SimpleField name="sp" type="string"></SimpleField>
+	<SimpleField name="rs" type="string"></SimpleField>
+	<SimpleField name="ch" type="string"></SimpleField>
+	<SimpleField name="vt" type="string"></SimpleField>
+	<SimpleField name="ht" type="string"></SimpleField>
+	<SimpleField name="cv" type="string"></SimpleField>
+</Schema>
+<Folder><name>OGRGeoJSON</name>
+  <Placemark>
+	<ExtendedData><SchemaData schemaUrl="#OGRGeoJSON">
+		<SimpleData name="OBJECTID">1</SimpleData>
+		<SimpleData name="X">781862.000004</SimpleData>
+		<SimpleData name="Y">2958580.000015</SimpleData>
+		<SimpleData name="Ward">1</SimpleData>
+		<SimpleData name="Precinct">1</SimpleData>
+		<SimpleData name="Location">SAMUEL  ADAMS ELEMENTARY SCHOOL</SimpleData>
+		<SimpleData name="Address">165 WEBSTER STREET</SimpleData>
+		<SimpleData name="VoterEntra">VOTE IN AUDITORIUM</SimpleData>
+		<SimpleData name="HPEntrance">VOTERS ENTER FROM LEFT OF MAIN ENTRANCE</SimpleData>
+		<SimpleData name="Comment"></SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>-71.0348903104939,42.365563004886</coordinates></Point>
+  </Placemark>
+  <Placemark>
+	<ExtendedData><SchemaData schemaUrl="#OGRGeoJSON">
+		<SimpleData name="OBJECTID">2</SimpleData>
+		<SimpleData name="X">782174.071396</SimpleData>
+		<SimpleData name="Y">2959815.54504</SimpleData>
+		<SimpleData name="Ward">1</SimpleData>
+		<SimpleData name="Precinct">2</SimpleData>
+		<SimpleData name="Location">DONALD MCKAY SCHOOL</SimpleData>
+		<SimpleData name="Address">122 COTTAGE STREET</SimpleData>
+		<SimpleData name="VoterEntra">VOTE IN CAFETERIA</SimpleData>
+		<SimpleData name="HPEntrance">VOTER ENTRANCE MCKAY PLACE</SimpleData>
+		<SimpleData name="Comment"></SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>-71.0337105829271,42.368948675863</coordinates></Point>
+  </Placemark>
+</Folder>
+</Document></kml>

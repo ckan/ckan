@@ -63,6 +63,16 @@ def organizations() -> str:
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_organizations.html', extra_vars)
 
+def statistical() -> str:
+    context = cast(Context, {
+        u'for_view': True,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
+    })
+    data_dict = {u'user_obj': current_user}
+    extra_vars = _extra_template_variables(context, data_dict)
+    return base.render(u'user/dashboard_statistical.html', extra_vars)
+
 
 def groups() -> str:
     context = cast(Context, {
@@ -78,3 +88,4 @@ def groups() -> str:
 dashboard.add_url_rule(u'/datasets', view_func=datasets)
 dashboard.add_url_rule(u'/groups', view_func=groups)
 dashboard.add_url_rule(u'/organizations', view_func=organizations)
+dashboard.add_url_rule(u'/statistical', view_func=statistical)

@@ -1,0 +1,20 @@
+[flake8]
+# @see https://flake8.pycqa.org/en/latest/user/configuration.html?highlight=.flake8
+
+exclude =
+    ckan
+    scripts
+    .git
+
+# Extended output format.
+format = pylint
+
+# Show the source of errors.
+show_source = True
+
+max-complexity = 27
+max-line-length=127
+
+# List ignore rules one per line.
+ignore =
+    W503
