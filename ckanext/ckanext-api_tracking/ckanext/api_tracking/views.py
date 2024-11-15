@@ -20,6 +20,7 @@ def aggregate_package_views(urls_and_counts):
     
     # Loop through the tracking data
     for url in urls_and_counts:
+        user_name = url['user_name']
         for tracking in url['tracking']:
             package_name = tracking['package']
             package_views = tracking['package_view']
@@ -32,7 +33,8 @@ def aggregate_package_views(urls_and_counts):
                 aggregated_data[package_name] = {
                     'package': package_name,
                     'package_view': package_views,
-                    'title': title
+                    'title': title,
+                    'user_name': user_name,
                 }
     
     # Convert the aggregated data back to a list for rendering
@@ -60,7 +62,7 @@ def statistical():
 
     # Fetch tracking data based on admin status
     try:
-        action = 'tracking_by_user' if is_admin else 'tracking_urls_and_counts'
+        action = 'tracking_by_user'
         urls_and_counts = logic.get_action(action)(data_dict={
             u'user_name': user_name,
             u'start_date': start_date,
@@ -68,8 +70,6 @@ def statistical():
             u'package_name': package_name,
             u'include_resources': include_resources,
         })  # type: ignore
-        for package in urls_and_counts:
-            print('abccccccccccccccccccccc=================>', package)
         
 
     except logic.ValidationError as e:
@@ -78,11 +78,11 @@ def statistical():
 
     # Aggregate the package views
     aggregated_urls_and_counts = aggregate_package_views(urls_and_counts)
-    
   
     
     # Prepare variables for rendering
     extra_vars: dict[str, Any] = {
+        u'data': urls_and_counts,
         u'urls_and_counts': aggregated_urls_and_counts,
         u'start_date': start_date,
         u'end_date': end_date,

@@ -21,9 +21,9 @@
     <div class="row mb-3">
       <div class="col-md-6">
         <label for="package_name" class="form-label">Package Name</label>
-        <select id="package_name" name="package_name" class="form-control select2" multiple="multiple">
+        <select id="package_name" name="package_name" class="form-control select2" multiple="multiple" onclick="loadAllPackages()">
             {% for package in urls_and_counts %}
-                <option value="{{ package.package }}" 
+                <option value="{{ package.package  }}" 
                     {% if package.package in package_name %}selected{% endif %}>
                     {{ package.package }}
                 </option>
