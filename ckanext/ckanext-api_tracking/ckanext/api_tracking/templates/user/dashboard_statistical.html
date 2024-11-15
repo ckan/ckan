@@ -9,30 +9,39 @@
         <div class="col-md-6">
             <label for="start_date" class="form-label">Start Date</label>
             <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}" max="{{ today }}">
+            <div id="start-date-error" class="text-danger mt-1"></div>
         </div>
         <div class="col-md-6">
             <label for="end_date" class="form-label">End Date</label>
             <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}" max="{{ today }}">
+            <div id="end-date-error" class="text-danger mt-1"></div>
         </div>
     </div>
 
     <div class="row mb-3">
-        <div class="col-md-6">
-          <label for="package_name" class="form-label">Package Name</label>
-          <select id="package_name" name="package_name" class="form-control select2" multiple="multiple">
+      <div class="col-md-6">
+        <label for="package_name" class="form-label">Package Name</label>
+        <select id="package_name" name="package_name" class="form-control select2" multiple="multiple" onclick="loadAllPackages()">
             {% for package in urls_and_counts %}
-              <option value="{{ package.package }}" 
-                  {% if package.package in package_name %}selected{% endif %}>
-                {{ package.package }}
-              </option>
+                <option value="{{ package.package  }}" 
+                    {% if package.package in package_name %}selected{% endif %}>
+                    {{ package.package }}
+                </option>
             {% endfor %}
-          </select>
-        </div>
+        </select>
+        <!-- Phần để hiển thị lỗi nếu cần -->
+        <div id="package-name-error" class="text-danger mt-1"></div>
+    </div>
         <div class="col-md-6">
           <label for="user_name" class="form-label">User Name</label>
-          <input type="text" id="user_name" name="user_name" class="form-control" 
-                 placeholder="Enter user name" value="{{ user_name | join(', ') }}">
-            </div>
+          
+          <div class="form-group">
+            <input
+              id="user_name" type="text" name="user_name" placeholder="Tracking dataset by user_name"
+              value="{{user_name | join(',')}}" class="control-medium" data-module="autocomplete"
+              data-module-source="/api/2/util/user/autocomplete?ignore_self=true&q=?"
+            >
+            <input type="hidden" value="1" name="status" />
         </div>
     </div>
     <div class="text-end">
@@ -60,12 +69,22 @@
                   <tbody>
                       {% for package in urls_and_counts %}
                           <tr>
-                              <td>{{ loop.index + ((current_page - 1) * limit) }}</td>
+                              <td>{{ loop.index }}</td>
                               <td><a href="{{ url_for('dataset.read', id=package.package) }}" target="_blank">
-                                {{ package.package }}
+                                {{ package.title }}
                               </a></td>
                               <td>{{ package.package_view }}</td>
-                             
+                              <td>
+                                <button class="btn btn-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#myModal" 
+                                        data-package-name="{{ package.package }}" 
+                                        data-package-view="{{ package.package_view }}" 
+                                        data-resources="{{ package.include_resources}}" 
+                                        onclick="setModalContent(this)">
+                                  View Resource
+                                </button>
+                              </td>
                           </tr>
                       {% endfor %}
                   </tbody>
@@ -75,4 +94,4 @@
           {% endif %}
       </div>
   </div>
-{% endblock %}
+{% endblock %} 
