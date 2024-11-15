@@ -28,7 +28,7 @@ import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
 from ckan.model.follower import ModelFollowingModel
-from ckan.lib.search.query import solr_literal
+from ckan.lib.search import solr_literal
 
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.datapreview as datapreview

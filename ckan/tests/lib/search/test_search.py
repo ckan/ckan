@@ -4,12 +4,12 @@ import os
 import pytest
 
 import ckan.config as config
-from ckan.lib.search.common import SearchQueryError
+from ckan.lib.search import SearchQueryError
 import ckan.tests.factories as factories
 import ckan.model as model
 import ckan.lib.search as search
-from ckan.lib.search import check_solr_schema_version, SearchError
-from ckan.lib.search.query import _get_local_query_parser
+from ckan.lib.search import check_search_engine_schema_version, SearchError
+from ckan.lib.search import _get_local_query_parser
 
 root_dir = os.path.join(os.path.dirname(config.__file__), "solr")
 data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -22,20 +22,20 @@ def test_current_schema_exists():
 
 def test_check_valid_schema():
     schema_file = os.path.join(root_dir, "schema.xml")
-    assert check_solr_schema_version(schema_file)
+    assert check_search_engine_schema_version(schema_file)
 
 
 def test_check_invalid_schema():
     schema_file = os.path.join(data_dir, "schema-no-version.xml")
     with pytest.raises(SearchError) as e:
-        check_solr_schema_version(schema_file)
+        check_search_engine_schema_version(schema_file)
     assert "Could not extract version info" in str(e.value)
 
 
 def test_check_schema_with_wrong_version():
     schema_file = os.path.join(data_dir, "schema-wrong-version.xml")
     with pytest.raises(SearchError) as e:
-        check_solr_schema_version(schema_file)
+        check_search_engine_schema_version(schema_file)
     assert "SOLR schema version not supported" in str(e.value)
 
 
@@ -178,7 +178,7 @@ def test_local_params_not_allowed_by_default_different_field_list():
 def test_local_params_with_whitespace_not_allowed_by_default():
 
     query = search.query_for(model.Package)
-    with pytest.raises(search.common.SearchError) as e:
+    with pytest.raises(search.SearchError) as e:
         query.run({"q": " {!bool must=test}"})
 
     assert str(e.value) == "Local parameters are not supported in param 'q'."
@@ -189,7 +189,7 @@ def test_local_params_with_whitespace_not_allowed_by_default():
 def test_allowed_local_params_via_config_not_defined():
 
     query = search.query_for(model.Package)
-    with pytest.raises(search.common.SearchError) as e:
+    with pytest.raises(search.SearchError) as e:
         query.run({"q": "{!something_else a=test}"})
 
     assert str(e.value) == "Local parameters are not supported in param 'q'."
