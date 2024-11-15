@@ -7,7 +7,6 @@
 
       <link rel="stylesheet" href="/statistical.css" />
       <script src="{{ url_for('static', filename='') }}"></script>
-      <!-- Bootstrap JS (from a CDN or your local file) -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
       <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -48,6 +47,26 @@
             return false // Prevent form submission
           }
           return true // Proceed with form submission if dates are valid
+        }
+      </script>
+
+      {% include 'user/modal_template.html' %}
+      <script>
+        function setModalContent(resourceName, downCount, resourceView) {
+          // Lấy phần tử trong modal
+          var modalContent = document.getElementById('modal-content')
+          var resourceTableBody = document.getElementById('resource-table-body')
+        
+          // Làm sạch nội dung cũ (nếu có)
+          resourceTableBody.innerHTML = ''
+        
+          // Tạo dòng mới cho bảng và chèn dữ liệu vào
+          var newRow = document.createElement('tr')
+          newRow.innerHTML = `
+              <td>${packageName}</td>
+              <td>${packageViewCount}</td>
+            `
+          resourceTableBody.appendChild(newRow)
         }
       </script>
 
