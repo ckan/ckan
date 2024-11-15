@@ -7,7 +7,7 @@ from ckan.plugins.toolkit import ValidationError
 class ExtendedTrackingRaw(model.TrackingSummary):
 
     @classmethod
-    def get_by_user(cls, data_dict, limit=10, offset=0):
+    def get_by_user(cls, data_dict, limit, offset):
         
         start_date = data_dict.get('start_date')
         end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
@@ -63,6 +63,7 @@ class ExtendedTrackingRaw(model.TrackingSummary):
                 user_tracking_data[user_key]['tracking'].append({
                     'date': row.date, 
                     'package': row.url.replace('/dataset/', ''),
+                    'title': cls._get_package_title(row),
                     'package_id': cls._get_package_id(row),
                     'include_resources': cls._fetch_resources(row) if include_resources else None,
                     'package_view': row.request_count
@@ -78,6 +79,13 @@ class ExtendedTrackingRaw(model.TrackingSummary):
             model.Package.name == row.url.replace('/dataset/', '')
         ).first()
         return id_query.id if id_query else None
+    
+    @classmethod
+    def _get_package_title(cls, row):
+        title_query = meta.Session.query(model.Package.title).filter(
+            model.Package.name == row.url.replace('/dataset/', '')
+        ).first()
+        return title_query.title if title_query else None
 
     @classmethod
     def _fetch_resources(cls, row): 

@@ -23,6 +23,7 @@ def aggregate_package_views(urls_and_counts):
         for tracking in url['tracking']:
             package_name = tracking['package']
             package_views = tracking['package_view']
+            title = tracking['title']
             
             # If package is already in the aggregated data, sum the views
             if package_name in aggregated_data:
@@ -30,7 +31,8 @@ def aggregate_package_views(urls_and_counts):
             else:
                 aggregated_data[package_name] = {
                     'package': package_name,
-                    'package_view': package_views
+                    'package_view': package_views,
+                    'title': title
                 }
     
     # Convert the aggregated data back to a list for rendering
@@ -39,18 +41,12 @@ def aggregate_package_views(urls_and_counts):
 def statistical():
     # Get query parameters
     today = datetime.today().date()     
-    thirty_days_ago = today - timedelta(days=30)
-
-    page = request.form.get('page', 1, type=int)  # Current page number
-    
-    limit = request.form.get('limit', 50, type=int)  # Items per page (default: 10)
-    offset = (page - 1) * limit  # Calculate offset
+    day_tracking_default = today - timedelta(days=int(config.get('ckan.day_default')))
     
     # Initialize variables outside the request.method check
-    q = request.args.get('q', '')
-    start_date = request.form.get('start_date', str(thirty_days_ago))  # Handle the form start_date
+    start_date = request.form.get('start_date', str(day_tracking_default))  # Handle the form start_date
     end_date = request.form.get('end_date', str(today))  # Handle the form end_date
-    package_name = [name.strip() for name in request.form.get('package_name', '').split(',')]  # From form data
+    package_name = request.form.getlist('package_name') or [""] # From form data
     include_resources = request.form.get('include_resources') == 'on'  # From form data
     user_name = [name.strip() for name in request.form.get('user_name', '').split(',')]
     is_admin = current_user.sysadmin
@@ -66,16 +62,14 @@ def statistical():
     try:
         action = 'tracking_by_user' if is_admin else 'tracking_urls_and_counts'
         urls_and_counts = logic.get_action(action)(data_dict={
-            u'q': q,
             u'user_name': user_name,
             u'start_date': start_date,
             u'end_date': end_date,
             u'package_name': package_name,
             u'include_resources': include_resources,
-            u'limit': limit,
-            u'offset': offset
         })  # type: ignore
-        print("aggregated_urls_and_counts==========>", urls_and_counts)
+        for package in urls_and_counts:
+            print('abccccccccccccccccccccc=================>', package)
         
 
     except logic.ValidationError as e:
@@ -84,6 +78,8 @@ def statistical():
 
     # Aggregate the package views
     aggregated_urls_and_counts = aggregate_package_views(urls_and_counts)
+    
+  
     
     # Prepare variables for rendering
     extra_vars: dict[str, Any] = {
@@ -94,8 +90,6 @@ def statistical():
         u'include_resources': include_resources,
         u'user_name': user_name,
         u'is_admin': is_admin,
-        u'current_page': page,
-        u'limit': limit,
         u'today': today,
     }
 
@@ -104,7 +98,6 @@ def statistical():
         if error_message:
             extra_vars[u'error'] = error_message
         else:
-            extra_vars[u'q'] = urls_and_counts.get('q')
             extra_vars[u'start_time'] = urls_and_counts.get('start_time')
             extra_vars[u'end_time'] = urls_and_counts.get('end_time')
             extra_vars[u'package_name'] = urls_and_counts.get('package_name')
