@@ -3397,6 +3397,46 @@ class TestResourceSearch(object):
         result = helpers.call_action("resource_search", query="size:10")
         assert result["count"] == 1
 
+    def test_no_search_private(self):
+        """ If no include_private, private resources are not returned """
+        dataset = factories.Dataset(private=True)
+        factories.Resource(package_id=dataset["id"], name="find-me-even-if-private")
+        result = helpers.call_action(
+            "resource_search",
+            query="name:find-me-even-if-private"
+        )
+        assert result["count"] == 0
+
+    def test_search_private(self):
+        dataset = factories.Dataset(private=True)
+        factories.Resource(package_id=dataset["id"], name="find-me-even-if-private")
+        result = helpers.call_action(
+            "resource_search",
+            query="name:find-me-even-if-private",
+            include_private=True
+        )
+        assert result["count"] == 1
+
+    def test_no_search_deleted(self):
+        """ If no include_deleted, deleted resources are not returned """
+        dataset = factories.Dataset(state="deleted")
+        factories.Resource(package_id=dataset["id"], name="find-me-even-if-deleted")
+        result = helpers.call_action(
+            "resource_search",
+            query="name:find-me-even-if-deleted"
+        )
+        assert result["count"] == 0
+
+    def test_search_deleted(self):
+        dataset = factories.Dataset(state="deleted")
+        factories.Resource(package_id=dataset["id"], name="find-me-even-if-deleted")
+        result = helpers.call_action(
+            "resource_search",
+            query="name:find-me-even-if-deleted",
+            include_deleted=True
+        )
+        assert result["count"] == 1
+
     def test_resource_search_across_multiple_fields(self):
         factories.Resource(description="indexed resource", format="json")
         result = helpers.call_action(
