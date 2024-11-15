@@ -26,7 +26,7 @@ def tracking_urls_and_counts(context, data_dict):
     if 'package_name' not in data_dict:
         data_dict['package_name'] = [""]
         
-    limit = data_dict.get('limit', 10)  
+    limit = data_dict.get('limit', 200)  
     offset = data_dict.get('offset', 0) 
     
     urls_and_counts = ExtendedTrackingSummary.get_urls_and_counts_all(data_dict, limit=limit, offset=offset)
@@ -59,7 +59,7 @@ def tracking_by_user(context, data_dict):
     if 'include_resources' not in data_dict:
         data_dict['include_resources'] = False
         
-    limit = data_dict.get('limit', 10)  
+    limit = data_dict.get('limit', 200)  
     offset = data_dict.get('offset', 0)  
     
     urls_and_counts = ExtendedTrackingRaw.get_by_user(data_dict, limit=limit, offset=offset)
