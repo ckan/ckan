@@ -410,6 +410,39 @@ def package_changes(id: str) -> Union[Response, str]:  # noqa
             "dataset_type": current_pkg_dict["type"],
         },
     )
+    
+@bp.route("/activity/login/<id>")
+def login_information(id: str) -> Union[Response, str]:  # noqa
+    """
+    Shows the details of a login success activity.
+    """
+    activity_id = id
+    context = cast(Context, {"auth_user_obj": tk.g.userobj})
+    try:
+        activity = tk.get_action("activity_show")(context, {"id": activity_id})
+    except tk.ObjectNotFound as e:
+        log.info("Activity not found: {} - {}".format(str(e), activity_id))
+        return tk.abort(404, tk._("Activity not found"))
+    except tk.NotAuthorized:
+        return tk.abort(403, tk._("Unauthorized to view activity data"))
+
+    if activity["activity_type"] != "login_success":
+        log.info("Invalid activity type: {}".format(activity["activity_type"]))
+        return tk.abort(404, tk._("Invalid activity type"))
+
+    activity_data = activity.get("data", {})
+
+    return tk.render(
+        "login/login_information.html",
+        {
+            "activity": activity,
+            "username": activity_data.get("username", "Unknown"),
+            "ip_address": activity_data.get("ip_address", "Unknown"),
+            "user_agent": activity_data.get("user_agent", "Unknown"),
+            "accept_language": activity_data.get("accept_language", "Unknown"),
+            "timestamp": activity.get("timestamp", "Unknown"),
+        },
+    )
 
 
 @bp.route("/dataset/changes_multiple")
