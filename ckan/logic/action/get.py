@@ -2052,6 +2052,10 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
     :type offset: int
     :param limit: Apply a limit to the query.
     :type limit: int
+    :param include_private: Include private datasets in the search results.
+    :type include_private: bool
+    :param include_deleted: Include deleted datasets in the search results.
+    :type include_deleted: bool
 
     :returns:  A dictionary with a ``count`` field, and a ``results`` field.
     :rtype: dict
@@ -2065,6 +2069,8 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
+    include_private = asbool(data_dict.get('include_private', False))
+    include_deleted = asbool(data_dict.pop('include_deleted', False))
 
     if query is None:
         raise ValidationError({'query': _('Missing value')})
@@ -2078,11 +2084,15 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
         raise ValidationError(
             {'query': _('Must be <field>:<value> pair(s)')})
 
-    q = model.Session.query(model.Resource) \
-         .join(model.Package) \
-         .filter(model.Package.state == 'active') \
-         .filter(model.Package.private == False) \
-         .filter(model.Resource.state == 'active') \
+    q = model.Session.query(model.Resource).join(model.Package)
+
+    states = ['active']
+    if include_deleted:
+        states.append('deleted')
+    q = q.filter(model.Package.state.in_(states))
+
+    if not include_private:
+        q = q.filter(model.Package.private == False)
 
     resource_fields = model.Resource.get_columns()
     for field, term in fields.items():
