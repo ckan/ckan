@@ -39,6 +39,8 @@ class TestCreateIndexes(object):
             "_full_text", connection, resource_id, method="gin"
         )
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_all_fields_except_dates_nested_and_arrays_with_english_as_default(
         self, _get_fields
@@ -65,6 +67,8 @@ class TestCreateIndexes(object):
             "tsvector", connection, resource_id,
         )
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_with_config_var(
@@ -80,6 +84,8 @@ class TestCreateIndexes(object):
 
         self._assert_created_index_on("foo", connection, resource_id, "simple")
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_using_lang_param(
