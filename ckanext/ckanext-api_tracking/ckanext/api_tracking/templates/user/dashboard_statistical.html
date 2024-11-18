@@ -29,20 +29,21 @@
                 </option>
             {% endfor %}
         </select>
-        <!-- Phần để hiển thị lỗi nếu cần -->
-        <div id="package-name-error" class="text-danger mt-1"></div>
-    </div>
-        <div class="col-md-6">
-          <label for="user_name" class="form-label">User Name</label>
-          
-          <div class="form-group">
-            <input
-              id="user_name" type="text" name="user_name" placeholder="Tracking dataset by user_name"
-              value="{{user_name | join(',')}}" class="control-medium" data-module="autocomplete"
-              data-module-source="/api/2/util/user/autocomplete?ignore_self=true&q=?"
-            >
-            <input type="hidden" value="1" name="status" />
-        </div>
+      </div>
+      <div class="col-md-6">
+        <label for="user_name" class="form-label">User Name</label>
+        <select name="user_name" class="form-control select2">
+          <option value="" {% if user_name == [""] %}selected{% endif %}>All Users</option>  <!-- "All" option -->
+          {% for user in user_all %}
+              <option value="{{ user.name }}"{% if user.name in user_name %}selected{% endif %}>
+
+                  {{ user.display_name }}
+              </option>
+          {% endfor %}
+      </select>
+      </div>
+      </div>
+    
     </div>
     <div class="text-end">
         <button type="submit" class="btn btn-primary px-4">Filter</button>
@@ -94,4 +95,9 @@
           {% endif %}
       </div>
   </div>
+
+
+  <!--- Hiển thị form tracking resources -->
+  {% include 'user/table_tracking_resources.html' %}
+
 {% endblock %} 

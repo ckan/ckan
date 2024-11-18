@@ -8,11 +8,24 @@ $(document).ready(function () {
     // Áp dụng Select2 sau khi document đã sẵn sàng
     $('#package_name').select2({
         placeholder: 'Select package(s)', // Placeholder cho trường chọn
-        allowClear: true // Cho phép xóa lựa chọn
+        allowClear: false // Cho phép xóa lựa chọn
+
     })
 })
 
 $('#package_name').on('select2:opening', function (e) {
+})
+
+// Select 
+$(document).ready(function () {
+    // Áp dụng Select2 sau khi document đã sẵn sàng
+    $('#user_name').select2({
+        placeholder: 'Select user(s)', // Placeholder cho trường chọn
+        allowClear: true // Cho phép xóa lựa chọn
+    })
+})
+
+$('#user_name').on('select2:opening', function (e) {
     // Trigger AJAX load only when the input is clicked or about to open
     console.log('Opening Select2 dropdown, fetching data...')
     // You can manually call an AJAX function or refresh data here if needed
@@ -42,3 +55,5 @@ function validateDates() {
     }
     return true
 }
+
+

@@ -3,6 +3,7 @@ from typing import Any
 from unittest import result
 
 import requests
+from ckan.cli import user
 from flask import Blueprint, request
 import ckan.plugins.toolkit as toolkit
 from ckan.common import current_user, config
@@ -53,8 +54,8 @@ def statistical():
     start_date = request.form.get('start_date', str(day_tracking_default))  # Handle the form start_date
     end_date = request.form.get('end_date', str(today))  # Handle the form end_date
     package_name = request.form.getlist('package_name') or [""] # From form data
+    user_name = request.form.getlist('user_name') or [""] # From form data] 
     include_resources = request.form.get('include_resources') == 'on'  # From form data
-    user_name = [name.strip() for name in request.form.get('user_name', '').split(',')]
     
 
     # Check access rights
@@ -83,8 +84,7 @@ def statistical():
     aggregated_urls_and_counts = aggregate_package_views(urls_and_counts)
     
     dataset_alls = logic.get_action('package_list')(data_dict={})
-
-
+    user_all= logic.get_action('user_list')(data_dict={})
     
     
     # Prepare variables for rendering
@@ -97,6 +97,7 @@ def statistical():
         u'all_datasets': dataset_alls,
         u'include_resources': include_resources,
         u'user_name': user_name,
+        u'user_all': user_all,
         u'today': today,
     }
     print("sent api====================>",extra_vars['package_name'])

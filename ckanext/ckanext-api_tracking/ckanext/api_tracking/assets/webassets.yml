@@ -6,6 +6,7 @@ dataset-js:
     - js/datatable.js
     - js/jquery.js
     - js/select.js
+    - js/clear_input_username.js
   extra:
     preload:
       - base/main

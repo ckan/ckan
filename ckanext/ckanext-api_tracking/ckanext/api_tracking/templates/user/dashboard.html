@@ -5,42 +5,8 @@
     {% block dashboard_nav_links %}
       {{ super() }}
 
-      <link rel="stylesheet" href="/statistical.css" />
       {% asset 'api_tracking/dataset-css' %}
       {% asset 'api_tracking/dataset-js' %}
-
-
-      {% include 'user/modal_template.html' %}
-      <script>
-        function setModalContent(button) {
-          // Lấy dữ liệu từ thuộc tính data-* của nút nhấn
-          var packageName = button.getAttribute('data-package-name')
-          var packageView = button.getAttribute('data-package-view')
-          var resources = JSON.parse(button.getAttribute('data-resources')) // Giả sử dữ liệu tài nguyên là một mảng JSON
-        
-          // Cập nhật tiêu đề modal
-          document.getElementById('exampleModalLabel').textContent = 'Resources for ' + packageName
-        
-          // Xóa nội dung cũ trong bảng
-          var tableBody = document.getElementById('resource-table-body')
-          tableBody.innerHTML = '' // Làm trống bảng trước khi thêm nội dung mới
-        
-          // Thêm các tài nguyên vào bảng
-          resources.forEach(function (resource) {
-            var row = document.createElement('tr')
-            var resourceNameCell = document.createElement('td')
-            var downloadCountCell = document.createElement('td')
-        
-            resourceNameCell.textContent = resource.resource_name
-            downloadCountCell.textContent = resource.download_count
-        
-            row.appendChild(resourceNameCell)
-            row.appendChild(downloadCountCell)
-        
-            tableBody.appendChild(row)
-          })
-        }
-      </script>
 
       {{ h.build_nav_icon('dashboard.statistical', h.humanize_entity_type('statistical', 'Statistical', 'label') or _('Statistical'), icon='users') }}
     {% endblock %}
