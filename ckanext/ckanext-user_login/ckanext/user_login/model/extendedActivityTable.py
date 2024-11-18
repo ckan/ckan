@@ -18,8 +18,12 @@ class ExtendedActivityTable(Activity):
                 start_date = data_dict.get('start_date')
                 end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
                 query = query.filter(func.date(cls.timestamp) >= start_date, func.date(cls.timestamp) < end_date)
-                  
+                
             results = query.all()
+            if data_dict.get('user_name'):
+                user_name = data_dict.get('user_name') 
+                results = [row for row in results if row.data.get('username') in user_name]
+
             user_tracking_data = {}
             
             try:
