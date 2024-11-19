@@ -3399,7 +3399,8 @@ class TestResourceSearch(object):
 
     def test_no_search_private(self):
         """ If no include_private, private resources are not returned """
-        dataset = factories.Dataset(private=True)
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org["id"])
         factories.Resource(package_id=dataset["id"], name="find-me-even-if-private")
         result = helpers.call_action(
             "resource_search",
@@ -3408,7 +3409,8 @@ class TestResourceSearch(object):
         assert result["count"] == 0
 
     def test_search_private(self):
-        dataset = factories.Dataset(private=True)
+        org = factories.Organization()
+        dataset = factories.Dataset(private=True, owner_org=org["id"])
         factories.Resource(package_id=dataset["id"], name="find-me-even-if-private")
         result = helpers.call_action(
             "resource_search",
@@ -3419,7 +3421,8 @@ class TestResourceSearch(object):
 
     def test_no_search_deleted(self):
         """ If no include_deleted, deleted resources are not returned """
-        dataset = factories.Dataset(state="deleted")
+        org = factories.Organization()
+        dataset = factories.Dataset(state="deleted", owner_org=org["id"])
         factories.Resource(package_id=dataset["id"], name="find-me-even-if-deleted")
         result = helpers.call_action(
             "resource_search",
@@ -3428,7 +3431,8 @@ class TestResourceSearch(object):
         assert result["count"] == 0
 
     def test_search_deleted(self):
-        dataset = factories.Dataset(state="deleted")
+        org = factories.Organization()
+        dataset = factories.Dataset(state="deleted", owner_org=org["id"])
         factories.Resource(package_id=dataset["id"], name="find-me-even-if-deleted")
         result = helpers.call_action(
             "resource_search",
