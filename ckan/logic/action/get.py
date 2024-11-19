@@ -2158,6 +2158,9 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     # If run in the context of a search query, then don't dictize the results.
     if not context.get('search_query', False):
+        # context['active'] must be True if we only want active resources
+        only_active = not (include_private or include_deleted)
+        context['active'] = only_active
         results = model_dictize.resource_list_dictize(results, context)
 
     return {'count': count,
