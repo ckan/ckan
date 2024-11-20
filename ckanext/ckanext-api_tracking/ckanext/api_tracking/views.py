@@ -6,7 +6,7 @@ import requests
 from ckan.cli import user
 from flask import Blueprint, request
 import ckan.plugins.toolkit as toolkit
-from ckan.common import current_user, config
+from ckan.common import config
 import ckanext.api_tracking.logic.auth as auth  # Thay bằng tên extension thực tế của bạn
 from datetime import datetime, timedelta
 from ckan import logic
@@ -28,18 +28,25 @@ def aggregate_package_views(urls_and_counts):
         user_name = url['user_name']
         for tracking in url['tracking']:
             package_name = tracking['package']
+            package_id = tracking['package_id']
             package_views = tracking['package_view']
             title = tracking['title']
+            include_resources = tracking.get('include_resources', [])
             
+            if not package_id:
+                continue
             # If package is already in the aggregated data, sum the views
             if package_name in aggregated_data:
                 aggregated_data[package_name]['package_view'] += package_views
+                aggregated_data[package_name]['include_resources'].extend(include_resources)
             else:
                 aggregated_data[package_name] = {
                     'package': package_name,
                     'package_view': package_views,
                     'title': title,
                     'user_name': user_name,
+                    'include_resources': include_resources,
+                    'package_id': package_id,
                 }
     
     # Convert the aggregated data back to a list for rendering
@@ -73,8 +80,11 @@ def statistical():
             u'start_date': start_date,
             u'end_date': end_date,
             u'package_name': package_name,
-            u'include_resources': include_resources,
+            u'include_resources': True,
+           
         })  # type: ignore
+    
+        
 
     except logic.ValidationError as e:
         urls_and_counts = []
@@ -82,6 +92,10 @@ def statistical():
 
     # Aggregate the package views
     aggregated_urls_and_counts = aggregate_package_views(urls_and_counts)
+    print("=====================>",aggregated_urls_and_counts)
+    for package in aggregated_urls_and_counts:
+        print("package", package['include_resources'])
+            
     
     dataset_alls = logic.get_action('package_list')(data_dict={})
     user_all= logic.get_action('user_list')(data_dict={})
@@ -100,7 +114,6 @@ def statistical():
         u'user_all': user_all,
         u'today': today,
     }
-    print("sent api====================>",extra_vars['package_name'])
     
 
     if isinstance(urls_and_counts, dict):

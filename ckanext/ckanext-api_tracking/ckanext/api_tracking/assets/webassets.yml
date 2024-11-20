@@ -6,7 +6,7 @@ dataset-js:
     - js/datatable.js
     - js/jquery.js
     - js/select.js
-    - js/clear_input_username.js
+    - js/base.js
   extra:
     preload:
       - base/main
@@ -17,3 +17,4 @@ dataset-css:
   contents:
     - css/datatable.css
     - css/select2.css
+    - css/base.css

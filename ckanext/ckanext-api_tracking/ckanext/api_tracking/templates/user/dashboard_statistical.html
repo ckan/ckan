@@ -2,7 +2,7 @@
 
 {% block page_primary_action %}
 <div class="container mt-5">
-  <form action="{{ url_for('dashboard.statistical') }}" method="post" class="p-4 border rounded shadow-sm" onsubmit="return validateDates()">
+  <form id="tracking-form" action="{{ url_for('dashboard.statistical') }}" method="post" class="p-4 border rounded shadow-sm" onsubmit="return validateDates()">
     <h4 class="mb-4">Filter Tracking Datasets</h4>
     
     <div class="row mb-3">
@@ -36,7 +36,6 @@
           <option value="" {% if user_name == [""] %}selected{% endif %}>All Users</option>  <!-- "All" option -->
           {% for user in user_all %}
               <option value="{{ user.name }}"{% if user.name in user_name %}selected{% endif %}>
-
                   {{ user.display_name }}
               </option>
           {% endfor %}
@@ -54,50 +53,81 @@
 
 {% block primary_content_inner %}
   {{ super() }}
-        <div class="container mt-4">
-          <h1 class="text-center">Tracking Datasets</h1>
-  
-          {% if urls_and_counts %}
-              <table id="dataTable" class="table table-striped table-bordered">
-                  <thead>
-                      <tr>
-                          <th>STT</th>
-                          <th>Package Name</th>
-                          <th>Package Views</th>
-                          <th>Resouces Views</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      {% for package in urls_and_counts %}
-                          <tr>
-                              <td>{{ loop.index }}</td>
-                              <td><a href="{{ url_for('dataset.read', id=package.package) }}" target="_blank">
-                                {{ package.title }}
-                              </a></td>
-                              <td>{{ package.package_view }}</td>
-                              <td>
-                                <button class="btn btn-primary" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#myModal" 
-                                        data-package-name="{{ package.package }}" 
-                                        data-package-view="{{ package.package_view }}" 
-                                        data-resources="{{ package.include_resources}}" 
-                                        onclick="setModalContent(this)">
-                                  View Resource
+        <div class="container mt-4" id="resultTable">
+            <h1 class="text-center">TRACKING DATASETS</h1>
+            {% if urls_and_counts %}
+                <table id="dataTable" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Package Name</th>
+                            <th>Package Views</th>
+                            <th>Resouces</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for package in urls_and_counts %}
+                          {% if package.package_view > 0 %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><a href="{{ url_for('dataset.read', id=package.package) }}" target="_blank">
+                                  {{ package.title }}
+                                </a></td>
+                                <td>{{ package.package_view }}</td>
+                                <td>
+                                  <button 
+                                  class="btn btn-primary" 
+                                  data-package="{{ package.package }}" 
+                                  data-user="{{request.form.get('user_name')}}"
+                                  data-resources='{{ package["include_resources"] | tojson }}' 
+                                  onclick="viewResource(this)">
+                                  Tracking resource
                                 </button>
-                              </td>
-                          </tr>
-                      {% endfor %}
-                  </tbody>
-              </table>
-          {% else %}
-              <div class="alert alert-warning text-center" role="alert">No tracking data available.</div>
-          {% endif %}
-      </div>
+                                </td>
+                            </tr>
+                          {% else %}
+                            <tr>
+                              <td>{{ package.title }}</td>
+                              <td>No views recorded</td>
+                            </tr>
+                          {% endif %}
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-warning text-center" role="alert">                <p>No datasets available.</p>
+                </div>
+            {% endif %}
   </div>
 
+<!-- Thẻ phân cách -->
 
-  <!--- Hiển thị form tracking resources -->
-  {% include 'user/table_tracking_resources.html' %}
+<!-- Resorce Table -->
+<div class="container mt-4">
+  <div id="resourceSection" style="display:none; margin-top: 20px;">
+    <h4 id="resourceSectionTitle" class="text-center">Tracking Resources</h4>
+    <div class="arrow-container text-center">
+      <div class="arrow"></div>
+  </div>
+  
+    <table id="resourceTable" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Resource Name</th>
+          <th>Resource Downloads</th>
+          <th>Resource Views</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be populated dynamically -->
+      </tbody>
+    </table>
+  </div>
+  <button id="moveToTop" class="btn">
+    <i class="fas fa-arrow-up"></i>
+</button>
+  </div>
 
 {% endblock %} 

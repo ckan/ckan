@@ -615,3 +615,97 @@ var $jq = jQuery.noConflict()
 $jq(document).ready(function () {
   $jq('#dataTable').DataTable()
 })
+
+$jq(document).ready(function () {
+  $jq('#resourceTable').DataTable({
+    searching: false,   // Bật tìm kiếm
+    paging: false,      // Bật phân trang
+    ordering: false,    // Bật sắp xếp
+    pageLength: false,    // Số lượng bản ghi mỗi trang
+    lengthMenu: false, // Các lựa chọn phân trang
+    language: {
+      info: "",  // Ẩn dòng "Showing X to Y of Z entries"
+      infoEmpty: "",  // Ẩn dòng "Showing 0 to 0 of 0 entries"
+      infoFiltered: "" // Ẩn dòng "filtered from X total entries"
+    }
+  });
+})
+
+function viewResource(button) {
+
+  const packageName = button.getAttribute("data-package");
+  const resources = JSON.parse(button.getAttribute("data-resources"));
+  const userName = button.getAttribute("data-user");
+
+  const titleElement = document.getElementById("resourceSectionTitle");
+  titleElement.innerHTML = `Statistics to track <span style="color: #FF5733; font-weight: bold;">${packageName}</span> resources of <span style="color:#FF5733;">${userName.length > 0 ? `user ${userName}` : "All User"}</span>`.toUpperCase();
+
+  // Tạo một đối tượng để theo dõi tài nguyên đã xuất hiện
+  const resourceMap = {};
+
+
+
+  const tableBody = document.querySelector("#resourceTable tbody");
+  tableBody.innerHTML = ""; // Xóa dữ liệu cũ
+
+  // Example data - in real usage, you would fetch actual resource data
+  // Populate resource data into the table
+  resources.forEach(function (resource, index) {
+    const resourceName = resource.resource_name;
+
+    // Kiểm tra xem resource đã tồn tại chưa
+    if (resourceMap[resourceName]) {
+      // Nếu có, cộng dồn download_count và resource_view
+      resourceMap[resourceName].download_count += resource.download_count;
+      resourceMap[resourceName].resource_view += resource.resource_view;
+    } else {
+      // Nếu chưa có, thêm mới tài nguyên vào đối tượng
+      resourceMap[resourceName] = {
+        resource_name: resource.resource_name,
+        download_count: resource.download_count,
+        resource_view: resource.resource_view
+      };
+    }
+  });
+
+  // Điền dữ liệu vào bảng từ resourceMap
+  let index = 1;
+  for (const resourceName in resourceMap) {
+    const resource = resourceMap[resourceName];
+    const row = `
+      <tr>
+        <td>${index++}</td>
+        <td>${resource.resource_name}</td>
+        <td>${resource.download_count}</td>
+        <td>${resource.resource_view}</td>
+      </tr>`;
+    tableBody.innerHTML += row;
+  }
+  document.getElementById('resourceSection').style.display = 'block';
+  document.getElementById('resourceSection').scrollIntoView({ behavior: 'smooth' });
+
+}
+
+
+// Move to top
+document.addEventListener('DOMContentLoaded', function () {
+  const moveToTopButton = document.getElementById('moveToTop');
+
+  // Hiển thị nút khi cuộn xuống
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 200) { // Hiển thị nút nếu cuộn xuống > 200px
+      moveToTopButton.style.display = 'block';
+    } else {
+      moveToTopButton.style.display = 'none';
+    }
+  });
+
+  // Cuộn lên đầu trang khi nhấn nút
+  moveToTopButton.addEventListener('click', function () {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Cuộn mượt mà
+    });
+  });
+});
+

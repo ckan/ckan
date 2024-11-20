@@ -13,8 +13,6 @@ $(document).ready(function () {
     })
 })
 
-$('#package_name').on('select2:opening', function (e) {
-})
 
 // Select 
 $(document).ready(function () {
