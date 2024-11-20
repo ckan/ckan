@@ -1,14 +1,20 @@
-# api_tracking-js:
-#   filter: rjsmin
-#   output: ckanext-api_tracking/%(version)s-api_tracking.js
-#   contents:
-#     - js/api_tracking.js
-#   extra:
-#     preload:
-#       - base/main
+dataset-js:
+  filter: rjsmin
+  output: ckanext-api_tracking/%(version)s-dataset.js
+  contents:
+    - js/bootstrap.js
+    - js/datatable.js
+    - js/jquery.js
+    - js/select.js
+    - js/base.js
+  extra:
+    preload:
+      - base/main
 
-# api_tracking-css:
-#   filter: cssrewrite
-#   output: ckanext-api_tracking/%(version)s-api_tracking.css
-#   contents:
-#     - css/api_tracking.css
+dataset-css:
+  filter: cssrewrite
+  output: ckanext-api_tracking/%(version)s-dataset.css
+  contents:
+    - css/datatable.css
+    - css/select2.css
+    - css/base.css
