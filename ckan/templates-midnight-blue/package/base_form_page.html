@@ -63,7 +63,7 @@
               
             {% if s1 == 'complete' or s2 == 'complete' %}
             <button class="stage-nohiglight" type="button"  onclick="submitForm('go-metadata-preview')">
-              {{ render_step(3, 'Preview Dataset', s1 if s1 == 'complete' else s2) }}
+              {{ render_step(3, 'Preview Dataset', s3) }}
             </button>
              
             {% else %}
@@ -78,12 +78,27 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingTwo">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-              Drafts
+              Resources
             </button>
           </h2>
           <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-             
+              {% set pkg_dict = pkg_dict or (form_vars.data if form_vars and form_vars.data else None) %}
+  
+              {% if pkg_dict and pkg_dict.resources %}
+                <ul class="list-group">
+                  {% for res in pkg_dict.resources %}
+                    {% set url = h.url_for('dataset_resource.edit', id=pkg_dict.name, resource_id=res.id) %}
+                    <li class="list-group-item">
+                      <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=res.name or res.id) }}">
+                        {{ res.name | truncate(50) }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p>No resources available in drafts.</p>
+              {% endif %}
             </div>
           </div>
         </div>
