@@ -7,7 +7,7 @@ from ckan.plugins.toolkit import ValidationError
 class ExtendedTrackingRaw(model.TrackingSummary):
 
     @classmethod
-    def get_by_user(cls, data_dict, limit, offset):
+    def get_by_user(cls, data_dict, limit, offset, limit_resources, offset_resources):
         
         start_date = data_dict.get('start_date')
         end_date = data_dict.get('end_date') + datetime.timedelta(days=1)
@@ -65,7 +65,7 @@ class ExtendedTrackingRaw(model.TrackingSummary):
                     'package': row.url.replace('/dataset/', ''),
                     'title': cls._get_package_title(row),
                     'package_id': cls._get_package_id(row),
-                    'include_resources': cls._fetch_resources(row) if include_resources else None,
+                    'include_resources': cls._fetch_resources(row, limit_resources, offset_resources) if include_resources else None,
                     'package_view': row.request_count
                 })
         except Exception as e:
@@ -88,7 +88,7 @@ class ExtendedTrackingRaw(model.TrackingSummary):
         return title_query.title if title_query else None
 
     @classmethod
-    def _fetch_resources(cls, row): 
+    def _fetch_resources(cls, row, limit_resources, offset_resources): 
         """Helper function to fetch resources including id and name."""
 
         resource_details = []
@@ -107,9 +107,9 @@ class ExtendedTrackingRaw(model.TrackingSummary):
                 model.Resource.id
             ).filter(
                 model.Resource.package_id == package_id_query.package_id
-            )
+            ).limit(limit_resources).offset(offset_resources)
             
-            for res in resources_id_query:
+            for res in resources_id_query: 
                 resource_id = res.id
                 
                 resource_query = meta.Session.query(

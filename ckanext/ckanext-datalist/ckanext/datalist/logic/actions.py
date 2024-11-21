@@ -1,6 +1,6 @@
-from .schemas import resources_statistics_combined_schema, users_statistics_combined_schema
-from .extended_resource_table import ExtendedResourceTable
-from .extended_user_table import ExtendedUserTable
+from .schemas import resources_statistics_combined_schema, users_statistics_combined_schema, new_users_statistics_combined_schema
+from ..model.extended_resource_table import ExtendedResourceTable
+from ..model.extended_user_table import ExtendedUserTable
 from ckan.plugins.toolkit import side_effect_free, ValidationError
 import ckan.plugins.toolkit as toolkit
 from datetime import datetime
@@ -15,25 +15,11 @@ def resources_statistics(context, data_dict):
     if errors:
             raise ValidationError(errors)
         
-    if 'start_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        data_dict['start_date'] = current_date
-    
-    if 'end_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        data_dict['end_date'] = current_date
-        
-    if 'organizations' not in data_dict:
-        data_dict['organizations'] = [""]
-        
-    if 'package_name' not in data_dict:
-        data_dict['package_name'] = [""]
-        
     limit = data_dict.get('limit', 10)  
     offset = data_dict.get('offset', 0) 
     
-    urls_and_counts = ExtendedResourceTable.get_resources_statistics(data_dict, limit=limit, offset=offset)
-    return urls_and_counts
+    result = ExtendedResourceTable.get_resources_statistics(data_dict, limit=limit, offset=offset)
+    return result
 
 @side_effect_free
 def users_statistics(context, data_dict):
@@ -48,5 +34,18 @@ def users_statistics(context, data_dict):
     if 'recent_active_days' not in data_dict:
         data_dict['recent_active_days'] = 1
             
-    urls_and_counts = ExtendedUserTable.get_users_statistics(data_dict)
-    return urls_and_counts
+    result = ExtendedUserTable.get_users_statistics(data_dict)
+    return result
+
+@side_effect_free
+def new_users_statistics(context, data_dict):
+    toolkit.check_access("user_check", context, data_dict)
+
+    schema = new_users_statistics_combined_schema()
+    data_dict, errors = toolkit.navl_validate(data_dict, schema)
+    
+    if errors:
+            raise ValidationError(errors)
+        
+    result = ExtendedUserTable.get_new_users_statistics(data_dict)
+    return result
