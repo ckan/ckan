@@ -569,7 +569,7 @@ class CreateView(MethodView):
                             resource_id=last_added_resource.get('id'))
                     elif request.form[u'save'] == "go-metadata-preview":
                         url = h.url_for(
-                            u'{}.preview'.format(package_type),
+                            u'{}.read'.format(package_type),
                             id=pkg_dict.get('id')
                         )
                     else:
