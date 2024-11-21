@@ -35,8 +35,8 @@ class API_Tracking_Plugin(p.SingletonPlugin):
         # 'templates' is the path to the templates dir, relative to this
         # plugin.py file.
         toolkit.add_template_directory(config, 'templates')
-        toolkit.add_public_directory(config, 'public')
-        toolkit.add_resource("assets", 'api_tracking')
+        # toolkit.add_public_directory(config, 'ckanext/api_tracking/assets')
+        toolkit.add_resource("assets", "api_tracking")
 
     def make_middleware(self, app: CKANApp, config):
         @app.after_request
