@@ -17,8 +17,6 @@ from ckan.lib.helpers import Page
 # Blueprint for tracking
 dashboard = Blueprint('tracking_blueprint', __name__, url_prefix=u'/dashboard')
 
-
-
 def aggregate_package_views(urls_and_counts):
     """Aggregate package views for each unique package."""
     aggregated_data = {}
@@ -32,7 +30,7 @@ def aggregate_package_views(urls_and_counts):
             package_views = tracking['package_view']
             title = tracking['title']
             include_resources = tracking.get('include_resources', [])
-            
+            print("include_resources===================>",include_resources)
             if not package_id:
                 continue
             # If package is already in the aggregated data, sum the views

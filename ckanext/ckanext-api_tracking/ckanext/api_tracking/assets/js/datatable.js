@@ -631,6 +631,7 @@ $jq(document).ready(function () {
   });
 })
 
+
 function viewResource(button) {
 
   const packageName = button.getAttribute("data-package");
@@ -638,7 +639,7 @@ function viewResource(button) {
   const userName = button.getAttribute("data-user");
 
   const titleElement = document.getElementById("resourceSectionTitle");
-  titleElement.innerHTML = `Statistics to track <span style="color: #FF5733; font-weight: bold;">${packageName}</span> resources of <span style="color:#FF5733;">${userName.length > 0 ? `user ${userName}` : "All User"}</span>`.toUpperCase();
+  titleElement.innerHTML = `Statistics to track <span style="color: #FF5733; font-weight: bold;">${packageName}</span> resources`.toUpperCase();
 
   // Tạo một đối tượng để theo dõi tài nguyên đã xuất hiện
   const resourceMap = {};
@@ -662,6 +663,7 @@ function viewResource(button) {
       // Nếu chưa có, thêm mới tài nguyên vào đối tượng
       resourceMap[resourceName] = {
         resource_name: resource.resource_name,
+        resource_id: resource.resource_id,
         download_count: resource.download_count,
         resource_view: resource.resource_view
       };
@@ -672,10 +674,11 @@ function viewResource(button) {
   let index = 1;
   for (const resourceName in resourceMap) {
     const resource = resourceMap[resourceName];
+    const resourceUrl = `/dataset/${packageName}/resource/${resource.resource_id}`;
     const row = `
       <tr>
         <td>${index++}</td>
-        <td>${resource.resource_name}</td>
+        <td><a href="${resourceUrl}" target="_blank">${resource.resource_name}</a></td>
         <td>${resource.download_count}</td>
         <td>${resource.resource_view}</td>
       </tr>`;

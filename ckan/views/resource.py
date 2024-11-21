@@ -139,6 +139,7 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
         u'resource': resource,
         u'pkg': pkg,
     }
+    print("extra=========>",extra_vars)
 
     template = _get_pkg_template(u'resource_template', dataset_type)
     return base.render(template, extra_vars)
