@@ -176,6 +176,10 @@ class TestPluginDatastoreSearch(object):
         should_fts_index_field_type.return_value = False
         expected_where = [
             ('_full_text @@ "query country"',),
+            (
+                u"to_tsvector('english', cast(\"country\" as text))"
+                u' @@ "query country"',
+            ),
         ]
         data_dict = {"q": {"country": "Brazil"}, "language": "english"}
         fields_types = {"country": "non-indexed field type"}
