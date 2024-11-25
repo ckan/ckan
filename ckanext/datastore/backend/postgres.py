@@ -461,7 +461,6 @@ def _where_clauses(
                 if not datastore_helpers.should_fts_index_field_type(ftyp):
                     clause_str = u'_full_text @@ {0}'.format(query_field)
                     clauses.append((clause_str,))
-                    continue
 
                 clause_str = (
                     u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
