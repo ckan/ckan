@@ -131,21 +131,6 @@ class TestPluginDatastoreSearch(object):
 
         assert result["where"] == expected_where
 
-    def test_q_field_with_no_fts_uses_general_full_text(self):
-        expected_where = [
-            (
-                '_full_text @@ "query country"',
-            )
-        ]
-        data_dict = {"q": {"country": "Brazil"}}
-        fields_types = {"country": "text"}
-
-        result = self._datastore_search(
-            data_dict=data_dict, fields_types=fields_types
-        )
-
-        assert result["where"] == expected_where
-
     @pytest.mark.ckan_config(
         "ckan.datastore.default_fts_index_field_types", "text")
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
@@ -177,6 +162,23 @@ class TestPluginDatastoreSearch(object):
         ]
         data_dict = {"q": {"country": "Brazil"}, "language": "french"}
         fields_types = {"country": "text"}
+
+        result = self._datastore_search(
+            data_dict=data_dict, fields_types=fields_types
+        )
+
+        assert result["where"] == expected_where
+
+    @mock.patch("ckanext.datastore.helpers.should_fts_index_field_type")
+    def test_fts_adds_where_clause_on_full_text_when_querying_non_indexed_fields(
+        self, should_fts_index_field_type
+    ):
+        should_fts_index_field_type.return_value = False
+        expected_where = [
+            ('_full_text @@ "query country"',),
+        ]
+        data_dict = {"q": {"country": "Brazil"}, "language": "english"}
+        fields_types = {"country": "non-indexed field type"}
 
         result = self._datastore_search(
             data_dict=data_dict, fields_types=fields_types
