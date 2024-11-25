@@ -146,6 +146,8 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
     # activity
     if "package" in activity.activity_type:
         object_type = "package"
+    elif "login_success" in activity.activity_type:
+        return {"success": True}
     else:
         return {"success": False, "msg": "object_type not recognized"}
     return activity_list(

@@ -1,0 +1,51 @@
+{% extends "page.html" %}
+
+{% block page_title %}Login Information{% endblock %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ super() }}
+  <li>{% link_for _('Activities'), named_route='activity.dashboard' %}</li>
+  <li class="active">{{ _('Login Information') }}</li>
+{% endblock %}
+
+{% block secondary %}{% endblock %}
+
+{% block primary %}
+<article class="module">
+    <div class="module-content">
+        <h1 class="page-heading">{{ _('Login Information') }}</h1>
+
+        <table class="table table-striped table-bordered">
+            <tr>
+                <th>{{ _('User Name') }}</th>
+                <td>{{ username or _('Unknown') }}</td>
+            </tr>
+            <tr>
+                <th>{{ _('User id') }}</th>
+                <td>{{ activity.user_id or _('Unknown') }}</td>
+            </tr>
+            <tr>
+                <th>{{ _('IP Address') }}</th>
+                <td>{{ ip_address }}</td>
+            </tr>
+            <tr>
+                <th>{{ _('User Agent') }}</th>
+                <td>{{ user_agent }}</td>
+            </tr>
+            <tr>
+                <th>{{ _('Language') }}</th>
+                <td>{{ accept_language }}</td>
+            </tr>
+            <tr>
+                <th>{{ _('Login Time') }}</th>
+                <td>{{ h.render_datetime(activity.timestamp, with_hours=True) }}</td>
+            </tr>
+        </table>
+
+    </div>
+</article>
+{% endblock %}
+
+

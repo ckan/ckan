@@ -60,7 +60,11 @@ def tracking_by_user(context, data_dict):
         data_dict['include_resources'] = False
         
     limit = data_dict.get('limit', 200)  
-    offset = data_dict.get('offset', 0)  
+    offset = data_dict.get('offset', 0) 
     
-    urls_and_counts = ExtendedTrackingRaw.get_by_user(data_dict, limit=limit, offset=offset)
+    limit_resources = data_dict.get('limit_resources', 200)  
+    offset_resources = data_dict.get('offset_resources', 0)  
+    
+    urls_and_counts = ExtendedTrackingRaw.get_by_user(data_dict, limit=limit, offset=offset, 
+                                                      limit_resources = limit_resources, offset_resources = offset_resources)
     return urls_and_counts

@@ -77,6 +77,29 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
             return None
 
         return meta.Session.query(cls).get(id)
+    
+    @classmethod
+    def activity_stream_item_for_user_login(cls, user_id: str, activity_type: str, ip_address: str, user_agent: str, accept_language ) -> Optional["Activity"]:
+        assert activity_type == "login_success", f"Invalid activity type: {activity_type}"
+        actor = meta.Session.query(model.User).get(user_id)
+    
+        if not actor:
+            return None
+        user_data = {
+            "user_id": user_id,
+            "username": actor.name,
+            "email": actor.email,  
+            "ip_address": ip_address,
+            "user_agent": user_agent,
+            "accept_language": accept_language,
+        }
+
+        return cls(
+            user_id=user_id,
+            object_id=None,                
+            activity_type=activity_type,  
+            data=user_data,         
+        )
 
     @classmethod
     def activity_stream_item(

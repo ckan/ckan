@@ -1,0 +1,18 @@
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+    <span class="fa-stack fa-lg">
+      <i class="fa fa-circle fa-stack-2x icon"></i>
+      <i class="fa fa-sign-in fa-stack-1x fa-inverse"></i>
+    </span>
+    {{ _('{actor} logged in successfully').format(
+        actor=ah.actor(activity)    
+    )|safe }}
+    <br />
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+      {{ h.time_ago_from_timestamp(activity.timestamp) }}
+    </span>
+    &nbsp;|&nbsp;
+    <a href="{{ h.url_for('activity.login_information', id=activity.id) }}">
+      {{ _('More information') }}
+    </a>
+  </li>
+  

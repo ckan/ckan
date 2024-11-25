@@ -1,0 +1,14 @@
+# user_login-js:
+#   filter: rjsmin
+#   output: ckanext-user_login/%(version)s-user_login.js
+#   contents:
+#     - js/user_login.js
+#   extra:
+#     preload:
+#       - base/main
+
+# user_login-css:
+#   filter: cssrewrite
+#   output: ckanext-user_login/%(version)s-user_login.css
+#   contents:
+#     - css/user_login.css

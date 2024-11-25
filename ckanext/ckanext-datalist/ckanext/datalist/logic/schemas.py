@@ -28,3 +28,15 @@ def users_statistics_combined_schema(not_empty: Validator, ignore_missing: Valid
         'target_active_date': [ignore_missing, not_empty, isodate],
         'include_user_info_detail': [ignore_missing, not_empty, boolean_validator]
     }
+    
+@validator_args    
+def new_users_statistics_combined_schema(not_empty: Validator, ignore_missing: Validator, 
+                                     boolean_validator: Validator, isodate: Validator,
+                                     int_validator: Validator):
+    return {
+        'start_date': [ignore_missing, not_empty, isodate],
+        'end_date': [ignore_missing, not_empty, isodate],
+        'state': [ignore_missing, not_empty],
+        'include_user_info_detail': [ignore_missing, not_empty, boolean_validator]
+    }
+        

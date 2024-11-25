@@ -1,5 +1,5 @@
 import ckan.plugins as p
-from .logic.actions import resources_statistics, users_statistics
+from .logic.actions import resources_statistics, users_statistics, new_users_statistics
 from .logic import auth
 
 class DatalistPlugin(p.SingletonPlugin): 
@@ -10,6 +10,7 @@ class DatalistPlugin(p.SingletonPlugin):
         return {
             'stats_resources': resources_statistics,
             'stats_users': users_statistics,
+            'stats_new_users': new_users_statistics,
         }
 
     def get_auth_functions(self):

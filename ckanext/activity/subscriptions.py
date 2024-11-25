@@ -6,9 +6,13 @@ from typing import Any
 
 import ckan.plugins.toolkit as tk
 import ckan.lib.dictization as dictization
+from ckan.model import Session
 
 from ckan import types
 from .model import Activity
+from flask_login import user_logged_in
+from ckan.plugins.toolkit import ValidationError
+from flask import request
 
 log = logging.getLogger(__name__)
 
@@ -39,9 +43,41 @@ def get_subscriptions() -> types.SignalMapping:
             },
             {"sender": "user_create", "receiver": user_changed},
             {"sender": "user_update", "receiver": user_changed},
-        ]
+        ],
+        user_logged_in: [{"receiver": handle_user_login}],
     }
 
+def handle_user_login(sender, **kwargs):
+    if "user" not in kwargs:
+        log.warning("User login event ignored due to missing user data.")
+        return
+    
+    user = kwargs["user"]
+    
+    if user:
+        user_id = user.get_id()
+        log.info(f"User {user_id} has logged in successfully.")
+        user_ip = request.environ.get("REMOTE_ADDR", "Unknown IP")
+        user_agent = request.environ.get("HTTP_USER_AGENT", "Unknown User Agent")
+        user_language = request.environ.get("HTTP_ACCEPT_LANGUAGE", "Unknown Language")
+
+        activity = Activity.activity_stream_item_for_user_login(
+            user_id, 
+            "login_success",
+            ip_address=user_ip,
+            user_agent=user_agent,
+            accept_language=user_language
+        )
+        
+        if activity:
+            try:
+                Session.add(activity)
+                Session.commit()
+            except Exception as e:
+                raise ValidationError(f"Session error: {e}")
+
+    else:
+        log.warning("Login failed: User not found") 
 
 # action, context, data_dict, result
 def bulk_changed(sender: str, **kwargs: Any):
