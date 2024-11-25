@@ -445,7 +445,7 @@ def _where_clauses(
     # add full-text search where clause
     q: Union[dict[str, str], str, Any] = data_dict.get('q')
     full_text = data_dict.get('full_text')
-    if q and not full_text:
+    if q:
         if isinstance(q, str):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
@@ -461,6 +461,7 @@ def _where_clauses(
                 if not datastore_helpers.should_fts_index_field_type(ftyp):
                     clause_str = u'_full_text @@ {0}'.format(query_field)
                     clauses.append((clause_str,))
+                    continue
 
                 clause_str = (
                     u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
@@ -468,47 +469,12 @@ def _where_clauses(
                         identifier(field),
                         query_field)
                 clauses.append((clause_str,))
-    elif (full_text and not q):
-        ts_query_alias = _ts_query_alias()
-        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
-        clauses.append((clause_str,))
-
-    elif full_text and isinstance(q, dict):
-        ts_query_alias = _ts_query_alias()
-        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
-        clauses.append((clause_str,))
-        # update clauses with q dict
-        _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses)
-
-    elif full_text and isinstance(q, str):
+    if full_text:
         ts_query_alias = _ts_query_alias()
         clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
         clauses.append((clause_str,))
 
     return clauses
-
-
-def _update_where_clauses_on_q_dict(
-        data_dict: dict[str, str], fields_types: dict[str, str],
-        q: dict[str, str],
-        clauses: WhereClauses) -> None:
-    lang = _fts_lang(data_dict.get('language'))
-    for field, _ in q.items():
-        if field not in fields_types:
-            continue
-        query_field = _ts_query_alias(field)
-
-        ftyp = fields_types[field]
-        if not datastore_helpers.should_fts_index_field_type(ftyp):
-            clause_str = u'_full_text @@ {0}'.format(query_field)
-            clauses.append((clause_str,))
-
-        clause_str = (
-            u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
-                literal_string(lang),
-                identifier(field),
-                query_field)
-        clauses.append((clause_str,))
 
 
 def _textsearch_query(
