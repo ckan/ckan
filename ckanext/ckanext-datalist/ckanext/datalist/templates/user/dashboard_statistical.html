@@ -1,0 +1,70 @@
+{% extends "page.html" %}
+
+{% block content %}
+<h2>New user number statistics Chart</h2>
+
+<!-- Form chọn ngày --> 
+<form id="date-form" method="GET" action="/dashboard/statistical" style="margin-bottom: 20px; font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; background-color: #f9f9f9;">
+    <label for="start-date" style="font-size: 14px; font-weight: bold;">Start Date</label>
+    <input type="date" id="start-date" name="start_date" required style="padding: 8px; margin-bottom: 10px; width: 200px; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label for="end-date" style="font-size: 14px; font-weight: bold;">End Date</label>
+    <input type="date" id="end-date" name="end_date" required style="padding: 8px; margin-bottom: 10px; width: 200px; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label for="state" style="font-size: 14px; font-weight: bold;">State</label>
+    <select id="state" name="state" style="padding: 8px; margin-bottom: 10px; width: 220px; border: 1px solid #ccc; border-radius: 4px;">
+        <option value="active" {% if state == 'active' %}selected{% endif %}>Active</option>
+        <option value="pending" {% if state == 'pending' %}selected{% endif %}>Pending</option>
+    </select>
+
+    <button type="submit" style="padding: 10px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        Filter
+    </button>
+</form>
+
+
+<div id="chart-container" style="max-width: 800px; margin: 0 auto;">
+    <canvas id="userChart" style="height: 400px; width: 100%;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const apiData = {{ urls_and_counts | tojson }};
+
+    const labels = apiData.days.map(item => item.date);
+    const data = apiData.days.map(item => item.user_created_count);
+
+    const ctx = document.getElementById('userChart').getContext('2d');
+    const userChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'New Users Created',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true, 
+                    title: {
+                        display: true,
+                        text: 'Number of New Users'  
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'  
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
