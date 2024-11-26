@@ -28,6 +28,9 @@ def resource_access_by_date(context, data_dict):
         current_date = datetime.now() + timedelta(days=1)
         data_dict['end_date'] = current_date
         
+    if 'format_type' not in data_dict:
+        data_dict['format_type'] = ''
+        
     limit = data_dict.get('limit', 200)  
     offset = data_dict.get('offset', 0) 
 
