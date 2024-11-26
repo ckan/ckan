@@ -52,3 +52,5 @@ cypress.env.json
 
 # cypress
 cypress/videos
+
+*Zone.Identifier
