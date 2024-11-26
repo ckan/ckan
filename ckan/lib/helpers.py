@@ -26,7 +26,9 @@ from typing import (
     Any, Callable, Match, NoReturn, cast, Dict,
     Iterable, Optional, TypeVar, Union)
 
+
 import dominate.tags as dom_tags
+from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
@@ -451,7 +453,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
-                            if value is None:
+                            if value is None or value == {}:
                                 continue
                             query_args.append(
                                 u'{}={}'.format(
@@ -460,7 +462,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 )
                             )
                     else:
-                        if val is None:
+                        if val is None or val == {}:
                             continue
                         query_args.append(
                             u'{}={}'.format(
@@ -468,6 +470,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 quote(str(val))
                             )
                         )
+
                 if query_args:
                     my_url += '?'
                 my_url += '&'.join(query_args)
@@ -812,7 +815,7 @@ def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs['href'] = url
     if label == '' or label is None:
         label = url
-    return literal(str(dom_tags.a(label, **attrs)))
+    return literal(str(dom_tags.a(raw_dom_tags(label), **attrs)))
 
 
 @core_helper

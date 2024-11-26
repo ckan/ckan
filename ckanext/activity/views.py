@@ -9,6 +9,7 @@ from flask import Blueprint
 
 import ckan.plugins.toolkit as tk
 import ckan.model as model
+from ckan.logic import NotFound
 from ckan.views.group import (
     # TODO: don't use hidden funcitons
     _get_group_template,
@@ -152,10 +153,15 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     except KeyError:
         package["isopen"] = False
 
-    resource_views = tk.get_action("resource_view_list")(
-        context, {"id": resource_id}
-    )
-    resource["has_views"] = len(resource_views) > 0
+    try:
+        resource_views = tk.get_action("resource_view_list")(
+            context, {"id": resource["id"]}
+        )
+        resource["has_views"] = len(resource_views) > 0
+    except NotFound:
+        # Resource has been deleted since this version
+        resource_views = []
+        resource["has_views"] = False
 
     current_resource_view = None
     view_id = tk.request.args.get("view_id")
@@ -270,10 +276,14 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 
     # can the resources be previewed?
     for resource in pkg_dict["resources"]:
-        resource_views = tk.get_action("resource_view_list")(
-            context, {"id": resource["id"]}
-        )
-        resource["has_views"] = len(resource_views) > 0
+        try:
+            resource_views = tk.get_action("resource_view_list")(
+                context, {"id": resource["id"]}
+            )
+            resource["has_views"] = len(resource_views) > 0
+        except NotFound:
+            # Resource has been deleted since this version
+            resource["has_views"] = False
 
     package_type = pkg_dict["type"] or "dataset"
     _setup_template_variables(context, {"id": id}, package_type=package_type)

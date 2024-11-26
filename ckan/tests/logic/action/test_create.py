@@ -777,6 +777,29 @@ class TestResourceCreate:
             helpers.call_action("resource_create", **params)
             assert m.call_args.args[3] == {0: 0}, 'copy existing resource 0'
 
+    def test_upload_file_paths(self, create_with_upload):
+        from ckan.common import config
+        import os
+
+        storage_path = config["ckan.storage_path"]
+
+        dataset = factories.Dataset()
+        resource1 = create_with_upload(
+            "hello world", "file1.txt", url="http://data1",
+            package_id=dataset["id"])
+
+        assert os.path.exists(
+            os.path.join(storage_path, "resources", resource1["id"][:3])
+        )
+
+        resource2 = create_with_upload(
+            "bye bye world", "file2.txt", url="http://data2",
+            package_id=dataset["id"])
+
+        assert os.path.exists(
+            os.path.join(storage_path, "resources", resource2["id"][:3])
+        )
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate(object):
