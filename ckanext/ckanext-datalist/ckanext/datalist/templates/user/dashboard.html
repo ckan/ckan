@@ -1,0 +1,11 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  <ul class="nav nav-tabs">
+    {% block dashboard_nav_links %}
+      {{ super() }}
+
+      {{ h.build_nav_icon('dashboard.statistical', h.humanize_entity_type('Charts', 'Charts', 'label') or _('Charts'), icon='chart-line') }}
+    {% endblock %}
+  </ul>
+{% endblock %}

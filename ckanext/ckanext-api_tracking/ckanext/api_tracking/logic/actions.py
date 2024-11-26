@@ -16,11 +16,11 @@ def tracking_urls_and_counts(context, data_dict):
             raise ValidationError(errors)
         
     if 'start_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date = datetime.now()
         data_dict['start_date'] = current_date
     
     if 'end_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date = datetime.now()
         data_dict['end_date'] = current_date
         
     if 'package_name' not in data_dict:
@@ -43,11 +43,11 @@ def tracking_by_user(context, data_dict):
             raise ValidationError(errors)
         
     if 'start_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date = datetime.now()
         data_dict['start_date'] = current_date
     
     if 'end_date' not in data_dict:
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date = datetime.now()
         data_dict['end_date'] = current_date
         
     if 'user_name' not in data_dict:
@@ -58,7 +58,7 @@ def tracking_by_user(context, data_dict):
         
     if 'include_resources' not in data_dict:
         data_dict['include_resources'] = False
-        
+
     limit = data_dict.get('limit', 200)  
     offset = data_dict.get('offset', 0) 
     
