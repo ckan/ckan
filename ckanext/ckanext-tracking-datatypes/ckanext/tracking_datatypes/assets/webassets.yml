@@ -1,0 +1,14 @@
+# tracking_datatypes-js:
+#   filter: rjsmin
+#   output: ckanext-tracking_datatypes/%(version)s-tracking_datatypes.js
+#   contents:
+#     - js/tracking_datatypes.js
+#   extra:
+#     preload:
+#       - base/main
+
+# tracking_datatypes-css:
+#   filter: cssrewrite
+#   output: ckanext-tracking_datatypes/%(version)s-tracking_datatypes.css
+#   contents:
+#     - css/tracking_datatypes.css
