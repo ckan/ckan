@@ -1,21 +1,24 @@
 {#
     Builds links for navigation
-    
+
     nav_item  - the name of the defined nav item defined in config/routing as the named route of the same name
     title      - text used for the link
     icon       - icon name used for link
-    
+
     Example:
-    
+
     {% import 'macros/nav_link.html' as nav %}
     {{ nav.link('home.about', _('About')") }}
-    
+
 #}
-{% macro link(nav_item, title, icon="") %}
-{% set active_page = h.page_is_active(nav_item) %}
+{% macro link(nav_item, title, active_blueprints=[], icon="", url="") %}
+
+{% set active_page = h.page_is_active(nav_item, active_blueprints=active_blueprints) %}
+
+{% set url = url if url else h.url_for(nav_item, id) %}
 
   <li {% if active_page %}class="active"{% endif %}>
-    <a {% if active_page %}aria-current="page"{% endif %} href="{{ h.url_for(nav_item) }}">
+    <a {% if active_page %}aria-current="page"{% endif %} href="{{ url }}">
       {% if icon %}
         <i class="fa fa-{{ icon }}"></i>
       {% endif %}

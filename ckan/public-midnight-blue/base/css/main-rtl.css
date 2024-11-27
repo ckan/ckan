@@ -14223,9 +14223,13 @@ td.diff_header {
 }
 .masthead .main-navbar ul {
   justify-content: center;
-  gap: 24px;
   flex-wrap: wrap;
   padding: 10px 0;
+}
+@media (min-width: 768px) {
+  .masthead .main-navbar ul {
+    gap: 24px;
+  }
 }
 .masthead .main-navbar ul li {
   margin-right: 2px;

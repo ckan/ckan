@@ -740,12 +740,15 @@ def get_flashed_messages(**kwargs: Any):
 
 
 @core_helper
-def page_is_active(menu_item: str) -> bool:
+def page_is_active(
+        menu_item: str, active_blueprints: Optional[list[str]] = None) -> bool:
     '''Returns whether the current link is the active page or not'''
-    controller, action = menu_item.split('.')
+    blueprint, endpoint = menu_item.split('.')
+
     item = {
-        'action': action,
-        'controller': controller
+        'controller': blueprint,
+        'action': endpoint,
+        'highlight_controllers': active_blueprints,
     }
     return _link_active(item)
 
