@@ -67,6 +67,8 @@ class TestCreateIndexes(object):
             "tsvector", connection, resource_id,
         )
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_no_fts_indexes_by_default(
         self, _get_fields
