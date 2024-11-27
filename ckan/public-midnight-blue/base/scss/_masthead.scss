@@ -128,9 +128,11 @@ $notificationsBg: #C9403A;
     .main-navbar {
         ul {
             justify-content: center;
-            gap: 24px;
             flex-wrap: wrap;
             padding: 10px 0;
+            @include media-breakpoint-up(md){
+                gap: 24px
+            }
             li {
                 margin-right: 2px;
                 a {
