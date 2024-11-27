@@ -102,8 +102,8 @@ groups:
 
   - key: ckan.datastore.default_fts_index_field_types
     type: list
-    default: ''
-    example: text tsvector
+    default: text tsvector
+    example: ''
     description: >
       A separate full-text search index will be created by default for fields
       with these types, and used when searching on fields by passing a
