@@ -1065,6 +1065,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'save label': _(u"Save {object_type}"),
         u'search placeholder': _(u'Search {object_type}s...'),
         u'you not member': _(u'You are not a member of any {object_type}s.'),
+        u'user not member': _(u'User isn\'t a member of any {object_type}s.'),
         u'update label': _(u"Update {object_type}"),
     }
 
