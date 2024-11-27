@@ -169,7 +169,7 @@ Here are the data formats for the Search API.
 
 .. Note::
 
-   Powerful searching from the command-line can be achieved with curl and the qjson parameter. In this case you need to remember to escapt the curly braces and use url encoding (e.g. spaces become ``%20``). For example::
+   Powerful searching from the command-line can be achieved with curl and the qjson parameter. In this case, you need to remember to escape the curly braces and use url encoding (e.g. spaces become ``%20``). For example::
 
      curl 'http://thedatahub.org/api/search/dataset?qjson=\{"author":"The%20Stationery%20Office%20Limited"\}'
 
@@ -252,7 +252,7 @@ This returns:
 munge package name
 ``````````````````
 
-For taking an readable identifier and munging it to ensure it is a valid dataset id. Symbols and whitespeace are converted into dashes. Example::
+For taking a readable identifier and munging it to ensure it is a valid dataset id. Symbols and whitespace are converted into dashes. Example::
 
     /api/util/dataset/munge_name?name=police%20spending%20figures%202009
 
@@ -263,7 +263,7 @@ Returns::
 munge title to package name
 ```````````````````````````
 
-For taking a title of a package and munging it to a readable and valid dataset id. Symbols and whitespeace are converted into dashes, with multiple dashes collapsed. Ensures that long titles with a year at the end preserves the year should it need to be shortened. Example::
+For taking a title of a package and munging it to a readable and valid dataset id. Symbols and whitespace are converted into dashes, with multiple dashes collapsed. Ensures that long titles with a year at the end preserves the year should it need to be shortened. Example::
 
     /api/util/dataset/munge_title_to_name?title=police:%20spending%20figures%202009
 
@@ -275,7 +275,7 @@ Returns::
 munge tag
 `````````
 
-For taking a readable word/phrase and munging it to a valid tag (name). Symbols and whitespeace are converted into dashes. Example::
+For taking a readable word/phrase and munging it to a valid tag (name). Symbols and whitespace are converted into dashes. Example::
 
     /api/util/tag/munge?tag=water%20quality
 
