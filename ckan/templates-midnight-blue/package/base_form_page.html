@@ -61,14 +61,6 @@
               </button>
              {% endif %}
               
-            {% if s1 == 'complete' or s2 == 'complete' %}
-            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-metadata-preview')">
-              {{ render_step(3, 'Preview Dataset', s3) }}
-            </button>
-             
-            {% else %}
-              {{ render_step(3, 'Preview Dataset', s3) }}
-            {% endif %}
              
               
               
