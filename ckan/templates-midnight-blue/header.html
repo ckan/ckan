@@ -94,10 +94,10 @@
                 {% set org_type = h.default_group_type('organization') %}
                 {% set group_type = h.default_group_type('group') %}
 
-                {{ nav.link(dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), active_blueprints=[dataset_type, dataset_type + '_resource']) }}
-                {{ nav.link(org_type ~ '.index', h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), active_blueprints=[org_type]) }}
-                {{ nav.link(group_type ~ '.index', h.humanize_entity_type('group', group_type, 'main nav') or _('Groups'), active_blueprints=[group_type]) }}
-                {{ nav.link('home.about', _('About')) }}
+                {{ nav.link(h.url_for(dataset_type ~ '.search'), h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), active_blueprints=[dataset_type, dataset_type + '_resource']) }}
+                {{ nav.link(h.url_for(org_type ~ '.index'), h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), active_blueprints=[org_type]) }}
+                {{ nav.link(h.url_for(group_type ~ '.index'), h.humanize_entity_type('group', group_type, 'main nav') or _('Groups'), active_blueprints=[group_type]) }}
+                {{ nav.link(h.url_for('home.about'), _('About')) }}
               {% endblock %}
             </ul>
           {% endblock %}
