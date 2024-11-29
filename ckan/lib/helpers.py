@@ -755,7 +755,7 @@ def page_is_active(
 
         `menu_item`
             Accepts a route (e.g. 'group.index') or a URL (e.g. '/group')
-        `active_blueprints` 
+        `active_blueprints`
             contains a list of additional blueprints that should be considered
             active besides the one in `menu_item`
     '''
