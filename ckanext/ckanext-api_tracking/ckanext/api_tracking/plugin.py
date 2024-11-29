@@ -16,14 +16,16 @@ import ckan.plugins.toolkit as toolkit
 from ckan.common import CKANConfig
 import ckan.plugins.toolkit as toolkit
 import ckanext.api_tracking.views as views
+from ckan.lib.plugins import DefaultTranslation
 
 
-class API_Tracking_Plugin(p.SingletonPlugin):
+class API_Tracking_Plugin(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.IMiddleware, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IConfigurer)
     p.implements(p.IBlueprint)
+    p.implements(p.ITranslation)
    
     def get_blueprint(self):
         return views.get_blueprints()

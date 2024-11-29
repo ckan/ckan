@@ -1,0 +1,93 @@
+# Vietnamese translations for ckanext-api_tracking.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the
+# ckanext-api_tracking
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-api_tracking 0.0.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-11-29 16:12+0700\n"
+"PO-Revision-Date: 2024-11-29 16:01+0700\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: vi\n"
+"Language-Team: vi <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+#: ckanext/api_tracking/views.py:71
+msgid "Need to be system administrator to administer"
+msgstr ""
+
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:16
+msgid "Filter Tracking Datasets"
+msgstr "Lọc lượng theo dõi bộ dữ liệu"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:20
+msgid "Start Date"
+msgstr "Ngày bắt đầu"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:25
+msgid "End Date"
+msgstr "Ngày kết thúc"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:33
+msgid "Package Name"
+msgstr "Tên bộ dữ liệu"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:44
+msgid "User Name"
+msgstr "Tên người dùng"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:46
+msgid "All User"
+msgstr "Tất cả người dùng"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:58
+msgid "Filter"
+msgstr "Lọc"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:71
+msgid "Select number of items to display"
+msgstr "Lựa chọn số lượng cột hiển thị"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:77
+msgid "Sort by"
+msgstr "Lọc theo"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:79
+msgid "Views (Ascending)"
+msgstr "Cao đến thấp"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:80
+msgid "Views (Descending)"
+msgstr "Thấp đến cao"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:81
+msgid "Name (A-Z)"
+msgstr "Từ a đến z"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:82
+msgid "Name (Z-A)"
+msgstr "Từ z đến a"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:88
+msgid "Select Chart Type"
+msgstr "Lựa chọn biểu đồ"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:90
+msgid "Bar Chart"
+msgstr "Dạng cột"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:91
+msgid "Line Chart"
+msgstr "Dạng đường kẻ"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:92
+msgid "Pie Chart"
+msgstr "Dạng hình tròn"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:103
+msgid "TRACKING DATASETS"
+msgstr "Theo dõi bộ dữ liệu"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:109
+msgid "No datasets available."
+msgstr "Không có bộ dữ liệu nào."
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:116
+msgid "Resource Statistics"
+msgstr "Thống kê tài nguyên"
+#: ckanext/api_tracking/templates/user/dashboard_statistical.html:120
+msgid "No resources have been accessed."
+msgstr "Không có tài nguyên nào được truy cập."
+#: ckanext/api_tracking/templates/user/dashboard.html:8
+msgid "Statistical"
+msgstr "Thống kê"
+

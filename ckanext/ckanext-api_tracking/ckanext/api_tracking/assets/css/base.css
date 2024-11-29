@@ -69,13 +69,13 @@
 
 #trackingChart {
     width: 60%;      /* Chiều rộng của biểu đồ, ví dụ 80% chiều rộng của phần tử chứa */
-    height: 300px;   /* Chiều cao của biểu đồ */
+    height: 200px;   /* Chiều cao của biểu đồ */
     margin: 0 auto;  /* Căn giữa biểu đồ */
   }
   
   /* Điều chỉnh kích thước của biểu đồ resource */
   #resourceChart {
-    width: 70%;      /* Chiều rộng của biểu đồ */
-    height: 300px;   /* Chiều cao của biểu đồ */
+    width: 60%;      /* Chiều rộng của biểu đồ */
+    height: 100px;   /* Chiều cao của biểu đồ */
     margin: 0 auto;  /* Căn giữa biểu đồ */
   }

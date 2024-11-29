@@ -13,16 +13,16 @@
 <div>
   <div class="container mt-5">
     <form id="tracking-form" action="{{ url_for('dashboard.statistical') }}" method="post" class="p-4 border rounded shadow-sm" onsubmit="return validateDates()">
-      <h4 class="mb-4">Filter Tracking Datasets</h4>
+      <h4 class="mb-4">{{_("Filter Tracking Datasets")}}</h4>
       
       <div class="row mb-3">
           <div class="col-md-6">
-              <label for="start_date" class="form-label">Start Date</label>
+              <label for="start_date" class="form-label">{{_("Start Date")}}</label>
               <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}" max="{{ today }}">
               <div id="start-date-error" class="text-danger mt-1"></div>
           </div>
           <div class="col-md-6">
-              <label for="end_date" class="form-label">End Date</label>
+              <label for="end_date" class="form-label">{{_("End Date")}}</label>
               <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}" max="{{ today }}">
               <div id="end-date-error" class="text-danger mt-1"></div>
           </div>
@@ -30,7 +30,7 @@
   
       <div class="row mb-3">
         <div class="col-md-6">
-          <label for="package_name" class="form-label">Package Name</label>
+          <label for="package_name" class="form-label">{{_("Package Name")}}</label>
           <select id="package_name" name="package_name" class="form-control select2" multiple="multiple">
               {% for dataset in all_datasets %}
                   <option value="{{ dataset  }}" 
@@ -41,9 +41,9 @@
           </select>
         </div>
         <div class="col-md-6">
-          <label for="user_name" class="form-label">User Name</label>
+          <label for="user_name" class="form-label">{{_("User Name")}}</label>
           <select name="user_name" class="form-control select2">
-            <option value="" {% if user_name == [""] %}selected{% endif %}>All Users</option>  <!-- "All" option -->
+            <option value="" {% if user_name == [""] %}selected{% endif %}>{{_("All User")}}</option>  <!-- "All" option -->
             {% for user in user_all %}
                 <option value="{{ user.name }}"{% if user.name in user_name %}selected{% endif %}>
                     {{ user.display_name }}
@@ -55,7 +55,7 @@
       
       </div>
       <div class="text-end">
-          <button type="submit" class="btn btn-primary px-4">Filter</button>
+          <button type="submit" class="btn btn-primary px-4">{{_("Filter")}}</button>
       </div>
     </form>
   </div>
@@ -68,29 +68,28 @@
     <div class="row mb-3">
       <div class="col-md-4">
         <div class="item-count-container">
-          <label for="itemCount" class="item-count-label">Select number of items to display</label>
+          <label for="itemCount" class="item-count-label">{{_("Select number of items to display")}}</label>
           <input type="number" id="itemCount" min="1" max="1000" value="20" class="item-count-input" oninput="updateChartData()">
         </div>
       </div>
       <div class="col-md-4">
         <div class="sort-container">
-          <label for="sortOptions">Sort by</label>
+          <label for="sortOptions">{{_("Sort by")}}</label>
           <select id="sortOptions" onchange="sortData(this.value)">
-            <option value="asc">Views (Ascending)</option>
-            <option value="desc">Views (Descending)</option>
-            <option value="nameAsc">Name (A-Z)</option>
-            <option value="nameDesc">Name (Z-A)</option>
+            <option value="asc">{{_("Views (Ascending)")}}</option>
+            <option value="desc">{{_("Views (Descending)")}}</option>
+            <option value="nameAsc">{{_("Name (A-Z)")}}</option>
+            <option value="nameDesc">{{_("Name (Z-A)")}}</option>
           </select>
         </div>
       </div>
       <div class="col-md-4">
         <div>
-          <label for="chartType">Select Chart Type</label>
+          <label for="chartType">{{_("Select Chart Type")}}</label>
           <select id="chartType">
-            <option value="bar">Bar Chart</option>
-            <option value="line">Line Chart</option>
-            <option value="doughnut">Doughnut Chart</option>
-            <option value="radar">Radar Chart</option>
+            <option value="bar">{{_("Bar Chart")}}</option>
+            <option value="line">{{_("Line Chart)")}}</option>
+            <option value="pie">{{_("Pie Chart")}}</option>
           </select>
         </div>
         
@@ -101,24 +100,24 @@
     
   
         <div class="container mt-4">
-    <h1 class="text-center">TRACKING DATASETS</h1>
+    <h1 class="text-center">{{_("TRACKING DATASETS")}}</h1>
     {% if urls_and_counts %}
         <!-- Replace table with Chart.js -->
         <canvas id="trackingChart" width="400" height="200"></canvas>
     {% else %}
         <div class="alert alert-warning text-center" role="alert">
-            <p>No datasets available.</p>
+            <p>{{_("No datasets available.")}}</p>
         </div>
     {% endif %}
 </div>
 
   <!-- Resource Chart Section (Hidden Initially) -->
   <div id="resourceChartContainer">
-    <h2 id="title_resource" >Resource Statistics</h2>
+    <h2 id="title_resource" >{{_("Resource Statistics")}}</h2>
     <canvas id="resourceChart"></canvas>
   </div>
   <div id="noResourceMessage" style="display: none; text-align: center; color: red; font-weight: bold;">
-    No resources have been accessed.
+    {{_("No resources have been accessed.")}}
   </div>
   
     </div>
