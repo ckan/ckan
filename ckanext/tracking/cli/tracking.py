@@ -53,7 +53,7 @@ def update_all(start_date: Optional[str] = None):
         # No date given. See when we last have data for and get data
         # from 2 days before then in case new data is available.
         # If no date here then use 2011-01-01 as the start date
-        stmt = select(ts).order_by(desc(ts.tracking_date))
+        stmt = select(ts).order_by(ts.tracking_date.desc())
         result = session.scalars(stmt).first()
         if result:
             date = result.tracking_date
@@ -204,7 +204,7 @@ def update_tracking_summary_with_package_id(package_url: str):
     )
 
     session.query(ts).filter(
-        ts.package_id.is_(None),  # type: ignore
+        ts.package_id.is_(None),
         ts.tracking_type == "page",
     ).update(
         {ts.package_id: func.coalesce(subquery, "~~not~found~~")},
@@ -229,7 +229,7 @@ def update_tracking_summary_with_package_id(package_url: str):
         .filter(
             ta.url == ts.url,
             ta.tracking_date <= ts.tracking_date,
-            ta.tracking_date >= ts.tracking_date - 14,  # type: ignore
+            ta.tracking_date >= ts.tracking_date - 14,
         )
         .scalar_subquery()
     )
@@ -250,7 +250,7 @@ def update_tracking_summary_with_package_id(package_url: str):
     session.query(ts).filter(
         ts.running_total == 0,
         ts.tracking_type == "page",
-        ts.package_id.isnot(None),  # type: ignore
+        ts.package_id.isnot(None),
         ts.package_id != "~~not~found~~",
     ).update(
         {

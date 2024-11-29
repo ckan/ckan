@@ -15,7 +15,7 @@ __all__ = [
     "Model", "AlchemySession", "Query",
 ]
 
-AlchemySession = ScopedSession
+AlchemySession = ScopedSession[Any]
 
 
 class Meta(Protocol):

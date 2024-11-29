@@ -83,10 +83,6 @@ msgspec==0.18.6
     # via
     #   -r requirements.in
     #   flask-session
-mypy==1.13.0
-    # via sqlalchemy
-mypy-extensions==1.0.0
-    # via mypy
 packaging==24.1
     # via -r requirements.in
 passlib==1.7.4
@@ -125,23 +121,17 @@ simplejson==3.19.3
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
-sqlalchemy[mypy]==1.4.54
+sqlalchemy==2.0.36
     # via
     #   -r requirements.in
     #   alembic
-    #   sqlalchemy
-sqlalchemy2-stubs==0.0.2a38
-    # via sqlalchemy
 sqlparse==0.5.1
     # via -r requirements.in
-tomli==2.0.2
-    # via mypy
 typing-extensions==4.12.2
     # via
     #   -r requirements.in
     #   alembic
-    #   mypy
-    #   sqlalchemy2-stubs
+    #   sqlalchemy
 tzlocal==5.2
     # via -r requirements.in
 urllib3==2.2.3

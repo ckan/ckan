@@ -132,7 +132,7 @@ class TestResourceQuery(object):
             query=query, fields=fields, terms=terms, options=options
         )
         resources = [
-            model.Session.query(model.Resource).get(resource_id)
+            model.Session.get(model.Resource, resource_id)
             for resource_id in result["results"]
         ]
         urls = set([resource.url for resource in resources])
@@ -143,7 +143,7 @@ class TestResourceQuery(object):
         result = search.query_for(model.Resource).run(fields=fields)
         assert result["count"] == 6
         resources = [
-            model.Session.query(model.Resource).get(resource_id)
+            model.Session.get(model.Resource, resource_id)
             for resource_id in result["results"]
         ]
         urls = set([resource.url for resource in resources])
