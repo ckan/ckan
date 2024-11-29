@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, Iterable, Literal
+from typing import Any, Callable, Iterable, Literal, cast
 
 import sqlalchemy
 from sqlalchemy import Table
@@ -127,7 +127,7 @@ def table_dict_save(
     '''
     session = context["session"]
 
-    table = class_mapper(ModelClass).persist_selectable
+    table = cast(Table, class_mapper(ModelClass).persist_selectable)
 
     obj = None
 
