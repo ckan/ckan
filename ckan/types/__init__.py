@@ -23,7 +23,7 @@ from .model import (
     Query,
 )
 
-if TYPE_CHECKING:
+if TYPE_CHECKING: 
     from ckanext.activity.model import Activity
 
 

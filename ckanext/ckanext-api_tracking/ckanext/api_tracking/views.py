@@ -1,3 +1,4 @@
+import json
 import math
 from typing import Any
 from unittest import result
@@ -89,20 +90,16 @@ def statistical():
         
 
     # Aggregate the package views
-    aggregated_urls_and_counts = aggregate_package_views(urls_and_counts)
-    print("=====================>",aggregated_urls_and_counts)
-    for package in aggregated_urls_and_counts:
-        print("package", package['include_resources'])
-            
+    aggregated_urls_and_counts = json.dumps(aggregate_package_views(urls_and_counts))
     
     dataset_alls = logic.get_action('package_list')(data_dict={})
     user_all= logic.get_action('user_list')(data_dict={})
     
-    
+
     # Prepare variables for rendering
     extra_vars: dict[str, Any] = {
         u'data': urls_and_counts,
-        u'urls_and_counts': aggregated_urls_and_counts,
+        u'urls_and_counts': aggregated_urls_and_counts if aggregated_urls_and_counts else [],
         u'start_date': start_date,
         u'end_date': end_date,
         u'package_name': package_name,

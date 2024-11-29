@@ -7,6 +7,8 @@ dataset-js:
     - js/jquery.js
     - js/select.js
     - js/base.js
+    - js/chart.js
+    - js/custom_chartjs.js
   extra:
     preload:
       - base/main

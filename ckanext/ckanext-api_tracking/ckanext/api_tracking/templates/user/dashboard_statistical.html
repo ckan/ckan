@@ -55,77 +55,64 @@
   
   {% block primary_content_inner %}
     {{ super() }}
-          <div class="container mt-4" id="resultTable">
-              <h1 class="text-center">TRACKING DATASETS</h1>
-              {% if urls_and_counts %}
-                  <table id="dataTable" class="table table-striped table-bordered">
-                      <thead>
-                          <tr>
-                              <th>STT</th>
-                              <th>Package Name</th>
-                              <th>Package Views</th>
-                              <th>Resouces</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {% for package in urls_and_counts %}
-                            {% if package.package_view > 0 %}
-                              <tr>
-                                  <td>{{ loop.index }}</td>
-                                  <td><a href="{{ url_for('dataset.read', id=package.package) }}" target="_blank">
-                                    {{ package.title }}
-                                  </a></td>
-                                  <td>{{ package.package_view }}</td>
-                                  <td>
-                                    <button 
-                                    class="btn btn-primary" 
-                                    data-package="{{ package.package }}" 
-                                    data-user="{{request.form.get('user_name')}}"
-                                    data-resources='{{ package["include_resources"] | tojson }}' 
-                                    onclick="viewResource(this)">
-                                    Tracking resource
-                                  </button>
-                                  </td>
-                              </tr>
-                            {% else %}
-                              <tr>
-                                <td>{{ package.title }}</td>
-                                <td>No views recorded</td>
-                              </tr>
-                            {% endif %}
-  
-                          {% endfor %}
-                      </tbody>
-                  </table>
-              {% else %}
-                  <div class="alert alert-warning text-center" role="alert">                <p>No datasets available.</p>
-                  </div>
-              {% endif %}
-    </div>
-  
-  <!-- Thẻ phân cách -->
-  
-  <!-- Resorce Table -->
-  <div class="container mt-4">
-    <div id="resourceSection" style="display:none; margin-top: 20px;">
-      <h4 id="resourceSectionTitle" class="text-center">Tracking Resources</h4>
-      <div class="arrow-container text-center">
-        <div class="arrow"></div>
+    <!-- Select display items -->
+    <!-- Sort -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <div class="item-count-container">
+          <label for="itemCount" class="item-count-label">Select number of items to display</label>
+          <input type="number" id="itemCount" min="1" max="1000" value="5" class="item-count-input" oninput="updateChartData()">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="sort-container">
+          <label for="sortOptions">Sort by</label>
+          <select id="sortOptions" onchange="sortData(this.value)">
+            <option value="asc">Views (Ascending)</option>
+            <option value="desc">Views (Descending)</option>
+            <option value="nameAsc">Name (A-Z)</option>
+            <option value="nameDesc">Name (Z-A)</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div>
+          <label for="chartType">Select Chart Type</label>
+          <select id="chartType">
+            <option value="bar">Bar Chart</option>
+            <option value="line">Line Chart</option>
+            <option value="doughnut">Doughnut Chart</option>
+            <option value="radar">Radar Chart</option>
+          </select>
+        </div>
+        
+      </div>
+      </div>
+    
     </div>
     
-      <table id="resourceTable" class="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Resource Name</th>
-            <th>Resource Downloads</th>
-            <th>Resource Views</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Data will be populated dynamically -->
-        </tbody>
-      </table>
+  
+        <div class="container mt-4">
+    <h1 class="text-center">TRACKING DATASETS</h1>
+    {% if urls_and_counts %}
+        <!-- Replace table with Chart.js -->
+        <canvas id="trackingChart" width="400" height="200"></canvas>
+    {% else %}
+        <div class="alert alert-warning text-center" role="alert">
+            <p>No datasets available.</p>
+        </div>
+    {% endif %}
+</div>
+
+  <!-- Resource Chart Section (Hidden Initially) -->
+  <div id="resourceChartContainer">
+    <h2 id="title_resource" >Resource Statistics</h2>
+    <canvas id="resourceChart"></canvas>
+  </div>
+  <div id="noResourceMessage" style="display: none; text-align: center; color: red; font-weight: bold;">
+    No resources have been accessed.
+  </div>
+  
     </div>
     <button id="moveToTop" class="btn">
       <i class="fas fa-arrow-up"></i>

@@ -4,7 +4,7 @@ from ckan.types import (
 from ckan.logic.schema import validator_args
 
 @validator_args    
-def tracking_datatypes_get_sum_schema(not_empty: Validator, ignore_missing: Validator, boolean_validator: Validator, 
+def tracking_datatypes_get_sum_schema(not_empty: Validator, ignore_missing: Validator,
                                      isodate: Validator, int_validator: Validator):
     return {
         'start_date': [ignore_missing, not_empty, isodate],
