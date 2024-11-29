@@ -617,7 +617,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
     content_disposition = u'attachment; filename="{name}.csv"'.format(
                                     name=file_name)
     content_type = b'text/csv; charset=utf-8'
-    response.headers['Content-Type'] = content_type  # type: ignore
+    response.headers['Content-Type'] = content_type
     response.headers['Content-Disposition'] = content_disposition
 
     return response
@@ -1080,7 +1080,6 @@ class EditGroupView(MethodView):
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
         data_dict['id'] = context['id']
-        context['allow_partial_update'] = True
         try:
             action_name = (
                 'organization_update' if is_organization else 'group_update'

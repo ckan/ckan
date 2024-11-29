@@ -446,7 +446,7 @@ def _where_clauses(
     # add full-text search where clause
     q: Union[dict[str, str], str, Any] = data_dict.get('q')
     full_text = data_dict.get('full_text')
-    if q and not full_text:
+    if q:
         if isinstance(q, str):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
@@ -460,6 +460,7 @@ def _where_clauses(
 
                 ftyp = fields_types[field]
                 if not datastore_helpers.should_fts_index_field_type(ftyp):
+                    # use general full text search to narrow results
                     clause_str = u'_full_text @@ {0}'.format(query_field)
                     clauses.append((clause_str,))
 
@@ -469,47 +470,12 @@ def _where_clauses(
                         identifier(field),
                         query_field)
                 clauses.append((clause_str,))
-    elif (full_text and not q):
-        ts_query_alias = _ts_query_alias()
-        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
-        clauses.append((clause_str,))
-
-    elif full_text and isinstance(q, dict):
-        ts_query_alias = _ts_query_alias()
-        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
-        clauses.append((clause_str,))
-        # update clauses with q dict
-        _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses)
-
-    elif full_text and isinstance(q, str):
+    if full_text:
         ts_query_alias = _ts_query_alias()
         clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
         clauses.append((clause_str,))
 
     return clauses
-
-
-def _update_where_clauses_on_q_dict(
-        data_dict: dict[str, str], fields_types: dict[str, str],
-        q: dict[str, str],
-        clauses: WhereClauses) -> None:
-    lang = _fts_lang(data_dict.get('language'))
-    for field, _ in q.items():
-        if field not in fields_types:
-            continue
-        query_field = _ts_query_alias(field)
-
-        ftyp = fields_types[field]
-        if not datastore_helpers.should_fts_index_field_type(ftyp):
-            clause_str = u'_full_text @@ {0}'.format(query_field)
-            clauses.append((clause_str,))
-
-        clause_str = (
-            u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
-                literal_string(lang),
-                identifier(field),
-                query_field)
-        clauses.append((clause_str,))
 
 
 def _textsearch_query(
@@ -715,6 +681,7 @@ def _build_fts_indexes(
         data_dict: dict[str, Any],  # noqa
         sql_index_str_method: str, fields: list[dict[str, Any]]):
     fts_indexes: list[str] = []
+    fts_noindexes: list[str] = []
     resource_id = data_dict['resource_id']
     fts_lang = data_dict.get(
         'language', config.get('ckan.datastore.default_fts_lang'))
@@ -728,9 +695,6 @@ def _build_fts_indexes(
 
     full_text_field = {'type': 'tsvector', 'id': '_full_text'}
     for field in [full_text_field] + fields:
-        if not datastore_helpers.should_fts_index_field_type(field['type']):
-            continue
-
         field_str = field['id']
         if field['type'] not in ['text', 'tsvector']:
             field_str = cast_as_text(field_str)
@@ -738,13 +702,18 @@ def _build_fts_indexes(
             field_str = u'"{0}"'.format(field_str)
         if field['type'] != 'tsvector':
             field_str = to_tsvector(field_str)
+        if field['id'] != '_full_text' and not (
+                datastore_helpers.should_fts_index_field_type(field['type'])):
+            fts_noindexes.append(_generate_index_name(resource_id, field_str))
+            continue
+
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',
             name=_generate_index_name(resource_id, field_str),
             method=_get_fts_index_method(), fields=field_str))
 
-    return fts_indexes
+    return fts_indexes, fts_noindexes
 
 
 def _drop_indexes(context: Context, data_dict: dict[str, Any],
@@ -950,9 +919,8 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
     field_ids = _pluck('id', fields)
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
-    fts_indexes = _build_fts_indexes(data_dict,
-                                     sql_index_string_method,
-                                     fields)
+    fts_indexes, fts_noindexes = _build_fts_indexes(
+        data_dict, sql_index_string_method, fields)
     sql_index_strings = sql_index_strings + fts_indexes
 
     if indexes is not None:
@@ -992,10 +960,13 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
 
     current_indexes = _get_index_names(context['connection'],
                                        data_dict['resource_id'])
+
+    for fts_idx in current_indexes:
+        if fts_idx in fts_noindexes:
+            connection.execute(sa.text(
+                'DROP INDEX {0} CASCADE'.format(sa.column(fts_idx))))
     for sql_index_string in sql_index_strings:
-        has_index = [c for c in current_indexes
-                     if sql_index_string.find(c) != -1]
-        if not has_index:
+        if not any(c in sql_index_string for c in current_indexes):
             connection.execute(sa.text(sql_index_string))
 
 

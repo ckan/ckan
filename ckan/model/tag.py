@@ -269,8 +269,7 @@ class PackageTag(core.StatefulObjectMixin,
     def __repr__(self):
         assert self.package
         assert self.tag
-        s = u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
-        return s.encode('utf8')
+        return u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
 
     @classmethod
     @maintain.deprecated(since="2.9.0")

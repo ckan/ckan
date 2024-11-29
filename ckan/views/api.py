@@ -228,6 +228,8 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         * ``success``: A boolean indicating if the request was successful or
                 an exception was raised
         * ``result``: The output of the action, generally an Object or an Array
+        * ``changed_entities``: types and ids of entities created, updated
+                or deleted as a result of this action (for some actions)
     '''
 
     # Check if action exists
@@ -275,8 +277,13 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     # Call the action function, catch any exception
     try:
         result = function(context, request_data)
-        return_dict[u'success'] = True
-        return_dict[u'result'] = result
+        return_dict['success'] = True
+        return_dict['result'] = result
+        if 'changed_entities' in context:
+            return_dict['changed_entities'] = {
+                typ: sorted(ids)
+                for typ, ids in context['changed_entities'].items()
+            }
     except DataError as e:
         log.info(u'Format incorrect (Action API): %s - %s',
                  e.error, request_data)
