@@ -1,0 +1,2 @@
+Add the configuration option 'ckan.datastore.ms_in_timestamp', control add milliseconds in to column with timestamp type.
+To restore old behavior without milliseconds in timestamp add in config: 'ckan.datastore.ms_in_timestamp = false'
