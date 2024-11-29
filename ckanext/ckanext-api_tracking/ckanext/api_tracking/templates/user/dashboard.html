@@ -5,16 +5,6 @@
     {% block dashboard_nav_links %}
       {{ super() }}
 
-      {% asset 'api_tracking/dataset-css' %}
-      {% asset 'api_tracking/dataset-js' %}
-      <script>
-        {% if urls_and_counts is not undefined and urls_and_counts is not none %}
-            window.trackingData = {{ urls_and_counts | tojson }};
-        {% else %}
-            window.trackingData = [];
-        {% endif %}
-    </script>
-
       {{ h.build_nav_icon('dashboard.statistical', h.humanize_entity_type('statistical', 'Statistical', 'label') or _('Statistical'), icon='users') }}
     {% endblock %}
   </ul>

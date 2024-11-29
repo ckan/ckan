@@ -115,9 +115,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Show Resource Chart
   function showResourceChart(resources) {
     const count = parseInt(itemCountInput.value, 10) || 5;
-    const sortOption = sortOptions.value; // Get the selected sort option
-    let sortedResources = [...resources]; // Make a copy to avoid mutation
-    sortedResources = sortData(sortedResources, sortOption, true); // Sort resources based on selected option
+    const sortOption = sortOptions.value; 
+    let sortedResources = [...resources]; 
+    sortedResources = sortData(sortedResources, sortOption, true); 
 
     // Gộp các tài nguyên có cùng tên
     const mergedResources = mergeResources(sortedResources);
@@ -133,10 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
         resourceChartInstance.destroy();
       }
 
-      const chartType = chartTypeSelect.value;  // Get the selected chart type for resource chart
+      const chartType = chartTypeSelect.value;  
 
       resourceChartInstance = new Chart(resourceChartCtx, {
-        type: chartType,  // Use the selected chart type
+        type: chartType,  
         data: {
           labels: resourceLabels,
           datasets: [
@@ -203,10 +203,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // Show the resource chart for the first package if clicked
     ctx.canvas.addEventListener('click', function (e) {
       const activePoints = packageChartInstance.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+      console.log("active poitnand", activePoints);
       if (activePoints.length > 0) {
         const dataIndex = activePoints[0].index;
-        const resources = limitedData[dataIndex].include_resources;
-        showResourceChart(resources);  // Update resource chart after sorting and merging
+      console.log("active dataIndex", dataIndex);
+      
+      const resources = limitedData[dataIndex].include_resources;
+      console.log("aresources", resources);
+      showResourceChart(resources);  // Update resource chart after sorting and merging
+      console.log("showressiyurc", showResourceChart(resources) );
+      
       } else {
         hideResourceChart();
         document.getElementById('noResourceMessage').style.display = 'block'; // Ẩn thông báo khi có dữ liệu

@@ -1,7 +1,15 @@
 {% extends 'user/dashboard.html' %}
 
 {% block page_primary_action %}
-
+{% asset 'api_tracking/dataset-css' %}
+{% asset 'api_tracking/dataset-js' %}
+<script>
+  {% if urls_and_counts is not undefined and urls_and_counts is not none %}
+      window.trackingData = {{ urls_and_counts | tojson }};
+  {% else %}
+      window.trackingData = [];
+  {% endif %}
+</script>
 <div>
   <div class="container mt-5">
     <form id="tracking-form" action="{{ url_for('dashboard.statistical') }}" method="post" class="p-4 border rounded shadow-sm" onsubmit="return validateDates()">
@@ -61,7 +69,7 @@
       <div class="col-md-4">
         <div class="item-count-container">
           <label for="itemCount" class="item-count-label">Select number of items to display</label>
-          <input type="number" id="itemCount" min="1" max="1000" value="5" class="item-count-input" oninput="updateChartData()">
+          <input type="number" id="itemCount" min="1" max="1000" value="20" class="item-count-input" oninput="updateChartData()">
         </div>
       </div>
       <div class="col-md-4">
