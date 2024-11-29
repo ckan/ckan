@@ -30,7 +30,7 @@ import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash, has_request_context
+from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import url_for as _flask_default_url_for
@@ -737,9 +737,31 @@ def get_flashed_messages(**kwargs: Any):
 
 
 @core_helper
+def endpoint_from_url(url: str) -> str:
+    try:
+        urls = current_app.url_map.bind("")
+        match = urls.match(url)
+        endpoint = match[0]
+    except RuntimeError:
+        endpoint = ""
+    return endpoint
+
+
+@core_helper
 def page_is_active(
         menu_item: str, active_blueprints: Optional[list[str]] = None) -> bool:
-    '''Returns whether the current link is the active page or not'''
+    '''
+        Returns whether the current link is the active page or not.
+
+        `menu_item`
+            Accepts a route (e.g. 'group.index') or a URL (e.g. '/group')
+        `active_blueprints` 
+            contains a list of additional blueprints that should be considered
+            active besides the one in `menu_item`
+    '''
+    if menu_item.startswith("/"):
+        menu_item = endpoint_from_url(menu_item)
+
     blueprint, endpoint = menu_item.split('.')
 
     item = {
