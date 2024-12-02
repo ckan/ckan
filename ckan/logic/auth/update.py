@@ -152,7 +152,7 @@ def organization_update(context: Context, data_dict: DataDict) -> AuthResult:
         return {'success': True}
 
 
-def reindex_organization_datasets(context: Context,
+def organization_packages_background_reindex(context: Context,
                                   data_dict: DataDict) -> AuthResult:
     """
     If you have permission to edit the Organization, you can reindex it.
@@ -160,14 +160,14 @@ def reindex_organization_datasets(context: Context,
     return authz.is_authorized('organization_update', context, data_dict)
 
 
-def reindex_group_datasets(context: Context, data_dict: DataDict) -> AuthResult:
+def group_packages_background_reindex(context: Context, data_dict: DataDict) -> AuthResult:
     """
     If you have permission to edit the Group, you can reindex it.
     """
     return authz.is_authorized('group_update', context, data_dict)
 
 
-def reindex_site(context: Context, data_dict: DataDict) -> AuthResult:
+def site_packages_background_reindex(context: Context, data_dict: DataDict) -> AuthResult:
     """
     Only sysadmins can perform reindexing
     """

@@ -1340,9 +1340,9 @@ def search_rebuild(group_type: str, is_organization: bool,
 
     try:
         if is_organization:
-            check_access('reindex_organization_datasets', context)
+            check_access('organization_packages_background_reindex', context)
         else:
-            check_access('reindex_group_datasets', context)
+            check_access('group_packages_background_reindex', context)
     except NotAuthorized:
         return base.abort(403, _('Not authorized to see this page'))
 

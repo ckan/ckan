@@ -929,9 +929,9 @@ def _group_or_org_packages_background_reindex(
     data_dict['type'] = group.type
 
     if is_org:
-        _check_access('reindex_organization_datasets', context, data_dict)
+        _check_access('organization_packages_background_reindex', context, data_dict)
     else:
-        _check_access('reindex_group_datasets', context, data_dict)
+        _check_access('group_packages_background_reindex', context, data_dict)
 
     if is_org:
         query = session.query(model.Package.id).\
@@ -1020,7 +1020,7 @@ def site_packages_background_reindex(context: Context, data_dict: DataDict):
     Reindexes all of the site's datasets in a background job.
     """
     model = context['model']
-    _check_access('reindex_site', context, data_dict)
+    _check_access('site_packages_background_reindex', context, data_dict)
 
     _entity_id = plugins.toolkit.config.get('ckan.site_id')
 

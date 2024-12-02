@@ -255,7 +255,7 @@ def search_rebuild():
     })
 
     try:
-        plugins.toolkit.check_access('reindex_site', context)
+        plugins.toolkit.check_access('site_packages_background_reindex', context)
     except logic.NotAuthorized:
         return base.abort(403, _('Not authorized to see this page'))
 
