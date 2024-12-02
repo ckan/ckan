@@ -271,10 +271,10 @@ def search_rebuild():
             h.flash_error(_('Unable to re-index records.'))
 
     task = None
+    entity_id = plugins.toolkit.config.get('ckan.site_id')
     try:
-        _entity_id = plugins.toolkit.config.get('ckan.site_id')
         task = plugins.toolkit.get_action('task_status_show')(
-                    context, {'entity_id': _entity_id,
+                    context, {'entity_id': entity_id,
                               'task_type': 'reindex_packages',
                               'key': 'search_rebuild'})
         task['value'] = json.loads(task.get('value', '{}'))
@@ -282,7 +282,7 @@ def search_rebuild():
         pass
 
     extra_vars = {'job_info': task,
-                  'site_id': _entity_id}
+                  'site_id': entity_id}
 
     return base.render('admin/search_rebuild.html', extra_vars)
 

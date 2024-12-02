@@ -4,7 +4,7 @@ import datetime
 from rq import get_current_job
 
 from typing import Optional, Union, cast
-from ckan.types import Context
+from ckan.types import Context, AlchemySession
 
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -59,8 +59,9 @@ def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
                               'key': 'search_rebuild'})
         task['state'] = 'running'
         task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
-        logic.get_action('task_status_update')({
-            'session': model.meta.create_local_session(), 'ignore_auth': True},
+        logic.get_action('task_status_update')(
+            {'session': cast(AlchemySession, model.meta.create_local_session()),
+             'ignore_auth': True},
             task)
     except logic.NotFound:
         pass
@@ -68,7 +69,9 @@ def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
     value = json.loads(task.get('value', '{}'))
     error = json.loads(task.get('error', '{}'))
 
-    value['job_id'] = get_current_job().id
+    current_job = get_current_job()
+    if current_job:
+        value['job_id'] = current_job.id
 
     for pkg_id, total, indexed, err in search.rebuild(
       force=True, package_ids=package_ids):
@@ -85,11 +88,13 @@ def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
         task['value'] = json.dumps(value)
         task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
         logic.get_action('task_status_update')(
-            {'session': model.meta.create_local_session(), 'ignore_auth': True},
+            {'session': cast(AlchemySession, model.meta.create_local_session()),
+             'ignore_auth': True},
             task)
 
     task['state'] = 'complete'
     task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
     logic.get_action('task_status_update')(
-        {'session': model.meta.create_local_session(), 'ignore_auth': True},
+        {'session': cast(AlchemySession, model.meta.create_local_session()),
+         'ignore_auth': True},
         task)

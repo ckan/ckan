@@ -921,7 +921,6 @@ groups:
           Organization's title or name.
 
       - key: ckan.search.rebuild_queue_name
-        type: str
         default: search_rebuild
         example: reindex_packages
         description: Name of the REDIS queue for reindexing jobs.

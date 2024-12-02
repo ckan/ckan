@@ -28,7 +28,7 @@ import ckan.lib.jobs as jobs
 import ckan.lib.search.jobs as search_jobs
 
 from ckan.common import _, config
-from ckan.types import Context, DataDict, ErrorDict, Schema
+from ckan.types import Context, DataDict, ErrorDict, Schema, AlchemySession
 
 if TYPE_CHECKING:
     import ckan.model as model_
@@ -922,9 +922,9 @@ def _group_or_org_packages_background_reindex(
     id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
-    context["group"] = group
     if group is None:
         raise NotFound('Group was not found.')
+    context["group"] = group
 
     data_dict['type'] = group.type
 
@@ -973,7 +973,8 @@ def _group_or_org_packages_background_reindex(
         pass
 
     _get_action('task_status_update')(
-        {'session': model.meta.create_local_session(), 'ignore_auth': True},
+        {'session': cast(AlchemySession, model.meta.create_local_session()),
+         'ignore_auth': True},
         task)
 
     dataset_ids = [dataset.id for dataset in results]
@@ -983,7 +984,8 @@ def _group_or_org_packages_background_reindex(
     task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
 
     _get_action('task_status_update')(
-        {'session': model.meta.create_local_session(), 'ignore_auth': True},
+        {'session': cast(AlchemySession, model.meta.create_local_session()),
+         'ignore_auth': True},
         task)
 
     queue_name = plugins.toolkit.config.get(
@@ -1047,7 +1049,8 @@ def site_packages_background_reindex(context: Context, data_dict: DataDict):
         pass
 
     _get_action('task_status_update')(
-        {'session': model.meta.create_local_session(), 'ignore_auth': True},
+        {'session': cast(AlchemySession, model.meta.create_local_session()),
+         'ignore_auth': True},
         task)
 
     # let search.rebuild calculate the total...
@@ -1056,7 +1059,8 @@ def site_packages_background_reindex(context: Context, data_dict: DataDict):
     task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
 
     _get_action('task_status_update')(
-        {'session': model.meta.create_local_session(), 'ignore_auth': True},
+        {'session': cast(AlchemySession, model.meta.create_local_session()),
+         'ignore_auth': True},
         task)
 
     queue_name = plugins.toolkit.config.get(

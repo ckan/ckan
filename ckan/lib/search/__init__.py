@@ -7,8 +7,6 @@ import sys
 import cgitb
 import warnings
 import traceback
-import json
-import datetime
 
 import xml.dom.minidom
 from typing import Collection, Any, Optional, Type, overload
