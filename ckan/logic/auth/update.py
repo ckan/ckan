@@ -152,6 +152,28 @@ def organization_update(context: Context, data_dict: DataDict) -> AuthResult:
         return {'success': True}
 
 
+def reindex_organization_datasets(context: Context,
+                                  data_dict: DataDict) -> AuthResult:
+    """
+    If you have permission to edit the Organization, you can reindex it.
+    """
+    return authz.is_authorized('organization_update', context, data_dict)
+
+
+def reindex_group_datasets(context: Context, data_dict: DataDict) -> AuthResult:
+    """
+    If you have permission to edit the Group, you can reindex it.
+    """
+    return authz.is_authorized('group_update', context, data_dict)
+
+
+def reindex_site(context: Context, data_dict: DataDict) -> AuthResult:
+    """
+    Only sysadmins can perform reindexing
+    """
+    return {'success': False}
+
+
 def group_change_state(context: Context, data_dict: DataDict) -> AuthResult:
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)

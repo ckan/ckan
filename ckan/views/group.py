@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 from typing import Any, Optional, Union
+import json
 
 from urllib.parse import urlencode
 import csv
@@ -1328,6 +1329,72 @@ class MembersGroupView(MethodView):
         return base.render(template_name, extra_vars)
 
 
+def search_rebuild(group_type: str, is_organization: bool,
+                   id: Optional[Union[str, None]] = None):
+    context = {
+        'model': model,
+        'session': model.Session,
+        'user': g.user,
+        'for_view': True,
+    }
+
+    try:
+        if is_organization:
+            check_access('reindex_organization_datasets', context)
+        else:
+            check_access('reindex_group_datasets', context)
+    except NotAuthorized:
+        return base.abort(403, _('Not authorized to see this page'))
+
+    try:
+        if is_organization:
+            group_dict = get_action('organization_show')(context, {'id': id})
+        else:
+            group_dict = get_action('group_show')(context, {'id': id})
+    except (NotAuthorized, NotFound):
+        return base.abort(404, _('Group not found'))
+
+    if request.method == 'POST':
+        try:
+            action = 'group_packages_background_reindex'
+            if is_organization:
+                action = 'organization_packages_background_reindex'
+            job_dict = get_action(action)(context, {'id': id})
+            if job_dict:
+                h.flash_success(_('Records are in queue to be re-indexed.'))
+            elif job_dict is None:
+                h.flash_notice(_('There are no records to index.'))
+            else:
+                h.flash_notice(_('Records already in queue to be re-indexed.'))
+        except (NotAuthorized, NotFound):
+            h.flash_error(_('Unable to re-index records.'))
+
+    task = None
+    try:
+        task = logic.get_action('task_status_show')(
+                    context, {'entity_id': group_dict.get('id'),
+                              'task_type': 'reindex_packages',
+                              'key': 'search_rebuild'})
+        task['value'] = json.loads(task.get('value', '{}'))
+    except NotFound:
+        pass
+
+    # TODO: Remove in 2.11??
+    g.group_dict = group_dict
+
+    extra_vars = {
+        'group_type': group_type,
+        'group_dict': group_dict,
+        'job_info': task,
+        'has_auto_index':
+            plugins.toolkit.asbool(
+                plugins.toolkit.config.get('ckan.search.reindex_after_group_or_org_update', False))
+    }
+
+    return base.render(
+        _get_group_template('search_rebuild_template', group_type), extra_vars)
+
+
 group = Blueprint(u'group', __name__, url_prefix=u'/group',
                   url_defaults={u'group_type': u'group',
                                 u'is_organization': False})
@@ -1374,6 +1441,10 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         '/unfollow/<id>',
         methods=[u'POST'],
         view_func=unfollow)
+    blueprint.add_url_rule(
+        '/search_rebuild/<id>',
+        methods=['GET', 'POST'],
+        view_func=search_rebuild)
     actions = ['member_delete', 'followers', 'admins']
     for action in actions:
         blueprint.add_url_rule(
