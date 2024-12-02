@@ -9,6 +9,70 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.11.1 2024-12-xx
+===================
+
+Migration notes
+---------------
+
+- This version requires a requirements upgrade on source installations
+
+Minor changes
+-------------
+- Allow configuring datastore full text field indexes with new
+  `ckan.datastore.default_fts_index_field_types` config option.
+
+  The default is "text tsvector" but this can be changed to
+  "" to avoiding automatically creating separate full text indexes
+  for any individual columns. This will result in a significant reduction
+  in storage space. The whole-row full text index still
+  exists for all tables.
+
+  After upgrading to CKAN 2.12 the default changes to "".
+
+  Use the `ckan datastore fts-index` command to remove existing
+  column indexes to reclaim database space. (`#5847
+  <https://github.com/ckan/ckan/pull/5847>`_)
+- Allow SECRET_KEY to fall back to beaker.session.secret for easier upgrades
+  (`#7853 <https://github.com/ckan/ckan/pull/7853>`_)
+- `datastore_info` action method now has `side_effect_free`, allowing it to be
+  available via GET requests in the API. (`#8457
+  <https://github.com/ckan/ckan/pull/8457>`_)
+- Remove unnecessary beaker.session.secret warning (`#8468
+  <https://github.com/ckan/ckan/pull/8468>`_)
+- Upgrade requirements with security issues (`#8505
+  <https://github.com/ckan/ckan/pull/8505>`_)
+- Register pytest plugins as entrypoints to make them available to all
+  extensions (`#8507 <https://github.com/ckan/ckan/pull/8507>`_)
+- Don't add author email to pyproject.toml if empty when creating an extension
+  (`#8519 <https://github.com/ckan/ckan/pull/8519>`_)
+- Automate publishing CKAN package to PyPI (`#8520
+  <https://github.com/ckan/ckan/pull/8520>`_)
+
+
+Bugfixes
+--------
+
+- fix Page view tracking of datasets is not working if ckan is running at a
+  subpath (`#5468 <https://github.com/ckan/ckan/pull/5468>`_)
+- Load the right i18n files for Chinese locales in DataTables View. (`#8432
+  <https://github.com/ckan/ckan/pull/8432>`_)
+- Fix exception in `ckan generate extension` command (`#8437
+  <https://github.com/ckan/ckan/pull/8437>`_)
+- Template helper `member_count` will return 0
+  for unauthorized users. (`#8438 <https://github.com/ckan/ckan/pull/8438>`_)
+- Fix `tracking` extension to use ORM models and comply with new `ckan.model`
+  models (`#8447 <https://github.com/ckan/ckan/pull/8447>`_)
+- Fix internal server error when viewing a deleted user. (`#8482
+  <https://github.com/ckan/ckan/pull/8482>`_)
+- Fix display of user organizations page if user belongs to no organizations.
+  (`#8483 <https://github.com/ckan/ckan/pull/8483>`_)
+- Fix error when viewing history of a deleted resource or its package before
+  the deletion date. (`#8501 <https://github.com/ckan/ckan/pull/8501>`_)
+- Fix showing '0 members' for all groups on a dataset page. (`#8537
+  <https://github.com/ckan/ckan/pull/8537>`_)
+
+
 v.2.11.0 2024-08-21
 ===================
 
