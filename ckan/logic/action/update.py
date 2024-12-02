@@ -845,12 +845,12 @@ def _group_or_org_update(
             action = 'group_packages_background_reindex'
             if is_org:
                 action = 'organization_packages_background_reindex'
-            reindex_context = {
+            reindex_context = cast(Context, {
                 'model': model,
                 'user': context.get('user'),
                 'ignore_auth': True,
                 'session': session
-            }
+            })
             _get_action(action)(reindex_context, {'id': group.id})
 
     return model_dictize.group_dictize(group, context)

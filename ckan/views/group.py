@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 import json
 
 from urllib.parse import urlencode
@@ -1331,12 +1331,12 @@ class MembersGroupView(MethodView):
 
 def search_rebuild(group_type: str, is_organization: bool,
                    id: Optional[Union[str, None]] = None):
-    context = {
+    context = cast(Context, {
         'model': model,
         'session': model.Session,
         'user': g.user,
         'for_view': True,
-    }
+    })
 
     try:
         if is_organization:
@@ -1388,7 +1388,8 @@ def search_rebuild(group_type: str, is_organization: bool,
         'job_info': task,
         'has_auto_index':
             plugins.toolkit.asbool(
-                plugins.toolkit.config.get('ckan.search.reindex_after_group_or_org_update', False))
+                plugins.toolkit.config.get(
+                    'ckan.search.reindex_after_group_or_org_update', False))
     }
 
     return base.render(

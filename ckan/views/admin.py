@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Union, List
+from typing import Any, Union, List, cast
 import json
 
 from flask import Blueprint
@@ -247,12 +247,12 @@ class TrashView(MethodView):
 
 
 def search_rebuild():
-    context = {
+    context = cast(Context, {
         'model': model,
         'session': model.Session,
         'user': plugins.toolkit.g.user,
         'for_view': True,
-    }
+    })
 
     try:
         plugins.toolkit.check_access('reindex_site', context)

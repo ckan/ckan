@@ -3,6 +3,9 @@
 from flask import Blueprint
 import json
 
+from typing import cast
+from ckan.types import Context
+
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
 from ckan.common import _, request
@@ -38,11 +41,11 @@ def primer() -> str:
 
 
 def search_rebuild_progress(entity_id: str):
-    context = {
+    context = cast(Context, {
         'model': model,
         'session': model.Session,
         'user': toolkit.g.user,
-    }
+    })
 
     try:
         task_status = toolkit.get_action('task_status_show')(
@@ -70,7 +73,7 @@ def search_rebuild_progress(entity_id: str):
         'label': messages.get(task_status.get('state', 'unknown')),
         'last_updated': h.render_datetime(
             task_status.get('last_updated'), '%Y-%m-%d %H:%M:%S %Z')
-            if task_status.get('last_updated') else None,
+                if task_status.get('last_updated') else None,
     }
 
     return _finish_ok(return_dict)

@@ -3,7 +3,8 @@ import json
 import datetime
 from rq import get_current_job
 
-from typing import Optional, Union
+from typing import Optional, Union, cast
+from ckan.types import Context
 
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -15,7 +16,7 @@ from logging import getLogger
 log = getLogger(__name__)
 
 
-def reindex_packages(package_ids: Optional[Union[list, None]] = None,
+def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
                      group_id: Optional[Union[str, None]] = None):
     """
     Callback for a REDIS job
@@ -32,12 +33,12 @@ def reindex_packages(package_ids: Optional[Union[list, None]] = None,
     :param group_id: organization or group ID to reindex the records
     :type group_id: string
     """
-    context = {
+    context = cast(Context, {
         'model': model,
         'ignore_auth': True,
         'validate': False,
         'use_cache': False
-    }
+    })
 
     _entity_id = group_id if group_id else toolkit.config.get('ckan.site_id')
     task = {
@@ -69,8 +70,8 @@ def reindex_packages(package_ids: Optional[Union[list, None]] = None,
 
     value['job_id'] = get_current_job().id
 
-    for pkg_id, total, indexed, err in \
-        search.rebuild(force=True, package_ids=package_ids):
+    for pkg_id, total, indexed, err in search.rebuild(
+      force=True, package_ids=package_ids):
 
         if not err:
             log.info('[%s/%s] Indexed dataset %s' % (indexed, total, pkg_id))
