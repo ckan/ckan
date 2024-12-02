@@ -67,13 +67,15 @@ def search_rebuild_progress(entity_id: str):
         'unknown': _('Unknown'),
     }
 
+    last_updated = None
+    if task_status.get('last_updated'):
+        last_updated = h.render_datetime(task_status.get('last_updated'),
+                                         '%Y-%m-%d %H:%M:%S %Z')
     return_dict = {
         'total': task_status.get('value', {}).get('total', 0),
         'current': task_status.get('value', {}).get('indexed', 0),
         'label': messages.get(task_status.get('state', 'unknown')),
-        'last_updated': h.render_datetime(
-            task_status.get('last_updated'), '%Y-%m-%d %H:%M:%S %Z') if \
-                task_status.get('last_updated') else None,
+        'last_updated': last_updated,
     }
 
     return _finish_ok(return_dict)
