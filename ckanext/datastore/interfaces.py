@@ -1,7 +1,10 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from ckan.types import Context, Schema
+from contextlib import contextmanager
+from io import StringIO, BytesIO
+
+from ckan.types import Context, Schema, Union, Optional
 from typing import Any
 import ckan.plugins.interfaces as interfaces
 
@@ -232,3 +235,82 @@ class IDataDictionaryForm(interfaces.Interface):
         in the data dictionary page.
         """
         return field
+
+
+class IDatastoreDump(interfaces.Interface):
+    """
+    Allows pluggable dump formats
+    """
+    def __init__(self, output: Optional[Union[StringIO, BytesIO]]=None, columns: Optional[list[str]]=None):
+        self.output = output
+        if columns:
+            self.id_col = columns[0] == '_id'
+            if self.id_col:
+                columns = columns[1:]
+        self.columns = columns
+
+
+    def __call__(self, output: Optional[Union[StringIO, BytesIO]]=None, columns: Optional[list[str]]=None):
+        self.__init__(output, columns)
+        return self
+
+
+    def get_format(self) -> str:
+        """
+        Return a string representation of the format name.
+        """
+        pass
+
+
+    def get_file_extension(self) -> str:
+        """
+        Return the file extension if it is different from the format name.
+        """
+        return self.get_format()
+
+
+    def can_dump(self, resource_id: str) -> bool:
+        """
+        Whether or not the given resource can be dumped in the format.
+        """
+        return True
+
+
+    def get_content_type(self) -> bytes:
+        """
+        Return the content type and charset for the header.
+        """
+        pass
+
+
+    def write_records(self, records: list[Any]) -> bytes:
+        """
+        Write records to an output buffer object. Should return bytes.
+        """
+        pass
+
+
+    def end_file(self) -> bytes:
+        """
+        Return the bytes for the end of the dumped file. Should return bytes.
+        """
+        return b''
+
+
+    @contextmanager
+    def get_writer(self, fields: list[dict[str, Any]], bom: bool = False):
+        """
+        Context manager that should yield this class instance
+        passing StringIO or BytesIO and list of field IDs.
+        """
+        yield
+
+
+    def get_records_format() -> str:
+        """
+        Return the string representation of the records format for the backend results.
+        """
+        pass
+
+
+    #TODO: write an implement method for backend records_format, so devs can customize query output
