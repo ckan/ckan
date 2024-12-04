@@ -216,7 +216,7 @@ def rebuild(package_id: Optional[str] = None,
             pkg_dict = logic.get_action('package_show')(context,
                 {'id': package_id})
             log.info('Indexing just package %r...', pkg_dict['name'])
-            package_index.update_dict(pkg_dict, True)
+            package_index.update_dict(pkg_dict, defer_commit)
             yield package_id, total_packages, counter, None
     else:
         packages = model.Session.query(model.Package.id)
