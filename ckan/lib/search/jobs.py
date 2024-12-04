@@ -13,6 +13,7 @@ import ckan.model as model
 from ckan.plugins import toolkit
 
 from logging import getLogger
+import traceback
 log = getLogger(__name__)
 
 
@@ -68,31 +69,45 @@ def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
 
     value = json.loads(task.get('value', '{}'))
     error = json.loads(task.get('error', '{}'))
+    has_errored = False
 
     current_job = get_current_job()
     if current_job:
         value['job_id'] = current_job.id
 
-    for pkg_id, total, indexed, err in search.rebuild(
-      force=True, package_ids=package_ids):
+    try:
+        for pkg_id, total, indexed, err in search.rebuild(
+        force=True, package_ids=package_ids):
 
-        if not err:
-            log.info('[%s/%s] Indexed dataset %s' % (indexed, total, pkg_id))
-        else:
-            log.error('[%s/%s] Failed to index dataset %s with error: %s' %
-                      (indexed, total, pkg_id, err))
-        value['indexed'] = indexed
-        value['total'] = total
-        if err:
-            error[pkg_id] = err
-        task['value'] = json.dumps(value)
-        task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
-        logic.get_action('task_status_update')(
-            {'session': cast(AlchemySession, model.meta.create_local_session()),
-             'ignore_auth': True},
-            task)
+            if not err:
+                log.info('[%s/%s] Indexed dataset %s' % (indexed, total, pkg_id))
+            else:
+                log.error('[%s/%s] Failed to index dataset %s with error: %s' %
+                        (indexed, total, pkg_id, err))
+            value['indexed'] = indexed
+            value['total'] = total
+            if err:
+                error[pkg_id] = err
+                has_errored = True
+            task['value'] = json.dumps(value)
+            task['error'] = json.dumps(error)
+            task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
+            logic.get_action('task_status_update')(
+                {'session': cast(AlchemySession, model.meta.create_local_session()),
+                'ignore_auth': True},
+                task)
+    except Exception as e:
+        # catch all exceptions to update task
+        log.error('Background task failed with error: %s' % str(e))
+        log.error(traceback.format_exc())
+        error['task'] = 'Background task failed with error: %s' % str(e)
+        task['error'] = json.dumps(error)
+        has_errored = True
+
 
     task['state'] = 'complete'
+    if has_errored:
+        task['state'] = 'error'
     task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
     logic.get_action('task_status_update')(
         {'session': cast(AlchemySession, model.meta.create_local_session()),

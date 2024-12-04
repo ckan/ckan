@@ -65,6 +65,7 @@ def search_rebuild_progress(entity_id: str):
         'running': _('Currently re-indexing records'),
         'complete': _('All records indexed'),
         'unknown': _('Unknown'),
+        'error': _('Error indexing records'),
     }
 
     last_updated = None
@@ -76,6 +77,7 @@ def search_rebuild_progress(entity_id: str):
         'current': task_status.get('value', {}).get('indexed', 0),
         'label': messages.get(task_status.get('state', 'unknown')),
         'last_updated': last_updated,
+        'state': task_status.get('state', 'unknown'),
     }
 
     return _finish_ok(return_dict)

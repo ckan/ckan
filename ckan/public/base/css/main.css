@@ -14800,6 +14800,18 @@ td.diff_header {
 div[data-module="progress-bar"] .progress{
   margin-bottom: 0;
 }
+div[data-module="progress-bar"] .progress[data-state="error"] .progress-bar{
+  background-color: #dc3545;
+}
+div[data-module="progress-bar"] .progress[data-state="error"] + .progress-bar-label{
+  color: #dc3545;
+}
+div[data-module="progress-bar"] .progress[data-state="complete"] .progress-bar{
+  background-color: #198754;
+}
+div[data-module="progress-bar"] .progress[data-state="complete"] + .progress-bar-label{
+  color: #198754;
+}
 div[data-module="progress-bar"] .progress-bar{
   transition: none;
 }
