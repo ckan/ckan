@@ -1,0 +1,40 @@
+{% extends "organization/edit_base.html" %}
+
+{% block subtitle %}{{ _('Rebuild Search Index') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+  {% if job_info %}
+    <div class="row">
+      <div class="col-md-12">
+        <div data-module="progress-bar" data-module-endpoint="{{ h.url_for('util.search_rebuild_progress', entity_id=group_dict.get('id')) }}"></div>
+      </div>
+    </div>
+    <hr />
+  {% endif %}
+  <form method="post">
+    {{ h.csrf_input() }}
+    <button class="btn btn-primary" name="reindex" type="submit" data-module="confirm-action" data-module-with-data="true" data-module-content="{{ _('Are you sure you want to re-index all the records for this organization? This can take a long time if the organization has a lot of records.') }}">
+      {% block form_submit_text %}{{ _('Re-index Organization\'s Records') }}{% endblock %}
+    </button>
+  </form>
+{% endblock %}
+
+{% block secondary_content %}
+  {{ super() }}
+  {% if not has_auto_index %}
+    {% block secondary_help %}
+      <div class="module module-narrow module-shallow">
+        <h2 class="module-heading">
+          <i class="fa fa-lg fa-info-circle"></i>
+          {{ _('Why re-index?') }}
+        </h2>
+        <div class="module-content">
+          {% trans %}
+            <p>If you update an Organization's <strong>title</strong> or <strong>name,</strong> it's datasets in the SOLR Index will not have the new title or name.</p>
+            <p>To solve this, you can re-index all of the Organization's records in a background job.</p>
+          {% endtrans %}
+        </div>
+      </div>
+    {% endblock %}
+  {% endif %}
+{% endblock %}
