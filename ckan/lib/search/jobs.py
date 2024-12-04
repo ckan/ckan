@@ -76,14 +76,14 @@ def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
         value['job_id'] = current_job.id
 
     try:
-        for pkg_id, total, indexed, err in search.rebuild(
-        force=True, package_ids=package_ids):
+        for pkg_id, total, indexed, err in search.rebuild(force=True,
+                                                          package_ids=package_ids):
 
             if not err:
                 log.info('[%s/%s] Indexed dataset %s' % (indexed, total, pkg_id))
             else:
                 log.error('[%s/%s] Failed to index dataset %s with error: %s' %
-                        (indexed, total, pkg_id, err))
+                          (indexed, total, pkg_id, err))
             value['indexed'] = indexed
             value['total'] = total
             if err:
@@ -94,7 +94,7 @@ def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
             task['last_updated'] = str(datetime.datetime.now(datetime.timezone.utc))
             logic.get_action('task_status_update')(
                 {'session': cast(AlchemySession, model.meta.create_local_session()),
-                'ignore_auth': True},
+                 'ignore_auth': True},
                 task)
     except Exception as e:
         # catch all exceptions to update task
@@ -103,7 +103,6 @@ def reindex_packages(package_ids: Optional[Union[list[str], None]] = None,
         error['task'] = 'Background task failed with error: %s' % str(e)
         task['error'] = json.dumps(error)
         has_errored = True
-
 
     task['state'] = 'complete'
     if has_errored:
