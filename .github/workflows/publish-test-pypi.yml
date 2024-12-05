@@ -1,10 +1,10 @@
-name: Publish to PyPI
+name: Publish to TestPyPI
 
-# Publish to PyPI when a tag is pushed
+# Publish to Test PyPI when a pull request is merged to master
 on:
   push:
-    tags:
-      - 'ckan-**'
+    branches:
+      - 'master'
 
 jobs:
   build:
@@ -16,6 +16,10 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.9"
+    - name: Add timestamp to version number
+      run: |
+        TIMESTAMP=$(date +"%Y%m%d%H%M")
+        sed -E -i 's/__version__ = "(.*)"$/__version__ = "\1.post'$TIMESTAMP'"/' ckan/__init__.py
     - name: Install pypa/build
       run: >-
         python3 -m
@@ -30,14 +34,14 @@ jobs:
         name: python-package-distributions
         path: dist/
 
-  publish-to-pypi:
-    name: Publish Python distribution on PyPI
+  publish-to-testpypi:
+    name: Publish Python distribution on TestPyPI
     needs:
     - build
     runs-on: ubuntu-latest
     environment:
-      name: pypi
-      url: https://pypi.org/p/ckan
+      name: test-pypi
+      url: https://test.pypi.org/p/ckan
     permissions:
       id-token: write
     steps:
@@ -46,5 +50,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-    - name: Publish distribution to PyPI
+    - name: Publish distribution to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
