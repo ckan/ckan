@@ -1,10 +1,5 @@
 import json
-import math
 from typing import Any
-from unittest import result
-
-import requests
-from ckan.cli import user
 from flask import Blueprint, request
 import ckan.plugins.toolkit as toolkit
 from ckan.common import config
@@ -16,7 +11,7 @@ from ckan.lib.helpers import helper_functions as h
 from ckan.lib.helpers import Page
 
 # Blueprint for tracking
-dashboard = Blueprint('tracking_blueprint', __name__, url_prefix=u'/dashboard')
+dashboard = Blueprint('tracking_blueprint', __name__, url_prefix=u'/dashboard/')
 
 def aggregate_package_views(urls_and_counts):
     """Aggregate package views for each unique package."""
@@ -51,7 +46,7 @@ def aggregate_package_views(urls_and_counts):
     # Convert the aggregated data back to a list for rendering
     return list(aggregated_data.values())
 
-def statistical():
+def statistical_tracking():
     # Get query parameters
     today = datetime.today().date()     
     day_tracking_default = today - timedelta(days=int(config.get('ckan.day_default')))
@@ -80,7 +75,6 @@ def statistical():
             u'end_date': end_date,
             u'package_name': package_name,
             u'include_resources': True,
-           
         })  # type: ignore
     
         
@@ -126,11 +120,112 @@ def statistical():
         extra_vars[u'list_data'] = aggregated_urls_and_counts
 
     # Render the template with the prepared variables
-    return base.render('user/dashboard_statistical.html', extra_vars)
+    return base.render('user/statistical_tracking.html', extra_vars)
 
-# Register route for blueprint
+# Đây là chức năng thống kê data theo tổ chức 
+def statistical_org():
+    organization_name = request.form.get('organization_name') or 'organization-yqra-9121-gaar'
+    print(organization_name)
+    private = request.form.get('private') or None
+    state = request.form.get('state') or None
+    include_datasets = request.form.get('include_datasets', 'false').lower() == 'true'
+    # Check access rights
+    try:
+        logic.check_access('tracking_access', {})
+    except logic.NotAuthorized:
+        return base.abort(403, toolkit._('Need to be system administrator to administer'))
+ 
+    try:
+        action = 'statistical_org_get_sum'
+        datasets_org = logic.get_action(action)(data_dict={
+            'organization_name': organization_name,
+            'private': private,
+            'state': state,
+            'include_datasets': include_datasets
+        })  # type: ignore
+        
+    except logic.ValidationError as e:
+        datasets_org = []
+ 
+    print("========================>",datasets_org)
+    organization_list = logic.get_action('organization_list')(data_dict={})
+ 
+    extra_vars: dict[str, Any] = {
+        u'datasets_org': json.dumps(datasets_org),
+        u'organization_list': organization_list,
+        u'organization_name': organization_name,
+        u'state': state,
+        u'private': private,
+        u'include_datasets': include_datasets,
+    }
+    if isinstance(datasets_org, dict):
+        error_message = datasets_org.get('error', None)
+        if error_message:
+            extra_vars[u'error'] = error_message
+        else:
+            extra_vars[u'id_org'] = datasets_org.get('id_org')
+            extra_vars[u'private'] = datasets_org.get('private')
+            extra_vars[u'state'] = datasets_org.get('state')
+            extra_vars[u'include_datasets'] = datasets_org.get('include_datasets')
+    return base.render('user/statistical_org.html', extra_vars)
+    
+def statistical_field():
+    field_name = request.form.getlist('field_name') or [""] 
+    private = request.form.get('private') or None
+    state = request.form.get('state') or None
+    include_datasets = request.form.get('include_datasets', 'false').lower() == 'true'
+    # Check access rights
+    try:
+        logic.check_access('tracking_access', {})
+    except logic.NotAuthorized:
+        return base.abort(403, toolkit._('Need to be system administrator to administer'))
+ 
+    try:
+        action = 'statistical_field_get_sum'
+        datasets_field = logic.get_action(action)(data_dict={
+            'field_name': field_name,
+            'private': private,
+            'state': state,
+            'include_datasets': include_datasets
+        })  # type: ignore
+        
+    except logic.ValidationError as e:
+        datasets_field = []
+ 
+    tag_list = logic.get_action('tag_list')(data_dict={})
+ 
+    extra_vars: dict[str, Any] = {
+        u'datasets_field': json.dumps(datasets_field),
+        u'tag_list': tag_list,
+        u'field_name': field_name,
+        u'state': state,
+        u'private': private,
+        u'include_datasets': include_datasets,
+    }
+    if isinstance(datasets_field, dict):
+        error_message = datasets_field.get('error', None)
+        if error_message:
+            extra_vars[u'error'] = error_message
+        else:
+            extra_vars[u'id_field'] = datasets_field.get('id_field')
+            extra_vars[u'private'] = datasets_field.get('private')
+            extra_vars[u'state'] = datasets_field.get('state')
+            extra_vars[u'include_datasets'] = datasets_field.get('include_datasets')
+    return base.render('user/statistical_field.html', extra_vars)
+    
+
+# Register route tracking for blueprint
 dashboard.add_url_rule(
-    u"/statistical", view_func=statistical, methods=['GET', 'POST']
+    u"/statistical/statistical-tracking", view_func=statistical_tracking, methods=['GET', 'POST']
+)
+
+# Register route org for blueprint
+dashboard.add_url_rule(
+    u"/statistical/statistical-org", view_func=statistical_org, methods=['GET', 'POST']
+)
+# Register route field for blueprint
+dashboard.add_url_rule(
+    u"/statistical/statistical-field", view_func=statistical_field, methods=['GET', 'POST']
 )
 
 def get_blueprints():

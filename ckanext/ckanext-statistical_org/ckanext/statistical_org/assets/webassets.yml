@@ -1,0 +1,14 @@
+# statistical_org-js:
+#   filter: rjsmin
+#   output: ckanext-statistical_org/%(version)s-statistical_org.js
+#   contents:
+#     - js/statistical_org.js
+#   extra:
+#     preload:
+#       - base/main
+
+# statistical_org-css:
+#   filter: cssrewrite
+#   output: ckanext-statistical_org/%(version)s-statistical_org.css
+#   contents:
+#     - css/statistical_org.css

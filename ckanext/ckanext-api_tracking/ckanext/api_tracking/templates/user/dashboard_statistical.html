@@ -1,130 +1,26 @@
 {% extends 'user/dashboard.html' %}
 
 {% block page_primary_action %}
-{% asset 'api_tracking/dataset-css' %}
-{% asset 'api_tracking/dataset-js' %}
-<script>
-  {% if urls_and_counts is not undefined and urls_and_counts is not none %}
-      window.trackingData = {{ urls_and_counts | tojson }};
-  {% else %}
-      window.trackingData = [];
-  {% endif %}
-</script>
-<div>
-  <div class="container mt-5">
-    <form id="tracking-form" action="{{ url_for('dashboard.statistical') }}" method="post" class="p-4 border rounded shadow-sm" onsubmit="return validateDates()">
-      <h4 class="mb-4">{{_("Filter Tracking Datasets")}}</h4>
-      
-      <div class="row mb-3">
-          <div class="col-md-6">
-              <label for="start_date" class="form-label">{{_("Start Date")}}</label>
-              <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}" max="{{ today }}">
-              <div id="start-date-error" class="text-danger mt-1"></div>
-          </div>
-          <div class="col-md-6">
-              <label for="end_date" class="form-label">{{_("End Date")}}</label>
-              <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}" max="{{ today }}">
-              <div id="end-date-error" class="text-danger mt-1"></div>
-          </div>
-      </div>
-  
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <label for="package_name" class="form-label">{{_("Package Name")}}</label>
-          <select id="package_name" name="package_name" class="form-control select2" multiple="multiple">
-              {% for dataset in all_datasets %}
-                  <option value="{{ dataset  }}" 
-                      {% if dataset in package_name %}selected{% endif %}>
-                      {{ dataset }}
-                  </option>
-              {% endfor %}
-          </select>
+  <div class="">
+    <ul class="dataset-list list-unstyled">
+      <li class="dataset-item">
+        <div class="dataset-content">
+          <h2 class="dataset-heading"><a class="" href="/dashboard/statistical/statistical-tracking"><i class="fa fa-chart-line"></i> Statisticals Tracking</a></h2>
+          <p class="empty">No description yet</p>
         </div>
-        <div class="col-md-6">
-          <label for="user_name" class="form-label">{{_("User Name")}}</label>
-          <select name="user_name" class="form-control select2">
-            <option value="" {% if user_name == [""] %}selected{% endif %}>{{_("All User")}}</option>  <!-- "All" option -->
-            {% for user in user_all %}
-                <option value="{{ user.name }}"{% if user.name in user_name %}selected{% endif %}>
-                    {{ user.display_name }}
-                </option>
-            {% endfor %}
-        </select>
+      </li>
+      <li class="dataset-item">
+        <div class="dataset-content">
+          <h2 class="dataset-heading"><a class="" href="/dashboard/statistical/statistical-org"><i class="fa fa-chart-line"></i> Statistical Organzations</a></h2>
+          <p class="empty">No description yet</p>
         </div>
+      </li>
+      <li class="dataset-item">
+        <div class="dataset-content">
+          <h2 class="dataset-heading"><a class="" href="/dashboard/statistical/statistical-field"><i class="fa fa-chart-line"></i> Statistical Fields</a></h2>
+          <p class="empty">No description yet</p>
         </div>
-      
-      </div>
-      <div class="text-end">
-          <button type="submit" class="btn btn-primary px-4">{{_("Filter")}}</button>
-      </div>
-    </form>
+      </li>
+    </ul>
   </div>
-  {% endblock %}
-  
-  {% block primary_content_inner %}
-    {{ super() }}
-    <!-- Select display items -->
-    <!-- Sort -->
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <div class="item-count-container">
-          <label for="itemCount" class="item-count-label">{{_("Select number of items to display")}}</label>
-          <input type="number" id="itemCount" min="1" max="1000" value="20" class="item-count-input" oninput="updateChartData()">
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="sort-container">
-          <label for="sortOptions">{{_("Sort by")}}</label>
-          <select id="sortOptions" onchange="sortData(this.value)">
-            <option value="asc">{{_("Views (Ascending)")}}</option>
-            <option value="desc">{{_("Views (Descending)")}}</option>
-            <option value="nameAsc">{{_("Name (A-Z)")}}</option>
-            <option value="nameDesc">{{_("Name (Z-A)")}}</option>
-          </select>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div>
-          <label for="chartType">{{_("Select Chart Type")}}</label>
-          <select id="chartType">
-            <option value="bar">{{_("Bar Chart")}}</option>
-            <option value="line">{{_("Line Chart)")}}</option>
-            <option value="pie">{{_("Pie Chart")}}</option>
-          </select>
-        </div>
-        
-      </div>
-      </div>
-    
-    </div>
-    
-  
-        <div class="container mt-4">
-    <h1 class="text-center">{{_("TRACKING DATASETS")}}</h1>
-    {% if urls_and_counts %}
-        <!-- Replace table with Chart.js -->
-        <canvas id="trackingChart" width="400" height="200"></canvas>
-    {% else %}
-        <div class="alert alert-warning text-center" role="alert">
-            <p>{{_("No datasets available.")}}</p>
-        </div>
-    {% endif %}
-</div>
-
-  <!-- Resource Chart Section (Hidden Initially) -->
-  <div id="resourceChartContainer">
-    <h2 id="title_resource" >{{_("Resource Statistics")}}</h2>
-    <canvas id="resourceChart"></canvas>
-  </div>
-  <div id="noResourceMessage" style="display: none; text-align: center; color: red; font-weight: bold;">
-    {{_("No resources have been accessed.")}}
-  </div>
-  
-    </div>
-    <button id="moveToTop" class="btn">
-      <i class="fas fa-arrow-up"></i>
-  </button>
-    </div>
-  
-  {% endblock %} 
-</div>
+{% endblock %}

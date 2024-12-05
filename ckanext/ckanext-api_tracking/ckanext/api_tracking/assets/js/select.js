@@ -55,3 +55,10 @@ function validateDates() {
 }
 
 
+
+
+$(document).ready(function() {
+    $('.js-example-basic-single').select2();
+    $('.state').select2();
+    $('.private').select2();
+});

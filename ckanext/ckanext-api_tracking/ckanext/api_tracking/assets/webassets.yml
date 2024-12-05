@@ -20,3 +20,42 @@ dataset-css:
     - css/datatable.css
     - css/select2.css
     - css/base.css
+
+
+statistical_org-js:
+  filter: rjsmin
+  output: ckanext-api_tracking/%(version)s-statistical_org.js
+  contents:
+    - js/bootstrap.js
+    - js/jquery.js
+    - js/select.js
+    - js/base.js
+    - js/chart.js
+    - js/custom_chart_org.js
+  extra:
+    preload:
+      - base/main
+
+statistical_org-css:
+  filter: cssrewrite
+  output: ckanext-api_tracking/%(version)s-statistical_org.css
+  contents:
+    - css/datatable.css
+    - css/select2.css
+    - css/base.css
+    - css/statistical_org.css
+
+
+statistical_field-js:
+  filter: rjsmin
+  output: ckanext-api_tracking/%(version)s-statistical_field.js
+  contents:
+    - js/bootstrap.js
+    - js/jquery.js
+    - js/select.js
+    - js/base.js
+    - js/chart.js
+    - js/custom_chart_field.js
+  extra:
+    preload:
+      - base/main

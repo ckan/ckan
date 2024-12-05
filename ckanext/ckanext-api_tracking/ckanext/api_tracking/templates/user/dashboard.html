@@ -4,8 +4,8 @@
   <ul class="nav nav-tabs">
     {% block dashboard_nav_links %}
       {{ super() }}
-
       {{ h.build_nav_icon('dashboard.statistical', h.humanize_entity_type('statistical', _('Statistical'), 'label') or _('Statistical'), icon='users') }}
     {% endblock %}
   </ul>
 {% endblock %}
+<button id="moveToTop" class="btn"><i class="fas fa-arrow-up"></i></button>

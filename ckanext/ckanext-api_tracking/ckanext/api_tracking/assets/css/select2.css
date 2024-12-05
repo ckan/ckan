@@ -8,3 +8,34 @@
 /* .select2-container .select2-search--inline {
     float: none;
 } */
+
+/* Overall container styling */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px; /* Space between columns */
+  }
+  
+  .col-md-4 {
+    flex: 1 1 33.333%; /* 1/3 of the row on medium screens */
+    padding: 0 15px;
+    margin-bottom: 20px; /* Extra space between rows */
+  }
+  
+  /* Label styling */
+  label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+    transition: all 0.3s ease;
+  }
+  
+  /* Select element styling */
+  select {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 14px;
+    border: 1px solid #ccc
+  }  

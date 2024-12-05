@@ -27,6 +27,11 @@
     transform: translateX(-50%);
 }
 
+.page-header .content_action {
+    float: right;
+    margin-top: 3px;
+}
+
 
 /* Move to top */
 #moveToTop {
@@ -67,7 +72,7 @@
 }
 
 
-#trackingChart {
+#trackingChart, #statisticsChart {
     width: 60%;      /* Chiều rộng của biểu đồ, ví dụ 80% chiều rộng của phần tử chứa */
     height: 200px;   /* Chiều cao của biểu đồ */
     margin: 0 auto;  /* Căn giữa biểu đồ */
@@ -79,3 +84,7 @@
     height: 100px;   /* Chiều cao của biểu đồ */
     margin: 0 auto;  /* Căn giữa biểu đồ */
   }
+
+  
+
+  

@@ -29,3 +29,21 @@ def tracking_urls_and_counts_combined_schema(not_empty: Validator, ignore_missin
         'limit': [ignore_missing, not_empty, int_validator],
         'offset': [ignore_missing, not_empty, int_validator]
     }
+    
+@validator_args    
+def organization_statistics_schema(not_empty: Validator, ignore_missing: Validator, boolean_validator: Validator):
+    return {
+        'organization_name': [ignore_missing, not_empty],
+        'private': [ignore_missing, not_empty,boolean_validator],
+        'state': [ignore_missing, not_empty],
+        'include_datasets': [ignore_missing, not_empty, boolean_validator],
+    }
+
+@validator_args    
+def field_statistics_schema(not_empty: Validator, ignore_missing: Validator, boolean_validator: Validator):
+    return {
+        'field_name': [ignore_missing, not_empty],
+        'private': [ignore_missing, not_empty,boolean_validator],
+        'state': [ignore_missing, not_empty],
+        'include_datasets': [ignore_missing, not_empty, boolean_validator],
+    }

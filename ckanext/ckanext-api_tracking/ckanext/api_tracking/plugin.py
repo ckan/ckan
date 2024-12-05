@@ -6,7 +6,7 @@ import ckan.plugins as p
 from flask import Flask
 from ckan.common import g, request
 
-from .logic.actions import tracking_by_user, tracking_urls_and_counts
+from .logic.actions import tracking_by_user, tracking_urls_and_counts, statistical_org_get_sum, statistical_field_get_sum
 from .logic import auth
 import sqlalchemy as sa
 import re 
@@ -69,7 +69,9 @@ class API_Tracking_Plugin(p.SingletonPlugin, DefaultTranslation):
     def get_actions(self):
         return {
             'tracking_by_user': tracking_by_user,
-            'tracking_urls_and_counts': tracking_urls_and_counts
+            'tracking_urls_and_counts': tracking_urls_and_counts,
+            'statistical_org_get_sum': statistical_org_get_sum,
+            'statistical_field_get_sum': statistical_field_get_sum
         }
         
     def get_auth_functions(self):

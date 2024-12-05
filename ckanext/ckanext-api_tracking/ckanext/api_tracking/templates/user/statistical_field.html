@@ -1,0 +1,99 @@
+{% extends 'user/dashboard.html' %}
+
+{% block page_primary_action %}
+{% asset 'api_tracking/dataset-css' %}
+{% asset 'api_tracking/statistical_field-js' %}
+    <div class="container mt-5 p-4 border rounded shadow-sm">
+      <form id="tracking-form" action="{{ url_for('tracking_blueprint.statistical_field') }}" method="post">
+        <h4 class="mb-4">{{ _("Filter Field Datasets") }}</h4>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="organization_name" class="form-label">{{ _("Field Name") }}</label>
+                <select class="js-example-basic-single" name="field_name" class="form-control select2" multiple="multiple">
+                    {% for field in tag_list %}
+                        <option value="{{ field }}" {% if field in field_name %}selected{% endif %}>
+                            {{ field }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="state">{{ _("State") }}</label>
+                <select name="state" class="state">
+                    <option value="" {% if state == None %}selected{% endif %}>{{_("All")}}</option>  
+                    <option value="active" {% if state == 'active' %}selected{% endif %}>{{ _("Active") }}</option>
+                    <option value="draft" {% if state == 'draft' %}selected{% endif %}>{{ _("Draft") }}</option>
+                    <option value="deleted" {% if state == 'deleted' %}selected{% endif %}>{{ _("Deleted") }}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="private">{{ _("Private") }}</label>
+                <select name="private" class="private">
+                    <option value="" {% if private == None %}selected{% endif %}>{{_("All")}}</option>  
+                    <option value="true" {% if private == 'true' %}selected{% endif %}>{{ _("True") }}</option>
+                    <option value="false" {% if private == 'false' %}selected{% endif %}>{{ _("False") }}</option>
+                </select>
+            </div>
+        </div>
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary px-4">{{ _("Filter") }}</button>
+        </div>
+      </form>
+    </div>
+{% endblock %}
+
+{% block primary_content_inner %}
+    {{ super() }}
+    <div class="container mt-5 p-4 border rounded shadow-sm">
+
+<div class="row" style="--bs-gutter-x: 0">
+    <div class="col-md-4">
+      <div class="item-count-container">
+        <label for="itemCount" class="item-count-label">{{_("Select number of items to display")}}</label>
+        <input type="number" id="itemCount" min="1" max="1000" value="5" class="item-count-input" oninput="updateChartData()">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="sort-container">
+        <label for="sortOptions">{{_("Sort by")}}</label>
+        <select id="sortOptions" onchange="sortData(this.value)">
+          <option value="asc">{{_("Views (Ascending)")}}</option>
+          <option value="desc">{{_("Views (Descending)")}}</option>
+          <option value="nameAsc">{{_("Name (A-Z)")}}</option>
+          <option value="nameDesc">{{_("Name (Z-A)")}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div>
+        <label for="chartType">{{_("Select Chart Type")}}</label>
+        <select id="chartType">
+          <option value="bar">{{_("Bar Chart")}}</option>
+          <option value="line">{{_("Line Chart)")}}</option>
+          <option value="pie">{{_("Pie Chart")}}</option>
+        </select>
+      </div>
+      
+    </div>
+    </div>
+    </div>
+  
+  </div>
+    <div class="container mt-4">
+        <h1 class="text-center">{{ _("Statistical Field") }}</h1>
+        <canvas id="statisticsChart"></canvas>
+    </div>
+
+    <div id="noResourceMessage" style="display: none; text-align: center; color: red; font-weight: bold;">
+        {{ _("No resources have been accessed.") }}
+    </div>
+
+    <!-- Dữ liệu datasets được inject vào đây -->
+    <script>
+        {% if datasets_field is not undefined and datasets_field is not none %}
+            window.trackingData = {{ datasets_field | tojson }};
+        {% else %}
+            window.trackingData = [];
+        {% endif %}
+      </script>
+{% endblock %}
