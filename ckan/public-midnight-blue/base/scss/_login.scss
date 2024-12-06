@@ -1,0 +1,95 @@
+.login_form {
+    display: inline-grid;
+    .form-actions {
+        align-items: center;
+        padding: 1rem 0.5rem 1rem 0;
+    }
+}
+@include media-breakpoint-down(lg){
+    .login_form {
+        .form-actions {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            .btn {
+                flex-basis: auto;
+            }
+        }
+    }
+}
+
+@include media-breakpoint-down(md){
+    .btn-light {
+        width: 100%;
+        display: block !important;
+    }
+    .login_form {
+        .form-actions {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            .btn {
+                flex-basis: auto;
+            }
+            .btn-light {
+                width: unset;
+            }
+        }
+    }
+}
+
+@include media-breakpoint-up(sm){
+    .login_main {
+        background-color: $gray-100;
+    }
+    .login_wrapper {
+        position: relative;
+        min-height: 300px;
+        background-color: #fff;
+        border-radius: 24px;
+        padding: 1.5rem;
+    }
+    .login_content {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.login_main {
+    padding: 20px 0;
+}
+
+.form-group.form_password {
+    margin-bottom: 0;
+}
+
+.forgotten_password {
+    display: flex;
+    flex-wrap: wrap;
+    a {
+        margin-bottom: 1rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+}
+
+.form-group .controls .icon {
+    padding: 14px;
+    position: absolute;
+}
+
+.form-group .controls .icon + .form-control {
+    width: 100%;
+    padding-left: 34px;
+}
+.bg-dust-red {
+    background-color: $dust-red;
+    color: $white;
+}
+
+.heading_container {
+    display: grid;
+    grid-gap: 20px;
+    margin-bottom: 1rem;
+}

@@ -366,6 +366,7 @@ select[data-module="autocomplete"] {
 // Errors
 .alert-danger a {
     color: $errorText;
+    text-decoration: underline;
 }
 
 .form-group.has-error input,
