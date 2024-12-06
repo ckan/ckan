@@ -32,14 +32,16 @@
         <div class="col-md-6">
           <label for="package_name" class="form-label">{{_("Package Name")}}</label>
           <select id="package_name" name="package_name" class="form-select" multiple>
-            {% for dataset in all_datasets %}
-              <option value="{{ dataset }}" 
-                {% if dataset in package_name %}selected{% endif %}>
-                {{ dataset }}
-              </option>
-            {% endfor %}
+              <option value="" {% if package_name == [""] %}selected{% endif %}>{{ _("All Packages") }}</option>
+              {% for dataset in all_datasets %}
+                  <option value="{{ dataset }}" 
+                      {% if dataset in package_name %}selected{% endif %}>
+                      {{ dataset }}
+                  </option>
+              {% endfor %}
           </select>
-        </div>
+      </div>
+      
         
         <div class="col-md-6">
           <label for="user_name" class="form-label">{{_("User Name")}}</label>

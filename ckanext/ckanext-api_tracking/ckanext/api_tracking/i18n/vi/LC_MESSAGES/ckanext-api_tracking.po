@@ -91,21 +91,20 @@ msgstr ""
 #~ msgstr "Thống kê"
 
 
-ckanext/api_tracking/templates/dashboard_statistical:8
 msgid "Statistical Trackings"
 msgstr "Thống kê theo dõi"
-ckanext/api_tracking/templates/dashboard_statistical:14
+
+msgid "All Packages"
+msgstr "Tất cả bộ dữ liệu"
+
 msgid "Statistical Organizations"
 msgstr "Thống kê theo tổ chức"
-ckanext/api_tracking/templates/dashboard_statistical:20
+
 msgid "Statistical Fields"
 msgstr "Thống kê theo lĩnh vực"
-ckanext/api_tracking/templates/dashboard
+
 msgid "Statistical"
 msgstr "Thống kê"
-
-# Thống kê lượng theo dõi
-ckanext/api_tracking/templates/statistical_tracking
 
 msgid "Filter Tracking Datasets"
 msgstr "Lọc lượng theo dõi bộ dữ liệu"
@@ -170,16 +169,6 @@ msgstr "Thống kê lượng theo dõi tài nguyên"
 msgid "No resources have been accessed."
 msgstr "Không có tài nguyên nào được truy cập."
 
-
-
-
-
-
-
-
-# Thống kê dữ liệu thuộc tổ chức
-ckanext/api_tracking/templates/statistical_organzitions
-
 msgid "Filter Organization Datasets"
 msgstr "Lọc dữ liệu của từng tổ chức"
 
@@ -200,14 +189,6 @@ msgstr "Thống kê lượng theo dõi tài nguyên"
 
 msgid "No resources have been accessed."
 msgstr "Không có tài nguyên nào được truy cập."
-
-
-
-
-# Thống kê dữ liệu thuộc tổ chức
-ckanext/api_tracking/templates/statistical_field
-
-
 
 msgid "Filter Field Datasets"
 msgstr "Lọc dữ liệu thuộc lĩnh vực"
