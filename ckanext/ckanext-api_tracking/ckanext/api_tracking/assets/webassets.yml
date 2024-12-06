@@ -20,6 +20,7 @@ dataset-css:
     - css/datatable.css
     - css/select2.css
     - css/base.css
+    - css/choices.min.css
 
 
 statistical_org-js:
@@ -52,9 +53,9 @@ statistical_field-js:
   contents:
     - js/bootstrap.js
     - js/jquery.js
-    - js/select.js
     - js/base.js
     - js/chart.js
+    - js/choices.min.js
     - js/custom_chart_field.js
   extra:
     preload:

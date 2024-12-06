@@ -18,12 +18,12 @@
       <div class="row mb-3">
           <div class="col-md-6">
               <label for="start_date" class="form-label">{{_("Start Date")}}</label>
-              <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}" max="{{ today }}">
+              <input type="date" id="start_date" name="start_date" class="form-control" style="line-height: 2.5;" value="{{ start_date }}" max="{{ today }}">
               <div id="start-date-error" class="text-danger mt-1"></div>
           </div>
           <div class="col-md-6">
               <label for="end_date" class="form-label">{{_("End Date")}}</label>
-              <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}" max="{{ today }}">
+              <input type="date" id="end_date" name="end_date" class="form-control" style="line-height: 2.5;" value="{{ end_date }}" max="{{ today }}">
               <div id="end-date-error" class="text-danger mt-1"></div>
           </div>
       </div>
@@ -31,18 +31,19 @@
       <div class="row mb-3">
         <div class="col-md-6">
           <label for="package_name" class="form-label">{{_("Package Name")}}</label>
-          <select id="package_name" name="package_name" class="form-control select2" multiple="multiple">
-              {% for dataset in all_datasets %}
-                  <option value="{{ dataset  }}" 
-                      {% if dataset in package_name %}selected{% endif %}>
-                      {{ dataset }}
-                  </option>
-              {% endfor %}
+          <select id="package_name" name="package_name" class="form-select" multiple>
+            {% for dataset in all_datasets %}
+              <option value="{{ dataset }}" 
+                {% if dataset in package_name %}selected{% endif %}>
+                {{ dataset }}
+              </option>
+            {% endfor %}
           </select>
         </div>
+        
         <div class="col-md-6">
           <label for="user_name" class="form-label">{{_("User Name")}}</label>
-          <select name="user_name" class="form-control select2">
+          <select name="user_name" class="form-control select2" style="line-height: 2.5;">
             <option value="" {% if user_name == [""] %}selected{% endif %}>{{_("All User")}}</option>  <!-- "All" option -->
             {% for user in user_all %}
                 <option value="{{ user.name }}"{% if user.name in user_name %}selected{% endif %}>
@@ -63,41 +64,39 @@
   
   {% block primary_content_inner %}
     {{ super() }}
-    <!-- Select display items -->
-    <!-- Sort -->
-    <div class="container mt-5 p-4 border rounded shadow-sm">
-    <div class="row" style="--bs-gutter-x: 0">
-      <div class="col-md-4">
-        <div class="item-count-container">
-          <label for="itemCount" class="item-count-label">{{_("Select number of items to display")}}</label>
-          <input type="number" id="itemCount" min="1" max="1000" value="5" class="item-count-input" oninput="updateChartData()">
+    <div class="container mt-5 p-4 border rounded shadow-sm bg-light">
+      <div class="row g-0">
+        <!-- Số lượng mục hiển thị -->
+        <div class="col-md-4 mb-3">
+          <div class="form-group">
+            <label for="itemCount" class="form-label">{{ _("Select number of items to display") }}</label>
+            <input type="number" id="itemCount" min="1" max="1000" value="5" class="form-control" oninput="updateChartData()">
+          </div>
+        </div>
+        <!-- Sắp xếp -->
+        <div class="col-md-4 mb-3">
+          <div class="form-group">
+            <label for="sortOptions" class="form-label">{{ _("Sort by") }}</label>
+            <select id="sortOptions" class="form-select" onchange="sortData(this.value)">
+              <option value="asc">{{ _("Views (Ascending)") }}</option>
+              <option value="desc">{{ _("Views (Descending)") }}</option>
+              <option value="nameAsc">{{ _("Name (A-Z)") }}</option>
+              <option value="nameDesc">{{ _("Name (Z-A)") }}</option>
+            </select>
+          </div>
+        </div>
+        <!-- Loại biểu đồ -->
+        <div class="col-md-4 mb-3">
+          <div class="form-group">
+            <label for="chartType" class="form-label">{{ _("Select Chart Type") }}</label>
+            <select id="chartType" class="form-select">
+              <option value="bar">{{ _("Bar Chart") }}</option>
+              <option value="line">{{ _("Line Chart") }}</option>
+              <option value="pie">{{ _("Pie Chart") }}</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="sort-container">
-          <label for="sortOptions">{{_("Sort by")}}</label>
-          <select id="sortOptions" onchange="sortData(this.value)">
-            <option value="asc">{{_("Views (Ascending)")}}</option>
-            <option value="desc">{{_("Views (Descending)")}}</option>
-            <option value="nameAsc">{{_("Name (A-Z)")}}</option>
-            <option value="nameDesc">{{_("Name (Z-A)")}}</option>
-          </select>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div>
-          <label for="chartType">{{_("Select Chart Type")}}</label>
-          <select id="chartType">
-            <option value="bar">{{_("Bar Chart")}}</option>
-            <option value="line">{{_("Line Chart)")}}</option>
-            <option value="pie">{{_("Pie Chart")}}</option>
-          </select>
-        </div>
-        
-      </div>
-      </div>
-    
-    </div>
     </div>
     
   

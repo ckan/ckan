@@ -191,6 +191,8 @@ def statistical_field():
         
     except logic.ValidationError as e:
         datasets_field = []
+        
+        print('field name =====>',field_name)
  
     tag_list = logic.get_action('tag_list')(data_dict={})
  

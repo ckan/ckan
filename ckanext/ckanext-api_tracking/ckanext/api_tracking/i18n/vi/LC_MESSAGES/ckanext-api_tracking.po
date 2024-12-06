@@ -24,70 +24,199 @@ msgstr ""
 msgid "Need to be system administrator to administer"
 msgstr ""
 
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:16
-msgid "Filter Tracking Datasets"
-msgstr "Lọc lượng theo dõi bộ dữ liệu"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:20
-msgid "Start Date"
-msgstr "Ngày bắt đầu"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:25
-msgid "End Date"
-msgstr "Ngày kết thúc"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:33
-msgid "Package Name"
-msgstr "Tên bộ dữ liệu"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:44
-msgid "User Name"
-msgstr "Tên người dùng"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:46
-msgid "All User"
-msgstr "Tất cả người dùng"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:58
-msgid "Filter"
-msgstr "Lọc"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:71
-msgid "Select number of items to display"
-msgstr "Lựa chọn số lượng cột hiển thị"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:77
-msgid "Sort by"
-msgstr "Lọc theo"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:79
-msgid "Views (Ascending)"
-msgstr "Cao đến thấp"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:80
-msgid "Views (Descending)"
-msgstr "Thấp đến cao"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:81
-msgid "Name (A-Z)"
-msgstr "Từ a đến z"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:82
-msgid "Name (Z-A)"
-msgstr "Từ z đến a"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:88
-msgid "Select Chart Type"
-msgstr "Lựa chọn biểu đồ"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:90
-msgid "Bar Chart"
-msgstr "Dạng cột"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:91
-msgid "Line Chart"
-msgstr "Dạng đường kẻ"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:92
-msgid "Pie Chart"
-msgstr "Dạng hình tròn"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:103
-msgid "TRACKING DATASETS"
-msgstr "Theo dõi bộ dữ liệu"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:109
-msgid "No datasets available."
-msgstr "Không có bộ dữ liệu nào."
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:116
-msgid "Resource Statistics"
-msgstr "Thống kê tài nguyên"
-#: ckanext/api_tracking/templates/user/dashboard_statistical.html:120
-msgid "No resources have been accessed."
-msgstr "Không có tài nguyên nào được truy cập."
-#: ckanext/api_tracking/templates/user/dashboard.html:8
+#~ msgid "Filter Tracking Datasets"
+#~ msgstr "Lọc lượng theo dõi bộ dữ liệu"
+
+#~ msgid "Start Date"
+#~ msgstr "Ngày bắt đầu"
+
+#~ msgid "End Date"
+#~ msgstr "Ngày kết thúc"
+
+#~ msgid "Package Name"
+#~ msgstr "Tên bộ dữ liệu"
+
+#~ msgid "User Name"
+#~ msgstr "Tên người dùng"
+
+#~ msgid "All User"
+#~ msgstr "Tất cả người dùng"
+
+#~ msgid "Filter"
+#~ msgstr "Lọc"
+
+#~ msgid "Select number of items to display"
+#~ msgstr "Lựa chọn số lượng cột hiển thị"
+
+#~ msgid "Sort by"
+#~ msgstr "Lọc theo"
+
+#~ msgid "Views (Ascending)"
+#~ msgstr "Cao đến thấp"
+
+#~ msgid "Views (Descending)"
+#~ msgstr "Thấp đến cao"
+
+#~ msgid "Name (A-Z)"
+#~ msgstr "Từ a đến z"
+
+#~ msgid "Name (Z-A)"
+#~ msgstr "Từ z đến a"
+
+#~ msgid "Select Chart Type"
+#~ msgstr "Lựa chọn biểu đồ"
+
+#~ msgid "Bar Chart"
+#~ msgstr "Dạng cột"
+
+#~ msgid "Line Chart"
+#~ msgstr "Dạng đường kẻ"
+
+#~ msgid "Pie Chart"
+#~ msgstr "Dạng hình tròn"
+
+#~ msgid "TRACKING DATASETS"
+#~ msgstr "Theo dõi bộ dữ liệu"
+
+#~ msgid "No datasets available."
+#~ msgstr "Không có bộ dữ liệu nào."
+
+#~ msgid "Resource Statistics"
+#~ msgstr "Thống kê tài nguyên"
+
+#~ msgid "No resources have been accessed."
+#~ msgstr "Không có tài nguyên nào được truy cập."
+
+#~ msgid "Statistical"
+#~ msgstr "Thống kê"
+
+
+ckanext/api_tracking/templates/dashboard_statistical:8
+msgid "Statistical Trackings"
+msgstr "Thống kê theo dõi"
+ckanext/api_tracking/templates/dashboard_statistical:14
+msgid "Statistical Organizations"
+msgstr "Thống kê theo tổ chức"
+ckanext/api_tracking/templates/dashboard_statistical:20
+msgid "Statistical Fields"
+msgstr "Thống kê theo lĩnh vực"
+ckanext/api_tracking/templates/dashboard
 msgid "Statistical"
 msgstr "Thống kê"
 
+# Thống kê lượng theo dõi
+ckanext/api_tracking/templates/statistical_tracking
+
+msgid "Filter Tracking Datasets"
+msgstr "Lọc lượng theo dõi bộ dữ liệu"
+
+msgid "Start Date"
+msgstr "Ngày bắt đầu"
+
+msgid "End Date"
+msgstr "Ngày kết thúc"
+
+msgid "Package Name"
+msgstr "Tên bộ dữ liệu"
+
+msgid "User Name"
+msgstr "Tên người dùng"
+
+msgid "All User"
+msgstr "Tất cả người dùng"
+
+msgid "Filter"
+msgstr "Lọc"
+
+msgid "Select number of items to display"
+msgstr "Lựa chọn số cột hiển thị"
+
+msgid "Sort by"
+msgstr "Sắp xếp theo"
+
+msgid "Views (Ascending)"
+msgstr "Tăng dần"
+
+msgid "Views (Descending)"
+msgstr "Giảm dần"
+
+msgid "Name (A-Z)"
+msgstr "Tên từ Z đến A"
+
+msgid "Name (Z-A)"
+msgstr "Tên từ A đến Z"
+
+msgid "Select Chart Type"
+msgstr "Lựa chọn loại biểu đồ"
+
+msgid "Bar Chart"
+msgstr "Biều đồ cột"
+
+msgid "Line Chart"
+msgstr "Biểu đồ đường"
+
+msgid "Pie Chart"
+msgstr "Biểu đồ tròn"
+
+msgid "TRACKING DATASETS"
+msgstr "Thống kê theo dõi bộ dữ liệu"
+
+msgid "No datasets available."
+msgstr "Không có lượng truy cập bộ dữ liệu."
+
+msgid "Resource Statistics"
+msgstr "Thống kê lượng theo dõi tài nguyên"
+
+msgid "No resources have been accessed."
+msgstr "Không có tài nguyên nào được truy cập."
+
+
+
+
+
+
+
+
+# Thống kê dữ liệu thuộc tổ chức
+ckanext/api_tracking/templates/statistical_organzitions
+
+msgid "Filter Organization Datasets"
+msgstr "Lọc dữ liệu của từng tổ chức"
+
+msgid "Organization Name"
+msgstr "Tên tổ chức"
+
+msgid "All"
+msgstr "Tất cả"
+
+msgid "Statistical Organizations"
+msgstr "Thống kê dữ liệu thuộc tổ chức"
+
+msgid "No datasets available."
+msgstr "Không có lượng truy cập bộ dữ liệu."
+
+msgid "Resource Statistics"
+msgstr "Thống kê lượng theo dõi tài nguyên"
+
+msgid "No resources have been accessed."
+msgstr "Không có tài nguyên nào được truy cập."
+
+
+
+
+# Thống kê dữ liệu thuộc tổ chức
+ckanext/api_tracking/templates/statistical_field
+
+
+
+msgid "Filter Field Datasets"
+msgstr "Lọc dữ liệu thuộc lĩnh vực"
+
+msgid "Field Name"
+msgstr "Tên tổ chức"
+
+msgid "All Fields"
+msgstr "Tất cả tổ chức"
+
+msgid "Statistical Field"
+msgstr "Thống kê dữ liệu thuộc lĩnh vực"

@@ -6,11 +6,11 @@ from sqlalchemy import func, case
 class FieldStatisticsAPI:
     @classmethod
     def get_field_package_status(cls, data_dict):
-        field_names = data_dict.get('field_name')
+        field_names = data_dict.get('field_name', [])
         
-        # Đảm bảo field_names là danh sách
-        if isinstance(field_names, str):
-            field_names = [field_names]
+        # Kiểm tra nếu field_names là chuỗi trống hoặc chứa [""] thì bỏ lọc
+        if not field_names or (isinstance(field_names, list) and "" in field_names):
+            field_names = None
 
         private = data_dict.get('private')
         state = data_dict.get('state')
@@ -30,8 +30,9 @@ class FieldStatisticsAPI:
                 model.Tag, model.Tag.id == model.PackageTag.tag_id
             )
 
+            # Chỉ áp dụng bộ lọc field_names nếu field_names có giá trị hợp lệ
             if field_names:
-                query = query.filter(model.Tag.name.in_(field_names))  # Lọc theo danh sách field_names
+                query = query.filter(model.Tag.name.in_(field_names))
 
             if private is not None:
                 query = query.filter(model.Package.private == private)
@@ -70,7 +71,7 @@ class FieldStatisticsAPI:
                 )
 
                 if field_names:
-                    dataset_query = dataset_query.filter(model.Tag.name.in_(field_names))  # Lọc theo danh sách field_names
+                    dataset_query = dataset_query.filter(model.Tag.name.in_(field_names))
 
                 if private is not None:
                     dataset_query = dataset_query.filter(model.Package.private == private)

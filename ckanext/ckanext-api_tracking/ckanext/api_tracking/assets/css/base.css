@@ -87,4 +87,7 @@
 
   
 
-  
+   #fieldName {
+    height: auto; /* Đảm bảo chiều cao tự động theo nội dung */
+    min-height: auto; /* Đặt chiều cao tối thiểu */
+  }
