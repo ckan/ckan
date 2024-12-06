@@ -5,10 +5,10 @@ dataset-js:
     - js/bootstrap.js
     - js/datatable.js
     - js/jquery.js
-    - js/select.js
     - js/base.js
     - js/chart.js
     - js/custom_chartjs.js
+    - js/choices.min.js
   extra:
     preload:
       - base/main
@@ -18,7 +18,6 @@ dataset-css:
   output: ckanext-api_tracking/%(version)s-dataset.css
   contents:
     - css/datatable.css
-    - css/select2.css
     - css/base.css
     - css/choices.min.css
 
@@ -29,7 +28,6 @@ statistical_org-js:
   contents:
     - js/bootstrap.js
     - js/jquery.js
-    - js/select.js
     - js/base.js
     - js/chart.js
     - js/custom_chart_org.js
@@ -42,7 +40,6 @@ statistical_org-css:
   output: ckanext-api_tracking/%(version)s-statistical_org.css
   contents:
     - css/datatable.css
-    - css/select2.css
     - css/base.css
     - css/statistical_org.css
 
