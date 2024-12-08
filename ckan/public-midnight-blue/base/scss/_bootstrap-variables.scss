@@ -78,7 +78,6 @@ $brand-600: #153084;
 $brand-700: #0a1d5e;
 $brand-800: #030d38;
 $brand-900: #000312;
-
 // brand colors
 
 // scss-docs-start theme-color-variables
@@ -490,7 +489,7 @@ $headings-font-family:        null !default;
 $headings-font-style:         null !default;
 $headings-font-weight:        500 !default;
 $headings-line-height:        1.2 !default;
-$headings-color:              darken($primary, 10%) !default;
+$headings-color:              darken($brand-700, 5%) !default;
 // scss-docs-end headings-variables
 
 // scss-docs-start display-headings
