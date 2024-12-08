@@ -82,7 +82,8 @@ def _strip(s: Any):
 
 
 def should_fts_index_field_type(field_type: str):
-    return field_type.lower() in ['tsvector', 'text', 'number']
+    return field_type in tk.config.get(
+        'ckan.datastore.default_fts_index_field_types', [])
 
 
 def get_table_and_function_names_from_sql(context: Context, sql: str):

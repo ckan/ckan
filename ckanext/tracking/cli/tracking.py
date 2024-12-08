@@ -53,13 +53,10 @@ def update_all(start_date: Optional[str] = None):
         # No date given. See when we last have data for and get data
         # from 2 days before then in case new data is available.
         # If no date here then use 2011-01-01 as the start date
-        result = (
-            session.query(ts.tracking_date)
-            .order_by(desc(ts.tracking_date))
-            .first()
-        )
+        stmt = select(ts).order_by(desc(ts.tracking_date))
+        result = session.scalars(stmt).first()
         if result:
-            date = result
+            date = result.tracking_date
             date += datetime.timedelta(-2)
             # convert date to datetime
             combine = datetime.datetime.combine

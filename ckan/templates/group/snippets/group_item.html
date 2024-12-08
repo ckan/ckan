@@ -37,8 +37,9 @@ Example:
   {% block members %}
     {% if 'member_count' in group and group.member_count %}
       <strong class="count">{{ ungettext('{num} Member', '{num} Members', group.member_count).format(num=group.member_count) }}</strong>
-    {% else %}
+    {% elif 'member_count' in group %}
       <span class="count">{{ _('0 Members') }}</span>
+    {% else %}
     {% endif %}
   {% endblock %}
   {% block capacity %}
