@@ -10,4 +10,12 @@
 
 {% block form %}
   {{ form | safe }}
-{% endblock form %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  {% block help %}
+    {% block help_inner %}
+    <p>{% trans %}Create datasets, groups and other exciting things{% endtrans %}</p>
+    {% endblock %}
+  {% endblock %}
+{% endblock %}
