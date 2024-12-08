@@ -215,13 +215,6 @@ $cyan-800: shade-color($cyan, 60%) !default;
 $cyan-900: shade-color($cyan, 80%) !default;
 // fusv-enable
 
-$dust-red: #cf1322;
-$volcano: #d84a1b;
-$sunset-orange: #d87a16;
-$calendula-gold: #d89614;
-$polar-green: #52c41a;
-$golden-purple: #722ed1;
-
 // Characters which are escaped by the escape-svg function
 $escaped-characters: (
   ("<", "%3c"),
