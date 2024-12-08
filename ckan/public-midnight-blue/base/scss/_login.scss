@@ -31,11 +31,11 @@
             flex-direction: column;
         }
     }
-}
-
-@include media-breakpoint-down(md){
-    .btn-light {
-        width: 100%;
-        display: block !important;
+    @include media-breakpoint-down(md){
+        .btn-light {
+            width: 100%;
+            display: block !important;
+        }
     }
 }
+

@@ -14869,13 +14869,13 @@ td.diff_header {
     flex-direction: column;
   }
 }
-
 @media (max-width: 767.98px) {
-  .btn-light, .btn-default {
+  .login-main .btn-light, .login-main .btn-default {
     width: 100%;
     display: block !important;
   }
 }
+
 @media (min-width: 576px) {
   .wrapper:before {
     left: initial;
