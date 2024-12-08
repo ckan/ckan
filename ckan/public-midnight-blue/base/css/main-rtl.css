@@ -93,7 +93,7 @@
   --bs-tertiary-color-rgb: 16, 24, 40;
   --bs-tertiary-bg: #f2f4f7;
   --bs-tertiary-bg-rgb: 242, 244, 247;
-  --bs-heading-color: inherit;
+  --bs-heading-color: #0e2058;
   --bs-link-color: #153084;
   --bs-link-color-rgb: 21, 48, 132;
   --bs-link-decoration: none;
@@ -5818,7 +5818,7 @@ textarea.form-control-lg {
   --bs-popover-header-padding-x: 1rem;
   --bs-popover-header-padding-y: 0.5rem;
   --bs-popover-header-font-size: 1rem;
-  --bs-popover-header-color: inherit;
+  --bs-popover-header-color: #0e2058;
   --bs-popover-header-bg: #f0f0f0;
   --bs-popover-body-padding-x: 1rem;
   --bs-popover-body-padding-y: 1rem;
@@ -14815,19 +14815,11 @@ td.diff_header {
   align-items: center;
 }
 
-/*@font-face {
-    font-family: 'Noto Sans';
-    src: url('../../../base/fonts/NotoSans-Italic-VariableFont_wdth\,wght.ttf') format('ttf'),
-         url('../../../base/fonts/NotoSans-VariableFont_wdth\,wght.ttf') format('ttf');
-    font-weight: 400;
-    font-style: normal;
-} */
 @font-face {
   font-family: "Noto Sans";
   src: url("../../../base/fonts/NotoSans-VariableFont_wdth,wght.ttf") format("truetype");
   font-style: normal;
-  font-weight: 100 900; /* Adjust the weight range if different */
-  font-stretch: 75% 125%; /* Optional: adjust based on the width range */
+  font-weight: 100 900;
 }
 @media (min-width: 576px) {
   .wrapper:before {

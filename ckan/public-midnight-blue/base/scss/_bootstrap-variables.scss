@@ -78,6 +78,7 @@ $brand-600: #153084;
 $brand-700: #0a1d5e;
 $brand-800: #030d38;
 $brand-900: #000312;
+
 // brand colors
 
 // scss-docs-start theme-color-variables
@@ -453,7 +454,8 @@ $font-size-lg:                $font-size-base * 1.25 !default;
 $font-weight-lighter:         lighter !default;
 $font-weight-light:           300 !default;
 $font-weight-normal:          400 !default;
-$font-weight-semi-bold:       600 !default;
+$font-weight-medium:          500 !default;
+$font-weight-semibold:        600 !default;
 $font-weight-bold:            700 !default;
 $font-weight-bolder:          bolder !default;
 
@@ -488,7 +490,7 @@ $headings-font-family:        null !default;
 $headings-font-style:         null !default;
 $headings-font-weight:        500 !default;
 $headings-line-height:        1.2 !default;
-$headings-color:              null !default;
+$headings-color:              darken($primary, 10%) !default;
 // scss-docs-end headings-variables
 
 // scss-docs-start display-headings
