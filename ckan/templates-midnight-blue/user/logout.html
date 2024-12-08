@@ -2,19 +2,22 @@
 
 {% block subtitle %}{{ _('Logged Out') }}{% endblock %}
 
-{% block main_content %}
-  <div class="row login_wrapper" role="main">
-    <div class="heading_container col-md-6">
-      {% block logo %}
-        {{ super() }}
-      {% endblock %}
-      <h1 class="page-heading">
-        {% block page_heading %}{{ _('Logged Out') }}{% endblock %}
-      </h1>
+{% block breadcrumb_content %}{% endblock %}
+
+{% block primary_content %}
+  <div class="col-md-6 login-container">
+    <div class="login-content">
+      <div class="login-heading">
+        {% block logo %}
+          {{ super() }}
+        {% endblock %}
+        <h1 class="page-heading">
+          {% block page_heading %}{{ _('Logged Out') }}{% endblock %}
+        </h1>
+      </div>
       <p>{{ _('You are now logged out.') }}</p>
     </div>
-    {% block flash %}
-      {{ super() }}
-    {% endblock flash %}
   </div>
-{% endblock main_content %}
+{% endblock %}
+
+      

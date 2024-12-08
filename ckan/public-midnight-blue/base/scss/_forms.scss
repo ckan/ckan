@@ -213,6 +213,17 @@ form .control-medium .info-block.info-inline {
     margin-left: 5px;
 }
 
+// Form icons
+.form-group .controls .icon {
+    padding: 14px;
+    position: absolute;
+}
+
+.form-group .controls .icon + .form-control {
+    width: 100%;
+    padding-left: 2.5rem;
+}
+
 // Form Narrow
 .form-narrow label {
     margin-bottom: 0;

@@ -21,10 +21,8 @@
   {{ form.input('login', label=_("Username or Email"), id='field-login', value="", icon='user', error=username_error, classes=["control-medium"]) }}
 
   {{ form.input('password', label=_("Password"), id='field-password', type="password", value="", icon="fingerprint", error=password_error, classes=["control-medium"]) }}
-  <div class="forgotten_password">
-    <a class="col-12" href="{{ h.url_for('user.request_reset') }}">{{ _('Forgotten your password?') }}</a>
-    {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000") }}
-  </div>
+  <a class="col-12" href="{{ h.url_for('user.request_reset') }}">{{ _('Forgotten your password?') }}</a>
+  {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000", classes=["mt-3"]) }}
 
   {% if g.recaptcha_publickey %}
     {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}

@@ -12593,6 +12593,16 @@ form .control-medium .info-block.info-inline {
   margin-left: 5px;
 }
 
+.form-group .controls .icon {
+  padding: 14px;
+  position: absolute;
+}
+
+.form-group .controls .icon + .form-control {
+  width: 100%;
+  padding-left: 2.5rem;
+}
+
 .form-narrow label {
   margin-bottom: 0;
 }
@@ -14821,97 +14831,51 @@ td.diff_header {
   align-items: center;
 }
 
-.login_form {
+.login-form {
   display: inline-grid;
 }
-.login_form .form-actions {
+.login-form .form-actions {
   align-items: center;
   padding: 1rem 0.5rem 1rem 0;
 }
-
+.login-form .form-actions .btn:first-child {
+  margin-left: 0;
+}
 @media (max-width: 991.98px) {
-  .login_form .form-actions {
+  .login-form .form-actions {
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
   }
-  .login_form .form-actions .btn {
+  .login-form .form-actions .btn {
     flex-basis: auto;
   }
 }
-@media (max-width: 767.98px) {
-  .btn-light, .btn-default {
-    width: 100%;
-    display: block !important;
-  }
-  .login_form .form-actions {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .login_form .form-actions .btn {
-    flex-basis: auto;
-  }
-  .login_form .form-actions .btn-light, .login_form .form-actions .btn-default {
-    width: unset;
-  }
+
+.login-main {
+  padding: 20px;
 }
 @media (min-width: 576px) {
-  .login_main {
+  .login-main {
     background-color: #f2f4f7;
   }
-  .login_wrapper {
-    position: relative;
+  .login-main .login-wrapper {
     min-height: 300px;
     background-color: #fff;
     border-radius: 24px;
     padding: 1.5rem;
   }
-  .login_content {
+  .login-main .login-container {
     display: flex;
     flex-direction: column;
   }
 }
-.login_main {
-  padding: 20px 0;
-}
 
-.form-group.form_password {
-  margin-bottom: 0;
+@media (max-width: 767.98px) {
+  .btn-light, .btn-default {
+    width: 100%;
+    display: block !important;
+  }
 }
-
-.forgotten_password {
-  display: flex;
-  flex-wrap: wrap;
-}
-.forgotten_password a {
-  margin-bottom: 1rem;
-}
-.forgotten_password .form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group .controls .icon {
-  padding: 14px;
-  position: absolute;
-}
-
-.form-group .controls .icon + .form-control {
-  width: 100%;
-  padding-left: 34px;
-}
-
-.bg-dust-red {
-  background-color: #cf1322;
-  color: #fff;
-}
-
-.heading_container {
-  display: grid;
-  grid-gap: 20px;
-  margin-bottom: 1rem;
-}
-
 @media (min-width: 576px) {
   .wrapper:before {
     left: initial;

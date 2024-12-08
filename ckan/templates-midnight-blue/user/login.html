@@ -6,20 +6,20 @@
   <li class="active">{{ h.nav_link(_('Login'), named_route='user.login') }}</li>
 {% endblock %}
 
-{% block maintag %}<div class="login_main">{% endblock %}
+{% block maintag %}<div class="login-main">{% endblock %}
   
 {% block main_content %}
   {% block toolbar %}
     {{ super() }}
   {% endblock %}
   {% block primary %}
-  <div class="row login_wrapper" role="main">
+  <div class="row login-wrapper" role="main">
     {% block primary_content %}
-      <div class="col-md-6 login_content">
-        <div class="login_aside">
-          <div class="heading_container">
+      <div class="col-md-6 login-container">
+        <div class="login-content">
+          <div class="login-heading">
             {% block logo %}
-              <img class="d-none d-md-block" src="{{ h.url_for_static('/base/images/ckan-logo-boat.png') }}" alt="" role="presentation"/>
+              <img class="d-none d-md-block mb-3" src="{{ h.url_for_static('/base/images/ckan-logo-boat.png') }}" alt="" role="presentation"/>
             {% endblock %}
             <h1 class="page-heading">
               {% block page_heading %}{{ _('Login') }}{% endblock %}
@@ -29,9 +29,9 @@
           {% endblock primary_content_inner %}
         </div>
       </div>
-    <div class="col-md-6 login_form">
+    <div class="col-md-6 login-form">
       {% block flash %}
-        <div class="flash-messages">
+        <div class="flash-messages mt-3">
           {% block flash_inner %}
             {{ super() }}
           {% endblock flash_inner %}
