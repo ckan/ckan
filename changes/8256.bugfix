@@ -1,2 +1,1 @@
-If a user remove its own nuser from a group we get redirected to
-`manage_members` page which returns 403.
+Fix 403 error when a user removes itself from a group
