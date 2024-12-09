@@ -656,7 +656,8 @@ def member_delete(id: str, group_type: str,
                 u'user_id': user_id
             })
             # What if the user removes itself from the group?
-            if user_id in [current_user.name, current_user.id]:
+            if user_id in [current_user.name, current_user.id]:     # type: ignore
+
                 h.flash_notice(_('You are no longer a member of this group.'))
                 return h.redirect_to(u'{}.read'.format(group_type), id=id)
             h.flash_notice(_(u'Group member has been deleted.'))
