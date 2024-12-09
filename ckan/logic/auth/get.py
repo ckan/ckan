@@ -364,7 +364,7 @@ def package_collaborator_list_for_user(context: Context,
     The current implementation restricts to the own users themselves.
     '''
     user_obj = context.get('auth_user_obj')
-    if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):  # type: ignore
+    if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):
         return {'success': True}
     return {'success': False}
 
