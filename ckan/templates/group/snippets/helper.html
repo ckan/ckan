@@ -8,16 +8,17 @@
   {% snippet "group/snippets/helper.html", group_type=group_type %}
 
   #}
+{% set group_type = h.get_pluralized_group_type() | capitalize %}
 
 <div class="module module-narrow module-shallow">
   <h2 class="module-heading">
     <i class="fa fa-info-circle"></i>
-    {{ _('What are Groups?') }}
+    {{ _('What are {group_type}?').format(group_type=group_type) }}
   </h2>
   <div class="module-content">
     <p>
       {% trans %}
-        You can use CKAN Groups to create and manage collections of datasets.
+        You can use CKAN {{ group_type }} to create and manage collections of datasets.
         This could be to catalogue datasets for a particular project or team,
         or on a particular theme, or as a very simple way to help people find
         and search your own published datasets.
