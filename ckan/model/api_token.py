@@ -32,7 +32,7 @@ api_token_table = Table(
     Column(u"user_id", types.UnicodeText, ForeignKey(u"user.id")),
     Column(u"created_at", types.DateTime, default=datetime.datetime.utcnow),
     Column(u"last_access", types.DateTime, nullable=True),
-    Column(u"plugin_extras", MutableDict.as_mutable(JSONB)),
+    Column(u"plugin_extras", MutableDict.as_mutable(JSONB)),  # type: ignore
 )
 
 
@@ -57,7 +57,7 @@ class ApiToken(DomainObject):
         if not id:
             return None
 
-        return meta.Session.query(cls).get(id)
+        return meta.Session.get(cls, id)
 
     @classmethod
     def revoke(cls, id: Optional[str]) -> bool:

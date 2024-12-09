@@ -1221,7 +1221,7 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
 
 
 def _bulk_update_dataset(
-        context: Context, data_dict: DataDict, update_dict: dict[str, Any]):
+        context: Context, data_dict: DataDict, update_dict: dict[Any, Any]):
     ''' Bulk update shared code for organizations'''
 
     datasets = data_dict.get('datasets', [])

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import datetime
 
-from sqlalchemy import types, Column, text, Index
+from sqlalchemy import types, Column, text, Index, Table
 
 import ckan.model.meta as meta
 import ckan.model.domain_object as domain_object
@@ -27,17 +27,21 @@ from ckan.model.base import BaseModel
 __all__ = ['TrackingSummary', 'TrackingRaw']
 
 
-class TrackingRaw(domain_object.DomainObject, BaseModel):  # type: ignore
+class TrackingRaw(domain_object.DomainObject, BaseModel):
 
-    __tablename__ = 'tracking_raw'
-
-    user_key = Column("user_key", types.Unicode(100), nullable=False,
-                      primary_key=True)
-    url = Column("url", types.UnicodeText, nullable=False, primary_key=True)
-    tracking_type = Column("tracking_type", types.Unicode(10),
-                           nullable=False)
-    access_timestamp = Column("access_timestamp", types.DateTime,
-                              primary_key=True, default=datetime.datetime.now)
+    __table__ = Table(
+        "tracking_raw",
+        BaseModel.metadata,
+        Column("user_key", types.Unicode(100), nullable=False, primary_key=True),
+        Column("url", types.UnicodeText, nullable=False, primary_key=True),
+        Column("tracking_type", types.Unicode(10), nullable=False),
+        Column(
+            "access_timestamp",
+            types.DateTime,
+            primary_key=True,
+            default=datetime.datetime.now
+        ),
+    )
 
     def __init__(self, user_key: str,
                  url: str,
@@ -66,19 +70,19 @@ Index('tracking_raw_url', TrackingRaw.url)
 Index('tracking_raw_access_timestamp', 'access_timestamp')
 
 
-class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
+class TrackingSummary(domain_object.DomainObject, BaseModel):
 
-    __tablename__ = 'tracking_summary'
-
-    url = Column("url", types.UnicodeText, nullable=False, primary_key=True)
-    package_id = Column("package_id", types.UnicodeText)
-    tracking_type = Column("tracking_type", types.Unicode(10), nullable=False)
-    count = Column("count", types.Integer, nullable=False)  # type: ignore
-    running_total = Column("running_total", types.Integer, nullable=False,
-                           server_default='0')
-    recent_views = Column("recent_views", types.Integer, nullable=False,
-                          server_default='0')
-    tracking_date = Column("tracking_date", types.Date)
+    __table__ = Table(
+        "tracking_summary",
+        BaseModel.metadata,
+        Column("url", types.UnicodeText, nullable=False, primary_key=True),
+        Column("package_id", types.UnicodeText),
+        Column("tracking_type", types.Unicode(10), nullable=False),
+        Column("count", types.Integer, nullable=False),
+        Column("running_total", types.Integer, nullable=False, server_default="0"),
+        Column("recent_views", types.Integer, nullable=False, server_default="0"),
+        Column("tracking_date", types.Date)
+    )
 
     def __init__(self,
                  url: str,
@@ -141,5 +145,5 @@ class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
 
 
 Index('tracking_summary_url', TrackingSummary.url)
-Index('tracking_summary_package_id', TrackingSummary.package_id)  # type: ignore
+Index('tracking_summary_package_id', TrackingSummary.package_id)
 Index('tracking_summary_date', 'tracking_date')

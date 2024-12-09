@@ -284,7 +284,7 @@ class Repository():
 
             # if custom model imported without migrations applied,
             # corresponding table can be missing from DB
-            if not inspector.has_table(table):
+            if not inspector.has_table(table.name):
                 continue
 
             connection.execute(sa.delete(table))
@@ -384,6 +384,9 @@ class Repository():
 
     def are_tables_created(self) -> bool:
         meta.metadata = MetaData()
+        if not meta.engine:
+            return False
+
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
             meta.metadata.reflect(meta.engine)

@@ -17,6 +17,7 @@ from sqlalchemy import (
     select,
     literal,
     Index,
+    Table,
 )
 
 from ckan.common import config
@@ -37,22 +38,32 @@ TActivityDetail = TypeVar("TActivityDetail", bound="ActivityDetail")
 QActivity: TypeAlias = "Query[Activity]"
 
 
-class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
-    __tablename__ = "activity"
+class Activity(domain_object.DomainObject, BaseModel):
+    __table__ = Table(
+        "activity",
+        BaseModel.metadata,
+        Column("id", types.UnicodeText, primary_key=True, default=_types.make_uuid),
+        Column("timestamp", types.DateTime),
+        Column("user_id", types.UnicodeText),
+        Column("object_id", types.UnicodeText),
+        Column("activity_type", types.UnicodeText),
+        Column("data", _types.JsonDictType),
+        Column("permission_labels", types.Text),
+    )
+
     # the line below handles cases when activity table was already loaded into
     # metadata state(via stats extension). Can be removed if stats stop using
     # Table object.
     __table_args__ = {"extend_existing": True}
 
-    id = Column(
-        "id", types.UnicodeText, primary_key=True, default=_types.make_uuid
-    )
-    timestamp = Column("timestamp", types.DateTime)
-    user_id = Column("user_id", types.UnicodeText)
-    object_id: Any = Column("object_id", types.UnicodeText)
-    activity_type = Column("activity_type", types.UnicodeText)
-    data = Column("data", _types.JsonDictType)
-    permission_labels = Column("permission_labels", types.Text)
+    id: Mapped[str]
+
+    timestamp: Mapped[datetime.datetime]
+    user_id: Mapped[Optional[str]]
+    object_id: Mapped[Optional[str]]
+    activity_type: Mapped[Optional[str]]
+    data: Mapped[dict[str, Any]]
+    permission_labels: Mapped[Optional[list[str]]]
 
     def __init__(
         self,
@@ -79,7 +90,7 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         if not id:
             return None
 
-        return meta.Session.query(cls).get(id)
+        return meta.Session.get(cls, id)
 
     @classmethod
     @deprecated(
@@ -137,7 +148,7 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
             # is purged.
             return None
 
-        actor = meta.Session.query(ckan.model.User).get(user_id)
+        actor = meta.Session.get(ckan.model.User, user_id)
 
         return cls(
             user_id,
@@ -170,7 +181,7 @@ def activity_list_dictize(
 
 
 # deprecated
-class ActivityDetail(domain_object.DomainObject, BaseModel):  # type: ignore
+class ActivityDetail(domain_object.DomainObject, BaseModel):
     __tablename__ = "activity_detail"
     id = Column(
         "id", types.UnicodeText, primary_key=True, default=_types.make_uuid
@@ -183,7 +194,7 @@ class ActivityDetail(domain_object.DomainObject, BaseModel):  # type: ignore
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
 
-    activity: Mapped[Activity] = relationship(  # type: ignore
+    activity: Mapped[Activity] = relationship(
         Activity,
         backref=backref("activity_detail", cascade="all, delete-orphan"),
     )
@@ -235,7 +246,7 @@ def _activities_limit(
         q = q.order_by(Activity.timestamp)
     else:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+        q = q.order_by(Activity.timestamp.desc())
 
     if offset:
         q = q.offset(offset)
@@ -259,7 +270,7 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
 def _activities_from_user_query(user_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities from user_id."""
     q = model.Session.query(Activity)
-    q = q.filter(Activity.user_id.in_(_to_list(user_id)))  # type: ignore
+    q = q.filter(Activity.user_id.in_(_to_list(user_id)))
     return q
 
 
@@ -316,7 +327,7 @@ def user_activity_list(
         q = q.order_by(Activity.timestamp)
     else:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+        q = q.order_by(Activity.timestamp.desc())
 
     if offset:
         q = q.offset(offset)
@@ -393,7 +404,7 @@ def package_activity_list(
         q = q.order_by(Activity.timestamp)
     else:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+        q = q.order_by(Activity.timestamp.desc())
 
     if offset:
         q = q.offset(offset)
@@ -544,7 +555,7 @@ def group_activity_list(
         q = q.order_by(Activity.timestamp)
     else:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+        q = q.order_by(Activity.timestamp.desc())
 
     if offset:
         q = q.offset(offset)
@@ -603,7 +614,7 @@ def organization_activity_list(
         q = q.order_by(Activity.timestamp)
     else:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+        q = q.order_by(Activity.timestamp.desc())
 
     if offset:
         q = q.offset(offset)
@@ -739,7 +750,7 @@ def dashboard_activity_list(
         q = q.order_by(Activity.timestamp)
     else:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+        q = q.order_by(Activity.timestamp.desc())
 
     if offset:
         q = q.offset(offset)
@@ -795,7 +806,7 @@ def _filter_activitites_from_users(q: QActivity) -> QActivity:
     users_to_avoid = _activity_stream_get_filtered_users()
     if users_to_avoid:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.filter(Activity.user_id.notin_(users_to_avoid))  # type: ignore
+        q = q.filter(Activity.user_id.notin_(users_to_avoid))
 
     return q
 
@@ -808,9 +819,9 @@ def _filter_activitites_from_type(
 
     """
     if include:
-        q = q.filter(Activity.activity_type.in_(types))  # type: ignore
+        q = q.filter(Activity.activity_type.in_(types))
     else:
-        q = q.filter(Activity.activity_type.notin_(types))  # type: ignore
+        q = q.filter(Activity.activity_type.notin_(types))
     return q
 
 
@@ -844,9 +855,9 @@ def _filter_activities_by_permission_labels(
         # User can access non-package activities since they don't have labels
         q = q.filter(
             or_(
-                or_(Activity.activity_type.is_(None),  # type: ignore
+                or_(Activity.activity_type.is_(None),
                     not_(Activity.activity_type.endswith("package"))),
-                Activity.permission_labels.op('&&')(  # type: ignore
+                Activity.permission_labels.op('&&')(
                     user_permission_labels)
             )
         )
