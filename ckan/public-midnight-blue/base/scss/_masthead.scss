@@ -152,7 +152,7 @@ $notificationsBg: #C9403A;
                 }
                 &.active {
                     a {
-                        font-weight: 600;
+                        font-weight: $font-weight-semibold;
                     }
                 }
             }
