@@ -3,10 +3,13 @@ $notificationsBg: #C9403A;
     @extend .clearfix;
     min-height: 30px;
     color: $mastheadTextColor;
-    background: darken($mastheadBackgroundColor, 10%) url("#{$bgPath}");
+    background: darken($mastheadBackgroundColor, 10%);
     .account {
         float: right;
         ul {
+            display: inline-flex;
+            justify-content: center;
+            align-items: baseline;
             li {
                 display: block;
                 float: left;
@@ -14,7 +17,7 @@ $notificationsBg: #C9403A;
                 a {
                     display: block;
                     text-decoration: none;
-                    color: mix($mastheadBackgroundColor, $mastheadLinkColor, 25%);
+                    color: $link-color;
                     font-size: 13px;
                     font-weight: bold;
                     padding: 0 10px;
@@ -29,17 +32,16 @@ $notificationsBg: #C9403A;
                         left: -9999px;
                     }
                     &:hover {
-                        color: mix($mastheadBackgroundColor, $mastheadLinkColor, 15%);
+                        color: $link-hover-color;
                         background-color: darken($mastheadBackgroundColor, 15%);
                         text-decoration: none;
                     }
                     &.sub {
                         font-weight: 300;
                     }
-                    .btn {
-                        vertical-align: 1px;
-                        margin-left: 3px;
-                    }
+                }
+                .btn-link {
+                    border-radius: 0;
                 }
             }
         }
@@ -68,7 +70,6 @@ $notificationsBg: #C9403A;
         }
         &.authed {
             .image {
-                padding: 0 6px;
                 img {
                     @include border-radius(4px);
                 }
@@ -78,16 +79,17 @@ $notificationsBg: #C9403A;
 }
 
 .masthead {
-    background: $mastheadBackgroundColor url("#{$bgPath}");
+    background: $mastheadBackgroundColor;
+    border-bottom: $gray-300 1px solid;
     @extend .p-2;
     .debug {
         position: fixed;
         top: 0;
         left: 0;
-        color: $white;
+        color: $gray-800;
         background-color: opacify($color: $primary, $amount: 0.3);
         padding: 2px 4px;
-        border: $white 1px solid;
+        border: $gray-300 1px solid;
         border-left: 0px;
         z-index: 9;
     }
@@ -119,36 +121,46 @@ $notificationsBg: #C9403A;
             display: inline-block;
             img {
                 max-height: $logoMaxHeight;
+                vertical-align: unset;
             }
         }
     }
     .main-navbar {
         ul {
-            padding-right: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            @include media-breakpoint-up(md){
+                gap: 24px
+            }
             li {
-                margin-right: 2px;;
+                margin-right: 2px;
                 a {
                     padding: ($spacer * .6)  ($spacer * .9);
-                    color: $white;
+                    color: $black;
                     text-decoration: none;
+                    margin-bottom: $spacer-1;
                 }
                 &:hover,
                 &:focus,
                 &.active {
                     a {
-                        border-radius: $spacer * 0.3;
-                        background-color: darken($mastheadBackgroundColor, 10%);
+                        border-radius: $border-radius-sm;
+                        background-color: $brand-100;
+                        color: $brand-900;
+                    }
+                }
+                &.active {
+                    a {
+                        font-weight: $font-weight-semibold;
                     }
                 }
             }
         }
-        .site-search {
-            button {
-                display: flex;
-                align-items: center;
-                margin-left: -50px;
-            }
-        }
+    }
+    .login {
+        display: flex;
+        justify-content: flex-end;
     }
 }
 
@@ -156,7 +168,7 @@ $notificationsBg: #C9403A;
     .masthead {
         .main-navbar {
             ul {
-                padding: 0;
+                padding: 20px 0 0;
                 li {
                     padding: 0;
                     a {
@@ -164,13 +176,13 @@ $notificationsBg: #C9403A;
                         padding: $nav-link-padding-y $nav-link-padding-x;
                         @include font-size($nav-link-font-size);
                         font-weight: $nav-link-font-weight;
-                        color: $white;
+                        color: $brand-900;
                         text-decoration: if($link-decoration == none, null, none);
                         @include transition($nav-link-transition);
 
                         &:hover,
                         &:focus {
-                            color: $white;
+                            color: $black;
                             text-decoration: if($link-hover-decoration == underline, none, null);
                         }
 
@@ -182,6 +194,9 @@ $notificationsBg: #C9403A;
                     }
                 }
             }
+        }
+        .login {
+            justify-content: flex-start;
         }
     }
 }

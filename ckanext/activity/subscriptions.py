@@ -22,7 +22,7 @@ def get_subscriptions() -> types.SignalMapping:
             {"sender": "bulk_update_private", "receiver": bulk_changed},
             {"sender": "bulk_update_delete", "receiver": bulk_changed},
             {"sender": "package_create", "receiver": package_changed},
-            {"sender": "package_update", "receiver": package_changed},
+            {"sender": "package_update", "receiver": package_updated},
             {"sender": "package_delete", "receiver": package_changed},
             {
                 "sender": "resource_view_create",
@@ -169,6 +169,16 @@ def package_changed(sender: str, **kwargs: Any):
         id_,
         tk.fresh_context(kwargs["context"])
     )
+
+
+def package_updated(sender: str, **kwargs: Any):
+    # package_update includes a context value indicating whether
+    # a real update occurred, if not, skip creating the activity
+    context = kwargs["context"]
+    if not context.get('changed_entities', {}).get('packages', set()):
+        return
+
+    package_changed(sender, **kwargs)
 
 
 # action, context, data_dict, result

@@ -71,9 +71,9 @@ future plans as well as questions and discussions about CKAN development, deploy
 Community Chat
 ~~~~~~~~~~~~~~
 
-If you want to talk about CKAN development say hi to the CKAN developers and members of
-the CKAN community on the public `CKAN chat on Gitter`_. Gitter is free and open-source;
-you can sign in with your GitHub, GitLab, or Twitter account.
+If you want to talk about CKAN development, say hi to the CKAN developers and members of
+the CKAN community on the public `CKAN chat on Gitter`_. Gitter is free and open-source, and
+you can sign in using your GitHub, GitLab, or X (formerly known as Twitter) account.
 
 The logs for the old `#ckan`_ IRC channel (2014 to 2018) can be found here:
 https://github.com/ckan/irc-logs.
