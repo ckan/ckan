@@ -135,7 +135,7 @@ def index(group_type: str, is_organization: bool) -> str:
     # pass user info to context as needed to view private datasets of
     # orgs correctly
     if current_user.is_authenticated:
-        context['user_id'] = current_user.id  # type: ignore
+        context['user_id'] = current_user.id
         context['user_is_admin'] = current_user.sysadmin  # type: ignore
 
     try:
@@ -655,6 +655,11 @@ def member_delete(id: str, group_type: str,
                 u'id': id,
                 u'user_id': user_id
             })
+            # What if the user removes itself from the group?
+            if user_id in [current_user.name, current_user.id]:     # type: ignore
+
+                h.flash_notice(_('You are no longer a member of this group.'))
+                return h.redirect_to(u'{}.read'.format(group_type), id=id)
             h.flash_notice(_(u'Group member has been deleted.'))
             return h.redirect_to(
                 u'{}.manage_members'.format(
