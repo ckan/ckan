@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.10.6 2024-12-xx
+v.2.10.6 2024-12-11
 ===================
 
 Minor changes
@@ -18,6 +18,8 @@ Minor changes
 - `datastore_info` action method now has `side_effect_free`, allowing it to be
   available via GET requests in the API. (`#8457
   <https://github.com/ckan/ckan/pull/8457>`_)
+- Add id attribute to AnonymousUser
+  (`#8565 <https://github.com/ckan/ckan/pull/8565>`_)
 - Automate publishing CKAN package to PyPI (`#8520
   <https://github.com/ckan/ckan/pull/8520>`_)
 
@@ -37,7 +39,8 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/8432>`_)
 - Fixed server error on robots.txt when bootstrap 3 templates were used.
   (`#8536 <https://github.com/ckan/ckan/pull/8536>`_)
-
+- Include ``public`` folder in MANIFEST.in
+  (`#8559 <https://github.com/ckan/ckan/pull/8559>`_)
 
 v.2.10.5 2024-08-21
 ===================
