@@ -19,7 +19,7 @@ Minor changes
   available via GET requests in the API. (`#8457
   <https://github.com/ckan/ckan/pull/8457>`_)
 - Add id attribute to AnonymousUser
-  (`#8565 <https://github.com/ckan/ckan/pull/8565>`_)
+  (`#8571 <https://github.com/ckan/ckan/pull/8571>`_)
 - Automate publishing CKAN package to PyPI (`#8520
   <https://github.com/ckan/ckan/pull/8520>`_)
 
@@ -40,7 +40,7 @@ Bugfixes
 - Fixed server error on robots.txt when bootstrap 3 templates were used.
   (`#8536 <https://github.com/ckan/ckan/pull/8536>`_)
 - Include ``public`` folder in MANIFEST.in
-  (`#8559 <https://github.com/ckan/ckan/pull/8559>`_)
+  (`#8565 <https://github.com/ckan/ckan/pull/8565>`_)
 
 v.2.10.5 2024-08-21
 ===================
