@@ -1984,7 +1984,7 @@ def groups_available(am_member: bool = False,
     '''
     if user is None:
         try:
-            user = current_user.id  # type: ignore
+            user = current_user.id
         except AttributeError:
             # current_user is anonymous
             pass
@@ -2008,7 +2008,7 @@ def organizations_available(permission: str = 'manage_group',
     '''
     if user is None:
         try:
-            user = current_user.id  # type: ignore
+            user = current_user.id
         except AttributeError:
             # current_user is anonymous
             pass
@@ -2054,7 +2054,7 @@ def user_in_org_or_group(group_id: str) -> bool:
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)  # type: ignore
+        .filter(model.Member.table_id == current_user.id)
     return len(query.all()) != 0
 
 
