@@ -24,7 +24,7 @@
             <div class="flash-messages">
               {% block flash_inner %}
                 {% for category, message in h.get_flashed_messages(with_categories=true) %}
-                  <div class="alert alert-dismissible fade show {{ category }}">
+                  <div class="alert alert-dismissible fade show {{ category }}" role="alert">
                     {{ h.literal(message) }}
                   </div>
                 {% endfor %}
