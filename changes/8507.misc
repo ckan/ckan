@@ -1,0 +1,1 @@
+Register pytest plugins as entrypoints to make them available to all extensions

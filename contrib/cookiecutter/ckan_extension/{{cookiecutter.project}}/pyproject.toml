@@ -4,7 +4,11 @@ version = "0.0.1"
 description = "{{ cookiecutter.description }}"
 readme = "README.md"
 authors = [
-    {name = "{{ cookiecutter.author }}", email = "{{ cookiecutter.author_email }}"}
+    {name = "{{ cookiecutter.author }}"
+        {%- if cookiecutter.author_email -%}
+        , email = "{{ cookiecutter.author_email }}"
+        {%- endif -%}
+    }
 ]
 license = {text = "AGPL"}
 classifiers = [

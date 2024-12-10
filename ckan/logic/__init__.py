@@ -906,6 +906,7 @@ def guard_against_duplicated_email(email: str):
 
 def fresh_context(
     context: Context,
+    **kwargs: Any,
 ) -> Context:
     """ Copy just the minimum fields into a new context
         for cases in which we reuse the context and
@@ -916,5 +917,6 @@ def fresh_context(
             'ignore_auth', 'defer_commit',
         ) if k in context
     }
+    new_context.update(kwargs)
     new_context = cast(Context, new_context)
     return new_context
