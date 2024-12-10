@@ -1,0 +1,126 @@
+{% extends 'page.html' %}
+
+{% block page_title %}
+
+{% endblock %}
+
+{% block breadcrumb_content_selected %}
+
+{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="dashboard">
+    <a href="/dashboard/datasets">{{ _('Dashboard') }}</a>
+  </li>
+  <li class="statistical">
+    <a href="/dashboard/statistical">{{ _('Statistics') }}</a>
+  </li>
+  <li class="active">
+    <a href="/dashboard/statistical/resource-dashboard">{{ _('Resource Statistics') }}</a>
+  </li>
+{% endblock %}
+
+{% block secondary %}
+
+{% endblock %}
+
+{% block primary %}
+  <div class="container my-4">
+    <div class="d-flex align-items-center">
+      <h2 class="mb-0">All Resource Charts</h2>
+      <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Dropdown button</button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+          <li>
+            <a class="dropdown-item" href="#">Action</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">Another action</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">Something else here</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <hr class="mt-3" />
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+      <!-- Card 1 -->
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 1" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 1</h5>
+            <p class="card-text">This is a short description of the first card.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Card 2 -->
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 2" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 2</h5>
+            <p class="card-text">This is a short description of the second card.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 2" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 2</h5>
+            <p class="card-text">This is a short description of the second card.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 2" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 2</h5>
+            <p class="card-text">This is a short description of the second card.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 2" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 2</h5>
+            <p class="card-text">This is a short description of the second card.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 2" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 2</h5>
+            <p class="card-text">This is a short description of the second card.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Card 3 -->
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 3" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 3</h5>
+            <p class="card-text">This is a short description of the third card.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Card 4 -->
+      <div class="col">
+        <div class="card h-100">
+          <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Card 4" />
+          <div class="card-body">
+            <h5 class="card-title">Card Title 4</h5>
+            <p class="card-text">This is a short description of the fourth card.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

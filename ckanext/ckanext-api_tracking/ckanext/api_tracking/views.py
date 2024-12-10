@@ -13,6 +13,12 @@ from ckan.lib.helpers import Page
 # Blueprint for tracking
 dashboard = Blueprint('tracking_blueprint', __name__, url_prefix=u'/dashboard/')
 
+def resource_dashboard():
+        return base.render('user/resource_dashboard.html')
+
+def user_dashboard():
+        return base.render('user/user_dashboard.html')
+
 def aggregate_package_views(urls_and_counts):
     """Aggregate package views for each unique package."""
     aggregated_data = {}
@@ -122,6 +128,7 @@ def statistical_tracking():
     # Render the template with the prepared variables
     return base.render('user/statistical_tracking.html', extra_vars)
 
+
 # Đây là chức năng thống kê data theo tổ chức 
 def statistical_org():
     organization_name = request.form.get('organization_name') or 'organization-yqra-9121-gaar'
@@ -215,6 +222,14 @@ def statistical_field():
             extra_vars[u'include_datasets'] = datasets_field.get('include_datasets')
     return base.render('user/statistical_field.html', extra_vars)
     
+
+# Register route list for blueprint
+dashboard.add_url_rule(
+    u"/statistical/resource-dashboard", view_func=resource_dashboard, methods=['GET']
+)
+dashboard.add_url_rule(
+    u"/statistical/user-dashboard", view_func=user_dashboard, methods=['GET']
+)
 
 # Register route tracking for blueprint
 dashboard.add_url_rule(

@@ -1,6 +1,28 @@
-{% extends 'user/dashboard.html' %}
+{% extends "page.html" %}
 
-{% block page_primary_action %}
+{% block page_title %}New User Statistics{% endblock %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="dashboard">
+    <a href="/dashboard/datasets">{{ _('Dashboard') }}</a>
+  </li>
+  <li class="statistical">
+    <a href="/dashboard/statistical">{{ _('Statistics') }}</a>
+  </li>
+  <li class="active">
+    <a href="/dashboard/statistical/new_user_stats">{{ _('New User Statistics') }}</a>
+  </li>
+{% endblock %}
+
+{% block secondary %}{% endblock %}
+
+{% block primary %}
+
+
+
+
 {% asset 'api_tracking/dataset-css' %}
 {% asset 'api_tracking/statistical_org-js' %}
     <div class="container mt-5 p-4 border rounded shadow-sm">
@@ -41,10 +63,7 @@
         </div>
       </form>
     </div>
-{% endblock %}
 
-{% block primary_content_inner %}
-    {{ super() }}
     <div class="container mt-5 p-4 border rounded shadow-sm bg-light">
       <div class="row g-0">
         <!-- Số lượng mục hiển thị -->

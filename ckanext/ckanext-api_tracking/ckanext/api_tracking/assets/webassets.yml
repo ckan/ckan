@@ -57,3 +57,23 @@ statistical_field-js:
   extra:
     preload:
       - base/main
+
+list-css:
+  filter: cssrewrite
+  output: ckanext-api_tracking/%(version)s-list.css
+  contents:
+    - css/cart-item.css
+
+list-js:
+  filter: rjsmin
+  output: ckanext-api_tracking/%(version)s-list.js
+  contents:
+    - js/bootstrap.js
+    - js/jquery.js
+    - js/chart.js
+  extra:
+    preload:
+      - base/main
+
+
+
