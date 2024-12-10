@@ -112,12 +112,10 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     # view an 'old' version of the package, as recorded in the
     # activity stream
     current_pkg = package
-    try:
-        activity = context["session"].query(Activity).get(activity_id)
-        assert activity
-        package = activity.data["package"]
-    except AttributeError:
+    activity = context["session"].get(Activity, activity_id)
+    if not activity:
         tk.abort(404, tk._("Dataset not found"))
+    package = activity.data["package"]
 
     if package["id"] != current_pkg["id"]:
         log.info(
