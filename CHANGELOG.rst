@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.11.1 2024-12-xx
+v.2.11.1 2024-12-11
 ===================
 
 Migration notes
@@ -46,6 +46,8 @@ Minor changes
   extensions (`#8507 <https://github.com/ckan/ckan/pull/8507>`_)
 - Don't add author email to pyproject.toml if empty when creating an extension
   (`#8519 <https://github.com/ckan/ckan/pull/8519>`_)
+- Add id attribute to AnonymousUser
+  (`#8571 <https://github.com/ckan/ckan/pull/8571>`_)
 - Automate publishing CKAN package to PyPI (`#8520
   <https://github.com/ckan/ckan/pull/8520>`_)
 
@@ -71,6 +73,10 @@ Bugfixes
   the deletion date. (`#8501 <https://github.com/ckan/ckan/pull/8501>`_)
 - Fix showing '0 members' for all groups on a dataset page. (`#8537
   <https://github.com/ckan/ckan/pull/8537>`_)
+- Include ``public`` folder in MANIFEST.in
+  (`#8565 <https://github.com/ckan/ckan/pull/8565>`_)
+- Fix 403 error when a user removes itself from a group
+  (`#8256 <https://github.com/ckan/ckan/pull/8256>`_)
 
 
 v.2.11.0 2024-08-21
