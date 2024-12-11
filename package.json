@@ -8,7 +8,7 @@
     "@popperjs/core": "^2.10.2",
     "blueimp-file-upload": "^10.32.0",
     "bootstrap": "^5.1.3",
-    "dompurify": "^2.3.3",
+    "dompurify": "^2.5.7",
     "jquery": "^3.6.0",
     "moment": "^2.29.4",
     "qs": "^6.10.3"

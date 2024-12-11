@@ -161,7 +161,7 @@ def index(group_type: str, is_organization: bool) -> str:
     # pass user info to context as needed to view private datasets of
     # orgs correctly
     if current_user.is_authenticated:
-        context['user_id'] = current_user.id  # type: ignore
+        context['user_id'] = current_user.id
         context['user_is_admin'] = current_user.sysadmin  # type: ignore
 
     try:

@@ -1649,6 +1649,12 @@ msgid ""
 "password at: %(reset_link)s Have a nice day. -- Message sent by "
 "%(site_title)s (%(site_url)s)"
 msgstr ""
+"Cienījamais %(user_name)s, Jūs esat uzaicināts pievienoties  %(site_title)s."
+" Jums jau ir izveidots lietotājs ar lietotājvārdu %(user_name)s. Vēlāk "
+"varēsiet to nomainīt. Jūs esat pievienots grupai %(group_type)s "
+"%(group_title)s ar šādu lomu: %(role_name)s. TLai pieņemtu šo uzaicinājumu, "
+"lūdzu, atiestatiet savu paroli, izmantojot saiti: %(reset_link)s Lai Jums "
+"jauka diena! -- Ziņojumu nosūtīja %(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/invite_user_subject.txt:1
 #, python-format
@@ -1663,11 +1669,15 @@ msgid ""
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
+"Cienījamais %(user_name)s, Jūs esat pieprasījis atiestatīt paroli "
+"vietnē%(site_title)s. Lūdzu, noklikšķiniet uz šīs saites, lai apstiprinātu "
+"pieprasījumu: %(reset_link)s Lai Jums jauka diena! -- Ziņojumu nosūtīja "
+"%(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/reset_password_subject.txt:1
 #, python-format
 msgid "Reset your password - %(site_title)s"
-msgstr ""
+msgstr "Attiestatīt jūsu paroli - %(site_title)s"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
 #: ckan/templates/organization/admins.html:3
@@ -3419,7 +3429,7 @@ msgstr "Izveidot kontu"
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:15
 msgid "Reset Your Password"
-msgstr "Atjaunot jūsu paroli"
+msgstr "Attiestatīt jūsu paroli"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
@@ -3957,6 +3967,8 @@ msgid ""
 "A reset link has been emailed to you (unless the account specified does not "
 "exist)"
 msgstr ""
+"Atiestatīšanas saite ir nosūtīta uz Jūsu e-pastu (ja vien norādītais konts "
+"neeksistē)."
 
 #: ckan/views/user.py:742
 msgid "Unauthorized to reset password."
@@ -4735,6 +4747,8 @@ msgid ""
 "Data Dictionary saved. Any type overrides will take effect when the resource"
 " is next uploaded to DataStore"
 msgstr ""
+"Datu vārdnīca saglabāta. Jebkāda veida pārrakstīšana stāsies spēkā, kad "
+"resurss tiks nākamo reizi augšupielādēts Datu glabātuvē."
 
 #: ckanext/datastore/backend/postgres.py:1159
 msgid "The data was invalid: {}"
@@ -4865,7 +4879,7 @@ msgstr "Virsraksts"
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
-msgstr ""
+msgstr "Datu vārdnīca"
 
 #: ckanext/datastore/templates-bs3/package/resource_read.html:19
 #: ckanext/datastore/templates/package/resource_read.html:19

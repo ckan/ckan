@@ -365,10 +365,11 @@ class User(core.StatefulObjectMixin,
 
 
 class AnonymousUser(AnonymousUserMixin):
-    '''Extends the default AnonymousUserMixin to have an attribute
-    `name`/`email`, so, when retrieving the current_user.name/email on an
-    anonymous user, won't break our app with `AttributeError`.
+    '''Extends the default AnonymousUserMixin to have id, name and email
+    attributes, so when retrieving the current_user.id/name/email on an
+    anonymous user it won't raise an `AttributeError`.
     '''
+    id: str = ""
     name: str = ""
     email: str = ""
 

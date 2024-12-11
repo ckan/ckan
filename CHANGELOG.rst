@@ -9,6 +9,41 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.10.6 2024-12-11
+===================
+
+Minor changes
+-------------
+
+- `datastore_info` action method now has `side_effect_free`, allowing it to be
+  available via GET requests in the API. (`#8457
+  <https://github.com/ckan/ckan/pull/8457>`_)
+- Add id attribute to AnonymousUser
+  (`#8571 <https://github.com/ckan/ckan/pull/8571>`_)
+- Automate publishing CKAN package to PyPI (`#8520
+  <https://github.com/ckan/ckan/pull/8520>`_)
+- Automate creation of GitHub release (`#8570
+  <https://github.com/ckan/ckan/pull/8570>`_)
+
+
+Bugfixes
+--------
+
+- Fixed context in `set_datastore_active_flag` to
+  solve possible solr errors during `index_package` (`#7571
+  <https://github.com/ckan/ckan/pull/7571>`_)
+- POST request to GET-only endpoint causes 500 error (`#7616
+  <https://github.com/ckan/ckan/pull/7616>`_)
+- Set license model `od_conformance` and `osd_conformance` attributes' default
+  values to `False` to prevent errors. (`#8268
+  <https://github.com/ckan/ckan/pull/8268>`_)
+- Load the right i18n files for Chinese locales in DataTables View. (`#8432
+  <https://github.com/ckan/ckan/pull/8432>`_)
+- Fixed server error on robots.txt when bootstrap 3 templates were used.
+  (`#8536 <https://github.com/ckan/ckan/pull/8536>`_)
+- Include ``public`` folder in MANIFEST.in
+  (`#8565 <https://github.com/ckan/ckan/pull/8565>`_)
+
 v.2.10.5 2024-08-21
 ===================
 

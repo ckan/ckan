@@ -267,7 +267,7 @@ class EditView(MethodView):
         })
         if id is None:
             if current_user.is_authenticated:
-                id = current_user.id  # type: ignore
+                id = current_user.id
             else:
                 base.abort(400, _(u'No user specified'))
         assert id
@@ -612,7 +612,7 @@ def delete(id: str) -> Union[Response, Any]:
         return base.abort(404, _(e.message))
 
     if request.method == 'POST' and current_user.is_authenticated:
-        if current_user.id == id:  # type: ignore
+        if current_user.id == id:
             return logout()
         else:
             user_index = h.url_for(u'user.index')
