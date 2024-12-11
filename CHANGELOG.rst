@@ -50,6 +50,8 @@ Minor changes
   (`#8571 <https://github.com/ckan/ckan/pull/8571>`_)
 - Automate publishing CKAN package to PyPI (`#8520
   <https://github.com/ckan/ckan/pull/8520>`_)
+- Automate creating of GitHub release (`#8570
+  <https://github.com/ckan/ckan/pull/8570>`_)
 
 
 Bugfixes
