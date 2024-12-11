@@ -42,7 +42,7 @@ defaults:
 
   solr_image: &solr_image
     # Note, this should be in sync with test-infrastructure/docker-compose.yml
-    image: ckan/ckan-solr:master
+    image: ckan/ckan-solr:2.11-solr9.7
     name: ckan-solr
 
 jobs:
