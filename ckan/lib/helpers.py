@@ -1062,6 +1062,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'save label': _(u"Save {object_type}"),
         u'search placeholder': _(u'Search {object_type}s...'),
         u'you not member': _(u'You are not a member of any {object_type}s.'),
+        u'user not member': _(u'User isn\'t a member of any {object_type}s.'),
         u'update label': _(u"Update {object_type}"),
     }
 
@@ -1982,9 +1983,14 @@ def groups_available(am_member: bool = False,
 
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
-    data_dict = {'available_only': True,
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
+    context: Context = {'user': current_user.name}
+    data_dict = {'id': user,
+                 'available_only': True,
                  'am_member': am_member,
                  'include_dataset_count': include_dataset_count,
                  'include_member_count': include_member_count}
@@ -1997,13 +2003,18 @@ def organizations_available(permission: str = 'manage_group',
                             include_member_count: bool = False,
                             user: Union[str, None] = None
                             ) -> list[dict[str, Any]]:
-    '''Return a list of organizations that the current user has the specified
-    permission for.
+    '''Return a list of organizations that a user has the specified permission
+    for. If no user is specified, the current user is used.
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
+    context: Context = {'user': current_user.name}
     data_dict = {
+        'id': user,
         'permission': permission,
         'include_dataset_count': include_dataset_count,
         'include_member_count': include_member_count}
@@ -2018,7 +2029,10 @@ def member_count(group: str) -> int:
         u'id': group,
         u'object_type': u'user'
     }
-    return len(logic.get_action(u'member_list')(context, data_dict))
+    try:
+        return len(logic.get_action(u'member_list')(context, data_dict))
+    except logic.NotAuthorized:
+        return 0
 
 
 @core_helper
@@ -2040,7 +2054,7 @@ def user_in_org_or_group(group_id: str) -> bool:
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)  # type: ignore
+        .filter(model.Member.table_id == current_user.id)
     return len(query.all()) != 0
 
 

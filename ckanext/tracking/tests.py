@@ -73,6 +73,7 @@ def update_tracking_summary():
     update_all(engine=engine, start_date=date)
 
 
+@pytest.mark.ckan_config("ckan.root_path", "/foo/{{LANG}}")
 @pytest.mark.ckan_config("ckan.plugins", "tracking")
 @pytest.mark.usefixtures("with_plugins", "clean_db", "app")
 class TestTracking(object):

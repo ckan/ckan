@@ -634,7 +634,7 @@ msgstr "Nemůžete sledovat sami sebe"
 
 #: ckan/logic/action/create.py:1309
 msgid "Error validating the schema of the dataset to follow."
-msgstr ""
+msgstr "Chyba při ověřování schématu sledované datové sady."
 
 #: ckan/logic/action/create.py:1351 ckan/views/feed.py:220
 #: ckan/views/group.py:583
@@ -657,7 +657,7 @@ msgstr "Uživatel s uživatelským jménem {username} neexistuje."
 
 #: ckan/logic/action/create.py:1447
 msgid "Error validating the schema of the group to follow."
-msgstr ""
+msgstr "Chyba při ověřování schématu sledované skupiny."
 
 #: ckan/logic/action/delete.py:352 ckan/logic/action/get.py:230
 msgid "Package not found"
@@ -689,7 +689,7 @@ msgstr "Abyste mohl(-a) cokoli přestat sledovat, musí se přihlásit."
 
 #: ckan/logic/action/delete.py:665
 msgid "Error validating the schema of the object to unfollow."
-msgstr ""
+msgstr "Chyba při ověřování schématu objektu, který má být nesledován."
 
 #: ckan/logic/action/get.py:244 ckan/logic/action/get.py:294
 msgid "Capacity must be one of \"{}\""
@@ -1446,6 +1446,19 @@ msgid ""
 "customize the templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\" rel=\"noreferrer\">reading the documentation</a>.</p>"
 msgstr ""
+"<p><strong>Název webu:</strong> Zobrazuje se na různých místech v CKAN.</p> "
+"<p><strong>Vlastní stylopis:</strong> Definujte alternativní hlavní soubor "
+"CSS.</p> <p><strong>Logo značky webu:</strong> Toto je logo, které se "
+"zobrazuje v záhlaví všech šablon instancí CKAN.</p> <p><strong>O "
+"aplikaci:</strong> V tomto případě se jedná o aplikaci, která je určena k "
+"použití na webu: Tento text se zobrazí na <a href=\"%(about_url)s\">stránce "
+"o této instanci CKAN</a>.</p> <p><strong>Úvodní text:</strong> Tento text se"
+" zobrazí na <a href=\"%(home_url)s\">úvodní stránce</a> této instance CKAN "
+"jako uvítání návštěvníků.</p> <p><strong>Vlastní CSS:</strong> Toto je blok "
+"CSS, který se zobrazí v tagu <code>&lt;head&gt;</code> každé stránky. Pokud "
+"si přejete přizpůsobit šablony podrobněji, doporučujeme <a "
+"href=\"%(docs_url)s\" target=\"_blank\" rel=\"noreferrer\">přečíst si "
+"dokumentaci</a>.</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:11
@@ -1950,10 +1963,10 @@ msgstr "0 datových sad"
 #: ckan/templates/organization/snippets/organization_item.html:38
 msgid "{num} Member"
 msgid_plural "{num} Members"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "{num} člen"
+msgstr[1] "{num} členové"
+msgstr[2] "{num} členů"
+msgstr[3] "{num} členů"
 
 #: ckan/templates/group/snippets/group_item.html:41
 #: ckan/templates/organization/snippets/organization_item.html:40
@@ -4726,11 +4739,11 @@ msgstr "DataStore a Data Dictionary "
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:16
 msgid "Are you sure you want to delete the DataStore and Data Dictionary?"
-msgstr ""
+msgstr "Jste si jisti, že chcete odstranit datový sklad a datový slovník?"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:17
 msgid "Delete from DataStore"
-msgstr ""
+msgstr "Odstranit z úložiště DataStore"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:24
 msgid "Upload to DataStore"
@@ -4832,6 +4845,8 @@ msgid ""
 "Further information in the <a href=\"%(url)s\" target=\"_blank\">main CKAN "
 "Data API and DataStore documentation</a>.</p>"
 msgstr ""
+"Další informace najdete v <a href=\"%(url)s\" target=\"_blank\">hlavní "
+"dokumentaci CKAN Data API a DataStore</a>.</p>"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:46
 msgid "Code examples:"
@@ -4851,7 +4866,7 @@ msgstr "Získejte 5 výsledků obsahujících slovo \"jones\" v libovolném poli
 msgid ""
 "Get results with either \"watershed\" or \"survey\" as subject and "
 "\"active\" as its stage:"
-msgstr ""
+msgstr "Získejte výsledky s předmětem \"watershed\" nebo \"survey\" a fází \"active\":"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:77
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:35
@@ -4865,6 +4880,7 @@ msgstr "Použití rozhraní API s tímto webovým prohlížečem"
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:94
 msgid "Some API endpoints may be accessed using a GET query string."
 msgstr ""
+"K některým koncovým bodům API lze přistupovat pomocí řetězce dotazu GET."
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:95
 msgid "Query example (first 5 results)"
@@ -5055,31 +5071,31 @@ msgstr "Nezměnitelné"
 
 #: ckanext/example_icolumnconstraints/templates/tabledesigner/constraint_snippets/immutable.html:11
 msgid "The value may be set once then not changed afterwards"
-msgstr ""
+msgstr "Hodnotu lze nastavit jednou a poté ji již nelze měnit."
 
 #: ckanext/example_icolumnconstraints/templates/tabledesigner/view_snippets/immutable.html:3
 msgid "This field may not be modified once set"
-msgstr ""
+msgstr "Toto pole nelze po nastavení měnit"
 
 #: ckanext/example_icolumntypes/plugin.py:29
 msgid "Star Rating"
-msgstr ""
+msgstr "Hodnocení hvězdičkami"
 
 #: ckanext/example_icolumntypes/plugin.py:30
 msgid "Rating between 1-5 stars"
-msgstr ""
+msgstr "Hodnocení 1-5 hvězdiček"
 
 #: ckanext/example_icolumntypes/plugin.py:48
 msgid "Rating must be between 1 and 5"
-msgstr ""
+msgstr "Hodnocení musí být mezi 1 a 5"
 
 #: ckanext/example_iconfigurer/templates/admin/base.html:5
 msgid "My First Custom Config Tab"
-msgstr ""
+msgstr "Moje první vlastní konfigurační karta"
 
 #: ckanext/example_iconfigurer/templates/admin/base.html:6
 msgid "My Second Custom Config Tab"
-msgstr ""
+msgstr "Druhá karta s vlastní konfigurací"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
@@ -5101,7 +5117,7 @@ msgstr "Hodnota musí být větší než %d"
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:5
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_view.html:5
 msgid "An integer"
-msgstr ""
+msgstr "Celé číslo"
 
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:10
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_view.html:6
@@ -5116,7 +5132,7 @@ msgstr "Stále rostoucí"
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:22
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_view.html:8
 msgid "Sticky input"
-msgstr ""
+msgstr "Sticky zadání"
 
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:27
 msgid "Secret (write-only)"
@@ -5284,15 +5300,15 @@ msgstr "Celkový počet datových sad"
 
 #: ckanext/tabledesigner/column_constraints.py:106
 msgid "Below minimum"
-msgstr ""
+msgstr "Pod minimem"
 
 #: ckanext/tabledesigner/column_constraints.py:115
 msgid "Above maximum"
-msgstr ""
+msgstr "Nad maximem"
 
 #: ckanext/tabledesigner/column_constraints.py:183
 msgid "Does not match pattern"
-msgstr ""
+msgstr "Neodpovídá vzoru"
 
 #: ckanext/tabledesigner/column_types.py:132 ckanext/textview/plugin.py:63
 #: ckanext/textview/plugin.py:65
@@ -5301,7 +5317,7 @@ msgstr "Text"
 
 #: ckanext/tabledesigner/column_types.py:134
 msgid "Unicode text of any length"
-msgstr ""
+msgstr "Unicode text libovolné délky"
 
 #: ckanext/tabledesigner/column_types.py:136
 msgid "free-form text"
@@ -5321,11 +5337,11 @@ msgstr "E-mailová adresa"
 
 #: ckanext/tabledesigner/column_types.py:240
 msgid "A single email address"
-msgstr ""
+msgstr "Jedna e-mailová adresa"
 
 #: ckanext/tabledesigner/column_types.py:271
 msgid "Invalid email"
-msgstr ""
+msgstr "Neplatný e-mail"
 
 #: ckanext/tabledesigner/column_types.py:278
 msgid "URI"
@@ -5333,49 +5349,51 @@ msgstr "URI"
 
 #: ckanext/tabledesigner/column_types.py:280
 msgid "Uniform resource identifier (URL or URN)"
-msgstr ""
+msgstr "Jednotný identifikátor zdroje (URL nebo URN)"
 
 #: ckanext/tabledesigner/column_types.py:292
 msgid "Universally unique identifier (UUID)"
-msgstr ""
+msgstr "Univerzální jedinečný identifikátor (UUID)"
 
 #: ckanext/tabledesigner/column_types.py:294
 msgid "A universally unique identifier as hexadecimal"
-msgstr ""
+msgstr "Univerzální jedinečný identifikátor v hexadecimálním tvaru."
 
 #: ckanext/tabledesigner/column_types.py:306
 msgid "Numeric"
-msgstr ""
+msgstr "Číselný"
 
 #: ckanext/tabledesigner/column_types.py:308
 msgid ""
 "Number with arbitrary precision (any number of digits before and after the "
 "decimal)"
 msgstr ""
+"Číslo s libovolnou přesností (libovolný počet číslic před a za desetinnou "
+"čárkou)"
 
 #: ckanext/tabledesigner/column_types.py:326
 msgid "Integer"
-msgstr ""
+msgstr "Celé číslo"
 
 #: ckanext/tabledesigner/column_types.py:328
 msgid "Whole numbers with no decimal"
-msgstr ""
+msgstr "Celá čísla bez desetinných míst"
 
 #: ckanext/tabledesigner/column_types.py:345
 msgid "Boolean"
-msgstr ""
+msgstr "Boolean"
 
 #: ckanext/tabledesigner/column_types.py:347
 msgid "True or false values"
-msgstr ""
+msgstr "Hodnoty True nebo false"
 
 #: ckanext/tabledesigner/column_types.py:362
 msgid "FALSE"
-msgstr ""
+msgstr "FALSE"
 
 #: ckanext/tabledesigner/column_types.py:363
 msgid "TRUE"
-msgstr ""
+msgstr "TRUE"
 
 #: ckanext/tabledesigner/column_types.py:384
 msgid "JSON"
@@ -5383,76 +5401,76 @@ msgstr "JSON"
 
 #: ckanext/tabledesigner/column_types.py:386
 msgid "A JSON object"
-msgstr ""
+msgstr "JSON objekt"
 
 #: ckanext/tabledesigner/column_types.py:399
 msgid "Date without time of day"
-msgstr ""
+msgstr "Datum bez denní doby"
 
 #: ckanext/tabledesigner/column_types.py:423
 msgid "Timestamp"
-msgstr ""
+msgstr "Časové razítko"
 
 #: ckanext/tabledesigner/column_types.py:425
 msgid "Date and time without time zone"
-msgstr ""
+msgstr "Datum a čas bez časového pásma"
 
 #: ckanext/tabledesigner/validators.py:48
 msgid "Must be a list or newline-separated string"
-msgstr ""
+msgstr "Musí to být seznam nebo řetězec oddělený novými řádky."
 
 #: ckanext/tabledesigner/validators.py:71
 msgid "Invalid regular expression"
-msgstr ""
+msgstr "Neplatný regulární výraz"
 
 #: ckanext/tabledesigner/validators.py:93
 #, python-format
 msgid "Invalid constraint for type: %s"
-msgstr ""
+msgstr "Neplatné omezení pro typ: %s"
 
 #: ckanext/tabledesigner/validators.py:122
 msgid "Less than minumum"
-msgstr ""
+msgstr "Méně než minimum"
 
 #: ckanext/tabledesigner/views.py:49 ckanext/tabledesigner/views.py:57
 msgid "Required fields missing"
-msgstr ""
+msgstr "Chybí vyžadovaná pole"
 
 #: ckanext/tabledesigner/views.py:94
 msgid "Table Designer fields updated."
-msgstr ""
+msgstr "Pole Designéra tabulek byla aktualizována."
 
 #: ckanext/tabledesigner/views.py:144 ckanext/tabledesigner/views.py:226
 msgid "Duplicate primary key exists"
-msgstr ""
+msgstr "Existuje duplicitní primární klíč"
 
 #: ckanext/tabledesigner/views.py:149 ckanext/tabledesigner/views.py:231
 msgid "Invalid input"
-msgstr ""
+msgstr "Neplatné zadání"
 
 #: ckanext/tabledesigner/views.py:192
 msgid "Row not found"
-msgstr ""
+msgstr "Řádek nebyl nalezen"
 
 #: ckanext/tabledesigner/views.py:273
 msgid "Row(s) not found"
-msgstr ""
+msgstr "Řádek(y) nebyly nalezeny"
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:29
 msgid "Get results filtered by the contents of specific fields:"
-msgstr ""
+msgstr "Získejte výsledky filtrované podle obsahu konkrétních polí:"
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:45
 msgid "Inserting and Updating"
-msgstr ""
+msgstr "Vložení a aktualizace"
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:49
 msgid "Insert a new record:"
-msgstr ""
+msgstr "Vložte nový záznam:"
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:53
 msgid "Update an existing record:"
-msgstr ""
+msgstr "Aktualizujte existující záznam:"
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:57
 #, python-format
@@ -5460,110 +5478,120 @@ msgid ""
 "\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted or "
 "updated based on the primary key values passed"
 msgstr ""
+"\"%(method)s\" je výchozí hodnota k \"%(upsert)s\", tj. záznamy budou "
+"vloženy nebo aktualizovány na základě předaných hodnot primárního klíče."
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:65
 msgid "Deleting"
-msgstr ""
+msgstr "Mazání "
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:69
 msgid "Delete a record:"
-msgstr ""
+msgstr "Smazat záznam:"
 
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:21
 msgid "Remove field"
-msgstr ""
+msgstr "Odebrat pole"
 
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:33
 msgid "Field identifier or column heading when exported to CSV"
-msgstr ""
+msgstr "Identifikátor pole nebo záhlaví sloupce při exportu do CSV"
 
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:40
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_view.html:18
 msgid "Obligation"
-msgstr ""
+msgstr "Povinné"
 
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:42
 msgid "Optional"
-msgstr ""
+msgstr "Volitelné"
 
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:43
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_view.html:19
 msgid "Required"
-msgstr ""
+msgstr "Vyžadované"
 
 #: ckanext/tabledesigner/templates/datatables/datatables_view.html:12
 msgid "Delete rows"
-msgstr ""
+msgstr "Smazat řádky"
 
 #: ckanext/tabledesigner/templates/datatables/datatables_view.html:17
 #: ckanext/tabledesigner/templates/tabledesigner/edit_row.html:10
 msgid "Edit row"
-msgstr ""
+msgstr "Upravit řádek"
 
 #: ckanext/tabledesigner/templates/datatables/datatables_view.html:22
 #: ckanext/tabledesigner/templates/tabledesigner/add_row.html:10
 msgid "Add row"
-msgstr ""
+msgstr "Přidat řádek"
 
 #: ckanext/tabledesigner/templates/package/resource_read.html:13
 msgid ""
 "<b>No fields defined:</b> click the Data Dictionary button above to "
 "customize this table"
 msgstr ""
+"<b>Nejsou definována žádná pole:</b> klikněte na tlačítko Datový slovník "
+"výše a upravte tuto tabulku."
 
 #: ckanext/tabledesigner/templates/package/resource_read.html:18
 msgid ""
 "<b>No table view defined:</b> click the Views button and add a Table view to"
 " view and edit data"
 msgstr ""
+"<b>Není definováno žádné zobrazení tabulky:</b> klikněte na tlačítko "
+"Zobrazení a přidejte zobrazení tabulky pro zobrazení a úpravy dat."
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:6
 msgid "Create a custom table for your data"
-msgstr ""
+msgstr "Vytvoření vlastní tabulky pro data"
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:9
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:18
 msgid "Table Designer"
-msgstr ""
+msgstr "Návrhář tabulek"
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:20
 msgid ""
 "Save this resource, then customize the table from the Data Dictionary tab"
-msgstr ""
+msgstr "Uložte tento prostředek a poté upravte tabulku na kartě Slovník dat."
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:22
 #, python-format
 msgid ""
 "Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this table."
 msgstr ""
+"Tuto tabulku můžete upravit pomocí karty<a href=\"%(url)s\"> Slovník "
+"dat</a>."
 
 #: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:6
 #: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:10
 msgid "Delete row"
 msgid_plural "Delete rows"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Smazat řádek"
+msgstr[1] "Smazat řádky"
+msgstr[2] "Smazat řádky"
+msgstr[3] "Smazat řádky"
 
 #: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:12
 msgid "Delete {num} row?"
 msgid_plural "Delete {num} rows?"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Smazat {num} řádek?"
+msgstr[1] "Smazat {num} řádky?"
+msgstr[2] "Smazat {num} řádků?"
+msgstr[3] "Smazat {num} řádků?"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:3
 #: ckanext/tabledesigner/templates/tabledesigner/view_snippets/pattern.html:2
 msgid "Pattern"
-msgstr ""
+msgstr "Vzor"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:11
 msgid ""
 "Regular expression to match against the field, e.g. <code>AB-\\d{6}</code> "
 "for text starting with <code>AB-</code> and ending with 6 digits"
 msgstr ""
+"Regulární výraz pro porovnání s polem, např. <code>AB-\\d{6}</code> pro text"
+" začínající na <code>AB-</code> a končící na 6 číslic."
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:3
 #: ckanext/tabledesigner/templates/tabledesigner/view_snippets/range.html:1
@@ -5572,7 +5600,7 @@ msgstr "Minimum"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:12
 msgid "Minimum permitted value for data in this column"
-msgstr ""
+msgstr "Minimální povolená hodnota pro data v tomto sloupci"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:18
 #: ckanext/tabledesigner/templates/tabledesigner/view_snippets/range.html:2
@@ -5581,35 +5609,39 @@ msgstr "Maximum"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:27
 msgid "Maximum permitted value for data in this column"
-msgstr ""
+msgstr "Maximální povolená hodnota pro údaje v tomto sloupci"
 
 #: ckanext/tabledesigner/templates/tabledesigner/design_snippets/choice.html:2
 #: ckanext/tabledesigner/templates/tabledesigner/view_snippets/choice.html:1
 msgid "Choices"
-msgstr ""
+msgstr "Možnosti"
 
 #: ckanext/tabledesigner/templates/tabledesigner/design_snippets/choice.html:7
 msgid "Add one option per line (press enter after each option is entered)"
 msgstr ""
+"Na každý řádek přidejte jednu možnost (po zadání každé možnosti stiskněte "
+"enter)."
 
 #: ckanext/tabledesigner/templates/tabledesigner/form_snippets/choice.html:14
 msgid "(invalid choice)"
-msgstr ""
+msgstr "(neplatná možnost)"
 
 #: ckanext/tabledesigner/templates/tabledesigner/form_snippets/choice.html:31
 #: ckanext/tabledesigner/templates/tabledesigner/form_snippets/text.html:9
 msgid " (Primary key)"
-msgstr ""
+msgstr " (Primární klíč)"
 
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:14
 msgid ""
 "Field {num} removed. Click Save below to save your changes and delete all "
 "data in this field."
 msgstr ""
+"Pole {num} odstraněno. Kliknutím na tlačítko Uložit níže uložíte změny a "
+"odstraníte všechna data v tomto poli."
 
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:39
 msgid "Add field"
-msgstr ""
+msgstr "Přidat pole"
 
 #: ckanext/textview/assets/text_view.js:70
 msgid "An error occured during AJAX request. Could not load view."

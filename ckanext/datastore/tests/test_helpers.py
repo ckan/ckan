@@ -47,8 +47,10 @@ class TestTypeGetters(object):
         for multiple in multiples:
             assert postgres_backend.is_single_statement(multiple) is False
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     def test_should_fts_index_field_type(self):
-        indexable_field_types = ["tsvector", "text", "number"]
+        indexable_field_types = ["tsvector", "text"]
 
         non_indexable_field_types = [
             "nested",
