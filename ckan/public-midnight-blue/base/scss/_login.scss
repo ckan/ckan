@@ -1,0 +1,41 @@
+.login-form {
+    display: inline-grid;
+    .form-actions {
+        align-items: center;
+        padding: 1rem 0.5rem 1rem 0;
+        .btn:first-child {
+            margin-left: 0;
+        }
+        @include media-breakpoint-down(lg){
+            flex-direction: row;
+            justify-content: space-between;
+            .btn {
+                flex-basis: auto;
+            }
+        }
+    }
+}
+
+.login-main {
+    padding: 20px;
+    @include media-breakpoint-up(sm){
+        background-color: $gray-100;
+        .login-wrapper {
+            min-height: 300px;
+            background-color: #fff;
+            border-radius: 24px;
+            padding: 1.5rem;
+        }
+        .login-container {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+    @include media-breakpoint-down(md){
+        .btn-light {
+            width: 100%;
+            display: block !important;
+        }
+    }
+}
+
