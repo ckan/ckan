@@ -87,12 +87,13 @@ $green: green;
         width: 164px;
       }
     }
+  }
 
-    > .col.row {
-      padding-left: 70px;
-    }
+  > .row > .col.row {
+    padding-left: 70px;
   }
 }
+
 
 // Package metadata field
 .package-metadata-field {
@@ -143,7 +144,7 @@ $green: green;
 
   > .value {
     color: #101828;
-    font-family: "Helvetica Neue";
+    font-family: "Noto Sans";
     font-size: 24px;
     font-weight: 600;
     line-height: 32px;
@@ -152,7 +153,7 @@ $green: green;
 
   > .label {
     color: #667085;
-    font-family: "Helvetica Neue";
+    font-family: "Noto Sans";
     font-size: 16px;
     font-weight: 500;
     line-height: 120%;
@@ -174,6 +175,38 @@ $green: green;
   }
 }
 
+.stage-nohiglight {
+  display: inline-block;
+  padding: 0; 
+  border: none; 
+  background: none; 
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+
+.stage > .row > .stage-nohiglight > .col-auto {
+  padding-right: 4px;
+}
+
+.stage > .row > .stage-nohiglight > .col-auto > .row {
+  width: 164px;
+}
+
+.page-heading,
+.hide-heading {
+  font-size: 3rem;
+  line-height: 3rem;
+  font-weight: 600;
+  color: #153084;
+
+  @media screen and (max-width: 768px) {
+    font-size: 1.875rem;
+    line-height: 1.875rem;
+  }
+}
+
+
 // Accordion styles
 .accordion {
   &-button {
@@ -185,14 +218,16 @@ $green: green;
 
     &::after {
       color: $white;
-      background-image: url("data:image/svg+xml,%3csvg...");
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
     }
 
     &:not(.collapsed) {
       background-color: $primary-color;
+      color: white;
 
       &::after {
         color: $white;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
       }
     }
   }
@@ -243,11 +278,30 @@ $green: green;
     }
   }
 }
-
 .icon-stage {
   .fa-check-circle {
     color: $green;
     position: relative;
     top: 4px;
   }
+}
+
+.accordion-item {
+  border: none !important;
+  content: none;
+  box-shadow: none !important;
+  outline: none !important;
+  margin-bottom: 48px;
+
+  &:last-of-type .accordion-button.collapsed {
+    border-radius: 6px;
+  }
+
+  &:first-of-type .accordion-button {
+    border-radius: 6px;
+  }
+}
+
+.accordion-body {
+  background-color: #F9FAFB;
 }
