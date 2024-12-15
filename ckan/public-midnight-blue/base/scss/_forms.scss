@@ -585,7 +585,7 @@ select[data-module="autocomplete"] {
     font-weight: 400;
     letter-spacing: -0.8px;
     color: #667085;
-    font-family: "Noto Sans";
+    font-family: $baseFontFamily;
     line-height: 100%;
 }
 
@@ -826,8 +826,8 @@ select[data-module="autocomplete"] {
                 display: block;
                 width: 100%;
                 height: 100%;
-                background: none !important; /* Remove the background image */
-                position: relative; /* Ensure proper positioning */
+                background: none !important;
+                position: relative; 
 
                 &::before {
                     content: "\f078"; 
