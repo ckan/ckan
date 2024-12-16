@@ -1,6 +1,5 @@
 # encoding: utf-8
 from __future__ import annotations
-
 from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 import datetime
@@ -89,8 +88,32 @@ class User(core.StatefulObjectMixin,
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
-    def by_email(cls, email: str) -> Optional[Self]:
-        return meta.Session.query(cls).filter_by(email=email).first()
+    def by_email(cls, email: str, raise_on_duplicated: bool=False) -> Optional[Self]:
+        """ Get a user object by email address
+            Even if we try to avoid duplicated emails, extensions may allow it
+            Also, older CKAN instances can have duplicated emails
+        """
+        all_users = meta.Session.query(
+            cls
+        ).filter(
+            func.lower(cls.email) == func.lower(email)
+        ).all()
+        if len(all_users) == 0:
+            return None
+
+        if len(all_users) > 1:
+            # Try to get only active users
+            active_users = [
+                u for u in all_users
+                if u.state == core.State.ACTIVE
+            ]
+            if len(active_users) == 1:
+                return active_users[0]
+            if raise_on_duplicated:
+                raise Exception(f"Multiple users found for email {email}")
+
+        return all_users[0]
+
 
     @classmethod
     def get(cls, user_reference: Optional[str]) -> Optional[Self]:
