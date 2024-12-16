@@ -10,7 +10,6 @@ from typing_extensions import Self
 import ckan.model.meta as meta
 import ckan.model.types as _types
 import ckan.model.domain_object as domain_object
-from ckan.types import Query
 
 __all__ = ['ResourceView', 'resource_view_table']
 
@@ -46,7 +45,7 @@ class ResourceView(domain_object.DomainObject):
         if not reference:
             return None
 
-        view = meta.Session.query(cls).get(reference)
+        view = meta.Session.get(cls, reference)
         return view
 
     @classmethod
@@ -55,10 +54,10 @@ class ResourceView(domain_object.DomainObject):
 
     @classmethod
     def get_count_not_in_view_types(
-            cls, view_types: Collection[str]) -> list[tuple[str, int]]:
+            cls, view_types: Collection[str]) -> list[sa.Row[tuple[str, int]]]:
         '''Returns the count of ResourceView not in the view types list'''
         view_type = cls.view_type
-        query: 'Query[tuple[str, int]]' = meta.Session.query(
+        query = meta.Session.query(
             view_type, sa.func.count(cls.id)).group_by(view_type).filter(
                 sa.not_(view_type.in_(view_types)))
 

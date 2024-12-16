@@ -78,7 +78,7 @@ def ckan_after_rollback(session: Any):
         del session._object_cache
 
 
-mapper = orm.mapper
+mapper = orm.mapper  # type: ignore
 
 metadata = MetaData()
 registry = orm.registry(metadata=metadata)

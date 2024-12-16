@@ -12,7 +12,7 @@ import uuid
 from typing import Any, Container, Optional, Union
 from urllib.parse import urlparse
 
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 import ckan.lib.navl.dictization_functions as df
 from ckan import authz, logic
@@ -192,7 +192,7 @@ def package_id_exists(value: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Package).get(value)
+    result = session.get(model.Package, value)
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
     return value
@@ -204,7 +204,7 @@ def package_id_does_not_exist(value: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Package).get(value)
+    result = session.get(model.Package, value)
     if result:
         raise Invalid(_('Dataset id already exists'))
     return value
@@ -239,7 +239,7 @@ def group_id_does_not_exist(value: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Group).get(value)
+    result = session.get(model.Group, value)
     if result:
         raise Invalid(_('Id already exists'))
     return value
@@ -251,7 +251,7 @@ def user_id_does_not_exist(value: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
 
-    result = session.query(model.User).get(value)
+    result = session.get(model.User, value)
     if result:
         raise Invalid(_('Id already exists'))
     return value
@@ -264,7 +264,7 @@ def resource_view_id_does_not_exist(value: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
 
-    result = session.query(model.ResourceView).get(value)
+    result = session.get(model.ResourceView, value)
     if result:
         raise Invalid(_('ResourceView id already exists'))
     return value
@@ -294,7 +294,7 @@ def package_id_or_name_exists(
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Package).get(package_id_or_name)
+    result = session.get(model.Package, package_id_or_name)
     if result:
         return package_id_or_name
 
@@ -313,7 +313,7 @@ def resource_id_exists(value: Any, context: Context) -> Any:
 
     model = context['model']
     session = context['session']
-    if not session.query(model.Resource).get(value):
+    if not session.get(model.Resource, value):
         raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
     return value
 
@@ -334,7 +334,7 @@ def user_id_exists(user_id: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
 
-    result = session.query(model.User).get(user_id)
+    result = session.get(model.User, user_id)
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('User')))
     return user_id
@@ -348,7 +348,7 @@ def user_id_or_name_exists(user_id_or_name: str, context: Context) -> Any:
     '''
     model = context['model']
     session = context['session']
-    result = session.query(model.User).get(user_id_or_name)
+    result = session.get(model.User, user_id_or_name)
     if result:
         return user_id_or_name
     result = session.query(model.User).filter_by(name=user_id_or_name).first()
@@ -364,7 +364,7 @@ def group_id_exists(group_id: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Group).get(group_id)
+    result = session.get(model.Group, group_id)
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('Group')))
     return group_id
@@ -766,7 +766,7 @@ def user_password_not_empty(key: FlattenKey, data: FlattenDataDict,
             authz.is_sysadmin(context.get('user'))):
         return
 
-    if not ('password1',) in data and not ('password2',) in data:
+    if ('password1',) not in data and ('password2',) not in data:
         password = data.get(('password',),None)
         if not password:
             errors[key].append(_('Missing value'))
@@ -811,7 +811,7 @@ def vocabulary_id_exists(value: Any, context: Context) -> Any:
     """
     model = context['model']
     session = context['session']
-    result = session.query(model.Vocabulary).get(value)
+    result = session.get(model.Vocabulary, value)
     if not result:
         raise Invalid(_('Tag vocabulary was not found.'))
     return value
@@ -986,7 +986,7 @@ def no_loops_in_hierarchy(key: FlattenKey, data: FlattenDataDict,
     a loop in the group hierarchy, and therefore cause the recursion up/down
     the hierarchy to get into an infinite loop.
     '''
-    if not ('id',) in data:
+    if ('id',) not in data:
         # Must be a new group - has no children, so no chance of loops
         return
     group = context['model'].Group.get(data[('id',)])

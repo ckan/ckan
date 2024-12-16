@@ -37,7 +37,7 @@ def resource_dict_save(
     id = res_dict.get("id")
     obj = None
     if id:
-        obj = session.query(model.Resource).get(id)
+        obj = session.get(model.Resource, id)
     if not obj:
         new = True
         obj = model.Resource()
@@ -229,7 +229,7 @@ def package_membership_list_save(
         if capacity == 'organization':
             continue
         if id:
-            group = session.query(model.Group).get(id)
+            group = session.get(model.Group, id)
         else:
             group = session.query(model.Group).filter_by(name=name).first()
         if group:

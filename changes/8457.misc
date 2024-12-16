@@ -1,1 +1,0 @@
-`datastore_info` action method now has `side_effect_free`, allowing it to be available via GET requests in the API.
