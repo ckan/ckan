@@ -52,6 +52,13 @@ def test_info_success():
     assert info["meta"]["count"] == 2
     assert info["meta"]["id"] == resource["id"]
 
+    info = helpers.call_action(
+        "datastore_info", id=resource["id"],
+        include_meta=False, include_fields_schema=False)
+
+    assert 'meta' not in info
+    assert not any('schema' in f for f in info['fields'])
+
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
 @pytest.mark.usefixtures("with_plugins")

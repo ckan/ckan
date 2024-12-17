@@ -353,6 +353,10 @@ def datastore_info(context: Context, data_dict: dict[str, Any]
 
     :param resource_id: id or alias of the resource we want info about.
     :type resource_id: string
+    :param include_meta: return table size, index size, row count and aliases
+    :type include_meta: bool (optional, default: True)
+    :param include_fields_schema: return fields' index, unique, notnull status
+    :type include_fields_schema: bool (optional, default: True)
 
     **Results:**
 
@@ -380,6 +384,8 @@ def datastore_info(context: Context, data_dict: dict[str, Any]
 
     '''
     backend = DatastoreBackend.get_active_backend()
+    schema = dsschema.datastore_info_schema()
+    data_dict, errors = _validate(data_dict, schema, context)
 
     resource_id = data_dict.get("resource_id", data_dict.get("id"))
     if not resource_id:
@@ -402,7 +408,8 @@ def datastore_info(context: Context, data_dict: dict[str, Any]
 
     p.toolkit.get_action('resource_show')(context, {'id': id})
 
-    info = backend.resource_fields(id)
+    info = backend.resource_fields(
+        id, data_dict['include_meta'], data_dict['include_fields_schema'])
 
     try:
         plugin_data = backend.resource_plugin_data(id)
