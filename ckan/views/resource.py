@@ -292,36 +292,34 @@ class CreateView(MethodView):
             data: Optional[dict[str, Any]] = None,
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
-        # get resources for sidebar
+
         context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
             u'user': current_user.name,
             u'auth_user_obj': current_user
         })
-        try:
-            pkg_dict = get_action(u'package_show')(context, {u'id': id})
-        except NotFound:
-            return base.abort(
-                404, _(u'The dataset {id} could not be found.').format(id=id)
-            )
+
         try:
             check_access(
-                u'resource_create', context, {u"package_id": pkg_dict["id"]}
+                u'resource_create', context, {u"package_id": id}
             )
         except NotAuthorized:
             return base.abort(
                 403, _(u'Unauthorized to create a resource for this package')
             )
 
+        try:
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        except NotFound:
+            return base.abort(
+                404, _(u'The dataset {id} could not be found.').format(id=id)
+            )
+
         package_type = pkg_dict[u'type'] or package_type
 
-        errors = errors or {}
-        error_summary = error_summary or {}
         extra_vars: dict[str, Any] = {
             u'data': data,
-            u'errors': errors,
-            u'error_summary': error_summary,
+            u'errors': errors or {},
+            u'error_summary': error_summary or {},
             u'action': u'new',
             u'resource_form_snippet': _get_pkg_template(
                 u'resource_form', package_type
@@ -331,9 +329,11 @@ class CreateView(MethodView):
             u'pkg_dict': pkg_dict
         }
         template = u'package/new_resource_not_draft.html'
+
         if pkg_dict[u'state'].startswith(u'draft'):
             extra_vars[u'stage'] = ['complete', u'active']
             template = u'package/new_resource.html'
+
         return base.render(template, extra_vars)
 
 
