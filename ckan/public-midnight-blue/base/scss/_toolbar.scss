@@ -1,8 +1,8 @@
 .toolbar {
     @include clearfix;
     position: relative;
-    margin-bottom: 10px;
-    padding: 5px 0;
+    margin-top: 43px;
+    margin-bottom: 63px;
 }
 
 .page_primary_action {
@@ -18,7 +18,10 @@
     padding: 0;
     border: none;
     background: none;
-    font-size: $font-size-lg;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+
 }
 
 .toolbar .breadcrumb li {
@@ -34,7 +37,7 @@
 }
 
 .toolbar .breadcrumb .active {
-    color: $breadcrumb-active-color;
+    color: #153084;
 }
 
 
@@ -43,7 +46,7 @@
 }
 
 .toolbar .home span {
-    display: none;
+    display: inline;
 }
 
 .toolbar .breadcrumb a {
@@ -60,6 +63,7 @@
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
     font-weight: bold;
+    color: #153084;
 }
 
 .actions {
@@ -83,9 +87,9 @@
     margin-right: 0;
 }
 
-.hide-heading {
-    display: none;
-}
+// .hide-heading {
+//     display: none;
+// }
 
 .page-header {
     &.module-content{
