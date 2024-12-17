@@ -241,3 +241,11 @@ def datastore_analyze_schema() -> Schema:
     return {
         'resource_id': [unicode_safe, resource_id_exists],
     }
+
+
+def datastore_info_schema() -> Schema:
+    return {
+        'id': [unicode_only, not_empty],
+        'include_meta': [default(True), boolean_validator],
+        'include_fields_schema': [default(True), boolean_validator],
+    }
