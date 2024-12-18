@@ -2258,7 +2258,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         if include_meta:
             # resource id for deferencing aliases
-            info['meta'] = {'id': id}
+            meta: dict[str, Any] = {'id': id}
+            info['meta'] = meta
 
             # count of rows in table
             meta_sql = sa.text(
