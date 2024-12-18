@@ -386,6 +386,8 @@ def datastore_info(context: Context, data_dict: dict[str, Any]
     backend = DatastoreBackend.get_active_backend()
     schema = dsschema.datastore_info_schema()
     data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
 
     resource_id = data_dict.get("resource_id", data_dict.get("id"))
     if not resource_id:
