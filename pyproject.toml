@@ -44,7 +44,6 @@ preview = true
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::bs4.GuessedAtParserWarning",  # using lxml as default parser
-    "error::sqlalchemy.exc.RemovedIn20Warning",
 ]
 markers = [
     "ckan_config: patch configuration used by other fixtures via (key, value) pair.",
@@ -129,7 +128,6 @@ reportUnnecessaryTypeIgnoreComment = true
 reportMatchNotExhaustive = true
 
 [tool.mypy]
-plugins = "sqlalchemy.ext.mypy.plugin"
 files = "ckan"
 exclude = "ckan/(pastertemplates|tests|migration)"
 

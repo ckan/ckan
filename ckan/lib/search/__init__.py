@@ -286,7 +286,7 @@ def check() -> None:
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
-        pkg = model.Session.query(model.Package).get(pkg_id)
+        pkg = model.Session.get(model.Package, pkg_id)
         assert pkg
         print((pkg.metadata_modified.strftime('%Y-%m-%d'), pkg.name))
 

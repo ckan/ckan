@@ -39,7 +39,8 @@ import ckanext.datastore.interfaces as interfaces
 from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError, DatabaseError)
+                            DBAPIError, DataError, DatabaseError,
+                            StatementError)
 
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
@@ -130,7 +131,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
         config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
         for key, value in kwargs.items():
             config.setdefault(key, value)
-        engine = sa.engine_from_config(config,
+        engine = sa.engine_from_config(dict(config),
                                        'ckan.datastore.sqlalchemy.',
                                        **extras)
         _engines[connection_url] = engine
@@ -372,7 +373,7 @@ def _cache_types(engine: Engine) -> None:
         with engine.connect() as conn:
             register_composite(
                 'nested',
-                conn.connection.connection,
+                cast(Any, conn.connection).connection,
                 True
             )
 
@@ -625,6 +626,11 @@ def _get_resources(context: Context, alias: str):
     ]
 
 
+def _get_pgcode(error: StatementError) -> str | None:
+    if error.orig:
+        return cast(Any, error.orig).pgcode
+
+
 def create_alias(context: Context, data_dict: dict[str, Any]):
     values: Optional[str] = data_dict.get('aliases')
     aliases: Any = datastore_helpers.get_list(values)
@@ -655,8 +661,8 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
                     sql_alias_string
                 ))
         except DBAPIError as e:
-            if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
-                                 _PG_ERR_CODE['duplicate_alias']]:
+            if _get_pgcode(e) in [_PG_ERR_CODE['duplicate_table'],
+                                  _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
                     'alias': [u'"{0}" already exists'.format(alias)]
                 })
@@ -767,8 +773,8 @@ def _is_valid_pg_type(context: Context, type_name: str):
                 {"type": type_name}
             )
         except ProgrammingError as e:
-            if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
-                                 _PG_ERR_CODE['syntax_error']]:
+            if _get_pgcode(e) in [_PG_ERR_CODE['undefined_object'],
+                                  _PG_ERR_CODE['syntax_error']]:
                 return False
             raise
         else:
@@ -1647,7 +1653,7 @@ def _create_triggers(connection: Any, resource_id: str,
             sa.column("tgname")
         ).select_from(sa.table("pg_trigger")).where(
             sa.column("tgrelid") == sa.cast(
-                resource_id,  # type: ignore
+                resource_id,
                 REGCLASS
             ),
             sa.column("tgname").like("t___")
@@ -1706,13 +1712,14 @@ def upsert(context: Context, data_dict: dict[str, Any]):
             trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
+        pgcode = _get_pgcode(e)
+        if pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError(cast(ErrorDict, {
                 'constraints': ['Cannot insert records or create index because'
                                 ' of uniqueness constraint'],
                 'info': {
                     'orig': str(e.orig),
-                    'pgcode': e.orig.pgcode
+                    'pgcode': pgcode
                 }
             }))
         raise
@@ -1723,7 +1730,7 @@ def upsert(context: Context, data_dict: dict[str, Any]):
                 'orig': [str(e.orig)]
             }}))
     except DBAPIError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+        if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1748,7 +1755,7 @@ def search(context: Context, data_dict: dict[str, Any]):
         ))
         return search_data(context, data_dict)
     except DBAPIError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+        if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
             })
@@ -1815,7 +1822,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
         return format_results(context, results, data_dict)
 
     except ProgrammingError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['permission_denied']:
+        if _get_pgcode(e) == _PG_ERR_CODE['permission_denied']:
             raise toolkit.NotAuthorized('Not authorized to read resource.')
 
         def _remove_explain(msg: str):
@@ -1825,13 +1832,13 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
         raise ValidationError(cast(ErrorDict, {
             'query': [_remove_explain(str(e))],
             'info': {
-                'statement': [_remove_explain(e.statement)],
+                'statement': [_remove_explain(e.statement or "")],
                 'params': [e.params],
                 'orig': [_remove_explain(str(e.orig))]
             }
         }))
     except DBAPIError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+        if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1885,7 +1892,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = _get_engine_from_url(url).connect()
             try:
-                is_writable: bool = connection.scalar(sa.select(
+                is_writable = connection.scalar(sa.select(
                     sa.func.has_schema_privilege("public", "CREATE")
                 ))
             finally:
@@ -1922,7 +1929,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
 
                 for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                    have_privilege: bool = conn.scalar(sa.select(
+                    have_privilege = conn.scalar(sa.select(
                         sa.func.has_table_privilege(
                             read_connection_user,
                             "_foo",
@@ -2146,13 +2153,14 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             trans.commit()
             return _unrename_json_field(data_dict)
         except IntegrityError as e:
-            if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
+            pgcode = _get_pgcode(e)
+            if pgcode == _PG_ERR_CODE['unique_violation']:
                 raise ValidationError(cast(ErrorDict, {
                     'constraints': ['Cannot insert records or create index'
                                     'because of uniqueness constraint'],
                     'info': {
                         'orig': str(e.orig),
-                        'pgcode': e.orig.pgcode
+                        'pgcode': pgcode
                     }
                 }))
             raise
@@ -2163,7 +2171,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     'orig': [str(e.orig)]
                 }}))
         except DBAPIError as e:
-            if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+            if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
                 raise ValidationError({
                     'query': ['Query took too long']
                 })
