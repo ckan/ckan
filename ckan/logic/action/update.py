@@ -450,7 +450,6 @@ def package_update(
 
     if not context.get('defer_commit'):
         logic.index_update_package_dict(both_data)
-        model.repo.commit()
 
         nested.commit()
         if not context.get('defer_commit'):

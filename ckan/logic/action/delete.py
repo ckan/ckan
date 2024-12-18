@@ -428,6 +428,7 @@ def _group_or_org_delete(
             filter(model.Member.state == 'active').all():
         member.delete()
         if not is_org and member.table_name == 'package':
+            assert member.table_id
             ckan.logic.index_update_package(context, member.table_id)
 
     group.delete()
