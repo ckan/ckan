@@ -78,7 +78,7 @@ class Tag(domain_object.DomainObject):
         :rtype: ckan.model.tag.Tag
 
         '''
-        query = meta.Session.query(Tag).filter(Tag.id==tag_id)
+        query = meta.Session.query(cls).filter(cls.id==tag_id)
         query = query.autoflush(autoflush)
         tag = query.first()
         return tag
@@ -110,11 +110,11 @@ class Tag(domain_object.DomainObject):
 
         '''
         if vocab:
-            query = meta.Session.query(Tag).filter(Tag.name==name).filter(
-                Tag.vocabulary_id==vocab.id)
+            query = meta.Session.query(cls).filter(cls.name==name).filter(
+                cls.vocabulary_id==vocab.id)
         else:
-            query = meta.Session.query(Tag).filter(Tag.name==name).filter(
-                Tag.vocabulary_id.is_(None))
+            query = meta.Session.query(cls).filter(cls.name==name).filter(
+                cls.vocabulary_id.is_(None))
         query = query.autoflush(autoflush)
         tag = query.first()
         return tag
@@ -185,9 +185,9 @@ class Tag(domain_object.DomainObject):
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
-            query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
+            query = meta.Session.query(cls).filter(cls.vocabulary_id==vocab.id)
         else:
-            query = meta.Session.query(Tag)
+            query = meta.Session.query(cls)
         search_term = search_term.strip().lower()
         query = query.filter(Tag.name.contains(search_term))
         query: 'Query[Self]' = query.distinct().join(Tag.package_tags)
@@ -215,15 +215,15 @@ class Tag(domain_object.DomainObject):
                 # The user specified an invalid vocab.
                 raise ckan.logic.NotFound("could not find vocabulary '%s'"
                         % vocab_id_or_name)
-            query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
+            query = meta.Session.query(cls).filter(cls.vocabulary_id==vocab.id)
         else:
             subquery = meta.Session.query(PackageTag).\
                 filter(PackageTag.state == 'active').subquery()
 
-            query = meta.Session.query(Tag).\
-                filter(Tag.vocabulary_id.is_(None)).\
+            query = meta.Session.query(cls).\
+                filter(cls.vocabulary_id.is_(None)).\
                 distinct().\
-                join(subquery, Tag.id==subquery.c.tag_id)
+                join(subquery, cls.id==subquery.c.tag_id)
 
         return query
 
@@ -269,8 +269,7 @@ class PackageTag(core.StatefulObjectMixin,
     def __repr__(self):
         assert self.package
         assert self.tag
-        s = u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
-        return s.encode('utf8')
+        return u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
 
     @classmethod
     @maintain.deprecated(since="2.9.0")
@@ -305,14 +304,14 @@ class PackageTag(core.StatefulObjectMixin,
             if vocab is None:
                 # The user specified an invalid vocab.
                 return None
-            query = (meta.Session.query(PackageTag, Tag, ckan.model.Package)
+            query = (meta.Session.query(cls, Tag, ckan.model.Package)
                     .filter(Tag.vocabulary_id == vocab.id)
                     .filter(ckan.model.Package.name==package_name)
                     .filter(Tag.name==tag_name))
             query = query.autoflush(autoflush)
             return query.one()[0]
         else:
-            query = (meta.Session.query(PackageTag)
+            query = (meta.Session.query(cls)
                     .filter(ckan.model.Package.name==package_name)
                     .filter(Tag.name==tag_name))
             query = query.autoflush(autoflush)

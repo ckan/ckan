@@ -36,7 +36,7 @@ Steps to upgrade
 These steps will upgrade all of CKAN's dependencies to the latest versions that
 work with CKAN:
 
-#. Create a new virtualenv: ``virtualenv --no-site-packages upgrading``
+#. Create a new virtualenv: ``python -m venv --no-site-packages upgrading``
 
 #. Install the requirements with unpinned versions: ``pip install -r
    requirements.in``
@@ -45,7 +45,7 @@ work with CKAN:
    have to do this before installing the other dependencies so we get only what
    was in ``requirements.in``
 
-#. Install CKAN: ``python setup.py develop``
+#. Install CKAN: ``pip install -e .``
 
 #. Install the development dependencies: ``pip install -r
    dev-requirements.txt``

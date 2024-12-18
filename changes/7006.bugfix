@@ -1,1 +1,0 @@
-Redirect on password reset form error (RequestResetView POST error) now maintains root_path and locale

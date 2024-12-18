@@ -60,3 +60,29 @@ When creating a new PAT, make sure to select the following settings:
 * Repository permissions: Select *Content* (Read and Write) and *Pull Requests* (Read and Write)
 
 Once generated the token, it will have to be approved by someone with permissions in the *@ckan* organization (by going to Settings > Third-party Access > Personal access tokens > Pending requests).
+
+
+----------------------------
+Automatic publishing to PyPI
+----------------------------
+
+
+.. note:: Automatic publishing to PyPI was added on November 2024
+
+The main CKAN repo has a GitHub workflow that allows to publish to
+    
+* PyPI when a tag is pushed
+* Test PyPI when a PR is merged (Using test.pypi.org allows us to check that
+  the workflow is healthy).
+    
+Besides the workflow file there are two additional configurations needed:
+    
+* `GitHub Actions environmnents`_: This allows us to define additional rules
+  and limit how actions are run.
+* `Trusted Publishers`_ on PyPI: This allows the actions to authenticate
+  without having to share API tokens around
+    
+
+.. _GitHub Actions environmnents:   https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-deployments/managing-environments-for-deployment
+.. _Trusted Publishers: https://docs.pypi.org/trusted-publishers/
+
