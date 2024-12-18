@@ -16,15 +16,10 @@
   <div class="row login-wrapper" role="main">
     {% block primary_content %}
       <div class="col-md-6 login-container">
-        <div class="login-content">
-          <div class="login-heading">
-            {% block logo %}
-              <img class="d-none d-md-block mb-4" src="{{ h.url_for_static('/base/images/ckan-logo-boat.png') }}" alt="" role="presentation"/>
-            {% endblock %}
+        <div class="login-content mt-4">
             <h1 class="page-heading">
               {% block page_heading %}{{ _('Login') }}{% endblock %}
             </h1>
-          </div>
           {% block primary_content_inner %}
           {% endblock primary_content_inner %}
         </div>
