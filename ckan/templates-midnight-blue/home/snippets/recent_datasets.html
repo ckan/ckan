@@ -1,0 +1,13 @@
+{% set packages = h.get_recent_datasets() %}
+<h2>{{ _("Recent Datasets") }}</h2>
+<p>{{ _("Browse most popular or recent datasets") }}</p>
+<div>
+    <ul class="recent-packages">
+        {% for package in packages %}
+            {% snippet 'snippets/package_item.html', package=package %}
+        {% endfor %}
+    </ul>
+</div>
+<div>
+    <a class="btn btn-outline pull-right" href="{{ h.url_for('dataset.search') }}">{{ _('View all datasets') }}</a>
+</div>

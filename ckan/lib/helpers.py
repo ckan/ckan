@@ -2494,6 +2494,27 @@ def get_featured_groups(count: int = 1) -> list[dict[str, Any]]:
 
 
 @core_helper
+def get_recent_datasets(count: int = 8) -> list[dict[str, Any]]:
+    '''Returns a list of recently modified/created datasets
+    '''
+    context: Context = {'ignore_auth': True, 'for_view': True}
+    data_dict={'rows': count,'sort': 'metadata_modified desc'}
+    recently_updated_datasets = logic.get_action('package_search')(context, data_dict)
+    return recently_updated_datasets['results']
+
+
+@core_helper
+def get_site_statistics() -> dict[str, int]:
+    stats = {}
+    stats['dataset_count'] = logic.get_action('package_search')(
+        {}, {"rows": 1})['count']
+    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
+    stats['organization_count'] = len(
+        logic.get_action('organization_list')({}, {}))
+    return stats
+
+
+@core_helper
 def featured_group_org(items: list[str], get_action: str, list_action: str,
                        count: int) -> list[dict[str, Any]]:
     def get_group(id: str):
