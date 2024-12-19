@@ -31,11 +31,11 @@ relevant ``dev-vM.m`` branch (:ref:`automatically <automated_backports>` or manu
 
  ::
 
-     +--+-----------------------------------------+------------->  Master
-        |                                         |
-        +-----+-------------+------>  dev-v2.10   +------->  dev-v2.11
-              |             |
-          ckan-2.10.0    ckan-2.10.1
+     +--+---------------------------------------------------+------------->  Master
+        |                                                   |
+        +-----+------------+------> dev-v2.10               +------->  dev-v2.11
+              |            |
+          ckan-2.10.0   ckan-2.10.1
 
 
 Most releases require the same steps, with only new major or minor versions requiring the
@@ -69,8 +69,8 @@ Creating a release development branch
 
 
 #. When the Tech Team decides to start a new release branch for a new minor release it's
-   always useful to try to merge any outstanding pull requests that should be included,
-   specially big ones. This makes it easier to include them as when the release branch
+   always useful to try to merge any outstanding pull requests that should be included. 
+   This makes it easier to include them as when the release branch
    starts diverging there can appear conflicts when cherry-picking.
 
 #. Once it's time, create a new release branch::
@@ -230,14 +230,21 @@ with patches and tested (this will probably be longer for bigger releases).
 
       pip-compile -P <package_name> requirements.in
 
-   Make sure to also update ``package.json`` for security related upgrades.
+  Make sure to also update ``package.json`` for security related upgrades. Update the relevant packages
+  in ``package.json`` and run the following to update other dependencies::
+
+      npm audit fix
 
 * Pull the latest **translations** from Transfiex and compile them (it's best to split it
   in two separate commits)::
 
       tx pull --all --minimum-perc=5 --force
 
+      git commit ckan/i18n -m "[i18n] Pull translations from Transifex"
+
       python setup.py compile_catalog
+
+      git commit ckan/i18n -m "[i18n] Compile translations"
 
 * Compile the **CSS files**::
 
@@ -282,6 +289,18 @@ Release day
    * Update the changelog to include an entry for the patch (linking to the GitHub advisory)
 
 * Update the version number in ``ckan/__init__.py`` to remove the ``b0`` part.
+
+   .. code:: diff
+
+	  diff --git a/ckan/__init__.py b/ckan/__init__.py
+	  index 064e5245c..d65ae7cb7 100644
+	  --- a/ckan/__init__.py
+	  +++ b/ckan/__init__.py
+	  @@ -1,6 +1,6 @@
+	   # encoding: utf-8
+
+	  -__version__ = "2.11.1b0"
+	  +__version__ = "2.11.1"
 
 * Create a tag with the format ``ckan-{Major}.{Minor}.{Patch}``
 
