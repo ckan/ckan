@@ -555,6 +555,7 @@ def get_action(action: str) -> Action:
     # wrap the functions
     for action_name, _action in _actions.items():
         def make_wrapped(_action: Action, action_name: str):
+            @functools.wraps(_action)
             def wrapped(context: Optional[Context] = None,
                         data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
@@ -600,8 +601,6 @@ def get_action(action: str) -> Action:
             return wrapped
 
         fn = make_wrapped(_action, action_name)
-        # we need to mirror the docstring
-        fn.__doc__ = _action.__doc__
         # we need to retain the side effect free behaviour
         if getattr(_action, 'side_effect_free', False):
             # type_ignore_reason: custom attribute
@@ -894,7 +893,7 @@ def guard_against_duplicated_email(email: str):
     try:
         yield
     except exc.IntegrityError as e:
-        if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
+        if cast(Any, e.orig).pgcode == _PG_ERR_CODE["unique_violation"]:
             model.Session.rollback()
             raise ValidationError({
                 "email": [
@@ -907,6 +906,7 @@ def guard_against_duplicated_email(email: str):
 
 def fresh_context(
     context: Context,
+    **kwargs: Any,
 ) -> Context:
     """ Copy just the minimum fields into a new context
         for cases in which we reuse the context and
@@ -917,5 +917,6 @@ def fresh_context(
             'ignore_auth', 'defer_commit',
         ) if k in context
     }
+    new_context.update(kwargs)
     new_context = cast(Context, new_context)
     return new_context

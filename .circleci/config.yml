@@ -37,7 +37,7 @@ defaults:
 
   redis_image: &redis_image
     # Note, this should be in sync with test-infrastructure/docker-compose.yml
-    image: redis:3
+    image: redis:7
     name: ckan-redis
 
   solr_image: &solr_image

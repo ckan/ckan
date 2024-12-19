@@ -26,11 +26,13 @@ from typing import (
     Any, Callable, Match, NoReturn, cast, Dict,
     Iterable, Optional, TypeVar, Union)
 
+
 import dominate.tags as dom_tags
+from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash, has_request_context
+from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import url_for as _flask_default_url_for
@@ -451,7 +453,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
-                            if value is None:
+                            if value is None or value == {}:
                                 continue
                             query_args.append(
                                 u'{}={}'.format(
@@ -460,7 +462,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 )
                             )
                     else:
-                        if val is None:
+                        if val is None or val == {}:
                             continue
                         query_args.append(
                             u'{}={}'.format(
@@ -468,6 +470,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 quote(str(val))
                             )
                         )
+
                 if query_args:
                     my_url += '?'
                 my_url += '&'.join(query_args)
@@ -736,6 +739,42 @@ def get_flashed_messages(**kwargs: Any):
     return _flask_get_flashed_messages(**kwargs)
 
 
+@core_helper
+def endpoint_from_url(url: str) -> str:
+    try:
+        urls = current_app.url_map.bind("")
+        match = urls.match(url)
+        endpoint = match[0]
+    except RuntimeError:
+        endpoint = ""
+    return endpoint
+
+
+@core_helper
+def page_is_active(
+        menu_item: str, active_blueprints: Optional[list[str]] = None) -> bool:
+    '''
+        Returns whether the current link is the active page or not.
+
+        `menu_item`
+            Accepts a route (e.g. 'group.index') or a URL (e.g. '/group')
+        `active_blueprints`
+            contains a list of additional blueprints that should be considered
+            active besides the one in `menu_item`
+    '''
+    if menu_item.startswith("/"):
+        menu_item = endpoint_from_url(menu_item)
+
+    blueprint, endpoint = menu_item.split('.')
+
+    item = {
+        'controller': blueprint,
+        'action': endpoint,
+        'highlight_controllers': active_blueprints,
+    }
+    return _link_active(item)
+
+
 def _link_active(kwargs: Any) -> bool:
     ''' creates classes for the link_to calls '''
     blueprint, endpoint = p.toolkit.get_endpoint()
@@ -801,7 +840,7 @@ def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs['href'] = url
     if label == '' or label is None:
         label = url
-    return literal(str(dom_tags.a(label, **attrs)))
+    return literal(str(dom_tags.a(raw_dom_tags(label), **attrs)))
 
 
 @core_helper
@@ -1062,6 +1101,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'save label': _(u"Save {object_type}"),
         u'search placeholder': _(u'Search {object_type}s...'),
         u'you not member': _(u'You are not a member of any {object_type}s.'),
+        u'user not member': _(u'User isn\'t a member of any {object_type}s.'),
         u'update label': _(u"Update {object_type}"),
     }
 
@@ -1982,9 +2022,14 @@ def groups_available(am_member: bool = False,
 
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
-    data_dict = {'available_only': True,
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
+    context: Context = {'user': current_user.name}
+    data_dict = {'id': user,
+                 'available_only': True,
                  'am_member': am_member,
                  'include_dataset_count': include_dataset_count,
                  'include_member_count': include_member_count}
@@ -1997,13 +2042,18 @@ def organizations_available(permission: str = 'manage_group',
                             include_member_count: bool = False,
                             user: Union[str, None] = None
                             ) -> list[dict[str, Any]]:
-    '''Return a list of organizations that the current user has the specified
-    permission for.
+    '''Return a list of organizations that a user has the specified permission
+    for. If no user is specified, the current user is used.
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
+    context: Context = {'user': current_user.name}
     data_dict = {
+        'id': user,
         'permission': permission,
         'include_dataset_count': include_dataset_count,
         'include_member_count': include_member_count}
@@ -2018,7 +2068,10 @@ def member_count(group: str) -> int:
         u'id': group,
         u'object_type': u'user'
     }
-    return len(logic.get_action(u'member_list')(context, data_dict))
+    try:
+        return len(logic.get_action(u'member_list')(context, data_dict))
+    except logic.NotAuthorized:
+        return 0
 
 
 @core_helper
@@ -2040,7 +2093,7 @@ def user_in_org_or_group(group_id: str) -> bool:
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)  # type: ignore
+        .filter(model.Member.table_id == current_user.id)
     return len(query.all()) != 0
 
 

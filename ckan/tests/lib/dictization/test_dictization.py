@@ -44,7 +44,7 @@ class TestBasicDictize:
         name = u"testpkg18"
         context = {"model": model, "session": model.Session}
         pkg_dict = {"name": name}
-        package = table_dict_save(pkg_dict, model.Package, context)
+        package, _change = table_dict_save(pkg_dict, model.Package, context)
 
         tag_dicts = [{"name": "tag1"}, {"name": "tag2"}]
         package_tag_list_save(tag_dicts, package, context)
@@ -60,7 +60,7 @@ class TestBasicDictize:
         context = {"model": model, "session": model.Session}
         pkg_dict = {"name": name}
 
-        package = table_dict_save(pkg_dict, model.Package, context)
+        package, _change = table_dict_save(pkg_dict, model.Package, context)
 
         tag_dicts = [{"name": "tag1"}, {"name": "tag1"}]  # duplicate
         package_tag_list_save(tag_dicts, package, context)

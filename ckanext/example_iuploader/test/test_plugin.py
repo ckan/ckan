@@ -59,7 +59,7 @@ def test_resource_download_iuploader_called(
             "save": "go-metadata",
             "upload": ("README.rst", CONTENT)
         })
-    assert mock_get_path.call_count == 3
+    assert mock_get_path.call_count == 1
     assert isinstance(mock_get_path.call_args[0][0], plugin.ResourceUpload)
     pkg = model.Package.by_name(dataset_name)
     assert mock_get_path.call_args[0][1] == pkg.resources[0].id

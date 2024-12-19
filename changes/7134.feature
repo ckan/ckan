@@ -1,1 +1,0 @@
-Add an index on column resource_id in table resource_view.

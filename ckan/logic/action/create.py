@@ -192,7 +192,8 @@ def package_create(
             data['creator_user_id'] = user_obj.id
             include_plugin_data = user_obj.sysadmin and plugin_data
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_data)
+    pkg, _change = model_save.package_dict_save(
+        data, context, include_plugin_data)
 
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
@@ -200,6 +201,9 @@ def package_create(
     if data.get('resources'):
         for index, resource in enumerate(data['resources']):
             resource['id'] = pkg.resources[index].id
+
+    if not data.get('metadata_modified'):
+        pkg.metadata_modified = datetime.datetime.utcnow()
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -278,8 +282,6 @@ def resource_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
         data_dict['url'] = ''
@@ -293,26 +295,19 @@ def resource_create(context: Context,
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_resource_create(context, data_dict)
 
-    if 'resources' not in pkg_dict:
-        pkg_dict['resources'] = []
+    original_package = dict(pkg_dict)
 
-    upload = uploader.get_resource_uploader(data_dict)
-
-    if 'mimetype' not in data_dict:
-        if hasattr(upload, 'mimetype'):
-            data_dict['mimetype'] = upload.mimetype
-
-    if 'size' not in data_dict:
-        if hasattr(upload, 'filesize'):
-            data_dict['size'] = upload.filesize
+    # allow metadata_modified to be updated
+    pkg_dict.pop('metadata_modified', None)
+    pkg_dict['resources'] = list(pkg_dict.get('resources', []))
 
     pkg_dict['resources'].append(data_dict)
 
     try:
-        context['defer_commit'] = True
-        context['use_cache'] = False
-        _get_action('package_update')(context, pkg_dict)
-        context.pop('defer_commit')
+        update_context = Context(context)
+        update_context['original_package'] = original_package
+        updated_pkg_dict = _get_action('package_update')(
+            update_context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[-1]
@@ -320,17 +315,6 @@ def resource_create(context: Context,
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    # Get out resource_id resource from model as it will not appear in
-    # package_show until after commit
-    package = context['package']
-    assert package
-    upload.upload(package.resources[-1].id,
-                  uploader.get_max_resource_size())
-
-    model.repo.commit()
-
-    #  Run package show again to get out actual last_resource
-    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
 
     #  Add the default views to the new resource
@@ -1008,7 +992,7 @@ def user_create(context: Context,
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        with logic.guard_against_duplicated_email(data_dict['email']):
+        with logic.guard_against_duplicated_email(data["email"]):
             model.repo.commit()
     else:
         # The Dashboard object below needs the user id, and if we didn't

@@ -462,9 +462,7 @@ class TestPackageDictize:
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
     def test_package_dictize_resource_upload_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="some_filename.csv",
@@ -472,15 +470,13 @@ class TestPackageDictize:
 
         context = {"model": model, "session": model.Session}
 
-        result = model_save.resource_dict_save(resource, context)
+        result, _change = model_save.resource_dict_save(resource, context)
 
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
 
     def test_package_dictize_resource_upload_with_url_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="http://some_filename.csv",
@@ -488,7 +484,7 @@ class TestPackageDictize:
 
         context = {"model": model, "session": model.Session}
 
-        result = model_save.resource_dict_save(resource, context)
+        result, _change = model_save.resource_dict_save(resource, context)
 
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url

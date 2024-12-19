@@ -316,7 +316,7 @@ class TestUser(object):
             headers=headers
         )
 
-        user = model.Session.query(model.User).get(user["id"])
+        user = model.Session.get(model.User, user["id"])
 
         assert user.fullname == "new full name"
         assert user.email == 'user@ckan.org'

@@ -57,7 +57,7 @@ def text_traceback() -> str:
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -168,7 +168,8 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
                 logic.get_action('package_show')({
                         'ignore_auth': True,
                         'validate': False,
-                        'use_cache': False
+                        'use_cache': False,
+                        'model': model,
                     }, {'id': entity.id}), operation)
         elif operation == domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__,
@@ -285,7 +286,7 @@ def check() -> None:
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
-        pkg = model.Session.query(model.Package).get(pkg_id)
+        pkg = model.Session.get(model.Package, pkg_id)
         assert pkg
         print((pkg.metadata_modified.strftime('%Y-%m-%d'), pkg.name))
 
