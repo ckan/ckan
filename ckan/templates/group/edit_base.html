@@ -12,6 +12,9 @@
 {% block content_primary_nav %}
   {{ h.build_nav_icon(group_type + '.edit', _('Edit'), id=group_dict.name, icon='pencil') }}
   {{ h.build_nav_icon(group_type + '.manage_members', _('Members'), id=group_dict.name, icon='users') }}
+  {% if group_dict and h.check_access('group_packages_background_reindex', {'id': group_dict.id}) %}
+    {{ h.build_nav_icon(group_type + '.search_rebuild', _('Rebuild Search Index'), id=group_dict.name, icon='database') }}
+  {% endif %}
 {% endblock %}
 
 {% block secondary_content %}

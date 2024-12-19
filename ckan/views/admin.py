@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Union, List
+from typing import Any, Union, List, cast
+import json
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -14,6 +15,7 @@ from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
+import ckan.plugins as plugins
 import ckan.logic.schema
 from ckan.common import _, config, request, current_user
 from ckan.views.home import CACHE_PARAMETERS
@@ -244,6 +246,47 @@ class TrashView(MethodView):
         return actions[ent_type]
 
 
+def search_rebuild():
+    context = cast(Context, {
+        'model': model,
+        'session': model.Session,
+        'user': plugins.toolkit.g.user,
+        'for_view': True,
+    })
+
+    try:
+        plugins.toolkit.check_access('site_packages_background_reindex', context)
+    except logic.NotAuthorized:
+        return base.abort(403, _('Not authorized to see this page'))
+
+    if request.method == 'POST':
+        try:
+            job_dict = plugins.toolkit.get_action(
+                'site_packages_background_reindex')(context, {})
+            if job_dict:
+                h.flash_success(_('Records are in queue to be re-indexed.'))
+            else:
+                h.flash_notice(_('Records already in queue to be re-indexed.'))
+        except logic.NotAuthorized:
+            h.flash_error(_('Unable to re-index records.'))
+
+    task = None
+    entity_id = plugins.toolkit.config.get('ckan.site_id')
+    try:
+        task = plugins.toolkit.get_action('task_status_show')(
+                    context, {'entity_id': entity_id,
+                              'task_type': 'reindex_packages',
+                              'key': 'search_rebuild'})
+        task['value'] = json.loads(task.get('value', '{}'))
+    except logic.NotFound:
+        pass
+
+    extra_vars = {'job_info': task,
+                  'site_id': entity_id}
+
+    return base.render('admin/search_rebuild.html', extra_vars)
+
+
 admin.add_url_rule(
     u'/', view_func=index, methods=['GET'], strict_slashes=False
 )
@@ -251,3 +294,5 @@ admin.add_url_rule(u'/reset_config',
                    view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))
 admin.add_url_rule(u'/trash', view_func=TrashView.as_view(str(u'trash')))
+admin.add_url_rule('/search_rebuild', view_func=search_rebuild,
+                   methods=['GET', 'POST'])

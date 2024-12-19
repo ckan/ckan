@@ -183,7 +183,6 @@ def rebuild(package_id: Optional[str] = None,
             force: bool = False,
             defer_commit: bool = False,
             package_ids: Optional[Collection[str]] = None,
-            quiet: bool = False,
             clear: bool = False):
     '''
         Rebuilds the search index.
@@ -210,12 +209,15 @@ def rebuild(package_id: Optional[str] = None,
         log.info('Indexing just package %r...', pkg_dict['name'])
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
+        yield package_id, 1, 1, None
     elif package_ids is not None:
-        for package_id in package_ids:
+        total_packages = len(package_ids)
+        for counter, package_id in enumerate(package_ids, 1):
             pkg_dict = logic.get_action('package_show')(context,
                 {'id': package_id})
             log.info('Indexing just package %r...', pkg_dict['name'])
-            package_index.update_dict(pkg_dict, True)
+            package_index.update_dict(pkg_dict, defer_commit)
+            yield package_id, total_packages, counter, None
     else:
         packages = model.Session.query(model.Package.id)
         if config.get('ckan.search.remove_deleted_packages'):
@@ -241,13 +243,7 @@ def rebuild(package_id: Optional[str] = None,
                 package_index.clear()
 
         total_packages = len(package_ids)
-        for counter, pkg_id in enumerate(package_ids):
-            if not quiet:
-                sys.stdout.write(
-                    "\rIndexing dataset {0}/{1}".format(
-                        counter +1, total_packages)
-                )
-                sys.stdout.flush()
+        for counter, pkg_id in enumerate(package_ids, 1):
             try:
                 package_index.update_dict(
                     logic.get_action('package_show')(context,
@@ -255,9 +251,11 @@ def rebuild(package_id: Optional[str] = None,
                     ),
                     defer_commit
                 )
+                yield pkg_id, total_packages, counter, None
             except Exception as e:
                 log.error(u'Error while indexing dataset %s: %s' %
                           (pkg_id, repr(e)))
+                yield pkg_id, total_packages, counter, str(e)
                 if force:
                     log.error(text_traceback())
                     continue
