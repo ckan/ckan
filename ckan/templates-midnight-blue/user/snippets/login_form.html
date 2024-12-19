@@ -1,13 +1,13 @@
 {#
-Renders the login form.
-
-action        - The url that the form should be submitted to.
-error_summary - A tuple/list of form errors.
-
-Example:
-
-  {% snippet "user/snippets/login_form.html", action=g.login_handler, error_summary=error_summary %}
-
+  Renders the login form.
+  
+  action        - The url that the form should be submitted to.
+  error_summary - A tuple/list of form errors.
+  
+  Example:
+  
+    {% snippet "user/snippets/login_form.html", action=g.login_handler, error_summary=error_summary %}
+  
 #}
 {% import 'macros/form.html' as form %}
 
@@ -18,19 +18,24 @@ Example:
   {{ h.csrf_input() }}
   {{ form.errors(errors=error_summary) }}
 
-  {{ form.input('login', label=_("Username or Email"), id='field-login', value="", error=username_error, classes=["control-medium"]) }}
+  {{ form.input('login', label=_("Username or Email"), id='field-login', value="", icon='user', error=username_error, classes=["control-medium"]) }}
 
-  {{ form.input('password', label=_("Password"), id='field-password', type="password", value="", error=password_error, classes=["control-medium"]) }}
-
-  {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000") }}
+  {{ form.input('password', label=_("Password"), id='field-password', type="password", value="", icon="fingerprint", error=password_error, classes=["control-medium"]) }}
+  <a class="col-12" href="{{ h.url_for('user.request_reset') }}">{{ _('Forgotten your password?') }}</a>
+  {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000", classes=["mt-3"]) }}
 
   {% if g.recaptcha_publickey %}
     {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
   {% endif %}
 
   <div class="form-actions">
+    {% if h.check_access('user_create') %}
+      {% block create_account_button %}
+        <a class="btn btn-link" href="{{ h.url_for('user.register') }}">{{ _('Create account') }}</a>
+      {% endblock %}
+    {% endif %}
     {% block login_button %}
-    <button class="btn btn-primary" type="submit">{{ _('Login') }}</button>
+      <button class="btn btn-primary" type="submit">{{ _('Login') }}</button>
     {% endblock %}
   </div>
 </form>

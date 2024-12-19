@@ -30,6 +30,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp watch",
     "build": "gulp build",
+    "watch-midnight-blue": "gulp watchMidnightBlue",
+    "build-midnight-blue": "gulp buildMidnightBlue",
     "postinstall": "gulp updateVendorLibs"
   },
   "repository": {
