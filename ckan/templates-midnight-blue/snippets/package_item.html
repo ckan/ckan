@@ -14,7 +14,7 @@
 {% set notes = h.markdown_extract(package.notes, extract_length=180) %}
 
 {% block package_item %}
-  <li class="{{ item_class or "dataset-item" }}">
+  <li class="{{ item_class or 'dataset-item' }}">
     {% block content %}
       <div class="dataset-content">
         {% block heading %}
