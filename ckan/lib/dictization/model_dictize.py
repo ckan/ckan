@@ -21,10 +21,11 @@ from typing import (
 from typing_extensions import Literal
 
 from urllib.parse import urlsplit
+
 from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import Select
 
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, false
 
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -146,7 +147,7 @@ def resource_dictize(res: model.Resource, context: Context) -> dict[str, Any]:
     return resource
 
 
-def _execute(q: Select, table: Table, context: Context) -> Any:
+def _execute(q: Select[Any], table: Table, context: Context) -> Any:
     '''
     Takes an SqlAlchemy query (q) that is (at its base) a Select on an
     object table (table), and it returns the object.
@@ -223,7 +224,7 @@ def package_dictize(
     ).where(
         member.c["table_id"] == pkg.id,
         member.c["state"] == 'active',
-        group.c["is_organization"] == False
+        group.c["is_organization"] == false()
     )
 
     result = execute(q, member, context)
@@ -325,7 +326,7 @@ def _get_members(context: Context, group: model.Group,
         filter(model.Member.state == 'active').\
         filter(model.Member.table_name == member_type[:-1])
     if member_type == 'packages':
-        q = q.filter(Entity.private==False)
+        q = q.filter(Entity.private == false())
     if 'limits' in context and member_type in context['limits']:
         limit: int = context['limits'][member_type]
         return q.limit(limit).all()

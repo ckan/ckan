@@ -11848,6 +11848,11 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
   color: #fff;
 }
 
+.alert {
+  border: unset;
+  border-left: solid;
+}
+
 .tag {
   display: inline-block;
   margin-bottom: 4px;
@@ -12585,6 +12590,16 @@ form .control-medium .info-block.info-inline {
   margin-left: 5px;
 }
 
+.form-group .controls .icon {
+  padding: 14px;
+  position: absolute;
+}
+
+.form-group .controls .icon + .form-control {
+  width: 100%;
+  padding-left: 2.5rem;
+}
+
 .form-narrow label {
   margin-bottom: 0;
 }
@@ -12733,6 +12748,7 @@ select[data-module=autocomplete] {
 
 .alert-danger a {
   color: #b55457;
+  text-decoration: underline;
 }
 
 .form-group.has-error input,
@@ -14921,6 +14937,51 @@ td.diff_header {
 .btn-light:hover {
   background-color: #f2f4f7 !important;
   border: #f2f4f7 solid 2px;
+}
+
+.login-form {
+  display: inline-grid;
+}
+.login-form .form-actions {
+  align-items: center;
+  padding: 1rem 0.5rem 1rem 0;
+}
+.login-form .form-actions .btn:first-child {
+  margin-left: 0;
+}
+@media (max-width: 991.98px) {
+  .login-form .form-actions {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .login-form .form-actions .btn {
+    flex-basis: auto;
+  }
+}
+
+.login-main {
+  padding: 20px;
+}
+@media (min-width: 576px) {
+  .login-main {
+    background-color: #f2f4f7;
+  }
+  .login-main .login-wrapper {
+    min-height: 300px;
+    background-color: #fff;
+    border-radius: 24px;
+    padding: 1.5rem;
+  }
+  .login-main .login-container {
+    display: flex;
+    flex-direction: column;
+  }
+}
+@media (max-width: 767.98px) {
+  .login-main .btn-light, .login-main .btn-default {
+    width: 100%;
+    display: block !important;
+  }
 }
 
 @font-face {
