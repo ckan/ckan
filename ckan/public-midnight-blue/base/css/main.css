@@ -13131,6 +13131,25 @@ select[data-module=autocomplete] {
 
 .dataset-item {
   border-bottom: 1px solid #ddd;
+  padding: 16px 0;
+  background-color: #f2f4f7;
+  margin-bottom: 0;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  width: 100%;
+}
+
+.dataset-heading {
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+.dataset-organization {
+  color: #667085;
+  font-weight: 500;
 }
 
 @media (max-width: 575.98px) {
@@ -13457,28 +13476,6 @@ select[data-module=autocomplete] {
   clear: both;
 }
 
-.dataset-item {
-  padding: 16px 0;
-  background-color: #f2f4f7;
-  margin-bottom: 0;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
-  width: 100%;
-}
-
-.dataset-heading {
-  margin-bottom: 0;
-  font-weight: 500;
-}
-
-.dataset-organization {
-  color: #667085;
-  font-weight: 500;
-}
-
 /* diff styles */
 table.diff {
   font-family: Courier;
@@ -13622,6 +13619,23 @@ td.diff_header {
     grid-template-columns: none;
   }
 }
+.groups-cards {
+  list-style: none;
+  background-color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 1rem;
+}
+.groups-cards a {
+  display: grid;
+}
+.groups-cards h3, .groups-cards .h3 {
+  margin: 16px 0;
+}
+.groups-cards input {
+  margin-top: 1rem;
+}
+
 .toolbar {
   position: relative;
   margin-bottom: 10px;
@@ -14181,23 +14195,6 @@ td.diff_header {
     margin-bottom: 2rem;
   }
 }
-.groups-cards {
-  list-style: none;
-  background-color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 1rem;
-}
-.groups-cards a {
-  display: grid;
-}
-.groups-cards h3, .groups-cards .h3 {
-  margin: 16px 0;
-}
-.groups-cards input {
-  margin-top: 1rem;
-}
-
 .account-masthead {
   min-height: 30px;
   color: #000;
@@ -14978,7 +14975,7 @@ td.diff_header {
   }
 }
 @media (max-width: 767.98px) {
-  .login-main .btn-light, .login-main .btn-default {
+  .login-main .btn-light {
     width: 100%;
     display: block !important;
   }
