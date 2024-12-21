@@ -48,12 +48,32 @@
         }
     }
     .control-order-by {
+        width: 100%;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        padding: 0 5px 5px;
+        background-color: $white;
+        label {
+            font-size: 12px;
+            font-weight: 500;
+            color: $gray-500;
+            padding-left: 8px;
+        }
+        @include media-breakpoint-up(md) {
+            float: right;
+            margin-left: 15px;
+            min-width:200px;
+            max-width: min-content;
+        }
         label,
         select {
             display: inline;
         }
         .form-control {
             width: auto;
+            @include media-breakpoint-down(md) {
+                width: 100%;
+            }
         }
         .form-select {
             border: unset;
@@ -62,7 +82,7 @@
             background-position: right 1rem top;
             background-size: 16px 16px;
         }
-        &:has(.form-select:focus){
+        &:focus-within{
             box-shadow: 0 0 0 0.25rem rgba(21, 48, 132, 0.25);
         }
     }
@@ -105,34 +125,6 @@
             top: 2px;
             height: 92%;
             cursor: pointer;
-        }
-    }
-}
-
-@include media-breakpoint-up(md) {
-    .search-form .control-order-by {
-        float: right;
-        margin-left: 15px;
-        min-width:200px;
-        max-width: min-content;
-    }
-}
-
-.search-form .control-order-by {
-    width: 100%;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    padding: 0 5px 5px;
-    background-color: $white;
-    label {
-        font-size: 12px;
-        font-weight: 500;
-        color: $gray-500;
-        padding-left: 8px;
-    }
-    .form-control {
-        @include media-breakpoint-down(md) {
-            width: 100%;
         }
     }
 }
