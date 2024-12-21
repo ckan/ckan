@@ -1,4 +1,4 @@
-{% set packages = h.get_recent_datasets() %}
+{% set packages = h.get_recent_datasets(count=6) %}
 <h2>{{ _("Recent Datasets") }}</h2>
 <p>{{ _("Browse most popular or recent datasets") }}</p>
 <div>
