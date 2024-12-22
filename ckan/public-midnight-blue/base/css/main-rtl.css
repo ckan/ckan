@@ -12401,6 +12401,49 @@ a.tag:hover {
   left: 10px;
 }
 
+.nav-pills {
+  background-color: #f9fafb;
+  display: grid;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 0.5rem;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .nav-pills {
+    display: flex;
+    flex-direction: row;
+  }
+}
+.nav-pills li {
+  padding: 0.5rem 1rem;
+  gap: 0.5rem;
+  border-radius: 8px;
+}
+@media (min-width: 768px) {
+  .nav-pills li {
+    flex: 1 0 auto;
+  }
+}
+.nav-pills li a {
+  color: #6d83ab;
+  display: block;
+}
+.nav-pills li a:hover {
+  text-decoration: none;
+}
+.nav-pills li:hover {
+  background-color: #e4e7ec;
+}
+.nav-pills li.active {
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0px 4px 16px -4px rgba(0, 23, 31, 0.08), 0px 1px 4px -2px rgba(0, 0, 0, 0.04);
+}
+.nav-pills li.active a {
+  color: #2f4b91;
+}
+
 .nav-stacked > li {
   float: none;
 }
@@ -13730,9 +13773,6 @@ td.diff_header {
 
 .page-header {
   margin-top: 1.5rem;
-  border-bottom: 1px solid #ddd;
-  background-color: #f6f6f6;
-  border-radius: 0 3px 0 0;
 }
 .page-header.module-content {
   padding-top: 0.75rem;
@@ -14249,7 +14289,7 @@ td.diff_header {
   flex-wrap: wrap;
   padding: 10px 0;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .masthead .main-navbar ul {
     gap: 24px;
   }
