@@ -11980,6 +11980,13 @@ a.tag:hover {
   border-top: 1px solid inherit;
   padding-top: 0.5rem;
 }
+.pagination-wrapper .page-item {
+  margin: 0 4px;
+}
+.pagination-wrapper .page-link {
+  border-radius: 0.375rem;
+  font-weight: 500;
+}
 
 .module h1, .module .h1 {
   margin-top: 0;
