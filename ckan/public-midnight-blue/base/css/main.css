@@ -12419,10 +12419,11 @@ a.tag:hover {
   padding: 0.5rem 1rem;
   gap: 0.5rem;
   border-radius: 8px;
+  flex: 1 0 auto;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .nav-pills li {
-    flex: 1 0 auto;
+    width: 0;
   }
 }
 .nav-pills li a {
