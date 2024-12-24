@@ -114,7 +114,6 @@ function fitColText () {
   if (gcurrentView === 'list') {
     dt.responsive.recalc()
   }
-  dt.columns.adjust().draw(false)
 }
 
 // ensure element id is valid
@@ -576,7 +575,6 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           })
-          api.draw(false)
         }, // end stateLoadParams
         stateSaveParams: function (settings, data) {
           // this callback is invoked when saving state info
