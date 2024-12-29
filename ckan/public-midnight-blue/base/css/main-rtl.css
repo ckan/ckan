@@ -13749,10 +13749,6 @@ td.diff_header {
   background-color: #fff;
   border-bottom-color: transparent;
 }
-.page-header .content_action {
-  float: right;
-  margin-top: -3px;
-}
 
 .content_action .btn {
   float: right;
