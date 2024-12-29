@@ -11920,7 +11920,7 @@ a.tag:hover {
   display: block;
 }
 
-.box, .wrapper {
+.box {
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -13754,6 +13754,11 @@ td.diff_header {
   margin-top: -3px;
 }
 
+.content_action .btn {
+  float: right;
+  margin-bottom: 1rem;
+}
+
 .no-nav .page-header {
   border-radius: 3px 3px 0 0;
 }
@@ -13801,36 +13806,6 @@ td.diff_header {
   white-space: nowrap;
 }
 
-.wrapper {
-  position: relative;
-  min-height: 300px;
-  background-color: #fff;
-}
-.wrapper::after {
-  display: block;
-  clear: both;
-  content: "";
-}
-@media (min-width: 768px) {
-  .wrapper:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 25%;
-    border-right: 1px solid #ddd;
-    z-index: 1;
-  }
-  .wrapper.no-nav:before {
-    display: none;
-  }
-  .wrapper.no-nav .module > .page-header {
-    margin-top: 0;
-  }
-}
-
 [role=main],
 .main {
   position: relative;
@@ -13838,7 +13813,7 @@ td.diff_header {
 
 .main {
   padding: 20px 0;
-  background: #eee url("../../../base/images/bg.png");
+  background-color: #fff;
 }
 
 .main:after,
@@ -13848,15 +13823,15 @@ td.diff_header {
 }
 
 .main .primary {
+  border-radius: 20px;
+  background-color: #f2f4f7;
   position: relative;
   float: right;
   margin-left: 0;
 }
 
 .main .secondary {
-  padding: 0;
   z-index: 1;
-  padding-right: 1px;
 }
 
 /* Filters modal */
@@ -13874,27 +13849,12 @@ td.diff_header {
 }
 
 @media (max-width: 767.98px) {
-  .wrapper {
-    border-width: 0;
-    box-shadow: 0;
-    border-radius: 0;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -moz-box-orient: vertical;
-    -webkit-flex-direction: column-reverse;
-    flex-direction: column-reverse;
-    -webkit-box-align: start;
-    -moz-box-align: start;
-    -webkit-align-items: flex-start;
-    align-items: flex-start;
-  }
   .main .secondary {
     -webkit-box-ordinal-group: 2;
     -moz-box-ordinal-group: 2;
     -webkit-order: 2;
     order: 2;
+    margin-top: 1rem;
   }
   .js .main .secondary .filters {
     display: none;
@@ -13951,11 +13911,6 @@ td.diff_header {
   margin-top: 0;
 }
 
-@media (min-width: 576px) {
-  .hero {
-    background: url("../../../base/images/background-tile.png");
-  }
-}
 .hero:after {
   background-color: rgba(0, 0, 0, 0.09);
   background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));

@@ -120,6 +120,13 @@
     }
 }
 
+.content_action {
+    .btn {
+        float: right;
+        margin-bottom: 1rem;
+    }
+}
+
 .no-nav .page-header {
     @include border-radius(3px 3px 0 0);
 }
