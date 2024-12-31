@@ -131,6 +131,9 @@ def plugins_update() -> None:
 def load_all(force_update: bool = False) -> None:
     '''
     Load all plugins listed in the 'ckan.plugins' config directive.
+
+    Set force_update to True to call environment.update_config() even
+    if no plugins are configured in ckan.plugins
     '''
     # Clear any loaded plugins
     unload_all()
@@ -146,6 +149,9 @@ def load(
 ) -> Plugin | list[Plugin]:
     '''
     Load named plugin(s).
+
+    Set force_update to True to call environment.update_config() even
+    if no plugins are passed.
     '''
     output = []
 

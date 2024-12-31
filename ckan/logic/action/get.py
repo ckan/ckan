@@ -969,7 +969,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
 
         When set to ``"both"`` data with the default schema is returned along
-        with the custom schema applied to data in ``with_custom_schema``
+        with the custom schema applied to data in ``with_custom_schema``.
+        This is useful for retrieving data for indexing because we cache
+        both versions in our index.
     :type use_default_schema: ``True``, ``False`` or ``"both"``
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
