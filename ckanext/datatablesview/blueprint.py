@@ -13,6 +13,8 @@ from ckan.lib.helpers import decode_view_request_filters
 from ckan.plugins.toolkit import get_action, request, h
 import re
 
+ESTIMATION_THRESHOLD = 100000
+
 datatablesview = Blueprint(u'datatablesview', __name__)
 
 
@@ -62,9 +64,10 @@ def ajax(resource_view_id: str):
     datastore_search = get_action(u'datastore_search')
     unfiltered_response = datastore_search(
         {}, {
-            u"resource_id": resource_view[u'resource_id'],
-            u"limit": 0,
-            u"filters": view_filters,
+            "resource_id": resource_view[u'resource_id'],
+            "limit": 0,
+            "filters": view_filters,
+            "total_estimation_threshold": ESTIMATION_THRESHOLD,
         }
     )
 
@@ -108,14 +111,15 @@ def ajax(resource_view_id: str):
     try:
         response = datastore_search(
             {}, {
-                u"q": search_text,
-                u"resource_id": resource_view[u'resource_id'],
-                u'plain': False,
-                u'language': u'simple',
-                u"offset": offset,
-                u"limit": limit,
-                u"sort": u', '.join(sort_list),
-                u"filters": filters,
+                "q": search_text,
+                "resource_id": resource_view[u'resource_id'],
+                'plain': False,
+                'language': u'simple',
+                "offset": offset,
+                "limit": limit,
+                "sort": u', '.join(sort_list),
+                "filters": filters,
+                "total_estimation_threshold": ESTIMATION_THRESHOLD,
             }
         )
     except Exception:
