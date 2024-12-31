@@ -159,7 +159,6 @@ def rebuild(package_id: Optional[str] = None,
 
     if package_id:
         log.info('Indexing just package %r...', package_id)
-        logic.index_remove_package(package_id)
         logic.index_update_package(context, package_id)
     elif package_ids is not None:
         for package_id in package_ids:
