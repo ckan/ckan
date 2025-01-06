@@ -1,1 +1,0 @@
-fix Page view tracking of datasets is not working if ckan is running at a subpath

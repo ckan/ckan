@@ -893,7 +893,7 @@ def guard_against_duplicated_email(email: str):
     try:
         yield
     except exc.IntegrityError as e:
-        if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
+        if cast(Any, e.orig).pgcode == _PG_ERR_CODE["unique_violation"]:
             model.Session.rollback()
             raise ValidationError({
                 "email": [

@@ -91,19 +91,21 @@ class ModelFollowingModel(domain_object.DomainObject,
     @classmethod
     def _filter_following_objects(
             cls,
-            query: Query[tuple[Self, Follower, Followed]]) -> list[Self]:
+            query: Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]],
+    ) -> list[Self]:
         return [q[0] for q in query]
 
     @classmethod
     def _get_followees(
             cls, follower_id: Optional[str]
-    ) -> Query[tuple[Self, Follower, Followed]]:
+    ) -> Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]]:
         return cls._get(follower_id)
 
     @classmethod
     def _get_followers(
             cls,
-            object_id: Optional[str]) -> Query[tuple[Self, Follower, Followed]]:
+            object_id: Optional[str],
+    ) -> Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]]:
         return cls._get(None, object_id)
 
     @classmethod
@@ -111,22 +113,22 @@ class ModelFollowingModel(domain_object.DomainObject,
             cls,
             follower_id: Optional[str] = None,
             object_id: Optional[str] = None
-    ) -> Query[tuple[Self, Follower, Followed]]:
+    ) -> Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]]:
         follower_alias = sqlalchemy.orm.aliased(cls._follower_class())
         object_alias = sqlalchemy.orm.aliased(cls._object_class())
 
-        follower_id = follower_id or cls.follower_id
-        object_id = object_id or cls.object_id
+        fid = follower_id or cls.follower_id
+        oid = object_id or cls.object_id
 
-        query: Query[tuple[Self, Follower, Followed]] = meta.Session.query(
+        query = meta.Session.query(
             cls, follower_alias, object_alias)\
             .filter(sqlalchemy.and_(
-                follower_alias.id == follower_id,
+                follower_alias.id == fid,
                 cls.follower_id == follower_alias.id,
                 cls.object_id == object_alias.id,
                 follower_alias.state != core.State.DELETED,
                 object_alias.state != core.State.DELETED,
-                object_alias.id == object_id))
+                object_alias.id == oid))
 
         return query
 
