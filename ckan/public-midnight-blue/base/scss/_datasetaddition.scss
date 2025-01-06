@@ -1,17 +1,11 @@
-// Variables
-$primary-color: #153084;
-$secondary-color: #98A2B3;
-$light-bg: #F2F4F7;
-$white: white;
-$green: green;
 
 // Dataset circle icon
 .dataset-circle-icon {
   margin-bottom: 16px;
 
   .fa {
-    color: $secondary-color;
-    background-color: $secondary-color;
+    color: $gray-400;
+    background-color: $gray-400;
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -27,13 +21,13 @@ $green: green;
 
       &::before {
         content: '\f00c';
-        color: $white;
+        color: white;
       }
     }
 
     &.uncomplete::before {
       content: '\f101';
-      color: $white;
+      color: white;
     }
   }
 }
@@ -43,14 +37,14 @@ $green: green;
   font-weight: 600;
   font-size: 10px;
   line-height: 10px;
-  color: $secondary-color;
+  color: $gray-400;
 }
 
 .dataset-step-name {
   font-weight: 600;
   font-size: 16px;
   line-height: 18px;
-  color: $primary-color;
+  color: $primary;
   margin: 6px 0;
   min-width: fit-content;
 }
@@ -59,21 +53,21 @@ $green: green;
   font-weight: 500;
   font-size: 12px;
   line-height: 12px;
-  color: $primary-color;
+  color: $primary;
 }
 
 // Line styles
 .dataset-line {
   width: 144px;
   height: 2px;
-  background-color: $primary-color;
+  background-color: $primary;
   margin-top: 11px;
   display: block;
 }
 
 // Stage styles
 .stage {
-  background-color: $white;
+  background-color: white;
   padding: 24px;
   margin-top: 2px;
 
@@ -97,8 +91,9 @@ $green: green;
 
 // Package metadata field
 .package-metadata-field {
-  background-color: $light-bg;
+  background-color: $gray-100;
   padding: 48px;
+  margin-top: -1.5rem;
   border-radius: 20px;
   margin-bottom: 48px;
 
@@ -112,8 +107,8 @@ $green: green;
 .custom-btn {
   width: 36px;
   height: 36px;
-  background-color: $secondary-color;
-  color: $white;
+  background-color: $gray-400;
+  color: white;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
@@ -124,17 +119,17 @@ $green: green;
   line-height: 1;
 
   .fa {
-    color: $white;
+    color: white;
     font-size: 18px;
 
     &.fa-pencil-square-o::before {
       content: '\f044';
-      color: $white;
+      color: white;
     }
   }
 
   &:hover {
-    background-color: darken($secondary-color, 10%);
+    background-color: darken($gray-400, 10%);
   }
 }
 
@@ -163,7 +158,7 @@ $green: green;
 // Slug preview
 .slug-preview-inner {
   padding: 4px 8px;
-  background-color: $white;
+  background-color: white;
   font-weight: 500;
   font-size: 12px;
   line-height: 18px;
@@ -208,54 +203,13 @@ $green: green;
 
 
 // Accordion styles
-.accordion {
-  &-button {
-    background-color: $secondary-color;
-    color: $white;
-    font-size: 20px;
-    font-weight: 500;
-    border-radius: 6px;
 
-    &::after {
-      color: $white;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-    }
-
-    &:not(.collapsed) {
-      background-color: $primary-color;
-      color: white;
-
-      &::after {
-        color: $white;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-      }
-    }
-  }
-
-  &-item {
-    border: none !important;
-    box-shadow: none !important;
-    margin-bottom: 48px;
-
-    &:last-of-type .accordion-button.collapsed {
-      border-radius: 6px;
-    }
-
-    &:first-of-type .accordion-button {
-      border-radius: 6px;
-    }
-  }
-
-  &-body {
-    padding: 0;
-  }
-}
 
 // Additional styles
 .col.stage {
   padding: 12px 4px;
   border-radius: 8px;
-  background: $light-bg;
+  background: $gray-100;
   margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
@@ -286,22 +240,5 @@ $green: green;
   }
 }
 
-.accordion-item {
-  border: none !important;
-  content: none;
-  box-shadow: none !important;
-  outline: none !important;
-  margin-bottom: 48px;
 
-  &:last-of-type .accordion-button.collapsed {
-    border-radius: 6px;
-  }
 
-  &:first-of-type .accordion-button {
-    border-radius: 6px;
-  }
-}
-
-.accordion-body {
-  background-color: #F9FAFB;
-}

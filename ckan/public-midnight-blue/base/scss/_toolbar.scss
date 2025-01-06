@@ -36,9 +36,6 @@
     }
 }
 
-.toolbar .breadcrumb .active {
-    color: #153084;
-}
 
 
 .toolbar .home a {
@@ -63,7 +60,7 @@
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
     font-weight: bold;
-    color: #153084;
+    color: $primary;
 }
 
 .actions {
