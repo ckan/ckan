@@ -910,6 +910,12 @@ def test_tag_string_convert():
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
 
+    # test non alphanumeric character
+    assert convert("1:5000") == ["1:5000"]
+    
+    # expect error when comma in string
+    raises_invalid(validators.tag_name_validator)("1,2", {})
+
 
 def test_url_validator():
     key = ("url",)
