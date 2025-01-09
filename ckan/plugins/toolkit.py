@@ -103,6 +103,7 @@ __all__ = [
     "add_public_directory",
     "add_resource",
     "add_template_directory",
+    "add_public_to_webasset",
     "asbool",
     "asint",
     "aslist",
