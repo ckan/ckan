@@ -555,7 +555,10 @@ def login() -> Union[Response, str]:
                 rotate_token()
                 return next_page_or_default(next)
         else:
-            err = _(u"Login failed. Bad username or password.")
+            if config.get('ckan.recaptcha.privatekey'):
+                err = _(u"Login failed. Bad username or password or CAPTCHA.")
+            else:
+                err = _(u"Login failed. Bad username or password.")
             h.flash_error(err)
             return base.render("user/login.html", extra_vars)
 
