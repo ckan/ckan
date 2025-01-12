@@ -14128,7 +14128,6 @@ td.diff_header {
 .account-masthead {
   min-height: 30px;
   color: #000;
-  background: #e6e6e6;
 }
 .account-masthead .account {
   float: right;
@@ -14171,23 +14170,6 @@ td.diff_header {
 }
 .account-masthead .account ul li .btn-link {
   border-radius: 0;
-}
-.account-masthead .account .notifications a span.badge {
-  font-size: 12px;
-  margin-left: 3px;
-  padding: 1px 6px;
-  background-color: #d9d9d9;
-  border-radius: 4px;
-  text-shadow: none;
-  color: #404040;
-}
-.account-masthead .account .notifications a:hover span {
-  color: #000;
-  background-color: #cccccc;
-}
-.account-masthead .account .notifications.notifications-important a span.badge {
-  color: #000;
-  background-color: #C9403A;
 }
 .account-masthead .account.authed .image img {
   border-radius: 4px;
@@ -14263,6 +14245,29 @@ td.diff_header {
 }
 .masthead .main-navbar ul li.active a {
   font-weight: 600;
+}
+.masthead .main-navbar .account-masthead ul li {
+  margin-right: 0;
+}
+.masthead .main-navbar .account-masthead ul li a {
+  display: block;
+}
+.masthead .main-navbar .account-masthead ul .notifications a span.badge {
+  font-size: 12px;
+  margin-left: 3px;
+  padding: 1px 6px;
+  background-color: #d9d9d9;
+  border-radius: 4px;
+  text-shadow: none;
+  color: #404040;
+}
+.masthead .main-navbar .account-masthead ul .notifications a:hover span.badge {
+  color: #000;
+  background-color: #cccccc;
+}
+.masthead .main-navbar .account-masthead ul .notifications.notifications-important a span.badge {
+  color: #000;
+  background-color: #C9403A;
 }
 .masthead .login {
   display: flex;
