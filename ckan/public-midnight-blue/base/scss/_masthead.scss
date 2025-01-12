@@ -135,11 +135,21 @@ $notificationsBg: #C9403A;
             }
         }
         .account-masthead {
+            .dropdown {
+                width: 100%;
+            }
             ul {
                 li {
                     margin-right: 0;
                     a {
                         display: block;
+                    }
+                    &:hover,
+                    &:focus,
+                    &.active {
+                        a {
+                            border-radius: 0;
+                        }
                     }
                 }
                 .notifications {

@@ -14246,11 +14246,17 @@ td.diff_header {
 .masthead .main-navbar ul li.active a {
   font-weight: 600;
 }
+.masthead .main-navbar .account-masthead .dropdown {
+  width: 100%;
+}
 .masthead .main-navbar .account-masthead ul li {
   margin-right: 0;
 }
 .masthead .main-navbar .account-masthead ul li a {
   display: block;
+}
+.masthead .main-navbar .account-masthead ul li:hover a, .masthead .main-navbar .account-masthead ul li:focus a, .masthead .main-navbar .account-masthead ul li.active a {
+  border-radius: 0;
 }
 .masthead .main-navbar .account-masthead ul .notifications a span.badge {
   font-size: 12px;

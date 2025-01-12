@@ -116,21 +116,17 @@
               {% block header_account_container_content %}
                 <div class="col-md-2 account-masthead">
                   <div class="dropdown btn-group">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownExplorer" data-bs-toggle="dropdown" aria-expanded="false">
-                      <i class="fa-solid fa-user-check" aria-hidden="true"></i>
-                      {{ c.userobj.display_name }}
-                      <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownExplorer">
+                    {% block header_account_profile %}
+                      <a class="btn btn-outline col-9" role="button" href="{{ h.url_for('user.read', id=c.userobj.name) }}" aria-label="{{ _('View profile') }}" data-bs-title="{{ _('View profile') }}" data-bs-toggle="tooltip">
+                        <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                        {{ c.userobj.display_name }}
+                      </a>
+                    {% endblock %}
+                    <button type="button" class="btn btn-outline dropdown-toggle dropdown-toggle-split col-3" id="dropdownMasthead" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="visually-hidden">{{ _('Toggle Dropdown') }}</span>
+                    </button>                  
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMasthead">
                       {% block header_account_logged %}
-                        {% block header_account_profile %}
-                          <li>
-                            <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" aria-label="{{ _('View profile') }}" data-bs-title="{{ _('View profile') }}" data-bs-toggle="tooltip">
-                              <i class="fa-solid fa-user" aria-hidden="true"></i>
-                              <span class="text">{{ _('My profile') }}</span>
-                            </a>
-                          </li>
-                        {% endblock %}
                         {% if c.userobj.sysadmin %}
                           <li>
                             <a href="{{ h.url_for('admin.index') }}" class="dropdown-item" aria-label="{{ _('Sysadmin settings') }}" data-bs-title="{{ _('Sysadmin settings') }}" data-bs-toggle="tooltip">
