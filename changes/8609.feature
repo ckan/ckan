@@ -1,0 +1,1 @@
+Allows plugins to set the user ID during user creation
