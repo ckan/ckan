@@ -969,7 +969,8 @@ def user_create(context: Context,
     author_obj = model.User.get(context.get('user'))
     if data_dict.get("id"):
         is_sysadmin = (author_obj and author_obj.sysadmin)
-        if not is_sysadmin or model.User.get(data_dict["id"]):
+        ignore_auth = context.get('ignore_auth')
+        if not (ignore_auth or is_sysadmin) or model.User.get(data_dict["id"]):
             data_dict.pop("id", None)
     context.pop("user_obj", None)
 

@@ -2114,6 +2114,21 @@ class TestUserPluginExtras(object):
         )
 
         assert user["plugin_extras"] is None
+    
+    def test_extensions_can_provide_custom_id(self):
+        
+        stub = factories.User.stub()
+        context = {"user": None, "ignore_auth": True}
+        _id = str(uuid.uuid4())
+        user_dict = {
+            "id": _id,
+            "name": stub.name,
+            "email": stub.email,
+            "password": "12345678",
+        }
+        created_user = helpers.call_action("user_create", context=context, **user_dict)
+
+        assert created_user["id"] == _id
 
 
 @pytest.mark.usefixtures("non_clean_db")
