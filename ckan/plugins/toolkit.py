@@ -248,7 +248,6 @@ def add_resource(path: str, name: str):
 
     this_dir = os.path.dirname(filename)
     absolute_path = os.path.join(this_dir, path)
-    print("calling to create library")
     create_library(name, absolute_path)
 
 
