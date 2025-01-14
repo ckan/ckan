@@ -23,9 +23,7 @@ from ckan.lib.lazyjson import LazyJSONObject
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
-from ckan.lib.search import (
-    SearchError, SearchIndexError, SearchQueryError, SolrConnectionError
-)
+from ckan.lib.search import SearchError, SearchIndexError, SearchQueryError, SearchEngineConnectionError
 from ckan.types import Context, Response, ActionResult
 
 
@@ -334,7 +332,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
                        str(e)}
         return_dict[u'success'] = False
         return _finish(500, return_dict, content_type=u'json')
-    except SolrConnectionError:
+    except SearchEngineConnectionError:
         return_dict[u'error'] = {
             u'__type': u'Search Connection Error',
             u'message': u'Unable to connect to the search server'}
