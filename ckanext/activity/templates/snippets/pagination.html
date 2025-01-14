@@ -1,5 +1,5 @@
-{% set class_prev = "btn btn-default" if newer_activities_url else "btn disabled" %}
-{% set class_next = "btn btn-default" if older_activities_url else "btn disabled" %}
+{% set class_prev = "btn btn-secondary" if newer_activities_url else "btn disabled" %}
+{% set class_next = "btn btn-secondary" if older_activities_url else "btn disabled" %}
 
 {% if newer_activities_url or older_activities_url %}
     <div hx-boost="true" hx-target="closest .module-content" id="activity_page_buttons" class="activity_buttons" style="margin-top: 25px;">
