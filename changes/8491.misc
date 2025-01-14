@@ -1,0 +1,10 @@
+After [#7934](https://github.com/ckan/ckan/pull/7934),
+[#6916](https://github.com/ckan/ckan/pull/6916)
+[#5100](https://github.com/ckan/ckan/pull/5100) and many other we can't never
+be sure about duplicated email users. Saml2 and other extensions trust in the
+`User.by_email` function to get the user by email. Usually we expect that
+function to return `None` or a unique user, but if there are duplicated emails,
+We can expect an error.
+Migration `102_ff13667243ed_create_conditinal_index_on_user` mark as unique
+a combination of `email` and `state` but not takes into consideration upper
+and lower case.
