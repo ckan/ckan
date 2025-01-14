@@ -94,9 +94,6 @@
     }
     margin-top: $grid-gutter-width;
     @include clearfix;
-    border-bottom: 1px solid $moduleHeadingBorderColor;
-    background-color: $moduleHeadingBackgroundColor;
-    @include border-radius(0 3px 0 0);
     .nav-tabs {
         float: left;
         margin-bottom: -1px;
