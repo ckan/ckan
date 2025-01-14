@@ -61,5 +61,9 @@ section.module.module-narrow.module-shallow {
     .accordion-body {
       background-color: #F9FAFB;
     }
+
+    .accordion-body .list-group {
+      padding-top: 4px;
+    }
   
   }

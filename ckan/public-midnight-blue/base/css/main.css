@@ -4975,8 +4975,8 @@ textarea.form-control-lg {
   --bs-list-group-disabled-color: #475467;
   --bs-list-group-disabled-bg: #fff;
   --bs-list-group-active-color: #fff;
-  --bs-list-group-active-bg: #153084;
-  --bs-list-group-active-border-color: #153084;
+  --bs-list-group-active-bg: #667085;
+  --bs-list-group-active-border-color: #667085;
   display: flex;
   flex-direction: column;
   padding-left: 0;
@@ -15111,6 +15111,10 @@ td.diff_header {
   top: 4px;
 }
 
+.list-group-item.active a {
+  color: white !important;
+}
+
 section.module.module-narrow.module-shallow .accordion-button {
   background-color: #98a2b3;
   color: white;
@@ -15159,6 +15163,9 @@ section.module.module-narrow.module-shallow .accordion-item:first-of-type .accor
 }
 section.module.module-narrow.module-shallow .accordion-body {
   background-color: #F9FAFB;
+}
+section.module.module-narrow.module-shallow .accordion-body .list-group {
+  padding-top: 4px;
 }
 
 .login-form {
