@@ -64,8 +64,8 @@ def load_environment(conf: Union[Config, CKANConfig]):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
-    # load all CKAN plugins
-    p.load_all()
+    # load all CKAN plugins and force call to environment.update_config()
+    p.load_all(force_update=True)
 
     # Check Redis availability
     if not is_redis_available():
