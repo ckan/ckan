@@ -14,6 +14,9 @@
     {{ h.build_nav_icon(group_type + '.edit', _('Edit'), id=group_dict.name, icon='pencil') }}
     {{ h.build_nav_icon(group_type + '.bulk_process', h.humanize_entity_type('package', dataset_type, 'content tab') or _('Datasets'), id=group_dict.name, icon='sitemap') }}
     {{ h.build_nav_icon(group_type + '.manage_members', _('Members'), id=group_dict.name, icon='users') }}
+    {% if organization and h.check_access('organization_packages_background_reindex', {'id': organization.id}) %}
+      {{ h.build_nav_icon(group_type + '.search_rebuild', _('Rebuild Search Index'), id=group_dict.name, icon='database') }}
+    {% endif %}
 {% endblock %}
 
 {% block secondary_content %}

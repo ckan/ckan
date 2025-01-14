@@ -2298,6 +2298,8 @@ def task_status_show(context: Context, data_dict: DataDict) -> ActionResult.Task
     model = context['model']
     id = data_dict.get('id')
 
+    _check_access('task_status_show', context, data_dict)
+
     if id:
         task_status = model.TaskStatus.get(id)
     else:
@@ -2315,7 +2317,6 @@ def task_status_show(context: Context, data_dict: DataDict) -> ActionResult.Task
     if task_status is None:
         raise NotFound
     context['task_status'] = task_status
-    _check_access('task_status_show', context, data_dict)
 
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
