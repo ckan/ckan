@@ -144,9 +144,6 @@
         gap: .5rem;
         border-radius: 8px;
         flex: 1 0 auto;
-        @include media-breakpoint-up(lg) {
-            width: 0;
-        }
         a {
             color: $brand-300;
             display: block;

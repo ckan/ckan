@@ -12421,11 +12421,6 @@ a.tag:hover {
   border-radius: 8px;
   flex: 1 0 auto;
 }
-@media (min-width: 992px) {
-  .nav-pills li {
-    width: 0;
-  }
-}
 .nav-pills li a {
   color: #6d83ab;
   display: block;
