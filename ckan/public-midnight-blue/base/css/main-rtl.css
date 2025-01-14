@@ -3077,7 +3077,7 @@ textarea.form-control-lg {
   --bs-btn-disabled-border-color: #d43f3a;
 }
 
-.btn-light, .btn-default {
+.btn-light, .btn-secondary {
   --bs-btn-color: #000;
   --bs-btn-bg: #fff;
   --bs-btn-border-color: #fff;
@@ -11843,10 +11843,10 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
   font-weight: 600;
 }
 
-.btn-light, .btn-default {
+.btn-light, .btn-secondary {
   border: #d0d5dd solid 1px;
 }
-.btn-light:hover, .btn-default:hover {
+.btn-light:hover, .btn-secondary:hover {
   background-color: #d0d5dd !important;
   border-color: #d0d5dd;
 }
@@ -14870,7 +14870,7 @@ td.diff_header {
   }
 }
 @media (max-width: 767.98px) {
-  .login-main .btn-light, .login-main .btn-default {
+  .login-main .btn-light, .login-main .btn-secondary {
     width: 100%;
     display: block !important;
   }
