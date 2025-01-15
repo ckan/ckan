@@ -58,7 +58,7 @@ user_table = Table('user', meta.metadata,
         Column('sysadmin', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE, nullable=False),
         Column('image_url', types.UnicodeText),
-        Column('plugin_extras', MutableDict.as_mutable(JSONB)),  # type: ignore
+        Column('plugin_extras', MutableDict.as_mutable(JSONB)),
         Index('idx_user_id', 'id'),
         Index('idx_user_name', 'name'),
         Index('idx_only_one_active_email', 'email', 'state', unique=True,
