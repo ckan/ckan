@@ -453,7 +453,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
-                            if value is None or value == {}:
+                            if value is None:
                                 continue
                             query_args.append(
                                 u'{}={}'.format(
@@ -462,7 +462,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 )
                             )
                     else:
-                        if val is None or val == {}:
+                        if val is None:
                             continue
                         query_args.append(
                             u'{}={}'.format(
