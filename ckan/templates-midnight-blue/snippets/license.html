@@ -16,21 +16,34 @@
   {% else %}
       {% block license_wrapper %}
         <section class="module module-narrow module-shallow license">
-          {% block license_title %}
-            <h2 class="module-heading"><i class="fa fa-lock"></i> {{ _('License') }}</h2>
-          {% endblock %}
-          {% block license_content %}
-            <p class="module-content">
-              {% block license_content_inner %}
-                {{ license_string(pkg_dict) }}
-                {% if pkg_dict.isopen %}
-                  <a href="http://opendefinition.org/okd/" aria-label="{{ _('This dataset satisfies the Open Definition.') }}" data-bs-title="{{ _('This dataset satisfies the Open Definition.') }}" data-bs-toggle="tooltip">
-                      <img class="open-data" src="{{ h.url_for_static('/base/images/od_80x15_blue.png') }}" alt="[Open Data]" />
-                  </a>
-                {% endif %}
+          <div class="accordion" >
+            <div class="accordion-item">
+              {% block license_title %}
+              <h2 class="accordion-header" id="headingLicense">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedlicense" aria-expanded="true" aria-controls="collapsedlicense">
+                    {{ _('License') }}
+                  </button>
+              </h2>
               {% endblock %}
-            </p>
-          {% endblock %}
+         
+              <div id="collapsedlicense" class="accordion-collapse collapse show" aria-labelledby="headingLicense" >
+                <div class="accordion-body">
+                  {% block license_content %}
+                    <p class="module-content">
+                      {% block license_content_inner %}
+                        {{ license_string(pkg_dict) }}
+                        {% if pkg_dict.isopen %}
+                          <a href="http://opendefinition.org/okd/" aria-label="{{ _('This dataset satisfies the Open Definition.') }}" data-bs-title="{{ _('This dataset satisfies the Open Definition.') }}" data-bs-toggle="tooltip">
+                              <img class="open-data" src="{{ h.url_for_static('/base/images/od_80x15_blue.png') }}" alt="[Open Data]" />
+                          </a>
+                        {% endif %}
+                      {% endblock %}
+                    </p>
+                  {% endblock %}
+                </div>
+              </div>
+          </div>
+          </div>
         </section>
       {% endblock %}
   {% endif %}
