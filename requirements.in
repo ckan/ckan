@@ -16,7 +16,7 @@ Flask-Login==0.6.1
 Flask-WTF==1.0.1
 flask-multistatic==1.0
 greenlet==2.0.2
-Jinja2==3.1.4
+Jinja2==3.1.5
 Markdown==3.4.1
 packaging==24.1
 passlib==1.7.4
