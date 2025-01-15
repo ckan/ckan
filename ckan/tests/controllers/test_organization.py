@@ -82,6 +82,24 @@ class TestOrganizationList(object):
             status=403
         )
 
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_query_string_null_character_handling_no_valueerror(self, app):
+        user = factories.UserWithToken()
+        env = {"Authorization": user["token"]}
+
+        query_strings = [
+            "%SYSTEMROOT%\\win.ini\x00",
+            "C:\\boot.ini\x00",
+            "/etc/passwd\x00.html"
+        ]
+        for query_string in query_strings:
+            app.get(
+                url_for("organization.index"),
+                params={"q": query_string},
+                extra_environ=env,
+                status=200
+            )
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationRead(object):
