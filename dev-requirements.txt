@@ -11,7 +11,7 @@ ipdb==0.13.13
 pip-tools==7.4.1
 Pillow==11.1.0
 responses==0.25.6
-sphinx-rtd-theme==3.0l2
+sphinx-rtd-theme==3.0.2
 sphinx==7.4.7
 toml==0.10.2
 towncrier==24.8.0
