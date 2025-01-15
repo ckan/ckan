@@ -13,7 +13,7 @@
             <div class="accordion-body">
                 <ul class="list-group">
                     <li class="list-group-item d-flex justify-content-between position-relative">
-                        <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to package: {name}').format(name=pkg.title or pkg.name) }}">{{ pkg.title or pkg.name | truncate(25)  }}</a>
+                        <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to package: {name}').format(name=pkg.title or pkg.name) }}">{{ pkg.title | truncate(25)  }}</a>
                         <div class="dropdown position-absolute end-0 me-2">
                           <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ pkg.id }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
                           <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ pkg.id }}">
