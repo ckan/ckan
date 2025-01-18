@@ -1,6 +1,5 @@
 {% set groups = h.get_featured_groups(count=6) %}
 <h2>{{ _("Groups") }}</h2>
-<p>{{ _("Browse groups") }}</p>
 <ul class="featured-groups">
   {% for group in groups %}
     {% snippet "group/snippets/group_item.html", group=group %}

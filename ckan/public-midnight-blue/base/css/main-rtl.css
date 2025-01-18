@@ -13866,6 +13866,11 @@ td.diff_header {
   white-space: nowrap;
 }
 
+.empty {
+  color: #6e6e6e;
+  font-style: italic;
+}
+
 [role=main],
 .main {
   position: relative;
@@ -14098,6 +14103,9 @@ td.diff_header {
   color: #fff;
   font-size: 60px;
   font-weight: 700;
+}
+.homepage h2, .homepage .h2 {
+  margin-bottom: 1rem;
 }
 .homepage .module-search {
   color: #000;

@@ -41,7 +41,8 @@
           </h3>
         {% endblock %}
         {% if package.organization %}
-          <p class="dataset-organization">Owner: {{ package.organization['title'] }}</p>
+          {% set organization = package.organization %}
+          <a href="{{ h.url_for(organization.type ~ '.read', id=organization.name) }}" class="dataset-organization">{{ organization.title }}</a>
         {% endif %}
         {% block notes %}
           {% if notes %}

@@ -2504,13 +2504,9 @@ def get_recent_datasets(count: int = 1) -> list[dict[str, Any]]:
 
 
 @core_helper
-def get_site_statistics() -> dict[str, int]:
-    stats = {}
-    stats['dataset_count'] = logic.get_action('package_search')(
-        {}, {"rows": 1})['count']
-    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
-    stats['organization_count'] = len(
-        logic.get_action('organization_list')({}, {}))
+def get_dataset_count() -> dict[str, int]:
+    stats = logic.get_action('package_search')(
+        {}, {"rows": 0})['count']
     return stats
 
 

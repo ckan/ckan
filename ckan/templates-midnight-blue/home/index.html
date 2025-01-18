@@ -28,18 +28,12 @@
         </div>
       </div>
     </div>
-
     <div class="main module-feeds">
       <div class="container">
         <div class="row">
-            {# Note: this featured_group block is used as an example in the theming
-            tutorial in the docs! If you change this code, be sure to check
-            whether you need to update the docs. #}
-            {# Start template block example. #}
-            {% block featured_group %}
-            {% snippet 'home/snippets/featured_group.html' %}
+            {% block featured_organization %}
+            {% snippet 'home/snippets/featured_organization.html' %}
             {% endblock %}
-            {# End template block example. #}
         </div>
       </div>
     </div>
@@ -55,9 +49,14 @@
     <div class="main module-feeds">
       <div class="container">
         <div class="row">
-            {% block featured_organization %}
-            {% snippet 'home/snippets/featured_organization.html' %}
+            {# Note: this featured_group block is used as an example in the theming
+            tutorial in the docs! If you change this code, be sure to check
+            whether you need to update the docs. #}
+            {# Start template block example. #}
+            {% block featured_group %}
+            {% snippet 'home/snippets/featured_group.html' %}
             {% endblock %}
+            {# End template block example. #}
         </div>
       </div>
     </div>
