@@ -1,42 +1,3 @@
-.wrapper {
-    @include clearfix();
-    @extend .box;
-    position: relative;
-    min-height: 300px;
-    background-color: #fff;
-    @include media-breakpoint-up(md) {
-        &:before {
-            content: '';
-            display: block;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 25%;
-            border-right: 1px solid $genericBorderColor;
-            z-index: 1; // Fixes overlapping .secondary on the Resource view page
-        }
-        &.no-nav {
-            &:before {
-                display: none;
-            }
-            .module {
-                >.page-header {
-                    margin-top: 0;
-                }
-            }
-        }
-    }
-}
-
-// @media (min-width: $screen-md-min) {
-//   .wrapper {
-//     background-position:0px 0px;
-//   }
-// }
-// .wrapper.no-nav {
-//     background-image: none;
-// }
 [role=main],
 .main {
     position: relative;
@@ -44,7 +5,7 @@
 
 .main {
     padding: 20px 0;
-    background: $layoutBackgroundColor url("#{$bgPath}");
+    background-color: $white;
 }
 
 .main:after,
@@ -54,15 +15,15 @@
 }
 
 .main .primary {
+    border-radius: 20px;
+    background-color: $layoutPrimaryBackgroundColor;
     position: relative;
     float: right;
     margin-left: 0; // Remove grid margin.
 }
 
 .main .secondary {
-    padding: 0;
     z-index: 1;
-    padding-right: 1px;
 }
 
 
@@ -82,27 +43,12 @@
 }
 
 @include media-breakpoint-down(md) {
-    .wrapper {
-        border-width: 0;
-        @include box-shadow(0);
-        @include border-radius(0);
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -moz-box-orient: vertical;
-        -webkit-flex-direction: column-reverse;
-        flex-direction: column-reverse;
-        -webkit-box-align: start;
-        -moz-box-align: start;
-        -webkit-align-items: flex-start;
-        align-items: flex-start;
-    }
     .main .secondary {
         -webkit-box-ordinal-group: 2;
         -moz-box-ordinal-group: 2;
         -webkit-order: 2;
         order: 2;
+        margin-top: 1rem;
     }
     .js .main .secondary .filters {
         display: none;
@@ -165,11 +111,6 @@
     }
 }
 
-@include media-breakpoint-up(sm) {
-    .hero {
-        background: url("#{$imagePath}/background-tile.png");
-    }
-}
 
 .hero:after {
     // Need to manually declare this here@mixin  If you pass rgba() through to

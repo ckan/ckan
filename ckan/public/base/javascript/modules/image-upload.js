@@ -57,7 +57,7 @@ this.ckan.module('image-upload', function($) {
         .appendTo(this.el);
 
       // Button to set the field to be a URL
-      this.button_url = $('<a href="javascript:;" class="btn btn-default">' +
+      this.button_url = $('<a href="javascript:;" class="btn btn-secondary">' +
                           '<i class="fa fa-globe"></i>' +
                           this._('Link') + '</a>')
         .prop('title', this._('Link to a URL on the internet (you can also link to an API)'))
@@ -65,7 +65,7 @@ this.ckan.module('image-upload', function($) {
         .insertAfter(this.input);
 
       // Button to attach local file to the form
-      this.button_upload = $('<a href="javascript:;" class="btn btn-default">' +
+      this.button_upload = $('<a href="javascript:;" class="btn btn-secondary">' +
                              '<i class="fa fa-cloud-upload"></i>' +
                              this._('Upload') + '</a>')
         .insertAfter(this.input);
