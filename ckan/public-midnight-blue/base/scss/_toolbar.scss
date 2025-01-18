@@ -113,10 +113,12 @@
             border-bottom-color: transparent;
         }
     }
-    .content_action {
+}
+
+.content_action {
+    .btn {
         float: right;
-        margin-top: -3px;
-        // margin-right: -7px;
+        margin-bottom: 1rem;
     }
 }
 

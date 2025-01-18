@@ -43,7 +43,7 @@ this.ckan.module('confirm-action', function (jQuery) {
         '</div>',
         '<div class="modal-body"></div>',
         '<div class="modal-footer">',
-        '<button class="btn btn-default btn-cancel"></button>',
+        '<button class="btn btn-secondary btn-cancel"></button>',
         '<button class="btn btn-primary"></button>',
         '</div>',
         '</div>',

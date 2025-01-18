@@ -1,7 +1,5 @@
 .search-form {
-    margin-bottom: 20px;
     padding-bottom: 25px;
-    border-bottom: 1px dotted $genericBorderColor;
     // Normal search box
     .search-input {
         position: relative;
@@ -16,7 +14,7 @@
             display: block;
             position: absolute;
             top: 50%;
-            margin-top: -10px;
+            margin-top: -12px;
             right: 10px;
             height: 20px;
             padding: 0;
@@ -50,12 +48,42 @@
         }
     }
     .control-order-by {
+        width: 100%;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        padding: 0 5px 5px;
+        background-color: $white;
+        label {
+            font-size: 12px;
+            font-weight: 500;
+            color: $gray-500;
+            padding-left: 8px;
+        }
+        @include media-breakpoint-up(md) {
+            float: right;
+            margin-left: 15px;
+            min-width:200px;
+            max-width: min-content;
+        }
         label,
         select {
             display: inline;
         }
         .form-control {
             width: auto;
+            @include media-breakpoint-down(md) {
+                width: 100%;
+            }
+        }
+        .form-select {
+            border: unset;
+            padding: 2px 3rem 0.5rem 0.5rem;
+            font-weight: 500;
+            background-position: right 1rem top;
+            background-size: 16px 16px;
+        }
+        &:focus-within{
+            box-shadow: 0 0 0 0.25rem rgba(21, 48, 132, 0.25);
         }
     }
 
@@ -79,13 +107,24 @@
     }
     .search-input-group {
         margin-bottom: $grid-gutter-width;
-    }
-}
-
-@include media-breakpoint-up(md) {
-    .search-form .control-order-by {
-        float: right;
-        margin-left: 15px;
-        width: auto;
+        input {
+            padding-right: 45px;
+        }
+        button {
+            border: 0;
+            border-radius: 0 3px 3px 0;
+            color: $brand-500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            line-height: 1.56;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            top: 2px;
+            height: 92%;
+            cursor: pointer;
+        }
     }
 }
