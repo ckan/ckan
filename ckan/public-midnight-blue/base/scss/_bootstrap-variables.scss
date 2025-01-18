@@ -700,7 +700,7 @@ $form-label-color:                      null !default;
 // scss-docs-end form-label-variables
 
 // scss-docs-start form-input-variables
-$input-padding-y:                       $input-btn-padding-y !default;
+$input-padding-y:                       .5rem !default;
 $input-padding-x:                       $input-btn-padding-x !default;
 $input-font-family:                     $input-btn-font-family !default;
 $input-font-size:                       $input-btn-font-size !default;
@@ -716,25 +716,25 @@ $input-padding-x-lg:                    $input-btn-padding-x-lg !default;
 $input-font-size-lg:                    $input-btn-font-size-lg !default;
 
 $input-bg:                              $white !default;
-$input-disabled-bg:                     $gray-200 !default;
-$input-disabled-border-color:           null !default;
+$input-disabled-bg:                     $gray-100 !default;
+$input-disabled-border-color:           $gray-300 !default;
 
 $input-color:                           $body-color !default;
-$input-border-color:                    $gray-400 !default;
-$input-border-width:                    $input-btn-border-width !default;
-$input-box-shadow:                      $box-shadow-inset !default;
+$input-border-color:                    $gray-300 !default;
+$input-border-width:                    2px !default;
+$input-box-shadow:                      null;
 
 $input-border-radius:                   $border-radius !default;
 $input-border-radius-sm:                $border-radius-sm !default;
 $input-border-radius-lg:                $border-radius-lg !default;
 
 $input-focus-bg:                        $input-bg !default;
-$input-focus-border-color:              tint-color($component-active-bg, 50%) !default;
+$input-focus-border-color:              $brand-600 !default;
 $input-focus-color:                     $input-color !default;
 $input-focus-width:                     $input-btn-focus-width !default;
-$input-focus-box-shadow:                $input-btn-focus-box-shadow !default;
+$input-focus-box-shadow:                null;
 
-$input-placeholder-color:               $gray-600 !default;
+$input-placeholder-color:               $gray-500 !default;
 $input-plaintext-color:                 $body-color !default;
 
 $input-height-border:                   $input-border-width * 2 !default;
@@ -747,7 +747,7 @@ $input-height:                          add($input-line-height * 1em, add($input
 $input-height-sm:                       add($input-line-height * 1em, add($input-padding-y-sm * 2, $input-height-border, false)) !default;
 $input-height-lg:                       add($input-line-height * 1em, add($input-padding-y-lg * 2, $input-height-border, false)) !default;
 
-$input-transition:                      border-color .15s ease-in-out, box-shadow .15s ease-in-out !default;
+$input-transition:                      null !default;
 // scss-docs-end form-input-variables
 
 // scss-docs-start form-check-variables
