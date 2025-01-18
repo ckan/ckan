@@ -6738,7 +6738,7 @@ textarea.form-control-lg {
   overflow-y: auto;
 }
 
-.clearfix::after, .account-masthead::after {
+.clearfix::after {
   display: block;
   clear: both;
   content: "";
@@ -14124,56 +14124,6 @@ td.diff_header {
     margin-bottom: 1rem;
   }
 }
-.account-masthead {
-  min-height: 30px;
-  color: #000;
-}
-.account-masthead .account {
-  float: right;
-}
-.account-masthead .account ul {
-  display: inline-flex;
-  justify-content: center;
-  align-items: baseline;
-}
-.account-masthead .account ul li {
-  display: block;
-  float: left;
-  border-left: 1px solid #d9d9d9;
-}
-.account-masthead .account ul li a {
-  display: block;
-  text-decoration: none;
-  color: #153084;
-  font-size: 13px;
-  font-weight: bold;
-  padding: 0 10px;
-  line-height: 31px;
-}
-.account-masthead .account ul li a span.username,
-.account-masthead .account ul li a span.text {
-  margin: 0 2px 0 4px;
-}
-.account-masthead .account ul li a span.text {
-  position: absolute;
-  top: -9999px;
-  left: -9999px;
-}
-.account-masthead .account ul li a:hover {
-  color: #11266a;
-  background-color: #d9d9d9;
-  text-decoration: none;
-}
-.account-masthead .account ul li a.sub {
-  font-weight: 300;
-}
-.account-masthead .account ul li .btn-link {
-  border-radius: 0;
-}
-.account-masthead .account.authed .image img {
-  border-radius: 4px;
-}
-
 .masthead {
   background: #fff;
   border-bottom: #d0d5dd 1px solid;
@@ -14245,8 +14195,11 @@ td.diff_header {
 .masthead .main-navbar ul li.active a {
   font-weight: 600;
 }
-.masthead .main-navbar .account-masthead .dropdown {
+.masthead .main-navbar .account-masthead .dropdown, .masthead .main-navbar .account-masthead .dropdown-menu {
   width: 100%;
+}
+.masthead .main-navbar .account-masthead .dropdown-toggle::after {
+  margin: 0 auto;
 }
 .masthead .main-navbar .account-masthead ul li {
   margin-right: 0;

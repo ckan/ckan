@@ -1,59 +1,4 @@
 $notificationsBg: #C9403A;
-.account-masthead {
-    @extend .clearfix;
-    min-height: 30px;
-    color: $mastheadTextColor;
-    .account {
-        float: right;
-        ul {
-            display: inline-flex;
-            justify-content: center;
-            align-items: baseline;
-            li {
-                display: block;
-                float: left;
-                border-left: 1px solid darken($mastheadBackgroundColor, 15%);
-                a {
-                    display: block;
-                    text-decoration: none;
-                    color: $link-color;
-                    font-size: 13px;
-                    font-weight: bold;
-                    padding: 0 10px;
-                    line-height: 31px;
-                    span.username,
-                    span.text {
-                        margin: 0 2px 0 4px;
-                    }
-                    span.text {
-                        position: absolute;
-                        top: -9999px;
-                        left: -9999px;
-                    }
-                    &:hover {
-                        color: $link-hover-color;
-                        background-color: darken($mastheadBackgroundColor, 15%);
-                        text-decoration: none;
-                    }
-                    &.sub {
-                        font-weight: 300;
-                    }
-                }
-                .btn-link {
-                    border-radius: 0;
-                }
-            }
-        }
-        
-        &.authed {
-            .image {
-                img {
-                    @include border-radius(4px);
-                }
-            }
-        }
-    }
-}
 
 .masthead {
     background: $mastheadBackgroundColor;
@@ -135,8 +80,11 @@ $notificationsBg: #C9403A;
             }
         }
         .account-masthead {
-            .dropdown {
+            .dropdown, .dropdown-menu {
                 width: 100%;
+            }
+            .dropdown-toggle::after {
+                margin: 0 auto;
             }
             ul {
                 li {
