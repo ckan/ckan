@@ -605,7 +605,7 @@ def user_dictize(
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
-    if authz.is_sysadmin(requester):
+    if authz.is_sysadmin(requester) or context.get("ignore_auth") is True:
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
