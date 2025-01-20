@@ -13,7 +13,7 @@
       <input aria-label="{% block header_site_search_label %}{{ placeholder }}{% endblock %}" id="field-giant-search" type="text" class="form-control input-lg" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
       {% block search_input_button %}
       <span class="input-group-btn">
-        <button class="btn btn-default btn-lg" type="submit" value="search" aria-label="{{_('Submit')}}">
+        <button class="btn btn-secondary btn-lg" type="submit" value="search" aria-label="{{_('Submit')}}">
           <i class="fa fa-search"></i>
         </button>
       </span>
@@ -39,20 +39,20 @@
           {% endfor %}
         </select>
         {% block search_sortby_button %}
-        <button class="btn btn-default js-hide" type="submit">{{ _('Go') }}</button>
+        <button class="btn btn-secondary js-hide" type="submit">{{ _('Go') }}</button>
         {% endblock %}
       </div>
     {% endif %}
   {% endblock %}
 
   {% block search_title %}
-    <h1>
+    <h2>
     {% if not error %}
       {% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}
     {% else %}
       Error
     {% endif %}
-    </h1>
+    </h2>
   {% endblock %}
 
   {% block search_facets %}
@@ -73,7 +73,7 @@
           {% endfor %}
         {% endfor %}
       </p>
-      <a class="show-filters btn btn-default">{{ _('Filter Results') }}</a>
+      <a class="show-filters btn btn-secondary">{{ _('Filter Results') }}</a>
     {% endif %}
   {% endblock %}
 

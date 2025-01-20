@@ -21,7 +21,7 @@ Example:
       {% block item_inner %}
         {% block image %}
         <div class="module-image">
-          <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-fluid">
+          <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" alt="{{ organization.name }}" class="img-fluid">
         </div>
         {% endblock %}
           {% block title %}
