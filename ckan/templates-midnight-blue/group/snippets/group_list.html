@@ -9,11 +9,11 @@ Example:
 
 #}
 {% block group_list %}
-<ul class="media-grid" data-module="media-grid">
-	{% block group_list_inner %}
-  {% for group in groups %}
-    {% snippet "group/snippets/group_item.html", group=group, position=loop.index, show_capacity=show_capacity %}
-  {% endfor %}
-  {% endblock %}
-</ul>
+  <ul class="group-list">
+    {% block group_list_inner %}
+      {% for group in groups %}
+        {% snippet "group/snippets/group_item.html", group=group, show_capacity=show_capacity %}
+      {% endfor %}
+    {% endblock %}
+  </ul>
 {% endblock %}
