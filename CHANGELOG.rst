@@ -9,6 +9,16 @@ Changelog
 
 .. towncrier release notes start
 
+===========================
+v.2.9.13 (Not yet released)
+===========================
+
+Bug fixes
+---------
+
+- `CVE-2025-XXXXX <https://github.com/ckan/ckan/security/advisories/GHSA-7pq5-qcp6-mcww>`_: Fix potential
+  XSS vector through user and group/organization images.
+
 
 v.2.9.12 2024-08-21
 ===================

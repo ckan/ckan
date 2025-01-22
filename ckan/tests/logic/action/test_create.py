@@ -1583,7 +1583,49 @@ class TestUserImageUrl(object):
                 logic.ValidationError, match="Unsupported upload type"):
             create_with_upload("hello world", "file.png", **params)
 
-    def test_upload_picture(self, create_with_upload):
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "")
+    def test_uploads_not_allowed_when_empty_mimetypes_and_types(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="No uploads allowed for object type"):
+            create_with_upload("hello world", "file.png", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_all_types_allowed_needs_both_options(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            assert create_with_upload(faker.json(), "file.json", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "*")
+    def test_upload_all_types_allowed(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        assert create_with_upload(faker.json(), "file.json", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_picture(self, create_with_upload, faker):
         params = {
             "name": "test_user_1",
             "email": "test1@example.com",
@@ -1591,13 +1633,18 @@ class TestUserImageUrl(object):
             "action": "user_create",
             "upload_field_name": "image_upload",
         }
+        assert create_with_upload(faker.image(), "file.png", **params)
 
-        some_png = """
-        89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52
-        00 00 00 01 00 00 00 01 08 02 00 00 00 90 77 53
-        DE 00 00 00 0C 49 44 41 54 08 D7 63 F8 CF C0 00
-        00 03 01 01 00 18 DD 8D B0 00 00 00 00 49 45 4E
-        44 AE 42 60 82"""
-        some_png = some_png.replace(' ', '').replace('\n', '')
-        some_png_bytes = bytes(bytearray.fromhex(some_png))
-        assert create_with_upload(some_png_bytes, "file.png", **params)
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_picture_extension_enforced(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        user = create_with_upload(faker.image(image_format="jpeg"), "file.png", **params)
+
+        assert user["image_url"].endswith(".jpg")
+        assert user["image_display_url"].endswith(".jpg")

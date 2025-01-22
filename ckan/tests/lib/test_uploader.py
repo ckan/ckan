@@ -105,7 +105,7 @@ class TestUpload(object):
                  u'upload': FileStorage(
                      six.BytesIO(some_png_bytes),
                      filename=u'logo.png',
-                     content_type=u'PNG'
+                     content_type=u'image/png'
                  ),
                  u'name': u'test-group-upload'}
         group_upload = Upload(u'group')
