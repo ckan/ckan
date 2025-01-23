@@ -74,8 +74,8 @@ package_table = Table('package', meta.metadata,
     Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
     Column('private', types.Boolean, default=False),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
-    Column('plugin_data', MutableDict.as_mutable(JSONB)),  # type: ignore
-    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(  # type: ignore
+    Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
         """
         jsonb_typeof(extras) = 'object' and
         not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
