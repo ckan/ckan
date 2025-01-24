@@ -224,6 +224,58 @@ instead. For example...
 
 .. todo:: Think of an example to do using default values.
 
+
+.. _pubsub:
+
+------
+Pubsub
+------
+
+You may have noticed that, with our example code so far, if you click on the
+info button of one dataset on the page then click on the info button of another
+dataset, both dataset's popovers are shown. The first popover doesn't disappear
+when the second appears, and the popovers may overlap. If you click on all the
+info buttons on the page, popovers for all of them will be shown at once:
+
+.. image:: /images/example_theme_overlapping_popovers.png
+   :alt: Dataset info popovers overlapping with eachother
+
+To make one popover disappear when another appears, we can use CKAN's
+:js:func:`~this.sandbox.client.publish` and
+:js:func:`~this.sandbox.client.subscribe` functions. These pair of functions
+allow different instances of a JavaScript module (or instances of different
+JavaScript modules) on the same page to talk to each other.
+The way it works is:
+
+#. Modules can subscribe to events by calling
+   :js:func:`this.sandbox.client.subscribe`, passing the 'topic'
+   (a string that identifies the type of event to subscribe to) and a callback
+   function.
+
+#. Modules can call :js:func:`this.sandbox.client.publish` to
+   publish an event for all subscribed modules to receive, passing the topic
+   string and one or more further parameters that will be passed on as
+   parameters to the receiver functions.
+
+#. When a module calls :js:func:`~this.sandbox.client.publish`, any callback
+   functions registered by previous calls to
+   :js:func:`~this.sandbox.client.subscribe` with the same topic string will
+   be called, and passed the parameters that were passed to publish.
+
+#. If a module no longer wants to receive events for a topic, it calls
+   :js:func:`~this.sandbox.client.unsubscribe`.
+
+   All modules that subscribe to events should have a ``teardown()`` function
+   that unsubscribes from the event, to prevent memory leaks. CKAN calls the
+   ``teardown()`` functions of modules when those modules are removed from the
+   page. See :ref:`pubsub unsubscribe best practice`.
+
+.. warning::
+
+   Don't tightly couple your JavaScript modules by overusing pubsub.
+   See :ref:`pubsub overuse best practice`.
+
+
 .. _javascript i18n:
 
 --------------------
