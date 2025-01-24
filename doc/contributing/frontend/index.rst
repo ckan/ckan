@@ -346,30 +346,3 @@ be attached)::
         this.module.teardown();
       });
     });
-
-Templates can also be loaded using the ``.loadFixture()`` method that is
-available in all test contexts. Tests can be made asynchronous by using promises
-(Cypress returns a promise in almost all functions)::
-
-    describe('ckan.module.MyModule()', function () {
-
-      before(function (done) {
-        cy.visit('/');
-
-        // Add a fixture element to page
-        cy.window().then(win => {
-            win.jQuery('<div id="fixture">').appendTo(win.document.body)
-        })
-
-        // Load the template once.
-        cy.loadFixture('my-template.html').then((template) => {
-            cy.wrap(template).as('template');
-        });
-      });
-
-      beforeEach(function () {
-        // Assign the template to the module each time.
-        cy.window().then(win => {
-            win.jQuery('#fixture').html(this.template).children();
-        });
-      });

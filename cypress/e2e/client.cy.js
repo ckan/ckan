@@ -62,41 +62,6 @@ describe('ckan.Client()', {testIsolation: false}, function () {
     });
   });
 
-  describe('.getTemplate(filename, params, success, error)', {testIsolation: false}, function () {
-    beforeEach(function () {
-      cy.window().then(win => {
-        win.fakePromise = cy.stub(win.jQuery.Deferred())
-        win.fakePromise.then.returns(win.fakePromise);
-        cy.stub(win.jQuery, 'get').returns(win.fakePromise);
-      })
-
-    });
-
-    it('should return a jQuery promise', function () {
-      cy.window().then(win => {
-        let target = win.client.getTemplate('test.html');
-        assert.ok(target === win.fakePromise, 'target === this.fakePromise');
-      })
-    });
-
-    it('should request the template file', function () {
-      cy.window().then(win => {
-        let target = win.client.getTemplate('test.html');
-        expect(win.jQuery.get).to.be.called;
-        expect(win.jQuery.get).to.be.calledWith('/api/1/util/snippet/test.html', {});
-      })
-    });
-
-    it('should request the template file with any provided params', function () {
-      cy.window().then(win => {
-        let options = {limit: 5, page: 2};
-        let target = win.client.getTemplate('test.html', options);
-        expect(win.jQuery.get).to.be.called;
-        expect(win.jQuery.get).to.be.calledWith( '/api/1/util/snippet/test.html', options);
-      })
-    });
-  });
-
   describe('.getLocaleData(locale, success, error)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {

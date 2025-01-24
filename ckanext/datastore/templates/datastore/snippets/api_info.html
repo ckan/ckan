@@ -6,11 +6,9 @@ embedded - If true will not include the "modal" classes on the snippet.
 
 Example
 
-    {% snippet 'ajax_snippets/api_info.html', resource_id=resource_id, embedded=true %}
+    {% snippet 'datastore/snippets/api_info.html', resource_id=resource_id, embedded=true %}
 
 #}
-
-{% set resource_id = h.sanitize_id(resource_id) %}
 
 {% set code_examples = {} %}
 {% macro register_example(clang, example) %}
