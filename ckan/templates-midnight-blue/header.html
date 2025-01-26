@@ -59,12 +59,12 @@
                 <div class="col-md-3 col-lg-2 account-masthead">
                   <div class="dropdown btn-group">
                     {% block header_account_profile %}
-                      <a class="btn btn-secondary col-10 col-sm-9" role="button" href="{{ h.url_for('user.read', id=c.userobj.name) }}" aria-label="{{ _('View profile') }}" data-bs-title="{{ _('View profile') }}" data-bs-toggle="tooltip">
+                      <a class="btn btn-default col-10 col-sm-9" role="button" href="{{ h.url_for('user.read', id=c.userobj.name) }}" aria-label="{{ _('View profile') }}" data-bs-title="{{ _('View profile') }}" data-bs-toggle="tooltip">
                         <i class="fa-solid fa-user-check" aria-hidden="true"></i>
                         {{ c.userobj.display_name }}
                       </a>
                     {% endblock %}
-                    <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split col-2 col-sm-3" id="dropdownMasthead" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split col-2 col-sm-3" id="dropdownMasthead" data-bs-toggle="dropdown" aria-expanded="false">
                       <span class="visually-hidden">{{ _('Toggle Dropdown') }}</span>
                     </button>                  
                     <ul class="dropdown-menu" aria-labelledby="dropdownMasthead">
