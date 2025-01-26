@@ -4,6 +4,11 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
     font-weight: $font-weight-semibold;
 }
 
+.bg-dust-red {
+    background-color: $dust-red;
+    color: $white;
+}
+
 .btn-light, .btn-secondary {
     @extend .btn-light;
     border: $table-border-color solid 1px;

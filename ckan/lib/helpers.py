@@ -453,7 +453,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
-                            if value is None or value == {}:
+                            if value is None:
                                 continue
                             query_args.append(
                                 u'{}={}'.format(
@@ -462,7 +462,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 )
                             )
                     else:
-                        if val is None or val == {}:
+                        if val is None:
                             continue
                         query_args.append(
                             u'{}={}'.format(
@@ -2491,6 +2491,23 @@ def get_featured_groups(count: int = 1) -> list[dict[str, Any]]:
                                 count=count,
                                 items=config_groups)
     return groups
+
+
+@core_helper
+def get_recent_datasets(count: int = 1) -> list[dict[str, Any]]:
+    '''Returns a list of recently modified/created datasets
+    '''
+    context: Context = {'ignore_auth': True, 'for_view': True}
+    data_dict = {'rows': count, 'sort': 'metadata_modified desc'}
+    recently_updated_datasets = logic.get_action('package_search')(context, data_dict)
+    return recently_updated_datasets['results']
+
+
+@core_helper
+def get_dataset_count() -> dict[str, int]:
+    stats = logic.get_action('package_search')(
+        {}, {"rows": 0})['count']
+    return stats
 
 
 @core_helper
