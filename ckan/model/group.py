@@ -5,7 +5,7 @@ import datetime
 from typing import Any, Optional, Union, overload
 from typing_extensions import Literal, Self
 
-from sqlalchemy import (Row, column, orm, types, Column, Table, ForeignKey, or_,
+from sqlalchemy import (column, orm, types, Column, Table, ForeignKey, or_,
                         and_, text, Index, CheckConstraint, false)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
@@ -240,7 +240,7 @@ class Group(core.StatefulObjectMixin,
 
     def get_children_group_hierarchy(
             self, type: str='group'
-    ) -> list[Row[tuple[str, str, str | None, str]]]:
+    ) -> list[tuple[str, str, str | None, str]]:
         '''Returns the groups in all levels underneath this group in the
         hierarchy. The ordering is such that children always come after their
         parent.

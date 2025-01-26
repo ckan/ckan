@@ -14210,6 +14210,9 @@ td.diff_header {
 .masthead .main-navbar .account-masthead ul li:hover a, .masthead .main-navbar .account-masthead ul li:focus a, .masthead .main-navbar .account-masthead ul li.active a {
   border-radius: 0;
 }
+.masthead .main-navbar .account-masthead ul li i {
+  margin-right: 5px;
+}
 .masthead .main-navbar .account-masthead ul .notifications a span.badge {
   font-size: 12px;
   margin-left: 3px;
