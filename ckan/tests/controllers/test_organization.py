@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import uuid
+
 import pytest
 from bs4 import BeautifulSoup
 
@@ -99,11 +101,37 @@ class TestOrganizationRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        name = factories.Organization.stub().name
-        org = factories.Organization(id=name, name=name)
+        id_ = str(uuid.uuid4())
+        org = factories.Organization(id=id_, name=id_)
         app.get(
             url_for("organization.read", id=org["id"]), status=200
         )  # ie no redirect
+
+    def test_group_read_displays_correct_dataset_count(self, app):
+        """
+        Tests that the organization read view displays the correct
+        dataset count with and without a search query.
+        """
+        org = factories.Organization()
+        _, dataset = factories.Dataset.create_batch(2, owner_org=org["id"])
+
+        # Test without search query
+        resp = app.get(url_for("organization.read", id=org["id"]))
+        soup = BeautifulSoup(resp.body, 'html.parser')
+
+        dataset_count = soup.find('dt', text='Datasets').find_next_sibling('dd').find('span')
+        assert dataset_count.text == "2"
+
+        # Test with search query
+        title = dataset["title"]
+        resp = app.get(url_for("organization.read", id=org["id"], q=title))
+        soup = BeautifulSoup(resp.body, 'html.parser')
+
+        dataset_count = soup.find('dt', text='Datasets').find_next_sibling('dd').find('span')
+        assert dataset_count.text == "2"
+
+        h1_tag = soup.select_one('h1:contains("dataset")')
+        assert h1_tag.text.strip() == f'1 dataset found for "{title}"'
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -515,6 +543,23 @@ class TestOrganizationInnerSearch(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationMembership(object):
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
+    def test_admin_users_cannot_invite_members(self, app, user):
+        """ Org admin users can't invite users if they can't create users """
+        headers = {"Authorization": user["token"]}
+        organization = factories.Organization(
+            users=[{"name": user["name"], "capacity": "admin"}]
+        )
+
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url_for("organization.member_new", id=organization["id"]),
+                headers=headers,
+            )
+            assert response.status_code == 200
+            assert "invite a new user" not in response
+
     def test_editor_users_cannot_add_members(self, app, user):
         headers = {"Authorization": user["token"]}
         organization = factories.Organization(
@@ -620,3 +665,91 @@ class TestOrganizationMembership(object):
             # only test.ckan.net
             assert len(org['users']) == 1
             assert user["id"] not in org["users"][0]["id"]
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestOrganizationFollow:
+    def test_organization_follow_and_unfollow(self, app, user):
+        headers = {"Authorization": user["token"]}
+
+        organization = factories.Organization()
+        organization_url = url_for("organization.read", id=organization["id"])
+        response = app.get(organization_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+          ''' in response
+
+        follow_url = url_for("organization.follow", id=organization["id"])
+        response = app.post(follow_url, headers=headers)
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>1</span></dd>
+        ''' in response
+
+    def test_organization_follow_not_exist(self, app, user):
+        """Pass an id for a organization that doesn't exist"""
+
+        headers = {"Authorization": user["token"]}
+        follow_url = url_for("organization.follow", id="not-here")
+        app.post(follow_url, headers=headers, status=404)
+
+    def test_organization_unfollow(self, app, user):
+
+        organization = factories.Organization()
+
+        headers = {"Authorization": user["token"]}
+        follow_url = url_for("organization.follow", id=organization["id"])
+        app.post(follow_url, headers=headers)
+
+        unfollow_url = url_for("organization.unfollow", id=organization["id"])
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+        ''' in response
+
+    def test_organization_unfollow_not_following(self, app, user):
+        """Unfollow a organization not currently following"""
+
+        organization = factories.Organization()
+
+        headers = {"Authorization": user["token"]}
+        unfollow_url = url_for("organization.unfollow", id=organization["id"])
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+          ''' in response
+
+    def test_organization_unfollow_not_exist(self, app, user):
+        """Unfollow a organization that doesn't exist."""
+
+        headers = {"Authorization": user["token"]}
+        unfollow_url = url_for("organization.unfollow", id="not-here")
+        app.post(unfollow_url, headers=headers, status=404)
+
+    def test_organization_follower_list(self, app, sysadmin):
+        """Following users appear on followers list page."""
+        organization = factories.Organization()
+        headers = {"Authorization": sysadmin["token"]}
+        follow_url = url_for("organization.follow", id=organization["id"])
+        app.post(follow_url, headers=headers)
+
+        followers_url = url_for("organization.followers", id=organization["id"])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, headers=headers, status=200)
+        assert sysadmin["name"] in followers_response

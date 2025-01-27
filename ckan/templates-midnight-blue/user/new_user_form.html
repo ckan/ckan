@@ -1,0 +1,34 @@
+{% import "macros/form.html" as form %}
+
+{% block form %}
+  <form id="user-register-form" action="" method="post" enctype="multipart/form-data">
+    {{ h.csrf_input() }}
+    {{ form.errors(error_summary) }}
+
+    {% block core_fields %}
+      {% block required_core_fields %}
+        {{ form.input("name", id="field-username", label=_("Username"), placeholder="", value=data.name, icon='user', error=errors.name, classes=["control-medium"], is_required=True) }}
+        {{ form.input("email", id="field-email", label=_("Email"), type="email", placeholder="", value=data.email, icon='envelope', error=errors.email, classes=["control-medium"], is_required=True) }}
+        {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="", value=data.password1, icon="fingerprint", error=errors.password1, classes=["control-medium"], is_required=True) }}
+        {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="", value=data.password2, icon="fingerprint", error=errors.password2, classes=["control-medium"], is_required=True) }}
+      {% endblock %}
+    {% endblock %}
+
+    {% block extra_fields %}
+    {% endblock %}
+
+    {% block captcha %}
+      {% if g.recaptcha_publickey %}
+        {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
+      {% endif %}
+    {% endblock %}
+
+    {{ form.required_message() }}
+
+    <div class="form-actions">
+      {% block form_actions %}
+      <button class="btn btn-primary" type="submit" name="save">{{ _("Create Account") }}</button>
+      {% endblock %}
+    </div>
+  </form>
+{% endblock %}

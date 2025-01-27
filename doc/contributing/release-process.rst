@@ -349,7 +349,7 @@ a release.
 #. Check that the docs compile correctly::
 
         rm build/sphinx -rf
-        python setup.py build_sphinx
+        sphinx-build doc build/sphinx
 
 #. Remove the beta letter in the version number.
 
@@ -379,40 +379,32 @@ a release.
 
 #. Upload the release to PyPI::
 
-        python setup.py sdist upload
+        python -m build
+        twine check dist/*
+        twine upload dist/*
+
 
    You will need a PyPI account with admin permissions on the ckan package,
    and your credentials should be defined on a ``~/.pypirc`` file such as::
 
         [distutils]
         index-servers =
-            pypi
+          pypi
 
         [pypi]
-        username: <user-name>
-        password: <password>
+        username: __token__
+        password: <token>
 
-   For more info, see:
-   `here <http://docs.python.org/distutils/packageindex.html#pypirc>`_
-
-   If running in Vagrant you may get error ``error: Operation not permitted``
-   due to failure to create a hard link. The solution is to add a line at the top
-   of setup.py::
-
-        # Avoid problem releasing to pypi from vagrant
-        import os
-        if os.environ.get('USER', '') == 'vagrant':
-            del os.link
-
-   as described here: https://stackoverflow.com/questions/7719380/python-setup-py-sdist-error-operation-not-permitted
+   For more info, see
+   `here <https://packaging.python.org/en/latest/specifications/pypirc/>`_
 
    If you upload a bad package, then you can remove it from PyPI however you
    must use a new version number next time.
 
 #. Build new Docker images for the new version in the following repos:
 
-   * `openknowledge/docker-ckan <https://github.com/okfn/docker-ckan>`_ -> ``openknowledge/ckan-base:{Major:minor}`` and ``openknowledge/ckan-dev:{Major:minor}`` (ping @amercader for this one)
-   * `ckan/ckan-solr-dev <https://github.com/ckan/ckan-solr-dev>`_ -> ``ckan/ckan-solr-dev:{Major:minor}``
+   * `ckan/ckan-docker-base <https://github.com/ckan/ckan-docker-base>`_ -> ``ckan/ckan-base:{Major:minor}`` and ``ckan/ckan-dev:{Major:minor}``
+   * `ckan/ckan-solr <https://github.com/ckan/ckan-solr>`_ -> ``ckan/ckan-solr:{Major:minor}-solr{solr-version}``
    * `ckan/ckan-postgres-dev <https://github.com/ckan/ckan-postgres-dev>`_ -> ``ckan/ckan-postgres-dev:{Major:minor}``
 
 #. Enable the new version of the docs on Read the Docs.
@@ -475,12 +467,7 @@ Preparing patch releases
         git commit -am "Update version number"
         git push origin release-v2.5.2
 
-#. Cherry-pick PRs marked for back-port.
-
-   These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
-   relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
-   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the
-   cherry-picking has been done (but leave the version ones).
+#. Backport PRs marked for backport using the :ref:`automated_backports` or manually if that fails.
 
 #. Ask the tech team if there are security fixes or other fixes to include.
 
@@ -518,7 +505,9 @@ Doing the patch releases
 
 #. Upload the release to PyPI::
 
-        python setup.py sdist upload
+        python -m build
+        twine check dist/*
+        twine upload dist/*
 
 #. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the
    corresponding ``dev-vX.Y`` branch.

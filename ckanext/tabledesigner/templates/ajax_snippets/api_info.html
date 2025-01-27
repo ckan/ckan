@@ -1,0 +1,79 @@
+{% ckan_extends %}
+
+{% block register_examples %}
+  {% if h.resource_url_type(resource_id) == 'tabledesigner' %}
+    {% set examples = h.tabledesigner_data_api_examples(resource_id) %}
+
+    {% for clang in code_languages %}
+      {% include "/datastore/api_examples/" + clang + ".html" %}
+    {% endfor %}
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block query_examples %}
+  {% if h.resource_url_type(resource_id) == 'tabledesigner' %}
+    <div class="accordion-item">
+      <h2 class="accordion-heading">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-post" aria-expanded="false" aria-controls="collapse-querying-post"> {{ _('Querying') }} &raquo;</button>
+      </h2>
+      <div id="collapse-querying-post" class="accordion-collapse collapse show" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
+        <div class="accordion-body">
+          <strong>{{ _('Get 5 results containing "jones" in any field:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_limit }}
+          {% endfor %}
+
+
+          <strong>{{ _('Get results filtered by the contents of specific fields:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_filter_custom }}
+          {% endfor %}
+
+          {% if h.datastore_search_sql_enabled() %}
+            <strong>{{ _('SQL query example:') }}</strong>
+            {% for clang in code_languages %}
+              {{ code_examples[clang].request_sql_custom }}
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-heading">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-updating" aria-expanded="false" aria-controls="collapse-updating"> {{ _('Inserting and Updating') }} &raquo;</button>
+      </h2>
+      <div id="collapse-updating" class="accordion-collapse collapse" aria-labelledby="collapse-updating" data-bs-parent="#accordion2">
+        <div class="accordion-body">
+          <strong>{{ _('Insert a new record:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_insert }}
+          {% endfor %}
+          <strong>{{ _('Update an existing record:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_update }}
+          {% endfor %}
+          <strong>{% trans method="method", upsert="upsert"
+            %}"{{ method }}" defaults to "{{ upsert }}" i.e. records will be inserted or updated based on the primary key values passed{%
+          endtrans %}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-heading">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-deleting" aria-expanded="false" aria-controls="collapse-deleting"> {{ _('Deleting') }} &raquo;</button>
+      </h2>
+      <div id="collapse-deleting" class="accordion-collapse collapse" aria-labelledby="collapse-deleting" data-bs-parent="#accordion2">
+        <div class="accordion-body">
+          <strong>{{ _('Delete a record:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_delete }}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}

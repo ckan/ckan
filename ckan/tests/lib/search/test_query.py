@@ -132,7 +132,7 @@ class TestResourceQuery(object):
             query=query, fields=fields, terms=terms, options=options
         )
         resources = [
-            model.Session.query(model.Resource).get(resource_id)
+            model.Session.get(model.Resource, resource_id)
             for resource_id in result["results"]
         ]
         urls = set([resource.url for resource in resources])
@@ -143,7 +143,7 @@ class TestResourceQuery(object):
         result = search.query_for(model.Resource).run(fields=fields)
         assert result["count"] == 6
         resources = [
-            model.Session.query(model.Resource).get(resource_id)
+            model.Session.get(model.Resource, resource_id)
             for resource_id in result["results"]
         ]
         urls = set([resource.url for resource in resources])
@@ -342,11 +342,11 @@ class TestPackageQuery:
         assert {pkg1["name"], pkg2["name"], pkg3["name"]} == set(result["results"])
 
     def test_single_by_name(self):
-        factories.Dataset(name="first")
-        factories.Dataset(name="second")
+        factories.Dataset(name="verycomplexnameoffirstdataset")
+        factories.Dataset(name="verycomplexnameofseconddataset")
 
-        result = search.query_for(model.Package).run({"q": u"first"})
-        assert result["results"] == ["first"]
+        result = search.query_for(model.Package).run({"q": u"verycomplexnameoffirstdataset"})
+        assert result["results"] == ["verycomplexnameoffirstdataset"]
 
     def test_name_multiple_results(self):
         factories.Dataset(name="first-record")

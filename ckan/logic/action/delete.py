@@ -189,11 +189,14 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
     pkg_dict = _get_action('package_show')(
         package_show_context, {'id': package_id})
 
+    update_context = Context(context)
+    update_context['original_package'] = dict(pkg_dict)
+
     if pkg_dict.get('resources'):
         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
                 r['id'] == id]
     try:
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        pkg_dict = _get_action('package_update')(update_context, pkg_dict)
     except ValidationError as e:
         errors = cast("list[ErrorDict]", e.error_dict['resources'])[-1]
         raise ValidationError(errors)
@@ -645,10 +648,10 @@ def tag_delete(context: Context, data_dict: DataDict) -> None:
     tag_obj.delete()
     model.repo.commit()
 
-
 def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
+
     model = context['model']
 
     if not context.get('user'):
@@ -662,15 +665,17 @@ def _unfollow(
 
     validated_data_dict, errors = validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors)
-    object_id = validated_data_dict.get('id')
+        msg = _("Error validating the schema of the object to unfollow.")
+        raise ValidationError(msg)
 
+    object_id = validated_data_dict.get('id')
+    follower_id = userobj.id
     follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
-        raise NotFound(
-                _('You are not following {0}.').format(data_dict.get('id')))
+        return
 
     follower_obj.delete()
+
     model.repo.commit()
 
 def unfollow_user(context: Context, data_dict: DataDict) -> None:
@@ -701,7 +706,6 @@ def _group_or_org_member_delete(context: Context,
                                 data_dict: DataDict) -> None:
     model = context['model']
     user = context['user']
-    session = context['session']
 
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
@@ -713,11 +717,7 @@ def _group_or_org_member_delete(context: Context,
         'object': user_id,
         'object_type': 'user',
     }
-    member_context = cast(Context, {
-        'model': model,
-        'user': user,
-        'session': session
-    })
+    member_context: Context = {'user': user}
     _get_action('member_delete')(member_context, member_dict)
 
 

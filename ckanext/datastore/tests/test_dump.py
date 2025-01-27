@@ -426,7 +426,7 @@ class TestDatastoreDump(object):
 
         res = app.get(f"/datastore/dump/{resource['id']}?limit=1&format=xml")
         expected_content = (
-            u"<data>\n"
+            u'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'
             r'<row _id="1">'
             u"<b\xfck>annakarenina</b\xfck>"
             u"<author>tolstoy</author>"

@@ -3,21 +3,26 @@ from __future__ import annotations
 
 from ckan.types import Context
 import logging
-from typing import Any, cast
+from typing import Any
+import json
+from contextlib import contextmanager
 
 import sqlalchemy
 import sqlalchemy.exc
+from sqlalchemy.dialects.postgresql import TEXT, JSONB
+from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.functions import coalesce
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
+import ckan.model as model
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
-from ckanext.datastore.backend import (
-    DatastoreBackend, InvalidDataError
-)
+from ckanext.datastore.backend import DatastoreBackend
 from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore import interfaces
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -32,7 +37,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
     aliases and indexes and bulk insertion. This endpoint can be called
-    multiple times to initially insert more data, add fields, change the
+    multiple times to initially insert more data, add/remove fields, change the
     aliases or indexes as well as the primary keys.
 
     To create an empty datastore resource and a CKAN resource at the same time,
@@ -57,6 +62,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata. (optional)
     :type fields: list of dictionaries
+    :param delete_fields: set to True to remove existing fields not passed
+    :type delete_fields: bool (optional, default: False)
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
                     (optional)
     :type records: list of dictionaries
@@ -80,7 +87,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the existing aliases or constraints. Setting ``records`` appends
-    the provided records to the resource.
+    the provided records to the resource. Setting ``fields`` without including
+    all existing fields will remove the others and the data they contain.
 
     **Results:**
 
@@ -94,7 +102,11 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
-    data_dict, errors = _validate(data_dict, schema, context)
+    for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+        schema = plugin.update_datastore_create_schema(schema)
+    with _create_validate_context(context, data_dict) as validate_context:
+        plugin_data = validate_context['plugin_data']
+        data_dict, errors = _validate(data_dict, schema, validate_context)
     resource_dict = None
     if records:
         data_dict['records'] = records
@@ -154,18 +166,14 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    try:
-        result = backend.create(context, data_dict)
-    except InvalidDataError as err:
-        raise p.toolkit.ValidationError({'message': str(err)})
+    result = backend.create(context, data_dict, plugin_data)
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
-    if resobj.extras.get('datastore_active') is not True:
+    if resobj and resobj.extras.get('datastore_active') is not True:
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
@@ -175,6 +183,53 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     result.pop('connection_url', None)
     result.pop('records', None)
     return result
+
+
+@contextmanager
+def _create_validate_context(context: Context, data_dict: dict[str, Any]):
+    '''
+    Populate plugin_data and resource for context to validators of
+    datastore_create data_dict. This is called before validation so nothing
+    about data_dict can be trusted.
+    '''
+    backend = DatastoreBackend.get_active_backend()
+    validate_context = p.toolkit.fresh_context(context)
+    plugin_data: dict[int, dict[str, Any]] = {}
+    validate_context['plugin_data'] = plugin_data
+    resource_id = data_dict.get('resource_id')
+    if not resource_id or not isinstance(resource_id, str):
+        yield validate_context
+        return
+
+    resource = model.Resource.get(data_dict['resource_id'])
+    if not resource:
+        yield validate_context
+        return
+    validate_context['resource'] = resource
+
+    fields = data_dict.get('fields')
+    if not fields or not isinstance(fields, list):
+        yield validate_context
+        return
+
+    try:
+        current_plugin_data = backend.resource_plugin_data(resource_id)
+    except NotImplementedError:
+        current_plugin_data = None
+    if not current_plugin_data:
+        yield validate_context
+        return
+
+    for i, field in enumerate(data_dict['fields']):
+        if not isinstance(field, dict):
+            continue
+        if field.get('id') in current_plugin_data:
+            plugin_data[i] = {'_current': current_plugin_data[field['id']]}
+    yield validate_context
+
+    # clean up _current values so they aren't saved
+    for pd in plugin_data.values():
+        pd.pop('_current', None)
 
 
 def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:
@@ -289,7 +344,9 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     return result
 
 
-def datastore_info(context: Context, data_dict: dict[str, Any]):
+@logic.side_effect_free
+def datastore_info(context: Context, data_dict: dict[str, Any]
+        ) -> dict[str, Any]:
     '''
     Returns detailed metadata about a resource.
 
@@ -343,6 +400,16 @@ def datastore_info(context: Context, data_dict: dict[str, Any]):
 
     info = backend.resource_fields(id)
 
+    try:
+        plugin_data = backend.resource_plugin_data(id)
+    except NotImplementedError:
+        return {}
+
+    for i, field in enumerate(info['fields']):
+        for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+            field = plugin.update_datastore_info_field(
+                field, plugin_data.get(field['id'], {}))
+        info['fields'][i] = field
     return info
 
 
@@ -413,7 +480,6 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resource = model.Resource.get(data_dict['resource_id'])
 
     if (data_dict.get('filters', None) is None and
@@ -459,7 +525,7 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise p.toolkit.ValidationError(errors)
-    return datastore_delete(context, data_dict)
+    return p.toolkit.get_action('datastore_delete')(context, data_dict)
 
 
 @logic.side_effect_free
@@ -643,11 +709,11 @@ def datastore_search_sql(context: Context, data_dict: dict[str, Any]):
         '''
         p.toolkit.check_access(
             'datastore_search_sql',
-            cast(Context, dict(context, table_names=table_names)),
+            Context(context, table_names=table_names),
             data_dict)
 
     result = backend.search_sql(
-        cast(Context, dict(context, check_access=check_access)),
+        Context(context, check_access=check_access),
         data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
@@ -661,37 +727,49 @@ def set_datastore_active_flag(
 
     Called after creation or deletion of DataStore table.
     '''
-    # We're modifying the resource extra directly here to avoid a
-    # race condition, see issue #3245 for details and plan for a
-    # better fix
     model = context['model']
-    update_dict = {'datastore_active': flag}
+    resource = model.Resource.get(data_dict['resource_id'])
+    assert resource
 
-    q = model.Session.query(model.Resource). \
-        filter(model.Resource.id == data_dict['resource_id'])
-    resource = q.one()
-
-    # update extras in database for record
-    extras = resource.extras
-    extras.update(update_dict)
-    q.update({'extras': extras}, synchronize_session=False)
-
+    # update extras json with a single statement
+    model.Session.query(model.Resource).filter(
+        model.Resource.id == data_dict['resource_id']
+    ).update(
+        {
+            'extras': func.jsonb_set(
+                coalesce(
+                    model.resource_table.c.extras,
+                    '{}',
+                ).cast(JSONB),
+                '{datastore_active}',
+                json.dumps(flag),
+            ).cast(TEXT)
+        },
+        synchronize_session='fetch',
+    )
     model.Session.commit()
+    model.Session.expire(resource, ['extras'])
+
+    # copied from ckan.lib.search.rebuild
+    # using validated packages can cause solr errors.
+    context = {
+        'model': model,
+        'ignore_auth': True,
+        'validate': False,
+        'use_cache': False
+    }
 
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
-    try:
-        _data_dict = p.toolkit.get_action('package_show')(context, {
-            'id': resource.package_id
-        })
-        for resource in _data_dict['resources']:
-            if resource['id'] == data_dict['resource_id']:
-                resource.update(update_dict)
-                psi.index_package(_data_dict)
-                break
-    except (logic.NotAuthorized, logic.NotFound) as e:
-        log.error(e.message)
+    _data_dict = p.toolkit.get_action('package_show')(context, {
+        'id': resource.package_id
+    })
+    for resource in _data_dict['resources']:
+        if resource['id'] == data_dict['resource_id']:
+            resource['datastore_active'] = flag
+            psi.index_package(_data_dict)
+            break
 
 
 def _check_read_only(context: Context, resource_id: str):
@@ -700,10 +778,14 @@ def _check_read_only(context: Context, resource_id: str):
     '''
     res = p.toolkit.get_action('resource_show')(
         context, {'id': resource_id})
-    if res.get('url_type') != 'datastore':
+    if res.get('url_type') not in (
+            p.toolkit.h.datastore_rw_resource_url_types()
+        ):
         raise p.toolkit.ValidationError({
-            'read-only': ['Cannot edit read-only resource. Either pass'
-                          '"force=True" or change url_type to "datastore"']
+            'read-only': ['Cannot edit read-only resource because changes '
+                          'made may be lost. Use a resource created for '
+                          'editing e.g. with datastore_create or use '
+                          '"force=True" to ignore this warning.']
         })
 
 

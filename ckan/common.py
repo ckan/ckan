@@ -26,15 +26,13 @@ from flask_login import login_user as _login_user, logout_user as _logout_user
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
-import simplejson as json  # type: ignore # noqa: re-export
+import simplejson as json  # type: ignore # noqa
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
 from ckan.types import Model, Request
 
 
 if TYPE_CHECKING:
-    # starting from python 3.7 the following line can be used without any
-    # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
 
 SENTINEL = {}
@@ -138,8 +136,7 @@ class CKANConfig(MutableMapping):
         """
         if default is SENTINEL:
             default = None
-            is_strict = super().get("config.mode") == "strict"
-            if is_strict and key not in config_declaration:
+            if len(config_declaration) and key not in config_declaration:
                 log.warning("Option %s is not declared", key)
 
         return super().get(key, default)
@@ -149,12 +146,60 @@ def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy[Request]):
-    u'''Common request object
+class HtmxDetails(object):
+    """Object to access htmx properties from the request headers.
 
-    This is just a wrapper around LocalProxy so we can handle some special
-    cases for backwards compatibility.
+    This object will be added to the CKAN `request` object
+    as `request.htmx`. It adds properties to easily access
+    htmx's request headers defined in
+    https://htmx.org/reference/#headers.
+    """
+
+    def __init__(self, request: Any):
+        self.request = request
+
+    def __bool__(self) -> bool:
+        return self.request.headers.get("HX-Request") == "true"
+
+    @property
+    def boosted(self) -> bool:
+        return self.request.headers.get("HX-Boosted") == "true"
+
+    @property
+    def current_url(self) -> str | None:
+        return self.request.headers.get("HX-Current-URL")
+
+    @property
+    def history_restore_request(self) -> bool:
+        return self.request.headers.get("HX-History-Restore-Request") == "true"
+
+    @property
+    def prompt(self) -> str | None:
+        return self.request.headers.get("HX-Prompt")
+
+    @property
+    def target(self) -> str | None:
+        return self.request.headers.get("HX-Target")
+
+    @property
+    def trigger(self) -> str | None:
+        return self.request.headers.get("HX-Trigger")
+
+    @property
+    def trigger_name(self) -> str | None:
+        return self.request.headers.get("HX-Trigger-Name")
+
+
+class CKANRequest(LocalProxy[Request]):
+    '''CKAN request class.
+
+    This is a subclass of the Flask request object. It adds a new
+    `htmx` property to access htmx properties from the request headers.
     '''
+
+    @property
+    def htmx(self) -> HtmxDetails:
+        return HtmxDetails(self)
 
     @property
     @maintain.deprecated('Use `request.args` instead of `request.params`',
@@ -167,7 +212,7 @@ class CKANRequest(LocalProxy[Request]):
         request.args
 
         '''
-        return cast(flask.Request, self).args
+        return self.args
 
 
 def _get_c():
@@ -261,6 +306,15 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return [obj]
 
 
+def repr_untrusted(danger: Any):
+    """
+    repr-format danger and truncate e.g. for logging untrusted input
+    """
+    r = repr(danger)
+    rtrunc = r[:200]
+    return rtrunc + '…' if r != rtrunc else r
+
+
 local = Local()
 
 # This a proxy to the bounded config object
@@ -273,7 +327,7 @@ local("config_declaration")
 config_declaration = local.config_declaration = Declaration()
 
 # Proxies to already thread-local safe objects
-request = cast(flask.Request, CKANRequest(_get_request))
+request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g: Any = LocalProxy(_get_c)
 c = g

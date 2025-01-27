@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, ClassVar, Optional
+from typing import Any, Callable, ClassVar, Optional, cast
 
 
 from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-from sqlalchemy import types, Column, Table, ForeignKey
+from sqlalchemy import types, Column, Table, ForeignKey, Index
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -22,6 +22,7 @@ from .package import Package
 
 __all__ = ['Resource', 'resource_table']
 
+Mapped = orm.Mapped
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
                          'size', 'created', 'last_modified',
@@ -34,7 +35,7 @@ resource_table = Table(
     Column('id', types.UnicodeText, primary_key=True,
            default=_types.make_uuid),
     Column('package_id', types.UnicodeText,
-           ForeignKey('package.id')),
+           ForeignKey('package.id'), nullable=False),
     Column('url', types.UnicodeText, nullable=False, doc='remove_if_not_provided'),
     # XXX: format doc='remove_if_not_provided' makes lots of tests fail, fix tests?
     Column('format', types.UnicodeText),
@@ -55,34 +56,37 @@ resource_table = Table(
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_package_resource_id', 'id'),
+    Index('idx_package_resource_package_id', 'package_id'),
+    Index('idx_package_resource_url', 'url'),
 )
 
 
 class Resource(core.StatefulObjectMixin,
                domain_object.DomainObject):
-    id: str
-    package_id: Optional[str]
-    url: str
-    format: str
-    description: str
-    hash: str
-    position: int
-    name: str
-    resource_type: str
-    mimetype: str
-    size: int
-    created: datetime.datetime
-    last_modified: datetime.datetime
-    metadata_modified: datetime.datetime
-    cache_url: str
-    cache_last_update: datetime.datetime
-    url_type: str
+    id: Mapped[str]
+    package_id: Mapped[Optional[str]]
+    url: Mapped[str]
+    format: Mapped[str]
+    description: Mapped[str]
+    hash: Mapped[str]
+    position: Mapped[int]
+    name: Mapped[str]
+    resource_type: Mapped[str]
+    mimetype: Mapped[str]
+    size: Mapped[int]
+    created: Mapped[datetime.datetime]
+    last_modified: Mapped[datetime.datetime]
+    metadata_modified: Mapped[datetime.datetime]
+    cache_url: Mapped[str]
+    cache_last_update: Mapped[datetime.datetime]
+    url_type: Mapped[str]
     extras: dict[str, Any]
-    state: str
+    state: Mapped[str]
 
     extra_columns: ClassVar[Optional[list[str]]] = None
 
-    package: Package
+    package: Mapped[Package]
 
     url_changed: Optional[bool]
 
@@ -136,7 +140,7 @@ class Resource(core.StatefulObjectMixin,
         if not reference:
             return None
 
-        resource = meta.Session.query(cls).get(reference)
+        resource = meta.Session.get(cls, reference)
         if resource is None:
             resource = cls.by_name(reference)
         return resource
@@ -152,7 +156,10 @@ class Resource(core.StatefulObjectMixin,
     @classmethod
     def get_extra_columns(cls) -> list[str]:
         if cls.extra_columns is None:
-            cls.extra_columns = config.get("ckan.extra_resource_fields")
+            cls.extra_columns = cast(
+                "list[str]",
+                config["ckan.extra_resource_fields"]
+            )
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         assert cls.extra_columns is not None
@@ -164,8 +171,8 @@ class Resource(core.StatefulObjectMixin,
 
 ## Mappers
 
-meta.mapper(Resource, resource_table, properties={
-    'package': orm.relation(
+meta.registry.map_imperatively(Resource, resource_table, properties={
+    'package': orm.relationship(
         Package,
         # all resources including deleted
         # formally package_resources_all

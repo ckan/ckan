@@ -9,7 +9,7 @@ import warnings
 import traceback
 
 import xml.dom.minidom
-from typing import Collection, Any, Optional, Type, cast, overload
+from typing import Collection, Any, Optional, Type, overload
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -22,6 +22,7 @@ from ckan.types import Context
 
 from ckan.lib.search.common import (
     make_connection, SearchIndexError, SearchQueryError,  # type: ignore
+    SolrConnectionError, # type: ignore
     SearchError, is_available, SolrSettings, config
 )
 from ckan.lib.search.index import (
@@ -56,7 +57,7 @@ def text_traceback() -> str:
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -164,13 +165,12 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
         if operation != domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(
                 entity.__class__.__name__,
-                logic.get_action('package_show')(cast(
-                    Context, {
-                        'model': model,
+                logic.get_action('package_show')({
                         'ignore_auth': True,
                         'validate': False,
-                        'use_cache': False
-                    }), {'id': entity.id}), operation)
+                        'use_cache': False,
+                        'model': model,
+                    }, {'id': entity.id}), operation)
         elif operation == domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__,
                                   {'id': entity.id}, operation)
@@ -197,12 +197,11 @@ def rebuild(package_id: Optional[str] = None,
     log.info("Rebuilding search index...")
 
     package_index = index_for(model.Package)
-    context = cast(Context, {
-        'model': model,
+    context: Context = {
         'ignore_auth': True,
         'validate': False,
         'use_cache': False
-    })
+    }
 
     if package_id:
         pkg_dict = logic.get_action('package_show')(context, {
@@ -287,7 +286,7 @@ def check() -> None:
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
-        pkg = model.Session.query(model.Package).get(pkg_id)
+        pkg = model.Session.get(model.Package, pkg_id)
         assert pkg
         print((pkg.metadata_modified.strftime('%Y-%m-%d'), pkg.name))
 

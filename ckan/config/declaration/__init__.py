@@ -70,6 +70,9 @@ class Declaration:
     def __getitem__(self, key: Key) -> Option[Any]:
         return self._options[key]
 
+    def __len__(self) -> int:
+        return len(self._options)
+
     def get(self, key: Union[str, Key]) -> Optional[Option[Any]]:
         """Return the declaration of config option or `None`.
         """
@@ -112,9 +115,7 @@ class Declaration:
 
         self._reset()
         self.load_core_declaration()
-        for plugin in reversed(
-            list(p.PluginImplementations(p.IConfigDeclaration))
-        ):
+        for plugin in p.PluginImplementations(p.IConfigDeclaration):
             plugin.declare_config_options(self, Key())
         self._seal()
 
@@ -233,10 +234,11 @@ class Declaration:
         """
         return serializer(self, "validation_schema")
 
-    def into_docs(self) -> str:
-        """Serialize declaration into reST documentation.
+    def into_docs(self, fmt: str = "rst") -> str:
         """
-        return serializer(self, "rst")
+        Serialize declaration into one of the supported documentation formats.
+        """
+        return serializer(self, fmt)
 
     def describe(self, fmt: str) -> str:
         """Describe definition of options in the given format.

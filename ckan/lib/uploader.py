@@ -211,7 +211,8 @@ class Upload(object):
         if not mimetypes and not types:
             return
 
-        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        # 2KB required for detecting xlsx mimetype
+        actual = magic.from_buffer(self.upload_file.read(2048), mime=True)
         self.upload_file.seek(0, os.SEEK_SET)
         err: ErrorDict = {
             self.file_field: [f"Unsupported upload type: {actual}"]
@@ -287,14 +288,24 @@ class ResourceUpload(object):
             resource['url_type'] = ''
 
     def get_directory(self, id: str) -> str:
-        assert self.storage_path
-        directory = os.path.join(self.storage_path,
-                                 id[0:3], id[3:6])
+        if self.storage_path is None:
+            raise TypeError("storage_path is not defined")
+
+        real_storage = os.path.realpath(self.storage_path)
+        directory = os.path.join(real_storage, id[0:3], id[3:6])
+        if directory != os.path.realpath(directory):
+            raise logic.ValidationError({
+                'upload': ['Invalid storage directory']
+            })
         return directory
 
     def get_path(self, id: str) -> str:
         directory = self.get_directory(id)
         filepath = os.path.join(directory, id[6:])
+
+        if filepath != os.path.realpath(filepath):
+            raise logic.ValidationError({'upload': ['Invalid storage path']})
+
         return filepath
 
     def upload(self, id: str, max_size: int = 10) -> None:

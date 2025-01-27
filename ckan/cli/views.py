@@ -17,6 +17,7 @@ from ckan.lib.datapreview import (
     get_view_plugins,
     get_default_view_plugins,
 )
+from ckan.plugins import plugin_loaded
 from ckan.types import Context
 
 
@@ -48,13 +49,10 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
 
     """
 
-    datastore_enabled = (
-        u"datastore" in config[u"ckan.plugins"].split()
-    )
-
     flask_app = ctx.meta['flask_app']
+    datastore_active = plugin_loaded("datastore")
     with flask_app.test_request_context():
-        loaded_view_plugins = _get_view_plugins(types, datastore_enabled)
+        loaded_view_plugins = _get_view_plugins(types, datastore_active)
     if loaded_view_plugins is None:
         return
     site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
@@ -63,7 +61,8 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
     page = 1
     while True:
         query = _search_datasets(
-            page, loaded_view_plugins, dataset, search, no_default_filters
+            context, page, loaded_view_plugins,
+            dataset, search, no_default_filters
         )
         if query is None:
             return
@@ -224,6 +223,7 @@ def _get_view_plugins(view_plugin_types: list[str],
 
 
 def _search_datasets(
+        context: Context,
         page: int = 1, view_types: Optional[list[str]] = None,
         dataset: Optional[list[str]] = None, search: str = u"",
         no_default_filters: bool = False
@@ -264,12 +264,12 @@ def _search_datasets(
 
     elif not no_default_filters:
 
-        _add_default_filters(search_data_dict, view_types)
+        search_data_dict = _add_default_filters(search_data_dict, view_types)
 
     if not search_data_dict.get(u"q"):
         search_data_dict[u"q"] = u"*:*"
 
-    query = logic.get_action(u"package_search")({}, search_data_dict)
+    query = logic.get_action(u"package_search")(context, search_data_dict)
 
     return query
 
@@ -314,12 +314,7 @@ def _add_default_filters(search_data_dict: dict[str, Any],
         elif view_type == u"pdf_view":
             filter_formats.extend([u"pdf", u"PDF"])
 
-        elif view_type in [
-            u"recline_view",
-            u"recline_grid_view",
-            u"recline_graph_view",
-            u"recline_map_view",
-        ]:
+        elif view_type == "datatables_view":
 
             if datapusher_formats[0] in filter_formats:
                 continue

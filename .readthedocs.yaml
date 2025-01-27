@@ -1,18 +1,27 @@
+# .readthedocs.yaml
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
 # Required
 version: 2
 
-# Build documentation in the doc/ directory with Sphinx
-sphinx:
-   configuration: doc/conf.py
+# Set the version of Python and other tools you might need
+build:
+  os: ubuntu-22.04
+  apt_packages:
+    - libmagic-dev
+    - libmagic1
+  tools:
+    python: "3.10"
+  jobs:
+    post_checkout:
+      - git fetch --tags || true
 
-# Additional formats for download
+sphinx:
+  configuration: doc/conf.py
+
 formats: all
 
-# Optionally set the version of Python and requirements required to build your docs
 python:
-   version: 3.7
    install:
    - requirements: requirements-docs.txt

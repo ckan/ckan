@@ -1,0 +1,59 @@
+{#
+Renders a card for a group. This should be used in a list.
+
+group - A group dict.
+
+Example:
+
+    <ul class="group-list">
+      {% for group in groups %}
+        {% snippet "group/snippets/group_item.html", group=group %}
+      {% endfor %}
+    </ul>
+#}
+
+{% set type = group.type or 'group' %}
+{% set url = h.url_for(type ~ '.read', id=group.name) %}
+{% block item %}
+<li class="groups-cards">
+  {% block link %}
+  {% set view_label = _('Open details page for {group_name}').format(group_name=group.display_name) %}
+    <a href="{{ url }}" aria-label="{{ view_label }}" data-bs-title="{{ view_label }}" data-bs-toggle="tooltip">
+  {% block item_inner %}
+  {% block image %}
+    <div class="module-image">
+      <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.svg') }}" class="img-fluid" alt="{{ group.name }}" />
+    </div>
+  {% endblock %}
+  {% block title %}
+    <h3>{{ group.display_name }}</h3>
+  {% endblock %}
+  {% block datasets %}
+    {% if group.package_count %}
+      <span class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</span>
+    {% else %}
+      <span class="count">{{ _('0 Datasets') }}</span>
+    {% endif %}
+  {% endblock %}
+  {% block members %}
+    {% if 'member_count' in group and group.member_count %}
+      <strong class="count">{{ ungettext('{num} Member', '{num} Members', group.member_count).format(num=group.member_count) }}</strong>
+    {% elif 'member_count' in group %}
+      <span class="count">{{ _('0 Members') }}</span>
+    {% else %}
+    {% endif %}
+  {% endblock %}
+  {% block capacity %}
+    {% if show_capacity and group.capacity %}
+    <p><span class="label label-default">{{ h.roles_translated().get(group.capacity, group.capacity) }}</span></p>
+    {% endif %}
+  {% endblock %}
+  {% endblock %}
+</a>
+  {% if group.user_member %}
+    {% set remove_label = _('Unlink {name} from the dataset').format(name=group.display_name) %}
+    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm" aria-label="{{ remove_label }}" data-bs-title="{{ remove_label }}" data-bs-toggle="tooltip" />
+  {% endif %}
+{% endblock %}
+</li>
+{% endblock %}

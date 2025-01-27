@@ -23,9 +23,10 @@ import ckan.lib.signals as signals
 
 from ckan.common import _, g
 from ckan.types import (
-    Action, ChainedAction, Model,
+    Action, ChainedAction,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
-    Schema, Validator, ValidatorFactory)
+    FlattenKey, Schema, Validator, ValidatorFactory
+)
 
 Decorated = TypeVar("Decorated")
 
@@ -137,6 +138,8 @@ class ValidationError(ActionError):
                 elif key == 'tags':
                     assert isinstance(error, list)
                     summary[_('Tags')] = error[0]
+                elif isinstance(error, str):
+                    summary[_(prettify(key))] = error
                 else:
                     assert isinstance(error, list)
                     summary[_(prettify(key))] = error[0]
@@ -255,7 +258,35 @@ def tuplize_dict(data_dict: dict[str, Any]) -> FlattenDataDict:
                 except ValueError:
                     raise df.DataError('Bad key')
         tuplized_dict[tuple(key_list)] = value
-    return tuplized_dict
+
+    # Sanitize key indexes to make sure they are sequential
+    seq_tuplized_dict: FlattenDataDict = {}
+    # sequential field indexes grouped by common prefix
+    groups: dict[FlattenKey, dict[FlattenKey, int]] = defaultdict(dict)
+    for key in sorted(tuplized_dict.keys()):
+        new_key = key
+
+        # iterate over even(numeric) parts of the key
+        for idx in range(1, len(key), 2):
+            # narrow down scope by common prefix
+            group = groups[key[:idx]]
+
+            # if the identifier(i.e `(extra, 123)`, `(resource, 9)`) is met for
+            # the first time, generate for it next number in the index
+            # sequence. Index of the latest added item is always equals to the
+            # number of unique identifiers minus one(because list indexation
+            # starts from 0 in Python). If identifier already present(i.e, we
+            # process `(extra, 10, VALUE)` after processing `(extra, 10,
+            # KEY)`), reuse sequential index of this identifier
+            seq_index = group.setdefault(key[idx-1:idx+1], len(group))
+
+            # replace the currently processed key segment with computed
+            # sequential index
+            new_key = new_key[:idx] + (seq_index,) + new_key[idx+1:]
+
+        seq_tuplized_dict[new_key] = tuplized_dict[key]
+
+    return seq_tuplized_dict
 
 
 def untuplize_dict(tuplized_dict: FlattenDataDict) -> dict[str, Any]:
@@ -276,7 +307,7 @@ def flatten_to_string_key(dict: dict[str, Any]) -> dict[str, Any]:
 def _prepopulate_context(context: Optional[Context]) -> Context:
     if context is None:
         context = {}
-    context.setdefault('model', cast(Model, model))
+    context.setdefault('model', model)
     context.setdefault('session', model.Session)
 
     try:
@@ -347,11 +378,12 @@ def check_access(action: str,
         context['auth_user_obj'] = None
 
     context = _prepopulate_context(context)
-    if not context.get('ignore_auth'):
-        if not context.get('__auth_user_obj_checked'):
-            if context["user"] and not context["auth_user_obj"]:
-                context['auth_user_obj'] = model.User.get(context['user'])
-            context['__auth_user_obj_checked'] = True
+
+    if not context.get('__auth_user_obj_checked'):
+        if context["user"] and not context["auth_user_obj"]:
+            context['auth_user_obj'] = model.User.get(context['user'])
+        context['__auth_user_obj_checked'] = True
+
     try:
         logic_authorization = authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
@@ -523,6 +555,7 @@ def get_action(action: str) -> Action:
     # wrap the functions
     for action_name, _action in _actions.items():
         def make_wrapped(_action: Action, action_name: str):
+            @functools.wraps(_action)
             def wrapped(context: Optional[Context] = None,
                         data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
@@ -568,8 +601,6 @@ def get_action(action: str) -> Action:
             return wrapped
 
         fn = make_wrapped(_action, action_name)
-        # we need to mirror the docstring
-        fn.__doc__ = _action.__doc__
         # we need to retain the side effect free behaviour
         if getattr(_action, 'side_effect_free', False):
             # type_ignore_reason: custom attribute
@@ -633,8 +664,23 @@ def get_or_bust(
 
 def validate(schema_func: Callable[[], Schema],
              can_skip_validator: bool = False) -> Callable[[Action], Action]:
-    ''' A decorator that validates an action function against a given schema
-    '''
+    """A decorator that validates an action function against a given schema.
+
+    Example::
+
+        def schema_func():
+            return {
+                "a": [get_validator("int_validator")],
+                "__extras": [get_validator("ignore")]
+            }
+
+        @validate_action_data(schema_function)
+        def my_action(context, data_dict):
+            return data_dict
+
+        data = {"a": "1", "b": "2"}
+        assert my_action({}, data) == {"a": 1}
+    """
     def action_decorator(action: Action) -> Action:
         @functools.wraps(action)
         def wrapper(context: Context, data_dict: DataDict):
@@ -807,7 +853,7 @@ def get_validator(
         _validators_cache.update(converters)
         _validators_cache.update({'OneOf': _validators_cache['one_of']})
 
-        for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
+        for plugin in p.PluginImplementations(p.IValidators):
             for name, fn in plugin.get_validators().items():
                 log.debug('Validator function {0} from plugin {1} was inserted'
                           .format(name, plugin.name))
@@ -847,32 +893,30 @@ def guard_against_duplicated_email(email: str):
     try:
         yield
     except exc.IntegrityError as e:
-        if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
+        if cast(Any, e.orig).pgcode == _PG_ERR_CODE["unique_violation"]:
             model.Session.rollback()
-            raise ValidationError(
-                cast(
-                    ErrorDict,
-                    {
-                        "email": [
-                            "The email address '{email}' belongs to "
-                            "a registered user.".format(email=email)
-                        ]
-                    },
-                )
-            )
+            raise ValidationError({
+                "email": [
+                    "The email address '{email}' belongs to "
+                    "a registered user.".format(email=email)
+                ]
+            })
         raise
 
 
 def fresh_context(
     context: Context,
+    **kwargs: Any,
 ) -> Context:
     """ Copy just the minimum fields into a new context
         for cases in which we reuse the context and
         we want a clean version with minimum fields """
     new_context = {
         k: context[k] for k in (
-            'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
+            'model', 'session', 'user', 'auth_user_obj',
+            'ignore_auth', 'defer_commit',
         ) if k in context
     }
+    new_context.update(kwargs)
     new_context = cast(Context, new_context)
     return new_context

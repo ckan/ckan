@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 from ckan.common import CKANConfig
-from typing import Any, cast
-from ckan.types import Context, Schema, Validator, ValidatorFactory
+from typing import Any, cast, List
+from ckan.types import (
+    Context, Schema, Validator, ValidatorFactory, FlattenKey, FlattenErrorDict,
+    FlattenDataDict,
+)
 import logging
 
 import ckan.plugins as plugins
@@ -46,8 +49,18 @@ def country_codes_helper():
         return None
 
 
-class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
-        tk.DefaultDatasetForm):
+def draft_todo_validator(
+        key: FlattenKey, data: FlattenDataDict,
+        errors: FlattenErrorDict, context: Context) -> None:
+    '''Error if the dataset state is not set to draft'''
+    if not data.get(('state',), '').startswith('draft'):
+        errors[key].append('must be blank when published')
+
+
+class ExampleIDatasetFormPlugin(
+        tk.DefaultDatasetForm,
+        plugins.SingletonPlugin,
+):
     '''An example IDatasetForm CKAN plugin.
 
     Uses a tag vocabulary to add a custom metadata field to datasets.
@@ -103,7 +116,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
                 })
         # Add our custom_resource_text metadata field to the schema
         cast(Schema, schema['resources']).update({
-                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ],
+                'draft_only_todo': [
+                    tk.get_validator('ignore_empty'), draft_todo_validator],
                 })
         return schema
 
@@ -148,6 +163,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
                 'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
             })
         return schema
+
+    def resource_validation_dependencies(self, package_type: str) -> List[str]:
+        return ['state']
 
     # These methods just record how many times they're called, for testing
     # purposes.

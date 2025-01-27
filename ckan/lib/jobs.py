@@ -20,11 +20,9 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Iterable, Optional, cast
-from redis import Redis
+from typing import Any, Union, Callable, Iterable, Optional, cast
 
 import rq
-from rq.connections import push_connection
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 from rq.utils import ensure_list
@@ -38,20 +36,10 @@ import ckan.plugins as plugins
 log = logging.getLogger(__name__)
 
 DEFAULT_QUEUE_NAME = u'default'
+DEFAULT_JOB_LIST_LIMIT = 200
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
 _queues: dict[str, rq.Queue] = {}
-
-
-def _connect() -> Redis:  # type: ignore
-    u'''
-    Connect to Redis and tell RQ about it.
-
-    Workaround for https://github.com/nvie/rq/issues/479.
-    '''
-    conn = connect_to_redis()
-    push_connection(conn)
-    return conn
 
 
 def _get_queue_name_prefix() -> str:
@@ -94,7 +82,7 @@ def get_all_queues() -> list[rq.Queue]:
 
     .. seealso:: :py:func:`get_queue`
     '''
-    redis_conn = _connect()
+    redis_conn = connect_to_redis()
     prefix = _get_queue_name_prefix()
     return [q for q in rq.Queue.all(connection=redis_conn) if
             q.name.startswith(prefix)]
@@ -120,13 +108,13 @@ def get_queue(name: str = DEFAULT_QUEUE_NAME) -> rq.Queue:
         return _queues[fullname]
     except KeyError:
         log.debug(u'Initializing background job queue "{}"'.format(name))
-        redis_conn = _connect()
+        redis_conn = connect_to_redis()
         queue = _queues[fullname] = rq.Queue(fullname, connection=redis_conn)
         return queue
 
 
 def enqueue(fn: Callable[..., Any],
-            args: Optional[Iterable[Any]] = None,
+            args: Optional[Union[tuple[Any], list[Any], None]] = None,
             kwargs: Optional[dict[str, Any]] = None,
             title: Optional[str] = None,
             queue: str = DEFAULT_QUEUE_NAME,
@@ -166,7 +154,9 @@ def enqueue(fn: Callable[..., Any],
 
     job = get_queue(queue).enqueue_call(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
-    job.meta[u'title'] = title
+    if not job.meta:
+        job.meta = {}
+    job.meta["title"] = title
     job.save()
     msg = u'Added background job {}'.format(job.id)
     if title:
@@ -188,7 +178,7 @@ def job_from_id(id: str) -> Job:
     :raises KeyError: if no job with that ID exists.
     '''
     try:
-        return Job.fetch(id, connection=_connect())
+        return Job.fetch(id, connection=connect_to_redis())
     except NoSuchJobError:
         raise KeyError(u'There is no job with ID "{}".'.format(id))
 
@@ -207,11 +197,13 @@ def dictize_job(job: Job) -> dict[str, Any]:
     '''
     assert job.created_at
     assert job.origin is not None
+    if not job.meta:
+        job.meta = {}
     return {
-        u'id': job.id,
-        u'title': job.meta.get(u'title'),
-        u'created': job.created_at.strftime(u'%Y-%m-%dT%H:%M:%S'),
-        u'queue': remove_queue_name_prefix(job.origin),
+        "id": job.id,
+        "title": job.meta.get("title"),
+        "created": job.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
+        "queue": remove_queue_name_prefix(job.origin),
     }
 
 
@@ -283,8 +275,10 @@ class Worker(rq.Worker):
         meta.engine.dispose()
 
         # The original implementation performs the actual fork
-        queue = remove_queue_name_prefix(cast(str, job.origin))
+        queue = remove_queue_name_prefix(job.origin)
 
+        if not job.meta:
+            job.meta = {}
         if job.meta.get('title'):
             job_id = '{} ({})'.format(job.id, job.meta['title'])
         else:

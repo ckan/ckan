@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from typing import cast
 from ckan.types import Context, DataDict
 from logging import getLogger
 
@@ -8,7 +7,6 @@ import requests
 from urllib.parse import urlsplit
 from flask import Blueprint, make_response
 
-import ckan.model as model
 import ckan.logic as logic
 from ckan.common import config, _
 from ckan.plugins.toolkit import (abort, get_action, c)
@@ -41,17 +39,24 @@ def proxy_resource(context: Context, data_dict: DataDict):
 
     timeout = config.get('ckan.resource_proxy.timeout')
     max_file_size = config.get(u'ckan.resource_proxy.max_file_size')
+    proxy = config.get('ckan.download_proxy')
+    proxies = {'http': proxy, 'https': proxy} if proxy else None
     response = make_response()
     try:
         # first we try a HEAD request which may not be supported
         did_get = False
-        r = requests.head(url, timeout=timeout)
+        r = requests.head(url, timeout=timeout, proxies=proxies)
         # Servers can refuse HEAD requests. 405 is the appropriate
         # response, but 400 with the invalid method mentioned in the
         # text, or a 403 (forbidden) status is also possible (#2412,
         # #2530)
         if r.status_code in (400, 403, 405):
-            r = requests.get(url, timeout=timeout, stream=True)
+            r = requests.get(
+                url,
+                timeout=timeout,
+                stream=True,
+                proxies=proxies
+            )
             did_get = True
         r.raise_for_status()
 
@@ -66,10 +71,14 @@ def proxy_resource(context: Context, data_dict: DataDict):
             )
 
         if not did_get:
-            r = requests.get(url, timeout=timeout, stream=True)
+            r = requests.get(
+                url,
+                timeout=timeout,
+                stream=True,
+                proxies=proxies,
+            )
 
         response.headers[u'content-type'] = r.headers[u'content-type']
-        response.charset = r.encoding or "utf-8"
 
         length = 0
         chunk_size = config.get(u'ckan.resource_proxy.chunk_size')
@@ -86,9 +95,11 @@ def proxy_resource(context: Context, data_dict: DataDict):
                 )
 
     except requests.exceptions.HTTPError as error:
-        details = u'Could not proxy resource. Server responded with %s %s' % (
-            error.response.status_code, error.response.reason
-        )
+        details = 'Could not proxy resource.'
+        if error.response is not None:
+            details += ' Server responded with %s %s' % (
+                error.response.status_code, error.response.reason
+            )
         return abort(409, detail=details)
     except requests.exceptions.ConnectionError as error:
         details = u'''Could not proxy resource because a
@@ -102,11 +113,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
 
 def proxy_view(id: str, resource_id: str):
     data_dict = {u'resource_id': resource_id}
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': c.user
-    })
+    context: Context = {'user': c.user}
     return proxy_resource(context, data_dict)
 
 

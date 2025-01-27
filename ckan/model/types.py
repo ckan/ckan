@@ -2,7 +2,7 @@
 
 import copy
 import uuid
-from typing import Any
+from typing import Any, cast
 
 import simplejson as json
 
@@ -27,7 +27,7 @@ class UuidType(types.TypeDecorator):  # type: ignore
         return value
 
     def copy(self, **kw: Any):
-        return UuidType(self.impl.length)
+        return UuidType(cast(Any, self.impl).length)
 
     @classmethod
     def default(cls):
@@ -42,6 +42,8 @@ class JsonType(types.TypeDecorator):  # type: ignore
     set any default values you expect.
     '''
     impl = types.UnicodeText
+
+    cache_ok = False
 
     def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"
@@ -58,7 +60,7 @@ class JsonType(types.TypeDecorator):  # type: ignore
         return json.loads(value)
 
     def copy(self, **kw: Any):
-        return JsonType(self.impl.length)
+        return JsonType(cast(Any, self.impl).length)
 
     def is_mutable(self):
         return True
@@ -71,6 +73,8 @@ class JsonDictType(JsonType):
 
     impl = types.UnicodeText
 
+    cache_ok = False
+
     def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"
         if value is None or value == {}:
@@ -82,4 +86,4 @@ class JsonDictType(JsonType):
         return str(json.dumps(value, ensure_ascii=False))
 
     def copy(self, **kw: Any):
-        return JsonDictType(self.impl.length)
+        return JsonDictType(cast(Any, self.impl).length)

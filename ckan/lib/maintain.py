@@ -3,6 +3,7 @@
 ''' This module contains code that helps in maintaining the Ckan codebase. '''
 from __future__ import annotations
 
+import functools
 import inspect
 import time
 import logging
@@ -41,6 +42,7 @@ def deprecated(
                             'It must include the word `deprecated`.'
                             % (fn.__name__, fn.__module__))
 
+        @functools.wraps(fn)
         def wrapped(*args: P.args, **kw: P.kwargs) -> RT:
             since_msg = f'since CKAN v{since}' if since else ''
             msg = (

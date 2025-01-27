@@ -6,7 +6,6 @@ activity:
       - base/main
   contents:
     - dashboard.js
-    - activity-stream.js
 
 activity-css:
   output: ckanext-activity/%(version)s_activity.css

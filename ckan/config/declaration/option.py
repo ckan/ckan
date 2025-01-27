@@ -5,13 +5,14 @@
 from __future__ import annotations
 
 import enum
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar, cast
 
 from typing_extensions import Self
 
-from ckan.types import Validator
+from ckan.types import Validator, ValidatorFactory
 
 T = TypeVar("T")
+_sentinel = object()
 
 
 class SectionMixin:
@@ -43,7 +44,8 @@ class Flag(enum.Flag):
 
     required: this option cannot be missing/empty. Add such flag to the option
     only if CKAN application won't even start without them and there is no
-    sensible default.
+    sensible default. If option does not have ``not_empty`` validator, it will
+    be added before all other validators.
 
     editable: this option is runtime editable. Technically, every option can be
     modified. This flag means that there is an expectation that option will be
@@ -201,13 +203,16 @@ class Option(SectionMixin, Generic[T]):
         self.default = default
         self.legacy_key = None
 
-    def str_value(self) -> str:
-        """Convert option's default value into the string.
+    def str_value(self, value: T | object = _sentinel) -> str:
+        """Convert value into the string using option's settings.
 
-        If the option has `as_list` validator and default value is represented
-        by the Python's `list` object, result is a space-separated list of all
-        the members of the value. In other cases this method just does naive
-        string conversion.
+        If `value` argument is not present, convert the default value of the
+        option into a string.
+
+        If the option has `as_list` validator and the value is represented by
+        the Python's `list` object, result is a space-separated list of all the
+        members of the value. In other cases this method just does naive string
+        conversion.
 
         If validators are doing complex transformations, for example string ID
         turns into :py:class:`~ckan.model.User` object, this method won't
@@ -224,9 +229,15 @@ class Option(SectionMixin, Generic[T]):
 
         """
         as_list = "as_list" in self.get_validators()
-        if isinstance(self.default, list) and as_list:
-            return " ".join(map(str, self.default))
-        return str(self.default) if self.has_default() else ""
+        v = self.default if value is _sentinel else value
+
+        if isinstance(v, list) and as_list:
+            return " ".join(map(str, v))
+
+        if self.has_default() or value is not _sentinel:
+            return str(v)
+
+        return ""
 
     def set_flag(self, flag: Flag) -> Self:
         """Enable specified flag.
@@ -319,7 +330,11 @@ class Option(SectionMixin, Generic[T]):
     def get_validators(self) -> str:
         """Return the string with current validators.
         """
-        return self.validators
+        validators = self.validators
+        if self.has_flag(Flag.required) and "not_empty" not in validators:
+            validators = f"not_empty {validators}"
+
+        return validators
 
     def experimental(self) -> Self:
         """Enable experimental-flag for value.
@@ -351,24 +366,40 @@ class Option(SectionMixin, Generic[T]):
 
 
 # taken from ckanext-scheming
-# (https://github.com/ckan/ckanext-scheming/blob/release-2.1.0/ckanext/scheming/validation.py#L407-L426).
+# (https://github.com/ckan/ckanext-scheming/blob/master/ckanext/scheming/validation.py#L332).
 # This syntax is familiar for everyone and we can switch to the original
 # when scheming become a part of core.
 def _validators_from_string(s: str) -> list[Validator]:
     """
     convert a schema validators string to a list of validators
-    e.g. "if_empty_same_as(name) unicode" becomes:
-    [if_empty_same_as("name"), unicode]
+
+    e.g. "if_empty_same_as(name) unicode_safe" becomes:
+    [if_empty_same_as("name"), unicode_safe]
     """
+    import ast
     from ckan.logic import get_validator
 
     out = []
     parts = s.split()
+
     for p in parts:
-        if "(" in p and p[-1] == ")":
-            name, args = p.split("(", 1)
-            args: Any = args[:-1].split(",")  # trim trailing ')', break up
-            v = get_validator(name)(*args)
+        if '(' in p and p[-1] == ')':
+            name, args = p.split('(', 1)
+            args = args[:-1]  # trim trailing ')'
+            try:
+                parsed_args = ast.literal_eval(args)
+                if not isinstance(parsed_args, tuple) or not parsed_args:
+                    # it's a signle argument. `not parsed_args` means that this
+                    # single argument is an empty tuple,
+                    # for example: "default(())"
+
+                    parsed_args = (parsed_args,)
+
+            except (ValueError, TypeError, SyntaxError, MemoryError):
+                parsed_args = args.split(',')
+
+            factory = cast(ValidatorFactory, get_validator(name))
+            v = factory(*parsed_args)
         else:
             v = get_validator(p)
         out.append(v)

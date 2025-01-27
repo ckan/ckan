@@ -6,19 +6,20 @@ extend CKAN.
 '''
 from __future__ import annotations
 
-from typing import (Any, Callable, Iterable, Mapping, Optional, Sequence,
-                    TYPE_CHECKING, Type, Union)
-
-from pyutilib.component.core import Interface as _pca_Interface
+from typing import (
+    Any, Callable, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Union, List,
+)
 
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
-from ckan.model.user import User
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
     PUploader, PResourceUploader, Schema, SignalMapping, Validator,
     CKANApp)
+
+from .base import Interface, Plugin
 
 if TYPE_CHECKING:
     import click
@@ -28,7 +29,6 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
-    from .core import SingletonPlugin
 
 
 __all__ = [
@@ -64,32 +64,6 @@ __all__ = [
     u'IClick',
     u'ISignal',
 ]
-
-
-class Interface(_pca_Interface):
-    u'''Base class for custom interfaces.
-
-    Marker base class for extension point interfaces.  This class
-    is not intended to be instantiated.  Instead, the declaration
-    of subclasses of Interface are recorded, and these
-    classes are used to define extension points.
-    '''
-
-    @classmethod
-    def provided_by(cls, instance: "SingletonPlugin") -> bool:
-        u'''Check that the object is an instance of the class that implements
-        the interface.
-        '''
-        return cls.implemented_by(instance.__class__)
-
-    @classmethod
-    def implemented_by(cls, other: Type["SingletonPlugin"]) -> bool:
-        u'''Check whether the class implements the current interface.
-        '''
-        try:
-            return bool(cls in other._implements)
-        except AttributeError:
-            return False
 
 
 class IMiddleware(Interface):
@@ -270,7 +244,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture-o',
+             'icon': 'image',
              'always_available': True,
              'iframed': False,
              }
@@ -278,7 +252,7 @@ class IResourceView(Interface):
         :returns: a dictionary with the view type configuration
         :rtype: dict
 
-        .. _Font Awesome: http://fortawesome.github.io/Font-Awesome/3.2.1/icons
+        .. _Font Awesome: https://fontawesome.com/search
         '''
         return {u'name': self.__class__.__name__}
 
@@ -489,6 +463,11 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been updated.
+
+        Note that bulk dataset update actions (`bulk_update_private`,
+        `bulk_update_public`) will bypass this callback. See
+        ``ckan.plugins.toolkit.chained_action`` to wrap those actions
+        if required.
         '''
         pass
 
@@ -497,6 +476,10 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the data dict (typically containing
         just the dataset id) after the dataset has been deleted.
+
+        Note that the `bulk_update_delete` action will bypass this
+        callback. See ``ckan.plugins.toolkit.chained_action`` to wrap
+        that action if required.
         '''
         pass
 
@@ -626,6 +609,10 @@ class IResourceController(Interface):
             dictionary ``url_type`` which is set to ``upload`` when the
             resource file is uploaded instead of linked.
         :type resource: dictionary
+
+        Note that the datastore will bypass this callback when updating
+        the ``datastore_active`` flag on a resource that has been added
+        to the datastore.
         '''
         pass
 
@@ -682,25 +669,25 @@ class IPluginObserver(Interface):
     Hook into the plugin loading mechanism itself
     '''
 
-    def before_load(self, plugin: 'SingletonPlugin') -> None:
+    def before_load(self, plugin: Plugin) -> None:
         u'''
         Called before a plugin is loaded.
-        This method is passed the plugin class.
+        This method is passed the instantiated service object.
         '''
 
-    def after_load(self, service: Any) -> None:
+    def after_load(self, service: Plugin) -> None:
         u'''
         Called after a plugin has been loaded.
         This method is passed the instantiated service object.
         '''
 
-    def before_unload(self, plugin: 'SingletonPlugin') -> None:
+    def before_unload(self, plugin: Plugin) -> None:
         u'''
         Called before a plugin is loaded.
-        This method is passed the plugin class.
+        This method is passed the instantiated service object.
         '''
 
-    def after_unload(self, service: Any) -> None:
+    def after_unload(self, service: Plugin) -> None:
         u'''
         Called after a plugin has been unloaded.
         This method is passed the instantiated service object.
@@ -742,6 +729,10 @@ class IConfigDeclaration(Interface):
     config options much simpler for extension consumers.
 
     """
+
+    # plugins from the beginning of the plugin list can declare missing options
+    # or override existing.
+    _reverse_iteration_order = True
 
     def declare_config_options(self, declaration: Declaration, key: Key):
         """Register extra config options.
@@ -789,6 +780,10 @@ class IConfigurer(Interface):
 
     See also :py:class:`IConfigurable`.
     '''
+
+    # plugins from the beginning of the plugin list can alter configuration of
+    # plugins from the end of the list
+    _reverse_iteration_order = True
 
     def update_config(self, config: 'CKANConfig') -> None:
         u'''
@@ -861,6 +856,11 @@ class IValidators(Interface):
     Add extra validators to be returned by
     :py:func:`ckan.plugins.toolkit.get_validator`.
     '''
+
+    # plugins from the beginning of the plugin list can override validators
+    # registered by plugins from the end of the list
+    _reverse_iteration_order = True
+
     def get_validators(self) -> dict[str, Validator]:
         u'''Return the validator functions provided by this plugin.
 
@@ -1308,6 +1308,18 @@ class IDatasetForm(Interface):
         '''
         return blueprint
 
+    def resource_validation_dependencies(
+            self, package_type: str) -> List[str]:
+        '''
+        Return a list of dataset field names that affect validation of
+        resource fields.
+
+        package_update and related actions skip re-validating unchanged
+        resources unless one of the resource validation dependencies
+        fields returned here has changed.
+        '''
+        return []
+
 
 class IGroupForm(Interface):
     u'''
@@ -1336,6 +1348,8 @@ class IGroupForm(Interface):
     default behaviours for the 5 method hooks.
 
     '''
+
+    is_organization = False
 
     # These methods control when the plugin is delegated to ###################
 
@@ -1375,6 +1389,57 @@ class IGroupForm(Interface):
         (`group`).
         '''
         return 'group'
+
+    def create_group_schema(self) -> Schema:
+        '''Return the schema for validating new group or organization dicts.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when creating new groups,
+        before entering that data into the database.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
+    def update_group_schema(self) -> Schema:
+        '''Return the schema for validating updated group or organization
+        dicts.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when updating groups, before
+        entering that data into the database.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
+    def show_group_schema(self) -> Schema:
+        '''
+        Return a schema to validate groups or organizations before they're
+        shown to the user.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from the database before it is returned to the user via the API or
+        passed to a template for rendering.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
 
     # End of control methods ##################################################
 
@@ -1697,13 +1762,16 @@ class IAuthenticator(Interface):
         return (status_code, detail, headers, comment)
 
     def authenticate(
-        self, identity: 'Mapping[str, Any]'
-    ) -> Optional["User"]:
+        self, identity: dict[str, Any]
+    ) -> model.User | model.AnonymousUser | None:
         """Called before the authentication starts
         (that is after clicking the login button)
 
-        Plugins should return a user object if the authentication was
-        successful, or ``None``` otherwise.
+        Plugins should return:
+
+        * `model.User` object if the authentication was successful
+        * `model.AnonymousUser` object if the authentication failed
+        * `None` to try authentication with different implementations.
         """
 
 
@@ -1711,6 +1779,13 @@ class ITranslation(Interface):
     u'''
     Allows extensions to provide their own translation strings.
     '''
+
+    # replicate template-order. Templates from the plugins located in the
+    # beginning of the list has higher precedence. It means that other
+    # components affecting UI, such as translations, should behave in similar
+    # manner.
+    _reverse_iteration_order = True
+
     def i18n_directory(self) -> str:
         u'''Change the directory of the .mo translation files'''
         return ''
@@ -1839,7 +1914,7 @@ class IPermissionLabels(Interface):
     See ``ckanext/example_ipermissionlabels`` for an example plugin.
     '''
 
-    def get_dataset_labels(self, dataset_obj: 'model.Package') -> list[str]:
+    def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         u'''
         Return a list of unicode strings to be stored in the search index
         as the permission lables for a dataset dict.
@@ -1852,8 +1927,9 @@ class IPermissionLabels(Interface):
         '''
         return []
 
-    def get_user_dataset_labels(self,
-                                user_obj: Optional['model.User']) -> list[str]:
+    def get_user_dataset_labels(
+            self, user_obj: model.User | None
+    ) -> list[str]:
         u'''
         Return the permission labels that give a user permission to view
         a dataset. If any of the labels returned from this method match

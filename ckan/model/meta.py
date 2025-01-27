@@ -11,7 +11,6 @@ from ckan.types import AlchemySession
 
 __all__ = ['Session']
 
-
 # SQLAlchemy database engine. Updated by model.init_model()
 engine: Optional[Engine] = None
 
@@ -79,9 +78,7 @@ def ckan_after_rollback(session: Any):
         del session._object_cache
 
 
-#mapper = Session.mapper
-mapper = orm.mapper
+mapper = orm.mapper  # type: ignore
 
-# Global metadata. If you have multiple databases with overlapping table
-# names, you'll need a metadata for each database
 metadata = MetaData()
+registry = orm.registry(metadata=metadata)

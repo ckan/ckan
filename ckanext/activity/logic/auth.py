@@ -7,6 +7,7 @@ from typing import Optional
 import ckan.authz as authz
 import ckan.plugins.toolkit as tk
 from ckan.types import Context, DataDict, AuthResult
+from ckan.lib.plugins import get_permission_labels
 
 from ..model import Activity
 
@@ -144,8 +145,21 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
     activity = _get_activity_object(context, data_dict)
     # NB it would be better to have recorded an activity_type against the
     # activity
-    if "package" in activity.activity_type:
+    if activity.activity_type and "package" in activity.activity_type:
         object_type = "package"
+
+        # Check permission labels
+        user = context.get('user')
+        if not authz.is_sysadmin(user):
+            user_permission_labels = get_permission_labels(
+            ).get_user_dataset_labels(context['auth_user_obj'])
+
+            if not any(permission in activity.permission_labels
+                       for permission in user_permission_labels):
+                return {
+                    'success': False,
+                    'msg': tk._("Unauthorized to view activity data")
+                }
     else:
         return {"success": False, "msg": "object_type not recognized"}
     return activity_list(

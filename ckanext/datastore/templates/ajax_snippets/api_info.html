@@ -11,123 +11,111 @@ Example
 #}
 
 {% set resource_id = h.sanitize_id(resource_id) %}
-{% set sql_example_url = h.url_for('api.action', ver=3, logic_function='datastore_search_sql', qualified=True) + '?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' %}
-{# not urlencoding the sql because its clearer #}
+
+{% set code_examples = {} %}
+{% macro register_example(clang, example) %}
+  {% set ex = code_examples.setdefault(clang, {}) %}
+  {% set _ignore = ex.update({example: caller()}) %}
+{% endmacro %}
+
+{% set code_languages = ['curl', 'javascript', 'powershell', 'python', 'r'] %}
+
+{% block register_examples %}
+  {# register examples by including templates here #}
+  {% for clang in code_languages %}
+    {% include "/datastore/api_examples/" + clang + ".html" %}
+  {% endfor %}
+{% endblock %}
+
 <div {% if not embedded %} class="modal"{% endif %} tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-          <h3>
-            {{ _('CKAN Data API') }}
-          </h3>
-        </div>
-        <div {% if not embedded %} class="modal-body"{% endif %}>
-          <p><strong>{{ _('Access resource data via a web API with powerful query support') }}</strong>.
-          {% trans %}
-          Further information in the <a
-            href="http://docs.ckan.org/en/latest/maintaining/datastore.html" target="_blank">main
-            CKAN Data API and DataStore documentation</a>.</p>
-          {% endtrans %}
-          <div class="accordion" id="accordion2">
+        <h3>
+          {{ _('CKAN Data API') }}
+        </h3>
+      </div>
+      <div {% if not embedded %} class="modal-body"{% endif %}>
+        <p><strong>{{ _('Access resource data via a web API with powerful query support') }}</strong>.
+        {% trans url="https://docs.ckan.org/en/latest/maintaining/datastore.html#api-reference" %}
+        Further information in the <a
+          href="{{ url }}" target="_blank">main
+          CKAN Data API and DataStore documentation</a>.</p>
+        {% endtrans %}
+
+        {{ _("Code examples:") }}
+        {% for clang in code_languages %}
+          {# these checkboxes must be preceeding div below (not nested) for show/hide css #}
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-{{ clang }}"
+            {% if loop.first %}checked{% endif %}>
+          <label class="btn btn-secondary radio" for="lang-{{ clang }}">
+            {{ code_examples[clang]['button_label'] }}
+          </label>
+        {% endfor %}
+
+        <div class="accordion pt-2" id="accordion2">
+
+          {% block query_examples %}
             <div class="accordion-item">
               <h2 class="accordion-heading">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-endpoints" aria-expanded="true" aria-controls="collapse-endpoints">{{ _('Endpoints') }} &raquo;</button>
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-post" aria-expanded="false" aria-controls="collapse-querying-post"> {{ _('Querying') }} &raquo;</button>
               </h2>
-              <div id="collapse-endpoints" class="accordion-collapse collapse show" aria-labelledby="collapse-endpoints" data-bs-parent="#accordion2">
+              <div id="collapse-querying-post" class="accordion-collapse collapse show" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
                 <div class="accordion-body">
-                  <p>{{ _('The Data API can be accessed via the following actions of the CKAN action API.') }}</p>
-                  <table class="table table-striped table-bordered">
-                    <thead></thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">{{ _('Create') }}</th>
-                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_create', qualified=True) }}</code></td>
-                      </tr>
-                      <tr>
-                        <th scope="row">{{ _('Update / Insert') }}</th>
-                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_upsert', qualified=True) }}</code></td>
-                      </tr>
-                      <tr>
-                        <th scope="row">{{ _('Query') }}</th>
-                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_search', qualified=True) }}</code></td>
-                      </tr>
-                      {% if h.datastore_search_sql_enabled() %}
-                      <tr>
-                        <th scope="row">{{ _('Query (via SQL)') }}</th>
-                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_search_sql', qualified=True) }}</code></td>
-                      </tr>
-                      {% endif %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+                  <strong>{{ _('Get 5 results containing "jones" in any field:') }}</strong>
+                  {% for clang in code_languages %}
+                    {{ code_examples[clang]['request_limit'] }}
+                  {% endfor %}
 
-            <div class="accordion-item">
-              <h2 class="accordion-heading">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying" aria-expanded="false" aria-controls="collapse-querying">{{ _('Querying') }} &raquo;</button>
-              </h2>
-              <div id="collapse-querying"  class="accordion-collapse collapse" aria-labelledby="collapse-querying" data-bs-parent="#accordion2">
-                <div class="accordion-body">
-                  <strong>{{ _('Query example (first 5 results)') }}</strong>
-                  <p>
-                  <code><a href="{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</a></code>
-                  </p>
 
-                  <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
-                  <p>
-                  <code><a href="{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
-                  </p>
+                  <strong>{{ _('Get results with either "watershed" or "survey" as subject and "active" as its stage:') }}</strong>
+                  {% for clang in code_languages %}
+                    {{ code_examples[clang]['request_filter'] }}
+                  {% endfor %}
+
                   {% if h.datastore_search_sql_enabled() %}
-                  <strong>{{ _('Query example (via SQL statement)') }}</strong>
-                  <p>
-                  <code><a href="{{sql_example_url}}" target="_blank" rel="noreferrer">{{ sql_example_url }}</a></code>
-                  </p>
+                    <strong>{{ _('SQL query example:') }}</strong>
+                    {% for clang in code_languages %}
+                      {{ code_examples[clang]['request_sql'] }}
+                    {% endfor %}
                   {% endif %}
                 </div>
               </div>
             </div>
+          {% endblock %}
 
+          {% block get_query_examples %}
             <div class="accordion-item">
               <h2 class="accordion-heading">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-javascript" aria-expanded="false" aria-controls="collapse-javascript"> {{ _('Example: Javascript') }} &raquo;</button>
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-get" aria-expanded="false" aria-controls="collapse-querying-get">{{ _('Using the API with this Web Browser') }} &raquo;</button>
               </h2>
-              <div id="collapse-javascript" class="accordion-collapse collapse" aria-labelledby="collapse-javascript" data-bs-parent="#accordion2">
-                <div class="accordion-body">
-                  <p>{{ _('A simple ajax (JSONP) request to the data API using jQuery.') }}</p>
-                  <pre>
-          var data = {
-            resource_id: '{{resource_id}}', // the resource id
-            limit: 5, // get 5 results
-            q: 'jones' // query for 'jones'
-          };
-          $.ajax({
-            url: '{{ h.url_for('api.action', ver=3, logic_function='datastore_search', qualified=True) }}',
-            data: data,
-            dataType: 'jsonp',
-            success: function(data) {
-              alert('Total results found: ' + data.result.total)
-            }
-          });</pre>
-                </div>
-              </div>
-            </div>
+              <div id="collapse-querying-get"  class="accordion-collapse collapse" aria-labelledby="collapse-querying-get" data-bs-parent="#accordion2">
+                <div class="accordion-body code-block">
+                  <p>{{ _('Some API endpoints may be accessed using a GET query string.') }}</p>
+                  <strong>{{ _('Query example (first 5 results)') }}</strong>
+                  <p>
+                  <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</a></code>
+                  </p>
 
-            <div class="accordion-item">
-              <div class="accordion-heading">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-python" aria-expanded="false" aria-controls="collapse-python"> {{ _('Example: Python') }} &raquo;</button>
-              </div>
-              <div id="collapse-python" class="accordion-collapse collapse" aria-labelledby="collapse-python" data-bs-parent="#accordion2">
-                <div class="accordion-body">
-                  <pre>
-        import urllib.request
-        url = '{{ h.url_for('api.action', qualified=True, ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5) + '&q=title:jones' }}'  {# not urlencoding the ":" because its clearer #}
-        fileobj = urllib.request.urlopen(url)
-        print(fileobj.read())
-        </pre>
+                  <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
+                  <p>
+                  <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
+                  </p>
+                  {% if h.datastore_search_sql_enabled() %}
+                    {# not urlencoding the sql because its clearer #}
+                    {% set sql_example_url = h.url_for(
+                        'api.action', logic_function='datastore_search_sql', qualified=True
+                      ) + '?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' %}
+                    <strong>{{ _('Query example (via SQL statement)') }}</strong>
+                    <p>
+                    <code><a href="{{sql_example_url}}" target="_blank" rel="noreferrer">{{ sql_example_url }}</a></code>
+                    </p>
+                  {% endif %}
                 </div>
               </div>
             </div>
+          {% endblock %}
+
         </div>
 
       </div>
@@ -135,3 +123,5 @@ Example
   </div>
 
 </div>
+
+

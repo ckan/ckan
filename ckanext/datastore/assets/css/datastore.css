@@ -1,0 +1,43 @@
+.accordion-button.no-after::after {
+  background-image: none;
+}
+
+input#lang-curl ~ div .example-curl {
+  display: none;
+}
+
+input#lang-curl:checked ~ div .example-curl {
+  display: block;
+}
+
+input#lang-javascript ~ div .example-javascript {
+  display: none;
+}
+
+input#lang-javascript:checked ~ div .example-javascript {
+  display: block;
+}
+
+input#lang-powershell ~ div .example-powershell {
+  display: none;
+}
+
+input#lang-powershell:checked ~ div .example-powershell {
+  display: block;
+}
+
+input#lang-python ~ div .example-python {
+  display: none;
+}
+
+input#lang-python:checked ~ div .example-python {
+  display: block;
+}
+
+input#lang-r ~ div .example-r {
+  display: none;
+}
+
+input#lang-r:checked ~ div .example-r {
+  display: block;
+}

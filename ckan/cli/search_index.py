@@ -48,6 +48,8 @@ def rebuild(
                 defer_commit=(not commit_each),
                 quiet=quiet and not verbose,
                 clear=clear)
+    except logic.NotFound:
+        error_shout("Couldn't find package %s" % package_id)
     except Exception as e:
         error_shout(e)
     if not commit_each:
@@ -161,7 +163,10 @@ def rebuild_fast():
     db_url = config['sqlalchemy.url']
     engine = sa.create_engine(db_url)
     package_ids = []
-    result = engine.execute(u"select id from package where state = 'active';")
+    with engine.connect() as conn:
+        result = conn.execute(
+            sa.text("SELECT id FROM package where state = 'active'")
+        )
     for row in result:
         package_ids.append(row[0])
 

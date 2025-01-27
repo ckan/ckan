@@ -51,7 +51,7 @@
        <th id="_colspacer">colspacer</th>
       </tr>
       <tr>
-        <th><button id="refit-button" class="btn btn-default" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
+        <th><button id="refit-button" class="btn btn-secondary" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
         {% for field in datadictionary -%}
           <th id="cdx{{ loop.index }}" class="fhead" data-type="{{ field.type }}">
               {{- field.id -}}
@@ -86,8 +86,8 @@
   {{- _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
   {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
   {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') -}}&nbsp;
-  {%- if res.size|int != 0 -%}
-   ( {{ h.SI_number_span(res.size)|striptags }} )
+  {%- if res.size and res.size|int != 0 -%}
+   ( {{ h.localised_filesize(res.size)}} )
   {%- endif -%}
 </div>
 {%- endblock -%}

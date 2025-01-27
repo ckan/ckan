@@ -53,16 +53,6 @@ class DatastoreException(Exception):
     pass
 
 
-class InvalidDataError(Exception):
-    """Exception that's raised if you try to add invalid data to the datastore.
-
-    For example if you have a column with type "numeric" and then you try to
-    add a non-numeric value like "foo" to it, this exception should be raised.
-
-    """
-    pass
-
-
 class DatastoreBackend:
     """Base class for all datastore backends.
 
@@ -118,7 +108,11 @@ class DatastoreBackend:
 
         return config
 
-    def create(self, context: Context, data_dict: dict[str, Any]) -> Any:
+    def create(
+            self,
+            context: Context,
+            data_dict: dict[str, Any],
+            plugin_data: dict[int, dict[str, Any]]) -> Any:
         """Create new resourct inside datastore.
 
         Called by `datastore_create`.
@@ -235,4 +229,7 @@ class DatastoreBackend:
     def drop_function(self, *args: Any, **kwargs: Any) -> Any:
         """Called by `datastore_function_delete` action.
         """
+        raise NotImplementedError()
+
+    def resource_plugin_data(self, resource_id: str) -> dict[str, Any]:
         raise NotImplementedError()

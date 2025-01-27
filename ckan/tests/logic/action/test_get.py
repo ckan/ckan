@@ -326,7 +326,7 @@ class TestGroupList(object):
         group_list = helpers.call_action("group_list", all_fields=True)
 
         expected_group = dict(group)
-        for field in ("users", "tags", "extras", "groups"):
+        for field in ("users", "extras", "groups"):
             del expected_group[field]
 
         assert group_list[0] == expected_group
@@ -472,6 +472,19 @@ class TestGroupList(object):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("group_list", offset="-2")
+
+    @pytest.mark.parametrize("value", ["bb,cc", ["bb", "cc"]])
+    def test_group_list_filter_by_name(self, value):
+
+        factories.Group(name="aa")
+        factories.Group(name="bb")
+        factories.Group(name="cc")
+
+        group_list = helpers.call_action("group_list", groups=value, sort="name asc")
+
+        assert len(group_list) == 2
+        assert group_list[0] == "bb"
+        assert group_list[1] == "cc"
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -1001,6 +1014,7 @@ class TestUserList(object):
             factories.Dataset(user=users[1]),
             factories.Dataset(user=users[1]),
         ]
+        factories.Dataset(user=users[2])
         for dataset in datasets:
             dataset["title"] = "Edited title"
             helpers.call_action(
@@ -1010,7 +1024,7 @@ class TestUserList(object):
             u["name"]
             for u in [
                 users[0],  # 0 packages created
-                users[2],  # 0 packages created
+                users[2],  # 1 packages created
                 users[1],  # 2 packages created
             ]
         ]
@@ -2025,6 +2039,19 @@ class TestUserAutocomplete(object):
         result = helpers.call_action("user_autocomplete", q="compl", limit=1)
         assert len(result) == 1
 
+    def test_autcomplete_email(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"]}
+        factories.User(name="user1234", email="joe@doe.com")
+        result = helpers.call_action("user_autocomplete", context=context,
+                                     q="joe@doe.com")
+        assert len(result) == 1
+        assert result[0]["name"] == "user1234"
+
+        # test when user is not sysadmin
+        result = helpers.call_action("user_autocomplete", q="joe")
+        assert len(result) == 0
+
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestFormatAutocomplete:
@@ -2828,6 +2855,46 @@ class TestMembersList(object):
 
         assert len(org_members) == 0
 
+    def test_user_list_excludes_deleted_users_not_marked_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        user = factories.User()
+        context = {"user": sysadmin["name"]}
+
+        member_dict = {
+            "username": user["id"],
+            "id": org["id"],
+            "role": "member",
+        }
+        helpers.call_action(
+            "organization_member_create", context, **member_dict
+        )
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 1
+        assert org_members[0][0] == user["id"]
+        assert org_members[0][1] == "user"
+
+        model.Session.delete(model.User.get(user["id"]))
+        model.Session.commit()
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 0
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFollow(object):
@@ -2912,7 +2979,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -2928,7 +2995,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -2944,7 +3011,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
 

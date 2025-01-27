@@ -1,0 +1,27 @@
+{% ckan_extends %}
+
+{% block url_type_select %}
+  {{ super() }}
+  <button type="button" class="btn btn-secondary" id="resource-table-designer-button"
+    aria-label="{{ _('Create a custom table for your data') }}"
+      onclick="
+        document.getElementById('resource-url-table-designer').checked = true;
+      "><i class="fa fa-paint-brush"></i>{{ _('Table Designer') }}</button>
+{% endblock %}
+
+{% block url_type_fields %}
+  {{ super() }}
+  <input type="radio" id="resource-url-table-designer" name="url_type" value="tabledesigner" {{
+    'checked' if data['url_type'] == 'tabledesigner' else '' }}>
+  <div class="select-type">
+    {{ remove_button() }}
+    <label>{{ _('Table Designer') }}</label>
+    {% if not data.id %}
+      <p>{{ _('Save this resource, then customize the table from the Data Dictionary tab') }}</p>
+    {% else %}
+      <p>{% trans url=h.url_for('datastore.dictionary', id=data.package_id, resource_id=data.id) -%}
+        Use the <a href="{{ url }}">Data Dictionary</a> tab to customize this table.
+      {%- endtrans %}</p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -104,7 +104,7 @@ Lines file using ckanapi_:
 
 .. parsed-literal::
 
-    ckanapi dump datasets -c |ckan.ini| -O my_datasets.jsonl
+    ckanapi dump datasets -c |ckan.ini| --all -O my_datasets.jsonl
 
 This is useful to create a simple public listing of the datasets, with no user
 information. Some simple additions to the Apache config can serve the dump
@@ -138,7 +138,7 @@ a JSON Lines file using ckanapi_:
 
 .. parsed-literal::
 
-    ckanapi dump users -c |ckan.ini| -O my_database_users.jsonl
+    ckanapi dump users -c |ckan.ini| --all -O my_database_users.jsonl
 
 
 .. _db upgrade:
@@ -161,3 +161,7 @@ CKAN database's schema using the ``ckan db upgrade`` command:
 .. parsed-literal::
 
     ckan -c |ckan.ini| db upgrade
+
+This command applies all CKAN core migrations and all unapplied migrations from
+enabled plugins. ``--skip-core`` and ``--skip-plugins`` flags can be used to
+run either only core migration, or only migrations from enabled plugins.

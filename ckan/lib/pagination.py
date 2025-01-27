@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import re
 from string import Template
-from typing import Any, Callable, Match, Optional, Sequence, List
+from typing import Any, Callable, Match, Optional, Sequence, List, cast
 
 import dominate.tags as tags
 from markupsafe import Markup
@@ -53,7 +53,7 @@ class BasePage(List[Any]):
 
     - a sequence
     - an SQLAlchemy query - e.g.: Session.query(MyModel)
-    - an SQLAlchemy select - e.g.: sqlalchemy.select([my_table])
+    - an SQLAlchemy select - e.g.: sqlalchemy.select(my_table)
 
     A "Page" instance maintains pagination logic associated with each
     page, where it begins, what the first/last item on the page is, etc.
@@ -583,7 +583,7 @@ class BasePage(List[Any]):
 
         return self.separator.join(nav_items)
 
-    def _pagerlink(self, page: int, text: str):
+    def _pagerlink(self, page: int, text: str) -> Any:
         """
         Create a URL that links to another page using url_for().
 
@@ -633,15 +633,15 @@ class BasePage(List[Any]):
 
 class Page(BasePage):
     def pager(self, *args: Any, **kwargs: Any) -> Markup:
-        with tags.div(cls=u"pagination-wrapper") as wrapper:
+        with cast(Any, tags.div(cls=u"pagination-wrapper")) as wrapper:
             tags.ul(
                 "$link_previous ~2~ $link_next",
                 cls="pagination justify-content-center"
             )
         params = dict(
             format=str(wrapper),
-            symbol_previous=u"«",
-            symbol_next=u"»",
+            symbol_previous=tags.i(cls='fa-solid fa-chevron-left'),
+            symbol_next=tags.i(cls='fa-solid fa-chevron-right'),
             curpage_attr={u"class": u"page-item active"},
             link_attr={"class": "page-link"},
         )

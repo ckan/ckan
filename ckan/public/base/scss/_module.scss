@@ -29,6 +29,10 @@
         margin-bottom: $grid-gutter-width;
       }
     }
+
+    p a:link {
+      text-decoration: underline;
+    }
 }
 
 .module:first-child .module-heading {
@@ -155,7 +159,10 @@
         position: relative;
         float: right;
         top: -10px;
-        right: -15px;
+        right: 0;
+        li {
+            margin-right: 0px;
+        }
     }
 }
 

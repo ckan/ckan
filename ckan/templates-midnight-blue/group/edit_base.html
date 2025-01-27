@@ -1,0 +1,15 @@
+{% extends "page.html" %}
+{% set dataset_type = h.default_package_type() %}
+
+{% block subtitle %}{{ _('Manage') }} {{ g.template_title_delimiter }} {{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
+
+{% set group = group_dict %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon(group_type + '.edit', _('Edit'), id=group_dict.name, icon='pencil') }}
+  {{ h.build_nav_icon(group_type + '.manage_members', _('Members'), id=group_dict.name, icon='users') }}
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "group/snippets/info.html", group=group_dict, show_nums=false %}
+{% endblock %}

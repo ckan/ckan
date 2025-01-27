@@ -7,7 +7,7 @@ import html
 import io
 import datetime
 
-from typing import Any, Callable, Optional, cast, Union
+from typing import Any, Callable, Optional, Union
 
 from flask import Blueprint, make_response
 
@@ -18,11 +18,14 @@ import ckan.model as model
 from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
-from ckan.lib.i18n import get_locales_from_config
+from ckan.lib.i18n import get_locales_from_config, get_js_translations_dir
+from ckan.lib.lazyjson import LazyJSONObject
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
-from ckan.lib.search import SearchError, SearchIndexError, SearchQueryError
+from ckan.lib.search import (
+    SearchError, SearchIndexError, SearchQueryError, SolrConnectionError
+)
 from ckan.types import Context, Response, ActionResult
 
 
@@ -225,6 +228,8 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         * ``success``: A boolean indicating if the request was successful or
                 an exception was raised
         * ``result``: The output of the action, generally an Object or an Array
+        * ``changed_entities``: types and ids of entities created, updated
+                or deleted as a result of this action (for some actions)
     '''
 
     # Check if action exists
@@ -235,13 +240,11 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(msg)
         return _finish_bad_request(msg)
 
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'api_version': ver,
         u'auth_user_obj': current_user
-    })
+    }
     model.Session()._context = context
 
     return_dict: dict[str, Any] = {
@@ -263,14 +266,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(u'Bad Action API request data: %s', inst)
         return _finish_bad_request(
             _(u'JSON Error: %s') % inst)
-    if not isinstance(request_data, dict):
-        # this occurs if request_data is blank
-        log.info(u'Bad Action API request data - not dict: %r',
-                 request_data)
-        return _finish_bad_request(
-            _(u'Bad request data: %s') %
-            u'Request data JSON decoded to %r but '
-            u'it needs to be a dictionary.' % request_data)
+
     if u'callback' in request_data:
         del request_data[u'callback']
         g.user = None
@@ -281,8 +277,13 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     # Call the action function, catch any exception
     try:
         result = function(context, request_data)
-        return_dict[u'success'] = True
-        return_dict[u'result'] = result
+        return_dict['success'] = True
+        return_dict['result'] = result
+        if 'changed_entities' in context:
+            return_dict['changed_entities'] = {
+                typ: sorted(ids)
+                for typ, ids in context['changed_entities'].items()
+            }
     except DataError as e:
         log.info(u'Format incorrect (Action API): %s - %s',
                  e.error, request_data)
@@ -333,6 +334,12 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
                        str(e)}
         return_dict[u'success'] = False
         return _finish(500, return_dict, content_type=u'json')
+    except SolrConnectionError:
+        return_dict[u'error'] = {
+            u'__type': u'Search Connection Error',
+            u'message': u'Unable to connect to the search server'}
+        return_dict[u'success'] = False
+        return _finish(500, return_dict, content_type=u'json')
     except Exception as e:
         return_dict[u'error'] = {
             u'__type': u'Internal Server Error',
@@ -358,12 +365,10 @@ def dataset_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     limit = request.args.get(u'limit', 10)
     package_dicts: ActionResult.PackageAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
 
@@ -380,12 +385,10 @@ def tag_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     vocab = request.args.get(u'vocabulary_id', u'')
     tag_names: ActionResult.TagAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         if vocab != u'':
@@ -406,12 +409,10 @@ def format_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     limit = request.args.get(u'limit', 5)
     formats: ActionResult.FormatAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         formats = get_action(u'format_autocomplete')(context, data_dict)
 
@@ -429,12 +430,10 @@ def user_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     ignore_self = request.args.get(u'ignore_self', False)
     user_list: ActionResult.UserAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
 
         data_dict: dict[str, Any] = {
             u'q': q, u'limit': limit, u'ignore_self': ignore_self}
@@ -449,11 +448,8 @@ def group_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     group_list: ActionResult.GroupAutocomplete = []
 
     if q:
-        context = cast(
-            Context, {
-                u'user': current_user.name,
-                u'model': model}
-        )
+        context: Context = {'user': current_user.name}
+
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         group_list = get_action(u'group_autocomplete')(context, data_dict)
     return _finish_ok(group_list)
@@ -465,9 +461,7 @@ def organization_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     organization_list = []
 
     if q:
-        context = cast(Context, {
-            u'user': current_user.name,
-            u'model': model})
+        context: Context = {u'user': current_user.name}
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         organization_list = get_action(
             u'organization_autocomplete')(context, data_dict)
@@ -495,13 +489,13 @@ def i18n_js_translations(
     if lang not in get_locales_from_config():
         return _finish_bad_request('Unknown locale: {}'.format(lang))
 
-    ckan_path = os.path.join(os.path.dirname(__file__), u'..')
-    source = os.path.abspath(os.path.join(ckan_path, u'public',
-                             u'base', u'i18n', u'{0}.js'.format(lang)))
+    js_translations_folder = get_js_translations_dir()
+
+    source = os.path.join(js_translations_folder, f"{lang}.js")
     if not os.path.exists(source):
-        return u'{}'
-    translations = json.load(io.open(source, u'r', encoding='utf-8'))
-    return _finish_ok(translations)
+        return "{}"
+    translations = io.open(source, "r", encoding="utf-8").read()
+    return _finish_ok(LazyJSONObject(translations))
 
 
 # Routing

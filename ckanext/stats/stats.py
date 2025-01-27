@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import datetime
 import logging
-from typing import Any, ClassVar, Optional, Union
+from typing import Any, ClassVar, Optional, Sequence, Union
 
-from sqlalchemy import Table, select, join, func, and_
+from sqlalchemy import Table, select, join, func, and_, false
 
 import ckan.model as model
 
@@ -15,7 +15,11 @@ DATE_FORMAT = "%Y-%m-%d"
 
 
 def table(name: str):
-    return Table(name, model.meta.metadata, autoload=True)
+    return Table(
+        name,
+        model.meta.metadata,
+        autoload_with=model.meta.engine
+    )
 
 
 def datetime2date(datetime_: datetime.datetime):
@@ -33,14 +37,17 @@ class Stats(object):
         j = join(activity, package, activity.c["object_id"] == package.c["id"])
 
         s = (
-            select([package.c["owner_org"], func.count(package.c["id"])])
+            select(
+                package.c["owner_org"],
+                func.count(package.c["id"])
+            )
             .select_from(j)
             .group_by(package.c["owner_org"])
             .where(
                 and_(
-                    package.c["owner_org"] != None,  # type: ignore
+                    package.c["owner_org"].isnot(None),
                     activity.c["activity_type"] == "new package",
-                    package.c["private"] == False,
+                    package.c["private"] == false(),
                     package.c["state"] == "active",
                 )
             )
@@ -51,7 +58,7 @@ class Stats(object):
         res_ids = model.Session.execute(s).fetchall()
 
         res_groups: list[tuple[Optional[model.Group], int]] = [
-            (model.Session.query(model.Group).get(str(group_id)), val)
+            (model.Session.get(model.Group, str(group_id)), val)
             for group_id, val in res_ids
         ]
         return res_groups
@@ -59,30 +66,34 @@ class Stats(object):
     @classmethod
     def top_tags(cls, limit: int = 10,
                  returned_tag_info: str = 'object'
-                 ) -> Optional[list[Any]]:  # by package
+                 ) -> Optional[Sequence[Any]]:  # by package
         assert returned_tag_info in ("name", "id", "object")
         tag = table("tag")
         package_tag = table("package_tag")
         package = table("package")
+
         if returned_tag_info == "name":
-            from_obj = [package_tag.join(tag)]
             tag_column = tag.c["name"]
+            s = select(
+                tag_column,
+                func.count(package_tag.c["package_id"])
+            ).join(package_tag)
         else:
-            from_obj = None
             tag_column = package_tag.c["tag_id"]
+            s = select(
+                tag_column,
+                func.count(package_tag.c["package_id"])
+            )
+
         j = join(
             package_tag, package, package_tag.c["package_id"] == package.c["id"]
         )
         s = (
-            select(
-                [tag_column, func.count(package_tag.c["package_id"])],
-                from_obj=from_obj,
-            )
-            .select_from(j)
+            s.select_from(j)
             .where(
                 and_(
                     package_tag.c["state"] == "active",
-                    package.c["private"] == False,
+                    package.c["private"] == false(),
                     package.c["state"] == "active",
                 )
             )
@@ -95,9 +106,10 @@ class Stats(object):
         res_col = model.Session.execute(s).fetchall()
         if returned_tag_info in ("id", "name"):
             return res_col
+
         elif returned_tag_info == "object":
             res_tags = [
-                (model.Session.query(model.Tag).get(str(tag_id)), val)
+                (model.Session.get(model.Tag, str(tag_id)), val)
                 for tag_id, val in res_col
             ]
             return res_tags
@@ -110,14 +122,14 @@ class Stats(object):
                 func.count(model.Package.creator_user_id),
             )
             .filter(model.Package.state == "active")
-            .filter(model.Package.private == False)
+            .filter(model.Package.private == false())
             .group_by(model.Package.creator_user_id)
             .order_by(func.count(model.Package.creator_user_id).desc())
             .limit(limit)
             .all()
         )
         user_count = [
-            (model.Session.query(model.User).get(str(user_id)), count)
+            (model.Session.get(model.User, str(user_id)), count)
             for user_id, count in userid_count
             if user_id
         ]
@@ -130,16 +142,14 @@ class Stats(object):
 
         s = (
             select(
-                [package.c["id"], func.count(activity.c["id"])],
-                from_obj=[
-                    activity.join(
-                        package, activity.c["object_id"] == package.c["id"]
-                    )
-                ],
+                package.c["id"],
+                func.count(activity.c["id"])
+            ).select_from(activity).join(
+                package, activity.c["object_id"] == package.c["id"]
             )
             .where(
                 and_(
-                    package.c["private"] == False,
+                    package.c["private"] == false(),
                     activity.c["activity_type"] == "changed package",
                     package.c["state"] == "active",
                 )
@@ -152,14 +162,14 @@ class Stats(object):
 
         res_pkgs: list[tuple[model.Package, int]] = []
         for pkg_id, val in res_ids:
-            pkg = model.Session.query(model.Package).get(str(pkg_id))
+            pkg = model.Session.get(model.Package, str(pkg_id))
             assert pkg
             res_pkgs.append((pkg, val))
 
         return res_pkgs
 
     @classmethod
-    def get_package_revisions(cls) -> list[Any]:
+    def get_package_revisions(cls) -> Sequence[Any]:
         """
         @return: Returns list of revisions and date of them, in
                  format: [(id, date), ...]
@@ -167,11 +177,13 @@ class Stats(object):
         package = table("package")
         activity = table("activity")
         s = select(
-            [package.c["id"], activity.c["timestamp"]],
-            from_obj=[
-                activity.join(package, activity.c["object_id"] == package.c["id"])
-            ],
-        ).order_by(activity.c["timestamp"])
+            package.c["id"],
+            activity.c["timestamp"]
+        ).select_from(activity).join(
+            package, activity.c["object_id"] == package.c["id"]
+        ).order_by(
+            activity.c["timestamp"]
+        )
         res = model.Session.execute(s).fetchall()
         return res
 
@@ -256,14 +268,15 @@ class Stats(object):
             activity = table("activity")
             s = (
                 select(
-                    [package.c["id"], func.min(activity.c["timestamp"])],
-                    from_obj=[
-                        activity.join(
-                            package, activity.c["object_id"] == package.c["id"]
-                        )
-                    ],
+                    package.c["id"],
+                    func.min(activity.c["timestamp"])
+                ).select_from(activity)
+                .join(
+                    package, activity.c["object_id"] == package.c["id"]
                 )
-                .group_by(package.c["id"])
+                .group_by(
+                    package.c["id"]
+                )
                 .order_by(func.min(activity.c["timestamp"]))
             )
             res = model.Session.execute(s).fetchall()
@@ -306,12 +319,12 @@ class Stats(object):
                 num_pkgs = len(new_pkg_ids) - len(deleted_pkg_ids)
                 new_pkgs.extend(
                     pkg.name for pkg in
-                    [model.Session.query(model.Package).get(id)
+                    [model.Session.get(model.Package, id)
                      for id in new_pkg_ids] if pkg
                 )
                 deleted_pkgs.extend(
                     pkg.name for pkg in
-                    [model.Session.query(model.Package).get(id)
+                    [model.Session.get(model.Package, id)
                      for id in deleted_pkg_ids] if pkg
                 )
                 cls._cumulative_num_pkgs += num_pkgs
@@ -385,14 +398,15 @@ class Stats(object):
 
             s = (
                 select(
-                    [package.c["id"], func.min(activity.c["timestamp"])],
-                    from_obj=[
-                        activity.join(
-                            package, activity.c["object_id"] == package.c["id"]
-                        )
-                    ],
+                    package.c["id"],
+                    func.min(activity.c["timestamp"])
+                ).select_from(activity)
+                .join(
+                    package, activity.c["object_id"] == package.c["id"]
                 )
-                .where(activity.c["activity_type"] == "deleted package")
+                .where(
+                    activity.c["activity_type"] == "deleted package"
+                )
                 .group_by(package.c["id"])
                 .order_by(func.min(activity.c["timestamp"]))
             )
