@@ -20,12 +20,12 @@ jobs:
       # The CKAN version tag of the Solr and Postgres containers should match
       # the one of the container the tests run on.
       # You can switch this base image with a custom image tailored to your project
-      image: ckan/ckan-dev:${{ matrix.ckan-image }}
+      image: ckan/ckan-dev:${{ "{{" }} matrix.ckan-image }}
     services:
       solr:
-        image: ckan/ckan-solr:${{ matrix.ckan-version }}-solr9
+        image: ckan/ckan-solr:${{ "{{" }} matrix.ckan-version }}-solr9
       postgres:
-        image: ckan/ckan-postgres-dev:${{ matrix.ckan-version }}
+        image: ckan/ckan-postgres-dev:${{ "{{" }} matrix.ckan-version }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
