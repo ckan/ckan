@@ -90,7 +90,15 @@ class User(core.StatefulObjectMixin,
 
     @classmethod
     def by_email(cls, email: str) -> Optional[Self]:
-        return meta.Session.query(cls).filter_by(email=email).first()
+        """Case-insensitive search by email.
+
+        Returns first user with the given email. Because default CKAN
+        configuration allows reusing emails of deleted users, this method can
+        return deleted object instead of an active email owner.
+        """
+        return meta.Session.query(cls).filter(
+            func.lower(cls.email) == email.lower()
+        ).first()
 
     @classmethod
     def get(cls, user_reference: Optional[str]) -> Optional[Self]:
