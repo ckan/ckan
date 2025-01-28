@@ -357,7 +357,7 @@ def _group_or_org_list(
     # if it is supplied and sort isn't use order_by and raise a warning
     order_by = data_dict.get('order_by', '')
     if order_by:
-        log.warn('`order_by` deprecated please use `sort`')
+        log.warning('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
             sort = order_by
 
