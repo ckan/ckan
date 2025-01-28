@@ -1294,6 +1294,6 @@ def config_option_update(
     # Update the config update timestamp
     model.set_system_info('ckan.config_update', str(time.time()))
 
-    log.info('Updated config options: {0}'.format(data))
+    log.info('Updated config options: %s', data)
 
     return data
