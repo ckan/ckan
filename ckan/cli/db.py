@@ -10,8 +10,6 @@ from typing import Optional
 import click
 from itertools import groupby
 
-from sqlalchemy.sql.operators import isnot
-
 import ckan.migration as migration_repo
 import ckan.plugins as p
 import ckan.model as model
