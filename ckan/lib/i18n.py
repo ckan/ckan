@@ -362,7 +362,7 @@ def build_js_translations() -> None:
 
         if (not os.path.isfile(dest_file) or
                 os.path.getmtime(dest_file) < latest):
-            log.debug('Generating JS translation for "{}"'.format(lang))
+            log.debug('Generating JS translation for "%s"', lang)
             _build_js_translation(lang, po_files, js_entries, dest_file)
 
     log.debug('All JS translation are up to date')

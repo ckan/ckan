@@ -290,9 +290,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         try:
             app = plugin.make_error_log_middleware(app, config)
         except AttributeError:
-            log.critical('Middleware class {0} is missing the method'
-                         'make_error_log_middleware.'
-                         .format(plugin.__class__.__name__))
+            log.critical('Middleware class %s is missing the method'
+                         'make_error_log_middleware.',
+                         plugin.__class__.__name__)
 
     # Initialize flask-login
     login_manager = LoginManager()
@@ -452,7 +452,7 @@ def ckan_after_request(response: Response) -> Response:
     url = request.environ['PATH_INFO']
     status_code = response.status_code
 
-    log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
+    log.info(' %s %s render time %.3f seconds', status_code, url, r_time)
 
     return response
 
@@ -601,7 +601,9 @@ def _register_core_blueprints(app: CKANApp):
         module = loader.find_module(name).load_module(name)  # type: ignore
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
-            log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+            log.debug(
+                'Registered core blueprint: %r', blueprint[0]
+            )
 
 
 def _register_error_handler(app: CKANApp):
