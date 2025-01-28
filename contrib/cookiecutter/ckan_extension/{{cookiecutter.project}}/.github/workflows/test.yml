@@ -16,11 +16,15 @@ jobs:
          #  ckan-image: "ckan/ckan-dev:2.9-py3.9"
       fail-fast: false
 
+    name: CKAN ${{ matrix.ckan-version }}
+    runs-on: ubuntu-latest
+
     container:
       # The CKAN version tag of the Solr and Postgres containers should match
       # the one of the container the tests run on.
       # You can switch this base image with a custom image tailored to your project
-      image: ckan/ckan-dev:${{ "{{" }} matrix.ckan-image }}
+      image: ${{ "{{" }} matrix.ckan-image }}
+      options: --user root
     services:
       solr:
         image: ckan/ckan-solr:${{ "{{" }} matrix.ckan-version }}-solr9
