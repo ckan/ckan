@@ -88,7 +88,7 @@ _UPDATE = 'update'
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError  # type: ignore
 else:
-    log.warn("Running datastore without CKAN")
+    log.warning("Running datastore without CKAN")
 
     class ValidationError(Exception):
         def __init__(self, error_dict: ErrorDict):
@@ -355,8 +355,8 @@ def _cache_types(engine: Engine) -> None:
             with engine.begin() as conn:
                 native_json = _pg_version_is_at_least(conn, '9.2')
 
-            log.info("Create nested type. Native JSON: {0!r}".format(
-                native_json))
+            log.info("Create nested type. Native JSON: %r",
+                     native_json)
 
             backend = DatastorePostgresqlBackend.get_active_backend()
             write_engine: Engine = backend._get_write_engine()  # type: ignore
@@ -1818,9 +1818,8 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
         get_names = datastore_helpers.get_table_and_function_names_from_sql
         table_names, function_names = get_names(context, sql)
-        log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
-        log.debug('Functions involved in input SQL: {0!r}'.format(
-            function_names))
+        log.debug('Tables involved in input SQL: %r', table_names)
+        log.debug('Functions involved in input SQL: %r', function_names)
 
         if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized(
@@ -2007,8 +2006,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # that we should ignore the following tests.
         args = sys.argv
         if args[0].split('/')[-1] == 'paster' and 'datastore' in args[1:]:
-            log.warn('Omitting permission checks because you are '
-                     'running paster commands.')
+            log.warning('Omitting permission checks because you are '
+                        'running paster commands.')
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
@@ -2016,15 +2015,15 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         self.read_url = self.config['ckan.datastore.read_url']
 
         if not self._is_postgresql_engine():
-            log.warn('We detected that you do not use a PostgreSQL '
-                     'database. The DataStore will NOT work and DataStore '
-                     'tests will be skipped.')
+            log.warning('We detected that you do not use a PostgreSQL '
+                        'database. The DataStore will NOT work and DataStore '
+                        'tests will be skipped.')
             return
 
         if self._is_read_only_database():
-            log.warn('We detected that CKAN is running on a read '
-                     'only database. Permission checks and the creation '
-                     'of _table_metadata are skipped.')
+            log.warning('We detected that CKAN is running on a read '
+                        'only database. Permission checks and the creation '
+                        'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
 
