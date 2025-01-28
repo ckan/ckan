@@ -704,7 +704,7 @@ def package_collaborator_create(
     model.repo.commit()
 
     log.info('User %s added as collaborator in package %s (%s)',
-        user.name, package.id, capacity)
+             user.name, package.id, capacity)
 
     return model_dictize.member_dictize(collaborator, context)
 
@@ -1274,7 +1274,7 @@ def follow_user(context: Context,
         model.repo.commit()
 
     log.debug('User %s started following user %s',
-        follower.follower_id, follower.object_id)
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_user_dictize(follower, context)
 
@@ -1324,7 +1324,7 @@ def follow_dataset(context: Context,
         model.repo.commit()
 
     log.debug('User %s started following dataset %s',
-        follower.follower_id, follower.object_id)
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_dataset_dictize(follower, context)
 
@@ -1461,7 +1461,7 @@ def follow_group(context: Context,
         model.repo.commit()
 
     log.debug('User %s started following group %s',
-        follower.follower_id, follower.object_id)
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_group_dictize(follower, context)
 

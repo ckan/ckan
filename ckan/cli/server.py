@@ -120,7 +120,7 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
     build_js_translations()
 
     log.info("Running CKAN on %s://%s:%s%s",
-        'https' if ssl_context else 'http', host, port_int, prefix)
+             'https' if ssl_context else 'http', host, port_int, prefix)
 
     run_simple(
         host,

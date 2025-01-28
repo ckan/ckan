@@ -559,7 +559,7 @@ def get_action(action: str) -> Action:
                         data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
                     log.critical('%s was passed extra keywords %r',
-                        _action.__name__, kw)
+                                 _action.__name__, kw)
 
                 context = _prepopulate_context(context)
 
@@ -857,7 +857,7 @@ def get_validator(
         for plugin in p.PluginImplementations(p.IValidators):
             for name, fn in plugin.get_validators().items():
                 log.debug('Validator function %s from plugin %s was inserted',
-                    name, plugin.name)
+                          name, plugin.name)
                 _validators_cache[name] = fn
     try:
         return _validators_cache[validator]
