@@ -354,7 +354,7 @@ def check_solr_schema_version(schema_file: Optional[str]=None) -> bool:
 
     if not is_available():
         # Something is wrong with the SOLR server
-        log.warn('Problems were found while connecting to the SOLR server')
+        log.warning('Problems were found while connecting to the SOLR server')
         return False
 
     # Try to get the schema XML file to extract the version
