@@ -26,7 +26,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
 
     '''
     resource_id = data_dict[u'resource_id']
-    log.info(u'Proxify resource {id}'.format(id=resource_id))
+    log.info('Proxify resource %s', resource_id)
     try:
         resource = get_action(u'resource_show')(context, {u'id': resource_id})
     except logic.NotFound:
