@@ -451,9 +451,9 @@ def package_update(
         ).setdefault(
             'packages', set()
         ).add(pkg.id)
-        log.debug('Updated object %s' % pkg.name)
+        log.debug('Updated object %s', pkg.name)
     else:
-        log.debug('No update for object %s' % pkg.name)
+        log.debug('No update for object %s', pkg.name)
         nested.rollback()
 
     if return_id_only:
@@ -1409,6 +1409,6 @@ def config_option_update(
     # Update the config update timestamp
     model.set_system_info('ckan.config_update', str(time.time()))
 
-    log.info('Updated config options: {0}'.format(data))
+    log.info('Updated config options: %s', data)
 
     return data
