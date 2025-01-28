@@ -108,10 +108,8 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         error_shout(u"Server port must be an integer, not {}".format(port))
         raise click.Abort()
 
-    log.info(
-        "Running CKAN on %s://%s:%s%s",
-        'https' if ssl_context else 'http', host, port_int, prefix
-    )
+    log.info("Running CKAN on %s://%s:%s%s",
+             'https' if ssl_context else 'http', host, port_int, prefix)
 
     run_simple(
         host,
