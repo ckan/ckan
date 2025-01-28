@@ -173,8 +173,8 @@ def enqueue(fn: Callable[..., Any],
     msg = u'Added background job {}'.format(job.id)
     if title:
         msg = u'{} ("{}")'.format(msg, title)
-    msg = u'{} to queue "{}"'.format(msg, queue)
-    log.info(msg)
+
+    log.info('%s to queue "%s"', msg, queue)
     return job
 
 
@@ -301,7 +301,7 @@ class Worker(rq.Worker):
         for plugin in plugins.PluginImplementations(plugins.IForkObserver):
             plugin.before_fork()
         result = super(Worker, self).execute_job(job, *args, **kwargs)
-        log.info('Worker %s has finished job %s from queue "{}"',
+        log.info('Worker %s has finished job %s from queue "%s"',
                  self.key, job_id, queue)
 
         return result
@@ -312,7 +312,7 @@ class Worker(rq.Worker):
         return result
 
     def handle_exception(self, job: Job, *exc_info: Any) -> None:
-        log.exception('Job %s on worker %s raised an exception: {}',
+        log.exception('Job %s on worker %s raised an exception: %s',
                       job.id, self.key, exc_info[1])
         return super(Worker, self).handle_exception(job, *exc_info)
 
