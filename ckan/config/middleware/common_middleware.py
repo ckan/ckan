@@ -1,6 +1,6 @@
-# encoding: utf-8
-
 """Additional middleware used by the Flask app stack."""
+from __future__ import annotations
+
 from typing import Any
 
 from urllib.parse import urlparse
@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from flask.sessions import SecureCookieSessionInterface
 from flask_session.redis import RedisSessionInterface
 
-from ckan.common import config
+from ckan.common import config, request
 from ckan.types import CKANApp, Request
 from ckan.lib.redis import connect_to_redis
 
@@ -36,18 +36,21 @@ class HostHeaderMiddleware(object):
         Prevent the `Host` header from the incoming request to be used
         in the `Location` header of a redirect.
     '''
-    def __init__(self, app: CKANApp):
-        self.app = app
+    def __init__(self, app: CKANApp | None = None):
+        if app:
+            self.init_app(app)
 
-    def __call__(self, environ: Any, start_response: Any) -> Any:
-        path_info = environ[u'PATH_INFO']
+    def init_app(self, app: CKANApp):
+        app.before_request(self.before_request)
+
+    def before_request(self):
+        path_info = request.environ[u'PATH_INFO']
         if path_info in ['/login_generic', '/user/login',
                          '/user/logout', '/user/logged_in',
                          '/user/logged_out']:
             site_url = config.get('ckan.site_url')
             parts = urlparse(site_url)
-            environ['HTTP_HOST'] = str(parts.netloc)
-        return self.app(environ, start_response)
+            request.environ['HTTP_HOST'] = str(parts.netloc)
 
 
 class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):
