@@ -1,0 +1,45 @@
+Setting ``g.user`` via ``IAuthenticator.identify`` is broken since CKAN
+v2.10. Now, it's possible to achieve similar results using
+``IAuthenticator.identify_session_user`` and
+``IAuthenticator.identify_request_user``. ``IAuthenticator.identify_session_user``
+is called with and ID of user when application detects existing user
+session. It must return ``model.User`` object, which resembles setting
+``g.user`` in before CKAN v2.10.
+
+If there is no active session or ``IAuthenticator.identify_session_user`` fails
+to identify user, ``IAuthenticator.identify_request_user`` is called with the
+current request object. If it returns ``model.User``(based on headers, for
+example), it resembles setting ``g.user`` in before CKAN v2.10 and request
+happens as if corresponding user is authenticated.
+
+
+Before::
+
+  def identify(self):
+      username = tk.request.headers.get("USERNAME")
+      if is_verified(username):
+          g.user = username
+
+
+After::
+
+  def identify_request_user(self, request):
+      # this method get called only if user cannot be identified using session
+      # data
+      username = request.headers.get("USERNAME")
+      if is_verified(username):
+          return model.User.get(username)
+
+  ## or
+
+  def identify_session_user(self, user_id):
+      # this method get called only when flask-login locates an existing user
+      # session
+      username = request.headers.get("USERNAME")
+
+      # ignore ID from session and login using header value if you trust this header
+      if is_verified(username):
+          return model.User.get(username)
+
+      # otherwise, continue with default implementation
+      return None
