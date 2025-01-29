@@ -180,9 +180,8 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
             signals.register_blueprint.send(
                 u"resource", blueprint=resource_blueprint)
             app.register_blueprint(resource_blueprint)
-            log.debug(
-                'Registered blueprints for custom dataset type \'{}\''.format(
-                    package_type))
+            log.debug("Registered blueprints for custom dataset type '%s'"%
+                      package_type)
 
     if not registered_dataset:
         # core dataset blueprint not overridden

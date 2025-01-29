@@ -16,3 +16,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.empty {
+    color: $emptyTextColor;
+    font-style: italic;
+}

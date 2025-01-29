@@ -38,7 +38,7 @@ def get_proxified_resource_url(
             id=data_dict[u'package'][u'name'],
             resource_id=data_dict[u'resource'][u'id']
         )
-        log.info(u'Proxified url is {0}'.format(url))
+        log.info('Proxified url is %s', url)
     return url
 
 
