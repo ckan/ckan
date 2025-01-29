@@ -297,8 +297,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
-    # Prevent the host from request to be added to the new header location.
-    app.wsgi_app = HostHeaderMiddleware(app.wsgi_app)
+    # Prevent the host from request to be added to the new header
+    # location. Here `wsgi_app` can be missing if IMiddleware plugin replaces
+    # app instead of adding before/after request callbacks.
+    app.wsgi_app = HostHeaderMiddleware(getattr(app, "wsgi_app", app))
     app.wsgi_app = I18nMiddleware(app.wsgi_app)
 
     # Add a reference to the actual Flask app so it's easier to access. It can

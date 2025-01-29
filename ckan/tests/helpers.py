@@ -216,7 +216,7 @@ class CKANTestApp(object):
         key = config["REMEMBER_COOKIE_NAME"]
         domain = config["SESSION_COOKIE_DOMAIN"]
         if user_id:
-            with self.app.test_request_context():
+            with self.flask_app.test_request_context():
                 self.client.set_cookie(
                     key,
                     encode_cookie(user_id),
@@ -231,7 +231,7 @@ class CKANTestApp(object):
             user: model.User | None = None
     ):
         return CKANTestClient(
-            self.app,
+            self.flask_app,
             CKANResponse,
             use_cookies=use_cookies,
             user=user,
