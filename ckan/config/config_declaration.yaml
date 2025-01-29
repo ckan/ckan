@@ -338,7 +338,7 @@ groups:
         default: 31_536_000 # 1 year
         description: |
           If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
-          set this number of seconds in the future. Note that you can not set a 
+          set this number of seconds in the future. Note that you can not set a
           session that never expires (only very far into the future).
 
       - key: SESSION_USE_SIGNER

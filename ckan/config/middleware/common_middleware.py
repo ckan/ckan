@@ -36,21 +36,18 @@ class HostHeaderMiddleware(object):
         Prevent the `Host` header from the incoming request to be used
         in the `Location` header of a redirect.
     '''
-    def __init__(self, app: CKANApp | None = None):
-        if app:
-            self.init_app(app)
+    def __init__(self, app: Any):
+        self.app = app
 
-    def init_app(self, app: CKANApp):
-        app.before_request(self.before_request)
-
-    def before_request(self):
-        path_info = request.environ[u'PATH_INFO']
+    def __call__(self, environ: Any, start_response: Any) -> Any:
+        path_info = environ[u'PATH_INFO']
         if path_info in ['/login_generic', '/user/login',
                          '/user/logout', '/user/logged_in',
                          '/user/logged_out']:
             site_url = config.get('ckan.site_url')
             parts = urlparse(site_url)
-            request.environ['HTTP_HOST'] = str(parts.netloc)
+            environ['HTTP_HOST'] = str(parts.netloc)
+        return self.app(environ, start_response)
 
 
 class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):

@@ -95,15 +95,15 @@ class CKANSession(Session):
 
 
 class I18nMiddleware(object):
-    def __init__(self, app: CKANApp | None = None):
-        if app:
-            self.init_app(app)
+    def __init__(self, app: Any):
+        self.app = app
 
-    def init_app(self, app: CKANApp):
-        app.before_request(handle_i18n)
+    def __call__(self, environ: Any, start_response: Any):
+        handle_i18n(environ)
+        return self.app(environ, start_response)
 
 
-def handle_i18n() -> None:
+def handle_i18n(base_environ: dict[str, Any] | None) -> None:
     u'''
     Strips the locale code from the requested url
     (eg '/sk/about' -> '/about') and sets environ variables for the
@@ -113,7 +113,7 @@ def handle_i18n() -> None:
         * CKAN_LANG_IS_DEFAULT is set to True or False
         * CKAN_CURRENT_URL is set to the current application url
     '''
-    environ = request.environ
+    environ = base_environ or request.environ
     locale_list = get_locales_from_config()
     default_locale = config.get(u'ckan.locale_default')
 
@@ -298,8 +298,8 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         config[key] = flask_app.config[key]
 
     # Prevent the host from request to be added to the new header location.
-    HostHeaderMiddleware().init_app(app)
-    I18nMiddleware().init_app(app)
+    app.wsgi_app = HostHeaderMiddleware(app.wsgi_app)
+    app.wsgi_app = I18nMiddleware(app.wsgi_app)
 
     # Add a reference to the actual Flask app so it's easier to access. It can
     # be not required as CKAN does not replaces Flask app starting from
