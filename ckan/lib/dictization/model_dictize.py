@@ -269,8 +269,7 @@ def package_dictize(
     # Extra properties from the domain object
 
     # isopen
-    result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen, bool) \
-        else pkg.isopen()
+    result_dict['isopen'] = pkg.isopen()
 
     # type
     # if null assign the default value to make searching easier
