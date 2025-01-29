@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from typing import Any
+from unittest import mock
 import pytest
 from faker import Faker
 
@@ -72,3 +73,83 @@ class TestExampleIAuthenticator(object):
             "password": password
         })
         assert isinstance(result, model.AnonymousUser)
+
+
+@pytest.mark.ckan_config("ckan.plugins", "example_iauthenticator")
+@pytest.mark.usefixtures("with_plugins")
+class TestIdentification:
+    @pytest.fixture
+    def session_mock(self, monkeypatch: pytest.MonkeyPatch):
+        plugin = p.get_plugin("example_iauthenticator")
+        func = mock.Mock(return_value=None)
+        monkeypatch.setattr(plugin, "identify_session_user", func)
+        return func
+
+    @pytest.fixture
+    def request_mock(self, monkeypatch: pytest.MonkeyPatch):
+        plugin = p.get_plugin("example_iauthenticator")
+        func = mock.Mock(return_value=None)
+        monkeypatch.setattr(plugin, "identify_request_user", func)
+        return func
+
+    def test_anonymous(
+            self, app: Any,
+            session_mock: mock.Mock, request_mock: mock.Mock
+    ):
+        """Anonymous request without session relies only on request
+        identifier."""
+        app.get(toolkit.url_for('home.index'))
+        session_mock.assert_not_called()
+        request_mock.assert_called()
+
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_remembered_user(
+            self, app: Any, user: dict[str, Any],
+            session_mock: mock.Mock, request_mock: mock.Mock
+    ):
+        """Request with valid remember-cookie relies only on session
+        identifier."""
+        app.set_remember_user(user["name"])
+        app.get(toolkit.url_for('home.index'))
+        session_mock.assert_called_once_with(user["name"])
+        request_mock.assert_not_called()
+
+    def test_remembered_invalid_user(
+            self, app: Any,
+            session_mock: mock.Mock, request_mock: mock.Mock
+    ):
+        """Failed session identification via remember-cookie does not fallback
+        to request identifier(unlike identification via session data)."""
+        name = "NOT A REAL USER"
+        app.set_remember_user(name)
+        app.get(toolkit.url_for('home.index'))
+        session_mock.assert_called_with(name)
+        request_mock.assert_not_called()
+
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_session_user(
+            self, app: Any, user: dict[str, Any],
+            session_mock: mock.Mock, request_mock: mock.Mock
+    ):
+        """Request with valid session relies only on session
+        identifier."""
+        app.set_session_user(user["name"])
+        app.get(toolkit.url_for('home.index'))
+        session_mock.assert_called_once_with(user["id"])
+        request_mock.assert_not_called()
+
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_session_invalid_user(
+            self, app: Any, user_factory: Any,
+            session_mock: mock.Mock, request_mock: mock.Mock
+    ):
+        """Failed session identification via session data makes an attempt to
+        identify user via request identifier."""
+        user = user_factory.model()
+        app.set_session_user(user.id)
+        model.Session.delete(user)
+        model.Session.commit()
+
+        app.get(toolkit.url_for('home.index'))
+        session_mock.assert_called_with(user.id)
+        request_mock.assert_called()
