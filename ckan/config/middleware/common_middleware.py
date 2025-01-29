@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from flask.sessions import SecureCookieSessionInterface
 from flask_session.redis import RedisSessionInterface
 
-from ckan.common import config, request
+from ckan.common import config
 from ckan.types import CKANApp, Request
 from ckan.lib.redis import connect_to_redis
 
@@ -20,7 +20,7 @@ class RootPathMiddleware(object):
     path and ckan addes the root url causing a duplication of the root path.
     This is a middleware to ensure that even redirects use this logic.
     '''
-    def __init__(self, app: CKANApp):
+    def __init__(self, app: Any):
         self.app = app
 
     def __call__(self, environ: Any, start_response: Any):

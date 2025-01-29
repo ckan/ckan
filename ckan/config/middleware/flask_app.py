@@ -536,9 +536,7 @@ def _register_core_blueprints(app: CKANApp):
 def _register_error_handler(app: CKANApp):
     u'''Register error handler'''
 
-    def error_handler(e: Exception) -> Union[
-        tuple[str, Optional[int]], Optional[Response]
-    ]:
+    def error_handler(e: Exception) -> tuple[str, int]:
         debug = config.get('debug')
         if isinstance(e, HTTPException):
             if debug:
@@ -556,7 +554,7 @@ def _register_error_handler(app: CKANApp):
                 u'show_login_redirect_link': show_login_redirect_link
             }
             return base.render(
-                u'error_document_template.html', extra_vars), e.code
+                u'error_document_template.html', extra_vars), e.code or 500
 
         log.error(e, exc_info=sys.exc_info)  # type: ignore
         extra_vars = {u'code': [500], u'content': u'Internal server error'}
@@ -615,7 +613,7 @@ Headers:            %(headers)s
 
 
 def _setup_webassets(app: CKANApp):
-    app.use_x_sendfile = config.get('ckan.webassets.use_x_sendfile')
+    setattr(app, "use_x_sendfile", config.get('ckan.webassets.use_x_sendfile'))
 
     webassets_folder = get_webassets_path()
 
