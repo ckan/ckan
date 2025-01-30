@@ -91,10 +91,7 @@ def robots_txt() -> Response:
 def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
     target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
 
-    if request.args:
-        target += f'?{urlencode(request.args)}'
-
-    url = h.url_for(target, _external=True)
+    url = h.url_for_static(target, _external=True, **request.args.to_dict())
 
     return redirect(url, code=308)
 

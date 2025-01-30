@@ -315,11 +315,18 @@ def url_for(*args: Any, **kw: Any) -> str:
                 _external=True)
         # Returns http://example.com/api/3/action/status_show
     '''
+
+    # these variables set by `nav_link` helper and they must be removed or else
+    # you'll see them in query string. It's better to modify `nav_link` so that
+    # it doesn't adds unnecesarry arguments and doesn't lock us out of using
+    # actual query parameters with these names.
     blueprint = kw.pop("controller", None)
     view = kw.pop("action", None)
     if not args:
         args = (f"{blueprint}.{view}",)
 
+    # pylons-style absolute URLs. It should be removed after explicit
+    # deprecation.
     if kw.pop("qualified", False):
         kw.setdefault("_external", True)
 
@@ -338,27 +345,38 @@ def url_for(*args: Any, **kw: Any) -> str:
         if locale and locale not in allowed_locales:
             locale = None
 
-        default_locale = False
         if locale:
-            if locale == 'default':
-                default_locale = True
+            default_locale = locale == 'default'
         else:
-            try:
-                locale = request.environ.get('CKAN_LANG')
-                default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
-            except TypeError:
-                default_locale = True
+            locale = request.environ.get('CKAN_LANG')
+            default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
+
+        parsed = urlparse(url)
+        # # if SERVER_NAME variable is not set(tests, proxy), external URL
+        # # contains invalid host. Align it with `ckan.site_url`
+        # if kw.get("_external"):
+        #     scheme, netloc = helper_functions["get_site_protocol_and_host"]()
+        #     parsed = parsed._replace(
+        #         scheme=scheme,
+        #         netloc=netloc,
+        #     )
 
         if not default_locale:
+            # replace `{{LANG}}` part of `ckan.root_path` with selected
+            # locale. Flask doesn't know about `{{LANG}}` part, thanks to
+            # RootPathMiddleware, so we need to find the expected position of
+            # `{{LANG}}` and insert locale into this position.
+            idx = 0
             if root_path := config["ckan.root_path"]:
+                # if `{{LANG}}` is missing from root path, or root path is
+                # empty, insert locale in the beginning of the path.
                 idx = max(root_path.find("/{{LANG}}"), 0)
-            else:
-                idx = 0
-            parsed = urlparse(url)
+
             parsed = parsed._replace(
                 path=f"{parsed.path[:idx]}/{locale}{parsed.path[idx:]}",
             )
-            url = urlunparse(parsed)
+
+        url = urlunparse(parsed)
 
     finally:
         if _auto_flask_context:
@@ -367,15 +385,17 @@ def url_for(*args: Any, **kw: Any) -> str:
     return url
 
 
-
-
 @core_helper
 def url_for_static(filename: str, **kw: Any) -> str:
     '''Returns the URL for static content that doesn't get translated (eg CSS)
-
     '''
-    kw["filename"] = filename
-    return url_for("static", **kw)
+    url = urlparse(filename)
+    url_is_external = (url.scheme != '' or url.netloc != '')
+    if url_is_external:
+        raise ckan.exceptions.CkanUrlException(
+            'External URL passed to url_for_static()')
+
+    return helper_functions["url_for_static_or_external"](filename, **kw)
 
 
 @core_helper
@@ -383,7 +403,8 @@ def url_for_static_or_external(url: str, **kw: Any) -> str:
     '''Returns the URL for static content that doesn't get translated (eg CSS),
     or external URLs
     '''
-    if urlparse(url).scheme:
+    parsed = urlparse(url)
+    if parsed.scheme or parsed.netloc:
         return url
 
     kw["filename"] = url
@@ -416,9 +437,9 @@ def url_is_local(url: str) -> bool:
         return False
     parsed = urlparse(url)
     if parsed.scheme:
-        domain = urlparse(url_for('/', qualified=True)).netloc
-        if domain != parsed.netloc:
-            return False
+        netloc = helper_functions["get_site_protocol_and_host"]()[1]
+        return netloc == parsed.netloc
+
     return True
 
 

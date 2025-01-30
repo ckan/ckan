@@ -14,27 +14,24 @@ from ckan.lib.redis import connect_to_redis
 
 
 class RootPathMiddleware(object):
-    '''
-    Prevents the SCRIPT_NAME server variable conflicting with the ckan.root_url
-    config. The routes package uses the SCRIPT_NAME variable and appends to the
-    path and ckan addes the root url causing a duplication of the root path.
-    This is a middleware to ensure that even redirects use this logic.
-    '''
+    """Set SERVER_NAME and SCRIPT_NAME.
+
+    Ideally, these variables must be set by web server, but adding it here is
+    more reliable and works even when server configuration is not synchronized
+    with CKAN configuration.
+    """
     def __init__(self, app: CKANApp):
         self.app = app
 
     def __call__(self, environ: Any, start_response: Any):
-        # Prevents the variable interfering with the root_path logic
-        parsed = urlparse(config["ckan.site_url"])
-        environ["SERVER_NAME"] = parsed.netloc
+        # SERVER_NAME is used for building external URLs.
+        environ["SERVER_NAME"] = config["SERVER_NAME"]
 
-        if not environ.get("SCRIPT_NAME"):
-            application_root = config["ckan.root_path"] or "/"
-            if not application_root.endswith("/"):
-                application_root += "/"
-            application_root = application_root.replace("/{{LANG}}", "")
-            environ["SCRIPT_NAME"] = application_root
-
+        # SCRIPT_NAME defines the prefix of the URL path. It's set to
+        # `ckan.root_path` without locale part. The locale is added manually
+        # inside `url_for` helper, which opens a possibility for building
+        # cross-locale links(mainly used by language selector).
+        environ["SCRIPT_NAME"] = config["APPLICATION_ROOT"]
 
         return self.app(environ, start_response)
 

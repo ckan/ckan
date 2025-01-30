@@ -135,10 +135,14 @@ def include_asset(name: str) -> None:
         include_asset(dep)
 
     # Add `site_root` if configured
-    urls = [url_for_static_or_external(url) for url in bundle.urls()]
+    urls: list[str] = []
 
-    for url in urls:
-        link = url.split("?")[0]
+    for url in bundle.urls():
+        parts = url.split("?", 1)
+        link = parts.pop(0)
+        query = parts.pop() if parts else ""
+        link = url_for_static_or_external(link)
+        urls.append("?".join([link, query]))
         if link.endswith(".css"):
             type_ = "style"
             break

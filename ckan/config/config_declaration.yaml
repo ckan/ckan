@@ -47,7 +47,7 @@ groups:
   - annotation: ~
     options:
       - key: APPLICATION_ROOT
-        internal: true
+        ignored: true
       - key: BABEL_DEFAULT_LOCALE
         internal: true
       - key: BABEL_DEFAULT_TIMEZONE
@@ -93,7 +93,7 @@ groups:
       - key: SEND_FILE_MAX_AGE_DEFAULT
         internal: true
       - key: SERVER_NAME
-        internal: true
+        ignored: true
       - key: SESSION_COOKIE_PARTITIONED
         internal: true
       - key: TEMPLATES_AUTO_RELOAD

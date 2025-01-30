@@ -22,12 +22,11 @@ CkanUrlException = ckan.exceptions.CkanUrlException
 
 class BaseUrlFor(object):
     @pytest.fixture(autouse=True)
-    def request_context(self, monkeypatch, ckan_config, app):
+    def request_context(self, monkeypatch, ckan_config, make_app):
         monkeypatch.setitem(ckan_config, "ckan.site_url", "http://example.com")
-        self.request_context = app.flask_app.test_request_context()
-        self.request_context.push()
-        yield
-        self.request_context.pop()
+        with make_app().flask_app.test_request_context():
+            yield
+
 
 
 class TestHelpersUrlForStatic(BaseUrlFor):
@@ -113,7 +112,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @pytest.mark.ckan_config("ckan.root_path", "/foo/{{LANG}}")
     def test_url_for_with_locale_object(self):
         url = "/foo/de/dataset/my_dataset"
-        generated_url = h.url_for("/dataset/my_dataset", locale=Locale("de"))
+        generated_url = h.url_for("dataset.read", id="my_dataset", locale=Locale("de"))
         assert generated_url == url
 
     @pytest.mark.ckan_config("ckan.root_path", "/my/prefix")
@@ -174,7 +173,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     )
     def test_url_for_string_route_with_query_param(self, extra, exp):
         assert (
-            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for_static("/dataset/my_dataset", **extra) ==
             h.url_for("dataset.read", id="my_dataset", **extra) ==
             exp
         )
@@ -182,7 +181,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     def test_url_for_string_route_with_list_query_param(self):
         extra = {'multi': ['foo', 27, 27.3, True, None]}
         assert (
-            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for_static("/dataset/my_dataset", **extra) ==
             h.url_for("dataset.read", id="my_dataset", **extra) ==
             "/dataset/my_dataset?multi=foo&multi=27&multi=27.3&multi=True"
         )

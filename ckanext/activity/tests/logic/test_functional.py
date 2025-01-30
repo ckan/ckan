@@ -29,7 +29,7 @@ class TestPagination():
             )
 
         # Test initial pagination buttons are rendered correctly
-        url = tk.url_for("dataset.activity", id=dataset["id"])
+        url = tk.url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url)
 
         body = BeautifulSoup(response.body)
