@@ -196,7 +196,7 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
 
     def test_url_for_flask_route_old_syntax(self):
         url = "/api/3"
-        generated_url = h.url_for(controller="api", action="get_api", ver=3)
+        generated_url = h.url_for("api.get_api", ver=3)
         assert generated_url == url
 
     def test_url_for_flask_route_new_syntax_external(self):
@@ -213,7 +213,7 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
     def test_url_for_flask_route_old_syntax_external(self):
         url = "http://example.com/api/3"
         generated_url = h.url_for(
-            controller="api", action="get_api", ver=3, _external=True
+            "api.get_api", ver=3, _external=True
         )
         assert generated_url == url
 
@@ -221,14 +221,14 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
     def test_url_for_flask_route_old_syntax_external_with_root_path(self):
         url = "http://example.com/data/api/3"
         generated_url = h.url_for(
-            controller="api", action="get_api", ver=3, _external=True
+            "api.get_api", ver=3, _external=True
         )
         assert generated_url == url
 
     def test_url_for_flask_route_old_syntax_qualified(self):
         url = "http://example.com/api/3"
         generated_url = h.url_for(
-            controller="api", action="get_api", ver=3, qualified=True
+            "api.get_api", ver=3, qualified=True
         )
         assert generated_url == url
 
@@ -236,7 +236,7 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
     def test_url_for_flask_route_old_syntax_qualified_with_root_path(self):
         url = "http://example.com/data/api/3"
         generated_url = h.url_for(
-            controller="api", action="get_api", ver=3, qualified=True
+            "api.get_api", ver=3, qualified=True
         )
         assert generated_url == url
 
@@ -247,7 +247,7 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
 
     def test_url_for_flask_route_old_syntax_site_url(self):
         url = "/api/3"
-        generated_url = h.url_for(controller="api", action="get_api", ver=3)
+        generated_url = h.url_for("api.get_api", ver=3)
         assert generated_url == url
 
     def test_url_for_flask_route_new_syntax_request_context(self, app):

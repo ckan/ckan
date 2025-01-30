@@ -25,8 +25,16 @@ class RootPathMiddleware(object):
 
     def __call__(self, environ: Any, start_response: Any):
         # Prevents the variable interfering with the root_path logic
-        if 'SCRIPT_NAME' in environ:
-            environ['SCRIPT_NAME'] = ''
+        parsed = urlparse(config["ckan.site_url"])
+        environ["SERVER_NAME"] = parsed.netloc
+
+        if not environ.get("SCRIPT_NAME"):
+            application_root = config["ckan.root_path"] or "/"
+            if not application_root.endswith("/"):
+                application_root += "/"
+            application_root = application_root.replace("/{{LANG}}", "")
+            environ["SCRIPT_NAME"] = application_root
+
 
         return self.app(environ, start_response)
 

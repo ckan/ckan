@@ -45,7 +45,7 @@ def test_group_datasets_read(app):
         for dataset in factories.Dataset.create_batch(51, groups=[{"name": group["name"]}])
     ]
     resp = app.get(
-        url_for(controller="group", action="read", id=group["name"])
+        url_for("group.read", id=group["name"])
     )
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
@@ -58,7 +58,7 @@ def test_group_datasets_read(app):
     assert all_names[:-21:-1] == names
 
     resp = app.get(
-        url_for(controller="group", action="read", id=group["name"], page=2)
+        url_for("group.read", id=group["name"], page=2)
     )
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]

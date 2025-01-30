@@ -238,7 +238,7 @@ Works exactly the same as ``h.link_for()``:
 
 ::
 
-    <li>{% link_for _("Home"), controller="home", action="index" %}</li>
+    <li>{% link_for _("Home"), named_route="home.index" %}</li>
 
 url\_for\_static
 ~~~~~~~~~~~~~~~~

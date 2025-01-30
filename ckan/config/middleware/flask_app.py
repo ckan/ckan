@@ -140,8 +140,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         app.config.update(conf)
 
     # Do all the Flask-specific stuff before adding other middlewares
-
-    root_path = config.get('ckan.root_path')
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -151,17 +149,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         # initializing debug app. In such a way, our route receives
         # higher precedence.
 
-        # TODO: After removal of Pylons code, switch to
-        # `APPLICATION_ROOT` config value for flask application. Right
-        # now it's a bad option because we are handling both pylons
-        # and flask urls inside helpers and splitting this logic will
-        # bring us tons of headache.
-        if root_path:
-            app.add_url_rule(
-                root_path.replace('{{LANG}}', '').rstrip('/') +
-                '/_debug_toolbar/static/<path:filename>',
-                '_debug_toolbar.static', debug_ext.send_static_file
-            )
         debug_ext.init_app(app)
 
         from werkzeug.debug import DebuggedApplication
