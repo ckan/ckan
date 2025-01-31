@@ -603,6 +603,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         ])
 
     output_stream = StringIO()
+    output_stream.write('\N{BOM}')  # for Excel handling of non-ASCII
     csv.writer(output_stream).writerows(results)
 
     file_name = u'{org_id}-{members}'.format(
