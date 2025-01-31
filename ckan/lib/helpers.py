@@ -33,7 +33,7 @@ from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
 import flask
-from flask import flash, has_request_context, current_app
+from flask import flash, has_app_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 
@@ -279,18 +279,18 @@ def _get_auto_flask_context():
     of a web request (tests or CLI)
     '''
     # This is a normal web request, there is a request context present
-    if has_request_context():
+    if has_app_context():
         return None
 
     # We are outside a web request. A test web application was created
     # (and with it a test request context with the relevant configuration)
-    from ckan.config.middleware import _internal_test_request_context
-    if _internal_test_request_context:
-        return _internal_test_request_context
+    from ckan.config.middleware import _internal_app_context
+    if _internal_app_context:
+        return _internal_app_context
 
-    from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
-    if _tests_test_request_context:
-        return _tests_test_request_context
+    from ckan.tests.pytest_ckan.ckan_setup import _tests_app_context
+    if _tests_app_context:
+        return _tests_app_context
 
 
 @core_helper
@@ -327,26 +327,26 @@ def url_for(*args: Any, **kw: Any) -> str:
     # deprecation.
     if kw.pop("qualified", False):
         kw.setdefault("_external", True)
+    if not request:
+        kw.setdefault("_external", False)
 
-    locale = kw.pop('locale', None)
+    locale: str | i18n.Locale | None = kw.pop('locale', None)
 
     _safe_context = _get_auto_flask_context() or contextlib.nullcontext()
-
     with _safe_context:
         url = flask.url_for(*args, **kw)
 
-        if not locale != 'default':
+        if locale != 'default':
             is_default = False
-
             if isinstance(locale, i18n.Locale):
                 locale = i18n.get_identifier_from_locale_class(locale)
 
             allowed_locales = i18n.get_locales()
-            if locale not in allowed_locales:
-                locale = request.environ.get('CKAN_LANG')
+            if request and locale not in allowed_locales:
+                locale = cast("str | None", request.environ.get('CKAN_LANG'))
                 is_default = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
 
-            if not is_default:
+            if locale and not is_default:
                 url = _inject_locale(locale, url)
 
     return url

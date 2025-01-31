@@ -22,11 +22,13 @@ CkanUrlException = ckan.exceptions.CkanUrlException
 
 class BaseUrlFor(object):
     @pytest.fixture(autouse=True)
-    def request_context(self, monkeypatch, ckan_config, make_app):
+    def request_context(self, monkeypatch: pytest.MonkeyPatch, ckan_config, make_app):
         monkeypatch.setitem(ckan_config, "ckan.site_url", "http://example.com")
         with make_app().flask_app.test_request_context():
             yield
-
+        # reset APPLICATION_ROOT and SERVER_NAME
+        monkeypatch.undo()
+        make_app()
 
 class TestHelpersUrlForStatic(BaseUrlFor):
     def test_url_for_static(self):
