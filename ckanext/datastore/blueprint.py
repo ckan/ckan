@@ -139,9 +139,9 @@ class DictionaryView(MethodView):
     def _prepare(self, id: str, resource_id: str) -> dict[str, Any]:
         try:
             check_access(
-                "datastore_upsert",
+                "datastore_create",
                 context={"user": current_user.name, "auth_user_obj": current_user},
-                data_dict={"id": id, "resource_id": resource_id},
+                data_dict={"resource_id": resource_id},
             )
 
             # resource_edit_base template uses these
