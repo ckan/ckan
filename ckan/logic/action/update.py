@@ -949,6 +949,7 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     include_plugin_extras = False
     if author_obj:
         include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+    print(user, context, include_plugin_extras)
     user_dict = model_dictize.user_dictize(
         user, context, include_plugin_extras=include_plugin_extras)
 

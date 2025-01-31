@@ -1,0 +1,1 @@
+Allows plugins to change the user name during user patch
