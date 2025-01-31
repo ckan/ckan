@@ -30,6 +30,7 @@ class BaseUrlFor(object):
         monkeypatch.undo()
         make_app()
 
+
 class TestHelpersUrlForStatic(BaseUrlFor):
     def test_url_for_static(self):
         url = "/assets/ckan.jpg"
