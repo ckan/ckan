@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from urllib.parse import urlencode
 from typing import Any, Optional, List, Tuple
 
 from flask import Blueprint, make_response, redirect, request

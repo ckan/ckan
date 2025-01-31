@@ -278,15 +278,13 @@ def _get_auto_flask_context():
     Provides a Flask test request context if we are outside the context
     of a web request (tests or CLI)
     '''
-
-    from ckan.config.middleware import _internal_test_request_context
-
     # This is a normal web request, there is a request context present
     if has_request_context():
         return None
 
     # We are outside a web request. A test web application was created
     # (and with it a test request context with the relevant configuration)
+    from ckan.config.middleware import _internal_test_request_context
     if _internal_test_request_context:
         return _internal_test_request_context
 
@@ -332,57 +330,45 @@ def url_for(*args: Any, **kw: Any) -> str:
 
     locale = kw.pop('locale', None)
 
-    _auto_flask_context = _get_auto_flask_context()
-    try:
-        if _auto_flask_context:
-            _auto_flask_context.push()
+    _safe_context = _get_auto_flask_context() or contextlib.nullcontext()
 
+    with _safe_context:
         url = flask.url_for(*args, **kw)
 
-        if locale and isinstance(locale, i18n.Locale):
-            locale = i18n.get_identifier_from_locale_class(locale)
-        allowed_locales = ['default'] + i18n.get_locales()
-        if locale and locale not in allowed_locales:
-            locale = None
+        if not locale != 'default':
+            is_default = False
 
-        if locale:
-            default_locale = locale == 'default'
-        else:
-            locale = request.environ.get('CKAN_LANG')
-            default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
+            if isinstance(locale, i18n.Locale):
+                locale = i18n.get_identifier_from_locale_class(locale)
 
-        parsed = urlparse(url)
-        # # if SERVER_NAME variable is not set(tests, proxy), external URL
-        # # contains invalid host. Align it with `ckan.site_url`
-        # if kw.get("_external"):
-        #     scheme, netloc = helper_functions["get_site_protocol_and_host"]()
-        #     parsed = parsed._replace(
-        #         scheme=scheme,
-        #         netloc=netloc,
-        #     )
+            allowed_locales = i18n.get_locales()
+            if locale not in allowed_locales:
+                locale = request.environ.get('CKAN_LANG')
+                is_default = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
 
-        if not default_locale:
-            # replace `{{LANG}}` part of `ckan.root_path` with selected
-            # locale. Flask doesn't know about `{{LANG}}` part, thanks to
-            # RootPathMiddleware, so we need to find the expected position of
-            # `{{LANG}}` and insert locale into this position.
-            idx = 0
-            if root_path := config["ckan.root_path"]:
-                # if `{{LANG}}` is missing from root path, or root path is
-                # empty, insert locale in the beginning of the path.
-                idx = max(root_path.find("/{{LANG}}"), 0)
-
-            parsed = parsed._replace(
-                path=f"{parsed.path[:idx]}/{locale}{parsed.path[idx:]}",
-            )
-
-        url = urlunparse(parsed)
-
-    finally:
-        if _auto_flask_context:
-            _auto_flask_context.pop()
+            if not is_default:
+                url = _inject_locale(locale, url)
 
     return url
+
+
+def _inject_locale(locale: str, url: str) -> str:
+    """Replace `{{LANG}}` part of `ckan.root_path` with specified locale.
+
+    Flask doesn't know about `{{LANG}}` part, thanks to RootPathMiddleware, so
+    we need to find the expected position of `{{LANG}}` and insert locale into
+    this position.
+    """
+    idx = 0
+    if root_path := config["ckan.root_path"]:
+        # if `{{LANG}}` is missing from root path, or root path is
+        # empty, insert locale in the beginning of the path.
+        idx = max(root_path.find("/{{LANG}}"), 0)
+
+    parsed = urlparse(url)
+    localised_path = f"{parsed.path[:idx]}/{locale}{parsed.path[idx:]}"
+    parsed = parsed._replace(path=localised_path)
+    return urlunparse(parsed)
 
 
 @core_helper
@@ -448,6 +434,7 @@ def full_current_url() -> str:
     ''' Returns the fully qualified current url (eg http://...) useful
     for sharing etc '''
     return request.url
+
 
 @core_helper
 def current_url() -> str:

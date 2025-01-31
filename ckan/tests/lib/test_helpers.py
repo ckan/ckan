@@ -28,7 +28,6 @@ class BaseUrlFor(object):
             yield
 
 
-
 class TestHelpersUrlForStatic(BaseUrlFor):
     def test_url_for_static(self):
         url = "/assets/ckan.jpg"
