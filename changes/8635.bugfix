@@ -1,1 +1,1 @@
-Fix CSV export error caused by writing BOM_UTF8 to output stream.
+Fix CSV export error by ensuring BOM is written correctly as a string for Excel compatibility.
