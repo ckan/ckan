@@ -2114,9 +2114,9 @@ class TestUserPluginExtras(object):
         )
 
         assert user["plugin_extras"] is None
-    
+
     def test_extensions_can_provide_custom_id(self):
-        
+
         stub = factories.User.stub()
         context = {"user": None, "ignore_auth": True}
         _id = str(uuid.uuid4())
