@@ -345,7 +345,7 @@ class PackageSearchQuery(SearchQuery):
             'fq': 'site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'}
 
         conn = make_connection(decode_dates=False)
-        log.debug('Package query: %r' % query)
+        log.debug('Package query: %r', query)
         try:
             solr_response = conn.search(**query)
         except pysolr.SolrError as e:
@@ -455,7 +455,7 @@ class PackageSearchQuery(SearchQuery):
 
 
         conn = make_connection(decode_dates=False)
-        log.debug('Package query: %r' % query)
+        log.debug('Package query: %r', query)
         try:
             solr_response = conn.search(**query)
         except pysolr.SolrError as e:
