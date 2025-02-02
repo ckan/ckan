@@ -22,19 +22,23 @@
     }
 }
 
-.btn-default {
-    border: $table-border-color solid 1px;
+.btn-secondary {
+    background-color: transparent;
+    color: $gray-800;
+    border: $table-border-color solid 2px;
     &:hover {
         background-color: $gray-300 !important;
+        border: $gray-300 solid 2px;
+        color: $gray-800;
     }
 }
 
 .btn-light {
-    background-color: $gray-50;
+    background-color: $gray-100;
     color: $gray-800;
-    border: $gray-50 solid 2px;
+    border: $gray-100 solid 2px;
     &:hover {
-        background-color: $gray-100 !important;
-        border: $gray-100 solid 2px;
+        background-color: $gray-200 !important;
+        border: $gray-200 solid 2px;
     }
 }
