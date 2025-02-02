@@ -15371,7 +15371,7 @@ section.module.module-narrow.module-shallow .accordion-item:first-of-type .accor
   border-radius: 6px;
 }
 section.module.module-narrow.module-shallow .accordion-body {
-  background-color: #F9FAFB;
+  background-color: white;
 }
 section.module.module-narrow.module-shallow .accordion-body .list-group {
   padding-top: 4px;

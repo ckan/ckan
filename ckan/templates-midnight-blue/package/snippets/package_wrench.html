@@ -17,8 +17,11 @@
                         <div class="dropdown position-absolute end-0 me-2">
                           <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ pkg.id }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
                           <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ pkg.id }}">
+                            {% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
+                            {% if can_edit %}
                             <li>{% link_for _('Edit Package'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='dropdown-item', icon='pencil' %}</li>
                             {% block resources_list_edit_dropdown_inner scoped %}{% endblock %}
+                            {% endif %}
                             <li>{% link_for _('View Package'), named_route=pkg.type ~ '.read', id=pkg.name, class_='dropdown-item', icon='chart-bar' %}</li>
                           </ul>
                         </div>
