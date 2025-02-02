@@ -3,6 +3,10 @@
     gap: 0.5rem;
     align-items: center;
     @include box-shadow(none);
+    &.outline {
+        border: solid 2px;
+        background-color: $white;
+    }
 }
 
 .btn-primary {
@@ -10,15 +14,12 @@
     &:hover {
         background-color: $brand-700;
     }
-}
-
-.btn-outline {
-    border: $brand-500 solid 2px;
-    background-color: $white !important;
-    color: $brand-500;
-    &:hover {
-        background-color: $gray-100 !important;
+    &.outline {
         color: $brand-500;
+        &:hover {
+            background-color: $gray-100 !important;
+            color: $brand-500;
+        }
     }
 }
 
