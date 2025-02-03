@@ -336,18 +336,18 @@ def url_for(*args: Any, **kw: Any) -> str:
     with _safe_context:
         url = flask.url_for(*args, **kw)
 
-        if locale != 'default':
-            is_default = False
-            if isinstance(locale, i18n.Locale):
-                locale = i18n.get_identifier_from_locale_class(locale)
+    if locale != 'default':
+        is_default = False
+        if isinstance(locale, i18n.Locale):
+            locale = i18n.get_identifier_from_locale_class(locale)
 
-            allowed_locales = i18n.get_locales()
-            if request and locale not in allowed_locales:
-                locale = cast("str | None", request.environ.get('CKAN_LANG'))
-                is_default = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
+        allowed_locales = i18n.get_locales()
+        if request and locale not in allowed_locales:
+            locale = cast("str | None", request.environ.get('CKAN_LANG'))
+            is_default = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
 
-            if locale and not is_default:
-                url = _inject_locale(locale, url)
+        if locale and not is_default:
+            url = _inject_locale(locale, url)
 
     return url
 
