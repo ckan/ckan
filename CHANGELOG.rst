@@ -8,6 +8,26 @@ Changelog
 ---------
 
 .. towncrier release notes start
+v.2.10.7 2025-02-05
+===================
+
+Minor changes
+-------------
+- Adapt login failure message if reCAPTCHA is enabled (`#8627
+  <https://github.com/ckan/ckan/pull/8627>`_)
+- Update release process docs (`#8586
+  <https://github.com/ckan/ckan/pull/8586>`_)
+- Support 2.11 version of the Solr schema in CKAN 2.10 (``5acfeda6e``)
+
+  
+Bugfixes
+--------
+
+- `CVE-2025-XXXXX <https://github.com/ckan/ckan/security/advisories/XXXXX>`_: TODO
+- Invalidate cached pages and load fresh ones if cookies change (`#6955
+  <https://github.com/ckan/ckan/pull/6955>`_)
+- Fix `check_access` order for resource create view (`#8588
+  <https://github.com/ckan/ckan/pull/8588>`_)
 
 v.2.10.6 2024-12-11
 ===================
