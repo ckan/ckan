@@ -9,6 +9,30 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.11.2 2025-02-05
+===================
+
+Minor changes
+-------------
+
+- Adapt login failure message if reCAPTCHA is enabled (`#8627
+  <https://github.com/ckan/ckan/pull/8627>`_)
+- Update release process docs (`#8586
+  <https://github.com/ckan/ckan/pull/8586>`_)
+
+
+Bugfixes
+--------
+
+- `CVE-2025-XXXXX <https://github.com/ckan/ckan/security/advisories/XXXXX>`_: TODO
+- Invalidate cached pages and load fresh ones if cookies change (`#6955
+  <https://github.com/ckan/ckan/pull/6955>`_)
+- Fix `check_access` order for resource create view (`#8588
+  <https://github.com/ckan/ckan/pull/8588>`_)
+- Fix CSV export error by ensuring BOM is written correctly as a string for
+  Excel compatibility. (`#8635 <https://github.com/ckan/ckan/pull/8635>`_)
+
+
 v.2.11.1 2024-12-11
 ===================
 
