@@ -49,6 +49,7 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
 
     # __no_cache__ should not be present when caching is allowed
     allow_cache = u'__no_cache__' not in request.environ
+    limit_cache_by_cookie = u'__limit_cache_by_cookie__' in request.environ
 
     if u'Pragma' in response.headers:
         del response.headers["Pragma"]
@@ -63,6 +64,10 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
             pass
     else:
         response.cache_control.private = True
+
+    # Invalidate cached pages upon login/logout
+    if limit_cache_by_cookie:
+        response.vary.add("Cookie")
 
     return response
 

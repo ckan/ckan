@@ -130,6 +130,8 @@ def _allow_caching(cache_force: Optional[bool] = None):
     elif not config.get('ckan.cache_enabled'):
         allow_cache = False
 
+    # Any rendered template will have a login-sensitive header
+    request.environ['__limit_cache_by_cookie__'] = True
     if not allow_cache:
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
