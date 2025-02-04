@@ -3,7 +3,7 @@ from typing import Any
 
 from flask import Blueprint, make_response
 
-from ckan import model, types, plugins as p
+from ckan import model, plugins as p
 
 
 toolkit = p.toolkit
@@ -33,13 +33,8 @@ class ExampleIAuthenticatorPlugin(p.SingletonPlugin):
 
     # IAuthenticator
 
-    def identify_session_user(
-            self, user_id: str,
-    ) -> model.User | model.AnonymousUser | None:
-        pass
-
-    def identify_request_user(
-            self, request: types.Request,
+    def identify_user(
+            self, user_id: str | None = None,
     ) -> model.User | model.AnonymousUser | None:
         pass
 

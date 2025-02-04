@@ -1,17 +1,18 @@
 Setting ``g.user`` via ``IAuthenticator.identify`` is broken since CKAN
 v2.10. Now, it's possible to achieve similar results using
-``IAuthenticator.identify_session_user`` and
-``IAuthenticator.identify_request_user``. ``IAuthenticator.identify_session_user``
-is called with and ID of user when application detects existing user
-session. It must return ``model.User`` object, which resembles setting
-``g.user`` in before CKAN v2.10.
+``IAuthenticator.identify_user`. This new method is called with and ID of user
+when application detects existing user session. It must return ``model.User``
+object, which resembles setting ``g.user`` in before CKAN
+v2.10. ``IAuthenticator.identify`` is kept as-is for now, because it can be
+used for early request interruption via returning a response object.
 
-If there is no active session or ``IAuthenticator.identify_session_user`` fails
-to identify user, ``IAuthenticator.identify_request_user`` is called with the
-current request object. If it returns ``model.User``(based on headers, for
-example), it resembles setting ``g.user`` in before CKAN v2.10 and request
-happens as if corresponding user is authenticated.
-
+If there is no active session or all implementations of
+``IAuthenticator.identify_user`` fail to identify user by returning ``None``,
+``IAuthenticator.identify_user`` is called once again without arguments. Using
+this flow, plugin can ignore initial call with the ``user_id``, keeping default
+authentication intact. And if default authentication cannot find the user for
+the current session, the plugin intercepts the second call and identifies user
+using header, cookie or other request parameters.
 
 Before::
 
@@ -23,23 +24,14 @@ Before::
 
 After::
 
-  def identify_request_user(self, request):
-      # this method get called only if user cannot be identified using session
-      # data
+  def identify_user(self, user_id: str | None = None):
+      # when user_id is set, try implementations from other plugins
+      # and default authentication first
+      if user_id:
+          return None
+
+      # if user hasn't been identified during the first call, use
+      # headers for authentication
       username = request.headers.get("USERNAME")
       if is_verified(username):
           return model.User.get(username)
-
-  ## or
-
-  def identify_session_user(self, user_id):
-      # this method get called only when flask-login locates an existing user
-      # session
-      username = request.headers.get("USERNAME")
-
-      # ignore ID from session and login using header value if you trust this header
-      if is_verified(username):
-          return model.User.get(username)
-
-      # otherwise, continue with default implementation
-      return None

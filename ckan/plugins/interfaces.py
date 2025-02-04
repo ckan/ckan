@@ -17,7 +17,7 @@ from flask.wrappers import Response
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
     PUploader, PResourceUploader, Schema, SignalMapping, Validator,
-    CKANApp, Request)
+    CKANApp)
 
 from .base import Interface, Plugin
 
@@ -1721,56 +1721,30 @@ class IAuthenticator(Interface):
 
         p.implements(IMiddleware, inherit=True)
         def make_middleware(self, app):
-            app.before request(
+            app.before_request(
                 lambda: toolkit.redirect_to('myplugin.custom_endpoint')
             )
 
     '''
 
-    def identify_session_user(
-            self, user_id: str,
+    def identify_user(
+            self, user_id: str | None = None,
     ) -> model.User | model.AnonymousUser | None:
-        """Load a user using identifier stored in the session.
+        """Load a user using.
 
         When :py:func:`~ckan.plugins.toolkit.ckan.plugins.toolkit.login_user`
         is called with a user object, user's ID is saved in the session. After
         that, in the beginning of each request the same user's ID from the
-        session is used to get user details via
-        :py:meth:`.identify_session_user`. And when
-        :py:func:`~ckan.plugins.toolkit.ckan.plugins.toolkit.logout_user` is
-        called or session is manually cleared,
-        :py:meth:`.identify_session_user` is no longer called.
+        session is used to get user details via :py:meth:`.identify_user`.
 
-        The implementation takes a user ID and returns:
+        If all implementations of the method return ``None`` when called with
+        non-empty ``user_id``, application assumes that the user stored in the
+        session is not valid and calls the method once again, but without
+        arguments this time. At this point implementations have a chance to
+        identify user using request details or any other appropriate source of
+        user's identity.
 
-        * a :py:class:`~ckan.model.User` object if user is identified
-
-        * a :py:class:`~ckan.model.AnonymousUser` object if user definitely is
-          not authenticated and identification from following plugins must be
-          ignored.
-
-        * ``None`` if the user cannot be identified by the current
-          implementation, but there is a chance that following plugins can
-          identify it.
-
-        If any implementation returns :py:class:`~ckan.model.AnonymousUser`, no
-        further processing happens and app treats the request as an anonymous
-        request. If all implementations return ``None``,
-        :py:meth:`.identify_request_user` will be used as a fallback.
-
-        """
-        return None
-
-    def identify_request_user(
-            self, request: Request,
-    ) -> model.User | model.AnonymousUser | None:
-        """Load a user from the request.
-
-        This method called if all implementations of
-        :py:meth:`.identify_session_user` failed to identify user by returning
-        ``None`` or if there is no user ID in the session.
-
-        The implementation takes the current request and returns:
+        The implementation returns:
 
         * a :py:class:`~ckan.model.User` object if user is identified
 
@@ -1781,6 +1755,13 @@ class IAuthenticator(Interface):
         * ``None`` if the user cannot be identified by the current
           implementation, but there is a chance that following plugins can
           identify it.
+
+        If any implementation returns :py:class:`~ckan.model.AnonymousUser` for
+        call with ``user_id``, no further processing happens and app treats the
+        request as an anonymous request. If all implementations return
+        ``None``, :py:meth:`.identify_user` will be called once again without
+        arguments.
+
         """
         return None
 
@@ -1788,11 +1769,11 @@ class IAuthenticator(Interface):
         '''DEPRECATED. Called for side effects before the request.
 
         Formerly it was used to identify a user during the request. This
-        responsibility is moved to :py:meth:`.identify_session_user` and
-        :py:meth:`.identify_request_user`. The current method can perform
-        side-effects or produce a response object to stop further processing of
-        the requests. More idiomatic way to achieve both goals is using Flask's
-        ``app.before_request`` callback, that can be registered using
+        responsibility is moved to :py:meth:`.identify_user`. The
+        current method can perform side-effects or produce a response object to
+        stop further processing of the requests. More idiomatic way to achieve
+        both goals is using Flask's ``app.before_request`` callback, that can
+        be registered using
         :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` method.
 
         '''

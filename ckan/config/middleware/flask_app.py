@@ -104,7 +104,7 @@ class I18nMiddleware(object):
 
 
 def handle_i18n(base_environ: dict[str, Any] | None) -> None:
-    u'''
+    '''
     Strips the locale code from the requested url
     (eg '/sk/about' -> '/about') and sets environ variables for the
     language selected:
@@ -321,14 +321,21 @@ def load_user(user_id: str) -> model.User | model.AnonymousUser | None:
     authentication for API calls, but that will break existing JS widgets
     that rely on API calls so it should be used with caution.
     """
-    for p in PluginImplementations(IAuthenticator):
-        if user := p.identify_session_user(user_id):
-            return user
-
     endpoint = request.endpoint or ""
     is_api = endpoint.split(".")[0] == "api"
-    if is_api and not config.get("ckan.auth.enable_cookie_auth_in_api"):
+    if is_api and not config["ckan.auth.enable_cookie_auth_in_api"]:
         return
+
+    for p in PluginImplementations(IAuthenticator):
+        if user := p.identify_user(user_id):
+            return user
+
+    # give API Token authentication higher precedence than default session
+    # login
+    if user := _get_user_for_apitoken():
+        g.login_via_auth_header = True
+        return user
+
     return model.User.get(user_id)
 
 
@@ -340,12 +347,15 @@ def load_user_from_request(
     authenticated via the session cookie, so we fall back to the API token.
     """
     for p in PluginImplementations(IAuthenticator):
-        if user := p.identify_request_user(request):
+        if user := p.identify_user():
             return user
 
-    g.login_via_auth_header = True
-
-    return _get_user_for_apitoken()
+    # similar lines are executed when user loaded from session. There they are
+    # used to override session information using header. Here they are used as
+    # fallback, when session does not exist.
+    if user := _get_user_for_apitoken():
+        g.login_via_auth_header = True
+        return user
 
 
 def _get_user_for_apitoken() -> model.User | None:
@@ -355,9 +365,14 @@ def _get_user_for_apitoken() -> model.User | None:
     if not apitoken:
         return None
     apitoken = str(apitoken)
-    log.debug('Received API Token: %s[...]', apitoken[:10])
+    user = api_token.get_user_from_token(apitoken)
+    log.debug(
+        'Received API Token: %s[...]. Identified user: %s',
+        apitoken[:10],
+        user.name if user else None,
+    )
 
-    return api_token.get_user_from_token(apitoken)
+    return user
 
 
 def get_locale() -> str:
@@ -615,7 +630,7 @@ Headers:            %(headers)s
 
 
 def _setup_webassets(app: CKANApp):
-    setattr(app, "use_x_sendfile", config.get('ckan.webassets.use_x_sendfile'))
+    app.use_x_sendfile = config.get('ckan.webassets.use_x_sendfile')  # type: ignore
 
     webassets_folder = get_webassets_path()
 
