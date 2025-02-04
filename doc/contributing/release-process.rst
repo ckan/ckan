@@ -410,15 +410,6 @@ To manage translations you will need the Transifex CLI.
         git commit -am "Update translations from Transifex"
         git push
 
-<<<<<<< HEAD
-#. Cherry-pick PRs marked for back-port.
-
-   These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
-   relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
-   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the
-   cherry-picking has been done (but leave the version ones).
-=======
->>>>>>> 846b88722... Update CKAN releases documentation
 
 Issue template
 ==============
