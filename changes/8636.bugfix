@@ -1,8 +1,8 @@
 Setting ``g.user`` via ``IAuthenticator.identify`` is broken since CKAN
 v2.10. Now, it's possible to achieve similar results using
-``IAuthenticator.identify_user`. This new method is called with and ID of user
-when application detects existing user session. It must return ``model.User``
-object, which resembles setting ``g.user`` in before CKAN
+``IAuthenticator.identify_user`. This new method is called with an ID of the
+user when application detects an existing user session. It must return
+``model.User`` object, which resembles setting ``g.user`` in before
 v2.10. ``IAuthenticator.identify`` is kept as-is for now, because it can be
 used for early request interruption via returning a response object.
 
