@@ -115,23 +115,23 @@ def handle_i18n(base_environ: dict[str, Any] | None) -> None:
     '''
     environ = base_environ or request.environ
     locale_list = get_locales_from_config()
-    default_locale = config.get(u'ckan.locale_default')
+    default_locale = config.get('ckan.locale_default')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc
-    if u'CKAN_LANG' not in environ:
-        path_parts = environ[u'PATH_INFO'].split(u'/')
+    if 'CKAN_LANG' not in environ:
+        path_parts = environ['PATH_INFO'].split('/')
         if len(path_parts) > 1 and path_parts[1] in locale_list:
-            environ[u'CKAN_LANG'] = path_parts[1]
-            environ[u'CKAN_LANG_IS_DEFAULT'] = False
+            environ['CKAN_LANG'] = path_parts[1]
+            environ['CKAN_LANG_IS_DEFAULT'] = False
             # rewrite url
             if len(path_parts) > 2:
-                environ[u'PATH_INFO'] = u'/'.join([u''] + path_parts[2:])
+                environ['PATH_INFO'] = '/'.join([''] + path_parts[2:])
             else:
-                environ[u'PATH_INFO'] = u'/'
+                environ['PATH_INFO'] = '/'
         else:
-            environ[u'CKAN_LANG'] = default_locale
-            environ[u'CKAN_LANG_IS_DEFAULT'] = True
+            environ['CKAN_LANG'] = default_locale
+            environ['CKAN_LANG_IS_DEFAULT'] = True
 
         set_ckan_current_url(environ)
 
@@ -571,7 +571,7 @@ def _register_error_handler(app: CKANApp):
                 u'show_login_redirect_link': show_login_redirect_link
             }
             return base.render(
-                u'error_document_template.html', extra_vars), e.code or 500
+                'error_document_template.html', extra_vars), e.code or 500
 
         log.error(e, exc_info=sys.exc_info)  # type: ignore
         extra_vars = {u'code': [500], u'content': u'Internal server error'}
