@@ -31,6 +31,8 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/8588>`_)
 - Fix CSV export error by ensuring BOM is written correctly as a string for
   Excel compatibility. (`#8635 <https://github.com/ckan/ckan/pull/8635>`_)
+- Fix auth check for datastore data dictionary view (`#8639
+  <https://github.com/ckan/ckan/pull/8639>`_)
 
 
 v.2.11.1 2024-12-11
