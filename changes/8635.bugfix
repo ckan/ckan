@@ -1,1 +1,0 @@
-Fix CSV export error by ensuring BOM is written correctly as a string for Excel compatibility.
