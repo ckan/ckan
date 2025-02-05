@@ -29,6 +29,10 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/6955>`_)
 - Fix `check_access` order for resource create view (`#8588
   <https://github.com/ckan/ckan/pull/8588>`_)
+- Fix auth check for datastore data dictionary view (`#8639
+  <https://github.com/ckan/ckan/pull/8639>`_)
+
+
 
 v.2.10.6 2024-12-11
 ===================
