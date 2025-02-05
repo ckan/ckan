@@ -58,7 +58,7 @@ import ckan
 
 
 from ckan.lib.pagination import Page  # type: ignore # noqa
-from ckan.common import _, g, request, json
+from ckan.common import _, g, request, json, get_pluralized_group_type
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -2528,7 +2528,9 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
 
     groups_data = []
 
-    extras = logic.get_action(list_action)({}, {})
+    type_ = "group" if list_action == "group_list" else "organization"
+    group_type = default_group_type(type_)
+    extras = logic.get_action(list_action)({}, {"type": group_type})
 
     # list of found ids to prevent duplicates
     found = []
@@ -2702,6 +2704,7 @@ core_helper(localised_SI_number)
 core_helper(localised_nice_date)
 core_helper(localised_filesize)
 core_helper(plugin_loaded)
+core_helper(get_pluralized_group_type)
 # Useful additionsfrom the i18n library.
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)

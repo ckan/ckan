@@ -10,7 +10,7 @@ from flask import Blueprint
 
 import ckan.logic.schema as schema
 from ckan.lib.maintain import deprecated
-from ckan.common import g
+from ckan.common import g, config
 from ckan import logic, model, plugins
 import ckan.authz
 from ckan.types import Context, DataDict, Schema
@@ -82,10 +82,11 @@ def lookup_group_plugin(group_type: Optional[str]=None) -> 'plugins.IGroupForm':
     """
     assert _default_group_plugin
     assert _default_organization_plugin
+    org_type = config.get("ckan.default.organization_type", "organization")
     if group_type is None:
         return _default_group_plugin
     return _group_plugins.get(group_type, _default_organization_plugin
-        if group_type == 'organization' else _default_group_plugin)
+        if group_type == org_type else _default_group_plugin)
 
 
 def lookup_group_controller(group_type: Optional[str]=None) -> Optional[str]:

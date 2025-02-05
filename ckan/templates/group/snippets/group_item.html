@@ -11,7 +11,8 @@ Example:
       {% endfor %}
     </ul>
 #}
-{% set type = group.type or 'group' %}
+{% set type = h.default_group_type('group') %}
+
 {% set url = h.url_for(type ~ '.read', id=group.name) %}
 {% block item %}
 <li class="media-item">
@@ -55,7 +56,7 @@ Example:
   {% endblock %}
   {% if group.user_member %}
     {% set remove_label = _('Unlink {name} from the dataset').format(name=group.display_name) %}
-    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" aria-label="{{ remove_label }}" data-bs-title="{{ remove_label }}" data-bs-toggle="tooltip" />
+    <input name="{{ type }}_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" aria-label="{{ remove_label }}" data-bs-title="{{ remove_label }}" data-bs-toggle="tooltip" />
   {% endif %}
   {% endblock %}
 </li>
