@@ -1,11 +1,8 @@
-{% if following %}
-  <a href="{{ h.url_for(obj_type + '.unfollow', id=obj_id) }}" class="{% block following_class %}btn btn-danger{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
-    <i class="fa fa-times-circle"></i>
-    {{ _('Unfollow') }}
-  </a>
+{# By default the anchor_type is the same as the obj_type,
+   eg 'user.unfollow' will anchor to '#user-info' #}
+{% set anchor_type = anchor_type or obj_type %}
+{% if following or am_following %}
+  <a class="btn btn-danger" hx-post="{{ h.url_for(obj_type + '.unfollow', id=obj_id) }}" hx-target="#{{ anchor_type }}-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
 {% else %}
-  <a href="{{ h.url_for(obj_type + '.follow', id=obj_id) }}" class="{% block unfollowing_class %}btn btn-success{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
-    <i class="fa fa-plus-circle"></i>
-    {{ _('Follow') }}
-  </a>
+  <a class="btn btn-success" hx-post="{{ h.url_for(obj_type + '.follow', id=obj_id) }}" hx-target="#{{ anchor_type }}-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
 {% endif %}
