@@ -12,6 +12,16 @@ Changelog
 v.2.11.2 2025-02-05
 ===================
 
+Migration notes
+---------------
+
+* Going forward, if both ``ckan.upload.[type].mimetypes`` and
+  ``ckan.upload.[type].types`` are empty, no uploads will be allowed
+  for this object type (e.g. ``user`` or ``group``). It previoulsy
+  meant that all file types were allowed. To keep the old behaviour use
+  the string ``*`` as value in both options (this is dangerous and
+  **not** recommended).
+
 Minor changes
 -------------
 
@@ -24,7 +34,8 @@ Minor changes
 Bugfixes
 --------
 
-- `CVE-2025-XXXXX <https://github.com/ckan/ckan/security/advisories/XXXXX>`_: TODO
+- `CVE-2025-24372 <https://github.com/ckan/ckan/security/advisories/GHSA-7pq5-qcp6-mcww>`_: Fix potential
+  XSS vector through user and group/organization images.
 - Invalidate cached pages and load fresh ones if cookies change (`#6955
   <https://github.com/ckan/ckan/pull/6955>`_)
 - Fix `check_access` order for resource create view (`#8588
@@ -33,6 +44,7 @@ Bugfixes
   Excel compatibility. (`#8635 <https://github.com/ckan/ckan/pull/8635>`_)
 - Fix auth check for datastore data dictionary view (`#8639
   <https://github.com/ckan/ckan/pull/8639>`_)
+
 
 
 v.2.11.1 2024-12-11
