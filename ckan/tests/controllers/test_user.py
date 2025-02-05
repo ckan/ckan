@@ -226,6 +226,33 @@ class TestUser(object):
             not in response
         )
 
+    @pytest.mark.ckan_config("ckan.recaptcha.privatekey", "foo")
+    def test_registered_user_login_bad_password_or_captcha(self, app):
+        """
+        Registered user is redirected to appropriate place if they submit
+        invalid login details at /user/login.
+        Login failure gives a different message if reCAPTCHA is enabled.
+        """
+
+        # make a user
+        user = factories.User()
+
+        # get the form
+        response = app.post(
+            url_for("user.login"),
+            data={"login": user["name"], "password": "BadPass1", "save": ""},
+        )
+
+        # the response is the login page again
+        assert '<h1 class="page-heading">Login</h1>' in response
+        assert "Login failed. Bad username or password or CAPTCHA." in response
+        # and we're definitely not on the dashboard.
+        assert '<a href="/dashboard">Dashboard</a>' not in response
+        assert (
+            '<span class="username">{0}</span>'.format(user["fullname"])
+            not in response
+        )
+
     def test_user_logout_url_redirect(self, app, user):
         """_logout url redirects to logged out page.
         """

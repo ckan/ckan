@@ -89,7 +89,7 @@ class TestUpload(object):
                  u'upload': FileStorage(
                      BytesIO(faker.image()),
                      filename=u'logo.png',
-                     content_type=u'PNG'
+                     content_type=u'image/png'
                  ),
                  u'name': u'test-group-upload'}
         group_upload = Upload(u'group')

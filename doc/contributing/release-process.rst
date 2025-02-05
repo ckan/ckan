@@ -7,298 +7,381 @@ new CKAN release.
 
 .. seealso::
 
+   :doc:`/maintaining/releases`
+     An overview of the different kinds of CKAN release and the supported
+     versions
+
    :doc:`/maintaining/upgrading/index`
-     An overview of the different kinds of CKAN release, and the process for
-     upgrading a CKAN site to a new version.
+     The process for upgrading a CKAN site to a new version.
+
+
 
 ----------------
 Process overview
 ----------------
 
-.. versionchanged:: 2.6
-
-The process of a new release starts with the creation of a new release development branch.
+CKAN releases are always done from tags created in release development branches.
 A release development branch is the one that will be stabilized and eventually become the actual
 released version. Release branches are always named ``dev-vM.m``, after the
-:ref:`major and minor versions <releases>` they include. Major and minor versions are
-always branched from master. When the release is actually published a patch version number is added
-and the release is tagged in the form ``ckan-M.m.p``. All backports are cherry-picked on the ``dev-vM.m`` branch.
+:ref:`major and minor versions <releases>` they include, and they are always created from the ``master``
+branch. When the release is actually published a patch version number is added
+and the release is tagged in the form ``ckan-M.m.p``. All backports are cherry-picked to the
+relevant ``dev-vM.m`` branch (:ref:`automatically <automated_backports>` or manually).
 
 
  ::
 
-     +--+-----------------------------------------+------------->  Master
-        |                                         |
-        +-----+-------------+------>  dev-v2.6    +------->  dev-v2.7
-              |             |
-          ckan-2.6.0    ckan-2.6.1
+     +--+---------------------------------------------------+------------->  Master
+        |                                                   |
+        +-----+------------+------> dev-v2.10               +------->  dev-v2.11
+              |            |
+          ckan-2.10.0   ckan-2.10.1
 
 
-Additionally, the ``release-vM.m-latest`` branches always contain the latest
-published release for that version (eg ``2.6.1`` on the example above).
+Most releases require the same steps, with only new major or minor versions requiring the
+previous step of creating and setting up the release development branch.
+
+The involved steps can be split in these stages:
+
+1. `Creating a release development branch`_ (Only for new major or minor releases)
+2. `Setting up a new release`_
+3. `Getting ready for the release`_
+4. `Release day`_
+5. `Post-release actions`_
+
+It's important that there is one designated *Release Manager* that takes care of moving the process
+forward and has a final say on things like what gets merged or when the release will actually
+take place.
+
+In the reference section below you can find an `Issue template`_ and an `Illustrative timeline`_
+that can help release managers with planning.
 
 
-.. note::
-
-    Prior to CKAN 2.6, release branches were named ``release-vM.m.p``, after the
-    :ref:`major, minor and patch versions <releases>` they included, and patch releases
-    were always branched from the most recent tip of the previous patch release branch
-    (tags were created with the same convention).
-    Starting from CKAN 2.6, the convention is the one described above.
-
-     ::
-
-         +--+---------------------------------------+------------->  Master
-            |                                       |
-            +----------------->  release-v2.4.0     +---------->  release-v2.5.0
-                              |
-                              +--------->  release-v2.4.1
-                                        |
-                                        +------>  release-v2.4.2
-
-Once a release branch has been created there is generally a three-four week period until
-the actual release. During this period the branch is tested and fixes cherry-picked. The whole
-process is described in the following sections.
+------
+Stages
+------
 
 
-.. _beta-release:
+Creating a release development branch
+=====================================
 
-----------------------
-Doing the beta release
-----------------------
+.. note:: If you are starting a patch release you can skip this section
 
-Beta releases are branched off a certain point in master and will eventually
-become stable releases.
 
-Turn this file into a github issue with a checklist using this command::
+#. When the Tech Team decides to start a new release branch for a new minor release it's
+   always useful to try to merge any outstanding pull requests that should be included. 
+   This makes it easier to include them as when the release branch
+   starts diverging there can appear conflicts when cherry-picking.
 
-   echo 'Full instructions here: https://github.com/ckan/ckan/blob/master/doc/contributing/release-process.rst'; egrep '^(\#\.|Doing|Leading|Preparing)' doc/contributing/release-process.rst | sed 's/^\([^#]\)/\n## \1/g' | sed 's/\#\./* [ ]/g' |sed 's/::/./g'
+#. Once it's time, create a new release branch::
 
-#. Create a new release branch::
+      git checkout -b dev-v2.12
 
-        git checkout -b dev-v2.7
+#. Update the version number in the ``master`` branch to increase the major or minor
+   version as required (versions in the ``master`` branch always include ``a`` for alpha).
+   The version is defined in the ``ckan/__init__.py`` file:
 
-   Update ``ckan/__init__.py`` to change the version number to the new version
-   with a *b* after it, e.g. *2.7.0b* (Make sure to include 0 as the patch version number).
-   Commit the change and push the new branch to GitHub::
+   .. code:: diff
 
-        git commit -am "Update version number"
-        git push origin dev-v2.7
+	  diff --git a/ckan/__init__.py b/ckan/__init__.py
+	  index 064e5245c..d65ae7cb7 100644
+	  --- a/ckan/__init__.py
+	  +++ b/ckan/__init__.py
+	  @@ -1,6 +1,6 @@
+	   # encoding: utf-8
 
-   You will probably need to update the same file on master to increase the
-   version number, in this case ending with an *a* (for alpha).
+	  -__version__ = "2.12.0a0"
+	  +__version__ = "2.13.0a0"
 
-   During the beta process, all changes to the release branch must be
-   cherry-picked from master (or merged from special branches based on the
-   release branch if the original branch was not compatible).
 
-   As in the master branch, if some commits involving CSS changes are
-   cherry-picked from master, the sass compiling command needs to be run on
-   the release branch. This will update the ``main.css`` file::
+#. Update the version number in the Solr schema file (``ckan/config/solr/schema.xml``) and
+   review the value of ``SUPPORTED_SCHEMA_VERSIONS`` in ``ckan/lib/search/__init__.py``.
+   Aside from adding the new version, you might need to drop previous one if there have been
+   incompatible changes in the Solr schema.
 
-        npm run build
-        git commit -am "Rebuild CSS"
-        git push
+   .. code:: diff
 
-#. Update beta.ckan.org to run new branch.
+      diff --git a/ckan/config/solr/schema.xml b/ckan/config/solr/schema.xml
+      index 2a86c4ca7..d8b1e46e8 100644
+      --- a/ckan/config/solr/schema.xml
+      +++ b/ckan/config/solr/schema.xml
+      @@ -25,7 +25,7 @@
+       schema. We used to use the `version` attribute for this but this is an internal
+       attribute that should not be used so starting from CKAN 2.10 we use the `name`
+       attribute with the form `ckan-X.Y` -->
+      -<schema name="ckan-2.11" version="1.6">
+      +<schema name="ckan-2.12" version="1.6">
 
-   The beta staging site
-   (http://beta.ckan.org, currently on s084) must be set to track the latest beta
-   release branch to allow user testing. This site is automatically updated nightly.
+       <types>
+           <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+      diff --git a/ckan/lib/search/__init__.py b/ckan/lib/search/__init__.py
+      index 0b8fb37b6..4040f0525 100644
+      --- a/ckan/lib/search/__init__.py
+      +++ b/ckan/lib/search/__init__.py
+      @@ -57,7 +57,7 @@ def text_traceback() -> str:
+           return res
 
-   Check the message on the front page reflects the current version. Edit it as
-   a syadmin here: http://beta.ckan.org/ckan-admin/config
 
-#. Announce the branch and ask for help testing on beta.ckan.org on ckan-dev.
+      -SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
+      +SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11', '2.12']
+
+       DEFAULT_OPTIONS = {
+           'limit': 20,
+
 
 #. Create the documentation branch from the release branch. This branch should be named
-   just with the minor version and nothing else (eg ``2.7``, ``2.8``, etc). We will use
+   just with the minor version and nothing else (e.g. ``2.10``, ``2.11``, etc). We will use
    this branch to build the documentation in Read the Docs on all patch releases for
-   this version.
+   this version. Add the new documentation branch on
+   `Read the Docs <https://app.readthedocs.org/dashboard/ckan/version/create/>`_
+   so it gets automatically build whenever we push to it.
 
-#. Make latest translation strings available on Transifex.
+#. Create a new resource for translations in Transifex:
 
-   During beta, a translation freeze is in place (ie no changes to the translatable
-   strings are allowed). Strings need to be extracted and uploaded to
-   Transifex_:
+   .. note:: It's recommended to create individual commits for each of these steps
+      with the ``[i18n]`` prefix to make it easier to cherry-pick them later
 
-   a. Install the Babel and Transifex libraries if necessary::
+   a. :ref:`setup-transifex` locally if not already done.
 
-        pip install --upgrade Babel
-        pip install transifex-client
-
-   b. Create a ``~/.transifexrc`` file if necessary with your login details
-      (``token`` should be left blank)::
-
-        [https://www.transifex.com]
-        hostname = https://www.transifex.com
-        username = <username>
-        password = <password>
-        token =
-
-   c. Extract new strings from the CKAN source code into the ``ckan.pot``
+   b. Extract new strings from the CKAN source code into the ``ckan.pot``
       file. The pot file is a text file that contains the original,
       untranslated strings extracted from the CKAN source code.::
 
         python setup.py extract_messages
-
-      The po files are text files, one for each language CKAN is translated to,
-      that contain the translated strings next to the originals. Translators edit
-      the po files (on Transifex) to update the translations. We never edit the
-      po files locally.
 
    c. Get the latest translations (of the previous CKAN release) from
       Transifex, in case any have changed since::
 
         tx pull --all --minimum-perc=5 --force
 
-      (This ignores any language files which less than 5% translation - which
-      is the bare minimum we require)
-
-   e. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
+   d. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file.
+      Any new or updated strings from the CKAN source code will get into the po
+      files, and any strings in the po files that no longer exist in the source
+      code will be deleted (along with their translations)::
 
         python setup.py update_catalog --no-fuzzy-matching
 
-      Any new or updated strings from the CKAN source code will get into the po
-      files, and any strings in the po files that no longer exist in the source
-      code will be deleted (along with their translations).
+   e. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
+      major or minor version. For instance v2.10.0, v2.10.1, v2.10.2, etc
+      all share: ``[o:okfn:p:ckan:r:2-10]``.
 
-      We use the ``--no-fuzzy-matching`` option because fuzzy matching often
-      causes problems with Babel and Transifex.
-
-      If you get this error for a new translation:
-
-          babel.core.UnknownLocaleError: unknown locale 'crh'
-
-      then it's Transifex appears to know about new languages before Babel
-      does. Just delete that translation locally - it may be ok with a newer Babel in
-      later CKAN releases.
-
-   f. Run msgfmt checks::
-
-          find ckan/i18n/ -name "*.po"| xargs -n 1 msgfmt -c
-
-      You must correct any errors or you will not be able to send these to Transifex.
-
-      A common problem is that Transifex adds to the end of a po file as
-      comments any extra strings it has, but msgfmt doesn't understand them. Just
-      delete these lines.
-
-   g. Run our script that checks for mistakes in the ckan.po files::
-
-        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
-
-      If the script finds any mistakes then at some point before release you
-      will need to correct them, but it doesn't need to be done now, since the priority
-      is to announce the call for translations.
-
-      When it is done, you must do the correction on Transifex and then run
-      the tx pull command again, don't edit the files directly. Repeat until the
-      script finds no mistakes.
-
-   h. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
-      major release name (if different), using dashes instead of dots.
-      For instance v2.4.0, v2.4.1 and v2.4.2 all share: ``[ckan.2-4]``.
-
-   i. Create a new resource in the CKAN project on Transifex by pushing the new
-      pot and po files::
+   f. Create a new resource in the CKAN project on Transifex by pushing the new
+      pot and po files. Because it reads the new version number in the
+      ``.tx/config`` file, tx will create a new resource on Transifex
+      rather than updating an existing resource ::
 
         tx push --source --translations --force
 
-      Because it reads the new version number in the ``.tx/config`` file, tx will
-      create a new resource on Transifex rather than updating an existing
-      resource (updating an existing resource, especially with the ``--force``
-      option, can result in translations being deleted from Transifex).
+   g. On Transifex give the new resource a more friendly name. Go to the
+      resource (e.g. https://www.transifex.com/okfn/ckan/2-11/) and access the settings
+      from the triple dot icon "...". Keep the slug "2-11", but change
+      the name to "CKAN 2.11".
 
-      If you get a 'msgfmt' error, go back to the step where msgfmt is run.
-
-   j. On Transifex give the new resource a more friendly name. Go to the
-      resource e.g. https://www.transifex.com/okfn/ckan/2-5/ and the settings are
-      accessed from the triple dot icon "...". Keep the slug like "2-4", but change
-      the name to be like "CKAN 2.5".
-
-   k. Update the ``ckan.mo`` files by compiling the po files::
+   h. Update the ``ckan.mo`` files by compiling the po files::
 
         python setup.py compile_catalog
 
-      The mo files are the files that CKAN actually reads when displaying
-      strings to the user.
+#. Create a new GitHub label for the backports: ``Backport dev-vX.Y``.
 
-   l. Commit all the above changes to git and push them to GitHub::
 
-        git add ckan/i18n/*.mo ckan/i18n/*.po
-        git commit -am "Update strings files before CKAN X.Y.Z call for translations"
-        git push
+Setting up a new release
+========================
 
-#. Send an annoucement email with a call for translations.
+* Update the version number in the release branch. All (unreleased) versions
+  in the release branch include ``b`` for beta. Make sure to include 0 as the patch version number
+  if this is a new release branch (e.g. ``2.12.0b0``, not ``2.12b0``).
+  The version is defined in the ``ckan/__init__.py`` file:
 
-   Send an email to the ckan-dev list, tweet from @CKANproject and send a
-   transifex announcement from: https://www.transifex.com/okfn/ckan/announcements/
-   . Make sure to post a link to the correct Transifex resource (like `this one
-   <https://www.transifex.com/okfn/ckan/2-5/>`_) and tell users that they can
-   register on Transifex to contribute. Give a deadline in two weeks time.
+   .. code:: diff
 
-#. Create deb packages.
+	  diff --git a/ckan/__init__.py b/ckan/__init__.py
+	  index 064e5245c..d65ae7cb7 100644
+	  --- a/ckan/__init__.py
+	  +++ b/ckan/__init__.py
+	  @@ -1,6 +1,6 @@
+	   # encoding: utf-8
 
-   Ideally do this once a week. Create the deb package with the latest release
-   branch, using ``betaX`` iterations. Deb packages are built using Ansible_
-   scripts located at the following repo:
+	  -__version__ = "2.11.0b0"
+	  +__version__ = "2.11.1b0"
 
-       https://github.com/ckan/ckan-packaging
+Getting ready for the release
+=============================
 
-   The repository contains further instructions on how to run the scripts, but
-   essentially you need to generate the packages (one for precise and one for
-   trusty) on your local machine and upload them to the Amazon S3 bucket.
+Once the release branch is ready, there will be a period when the branch will be updated
+with patches and tested (this will probably be longer for bigger releases).
 
-   To generate the packages, run::
+.. note:: The following steps might need to be repeated at various times to ensure the branch is up to date.
 
-     ./ckan-package -v 2.x.y -i betaX
+* **Backports** to the release branch are done via the :ref:`automated backports action <automated_backports>`
+  whenever possible. If there are conflicts, the relevant commits need to be
+  manually cherry-picked.
 
-   To upload the files to the S3 bucket, you will need the relevant credentials and
-   to install the `Amazon AWS command line interface <http://docs.aws.amazon.com/cli/latest/userguide/installing.html>`_
+* If there are **security patches** that need to be applied there needs to be a pull request
+  targeting the release branch in the private advisory fork (in addition to the one
+  targeting master). **Do not merge those** until just before the release, otherwise we will
+  publicise vulnerabilities, but allow some time to fix potential issues after merging.
+  Request CVE identifiers with enough time so they are ready on release day (they might
+  take a couple of days to be allocated)
 
-   Make sure to upload them to the `build` folder, so they are not mistaken by
-   the stable ones::
+* Check if there are **requirements** that need to be upgraded because of security issues. Check the
+  relevant branch on Snyk_ to see the vulnerable packages. We only upgrade those that don't introduce
+  backwards incompatible changes. In general, upgrading a Python package is just a matter of
+  bumping the version number in ``requirements.in`` and running::
 
-     aws s3 cp python-ckan_2.5.0-precisebeta1_amd64.deb s3://packaging.ckan.org/build/python-ckan_2.5.0-precisebeta1_amd64.deb
+      pip-compile -P <package_name> requirements.in
 
-   Now the .deb files are available at https://packaging.ckan.org/build/ invite
-   people on ckan-dev to test them.
+  Make sure to also update ``package.json`` for security related upgrades. Update the relevant packages
+  in ``package.json`` and run the following to update other dependencies::
 
--------------------------
-Leading up to the release
--------------------------
+      npm audit fix
 
-#. Update the CHANGELOG.txt with the new version changes.
+* Pull the latest **translations** from Transfiex and compile them (it's best to split it
+  in two separate commits)::
 
-   * Check that all merged PRs have corresponding fragment inside ``changes/``
-     folder. Name of every fragment is following format ``{issue
-     number}.{fragment type}``, where *issue number* is GitHub issue id and
-     *fragment type* is one of *migration*, *removal*, *bugfix* or *misc*
-     depending on change introduced by PR. Missing fragments can be created
-     using `towncrier create --edit {issue number}.{fragment type}` command.
-     The following gist has a script that uses the GitHub API to aid in getting
-     the merged issues between releases:
+      tx pull --all --minimum-perc=5 --force
 
-        https://gist.github.com/amercader/4ec55774b9a625e815bf
+      git commit ckan/i18n -m "[i18n] Pull translations from Transifex"
 
-     But dread found changed the first step slightly to get it to work::
+      python setup.py compile_catalog
 
-        git log --pretty=format:%s --reverse --no-merges release-v2.4.2...release-v2.5.0 -- | grep -Pzo "^\[#\K[0-9]+" | sort -u -n > issues_2.5.txt
+      git commit ckan/i18n -m "[i18n] Compile translations"
 
-     When all fragments are ready, make a test build::
+* Compile the **CSS files**::
+
+      ckan scss
+
+* Prepare the **Docker images** in the `ckan-docker-base <https://github.com/ckan/ckan-docker-base>`_ repo.
+  Create a pull request updating the relevant version numbers (in the ``VERSION.txt`` files)
+  and check that all images build fine, fixing any issues otherwise.
+
+* Prepare the **Deb packages** in the `ckan-packaging <https://github.com/ckan/ckan-packaging>`_ repo.
+  Create a pull request updating the relevant version numbers (in the ``VERSIONS.json`` file)
+  and check that all packages build fine, fixing any issues otherwise.
+
+* Update the **Changelog**. This is likely tedious but really important. We use towncrier_
+  to manage the changelog entries:
+
+   * Unless trivial or part of a bigger change, all merged pull requests should have a
+     corresponding fragment file inside the ``changes/`` folder. The name of every fragment
+     should be ``{PR number}.{fragment type}``, where is one of *feature*, *migration*,
+     *removal*, *bugfix* or *misc* depending on the changed introduced. Missing fragments can be created
+     using ``towncrier create --edit {PR number}.{fragment type}``.
+   * When all fragments are ready, make a draft build::
 
         towncrier build --draft
+   * It's very likely that you will need to tweak the changelog entries to fix typos or
+     improve readability, and the migration or deprecation sections will need to be
+     expanded. Remember that users with no prior context need to get a good understanding
+     of what the changes are.
+   * Once updated, remove all changelog fragments from the ``changes`` folder. Do this in a
+     separate commit so it can be later cherry-picked to master.
 
-     And check output. If no problems identified, compile updated
-     changelog::
 
-        towncrier build --yes
+Release day
+===========
 
-     You'll be asked, whether it's ok to remove source fragments. Feel
-     free to answer "yes" - all changes will be automatically inserted
-     into changelog, so there is no sense in keeping those
-     files. Don't forget to commit changes afterwards.
+* If there are pending security advisories (they should have been tested and have a CVE
+  number by now):
+
+   * Merge the patches into the releases branches and master
+   * Publish the advisories
+   * Update the changelog to include an entry for the patch (linking to the GitHub advisory)
+
+* Update the version number in ``ckan/__init__.py`` to remove the ``b0`` part.
+
+   .. code:: diff
+
+	  diff --git a/ckan/__init__.py b/ckan/__init__.py
+	  index 064e5245c..d65ae7cb7 100644
+	  --- a/ckan/__init__.py
+	  +++ b/ckan/__init__.py
+	  @@ -1,6 +1,6 @@
+	   # encoding: utf-8
+
+	  -__version__ = "2.11.1b0"
+	  +__version__ = "2.11.1"
+
+* Create a tag with the format ``ckan-{Major}.{Minor}.{Patch}``
+
+* Push the tag. This will trigger two automated actions:
+
+  1. :ref:`Create a GitHub Release <create_github_release>`:
+     Check that the release was created fine (the changelog link won't work yet)
+  2. :ref:`Publish the CKAN package in PyPI <publish_pypi>`:
+     Check that the package was published and it is the latest available at https://pypi.org/project/ckan/
+
+* Merge the release branch into the documentation branch (e.g. ``dev-v2.11`` to ``2.11``). This will
+  trigger a build in Read the Docs. Check that the build worked and that the correct version is
+  showing up in the relevant docs version.
+
+* Update the `Docker images <https://github.com/ckan/ckan-docker-base?tab=readme-ov-file#release>`_:
+
+  1. Merge the pull request and create a tag (``vYYYYMMDD``) and a new release. Creating the release
+     will trigger a workflow to build and push the images to Docker Hub.
+  2. Check that the workflows worked and tags were updated on `Docker Hub`_.
+
+* Generate new `Deb packages <https://github.com/ckan/ckan-packaging/?tab=readme-ov-file#release-process>`_:
+
+  1. Merge the pull request and create a tag (``vYYYYMMDD``). Pushing the tag will trigger the publish workflow,
+     which will:
+
+      * Upload the build packages to the Amazon S3 bucket powering https://packaging.ckan.org
+      * Create a new `GitHub release <https://github.com/ckan/ckan-packaging/releases>`_,
+        which also includes the packages.
+
+  2. Check both to make sure the packages were built as expected.
+
+* Announce the release. In most cases you can reuse previous messages or get help from the Communications team. All
+  items should clearly include the new version numbers and a link to the changelog (or link to a place that has those):
+
+  1. Send a message to Gitter
+  2. Send an email to the `ckan-announce mailing list <https://groups.google.com/a/ckan.org/g/ckan-announce>`_,
+  3. Ask for a new blog post on ckan.org/blog. You can help the comms team with a draft of the main changes.
+  4. Ask the comms team to post it to the CKAN social channels.
+
+Post-release actions
+====================
+
+Some maintenance things that is better to do straight after the release is out so they don't get forgotten:
+
+* Update the version number on the release branch, increasing the patch version and adding the ``b0`` suffix again.
+* Cherry pick the ``[i18n]`` commits to master (it's best to cherry pick the ones involving ``.pot`` and ``.po`` files
+  and update the ``.mo`` files in master with ``python setup.py compile_catalog`` to avoid conflicts).
+* Update the CHANGELOG in master to include all new versions released.
+* Cherry-pick the commit that deletes the ``changes`` fragments to master so they don't get picked up in the next release.
+
+
+---------
+Reference
+---------
+
+.. _setup-transifex:
+
+Set up Transifex
+================
+
+We use Transifex_ to crowd-source translations in CKAN.
+To manage translations you will need the Transifex CLI.
+
+#. Install the `Transifex CLI <https://developers.transifex.com/docs/cli#installation>`_.
+
+#. Create a ``~/.transifexrc`` file if necessary with your login details
+   (To generate the token, go to the Transifex `user settings <https://www.transifex.com/user/settings/api/>`_ page)::
+
+      [https://www.transifex.com]
+      api_hostname  = https://api.transifex.com
+      hostname      = https://www.transifex.com
+      username      = api
+      password      = ADD_YOUR_TOKEN_HERE
+      rest_hostname = https://rest.api.transifex.com
+      token         = ADD_YOUR_TOKEN_HERE
+
+#. Check you got the right permissions, you should see the current
+   Transifex resource and all the available languages when running
+   this in the CKAN folder::
+
+      tx status
+
 
 #. A week before the translations will be closed send a reminder email.
 
@@ -326,210 +409,118 @@ Leading up to the release
         git commit -am "Update translations from Transifex"
         git push
 
-#. A week before the actual release, announce the upcoming release(s).
 
-   Send an email to the
-   `ckan-announce mailing list <https://groups.google.com/a/ckan.org/g/ckan-announce>`_,
-   so CKAN instance maintainers can be aware of the upcoming releases. List any
-   patch releases that will be also available. Here's an `example
-   <https://groups.google.com/a/ckan.org/g/ckan-announce/c/BcDR7Guzb44>`_ email.
+Issue template
+==============
+
+It's a good idea to create a tracking issue in GitHub at the beginning
+of the release process. Here's a template that summarizes the different
+stages involved::
+
+
+   This is an issue to track progress on the patch releases (2.X.Y and 2.Z.A)
+
+   [Full docs](http://docs.ckan.org/en/latest/contributing/release-process.html)
+
+   ### Create a new release branch (remove for patch releases)
+
+   * [ ] Create release branch
+   * [ ] Update version in master
+   * [ ] Update Solr schema version
+   * [ ] Create documentation branch
+   * [ ] Set up translations on Transifex
+   * [ ] Create GitHub label
+
+   ### Setting up
+
+   * [ ] Update version in release branch
+
+   ### Getting ready
+
+   * [ ] [Backports](https://github.com/ckan/ckan/labels/Backport%20dev-v2.X)
+   * [ ] Security requirements upgrade
+   * [ ] Security issues
+   * [ ] Translations
+   * [ ] Rebuild Frontend
+   * [ ] Prepare Docker images
+   * [ ] Prepare Deb packages
+   * [ ] Prepare Changelog
+
+   ### Release day
+   * [ ] Change version and tag
+   * [ ] Publish to PyPI (🤖)
+   * [ ] Create GitHub release (🤖)
+   * [ ] Update docs on Read the Docs
+   * [ ] Build Docker images
+   * [ ] Build and upload deb packages
+   * [ ] Announce
+
+   ### Post-release actions
+   * [ ] Cherry-pick i18n changes to master
+   * [ ] Cherry-pick Changelog changes to master
+   * [ ] Update version on release branch
+
+
+Illustrative timeline
+=====================
+
+.. important:: The timeline below is provided as a guidance only. The actual timings may vary
+   depending on the size of the changes included in the release, availability of the
+   release manager or other external factors. Unless there are urgent security patches that
+   need to go out, it is best to err in the side of caution and make sure that what gets
+   released is stable and well documented. It is fine to push the release back a week (but the
+   change should be announced)
+
+Major or minor release
+----------------------
+
+.. list-table::
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Days to release
+     - Action
+   * - 50
+     - Merge all major pull requests and upgrade requirements
+   * - 40
+     - Start release process (release branch)
+   * - 35
+     - Prepare beta Docker images and Deb packages
+   * - 30
+     - Call for help testing the release and translations
+   * - .
+     - Follow with items in the "Patch release" table
+
+
+Patch release
+-------------
+
+.. list-table::
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Days to release
+     - Action
+   * - 20
+     - Start release process
+   * - 15
+     - Prepare and test Docker images and Deb packages
+   * - 10
+     - Most backports should be in the release branch
+   * - 7
+     - Announce release in the ckan-announce mailing list
+   * - 5
+     - Request CVE numbers if necessary, all security patches should be ready
+   * - 3
+     - Docker images and Deb packages should build fine
+   * - 2
+     - Finalize Changelog, frontend files and translations
+   * - 0
+     - Release day: all actions in "Release day" and "Post-release actions"
 
------------------------
-Doing the final release
------------------------
-
-Once the release branch has been thoroughly tested and is stable we can do
-a release.
-
-#. Run the most thorough tests::
-
-        pytest --ckan-ini=test-core.ini ckan/tests
-
-#. Review the CHANGELOG to check it is complete.
-
-#. Check that the docs compile correctly::
-
-        rm build/sphinx -rf
-        python setup.py build_sphinx
-
-#. Remove the beta letter in the version number.
-
-   The version number is in ``ckan/__init__.py``
-   (eg 2.5.0b -> 2.5.0) and commit the change::
-
-        git commit -am "Update version number for release X.Y.Z"
-
-#. Tag the repository with the version number.
-
-   Make sure to push it to GitHub afterwards::
-
-        git tag -a -m '[release]: Release tag' ckan-X.Y.Z
-        git push --tags
-
-#. Create and deploy the final deb package.
-
-   Move it to the root of the
-   `publicly accessible folder <https://packaging.ckan.org/>`_ of
-   the packaging server from the `/build` folder.
-
-   Make sure to rename it so it follows the deb packages name convention::
-
-    python-ckan_Major.minor_amd64.deb
-
-   Note that we drop any patch version or iteration from the package name.
-
-#. Upload the release to PyPI::
-
-        python setup.py sdist upload
-
-   You will need a PyPI account with admin permissions on the ckan package,
-   and your credentials should be defined on a ``~/.pypirc`` file such as::
-
-        [distutils]
-        index-servers =
-            pypi
-
-        [pypi]
-        username: <user-name>
-        password: <password>
-
-   For more info, see:
-   `here <http://docs.python.org/distutils/packageindex.html#pypirc>`_
-
-   If running in Vagrant you may get error ``error: Operation not permitted``
-   due to failure to create a hard link. The solution is to add a line at the top
-   of setup.py::
-
-        # Avoid problem releasing to pypi from vagrant
-        import os
-        if os.environ.get('USER', '') == 'vagrant':
-            del os.link
-
-   as described here: https://stackoverflow.com/questions/7719380/python-setup-py-sdist-error-operation-not-permitted
-
-   If you upload a bad package, then you can remove it from PyPI however you
-   must use a new version number next time.
-
-#. Build new Docker images for the new version in the following repos:
-
-   * `openknowledge/docker-ckan <https://github.com/okfn/docker-ckan>`_ -> ``openknowledge/ckan-base:{Major:minor}`` and ``openknowledge/ckan-dev:{Major:minor}`` (ping @amercader for this one)
-   * `ckan/ckan-solr <https://github.com/ckan/ckan-solr>`_ -> ``ckan/ckan-solr:{Major:minor}-solr{solr-version}``
-   * `ckan/ckan-postgres-dev <https://github.com/ckan/ckan-postgres-dev>`_ -> ``ckan/ckan-postgres-dev:{Major:minor}``
-
-#. Enable the new version of the docs on Read the Docs.
-
-   (You will need an admin account.)
-
-   a. Make sure the documentation branch is up to date with the latest changes in the
-      corresponding ``dev-vX.Y`` branch.
-
-   b. If this is the first time a minor version is released, go to the
-      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
-      and make the relevant release 'active' (make sure to use the documentation branch, ie X.Y,
-      not the development branch, ie dev-vX.Y).
-
-   c. If it is the latest stable release, set it to be the Default Version and
-      check it is displayed on http://docs.ckan.org.
-
-#. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
-
-   CKAN blog here: <http://ckan.org/wp-admin>`_
-
-   * `Example blog <https://ckan.org/2021/02/10/new-patch-releases-available-upgrade-now-your-ckan-site/>`_
-   * `Example email <https://groups.google.com/a/ckan.org/g/ckan-announce/c/BcDR7Guzb44>`_
-
-   Tweet from @CKANproject
-
-#. Cherry-pick the i18n changes from the release branch onto master.
-
-   We don't generally merge or cherry-pick release branches into master, but
-   the files in ckan/i18n are an exception. These files are only ever changed
-   on release branches following the :ref:`beta-release` instructions above,
-   and after a release has been finalized the changes need to be cherry-picked
-   onto master.
-
-   To find out what i18n commits there are on the release-v* branch that are
-   not on master, do::
-
-     git log master..dev-v* ckan/i18n
-
-   Then ``checkout`` the master branch, do a ``git status`` and a ``git pull``
-   to make sure you have the latest commits on master and no local changes.
-   Then use ``git cherry-pick`` when on the master branch to cherry-pick these
-   commits onto master. You should not get any merge conflicts. Run the
-   ``check-po`` command again just to be safe, it should not report any
-   problems. Run CKAN's tests, again just to be safe.  Then do ``git push
-   origin master``.
-
-------------------------
-Preparing patch releases
-------------------------
-
-#. Announce the release date & time with a week's notice on ckan-announce.
-
-   Often this will be part of the announcement of a CKAN major/minor release.
-   But if patches go out separately then they will need their own announcement.
-
-#. Update ``ckan/__init__.py`` with the incremented patch number e.g. `2.5.1` becomes `2.5.2`.
-   Commit the change and push the new branch to GitHub::
-
-        git commit -am "Update version number"
-        git push origin release-v2.5.2
-
-#. Cherry-pick PRs marked for back-port.
-
-   These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
-   relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
-   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the
-   cherry-picking has been done (but leave the version ones).
-
-#. Ask the tech team if there are security fixes or other fixes to include.
-
-#. Update the CHANGELOG.
-
-------------------------
-Doing the patch releases
-------------------------
-
-#. Review the CHANGELOG to check it is complete.
-
-#. Tag the repository with the version number.
-
-   Make sure to push it to GitHub afterwards::
-
-        git tag -a -m '[release]: Release tag' ckan-X.Y.Z
-        git push --tags
-
-#. Create and deploy the final deb package.
-
-   Create using ckan-packaging checkout e.g.::
-
-     ./ckan-package -v 2.5.2 -i 1
-
-   Make sure to rename the deb files so it follows the deb packages name convention::
-
-     python-ckan_Major.minor_amd64.deb
-
-   Note that we drop the patch version and iteration number from the package name.
-
-   Move it to the root of the
-   `publicly accessible folder <https://packaging.ckan.org/>`_ of
-   the packaging server from the `/build` folder, replacing the existing file
-   for this minor version.
-
-#. Upload the release to PyPI::
-
-        python setup.py sdist upload
-
-#. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the
-   corresponding ``dev-vX.Y`` branch.
-
-#. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
-
-   Often this will be part of the announcement of a CKAN major/minor release.
-   But if patches go out separately then they will need their own announcement.
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan
-.. _`Read The Docs`: http://readthedocs.org/dashboard/ckan/versions/
+.. _Snyk: https://app.snyk.io
+.. _towncrier: https://towncrier.readthedocs.io/en/stable/
 .. _labels: https://github.com/ckan/ckan/labels
-.. _Ansible: http://ansible.com/
+.. _`Docker Hub`: https://hub.docker.com/r/ckan/ckan-base/tags

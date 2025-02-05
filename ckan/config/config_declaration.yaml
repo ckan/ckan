@@ -1391,25 +1391,36 @@ groups:
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as user's avatar. No restrictions applied when empty
+        description: File types allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.mimetypes`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended). Note also that ``text/svg`` can contain embedded
+          javascript code so it only should be used in trusted environments.
 
       - key: ckan.upload.user.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+        example: image/png
+        description: File MIMETypes allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.types`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.types
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as group image. No restrictions applied when empty
+        description: File types allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
+        example: image/png
+        description: File MIMEtypes allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.types` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
+          Note also that ``text/svg`` can contain embedded javascript code so it only should be used in
+          trusted environments.
 
   - annotation: Webassets Settings
     options:
