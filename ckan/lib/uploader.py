@@ -7,6 +7,7 @@ import datetime
 import logging
 import magic
 import mimetypes
+from pathlib import Path
 from typing import Any, IO, Optional, Union
 from urllib.parse import urlparse
 
@@ -159,10 +160,14 @@ class Upload(object):
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
                 self.filename = munge.munge_filename_legacy(self.filename)
                 self.filepath = os.path.join(self.storage_path, self.filename)
-                data_dict[url_field] = self.filename
                 self.upload_file = _get_underlying_file(
                     self.upload_field_storage)
                 self.tmp_filepath = self.filepath + '~'
+
+                self.verify_type()
+
+                data_dict[url_field] = self.filename
+
         # keep the file if there has been no change
         elif self.old_filename and not self.old_filename.startswith('http'):
             if not self.clear:
@@ -177,7 +182,6 @@ class Upload(object):
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
 
-        self.verify_type()
 
         if self.filename:
             assert self.upload_file and self.filepath
@@ -202,28 +206,65 @@ class Upload(object):
                 pass
 
     def verify_type(self):
-        if not self.filename or not self.upload_file:
+
+        if not self.upload_file:
             return
 
-        mimetypes = config.get(
+        allowed_mimetypes = config.get(
             f"ckan.upload.{self.object_type}.mimetypes")
-        types = config.get(f"ckan.upload.{self.object_type}.types")
-        if not mimetypes and not types:
-            return
+        allowed_types = config.get(f"ckan.upload.{self.object_type}.types")
+        if not allowed_mimetypes and not allowed_types:
+            raise logic.ValidationError(
+                {
+                    self.file_field: [f"No uploads allowed for object type {self.object_type}"]
+                }
+            )
 
-        # 2KB required for detecting xlsx mimetype
-        actual = magic.from_buffer(self.upload_file.read(2048), mime=True)
+        # Check that the declared types in the request are supported
+        declared_mimetype_from_filename = mimetypes.guess_type(
+            self.upload_field_storage.filename
+        )[0]
+        declared_content_type = self.upload_field_storage.content_type
+        for declared_mimetype in (
+            declared_mimetype_from_filename,
+            declared_content_type,
+        ):
+            if (
+                declared_mimetype
+                and allowed_mimetypes
+                and allowed_mimetypes[0] != "*"
+                and declared_mimetype not in allowed_mimetypes
+            ):
+                raise logic.ValidationError(
+                    {
+                        self.file_field: [
+                            f"Unsupported upload type: {declared_mimetype}"
+                        ]
+                    }
+                )
+
+        # Check that the actual type guessed from the contents is supported
+        # (2KB required for detecting xlsx mimetype)
+        content = self.upload_file.read(2048)
+        guessed_mimetype = magic.from_buffer(content, mime=True)
+
         self.upload_file.seek(0, os.SEEK_SET)
+
         err: ErrorDict = {
-            self.file_field: [f"Unsupported upload type: {actual}"]
+            self.file_field: [f"Unsupported upload type: {guessed_mimetype}"]
         }
 
-        if mimetypes and actual not in mimetypes:
+        if allowed_mimetypes and allowed_mimetypes[0] != "*" and guessed_mimetype not in allowed_mimetypes:
             raise logic.ValidationError(err)
 
-        type_ = actual.split("/")[0]
-        if types and type_ not in types:
+        type_ = guessed_mimetype.split("/")[0]
+        if allowed_types and allowed_types[0] != "*" and type_ not in allowed_types:
             raise logic.ValidationError(err)
+
+        preferred_extension = mimetypes.guess_extension(guessed_mimetype)
+        if preferred_extension:
+            self.filename = str(Path(self.filename).with_suffix(preferred_extension))
+            self.filepath = str(Path(self.filepath).with_suffix(preferred_extension))
 
 
 class ResourceUpload(object):
