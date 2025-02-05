@@ -9,6 +9,21 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.12.0 (Not yet released)
+===========================
+
+Migration notes
+---------------
+
+* Going forward, if both ``ckan.upload.[type].mimetypes`` and
+  ``ckan.upload.[type].types`` are empty, no uploads will be allowed
+  for this object type (e.g. ``user`` or ``group``). It previoulsy
+  meant that all file types were allowed. To keep the old behaviour use
+  the string ``*`` as value in both options (this is dangerous and
+  **not** recommended).
+
+
+
 v.2.11.1 2024-12-11
 ===================
 
