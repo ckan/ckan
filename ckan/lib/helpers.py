@@ -705,38 +705,70 @@ def get_rtl_theme() -> str:
 
 @core_helper
 def flash_notice(message: Any, allow_html: bool = False) -> None:
-    ''' Show a flash message of type notice '''
-    if allow_html:
-        message = Markup(message)
-    else:
-        message = escape(message)
-    flash(message, category='alert-info')
+    '''
+    Show a flash message of type notice
+    Save the message and HTML flag separately to avoid Redis serialization issues
+    '''
+    flash_msg: dict[str, Any] = {'message': message,
+                                 'allow_html': bool(allow_html)}
+    flash(flash_msg, category='alert-info')  # type: ignore
 
 
 @core_helper
 def flash_error(message: Any, allow_html: bool = False) -> None:
-    ''' Show a flash message of type error '''
-    if allow_html:
-        message = Markup(message)
-    else:
-        message = escape(message)
-    flash(message, category='alert-danger')
+    '''
+    Show a flash message of type error
+    Save the message and HTML flag separately to avoid Redis serialization issues
+    '''
+    flash_msg: dict[str, Any] = {'message': message,
+                                 'allow_html': bool(allow_html)}
+    flash(flash_msg, category='alert-danger')  # type: ignore
 
 
 @core_helper
 def flash_success(message: Any, allow_html: bool = False) -> None:
-    ''' Show a flash message of type success '''
-    if allow_html:
-        message = Markup(message)
-    else:
-        message = escape(message)
-    flash(message, category='alert-success')
+    '''
+    Show a flash message of type success.
+    Save the message and HTML flag separately to avoid Redis serialization issues
+    '''
+    flash_msg: dict[str, Any] = {'message': message,
+                                 'allow_html': bool(allow_html)}
+    flash(flash_msg, category='alert-success')  # type: ignore
 
 
 @core_helper
-def get_flashed_messages(**kwargs: Any):
-    '''Call Flask's built in get_flashed_messages'''
-    return _flask_get_flashed_messages(**kwargs)
+def get_flashed_messages(with_categories: bool = True,  *args: Any, **kwargs: Any):  # type: ignore
+    """
+    Retrieve flashed messages from Flask's message flashing system.
+    This function wraps Flask's built-in `get_flashed_messages` function to
+    process messages that may contain HTML content. It categorises messages
+    and optionally escapes HTML content based on the `allow_html` flag.
+    Args:
+        with_categories (bool): If True, return messages with their categories.
+                                If False, return only the messages.
+        *args: Additional positional arguments passed to Flask's `get_flashed_messages`.
+        **kwargs: Additional keyword arguments passed to Flask's `get_flashed_messages`.
+    Returns:
+        list: A list of flashed messages.
+              If `with_categories` is True, each
+              item is a tuple (category, message). If `with_categories` is False,
+              each item is just the message.
+    """
+    raw_msgs = _flask_get_flashed_messages(with_categories=True, *args, **kwargs)
+    new_msgs = []
+    for category, data in raw_msgs:
+        if isinstance(data, dict) and 'message' in data:
+            msg_text = data.get('message', '')
+            allow_html = data.get('allow_html', False)
+            if allow_html:
+                msg_text = Markup(msg_text)
+            else:
+                msg_text = escape(msg_text)
+            new_msgs.append((category, msg_text))
+        else:
+            new_msgs.append((category, data))
+
+    return new_msgs if with_categories else [msg for _, msg in new_msgs]
 
 
 @core_helper
