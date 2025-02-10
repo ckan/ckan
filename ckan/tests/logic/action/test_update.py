@@ -41,11 +41,12 @@ class TestUpdate(object):
 
         # 1. Setup.
         user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
         user["name"] = "updated"
 
         # 2. Make assertions about the return value and/or side-effects.
         with pytest.raises(logic.ValidationError):
-            helpers.call_action("user_update", **user)
+            helpers.call_action("user_update", context=context, **user)
 
     # END-BEFORE
 
