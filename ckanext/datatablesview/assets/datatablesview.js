@@ -114,7 +114,6 @@ function fitColText () {
   if (gcurrentView === 'list') {
     dt.responsive.recalc()
   }
-  dt.columns.adjust().draw(false)
 }
 
 // ensure element id is valid
@@ -576,7 +575,6 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           })
-          api.draw(false)
         }, // end stateLoadParams
         stateSaveParams: function (settings, data) {
           // this callback is invoked when saving state info
@@ -688,13 +686,11 @@ this.ckan.module('datatables_view', function (jQuery) {
                 for (const pageLen of pagelengthchoices) {
                   if (pageLen >= minPageLen) {
                     api.page.len(pageLen)
-                    api.ajax.reload()
                     api.columns.adjust()
                     window.localStorage.removeItem('loadctr-' + gresviewId)
                     console.log('smart sized >' + minPageLen)
                     setTimeout(function () {
                       const api = $('#dtprv').DataTable({ retrieve: true })
-                      api.draw(false)
                       fitColText()
                     }, 100)
                     break
