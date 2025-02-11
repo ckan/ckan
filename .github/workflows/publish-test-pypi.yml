@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'ckan/ckan'
     name: Build distribution
     runs-on: ubuntu-latest
     steps:
@@ -54,3 +55,10 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
+
+  publishSkipped:
+    if: github.repository != 'ckan/ckan'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "## Skipping PyPI publish on downstream repository" >> $GITHUB_STEP_SUMMARY
