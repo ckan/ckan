@@ -27,6 +27,7 @@ import ckan.model as model
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
+from ckan.lib.munge import munge_name
 from ckan.model.follower import ModelFollowingModel
 from ckan.lib.search.query import solr_literal
 
@@ -2389,11 +2390,13 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = config.get('ckan.site_id')
+    site_id = munge_name(config.get('ckan.site_id'))
+
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
         user = model.User(name=site_id,
+                          email=f"{site_id}@ckan",
                           password=apikey,
                           apikey=apikey)
         # make sysadmin
