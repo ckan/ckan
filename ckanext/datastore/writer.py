@@ -1,5 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
+import re
 
 from io import StringIO, BytesIO
 
@@ -12,9 +13,21 @@ from xml.etree.cElementTree import Element, SubElement, ElementTree
 import csv
 
 from codecs import BOM_UTF8
+import unicodedata
 
 
 BOM = "\N{bom}"
+
+xml_element_name_rules = [
+    # cannot start with XML or number
+    (re.compile(r'^(\d*xml\d*|\d+)', re.I), ''),
+    # cannot contain spaces
+    (re.compile(r'\s+'), '_'),
+    # can only contain letters, underscores, stops, and hyphens
+    (re.compile(r'[^\w_.-]', re.U), ''),
+    # must start with a letter or underscore
+    (re.compile(r'^[\d.-]+'), ''),
+]
 
 
 @contextmanager
@@ -141,6 +154,17 @@ class XMLWriter(object):
         if self.id_col:
             columns = columns[1:]
         self.columns = columns
+        self.element_names = {}
+        for col in columns:
+            element_name = unicodedata.normalize('NFC', col)
+            for rule, replacement in xml_element_name_rules:
+                element_name = re.sub(rule, replacement, element_name)
+            unique_suffix = 0
+            unique_name = element_name
+            while unique_name in self.element_names.values():
+                unique_name = '%s_%s' % (element_name, unique_suffix)
+                unique_suffix += 1
+            self.element_names[col] = unique_name
 
     def _insert_node(self, root: Any, k: str, v: Any,
                      key_attr: Optional[Any] = None):
@@ -166,7 +190,7 @@ class XMLWriter(object):
             if self.id_col:
                 root.attrib['_id'] = str(r['_id'])
             for c in self.columns:
-                self._insert_node(root, c, r[c])
+                self._insert_node(root, self.element_names[c], r[c])
             ElementTree(root).write(self.output, encoding='utf-8')
             self.output.write(b'\n')
         self.output.seek(0)
