@@ -136,6 +136,10 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     # This setting is checked on startup
     api_token = p.toolkit.config.get("ckan.datapusher.api_token")
     try:
+        original_url_base = ''
+        if callback_url_base:
+            original_url_base = config.get_value("ckan.site_url")
+
         r = requests.post(
             urljoin(datapusher_url, 'job'),
             headers={
@@ -153,6 +157,9 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
                     'set_url_type': data_dict.get('set_url_type', False),
                     'task_created': task['last_updated'],
                     'original_url': resource_dict.get('url'),
+                    # added to replace the base url behind reverse proxy with the internal base url
+                    # in datapusher job.py
+                    'original_url_base': original_url_base,
                 }
             }))
     except requests.exceptions.ConnectionError as e:
