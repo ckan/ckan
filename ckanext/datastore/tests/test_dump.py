@@ -21,9 +21,9 @@ class TestDatastoreDump(object):
 
         response = app.get(f'/datastore/dump/{resource["id"]}')
         assert (
-            "_id,book\r\n"
-            "1,annakarenina\n"
-            "2,warandpeace\n" == response.get_data(as_text=True)
+            "book\r\n"
+            "annakarenina\n"
+            "warandpeace\n" == response.get_data(as_text=True)
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -62,7 +62,7 @@ class TestDatastoreDump(object):
         response = app.get(f'/datastore/dump/{resource["id"]}')
         content = response.get_data(as_text=True)
         expected = (
-            "_id,b\xfck,author,published" ",characters,random_letters,nested"
+            "b\xfck,author,published" ",characters,random_letters,nested"
         )
         assert content[: len(expected)] == expected
         assert "warandpeace" in content
@@ -83,9 +83,9 @@ class TestDatastoreDump(object):
         # get with alias instead of id
         response = app.get("/datastore/dump/books")
         assert (
-            "_id,book\r\n"
-            "1,annakarenina\n"
-            "2,warandpeace\n" == response.get_data(as_text=True)
+            "book\r\n"
+            "annakarenina\n"
+            "warandpeace\n" == response.get_data(as_text=True)
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -108,7 +108,7 @@ class TestDatastoreDump(object):
         response = app.get(
             "/datastore/dump/{0}?limit=1".format(str(resource["id"]))
         )
-        expected_content = "_id,book\r\n" "1,annakarenina\n"
+        expected_content = "book\r\n" "annakarenina\n"
         assert response.get_data(as_text=True) == expected_content
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -150,6 +150,100 @@ class TestDatastoreDump(object):
             )
         )
         expected_content = "nested,author\r\n" '"{""a"": ""b""}",tolstoy\n'
+        assert response.get_data(as_text=True) == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_ignore_fields(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        response = app.get(
+            u"/datastore/dump/{0}?limit=1&ignore_fields=author".format(
+                resource["id"]
+            )
+        )
+        expected_content = (
+            "_id,b\xfck,published,characters,random_letters,"
+            "nested\r\n1,annakarenina,2005-03-01T00:00:00,"
+            '"[""Princess Anna"",""Sergius""]",'
+            '"[""a"",""e"",""x""]","[""b"", '
+            '{""moo"": ""moo""}]"\n'
+        )
+        assert response.get_data(as_text=True) == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_ignore_fields_none(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        response = app.get(
+            u"/datastore/dump/{0}?limit=1&ignore_fields=None".format(
+                resource["id"]
+            )
+        )
+        expected_content = (
+            "_id,b\xfck,author,published,characters,random_letters,"
+            "nested\r\n1,annakarenina,tolstoy,2005-03-01T00:00:00,"
+            '"[""Princess Anna"",""Sergius""]",'
+            '"[""a"",""e"",""x""]","[""b"", '
+            '{""moo"": ""moo""}]"\n'
+        )
         assert response.get_data(as_text=True) == expected_content
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -238,8 +332,8 @@ class TestDatastoreDump(object):
         )
 
         expected_content = (
-            "_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
-            "nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00\t"
+            "b\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
+            "nested\r\nannakarenina\ttolstoy\t2005-03-01T00:00:00\t"
             '"[""Princess Anna"",""Sergius""]"\t'
             '"[""a"",""e"",""x""]"\t"[""b"", '
             '{""moo"": ""moo""}]"\n'
@@ -330,7 +424,6 @@ class TestDatastoreDump(object):
         content = json.loads(res.data)
         expected_content = {
             u'fields': [
-                {u'id': u'_id', u'type': u'int'},
                 {u'id': u'bük', u'type': u'text'},
                 {u'id': u'author', u'type': u'text'},
                 {u'id': u'published', u'type': u'timestamp'},
@@ -340,7 +433,7 @@ class TestDatastoreDump(object):
             ],
             u'records': [
                 [
-                    1, u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00',
+                    u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00',
                     [u'Princess Anna', u'Sergius'],
                     [u'a', u'e', u'x'],
                     [u'b', {u'moo': u'moo'}]
@@ -427,7 +520,7 @@ class TestDatastoreDump(object):
         res = app.get(f"/datastore/dump/{resource['id']}?limit=1&format=xml")
         expected_content = (
             u'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'
-            r'<row _id="1">'
+            u"<row>"
             u"<b\xfck>annakarenina</b\xfck>"
             u"<author>tolstoy</author>"
             u"<published>2005-03-01T00:00:00</published>"
@@ -622,8 +715,8 @@ class TestDatastoreDump(object):
 
 def get_csv_record_values(response_body):
     records = response_body.decode().split()[1:]
-    return [int(record.split(",")[1]) for record in records]
+    return [int(record.split(",")[0]) for record in records]
 
 
 def get_json_record_values(response_body):
-    return [record[1] for record in json.loads(response_body)["records"]]
+    return [record[0] for record in json.loads(response_body)["records"]]
