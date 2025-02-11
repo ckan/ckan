@@ -12,23 +12,22 @@ import ckan.plugins.toolkit as toolkit
 {%endif%}
 class {{cookiecutter.plugin_class_name}}(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
-    {%if cookiecutter.include_examples|int%}
+{%if cookiecutter.include_examples|int%}
     # plugins.implements(plugins.IAuthFunctions)
     # plugins.implements(plugins.IActions)
     # plugins.implements(plugins.IBlueprint)
     # plugins.implements(plugins.IClick)
     # plugins.implements(plugins.ITemplateHelpers)
     # plugins.implements(plugins.IValidators)
-    {%endif%}
-
+{%endif%}
     # IConfigurer
 
     def update_config(self, config_):
         toolkit.add_template_directory(config_, "templates")
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "{{cookiecutter.project_shortname}}")
+{%if cookiecutter.include_examples|int%}
 
-    {%if cookiecutter.include_examples|int%}
     # IAuthFunctions
 
     # def get_auth_functions(self):
@@ -58,4 +57,4 @@ class {{cookiecutter.plugin_class_name}}(plugins.SingletonPlugin):
 
     # def get_validators(self):
     #     return validators.get_validators()
-    {%endif%}
+{%endif-%}

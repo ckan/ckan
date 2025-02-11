@@ -2,17 +2,34 @@ name: Tests
 on: [push, pull_request]
 jobs:
   test:
+    strategy:
+      matrix:
+
+        # Uncomment the relevant lines if you want to support multiple CKAN
+        # versions
+        include:
+          - ckan-version: "2.11"
+            ckan-image: "ckan/ckan-dev:2.11-py3.10"
+         #- ckan-version: "2.10"
+         #  ckan-image: "ckan/ckan-dev:2.10-py3.10"
+         #- ckan-version: "2.9"
+         #  ckan-image: "ckan/ckan-dev:2.9-py3.9"
+      fail-fast: false
+
+    name: CKAN ${{ matrix.ckan-version }}
     runs-on: ubuntu-latest
+
     container:
       # The CKAN version tag of the Solr and Postgres containers should match
       # the one of the container the tests run on.
       # You can switch this base image with a custom image tailored to your project
-      image: ckan/ckan-dev:{{ cookiecutter.ckan_version }}
+      image: ${{ "{{" }} matrix.ckan-image }}
+      options: --user root
     services:
       solr:
-        image: ckan/ckan-solr:{{ cookiecutter.ckan_version }}-solr9
+        image: ckan/ckan-solr:${{ "{{" }} matrix.ckan-version }}-solr9
       postgres:
-        image: ckan/ckan-postgres-dev:{{ cookiecutter.ckan_version }}
+        image: ckan/ckan-postgres-dev:${{ "{{" }} matrix.ckan-version }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -45,4 +62,3 @@ jobs:
         ckan -c test.ini db init
     - name: Run tests
       run: pytest --ckan-ini=test.ini --cov=ckanext.{{ cookiecutter.project_shortname }} --disable-warnings ckanext/{{ cookiecutter.project_shortname }}
-
