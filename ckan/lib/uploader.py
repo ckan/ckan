@@ -262,7 +262,7 @@ class Upload(object):
             raise logic.ValidationError(err)
 
         preferred_extension = mimetypes.guess_extension(guessed_mimetype)
-        if preferred_extension:
+        if preferred_extension and self.filename and self.filepath:
             self.filename = str(Path(self.filename).with_suffix(preferred_extension))
             self.filepath = str(Path(self.filepath).with_suffix(preferred_extension))
 
