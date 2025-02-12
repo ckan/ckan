@@ -17,6 +17,7 @@ from typing_extensions import Protocol, TypeAlias, TypedDict
 from blinker import Signal
 from flask.wrappers import Response, Request
 
+
 from .logic import ActionResult
 from .model import (
     Model, AlchemySession,
@@ -24,6 +25,7 @@ from .model import (
 )
 
 if TYPE_CHECKING:
+    from ckan.config.middleware.flask_app import CKANFlask
     from ckanext.activity.model import Activity
 
 
@@ -43,7 +45,7 @@ __all__ = [
     "PFeed", "PFeedFactory", "PResourceUploader", "PUploader",
 ]
 Config: TypeAlias = Dict[str, Union[str, Mapping[str, str]]]
-CKANApp = Any
+CKANApp: TypeAlias = "CKANFlask"
 
 # dictionary passed to actions
 DataDict: TypeAlias = "dict[str, Any]"
