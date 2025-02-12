@@ -87,7 +87,7 @@ const fontAwesomeCss = () =>
   );
 
 const fontAwesomeFonts = () =>
-  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/webfonts/*").pipe(
+  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/webfonts/*", {"encoding": false}).pipe(
     dest(__dirname + "/ckan/public/base/vendor/fontawesome-free/webfonts")
   );
 
