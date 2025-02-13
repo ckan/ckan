@@ -129,6 +129,7 @@ class Context(TypedDict, total=False):
     limits: dict[str, Any]
     metadata_modified: str
     with_capacity: bool
+    _ckan_phase: Optional[int]
 
     table_names: list[str]
     plugin_data: dict[Any, Any]
