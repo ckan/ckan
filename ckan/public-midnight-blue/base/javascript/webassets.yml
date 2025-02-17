@@ -54,7 +54,7 @@ ckan:
     - modules/image-upload.js
     - modules/metadata-button.js
     - modules/copy-into-buffer.js
-    - modules/active-nav-tabs-scroll.js
+    - modules/active-nav-item-scroll.js
 
 view-filters:
   output: base/%(version)s_view-filters.js

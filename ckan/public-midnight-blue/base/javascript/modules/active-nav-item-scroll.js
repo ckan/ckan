@@ -1,4 +1,4 @@
-this.ckan.module('active-nav-tabs-scroll', function ($) {
+this.ckan.module('active-nav-item-scroll', function ($) {
     return {
       initialize: function () {
         console.log("hello")

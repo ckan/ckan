@@ -12439,52 +12439,53 @@ a.tag:hover {
   color: #2f4b91;
 }
 
-.secondary .nav-tabs {
+.secondary .nav-items {
   background-color: #f2f4f7;
   border-radius: 8px;
+  border-bottom: 2px solid #d0d5dd;
 }
-.secondary .nav-tabs .active {
+.secondary .nav-items .active {
   background-color: #153084;
 }
-.secondary .nav-tabs .active a {
+.secondary .nav-items .active a {
   color: #fff;
 }
-.secondary .nav-tabs .active:hover {
+.secondary .nav-items .active:hover {
   background-color: #153084;
 }
-.secondary .nav-tabs li {
+.secondary .nav-items li {
   border-radius: 8px;
   padding: 10px 16px;
   width: 100%;
 }
-.secondary .nav-tabs li a {
+.secondary .nav-items li a {
   display: flex;
   justify-content: space-between;
   flex-direction: row-reverse;
 }
-.secondary .nav-tabs li a i {
+.secondary .nav-items li a i {
   display: flex;
   align-items: center;
 }
-.secondary .nav-tabs li a:hover {
+.secondary .nav-items li a:hover {
   text-decoration: none;
 }
-.secondary .nav-tabs li:hover {
+.secondary .nav-items li:hover {
   background-color: #e4e7ec;
 }
 @media (max-width: 767.98px) {
-  .secondary .nav-tabs {
+  .secondary .nav-items {
     background-color: transparent;
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: scroll;
     white-space: nowrap;
   }
-  .secondary .nav-tabs li {
+  .secondary .nav-items li {
     margin-left: 8px;
     background-color: #f2f4f7;
   }
-  .secondary .nav-tabs li i {
+  .secondary .nav-items li i {
     margin-left: 1rem;
   }
 }
