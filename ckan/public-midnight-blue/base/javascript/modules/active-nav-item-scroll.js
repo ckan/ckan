@@ -1,3 +1,7 @@
+/*
+ * Module to horizontally scroll to active nav item.
+ * Specifically when item is not initially in view.
+ */
 this.ckan.module('active-nav-item-scroll', function ($) {
     return {
       initialize: function () {

@@ -202,6 +202,7 @@
     }
     @include media-breakpoint-down(md) {
         background-color: transparent;
+        border-bottom: none;
         flex-wrap: nowrap;
         overflow-x: auto;
         overflow-y: scroll;
