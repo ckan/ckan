@@ -435,7 +435,7 @@ def default_user_schema(
                   unicode_safe],
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
-        'sysadmin': [ignore_missing, ignore_not_sysadmin],
+        'sysadmin': [ignore_missing, ignore_not_sysadmin, boolean_validator],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
