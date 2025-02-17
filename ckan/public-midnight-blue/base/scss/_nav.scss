@@ -166,6 +166,55 @@
     }
 }
 
+// Nav tabs in secondary
+.secondary .nav-tabs {
+    background-color: $gray-100;
+    border-radius: 8px;
+    .active {
+        background-color: $brand-600;
+        a {
+            color: $white;
+        }
+        &:hover {
+            background-color: $brand-600;
+        }
+    }
+    li {
+        border-radius: 8px;
+        padding: 10px 16px;
+        width: 100%;
+        a {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row-reverse;
+            i {
+                display: flex;
+                align-items: center;
+            }
+            &:hover {
+                text-decoration: none;
+            }
+        }
+        &:hover {
+            background-color: $gray-200;
+        }
+    }
+    @include media-breakpoint-down(md) {
+        background-color: transparent;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: scroll;
+        white-space: nowrap;
+        li {
+            margin-left: 8px;
+            background-color: $gray-100;
+            i {
+                margin-left: 1rem;
+            }
+        }
+    }
+}
+
 // STACKED NAV
 // -----------
 

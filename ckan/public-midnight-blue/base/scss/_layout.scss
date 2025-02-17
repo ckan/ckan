@@ -43,12 +43,8 @@
 }
 
 @include media-breakpoint-down(md) {
-    .main .secondary {
-        -webkit-box-ordinal-group: 2;
-        -moz-box-ordinal-group: 2;
-        -webkit-order: 2;
-        order: 2;
-        margin-top: 1rem;
+.main .secondary {
+        margin: 1rem 0;
     }
     .js .main .secondary .filters {
         display: none;
