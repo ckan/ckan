@@ -743,12 +743,14 @@ def flash_success(message: Any, allow_html: bool = False) -> None:
 
 
 @core_helper
-def get_flashed_messages(with_categories: bool = True, *args: Any, **kwargs: Any):  # type: ignore
+def get_flashed_messages(with_categories: bool = True,        # type: ignore
+                         *args: Any,
+                         **kwargs: Any):
     '''
     Retrieve flashed messages from Flask's message flashing system.
 
     This function wraps Flask's built-in get_flashed_messages function to
-    process messages that may contain HTML content. Messages are stored in 
+    process messages that may contain HTML content. Messages are stored in
     a serialization-safe format and processed for HTML display when retrieved.
 
     Parameters
