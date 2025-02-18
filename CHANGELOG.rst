@@ -722,7 +722,7 @@ Removals and deprecations
       class FirstPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(ISomething)
 
-      class SecondPlugin(p.SingletonPlugin, BasePlutin):
+      class SecondPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(IAnything)
 
 

@@ -39,8 +39,8 @@ SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
-
-current_user = cast(Union["Model.User", "Model.AnonymousUser"], _cu)
+TCurrentUser = Union["Model.User", "Model.AnonymousUser"]
+current_user = cast(TCurrentUser, _cu)
 login_user = _login_user
 logout_user = _logout_user
 
