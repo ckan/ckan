@@ -335,7 +335,7 @@ def _get_members(context: Context, group: model.Group,
 def get_group_dataset_counts() -> dict[str, Any]:
     '''For all public groups, return their dataset counts, as a SOLR facet'''
     query = search.PackageSearchQuery()
-    q: dict[str, Any] = {'q': '',
+    q: dict[str, Any] = {'q': '', 'fq': 'dataset_type:dataset',
          'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
          'facet.limit': -1, 'rows': 1}
     query.run(q)
