@@ -770,8 +770,8 @@ def get_flashed_messages(with_categories: bool = True, *args: Any, **kwargs: Any
 
     Note
     ----
-    Messages stored with allow_html=True will have their HTML rendered safely.
-    Messages stored with allow_html=False will have their HTML escaped.
+    Messages stored with allow_html=True will be returned without HTML escaping
+    and messages stored with allow_html=False will be escaped.
     '''
     raw_msgs = _flask_get_flashed_messages(
         with_categories=True, *args, **kwargs
