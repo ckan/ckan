@@ -44,3 +44,10 @@ class TestAuth:
 
         with pytest.raises(tk.NotAuthorized):
             helpers.call_auth("activity_create", context=context)
+
+    def test_recently_changed_packages_activity_list_has_auth_function(self):
+
+        helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"ignore_auth": False}
+        )
