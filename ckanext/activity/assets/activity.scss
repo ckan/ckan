@@ -50,10 +50,9 @@ $activityColorEmpty: #6E6E6E;
 .activity_buttons {
     display: flex;
     gap: .5rem;
+    @media (max-width: 768px) {
+        flex-direction: column;
 
-    &>a.btn.disabled {
-        color: inherit;
-        opacity: 0.70;
     }
 }
 
