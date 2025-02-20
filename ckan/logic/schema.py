@@ -474,7 +474,7 @@ def default_user_schema(
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
         'sysadmin': [ignore_missing, ignore_not_sysadmin,
-                     limit_sysadmin_update],
+                     limit_sysadmin_update, boolean_validator],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
