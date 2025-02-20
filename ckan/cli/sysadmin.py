@@ -1,6 +1,8 @@
 # encoding: utf-8
 from __future__ import annotations
 
+from typing import Optional
+
 import click
 
 import ckan.model as model
@@ -41,16 +43,25 @@ def list_sysadmins():
 
 
 @sysadmin.command(help=u"Convert user into a sysadmin.")
-@click.argument(u"username")
-@click.argument(u"args", nargs=-1)
+@click.argument("username")
+@click.argument("args", nargs=-1)
+@click.option("--create", is_flag=True, help="Create user if it doesn't exist")
 @click.pass_context
-def add(ctx: click.Context, username: str, args: list[str]):
+def add(
+        ctx: click.Context,
+        username: str,
+        args: list[str],
+        create: Optional[bool] = False):
     user = model.User.by_name(str(username))
     if not user:
-        click.secho(u'User "%s" not found' % username, fg=u"red")
-        if click.confirm(
-            u"Create new user: %s?" % username, default=True, abort=True
-        ):
+        if not create:
+            click.secho(u'User "%s" not found' % username, fg=u"red")
+            if click.confirm(
+                u"Create new user: %s?" % username, default=True, abort=True
+            ):
+                create = True
+        if create:
+            ctx.params.pop("create", None)
             ctx.forward(add_user)
             user = model.User.by_name(str(username))
     assert user
