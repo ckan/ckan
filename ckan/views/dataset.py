@@ -533,6 +533,8 @@ class CreateView(MethodView):
         context = self._prepare()
         is_an_update = False
         ckan_phase = request.form.get(u'_ckan_phase')
+        # make _ckan_phase availale to validators
+        context['_ckan_phase'] = ckan_phase
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
@@ -720,6 +722,9 @@ class EditView(MethodView):
             )
         except dict_fns.DataError:
             return base.abort(400, _(u'Integrity Error'))
+        # make _ckan_phase availale to validators
+        if '_ckan_phase' in data_dict:
+            context['_ckan_phase'] = data_dict.get('_ckan_phase')
         try:
             if u'_ckan_phase' in data_dict:
                 if u'tag_string' in data_dict:
