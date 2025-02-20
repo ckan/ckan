@@ -1729,3 +1729,11 @@ groups:
         type: int
         default: 180
         description: The option defines the timeout in seconds until giving up on a job
+
+
+  - annotation: Validation Settings
+    options:
+      - key: ckan.validation.relaxed_tags
+        type: bool
+        default: false
+        description: The option permits a lenient validation of tag names, accepting almost all Unicode characters with the exception of Space Separator, Line Separator, Paragraph Separator, Control Character, Format Character, Surrogate Character, Private Use Character, and Unassigned Character.
