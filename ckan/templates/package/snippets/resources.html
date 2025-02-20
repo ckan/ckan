@@ -53,7 +53,7 @@ Example:
   {% endblock %}
 {% endif %}
 
-{% if can_edit and not is_activity_archive %}
+{% if can_edit and active and not is_activity_archive %}
   <div class="module-content">
     {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-light btn-sm', icon='plus' %}
   </div>
