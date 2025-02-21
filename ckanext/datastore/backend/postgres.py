@@ -1657,8 +1657,8 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
                                              fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
-    sql_string = u'DELETE FROM "{0}" {1} {2}'.format(
-        data_dict['resource_id'],
+    sql_string = u'DELETE FROM {0} {1} {2}'.format(
+        identifier(data_dict['resource_id']),
         where_clause,
         'RETURNING {return_columns}'.format(
             return_columns=return_columns) if data_dict.get(
