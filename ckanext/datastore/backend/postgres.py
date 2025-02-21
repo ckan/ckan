@@ -1195,6 +1195,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    return_columns = "_id, " + sql_columns
     if not sql_columns:
         # insert w/ no columns is a postgres error
         return
@@ -1217,16 +1218,21 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
             rows.append(row)
 
         sql_string = '''INSERT INTO {res_id} ({columns})
-            VALUES ({values});'''.format(
+            VALUES ({values}) {return_statement};'''.format(
             res_id=identifier(data_dict['resource_id']),
             columns=sql_columns,
+            return_statement='RETURNING {return_columns}'.format(
+                return_columns=return_columns) if data_dict[
+                    'include_records'] else '',
             values=', '.join([
                 f":val_{idx}" for idx in range(0, len(field_names))
             ])
         )
 
         try:
-            context['connection'].execute(sa.text(sql_string), rows)
+            results = context['connection'].execute(sa.text(sql_string), rows)
+            if data_dict['include_records']:
+                data_dict['records'] = [dict(r) for r in results.mappings().all()]
         except (DatabaseError, DataError) as err:
             raise ValidationError({
                 'records': [_programming_error_summary(err)],
@@ -1235,7 +1241,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
-
+        updated_records = []
         for num, record in enumerate(records):
             if not unique_keys and '_id' not in record:
                 raise ValidationError({
@@ -1306,12 +1312,16 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 sql_string = u'''
                     UPDATE {res_id}
                     SET ({columns}, "_full_text") = ({values}, NULL)
-                    WHERE ({primary_key}) = ({primary_value});
+                    WHERE ({primary_key}) = ({primary_value})
+                    {return_statement};
                 '''.format(
                     res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
                          for field in used_field_names]),
+                    return_statement='RETURNING {return_columns}'.format(
+                        return_columns=return_columns) if data_dict[
+                            'include_records'] else '',
                     values=u', '.join(values),
                     primary_key=pk_sql,
                     primary_value=pk_values_sql,
@@ -1320,6 +1330,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     results = context['connection'].execute(
                         sa.text(sql_string),
                         {**used_values, **unique_values})
+                    if data_dict['include_records']:
+                        updated_records += [dict(r) for r in results.mappings().all()]
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
@@ -1338,6 +1350,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     columns=u', '.join(
                         [identifier(field)
                          for field in used_field_names]),
+                    return_statement='RETURNING {return_columns}'.format(
+                        return_columns=return_columns) if data_dict[
+                            'include_records'] else '',
                     values=u', '.join([
                         f'cast(:{p} as nested)'
                         if field['type'] == 'nested' else ":" + p
@@ -1358,19 +1373,24 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                            SELECT {values}
                            WHERE NOT EXISTS (SELECT 1 FROM {res_id}
                                     WHERE ({primary_key}) = ({primary_value}))
+                           {return_statement}
                 """.format(**format_params)
 
                 values = {**used_values, **unique_values}
                 try:
                     context['connection'].execute(
                         sa.text(update_string), values)
-                    context['connection'].execute(
+                    results = context['connection'].execute(
                         sa.text(insert_string), values)
+                    if data_dict['include_records']:
+                        updated_records += [dict(r) for r in results.mappings().all()]
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
                         'records_row': num,
                     })
+        if updated_records:
+            data_dict['records'] = updated_records
 
 
 def validate(context: Context, data_dict: dict[str, Any]):
@@ -1400,6 +1420,7 @@ def validate(context: Context, data_dict: dict[str, Any]):
     data_dict_copy.pop('include_total', None)
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
+    data_dict_copy.pop('include_records', None)
     data_dict_copy.pop('calculate_record_count', None)
 
     for key, values in data_dict_copy.items():
@@ -1621,6 +1642,10 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
     validate(context, data_dict)
     fields_types = _get_fields_types(
         context['connection'], data_dict['resource_id'])
+    fields = _get_fields(context['connection'], data_dict['resource_id'])
+    sql_columns = ", ".join(
+        identifier(f['id']) for f in fields)
+    return_columns = "_id, " + sql_columns
 
     query_dict: dict[str, Any] = {
         'where': []
@@ -1631,12 +1656,16 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
                                              fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
-    sql_string = u'DELETE FROM "{0}" {1}'.format(
-        data_dict['resource_id'],
-        where_clause
+    sql_string = u'DELETE FROM {0} {1} {2}'.format(
+        identifier(data_dict['resource_id']),
+        where_clause,
+        'RETURNING {return_columns}'.format(
+            return_columns=return_columns) if data_dict['include_records'] else ''
     )
 
-    _execute_single_statement(context, sql_string, where_values)
+    results = _execute_single_statement(context, sql_string, where_values)
+    if data_dict['include_records']:
+        data_dict['deleted_records'] = [dict(r) for r in results.mappings().all()]
 
 
 def _create_triggers(connection: Any, resource_id: str,
