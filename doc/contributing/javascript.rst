@@ -241,35 +241,25 @@ The formatting is as follows::
      * Example
      *
      *   // Indented two spaces. Should give a common example of use.
-     *   client.getTemplate('index.html', {limit: 1}, function (html) {
-     *     module.el.html(html);
-     *   });
+     *   ...
      *
      * Returns describes what the object returns.
      */
 
 For example::
 
-    /* Loads an HTML template from the CKAN snippet API endpoint. Template
-     * variables can be passed through the API using the params object.
+    /* Fetches the current locale translation from the API.
      *
-     * Optional success and error callbacks can be provided or these can
-     * be attached using the returns jQuery promise object.
+     * locale - The current page locale.
      *
-     * filename - The filename of the template to load.
-     * params   - An optional object containing key/value arguments to be
-     *            passed into the template.
-     * success  - An optional success callback to be called on load. This will
-     *            recieve the HTML string as the first argument.
-     * error    - An optional error callback to be called if the request fails.
+     * Examples
      *
-     * Example
-     *
-     *   client.getTemplate('index.html', {limit: 1}, function (html) {
-     *     module.el.html(html);
+     *   var locale = jQuery('html').attr('lang');
+     *   client.getLocaleData(locale, function (data) {
+     *     // Load into the localizer.
      *   });
      *
-     * Returns a jqXHR promise object that can be used to attach callbacks.
+     * Returns a jQuery xhr promise.
      */
 
 -------
@@ -399,17 +389,3 @@ Always :ref:`localise text strings <javascript_i18n>` within your template. If
 you are including them inline this can be done with jQuery::
 
     jQuery(template).find('span').text(this._('This is my text string'));
-
-Larger templates can be loaded in using the CKAN snippet API. Modules get
-access to this functionality via the ``sandbox.client`` object::
-
-    initialize: function () {
-      var el = this.el;
-      this.sandbox.client.getTemplate('dataset.html', function (html) {
-        el.html(html);
-      });
-    }
-
-The primary benefits of this is that the localisation can be done by the server
-and it keeps the JavaScript modules free from large strings.
-
