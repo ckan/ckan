@@ -134,6 +134,8 @@ def datastore_create_schema() -> Schema:
                 one_of([u'row'])],
             'function': [not_empty, unicode_only],
         },
+        'include_records': [ignore_missing, default(False),
+                            boolean_validator],
         'calculate_record_count': [ignore_missing, default(False),
                                    boolean_validator],
         '__junk': [empty],

@@ -67,6 +67,9 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
                     (optional)
     :type records: list of dictionaries
+    :param include_records: return the inserted records in the return dict
+                            (optional)
+    :type include_records: bool
     :param primary_key: fields that represent a unique key (optional)
     :type primary_key: list or comma separated string
     :param indexes: indexes on table (optional)
@@ -181,7 +184,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
 
     result.pop('id', None)
     result.pop('connection_url', None)
-    result.pop('records', None)
+    if not data_dict.pop('include_records', False):
+        result.pop('records', None)
     return result
 
 
@@ -435,7 +439,7 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
 
     **Results:**
 
-    :returns: Original filters sent.
+    :returns: Original filters sent and list of deleted_records
     :rtype: dictionary
 
     '''
