@@ -1,0 +1,1 @@
+`datastore_create` now accepts `include_records` to return inserted records in the return dict. `datastore_create`, `datastore_upsert`, and `datastore_delete` will now include the SQL rows from `RETURNING` in the return dict's `records` instead of the user passed list.
