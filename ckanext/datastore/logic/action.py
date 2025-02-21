@@ -521,6 +521,9 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
                    If {} delete all records.
                    (required)
     :type filters: dictionary
+    :param include_records: return the full values of deleted records
+                            (optional, default: False)
+    :type include_records: bool
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
         `total_estimation_threshold` parameter. If doing a series of requests

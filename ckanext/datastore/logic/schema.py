@@ -180,6 +180,7 @@ def datastore_records_delete_schema() -> Schema:
         'force': [ignore_missing, boolean_validator],
         'filters': [not_missing, dict_only],
         'id': [ignore_missing],
+        'include_records': [default(False), boolean_validator],
         'calculate_record_count': [ignore_missing, default(False),
                                    boolean_validator],
         '__junk': [empty],
