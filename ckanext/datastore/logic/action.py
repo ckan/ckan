@@ -68,7 +68,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                     (optional)
     :type records: list of dictionaries
     :param include_records: return the inserted records in the return dict
-                            (optional)
+                            (optional, default: False)
     :type include_records: bool
     :param primary_key: fields that represent a unique key (optional)
     :type primary_key: list or comma separated string
@@ -294,6 +294,9 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}]
                     (optional)
     :type records: list of dictionaries
+    :param include_records: return the inserted records in the return dict
+                            (optional, default: False)
+    :type include_records: bool
     :param method: the method to use to put the data into the datastore.
                    Possible options are: upsert, insert, update
                    (optional, default: upsert)
@@ -341,6 +344,8 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
 
     result.pop('id', None)
     result.pop('connection_url', None)
+    if not data_dict.pop('include_records', False):
+        result.pop('records', None)
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
@@ -430,6 +435,9 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
                    If missing delete whole table and all dependent views.
                    (optional)
     :type filters: dictionary
+    :param include_records: return the deleted records in the return dict
+                            (optional, default: False)
+    :type include_records: bool
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
         `total_estimation_threshold` parameter. If doing a series of requests
@@ -496,6 +504,8 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
 
     result.pop('id', None)
     result.pop('connection_url', None)
+    if not data_dict.pop('include_records', False):
+        result.pop('deleted_records', None)
     return result
 
 
