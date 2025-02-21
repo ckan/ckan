@@ -67,7 +67,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
                     (optional)
     :type records: list of dictionaries
-    :param include_records: return the inserted records in the return dict
+    :param include_records: return the full values of inserted records
                             (optional, default: False)
     :type include_records: bool
     :param primary_key: fields that represent a unique key (optional)
@@ -294,7 +294,7 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}]
                     (optional)
     :type records: list of dictionaries
-    :param include_records: return the inserted records in the return dict
+    :param include_records: return the full values of inserted records
                             (optional, default: False)
     :type include_records: bool
     :param method: the method to use to put the data into the datastore.
@@ -435,7 +435,7 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
                    If missing delete whole table and all dependent views.
                    (optional)
     :type filters: dictionary
-    :param include_records: return the deleted records in the return dict
+    :param include_records: return the full values of deleted records
                             (optional, default: False)
     :type include_records: bool
     :param calculate_record_count: updates the stored count of records, used to
