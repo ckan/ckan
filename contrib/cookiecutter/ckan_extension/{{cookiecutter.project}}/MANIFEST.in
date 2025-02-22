@@ -1,6 +1,6 @@
 include README.rst
 include LICENSE
 include requirements.txt
-recursive-include ckanext/{{ cookiecutter.project_shortname }} *.html *.json *.js *.less *.css *.mo *.yml
+recursive-include ckanext/{{ cookiecutter.project_shortname }} *.html *.json *.js *.css *.mo *.yml *.yaml *.toml
 recursive-include ckanext/{{ cookiecutter.project_shortname }}/migration *.ini *.py *.mako
 recursive-include ckanext/{{ cookiecutter.project_shortname }}/public *.*
