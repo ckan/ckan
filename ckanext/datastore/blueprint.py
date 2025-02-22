@@ -56,6 +56,7 @@ def dump_schema() -> Schema:
         u'plain': [ignore_missing, boolean_validator],
         u'language': [ignore_missing, unicode_only],
         u'fields': [ignore_missing, list_of_strings_or_string],
+        u'ignore_fields': [default(u'_id'), list_of_strings_or_string],
         u'sort': [default(u'_id'), list_of_strings_or_string],
     }
 
@@ -80,6 +81,34 @@ def dump(resource_id: str):
     limit = data.get('limit')
     options = {'bom': data['bom']}
     sort = data['sort']
+    fields = data.get('fields', [])
+    ignore_fields = data.get('ignore_fields', [])
+
+    if not fields:
+        ds_info = get_action('datastore_info')({'user': g.user},
+                                               {'id': resource_id})
+        # _id is never returned from datastore_info
+        fields = [field['id'] for field in ds_info.get('fields', [])]
+
+    # fields accepts string or list of strings
+    if isinstance(fields, str):
+        fields = fields.split(',')
+
+    # ignore_fields accepts string or list of strings
+    if isinstance(ignore_fields, str):
+        ignore_fields = ignore_fields.split(',')
+
+    for ignore_field in ignore_fields:
+        if ignore_field in fields:
+            fields.remove(ignore_field)
+
+    if '_id' not in ignore_fields and not data.get('fields'):
+        # _id is never returned from datastore_info,
+        # so we may need to add it back in here
+        fields.insert(0, '_id')
+
+    data['fields'] = fields
+
     search_params = {
         k: v
         for k, v in data.items()
