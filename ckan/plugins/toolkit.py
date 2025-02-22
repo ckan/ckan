@@ -12,6 +12,8 @@ has been given.
 from __future__ import annotations
 
 from typing import Any, Optional, Union
+import os
+import shutil
 import ckan
 import ckan.lib.base as base
 from ckan.lib.base import render, abort
@@ -101,6 +103,7 @@ __all__ = [
     "add_public_directory",
     "add_resource",
     "add_template_directory",
+    "add_public_to_webasset",
     "asbool",
     "asint",
     "aslist",
@@ -174,6 +177,18 @@ def add_template_directory(config_: CKANConfig, relative_path: str):
     _add_served_directory(config_, relative_path, "plugin_template_paths")
 
 
+def add_public_to_webasset(config_:CKANConfig, relative_path: str):
+    storage_path = config_['ckan.storage_path']
+    webassets_url = config_['ckan.webassets.url']
+    
+    combined_path = os.path.join(storage_path, webassets_url.lstrip('/'))
+    path = _add_served_directory(config_, relative_path, "plugin_public_paths")
+    destination_path = os.path.join(combined_path, "public")
+    if os.path.exists(destination_path):
+        shutil.rmtree(destination_path)   
+    if os.path.exists(path):
+        shutil.copytree(path, destination_path)
+    
 def add_public_directory(config_: CKANConfig, relative_path: str):
     """Add a path to the :ref:`extra_public_paths` config setting.
 
