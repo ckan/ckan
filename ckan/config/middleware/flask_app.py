@@ -516,10 +516,11 @@ def _setup_error_mail_handler(app: CKANApp):
 
     class ContextualFilter(logging.Filter):
         def filter(self, log_record: Any) -> bool:
-            log_record.url = request.path
-            log_record.method = request.method
-            log_record.ip = request.environ.get("REMOTE_ADDR")
-            log_record.headers = request.headers
+            if request:
+                log_record.url = request.path
+                log_record.method = request.method
+                log_record.ip = request.environ.get("REMOTE_ADDR")
+                log_record.headers = request.headers
             return True
 
     smtp_server = config.get('smtp.server')
