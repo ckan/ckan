@@ -1,0 +1,37 @@
+Setting ``g.user`` via ``IAuthenticator.identify`` is broken since CKAN
+v2.10. Now, it's possible to achieve similar results using
+``IAuthenticator.identify_user`. This new method is called with an ID of the
+user when application detects an existing user session. It must return
+``model.User`` object, which resembles setting ``g.user`` in before
+v2.10. ``IAuthenticator.identify`` is kept as-is for now, because it can be
+used for early request interruption via returning a response object.
+
+If there is no active session or all implementations of
+``IAuthenticator.identify_user`` fail to identify user by returning ``None``,
+``IAuthenticator.identify_user`` is called once again without arguments. Using
+this flow, plugin can ignore initial call with the ``user_id``, keeping default
+authentication intact. And if default authentication cannot find the user for
+the current session, the plugin intercepts the second call and identifies user
+using header, cookie or other request parameters.
+
+Before::
+
+  def identify(self):
+      username = tk.request.headers.get("USERNAME")
+      if is_verified(username):
+          g.user = username
+
+
+After::
+
+  def identify_user(self, user_id: str | None = None):
+      # when user_id is set, try implementations from other plugins
+      # and default authentication first
+      if user_id:
+          return None
+
+      # if user hasn't been identified during the first call, use
+      # headers for authentication
+      username = request.headers.get("USERNAME")
+      if is_verified(username):
+          return model.User.get(username)
