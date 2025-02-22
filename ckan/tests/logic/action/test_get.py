@@ -872,7 +872,12 @@ class TestUserList(object):
     def test_user_list_default_values(self):
         user = factories.User()
 
-        got_users = helpers.call_action("user_list")
+        got_users = helpers.call_action(
+            "user_list",
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={"ignore_auth": False}
+        )
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -1049,7 +1054,13 @@ class TestUserShow(object):
 
         user = factories.User()
 
-        got_user = helpers.call_action("user_show", id=user["id"])
+        got_user = helpers.call_action(
+            "user_show",
+            id=user["id"],
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={"ignore_auth": False}
+        )
 
         assert got_user["id"] == user["id"]
         assert got_user["name"] == user["name"]
@@ -1071,7 +1082,14 @@ class TestUserShow(object):
         user = factories.User()
 
         got_user = helpers.call_action(
-            "user_show", context={"keep_email": True}, id=user["id"]
+            "user_show",
+            id=user["id"],
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={
+                "keep_email": True,
+                "ignore_auth": False
+            }
         )
 
         assert got_user["email"] == user["email"]
@@ -1084,7 +1102,14 @@ class TestUserShow(object):
         user = factories.User()
 
         got_user = helpers.call_action(
-            "user_show", context={"keep_apikey": True}, id=user["id"]
+            "user_show",
+            id=user["id"],
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={
+                "keep_apikey": True,
+                "ignore_auth": False
+            }
         )
 
         assert "email" not in got_user
