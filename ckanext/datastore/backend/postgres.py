@@ -1366,6 +1366,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     UPDATE {res_id}
                     SET ({columns}, "_full_text") = ({values}, NULL)
                     WHERE ({primary_key}) = ({primary_value})
+                    {return_statement}
                 """.format(**format_params)
 
                 insert_string = """
@@ -1378,8 +1379,10 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
                 values = {**used_values, **unique_values}
                 try:
-                    context['connection'].execute(
+                    results = context['connection'].execute(
                         sa.text(update_string), values)
+                    if data_dict['include_records']:
+                        updated_records += [dict(r) for r in results.mappings().all()]
                     results = context['connection'].execute(
                         sa.text(insert_string), values)
                     if data_dict['include_records']:
