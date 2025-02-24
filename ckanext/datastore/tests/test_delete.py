@@ -124,6 +124,51 @@ class TestDatastoreDelete(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_does_not_include_records_by_default(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "records": [{"movie": "Cats", "director": "Tom Hooper"}]
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "filters": {"director": "Tom Hooper"}
+        }
+        result = helpers.call_action("datastore_delete", **data)
+        assert 'deleted_records' not in result
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_include_records_return(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "records": [{"movie": "Cats", "director": "Tom Hooper"}]
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "filters": {"director": "Tom Hooper"},
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_delete", **data)
+        assert 'deleted_records' in result
+        for r in result['deleted_records']:
+            assert '_id' in r
+
 
 class TestDatastoreRecordsDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -205,6 +250,55 @@ class TestDatastoreRecordsDelete(object):
         expected = {u'filters': [u'Must be a dict']}
         err = ve.value.error_dict
         assert err == expected
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_does_not_include_records_by_default(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "force": True,
+            "records": [{"movie": "Cats", "director": "Tom Hooper"}]
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "filters": {"director": "Tom Hooper"}
+        }
+        result = helpers.call_action("datastore_records_delete", **data)
+        assert 'deleted_records' not in result
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_include_records_return(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "force": True,
+            "records": [{"movie": "Cats", "director": "Tom Hooper"}]
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "filters": {"director": "Tom Hooper"},
+            "force": True,
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_records_delete", **data)
+        assert 'deleted_records' in result
+        for r in result['deleted_records']:
+            assert '_id' in r
 
 
 class TestDatastoreDeleteLegacy(object):

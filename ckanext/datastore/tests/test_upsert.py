@@ -1009,3 +1009,113 @@ class TestDatastoreUpdate(object):
         assert search_result["total"] == 1
         rec = search_result["records"][0]
         assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_upsert_does_not_include_records_by_default(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "force": True,
+            "records": [{"id": "1", "movie": "Cats", "director": "Tom Hooper"}]
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"}
+            ]
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' not in result
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"}
+            ]
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' not in result
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"id": "2", "movie": "Cats: The Making Of", "director": "Tom Hooper"}
+            ]
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' not in result
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_upsert_include_records_return(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "force": True,
+            "records": [{"id": "1", "movie": "Cats", "director": "Tom Hooper"}]
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"}
+            ],
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' in result
+        for r in result['records']:
+            assert '_id' in r
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"}
+            ],
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' in result
+        for r in result['records']:
+            assert '_id' in r
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"id": "2", "movie": "Cats: The Making Of", "director": "Tom Hooper"}
+            ],
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' in result
+        for r in result['records']:
+            assert '_id' in r
+
