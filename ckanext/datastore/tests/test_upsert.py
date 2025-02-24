@@ -1118,4 +1118,3 @@ class TestDatastoreUpdate(object):
         assert 'records' in result
         for r in result['records']:
             assert '_id' in r
-
