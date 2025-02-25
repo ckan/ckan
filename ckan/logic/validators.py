@@ -9,6 +9,7 @@ import mimetypes
 import string
 import json
 import uuid
+import unicodedata
 from typing import Any, Container, Optional, Union
 from urllib.parse import urlparse
 
@@ -512,13 +513,50 @@ def tag_length_validator(value: Any, context: Context) -> Any:
     return value
 
 def tag_name_validator(value: Any, context: Context) -> Any:
-    """Ensures that tag does not contain wrong characters
     """
-    tagname_match = re.compile(r'[\w \-.]*$', re.UNICODE)
-    if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" can only contain alphanumeric '
-                        'characters, spaces (" "), hyphens ("-"), '
-                        'underscores ("_") or dots (".")') % (value))
+    Accept
+    - unicode graphical (printable) characters
+    - single internal spaces (no double-spaces)
+
+    Reject
+    - commas
+    - tags that are too short or too long
+
+    Strip
+    - spaces at beginning and end
+    """
+
+
+    if config.get('ckan.validation.relaxed_tags', False):
+        value = value.strip()
+
+        if u',' in value:
+            raise Invalid(_(u'Tag "%s" may not contain commas') % (value,))
+        
+        if u'  ' in value:
+            raise Invalid(
+                _(u'Tag "%s" may not contain consecutive spaces') % (value,))
+        
+        caution = re.sub(r'[\w ]*', u'', value)
+
+        for ch in caution:
+            category = unicodedata.category(ch)
+            
+            if category.startswith('C'):
+                raise Invalid(
+                    _(u'Tag "%s" may not contain unprintable character U+%04x')
+                    % (value, ord(ch)))
+            if category.startswith('Z'):
+                raise Invalid(
+                    _(u'Tag "%s" may not contain separator charater U+%04x')
+                    % (value, ord(ch)))
+    else:
+        tagname_match = re.compile(r'[\w \-.]*$', re.UNICODE)
+        if not tagname_match.match(value):
+            raise Invalid(_('Tag "%s" can only contain alphanumeric '
+                            'characters, spaces (" "), hyphens ("-"), '
+                            'underscores ("_") or dots (".")') % (value))
+
     return value
 
 def tag_not_uppercase(value: Any, context: Context) -> Any:
