@@ -1242,6 +1242,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
         updated_records = []
+        updated_ids = []
         for num, record in enumerate(records):
             if not unique_keys and '_id' not in record:
                 raise ValidationError({
@@ -1331,7 +1332,14 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         sa.text(sql_string),
                         {**used_values, **unique_values})
                     if data_dict['include_records']:
-                        updated_records += [dict(r) for r in results.mappings().all()]
+                        for r in results.mappings().all():
+                            r_dict = dict(r)
+                            if r_dict['_id'] in updated_ids:
+                                for ur in updated_records:
+                                    if ur['_id'] == r_dict['_id']:
+                                        updated_records.remove(ur)
+                            updated_ids.append(r_dict['_id'])
+                            updated_records.append(r_dict)
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
@@ -1382,11 +1390,25 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     results = context['connection'].execute(
                         sa.text(update_string), values)
                     if data_dict['include_records']:
-                        updated_records += [dict(r) for r in results.mappings().all()]
+                        for r in results.mappings().all():
+                            r_dict = dict(r)
+                            if r_dict['_id'] in updated_ids:
+                                for ur in updated_records:
+                                    if ur['_id'] == r_dict['_id']:
+                                        updated_records.remove(ur)
+                            updated_ids.append(r_dict['_id'])
+                            updated_records.append(r_dict)
                     results = context['connection'].execute(
                         sa.text(insert_string), values)
                     if data_dict['include_records']:
-                        updated_records += [dict(r) for r in results.mappings().all()]
+                        for r in results.mappings().all():
+                            r_dict = dict(r)
+                            if r_dict['_id'] in updated_ids:
+                                for ur in updated_records:
+                                    if ur['_id'] == r_dict['_id']:
+                                        updated_records.remove(ur)
+                            updated_ids.append(r_dict['_id'])
+                            updated_records.append(r_dict)
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],

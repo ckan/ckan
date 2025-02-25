@@ -1118,3 +1118,54 @@ class TestDatastoreUpdate(object):
         assert 'records' in result
         for r in result['records']:
             assert '_id' in r
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_upsert_include_records_return_no_duplicates(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "primary_key": "id",
+            "fields": [
+                {"id": "id", "type": "text"},
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "force": True,
+            "records": [{"id": "1", "movie": "Cats", "director": "Tom Hooper"}]
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"},
+                {"id": "1", "movie": "Cats: The Making Of", "director": "Tom Hooper"}
+            ],
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' in result
+        assert len(result['records']) == 1
+        for r in result['records']:
+            assert '_id' in r
+            assert r['movie'] == 'Cats: The Making Of'
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"},
+                {"id": "1", "movie": "Cats: The Making Of", "director": "Tom Hooper"}
+            ],
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_upsert", **data)
+        assert 'records' in result
+        assert len(result['records']) == 1
+        for r in result['records']:
+            assert '_id' in r
+            assert r['movie'] == 'Cats: The Making Of'
