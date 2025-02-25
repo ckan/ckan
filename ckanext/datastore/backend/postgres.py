@@ -1351,6 +1351,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     columns=u', '.join(
                         [identifier(field)
                          for field in used_field_names]),
+                    set_statement=', '.join(
+                        ['{col}=EXCLUDED.{col}'.format(col=identifier(field))
+                         for field in field_names]),
                     return_statement='RETURNING {return_columns}'.format(
                         return_columns=return_columns) if data_dict[
                             'include_records'] else '',
@@ -1360,12 +1363,14 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         for p, field in zip(value_placeholders, used_fields)
                     ]),
                     primary_key=pk_sql,
+                    primary_value=pk_values_sql,
                 )
 
                 sql_string = """
                     INSERT INTO {res_id} ({columns}) VALUES ({values})
                     ON CONFLICT ({primary_key}) DO UPDATE
-                    SET ({columns}, "_full_text") = ({values}, NULL)
+                    SET _id=EXCLUDED._id, {set_statement}
+                    WHERE ({res_id}.{primary_key}) = ({primary_value})
                     {return_statement}
                 """.format(**format_params)
 
