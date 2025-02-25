@@ -1360,33 +1360,19 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         for p, field in zip(value_placeholders, used_fields)
                     ]),
                     primary_key=pk_sql,
-                    primary_value=pk_values_sql,
                 )
 
-                update_string = """
-                    UPDATE {res_id}
+                sql_string = """
+                    INSERT INTO {res_id} ({columns}) VALUES ({values})
+                    ON CONFLICT ({primary_key}) DO UPDATE
                     SET ({columns}, "_full_text") = ({values}, NULL)
-                    WHERE ({primary_key}) = ({primary_value})
                     {return_statement}
-                """.format(**format_params)
-
-                insert_string = """
-                    INSERT INTO {res_id} ({columns})
-                           SELECT {values}
-                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
-                                    WHERE ({primary_key}) = ({primary_value}))
-                           {return_statement}
                 """.format(**format_params)
 
                 values = {**used_values, **unique_values}
                 try:
                     results = context['connection'].execute(
-                        sa.text(update_string), values)
-                    if data_dict['include_records']:
-                        for r in results.mappings().all():
-                            updated_records[str(r._id)] = dict(r)
-                    results = context['connection'].execute(
-                        sa.text(insert_string), values)
+                        sa.text(sql_string), values)
                     if data_dict['include_records']:
                         for r in results.mappings().all():
                             updated_records[str(r._id)] = dict(r)
