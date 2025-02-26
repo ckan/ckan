@@ -86,11 +86,12 @@
       {% block save_button %}
         <button class="btn btn-primary" name="save" value="go-metadata-preview" type="submit">{% block save_button_text %}{{ _('Preview') }}{% endblock %}</button>
       {% endblock %}
-      {% if not data.id %}
-        {% block publish_button %}
-          <button class="btn btn-success" name="save" value="go-metadata-publish" type="submit">{% block publish_button_text %}{{ _('Publish') }}{% endblock %}</button>
-        {% endblock %}
-      {% endif %}
+     
+     
+      {% block publish_button %}
+        <button class="btn btn-success" name="save" value="go-metadata-publish" type="submit">{% block publish_button_text %}{{ _('Publish') }}{% endblock %}</button>
+      {% endblock %}
+    
     {% else %}
       {% block add_button %}
         <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>

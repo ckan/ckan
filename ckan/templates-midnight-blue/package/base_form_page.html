@@ -86,7 +86,7 @@
                   {% for res in pkg_dict.resources %}
                     {% set url = h.url_for('dataset_resource.edit', id=pkg_dict.name, resource_id=res.id) %}
                     {% if active == res.id %}
-                    <li class="list-group-item">
+                    <li class="list-group-item active">
                       <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=res.name or res.id) }}">
                         {{ res.name | truncate(50) }}
                       </a>
