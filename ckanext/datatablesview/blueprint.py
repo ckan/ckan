@@ -137,10 +137,12 @@ def ajax(resource_view_id: str):
             data.append(record)
 
         dtdata = {
-            u'draw': draw,
-            u'recordsTotal': unfiltered_response.get(u'total', 0),
-            u'recordsFiltered': response.get(u'total', 0),
-            u'data': data
+            'draw': draw,
+            'recordsTotal': unfiltered_response.get('total', 0),
+            'recordsFiltered': response.get('total', 0),
+            'data': data,
+            'total_was_estimated': unfiltered_response.get(
+                'total_was_estimated', False),
         }
 
     return json.dumps(dtdata)
