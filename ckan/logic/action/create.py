@@ -687,8 +687,8 @@ def package_collaborator_create(
     model.Session.add(collaborator)
     model.repo.commit()
 
-    log.info('User {} added as collaborator in package {} ({})'.format(
-        user.name, package.id, capacity))
+    log.info('User %s added as collaborator in package %s (%s)',
+             user.name, package.id, capacity)
 
     return model_dictize.member_dictize(collaborator, context)
 
@@ -766,7 +766,7 @@ def _group_or_org_create(context: Context,
     member_create_context['ignore_auth'] = True
 
     logic.get_action('member_create')(member_create_context, member_dict)
-    log.debug('Created object %s' % group.name)
+    log.debug('Created object %s', group.name)
 
     return_id_only = context.get('return_id_only', False)
     action = 'organization_show' if is_org else 'group_show'
@@ -969,7 +969,8 @@ def user_create(context: Context,
     author_obj = model.User.get(context.get('user'))
     if data_dict.get("id"):
         is_sysadmin = (author_obj and author_obj.sysadmin)
-        if not is_sysadmin or model.User.get(data_dict["id"]):
+        ignore_auth = context.get('ignore_auth')
+        if not (ignore_auth or is_sysadmin) or model.User.get(data_dict["id"]):
             data_dict.pop("id", None)
     context.pop("user_obj", None)
 
@@ -1036,7 +1037,7 @@ def user_create(context: Context,
         )
         user_dict["token"] = api_token["token"]
 
-    log.debug('Created user {name}'.format(name=user.name))
+    log.debug('Created user %s', user.name)
     return user_dict
 
 
@@ -1159,7 +1160,7 @@ def vocabulary_create(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % vocabulary.name)
+    log.debug('Created Vocabulary %s', vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
@@ -1203,7 +1204,7 @@ def tag_create(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug("Created tag '%s' " % tag)
+    log.debug("Created tag '%s' ", tag)
     return model_dictize.tag_dictize(tag, context)
 
 
@@ -1257,8 +1258,8 @@ def follow_user(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following user {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following user %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_user_dictize(follower, context)
 
@@ -1307,8 +1308,8 @@ def follow_dataset(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following dataset {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following dataset %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_dataset_dictize(follower, context)
 
@@ -1444,8 +1445,8 @@ def follow_group(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following group {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following group %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_group_dictize(follower, context)
 

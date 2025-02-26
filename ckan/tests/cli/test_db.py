@@ -117,3 +117,45 @@ class TestMigrations:
         """
         cli.invoke(ckan, ["db", "upgrade", "--skip-plugins"])
         assert db._get_pending_plugins() == {"example_database_migrations": 2}
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestDuplicateEmails:
+    def test_case_insensitive(self, user_factory, faker, cli):
+        """Command performs case-insensitive search."""
+        email = faker.email()
+
+        john = user_factory(email=email)
+        greg = user_factory()
+
+        mary = user_factory.model()
+        mary.email = email.upper()
+        mary.save()
+
+        res = cli.invoke(ckan, ["db", "duplicate_emails"])
+
+        assert mary.name in res.output
+        assert john["name"] in res.output
+        assert greg["name"] not in res.output
+
+    def test_check_across_states(self, user_factory, monkeypatch, faker, ckan_config, cli):
+        """Command checks users with configured statuses."""
+        email = faker.email()
+
+        deleted = user_factory(email=email, state="deleted")
+        pending = user_factory(email=email, state="pending")
+        active = user_factory(email=email)
+
+        res = cli.invoke(ckan, ["db", "duplicate_emails"])
+        assert "No duplicate emails found" in res.output
+
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.user.unique_email_states",
+            ["active", "deleted"]
+        )
+
+        res = cli.invoke(ckan, ["db", "duplicate_emails"])
+        assert deleted["name"] in res.output
+        assert active["name"] in res.output
+        assert pending["name"] not in res.output

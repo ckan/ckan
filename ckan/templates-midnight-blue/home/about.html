@@ -8,12 +8,12 @@
 
 {% block primary %}
   <article class="module" role="main">
-    <div class="module-content">
+    <h1 class="page-heading">{% block page_heading %}{{ _('About') }}{% endblock %}</h1>
+    <div class="module-content primary">
       {% block about %}
         {% if g.site_about %}
           {{ h.render_markdown(g.site_about) }}
         {% else %}
-          <h1 class="page-heading">{{ _('About') }}</h1>
           {% snippet 'home/snippets/about_text.html' %}
         {% endif %}
       {% endblock %}

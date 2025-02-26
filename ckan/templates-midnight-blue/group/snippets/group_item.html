@@ -1,44 +1,46 @@
 {#
-Renders a media item for a group. This should be used in a list.
+Renders a card for a group. This should be used in a list.
 
 group - A group dict.
 
 Example:
 
-    <ul class="media-grid">
+    <ul class="group-list">
       {% for group in groups %}
         {% snippet "group/snippets/group_item.html", group=group %}
       {% endfor %}
     </ul>
 #}
+
 {% set type = group.type or 'group' %}
 {% set url = h.url_for(type ~ '.read', id=group.name) %}
 {% block item %}
-<li class="media-item">
+<li class="groups-cards">
+  {% block link %}
+  {% set view_label = _('Open details page for {group_name}').format(group_name=group.display_name) %}
+    <a href="{{ url }}" aria-label="{{ view_label }}" data-bs-title="{{ view_label }}" data-bs-toggle="tooltip">
   {% block item_inner %}
   {% block image %}
-    <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image img-fluid">
+    <div class="module-image">
+      <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.svg') }}" class="img-fluid" alt="{{ group.name }}" />
+    </div>
   {% endblock %}
   {% block title %}
-    <h2 class="media-heading">{{ group.display_name }}</h2>
-  {% endblock %}
-  {% block description %}
-    {% if group.description %}
-      <p class="media-description">{{ h.markdown_extract(group.description, extract_length=80) }}</p>
-    {% endif %}
+    <h3>{{ group.display_name }}</h3>
   {% endblock %}
   {% block datasets %}
     {% if group.package_count %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong><br/>
-    {% elif group.package_count == 0 %}
-      <span class="count">{{ _('0 Datasets') }}</span><br/>
+      <span class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</span>
+    {% else %}
+      <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
   {% endblock %}
   {% block members %}
     {% if 'member_count' in group and group.member_count %}
       <strong class="count">{{ ungettext('{num} Member', '{num} Members', group.member_count).format(num=group.member_count) }}</strong>
-    {% else %}
+    {% elif 'member_count' in group %}
       <span class="count">{{ _('0 Members') }}</span>
+    {% else %}
     {% endif %}
   {% endblock %}
   {% block capacity %}
@@ -46,19 +48,12 @@ Example:
     <p><span class="label label-default">{{ h.roles_translated().get(group.capacity, group.capacity) }}</span></p>
     {% endif %}
   {% endblock %}
-  {% block link %}
-  {% set view_label = _('Open details page for {name}').format(name=group.display_name) %}
-  <a href="{{ url }}" aria-label="{{view_label }}" data-bs-title="{{ view_label }}" data-bs-toggle="tooltip" class="media-view">
-    <span>{{ _('View {name}').format(name=group.display_name) }}</span>
-  </a>
   {% endblock %}
+</a>
   {% if group.user_member %}
     {% set remove_label = _('Unlink {name} from the dataset').format(name=group.display_name) %}
-    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" aria-label="{{ remove_label }}" data-bs-title="{{ remove_label }}" data-bs-toggle="tooltip" />
+    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm" aria-label="{{ remove_label }}" data-bs-title="{{ remove_label }}" data-bs-toggle="tooltip" />
   {% endif %}
-  {% endblock %}
+{% endblock %}
 </li>
 {% endblock %}
-{% if position is divisibleby 3 %}
-  <li class="clearfix js-hide"></li>
-{% endif %}

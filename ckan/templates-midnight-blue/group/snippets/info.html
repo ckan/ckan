@@ -8,7 +8,7 @@
     {% block image %}
     <div class="image">
       <a href="{{ group.url }}">
-        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="190" height="118" alt="{{ group.name }}" />
+        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.svg') }}" width="190" height="118" alt="{{ group.name }}" />
       </a>
     </div>
     {% endblock %}

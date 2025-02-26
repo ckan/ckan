@@ -6,6 +6,7 @@ import hashlib
 import pytest
 
 from passlib.hash import pbkdf2_sha512
+from faker import Faker
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -159,6 +160,21 @@ class TestUser:
         assert user.fullname == data["fullname"]
         assert user.email == data["email"]
         assert user.last_active is None
+
+    def test_by_email(self, user_factory, faker: Faker):
+        """Search by email is case-insensitive and requires full-match.
+        """
+
+        mary = user_factory(email=faker.email(domain="ckan.net"))
+        john = user_factory(email=faker.email(domain="ckan.net"))
+
+        assert model.User.by_email(mary["email"]).id == mary["id"]
+        assert model.User.by_email(john["email"]).id == john["id"]
+
+        assert model.User.by_email(mary["email"].upper()).id == mary["id"]
+        assert model.User.by_email(john["email"].title()).id == john["id"]
+
+        assert not model.User.by_email("ckan.net")
 
     def test_get(self):
         brian = factories.User(fullname="Brian")

@@ -10,7 +10,13 @@ from flask import Blueprint
 
 from ckan.common import json
 from ckan.lib.helpers import decode_view_request_filters
-from ckan.plugins.toolkit import get_action, request, h
+from ckan.plugins.toolkit import (
+    get_action,
+    h,
+    NotAuthorized,
+    ObjectNotFound,
+    request,
+)
 import re
 
 ESTIMATION_THRESHOLD = 100000
@@ -62,14 +68,19 @@ def ajax(resource_view_id: str):
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
-    unfiltered_response = datastore_search(
-        {}, {
-            "resource_id": resource_view[u'resource_id'],
-            "limit": 0,
-            "filters": view_filters,
-            "total_estimation_threshold": ESTIMATION_THRESHOLD,
-        }
-    )
+    try:
+        unfiltered_response = datastore_search(
+            {}, {
+                "resource_id": resource_view[u'resource_id'],
+                "limit": 0,
+                "filters": view_filters,
+                "total_estimation_threshold": ESTIMATION_THRESHOLD,
+            }
+        )
+    except ObjectNotFound:
+        return json.dumps({'error': 'Object not found'}), 404
+    except NotAuthorized:
+        return json.dumps({'error': 'Not Authorized'}), 403
 
     cols = [f[u'id'] for f in unfiltered_response[u'fields']]
     if u'show_fields' in resource_view:
@@ -125,6 +136,7 @@ def ajax(resource_view_id: str):
     except Exception:
         query_error = u'Invalid search query... ' + search_text
         dtdata = {u'error': query_error}
+        status = 400
     else:
         data = []
         null_label = h.datatablesview_null_label()
@@ -144,8 +156,10 @@ def ajax(resource_view_id: str):
             'total_was_estimated': unfiltered_response.get(
                 'total_was_estimated', False),
         }
+        status = 200
 
-    return json.dumps(dtdata)
+    # return the response as JSON with status
+    return json.dumps(dtdata), status
 
 
 def filtered_download(resource_view_id: str):

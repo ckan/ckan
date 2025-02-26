@@ -1137,7 +1137,10 @@ def email_is_unique(key: FlattenKey, data: FlattenDataDict,
 
     existing_users = (
         session.query(model.User)
-        .filter(model.User.email.ilike(data[key]), model.User.state == "active")
+        .filter(
+            model.User.email.ilike(data[key]),
+            model.User.state.in_(config["ckan.user.unique_email_states"]),
+        )
         .all()
     )
 

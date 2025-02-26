@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
-from typing_extensions import Protocol
+from typing import TYPE_CHECKING, Any
+from typing_extensions import Protocol, TypeAlias
 
 from sqlalchemy.orm.scoping import ScopedSession
 from sqlalchemy.orm import sessionmaker, Session
@@ -24,27 +24,27 @@ class Meta(Protocol):
 
 class Model(Protocol):
     # Activity: ClassVar[Type["_model.Activity"]]
-    ApiToken: Type["_model.ApiToken"]
-    Dashboard: Type["_model.Dashboard"]
-    DomainObject: Type["_model.DomainObject"]
-    Group: Type["_model.Group"]
-    Member: Type["_model.Member"]
-    Package: Type["_model.Package"]
-    PackageMember: Type["_model.PackageMember"]
-    PackageRelationship: Type["_model.PackageRelationship"]
-    PackageTag: Type["_model.PackageTag"]
-    Resource: Type["_model.Resource"]
-    ResourceView: Type["_model.ResourceView"]
-    State: Type["_model.State"]
-    System: Type["_model.System"]
-    Tag: Type["_model.Tag"]
-    TaskStatus: Type["_model.TaskStatus"]
-    User: Type["_model.User"]
-    AnonymousUser: Type["_model.AnonymousUser"]
-    UserFollowingDataset: Type["_model.UserFollowingDataset"]
-    UserFollowingGroup: Type["_model.UserFollowingGroup"]
-    UserFollowingUser: Type["_model.UserFollowingUser"]
-    Vocabulary: Type["_model.Vocabulary"]
+    ApiToken: TypeAlias = "_model.ApiToken"
+    Dashboard: TypeAlias = "_model.Dashboard"
+    DomainObject: TypeAlias = "_model.DomainObject"
+    Group: TypeAlias = "_model.Group"
+    Member: TypeAlias = "_model.Member"
+    Package: TypeAlias = "_model.Package"
+    PackageMember: TypeAlias = "_model.PackageMember"
+    PackageRelationship: TypeAlias = "_model.PackageRelationship"
+    PackageTag: TypeAlias = "_model.PackageTag"
+    Resource: TypeAlias = "_model.Resource"
+    ResourceView: TypeAlias = "_model.ResourceView"
+    State: TypeAlias = "_model.State"
+    System: TypeAlias = "_model.System"
+    Tag: TypeAlias = "_model.Tag"
+    TaskStatus: TypeAlias = "_model.TaskStatus"
+    User: TypeAlias = "_model.User"
+    AnonymousUser: TypeAlias = "_model.AnonymousUser"
+    UserFollowingDataset: TypeAlias = "_model.UserFollowingDataset"
+    UserFollowingGroup: TypeAlias = "_model.UserFollowingGroup"
+    UserFollowingUser: TypeAlias = "_model.UserFollowingUser"
+    Vocabulary: TypeAlias = "_model.Vocabulary"
 
     group_table: Table
     member_table: Table

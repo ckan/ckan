@@ -10,7 +10,7 @@ this.ckan.module('resource-reorder', function($) {
       title: '<h1></h1>',
       help_text: '<p></p>',
       button: [
-        '<a href="javascript:;" class="btn btn-default">',
+        '<a href="javascript:;" class="btn btn-secondary">',
         '<i class="fa fa-bars"></i>',
         '<span></span>',
         '</a>'
