@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional, Literal
 from ckan.common import CKANConfig
 
 from ckan.plugins.toolkit import add_template_directory, h
 from ckan import plugins
 
 from ckanext.example_iformredirect import views
+
 
 class ExampleIFormRedirectPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFormRedirect)
@@ -47,7 +48,7 @@ class ExampleIFormRedirectPlugin(plugins.SingletonPlugin):
             )
         if save_action == 'again':
             return h.url_for(
-                '{}_resource.new'.format(package_type), id=package_id,
+                '{}_resource.new'.format(package_type), id=package_name,
             )
         # edit dataset page after resource
         return h.url_for(u'{}.edit'.format(package_type), id=package_name)
