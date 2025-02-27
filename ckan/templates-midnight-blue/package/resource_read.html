@@ -183,6 +183,10 @@
 
 {% block secondary_content %}
 
+  {% block dataset_wrench %}
+  {% snippet "package/snippets/package_wrench.html", pkg=pkg, active=res.id, action='read' %}
+  {% endblock %}
+
   {% block resources_list %}
     {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read' %}
   {% endblock %}

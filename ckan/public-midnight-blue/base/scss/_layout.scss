@@ -1,3 +1,30 @@
+.wrapper {
+    @include clearfix();
+    position: relative;
+    min-height: 300px;
+    @include media-breakpoint-up(md) {
+       
+        &.no-nav {
+            &:before {
+                display: none;
+            }
+            .module {
+                >.page-header {
+                    margin-top: 0;
+                }
+            }
+        }
+    }
+}
+
+// @media (min-width: $screen-md-min) {
+//   .wrapper {
+//     background-position:0px 0px;
+//   }
+// }
+// .wrapper.no-nav {
+//     background-image: none;
+// }
 [role=main],
 .main {
     position: relative;
