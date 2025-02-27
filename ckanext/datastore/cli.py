@@ -6,7 +6,6 @@ import os
 import json
 
 import click
-import sqlalchemy as sa
 
 from ckan.model import parse_db_config
 from ckan.common import config
@@ -186,7 +185,7 @@ def upgrade():
     count = 0
     skipped = 0
     noinfo = 0
-    read_connection = get_read_engine()
+    read_connection = get_read_engine().connect()
     for resid in get_all_resources_ids_in_datastore():
         raw_fields, old = _get_raw_field_info(read_connection, resid)
         if not old:
@@ -209,7 +208,7 @@ def upgrade():
                     raw_sql))
 
             if alter_sql:
-                connection.execute(';'.join(alter_sql))
+                connection.exec_driver_sql(';'.join(alter_sql))
                 count += 1
             else:
                 noinfo += 1
