@@ -209,7 +209,7 @@ def upgrade():
                     raw_sql))
 
             if alter_sql:
-                connection.execute(sa.text(';'.join(alter_sql)))
+                connection.execute(';'.join(alter_sql))
                 count += 1
             else:
                 noinfo += 1
