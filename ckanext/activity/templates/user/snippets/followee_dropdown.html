@@ -10,11 +10,14 @@
   {% endif %}
 {%- endmacro %}
 
-<div id="followee-filter" class="pull-right">
+<div id="followee-filter">
   <div class="dropdown">
-    <a href="#" id="followee-popover" class="btn btn-secondary dropdown-toggle"
+    <a href="#" id="followee-popover" class="followee-toggle"
       aria-label="{{ _('Activity from:') }} {{ context.context }}">
-      <span>{{ _('Activity from:') }}</span> <strong>{{ context.context }}</strong> <span class="caret"></span>
+      <span class="dropdown-content">
+        <span class="label">{{ _('Activity from:') }}</span> {{ context.context }}
+      </span>
+      <span class="caret"><i class="fa-solid fa-angle-down"></i></span>
     </a>
   </div>
 
