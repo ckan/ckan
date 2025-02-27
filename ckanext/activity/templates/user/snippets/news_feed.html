@@ -1,11 +1,4 @@
-{% block page_heading %}
-  <h1>{{ _('News feed') }}</h1>
-  <p>{{ _("Activity from items that I'm following") }}</p>
-{% endblock %}
-
-<div class="row" data-module="dashboard">
-    {% snippet 'user/snippets/followee_dropdown.html', context=dashboard_activity_stream_context, followees=followee_list %}
-    {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
+<div class="row activity-stream">
+  {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
+  {% snippet 'snippets/pagination.html', target=".activity-stream", newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
 </div>
-
-{% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}

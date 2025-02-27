@@ -12439,56 +12439,38 @@ a.tag:hover {
   color: #2f4b91;
 }
 
-.secondary .nav-items {
+.secondary .nav-options {
   background-color: #f2f4f7;
   border-radius: 8px;
-  border-bottom: 2px solid #d0d5dd;
 }
-.secondary .nav-items .active {
+.secondary .nav-options .active {
   background-color: #153084;
 }
-.secondary .nav-items .active a {
+.secondary .nav-options .active a {
   color: #fff;
 }
-.secondary .nav-items .active:hover {
+.secondary .nav-options .active:hover {
   background-color: #153084;
 }
-.secondary .nav-items li {
+.secondary .nav-options li {
   border-radius: 8px;
   padding: 10px 16px;
   width: 100%;
 }
-.secondary .nav-items li a {
+.secondary .nav-options li a {
   display: flex;
   justify-content: space-between;
   flex-direction: row-reverse;
 }
-.secondary .nav-items li a i {
+.secondary .nav-options li a i {
   display: flex;
   align-items: center;
 }
-.secondary .nav-items li a:hover {
+.secondary .nav-options li a:hover {
   text-decoration: none;
 }
-.secondary .nav-items li:hover {
+.secondary .nav-options li:hover {
   background-color: #e4e7ec;
-}
-@media (max-width: 767.98px) {
-  .secondary .nav-items {
-    background-color: transparent;
-    border-bottom: none;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: scroll;
-    white-space: nowrap;
-  }
-  .secondary .nav-items li {
-    margin-left: 8px;
-    background-color: #f2f4f7;
-  }
-  .secondary .nav-items li i {
-    margin-left: 1rem;
-  }
 }
 
 .nav-stacked > li {
@@ -14654,13 +14636,16 @@ td.diff_header {
   padding: 3px 5px;
   line-height: 1;
 }
-.followee-container li:hover, .followee-container li.active {
+.followee-container li:hover {
+  background: #e4e7ec;
+}
+.followee-container li.active {
   background: #153084;
 }
-.followee-container li:hover a, .followee-container li.active a {
+.followee-container li.active a {
   color: #fff;
 }
-.followee-container li:hover i, .followee-container li.active i {
+.followee-container li.active i {
   background-color: #153084;
   color: #fff;
   border-radius: 100px;

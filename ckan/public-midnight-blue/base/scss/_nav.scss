@@ -166,11 +166,10 @@
     }
 }
 
-// Nav items in secondary
-.secondary .nav-items {
+// Nav options in secondary
+.secondary .nav-options {
     background-color: $gray-100;
     border-radius: 8px;
-    border-bottom: 2px solid $gray-300;
     .active {
         background-color: $brand-600;
         a {
@@ -198,21 +197,6 @@
         }
         &:hover {
             background-color: $gray-200;
-        }
-    }
-    @include media-breakpoint-down(md) {
-        background-color: transparent;
-        border-bottom: none;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: scroll;
-        white-space: nowrap;
-        li {
-            margin-left: 8px;
-            background-color: $gray-100;
-            i {
-                margin-left: 1rem;
-            }
         }
     }
 }
