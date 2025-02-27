@@ -202,7 +202,7 @@ def upgrade():
                 raw = {'_info': fvalue}
                 # ' ' prefix for data version
                 raw_sql = literal_string(' ' + json.dumps(
-                    raw, ensure_ascii=False, separators=(',', ':')))
+                    raw, ensure_ascii=False, separators=(',', ':'))).replace(":", r"\:")
                 alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                     identifier(resid),
                     identifier(fid),

@@ -1,0 +1,2 @@
+`ckan datastore upgrade` no longer fails if datastore column comments contain a 
+substring resmbling a sqlalchemy bind parmeter (e.g `{"key":null}`).
