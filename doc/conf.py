@@ -20,6 +20,7 @@ import os
 import subprocess
 
 from packaging.version import parse as version_parse
+from packaging.requirements import Requirement
 
 import ckan
 
@@ -316,7 +317,8 @@ def get_min_setuptools_version():
     filename = os.path.join(os.path.dirname(__file__), '..',
                             'requirement-setuptools.txt')
     with open(filename) as f:
-        return f.read().split('==')[1].strip()
+      req = Requirement(f.read())
+      return str(req.specifier)[2:]
 
 
 def config_defaults_from_declaration():
