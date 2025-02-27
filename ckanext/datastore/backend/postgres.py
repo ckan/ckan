@@ -1353,7 +1353,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                          for field in used_field_names]),
                     set_statement=', '.join(
                         ['{col}=EXCLUDED.{col}'.format(col=identifier(field))
-                         for field in field_names]),
+                         for field in used_field_names]),
                     return_statement='RETURNING {return_columns}'.format(
                         return_columns=return_columns) if data_dict[
                             'include_records'] else '',
