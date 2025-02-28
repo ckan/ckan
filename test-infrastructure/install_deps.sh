@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # OS Dependencies
 apt update
 apt install -y postgresql-client
