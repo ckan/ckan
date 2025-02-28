@@ -9,5 +9,3 @@
 {% else %}
     {% link_for link_label, named_route=route_name, class_='btn btn-primary', icon='plus-square' %}
 {% endif %}
-
-<form action="{% url_for 'resource_first.new' %}" method=post><input type=submit></form>
