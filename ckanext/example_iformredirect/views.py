@@ -22,7 +22,7 @@ class _ResourceFirst(MethodView):
                 break
         try:
             pkg = get_action('package_create')(
-                None, {'name': name, 'state': 'draft'})
+                {}, {'name': name, 'state': 'draft'})
         except NotAuthorized:
             return abort(403, _('Unauthorized to create a package'))
 
