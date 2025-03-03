@@ -76,28 +76,18 @@ def test_user_update_user_cannot_update_another_user():
 # END-BEFORE
 
 
+@pytest.mark.usefixtures("non_clean_db")
 def test_user_update_user_can_update_her():
     """Users should be authorized to update their own accounts."""
-
-    # Make a mock ckan.model.User object, Fred.
-    fred = factories.MockUser()
-
-    # Make a mock ckan.model object.
-    mock_model = mock.MagicMock()
-    # model.User.get(user_id) should return our mock user.
-    mock_model.User.get.return_value = fred
-
-    # Put the mock model in the context.
-    # This is easier than patching import ckan.model.
-    context = {"model": mock_model}
+    fred = factories.User()
 
     # The 'user' in the context has to match fred.name, so that the
     # auth function thinks that the user being updated is the same user as
     # the user who is logged-in.
-    context["user"] = fred.name
+    context = {"user": fred["name"]}
 
     # Make Fred try to update his own user name.
-    params = {"id": fred.id, "name": "updated_user_name"}
+    params = {"id": fred["id"], "name": "updated_user_name"}
 
     result = helpers.call_auth("user_update", context=context, **params)
     assert result is True
