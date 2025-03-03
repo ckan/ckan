@@ -169,7 +169,6 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
                         'ignore_auth': True,
                         'validate': False,
                         'use_cache': False,
-                        'model': model,
                     }, {'id': entity.id}), operation)
         elif operation == domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__,
