@@ -14,7 +14,9 @@ from typing import Any, Optional, Union, cast
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
+from flask.json.tag import TaggedJSONSerializer
 from flask_session import Session
+from flask_session.base import Serializer as FlaskSessionSerializer
 
 from werkzeug.exceptions import (
     default_exceptions,
@@ -72,21 +74,46 @@ csrf_warn_extensions = (
     )
 
 
+class CKANJsonSessionSerializer(TaggedJSONSerializer, FlaskSessionSerializer):
+    """Adapter of flask's serializer for flask-session.
+
+    This serializer is used instead of MsgPackSerializer from flask-session,
+    because the latter cannot handle Markup and raises an exception when flash
+    message with HTML added to session.
+    """
+    def encode(self, session: CKANSession) -> bytes:
+        """Serialize the session data."""
+        return self.dumps(session).encode()
+
+    def decode(self, serialized_data: bytes) -> Any:
+        """Deserialize the session data."""
+        return self.loads(serialized_data.decode())
+
+
 class CKANSession(Session):
     def _get_interface(self, app: CKANApp):
         """Initialize session interface.
+
         We use our own classes for these interfaces:
             * cookie: to support persistent sessions
             * redis: to be able use the value of ckan.redis.url
 
+        In addition, all flask-session backends(any backend other from
+        `cookie`) have their MsgPack serializer replaced with flask's
+        TaggedJSONSerializer to support storing Markup(flash messages) and
+        datetime object inside session.
         """
         session_type = app.config["SESSION_TYPE"]
         if session_type == "cookie":
             return CKANSecureCookieSessionInterface(app)
-        elif session_type == "redis":
-            return CKANRedisSessionInterface(app)
 
-        return super()._get_interface(app)
+        if session_type == "redis":
+            interface = CKANRedisSessionInterface(app)
+        else:
+            interface = super()._get_interface(app)
+
+        interface.serializer = CKANJsonSessionSerializer()  # type: ignore
+        return interface
 
 
 class I18nMiddleware(object):

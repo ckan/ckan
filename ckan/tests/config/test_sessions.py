@@ -21,12 +21,20 @@ class TestWithFlashPlugin:
         assert body_contains(res, "This is a success message")
         assert body_contains(res, 'alert-success')
 
-    def test_flash_success_with_html(self, app):
+    @pytest.mark.parametrize("session_type", ["cookie", "redis"])
+    def test_flash_success_with_html(
+            self, make_app, session_type, ckan_config, monkeypatch,
+    ):
+        """Test flash_success messages are rendered.
+
+        After migration to flask-session, cookie and other backends are using a
+        bit different strategies for session data serialization, so it's better
+        to test both options with JSON incompatible data, like Markup produced
+        by flash messages.
         """
-        Test flash_success messages are rendered.
-        """
+        monkeypatch.setitem(ckan_config, "SESSION_TYPE", session_type)
         url = "/flash_success_html_redirect"
-        res = app.get(url)
+        res = make_app().get(url)
         assert body_contains(res, "<h1> This is a success message with HTML</h1>")
         assert body_contains(res, 'alert-success')
 
