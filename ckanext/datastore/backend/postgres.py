@@ -1355,7 +1355,9 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort = ['_id']
 
     if sort:
-        sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
+        sort_clause = 'ORDER BY {}'.format(', '.join(
+            identifier(data_dict['resource_id']) + '.' + s
+            for s in sort))
     else:
         sort_clause = ''
 
