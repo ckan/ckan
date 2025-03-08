@@ -1355,9 +1355,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort = ['_id']
 
     if sort:
-        sort_clause = 'ORDER BY {}'.format(', '.join(
-            identifier(data_dict['resource_id']) + '.' + s
-            for s in sort))
+        sort_clause = 'ORDER BY {}'.format(', '.join(sort))
     else:
         sort_clause = ''
 
@@ -1366,8 +1364,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
@@ -1377,29 +1377,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT * FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
-        resource=resource_id,
+        resource=identifier(resource_id),
         ts_query=ts_query,
         where=where_clause,
         sort=sort_clause,
