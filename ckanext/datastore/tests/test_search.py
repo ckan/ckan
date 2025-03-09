@@ -2151,7 +2151,7 @@ class TestDatastoreSearchRecordsFormat(object):
                 {"id": "lst", "type": "_text"},
             ],
             records=[
-                {"num": 10, "dt": "2020-01-01", "txt": "aaab", "lst": ["one", "two"]},
+                {"num": 10, "dt": "2020-01-01", "txt": "aaab", "lst": ["one"]},
                 {"num": 9, "dt": "2020-01-02", "txt": "aaab"},
                 {"num": 9, "txt": "aaac", "lst": ["one", "two"]},
                 {},  # all nulls
@@ -2165,8 +2165,19 @@ class TestDatastoreSearchRecordsFormat(object):
         )["records"] == [
             [2, 9, "2020-01-02T00:00:00", "aaab", None],
             [3, 9, None, "aaac", ["one", "two"]],
-            [1, 10, "2020-01-01T00:00:00", "aaab", ["one", "two"]],
+            [1, 10, "2020-01-01T00:00:00", "aaab", ["one"]],
             [4, None, None, None, None],
+        ]
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format="lists",
+            sort="lst nulls first, num nulls last",
+        )["records"] == [
+            [2, 9, "2020-01-02T00:00:00", "aaab", None],
+            [4, None, None, None, None],
+            [1, 10, "2020-01-01T00:00:00", "aaab", ["one"]],
+            [3, 9, None, "aaac", ["one", "two"]],
         ]
         assert helpers.call_action(
             "datastore_search",
@@ -2176,6 +2187,17 @@ class TestDatastoreSearchRecordsFormat(object):
         )["records"] == [
             {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
             {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
-            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one", "two"]},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
             {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
+        ]
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format="objects",
+            sort="lst nulls first, num nulls last",
+        )["records"] == [
+            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
+            {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
+            {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
         ]
