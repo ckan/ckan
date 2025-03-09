@@ -28,7 +28,6 @@ class ActivityPlugin(p.SingletonPlugin):
             tk.add_template_directory(config, "templates")
             tk.add_resource("assets", "ckanext-activity")
         tk.add_public_directory(config, "public")
-            
 
     # ISignal
     def get_signal_subscriptions(self):
