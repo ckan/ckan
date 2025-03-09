@@ -1,0 +1,15 @@
+{% extends "package/read_base.html" %}
+
+{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+  {% snippet 'snippets/activity_stream.html',
+     activity_stream=activity_stream,
+     id=id,
+     object_type='package',
+     group_type=group_type,
+     activity_types=activity_types,
+     blueprint='activity.package_activity',
+     newer_activities_url=newer_activities_url,
+     older_activities_url=older_activities_url %}
+{% endblock primary_content_inner %}

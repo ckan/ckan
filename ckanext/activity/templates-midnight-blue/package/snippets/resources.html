@@ -1,0 +1,16 @@
+{% ckan_extends %}
+
+
+{% block resources_list %}
+  {% if is_activity_archive %}
+    <ul class="list-unstyled nav nav-simple">
+      {% for resource in resources %}
+        <li class="nav-item{{ ' active' if active == resource.id }}">
+          <a href="{{ h.url_for("activity.resource_history", id=pkg.id, resource_id=resource.id, inner_span=true, activity_id=request.view_args.activity_id) }}" aria-label="{{ h.resource_display_name(resource) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}

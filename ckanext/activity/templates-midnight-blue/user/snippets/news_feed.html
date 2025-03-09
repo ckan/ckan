@@ -1,0 +1,4 @@
+<div class="row activity-stream">
+  {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
+  {% snippet 'snippets/pagination.html', target=".activity-stream", newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
+</div>
