@@ -96,7 +96,7 @@
             {% for group, num_packages in largest_groups %}
               <tr>
                 <td>
-                  <a href="{{ h.url_for(controller=group.type, action='read', id=group.name) }}">
+                  <a href="{{ h.url_for(group.type ~ '.read', id=group.name) }}">
                     {{group.title or group.name}}
                   </a>
                 </td>
