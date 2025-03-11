@@ -3,6 +3,7 @@
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.logic.auth as logic_auth
+from ckan import model
 from ckan.common import _
 
 # FIXME this import is evil and should be refactored
@@ -12,7 +13,6 @@ from ckan.types import Context, DataDict, AuthResult
 
 @logic.auth_allow_anonymous_access
 def package_update(context: Context, data_dict: DataDict) -> AuthResult:
-    model = context['model']
     user = context.get('user')
 
     package = logic_auth.get_package_object(context, data_dict)
@@ -70,7 +70,6 @@ def package_resource_reorder(context: Context,
     return {'success': True}
 
 def resource_update(context: Context, data_dict: DataDict) -> AuthResult:
-    model = context['model']
     user = context.get('user')
     resource = logic_auth.get_resource_object(context, data_dict)
 

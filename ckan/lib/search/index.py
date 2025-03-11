@@ -116,7 +116,7 @@ class PackageSearchIndex(SearchIndex):
         schema = package_plugin.show_package_schema()
         validated_pkg_dict, _errors = lib_plugins.plugin_validate(
             package_plugin,
-            {'model': model, 'session': model.Session},
+            {'session': model.Session},
             pkg_dict, schema, 'package_show')
         pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
             cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
@@ -152,7 +152,7 @@ class PackageSearchIndex(SearchIndex):
         # vocab_<tag name> so that they can be used in facets
         non_vocab_tag_names = []
         tags = pkg_dict.pop('tags', [])
-        context: Context = {'model': model}
+        context = Context()
 
         for tag in tags:
             if tag.get('vocabulary_id'):

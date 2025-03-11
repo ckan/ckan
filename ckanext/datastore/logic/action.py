@@ -726,7 +726,6 @@ def set_datastore_active_flag(
 
     Called after creation or deletion of DataStore table.
     '''
-    model = context['model']
     resource = model.Resource.get(data_dict['resource_id'])
     assert resource
 
@@ -752,7 +751,6 @@ def set_datastore_active_flag(
     # copied from ckan.lib.search.rebuild
     # using validated packages can cause solr errors.
     context = {
-        'model': model,
         'ignore_auth': True,
         'validate': False,
         'use_cache': False
