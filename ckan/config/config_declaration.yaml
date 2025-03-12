@@ -1735,14 +1735,15 @@ groups:
     options:
       - key: ckan.validation.tag_name.regex
         default: '[\w \-.]*$'
+        example: '^[a-z_]+$'
         description: |
           This optional setting allows you to define a custom regular expression for validating tag names in CKAN.
-          By default, the regex is `[\w \-.]*$`, which permits alphanumeric characters, spaces, hyphens, and periods.
+          By default, the regex is ``[\w \-.]*$``, which permits alphanumeric characters, spaces, hyphens, and periods.
           You can customize this regex to enforce specific formats or constraints on tag names.
-          For example, to allow only lowercase letters and underscores, you can set it as follows:
+          For example, to extend the default regex by allowing also colons, you can set it as follows::
 
-          ```yaml
-          ckan.validation.tag_name.regex: "^[a-z_]+$"
-          ```
-          **Note:** Even though you might allow non-printable characters in your regex, tags containing such characters
-          will still be rejected by design.
+              ckan.validation.tag_name.regex = [\w \-.:]*$
+          
+          .. note::  Even though you might allow non-printable characters in your regex, tags containing such characters
+            will still be rejected by design.
+
