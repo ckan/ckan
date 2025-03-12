@@ -1734,7 +1734,7 @@ groups:
   - annotation: Validation Settings
     options:
       - key: ckan.validation.tag_name.regex
-        default: "[\w \-.]*$"
+        default: '[\w \-.]*$'
         description: |
           This optional setting allows you to define a custom regular expression for validating tag names in CKAN.
           By default, the regex is `[\w \-.]*$`, which permits alphanumeric characters, spaces, hyphens, and periods.
