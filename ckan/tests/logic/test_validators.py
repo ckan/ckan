@@ -932,8 +932,8 @@ def test_tag_string_convert():
     assert convert("trailing comma space, ") == ["trailing comma space"]
 
 
-@helpers.change_config('ckan.validation.relaxed_tags', True)
-def test_tag_string_convert_relaxed_mode():
+@helpers.change_config('ckan.validation.tag_name.regex', "[\w \-.:\n\r]*$")
+def test_tag_string_convert_custom_regex():
     def convert(tag_string):
         key = "tag_string"
         data = {key: tag_string}
@@ -960,9 +960,12 @@ def test_tag_string_convert_relaxed_mode():
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
 
-    # test non alphanumeric character
+    # test non-alphanumeric character
     assert convert("1:5000") == ["1:5000"]
-    
+
+    # expect error when line break in string, even though the configured regex would accept that non-printable char
+    raises_invalid(validators.tag_name_validator)("test\nme", {})
+
     # expect error when comma in string
     raises_invalid(validators.tag_name_validator)("1,2", {})
 

@@ -515,47 +515,34 @@ def tag_length_validator(value: Any, context: Context) -> Any:
 def tag_name_validator(value: Any, context: Context) -> Any:
     """
     Accept
-    - unicode graphical (printable) characters
-    - single internal spaces (no double-spaces)
+    - either alphanumeric characters, spaces (" "), hyphens ("-"), underscores ("_") or dots (".")
+    - or all character matching a configured regex in the CKAN config file
 
     Reject
-    - commas
-    - tags that are too short or too long
+    - tags with non-printable characters, even when the custom regex would allow them
 
-    Strip
-    - spaces at beginning and end
+    Normalisation
+    - does apply Unicode normalization
     """
 
+    # Normalize input to NFC (canonical decomposition followed by canonical composition)
+    value = unicodedata.normalize('NFC', value)
 
-    if config.get('ckan.validation.relaxed_tags', False):
-        value = value.strip()
+    # Define the default regex
+    default_regex = r'[\w \-.]*$'
 
-        if u',' in value:
-            raise Invalid(_(u'Tag "%s" may not contain commas') % (value,))
-        
-        if u'  ' in value:
-            raise Invalid(
-                _(u'Tag "%s" may not contain consecutive spaces') % (value,))
-        
-        caution = re.sub(r'[\w ]*', u'', value)
+    # Fetch the validation regex from CKAN configuration
+    regex = config.get('ckan.validation.tag_name.regex', default_regex)
 
-        for ch in caution:
-            category = unicodedata.category(ch)
-            
-            if category.startswith('C'):
-                raise Invalid(
-                    _(u'Tag "%s" may not contain unprintable character U+%04x')
-                    % (value, ord(ch)))
-            if category.startswith('Z'):
-                raise Invalid(
-                    _(u'Tag "%s" may not contain separator charater U+%04x')
-                    % (value, ord(ch)))
-    else:
-        tagname_match = re.compile(r'[\w \-.]*$', re.UNICODE)
-        if not tagname_match.match(value):
-            raise Invalid(_('Tag "%s" can only contain alphanumeric '
-                            'characters, spaces (" "), hyphens ("-"), '
-                            'underscores ("_") or dots (".")') % (value))
+    # Validate regex
+    tagname_match = re.compile(regex, re.UNICODE)
+    if not tagname_match.match(value):
+        raise Invalid(_('Tag "%s" contains invalid characters. '
+                        'Allowed characters are defined by the configured validation pattern "%s"') % (value, regex))
+
+    # Ensure all characters in the value are printable
+    if not value.isprintable():
+        raise Invalid(_('Tag "%s" contains non-printable characters, which are not allowed.') % (value))
 
     return value
 
