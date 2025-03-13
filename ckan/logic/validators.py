@@ -526,6 +526,7 @@ def tag_name_validator(value: Any, context: Context) -> Any:
     """
 
     # Normalize input to NFC (canonical decomposition followed by canonical composition)
+    # TODO not necessary if only tag_string_convert is being used, which does unicode normalization by itself
     value = unicodedata.normalize('NFC', value)
 
     # Define the default regex
@@ -567,6 +568,9 @@ def tag_string_convert(key: FlattenKey, data: FlattenDataDict,
                 if tag.strip()]
     else:
         tags = data[key]
+
+    # Normalize input to NFC (canonical decomposition followed by canonical composition)
+    tags = [unicodedata.normalize('NFC', tag) for tag in tags]
 
     current_index = max( [int(k[1]) for k in data.keys() if len(k) == 3 and k[0] == 'tags'] + [-1] )
 
