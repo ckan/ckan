@@ -538,8 +538,13 @@ def tag_name_validator(value: Any, context: Context) -> Any:
     # Validate regex
     tagname_match = re.compile(regex, re.UNICODE)
     if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" contains invalid characters. '
-                        'Allowed characters are defined by the configured validation pattern "%s"') % (value, regex))
+        if not tagname_match.match(value):
+            message = ('Tag "%s" can only contain alphanumeric characters, spaces (" "), hyphens ("-"), '
+                       'underscores ("_") or dots (".")') % (value) \
+                if regex == default_regex else (
+                                                   'Tag "%s" contains invalid characters. Allowed characters are defined by '
+                                                   'the configured validation pattern "%s"') % (value, regex)
+            raise Invalid(_(message))
 
     # Ensure all characters in the value are printable
     if not value.isprintable():
