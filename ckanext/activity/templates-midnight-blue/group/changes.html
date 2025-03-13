@@ -1,0 +1,64 @@
+{% extends "group/read_base.html" %}
+
+{% block subtitle %}{{ group_dict.name }} {{ g.template_title_delimiter }} Changes {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ super() }}
+  <li>{% link_for _('Changes'), named_route='activity.group_activity', id=group_dict.name %}</li>
+  <li class="active">{% link_for activity_diffs[0].activities[1].id|truncate(30), named_route='activity.group_changes', id=activity_diffs[0].activities[1].id %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      {% block group_changes_header %}
+        <h1 class="page-heading">{{ _('Changes') }}</h1>
+      {% endblock %}
+
+      {% set select_list1 = h.activity_list_select(group_activity_list, activity_diffs[-1].activities[0].id) %}
+      {% set select_list2 = h.activity_list_select(group_activity_list, activity_diffs[0].activities[1].id) %}
+      <form id="range_form" action="{{ h.url_for('activity.group_changes_multiple') }}" data-module="select-switch" data-module-target="">
+        <input type="hidden" name="current_old_id" value="{{ activity_diffs[-1].activities[0].id }}">
+        <input type="hidden" name="current_new_id" value="{{ activity_diffs[0].activities[1].id }}">
+      View changes from
+        <select class="form-control select-time" form="range_form" name="old_id">
+          <pre>
+            {{ select_list1[1:]|join }}
+          </pre>
+        </select> to
+        <select class="form-control select-time" form="range_form" name="new_id">
+          <pre>
+            {{ select_list2|join }}
+          </pre>
+        </select>
+        </form>
+
+        <br>
+
+      {# iterate through the list of activity diffs #}
+      <hr>
+      {% for i in range(activity_diffs|length) %}
+        {% snippet "group/snippets/item_group.html", activity_diff=activity_diffs[i], group_dict=group_dict %}
+
+        {# TODO: display metadata for more than most recent change #}
+        {% if i == 0 %}
+          {# button to show JSON metadata diff for the most recent change - not shown by default #}
+          <input type="button" data-module="metadata-button" data-module-target="" class="btn" value="Show metadata diff" id="metadata_button"></input>
+          <div id="metadata_diff" style="display:none;">
+          {% block group_changes_diff %}
+            <pre>
+              {{ activity_diffs[0]['diff']|safe }}
+            </pre>
+          {% endblock %}
+          </div>
+        {% endif %}
+
+        <hr>
+      {% endfor %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}

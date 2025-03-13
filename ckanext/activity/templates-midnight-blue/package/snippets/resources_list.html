@@ -1,0 +1,15 @@
+{% ckan_extends %}
+
+{% block resource_list_inner %}
+  {% for resource in resources %}
+    {% if is_activity_archive %}
+      {% set url = h.url_for("activity.resource_history", id=pkg.id, resource_id=resource.id, activity_id=request.view_args.activity_id) %}
+    {% endif %}
+    {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=false if is_activity_archive else can_edit, is_activity_archive=is_activity_archive, url=url %}
+  {% endfor %}
+{% endblock %}
+
+
+{% block resource_list_empty %}
+  <p class="empty">{{ _('This dataset has no data') }}</p>
+{% endblock %}

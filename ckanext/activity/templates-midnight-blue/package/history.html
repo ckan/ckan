@@ -1,0 +1,23 @@
+{% extends "package/read.html" %}
+
+{% block package_description %}
+  {% block package_archive_notice %}
+    <div class="alert alert-danger">
+      {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
+      You're currently viewing an old version of this dataset.
+      Data files may not match the old version of the metadata.
+      <a href="{{ url }}">View the current version</a>.
+          {% endtrans %}
+    </div>
+  {% endblock %}
+
+  {{ super() }}
+{% endblock package_description %}
+
+
+{% block package_resources %}
+  {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources, is_activity_archive=true %}
+{% endblock %}
+
+{% block content_action %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% ckan_extends %}
+
+{% block explore_view %}
+  {% if is_activity_archive %}
+    <li>
+      <a class="dropdown-item" href="{{ url }}">
+        <i class="fa fa-info-circle"></i>
+        {{ _('More information') }}
+      </a>
+    </li>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+
+
+{% endblock explore_view %}

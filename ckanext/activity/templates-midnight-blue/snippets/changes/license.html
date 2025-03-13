@@ -1,0 +1,67 @@
+<li>
+  <p>
+    {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id)) %}
+    {# if both of them have URLs #}
+    {% if change.new_url != "" and change.old_url != "" %}
+
+      {{ _('Changed the license of ') }}
+      <a href="{{pkg_link}}">
+        {{ change.title }}
+      <a>
+
+      {{ _('to') }}
+      <a href="{{change.new_url}}">
+        {{change.new_title}}
+      </a>
+
+      {{ _('( previously') }}
+      <a href="{{change.old_url}}">
+        {{change.old_title}}
+      </a>
+      {{_(')')}}
+
+      {# if only the new one has a URL #}
+    {% elif change.new_url != "" and change.old_url == "" %}
+
+      {{ _('Changed the license of') }}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('to') }}
+      <a href="{{change.new_url}}">
+        {{change.new_title}}
+      </a>
+
+      {{ _('(previously') + change.old_title + ' )'}}
+
+      {# if only the old one has a URL #}
+    {% elif change.new_url == "" and change.old_url != "" %}
+
+     {{ _('Changed the license of') }}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('to') + change.new_title }}
+
+      {{ _('( previously') }}
+      <a href="{{change.old_url}}">
+        {{change.old_title}}
+      </a>
+      {{_(')')}}
+
+      {# otherwise neither has a URL #}
+    {% else %}
+
+      {{ _('Changed the license of') }}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('to') + change.new_title}}
+      {{ _('(previously') + change.old_title + _(')')|safe }}
+
+    {% endif %}
+  </p>
+</li>
