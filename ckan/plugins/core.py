@@ -27,7 +27,6 @@ __all__ = [
     'load', 'load_all', 'unload', 'unload_all',
     'get_plugin', 'plugins_update',
     'use_plugin', 'plugin_loaded',
-    'unload_non_system_plugins',
 ]
 
 TInterface = TypeVar('TInterface', bound="Interface")
@@ -37,16 +36,11 @@ log = logging.getLogger(__name__)
 # Entry point group.
 PLUGINS_ENTRY_POINT_GROUP = 'ckan.plugins'
 
-# Entry point group for system plugins (those that are part of core ckan and
-# do not need to be explicitly enabled by the user)
-SYSTEM_PLUGINS_ENTRY_POINT_GROUP = 'ckan.system_plugins'
-
 # Entry point for test plugins.
 TEST_PLUGINS_ENTRY_POINT_GROUP = 'ckan.test_plugins'
 
 GROUPS = [
     PLUGINS_ENTRY_POINT_GROUP,
-    SYSTEM_PLUGINS_ENTRY_POINT_GROUP,
     TEST_PLUGINS_ENTRY_POINT_GROUP,
 ]
 # These lists are used to ensure that the correct extensions are enabled.
@@ -101,10 +95,8 @@ class PluginImplementations(Generic[TInterface]):
             # this happens when core declarations loaded and validated
             plugins = plugins.split()
 
-        plugins_in_config = plugins + find_system_plugins()
-
         ordered_plugins = []
-        for pc in plugins_in_config:
+        for pc in plugins:
             if pc in plugin_lookup:
                 ordered_plugins.append(plugin_lookup[pc])
                 plugin_lookup.pop(pc)
@@ -136,23 +128,30 @@ def plugins_update() -> None:
     environment.update_config()
 
 
-def load_all() -> None:
+def load_all(force_update: bool = False) -> None:
     '''
     Load all plugins listed in the 'ckan.plugins' config directive.
+
+    Set force_update to True to call environment.update_config() even
+    if no plugins are configured in ckan.plugins
     '''
     # Clear any loaded plugins
     unload_all()
 
-    plugins = aslist(config.get('ckan.plugins')) + find_system_plugins()
+    plugins = aslist(config.get('ckan.plugins'))
 
-    load(*plugins)
+    load(*plugins, force_update=force_update)
 
 
 def load(
-        *plugins: str
+        *plugins: str,
+        force_update: bool = False,
 ) -> Plugin | list[Plugin]:
     '''
     Load named plugin(s).
+
+    Set force_update to True to call environment.update_config() even
+    if no plugins are passed.
     '''
     output = []
 
@@ -176,7 +175,7 @@ def load(
             _connect_signals(service.get_signal_subscriptions())
         output.append(service)
 
-    if plugins:
+    if plugins or force_update:
         plugins_update()
 
     # Return extension instance if only one was loaded.  If more that one
@@ -231,40 +230,6 @@ def plugin_loaded(name: str) -> bool:
     if name in _PLUGINS:
         return True
     return False
-
-
-def find_system_plugins() -> list[str]:
-    '''
-    Return all plugins in the ckan.system_plugins entry point group.
-
-    These are essential for operation and therefore cannot be
-    enabled/disabled through the configuration file.
-    '''
-
-    eps = []
-    for ep in iter_entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP):
-        ep.load()
-        eps.append(ep.name)
-    return eps
-
-
-def unload_non_system_plugins():
-    """Unload all plugins except for system plugins.
-
-    System plugins must remain available because they provide essential CKAN
-    functionality.
-
-    At the moment we have only one system plugin - synchronous_search - which
-    automatically sends all datasets to Solr after modifications. Without it
-    you have to indexed datasets manually after any `package_*` action.
-
-    """
-    system_plugins = find_system_plugins()
-    plugins_to_unload = [
-        p for p in reversed(_PLUGINS)
-        if p not in system_plugins
-    ]
-    unload(*plugins_to_unload)
 
 
 def _get_service(plugin_name: str) -> Plugin:

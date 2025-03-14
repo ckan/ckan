@@ -2531,11 +2531,6 @@ class TestPackagePluginData(object):
         created_pkg = helpers.call_action(
             "package_create", context=context, **pkg_dict
         )
-        assert created_pkg["plugin_data"] == {
-            "plugin1": {
-                "key1": "value1"
-            }
-        }
         plugin_data_from_db = model.Session.execute(
             sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
             {'id': created_pkg["id"]}

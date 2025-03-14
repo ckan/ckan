@@ -312,11 +312,12 @@ class TestChanges(object):
         old_org = Organization()
         original = Dataset(owner_org=old_org["id"])
 
-        import ckan.model as model
-
-        pkg = model.Package.get(original["id"])
-        pkg.owner_org = None
-        pkg.save()
+        helpers.call_action(
+            "package_patch",
+            {"user": user["name"]},
+            id=original["id"],
+            owner_org='',
+        )
 
         new = helpers.call_action(
             "package_show",

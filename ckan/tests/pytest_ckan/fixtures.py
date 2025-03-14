@@ -436,7 +436,7 @@ def with_plugins(ckan_config):
     """
     ckan.plugins.load_all()
     yield
-    ckan.plugins.unload_non_system_plugins()
+    ckan.plugins.unload_all()
 
 
 @pytest.fixture

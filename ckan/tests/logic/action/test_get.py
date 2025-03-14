@@ -1465,13 +1465,8 @@ class TestPackageSearch(object):
         # depending on the solr version.
 
     def _create_bulk_datasets(self, name, count):
-        from ckan import model
-
-        pkgs = [
-            model.Package(name="{}_{}".format(name, i)) for i in range(count)
-        ]
-        model.Session.add_all(pkgs)
-        model.repo.commit_and_remove()
+        for i in range(count):
+            factories.Dataset(name=f"{name}_{i}")
 
     def test_rows_returned_default(self):
         self._create_bulk_datasets("rows_default", 11)

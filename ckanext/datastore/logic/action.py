@@ -4,16 +4,11 @@ from __future__ import annotations
 from ckan.types import Context
 import logging
 from typing import Any
-import json
 from contextlib import contextmanager
 
 import sqlalchemy
 import sqlalchemy.exc
-from sqlalchemy.dialects.postgresql import TEXT, JSONB
-from sqlalchemy.sql.expression import func
-from sqlalchemy.sql.functions import coalesce
 
-import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.model as model
@@ -726,49 +721,13 @@ def set_datastore_active_flag(
 
     Called after creation or deletion of DataStore table.
     '''
-    model = context['model']
-    resource = model.Resource.get(data_dict['resource_id'])
-    assert resource
-
-    # update extras json with a single statement
-    model.Session.query(model.Resource).filter(
-        model.Resource.id == data_dict['resource_id']
-    ).update(
+    p.toolkit.get_action('resource_patch')(
+        p.toolkit.fresh_context(context),
         {
-            'extras': func.jsonb_set(
-                coalesce(
-                    model.resource_table.c.extras,
-                    '{}',
-                ).cast(JSONB),
-                '{datastore_active}',
-                json.dumps(flag),
-            ).cast(TEXT)
-        },
-        synchronize_session='fetch',
+            'id': data_dict['resource_id'],
+            'datastore_active': flag,
+        }
     )
-    model.Session.commit()
-    model.Session.expire(resource, ['extras'])
-
-    # copied from ckan.lib.search.rebuild
-    # using validated packages can cause solr errors.
-    context = {
-        'model': model,
-        'ignore_auth': True,
-        'validate': False,
-        'use_cache': False
-    }
-
-    # get package with  updated resource from package_show
-    # find changed resource, patch it and reindex package
-    psi = search.PackageSearchIndex()
-    _data_dict = p.toolkit.get_action('package_show')(context, {
-        'id': resource.package_id
-    })
-    for resource in _data_dict['resources']:
-        if resource['id'] == data_dict['resource_id']:
-            resource['datastore_active'] = flag
-            psi.index_package(_data_dict)
-            break
 
 
 def _check_read_only(context: Context, resource_id: str):
