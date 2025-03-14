@@ -105,7 +105,7 @@ def index_for(_type: Any) -> SearchIndex:
         _type_n = _normalize_type(_type)
         return _INDICES[_type_n]()
     except KeyError:
-        log.warn("Unknown search type: %s" % _type)
+        log.warning("Unknown search type: %s", _type)
         return NoopSearchIndex()
 
 
@@ -199,8 +199,8 @@ def rebuild(package_id: Optional[str] = None,
             try:
                 logic.index_update_package(context, pkg_id, defer_commit)
             except Exception as e:
-                log.error(u'Error while indexing dataset %s: %s' %
-                          (pkg_id, repr(e)))
+                log.error('Error while indexing dataset %s: %s',
+                    pkg_id, repr(e))
                 if force:
                     log.error(text_traceback())
                     continue
@@ -241,7 +241,7 @@ def show(package_reference: str) -> dict[str, Any]:
 
 def clear(package_reference: str) -> None:
     package_index = index_for(model.Package)
-    log.debug("Clearing search index for dataset %s..." %
+    log.debug("Clearing search index for dataset %s...",
               package_reference)
     package_index.delete_package({'id': package_reference})
 
@@ -297,7 +297,7 @@ def check_solr_schema_version(schema_file: Optional[str]=None) -> bool:
 
     if not is_available():
         # Something is wrong with the SOLR server
-        log.warn('Problems were found while connecting to the SOLR server')
+        log.warning('Problems were found while connecting to the SOLR server')
         return False
 
     # Try to get the schema XML file to extract the version

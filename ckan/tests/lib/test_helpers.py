@@ -169,7 +169,7 @@ class TestHelpersUrlFor(BaseUrlFor):
             ({"param": 27.3}, "/dataset/my_dataset?param=27.3"),
             ({"param": True}, "/dataset/my_dataset?param=True"),
             ({"param": None}, "/dataset/my_dataset"),
-            ({"param": {}}, "/dataset/my_dataset"),
+            ({"param": {}}, "/dataset/my_dataset?param=%7B%7D"),
         ],
     )
     def test_url_for_string_route_with_query_param(self, extra, exp):

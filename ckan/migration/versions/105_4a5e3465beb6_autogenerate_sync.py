@@ -56,7 +56,23 @@ def downgrade():
     op.add_column('resource', sa.Column('webstore_last_updated',
                   postgresql.TIMESTAMP(), autoincrement=False,
                   nullable=True))
-    op.drop_constraint(None, 'resource', type_='foreignkey')
+    # Drop unnamed resource.package_id->package.id foreignkey constraint
+    conn = op.get_bind()
+    conn.execute(sa.text(
+        '''
+        DO $$
+        DECLARE fk_name TEXT;
+        BEGIN
+            SELECT conname INTO fk_name FROM pg_constraint
+            WHERE
+            conrelid = 'resource'::regclass
+            AND confrelid = 'package'::regclass
+            AND contype = 'f'
+            LIMIT 1;
+            EXECUTE format('ALTER TABLE resource DROP CONSTRAINT %I', fk_name);
+        END $$;
+    '''
+    ))
     op.create_table(
         'rating',
         sa.Column('id', sa.TEXT(), autoincrement=False, nullable=False),

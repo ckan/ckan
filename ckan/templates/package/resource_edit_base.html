@@ -15,7 +15,7 @@
 
 {% block content_action %}
     {% if res %}
-	{% link_for _('View resource'), named_route=pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='eye' %}
+	{% link_for _('View resource'), named_route=pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='eye' %}
   {% endif %}
 {% endblock %}
 

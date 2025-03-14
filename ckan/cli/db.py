@@ -195,15 +195,15 @@ def duplicate_emails():
     u'''Check users email for duplicate'''
     log.info(u"Searching for accounts with duplicate emails.")
 
-    q = model.Session.query(model.User.email,
-                            model.User.name) \
-        .filter(model.User.state == u"active") \
-        .filter(model.User.email != u"") \
-        .order_by(model.User.email).all()
+    q = model.Session.query(model.User.email, model.User.name).filter(
+        model.User.state.in_(config["ckan.user.unique_email_states"]),
+        model.User.email != u"",
+        model.User.email.isnot(None),
+    ).order_by(model.User.email).all()
 
     duplicates_found = False
     try:
-        for k, grp in groupby(q, lambda x: x[0]):
+        for k, grp in groupby(q, lambda x: x[0].lower()):
             users = [user[1] for user in grp]
             if len(users) > 1:
                 duplicates_found = True

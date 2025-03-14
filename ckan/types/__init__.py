@@ -11,9 +11,10 @@ from typing import (
     Mapping,
     Optional,
     Union,
+    Generic,
 )
 
-from typing_extensions import Protocol, TypeAlias, TypedDict
+from typing_extensions import Protocol, TypeAlias, TypedDict, TypeVar
 from blinker import Signal
 from flask.wrappers import Response, Request
 
@@ -245,4 +246,25 @@ class PResourceUploader(Protocol):
         ...
 
     def upload(self, id: str, max_size: int = ...) -> None:
+        ...
+
+
+TFactoryResult = TypeVar("TFactoryResult", default="dict[str, Any]")
+TFactoryModel = TypeVar("TFactoryModel", default=Any, covariant=True)
+
+
+class TestFactory(Protocol, Generic[TFactoryModel, TFactoryResult]):
+    def __call__(self, **kwargs: Any) -> TFactoryResult:
+        ...
+
+    def api_create(self, data_dict: dict[str, Any]) -> TFactoryResult:
+        ...
+
+    def model(self, **kwargs: Any) -> TFactoryModel:
+        ...
+
+    def create_batch(self, size: int, **kwargs: Any) -> list[TFactoryResult]:
+        ...
+
+    def stub(self, **kwargs: Any) -> object:
         ...

@@ -51,10 +51,17 @@
     color: $layoutBoldColor;
 }
 
-.pagination-wrapper{
+.pagination-wrapper {
     text-align: center;
     border-top: 1px solid $hr-color;
     padding-top: math.div($grid-gutter-width,3);
+    .page-item {
+        margin: 0 4px;
+    }
+    .page-link {
+        border-radius: $pagination-border-radius;
+        font-weight: 500;
+    }
 }
 
 .module h1 {
@@ -182,8 +189,8 @@
     text-align: center;
     margin-right: 15px;
     img {
-        max-width: 50px;
-        max-height: 50px;
+        max-width: 64px;
+        max-height: 64px;
         vertical-align: middle;
     }
 }

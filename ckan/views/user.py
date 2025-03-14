@@ -269,7 +269,7 @@ class ApiTokenView(MethodView):
             u'class': u'fa fa-copy'
         }), {
             u'type': u'button',
-            u'class': u'btn btn-default btn-xs',
+            u'class': u'btn btn-secondary btn-xs',
             u'data-module': u'copy-into-buffer',
             u'data-module-copy-value': ensure_str(token)
         })
@@ -591,7 +591,10 @@ def login() -> Union[Response, str]:
                 rotate_token()
                 return next_page_or_default(next)
         else:
-            err = _(u"Login failed. Bad username or password.")
+            if config.get('ckan.recaptcha.privatekey'):
+                err = _(u"Login failed. Bad username or password or CAPTCHA.")
+            else:
+                err = _(u"Login failed. Bad username or password.")
             h.flash_error(err)
             return base.render("user/login.html", extra_vars)
 
@@ -735,8 +738,7 @@ class RequestResetView(MethodView):
                      repr_untrusted(id))
 
         for user_obj in user_objs:
-            log.info(u'Emailing reset link to user: {}'
-                     .format(user_obj.name))
+            log.info('Emailing reset link to user: %s', user_obj.name)
             try:
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above

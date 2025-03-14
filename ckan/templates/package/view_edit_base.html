@@ -6,10 +6,10 @@
 {% block breadcrumb_edit_selected %}{% endblock %}
 
 {% block content_action %}
-  {% link_for _('All views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='arrow-left' %}
+  {% link_for _('All views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='arrow-left' %}
   {% if res %}
     {% set url = h.url_for(pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id) ~ '?view_id=' ~ resource_view.id %}
-    <a href="{{ url }}" class="btn btn-default"><i class="fa fa-eye"></i> {{ _('View view') }}</a>
+    <a href="{{ url }}" class="btn btn-secondary"><i class="fa fa-eye"></i> {{ _('View view') }}</a>
   {% endif %}
 {% endblock %}
 

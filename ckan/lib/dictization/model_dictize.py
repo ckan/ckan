@@ -269,8 +269,7 @@ def package_dictize(
     # Extra properties from the domain object
 
     # isopen
-    result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen, bool) \
-        else pkg.isopen()
+    result_dict['isopen'] = pkg.isopen()
 
     # type
     # if null assign the default value to make searching easier
@@ -336,7 +335,7 @@ def _get_members(context: Context, group: model.Group,
 def get_group_dataset_counts() -> dict[str, Any]:
     '''For all public groups, return their dataset counts, as a SOLR facet'''
     query = search.PackageSearchQuery()
-    q: dict[str, Any] = {'q': '',
+    q: dict[str, Any] = {'q': '', 'fq': 'dataset_type:dataset',
          'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
          'facet.limit': -1, 'rows': 1}
     query.run(q)
@@ -606,7 +605,7 @@ def user_dictize(
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
-    if authz.is_sysadmin(requester):
+    if authz.is_sysadmin(requester) or context.get("ignore_auth") is True:
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 

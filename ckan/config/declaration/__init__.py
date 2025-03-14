@@ -166,7 +166,7 @@ class Declaration:
             if config.get(k) == v:
                 continue
 
-            log.debug(f"Normalized {k} config option: {v}")
+            log.debug("Normalized %s config option: %s", k, v)
             config[k] = v
 
     def validate(
