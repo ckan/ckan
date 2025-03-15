@@ -45,3 +45,5 @@ services:
       - "../:/usr/src"
     command:
       ['tail', '-f', '/etc/debian_version']
+    ports:
+      - 0.0.0.0:5000:5000
