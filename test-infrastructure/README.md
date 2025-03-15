@@ -49,6 +49,16 @@ If you wish to run individual tests, it can be done with:
 docker compose exec ckan pytest -vv --ckan-ini=test-core-circle-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
 ```
 
+If you wish to run cypress tests, launch the server in one terminal:
+
+```
+docker compose exec ckan ckan -c test-core-cypress.ini run -H 0.0.0.0
+```
+
+In another terminal run `npx cypress open` to open the interactive test interface
+or `npx cypress run` to run all tests in the terminal.
+
+
 ## Known issues
 
 * pytest-split causes testing errors.
