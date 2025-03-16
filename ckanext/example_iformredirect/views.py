@@ -7,7 +7,7 @@ from flask import Blueprint
 from flask.views import MethodView
 
 from ckan import model
-from ckan.plugins.toolkit import NotAuthorized, abort, h, get_action, _
+from ckan.plugins.toolkit import NotAuthorized, abort, h, get_action, _, request
 
 
 resource_first = Blueprint('resource_first', __name__)
@@ -20,9 +20,15 @@ class _ResourceFirst(MethodView):
             name = f'dataset{idx}'
             if not model.Package.get(name):
                 break
+        data = {
+            'name': name,
+            'state': 'draft',
+        }
+        if 'owner_org' in request.form:
+            data['owner_org'] = request.form['owner_org']
+
         try:
-            pkg = get_action('package_create')(
-                {}, {'name': name, 'state': 'draft'})
+            pkg = get_action('package_create')({}, data)
         except NotAuthorized:
             return abort(403, _('Unauthorized to create a package'))
 
