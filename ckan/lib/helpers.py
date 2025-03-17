@@ -2246,7 +2246,7 @@ def render_markdown(data: str,
 def format_resource_items(
         items: list[tuple[str, Any]]) -> list[tuple[str, Any]]:
     ''' Take a resource item list and format nicely with blacklisting etc. '''
-    blacklist = ['name', 'description', 'url', 'tracking_summary', 'id']
+    blacklist = ['name', 'description', 'url', 'id']
     output = []
     # regular expressions for detecting types in strings
     reg_ex_datetime = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
@@ -2277,14 +2277,14 @@ def format_resource_items(
                 elif re.search(reg_ex_float, value):
                     value = formatters.localised_number(float(value))
                 elif re.search(reg_ex_int, value):
-                    int_value = int(value)
                     value = formatters.localised_number(int(value))
             except Exception:
-                # something happened when we tried to format, just return what we were given.
+                # something happened when we tried to format, just return the string we were given.
                 pass
-        elif ((isinstance(value, int) or isinstance(value, float))
-                and value not in (True, False)):
-            value = formatters.localised_number(value)
+        elif isinstance(value, bool):
+            value = str(value)
+        elif isinstance(value, (int, float)):
+            value = formatters.localised_number(float(value))
         key = key.replace('_', ' ')
         output.append((key, value))
     return sorted(output, key=lambda x: x[0])
