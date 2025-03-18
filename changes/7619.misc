@@ -1,0 +1,3 @@
+remove /api/1/snippet, templates/ajax_snippet, getTemplate feature: normal views
+with parameter validation and permission checking should be used instead, possibly
+combined with HTMX.

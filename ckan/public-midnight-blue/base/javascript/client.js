@@ -63,36 +63,6 @@
       jQuery.ajax(options);
     },
 
-    /* Requests a block of HTML from the snippet API endpoint. Optional
-     * parameters can also be provided to the template via the params
-     * object.
-     *
-     * filename - The filename of the snippet to load including extension.
-     * params   - Optional query string parameters.
-     * success  - A callback to be called on success. Receives the html string.
-     * error    - A callback to be called on error.
-     *
-     * Examples
-     *
-     *   client.getTemplate('dataset-list.html', {limit: 5}, function (html) {
-     *     // Do something with the html.
-     *   });
-     *
-     * Returns a jqXHR promise object.
-     */
-    getTemplate: function (filename, params, success, error) {
-      var url = this.url('/api/1/util/snippet/' + encodeURIComponent(filename));
-
-      // Allow function to be called without params argument.
-      if (typeof params === 'function') {
-        error   = success;
-        success = params;
-        params  = {};
-      }
-
-      return jQuery.get(url, params || {}).then(success, error);
-    },
-
     /* Fetches the current locale translation from the API.
      *
      * locale - The current page locale.
