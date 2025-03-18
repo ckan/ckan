@@ -562,7 +562,7 @@ class CreateView(MethodView):
                     if request.form[u'save'] == "go-resources":
                         last_added_resource = pkg_dict[u'resources'][-1]
                         url = h.url_for(
-                            u'{}_resource.edit'.format(package_type), 
+                            u'{}_resource.edit'.format(package_type),
                             id=pkg_dict.get('id'),
                             resource_id=last_added_resource.get('id'))
                     elif request.form[u'save'] == "go-metadata-preview":
@@ -741,9 +741,9 @@ class EditView(MethodView):
                 del data_dict[u'_ckan_phase']
                 del data_dict[u'save']
             data_dict['id'] = id
-            if request.form[u'save']  == u'go-metadata-unpublish':
+            if request.form[u'save'] == u'go-metadata-unpublish':
                 data_dict[u'state'] = u'draft'
-                
+
             pkg_dict = get_action(u'package_update')(context, data_dict)
 
             return _form_save_redirect(
@@ -937,7 +937,7 @@ def follow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 
@@ -964,7 +964,7 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 
@@ -1231,7 +1231,6 @@ class CollaboratorEditView(MethodView):
 
         return base.render(
             u'package/collaborators/collaborator_new.html', extra_vars)
-
 
 
 def register_dataset_plugin_rules(blueprint: Blueprint):
