@@ -26,6 +26,8 @@ class _ResourceFirst(MethodView):
         }
         if 'owner_org' in request.form:
             data['owner_org'] = request.form['owner_org']
+        if 'type' in request.form:
+            data['type'] = request.form['type']
 
         try:
             pkg = get_action('package_create')({}, data)
