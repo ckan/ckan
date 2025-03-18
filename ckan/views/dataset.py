@@ -668,9 +668,6 @@ class EditView(MethodView):
         assert data is not None
         # are we doing a multiphase add?
         if data.get(u'state', u'').startswith(u'draft'):
-            g.form_action = h.url_for(
-                '{}.edit'.format(package_type),
-                id=data['id'])
             g.form_style = u'new'
 
             return CreateView().get(
