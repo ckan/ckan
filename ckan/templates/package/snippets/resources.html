@@ -22,30 +22,53 @@ Example:
         {% endblock %}
         {% block resources_list %}
           <ul class="list-unstyled nav nav-simple">
+            {% set ns = namespace(aria_controls='') %}
             {% for resource in resources %}
+              {% set collapse_class = '' %}
+              {% set collapse_id = 'show-all-resources-' + loop.index|string %}
+              {% if loop.index > h.resource_list_view_limit() %}
+                {% set collapse_class = 'show-all-resources hide collapse' %}
+                {% set ns.aria_controls = ns.aria_controls + ' ' + collapse_id %}
+              {% endif %}
               {% set url = h.url_for('%s_resource.read' % pkg.type, id=pkg.name, resource_id=resource.id) %}
               {% if active == resource.id %}
-                <li class="nav-item active">
+                <li id="{{ collapse_id }}" class="nav-item active {{ collapse_class }}">
                   <a href="#" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                 </li>
               {% elif can_edit %}
-                <li class="nav-item d-flex justify-content-between position-relative">
-                  <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
-                  <div class="dropdown position-absolute end-0 me-2">
-                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
-                      <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='pencil' %}</li>
-                      {% block resources_list_edit_dropdown_inner scoped %}{% endblock %}
-                      <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='chart-bar' %}</li>
-                    </ul>
+                <li id="{{ collapse_id }}" class="nav-item {{ collapse_class }}">
+                  <div class="nav-item  d-flex justify-content-between position-relative">
+                    <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                    <div class="dropdown position-absolute end-0 me-2">
+                      <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
+                        <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='pencil' %}</li>
+                        {% block resources_list_edit_dropdown_inner scoped %}{% endblock %}
+                        <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='chart-bar' %}</li>
+                      </ul>
+                    </div>
                   </div>
                 </li>
               {% else %}
-                <li class="nav-item">
+                <li id="{{ collapse_id }}" class="nav-item {{ collapse_class }}">
                   <a href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                 </li>
               {% endif %}
             {% endfor %}
+            {% if resources|length > h.resource_list_view_limit() %}
+              <li class="nav-item text-center border-bottom">
+                <a href="javascript:void(0);"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".show-all-resources"
+                  data-toggle="collapse"
+                  data-target=".show-all-resources"
+                  aria-expanded="false"
+                  aria-controls="{{ ns.aria_controls }} show-all-resources--label--more show-all-resources--label--less">
+                    <span id="show-all-resources--label--more" style="transition:none !important;" class="show-all-resources show">{{ _('Show more') }}</span>
+                    <span id="show-all-resources--label--less" style="transition:none !important;" class="show-all-resources hide collapse">{{ _('Hide') }}</span>
+                </a>
+              </li>
+            {% endif %}
           </ul>
         {% endblock %}
       {% endblock %}

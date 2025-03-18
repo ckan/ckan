@@ -1194,6 +1194,13 @@ groups:
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
 
+      - key: ckan.resource_list_view_limit
+        type: int
+        example: 15
+        default: 8
+        description: |
+          Sets the maximum number of visible resources in the side panel nav by default.
+
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
