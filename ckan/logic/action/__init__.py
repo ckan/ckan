@@ -8,8 +8,9 @@ from typing import Any, Mapping, cast
 
 from ckan.logic import NotFound
 from ckan.common import _
+from ckan.lib.maintain import deprecated
 from ckan.model.domain_object import DomainObject
-from ckan.types import ErrorDict, Model
+from ckan.types import ErrorDict
 
 
 def rename_keys(dict_: dict[str, Any],
@@ -36,8 +37,9 @@ def rename_keys(dict_: dict[str, Any],
     return new_dict
 
 
-def get_domain_object(model: Model, domain_object_ref: str) -> DomainObject:
-    '''For an id or name, return the corresponding domain object.
+@deprecated("Use <MODEL>.get(ID)` instead of `get_domain_object`", since="2.12.0")
+def get_domain_object(model: Any, domain_object_ref: str) -> DomainObject:
+    '''DEPRECATED. For an id or name, return the corresponding domain object.
     (First match returned, in order: system, package, group, auth_group, user).
     '''
     if domain_object_ref in ('system', 'System'):

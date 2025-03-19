@@ -6,6 +6,7 @@ import ckan.logic as logic
 import ckan.authz as authz
 import ckan.logic.auth as logic_auth
 
+from ckan import model
 from ckan.common import _
 from ckan.types import Context, DataDict, AuthResult
 
@@ -57,7 +58,6 @@ def file_upload(context: Context,
 
 
 def resource_create(context: Context, data_dict: DataDict) -> AuthResult:
-    model = context['model']
     user = context.get('user')
 
     package_id = data_dict.get('package_id')
@@ -187,7 +187,6 @@ def _check_group_auth(context: Context, data_dict: Optional[DataDict]) -> bool:
     if not data_dict:
         return True
 
-    model = context['model']
     user = context['user']
     pkg = context.get("package")
 
@@ -274,7 +273,7 @@ def member_create(context: Context, data_dict: DataDict) -> AuthResult:
 def api_token_create(context: Context, data_dict: DataDict) -> AuthResult:
     """Create new token for current user.
     """
-    user = context['model'].User.get(data_dict['user'])
+    user = model.User.get(data_dict['user'])
     assert user
     return {'success': user.name == context['user']}
 
@@ -287,7 +286,6 @@ def package_collaborator_create(context: Context,
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
     '''
     user = context['user']
-    model = context['model']
 
     pkg = model.Package.get(data_dict['id'])
     user_obj = model.User.get(user)
