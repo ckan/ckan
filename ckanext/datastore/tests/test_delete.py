@@ -206,6 +206,41 @@ class TestDatastoreRecordsDelete(object):
         err = ve.value.error_dict
         assert err == expected
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_text_int_filter(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "text_field", "type": "text"},
+            ],
+            "records": [
+                {"text_field": 25},
+                {"text_field": 37},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        # can delete by int
+        data = {"resource_id": resource["id"], "force": True,
+                "filters": {"text_field": 25}}
+        helpers.call_action("datastore_records_delete", **data)
+        result = helpers.call_action("datastore_search",
+                                      resource_id=resource["id"],
+                                      include_total=True)
+        assert result["total"] == 1
+
+        # can delete by text
+        data = {"resource_id": resource["id"], "force": True,
+                "filters": {"text_field": "37"}}
+        helpers.call_action("datastore_records_delete", **data)
+        result = helpers.call_action("datastore_search",
+                                      resource_id=resource["id"],
+                                      include_total=True)
+        assert result["total"] == 0
+
 
 class TestDatastoreDeleteLegacy(object):
     sysadmin_user = None

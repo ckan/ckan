@@ -486,6 +486,37 @@ class TestDatastoreSearch(object):
         result = helpers.call_action("datastore_search", **search_data)
         assert result["records"][0]['b'] == 'Z'
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_search_records_text_int_filter(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "text_field", "type": "text"},
+            ],
+            "records": [
+                {"text_field": 25},
+                {"text_field": 37},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        # can search by int
+        data = {"resource_id": resource["id"],
+                "include_total": True,
+                "filters": {"text_field": 25}}
+        result = helpers.call_action("datastore_search", **data)
+        assert len(result["records"]) == 1
+
+        # can search by text
+        data = {"resource_id": resource["id"],
+                "include_total": True,
+                "filters": {"text_field": "37"}}
+        result = helpers.call_action("datastore_search", **data)
+        assert len(result["records"]) == 1
+
 
 class TestDatastoreSearchLegacyTests(object):
     sysadmin_user = None
