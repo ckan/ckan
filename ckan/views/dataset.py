@@ -741,7 +741,7 @@ class EditView(MethodView):
                 del data_dict[u'_ckan_phase']
                 del data_dict[u'save']
             data_dict['id'] = id
-            if request.form[u'save'] == u'go-metadata-unpublish':
+            if request.form.get(u'save', None) == u'go-metadata-unpublish':
                 data_dict[u'state'] = u'draft'
 
             pkg_dict = get_action(u'package_update')(context, data_dict)
