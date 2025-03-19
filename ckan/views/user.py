@@ -282,7 +282,8 @@ class ApiTokenView(MethodView):
             ).format(token=ensure_str(token), copy=copy_btn),
             True
         )
-        return h.redirect_to(u'user.api_tokens', id=id)
+        user_dict = logic.get_action(u'user_show')({}, {u'id': id})
+        return base.render(u'user/api_token_created.html', {'user': user_dict})
 
 
 def api_token_revoke(id: str, jti: str) -> Response:

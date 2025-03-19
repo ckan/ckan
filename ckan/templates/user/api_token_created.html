@@ -1,0 +1,17 @@
+{% extends "page.html" %}
+
+{% block primary_content_inner %}
+  <h2 class="hide-heading">
+    {% block page_heading %}{{ _('API Tokens') }}{% endblock %}
+  </h2>
+
+    <p>
+    Token created successfully.
+    Do you need to create more tokens?
+    </p>
+
+    <a href="{{ h.url_for(controller='user', action='api_tokens', id=user['name']) }}" class="btn btn-primary">
+        {{ _('Create New API Token') }} 
+    </a>
+
+    {% endblock primary_content_inner %}
