@@ -918,30 +918,21 @@ class TestCSRFToken:
             assert ctx.g.csrf_field_name == "_csrf_token"
 
     def test_csrf_token_are_different_for_different_users(self, app):
-        password = "RandomPassword123"
-        user1 = factories.User(password=password)
+        user1 = factories.User()
         token_user1 = ""
+
+        app.set_session_user(user1["name"])
         with app.flask_app.app_context() as ctx:
-            app.post(
-                url_for("user.login"),
-                data={
-                    "login": user1["name"],
-                    "password": password
-                },
-            )
+            app.get(url_for("home.index"))
             assert ctx.g._csrf_token is not None
             token_user1 = ctx.g._csrf_token
 
-        user2 = factories.User(password=password)
+        user2 = factories.User()
         token_user2 = ""
+
+        app.set_session_user(user2["name"])
         with app.flask_app.app_context() as ctx:
-            app.post(
-                url_for("user.login"),
-                data={
-                    "login": user2["name"],
-                    "password": password
-                },
-            )
+            app.get(url_for("home.index"))
             assert ctx.g._csrf_token is not None
             token_user2 = ctx.g._csrf_token
         assert token_user1 != token_user2
