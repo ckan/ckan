@@ -1228,12 +1228,25 @@ def _bulk_update_dataset(
     org_id = data_dict.get('org_id')
 
     model = context['model']
-    model.Session.query(model.package_table) \
+    query = model.Session.query(model.package_table) \
         .filter(
             model.Package.id.in_(datasets)
-        ) .filter(model.Package.owner_org == org_id) \
-        .update(update_dict, synchronize_session=False)
+        ).filter(model.Package.owner_org == org_id)
 
+    packages = query.all()
+    for pkg in packages:
+        if "state" in update_dict.keys():
+            for item in plugins.PluginImplementations(plugins.IPackageController):
+                item.delete(pkg)
+
+                item.after_dataset_delete(context, {"id": pkg.id})
+        else:
+            for item in plugins.PluginImplementations(plugins.IPackageController):
+                item.edit(pkg)
+
+                item.after_dataset_update(context, {"id": pkg.id})
+
+    query.update(update_dict, synchronize_session=False)
     model.Session.commit()
 
     # solr update here
