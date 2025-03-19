@@ -228,8 +228,8 @@ class TestDatastoreRecordsDelete(object):
                 "filters": {"text_field": 25}}
         helpers.call_action("datastore_records_delete", **data)
         result = helpers.call_action("datastore_search",
-                                      resource_id=resource["id"],
-                                      include_total=True)
+                                     resource_id=resource["id"],
+                                     include_total=True)
         assert result["total"] == 1
 
         # can delete by text
@@ -237,8 +237,8 @@ class TestDatastoreRecordsDelete(object):
                 "filters": {"text_field": "37"}}
         helpers.call_action("datastore_records_delete", **data)
         result = helpers.call_action("datastore_search",
-                                      resource_id=resource["id"],
-                                      include_total=True)
+                                     resource_id=resource["id"],
+                                     include_total=True)
         assert result["total"] == 0
 
 
