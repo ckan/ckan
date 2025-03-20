@@ -22,3 +22,4 @@ pytest-factoryboy==2.7.0
 pytest-freezegun==0.4.2
 pytest-rerunfailures==15.0
 pytest-split==0.10.0
+pytest-retry==1.7.0

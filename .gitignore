@@ -25,6 +25,11 @@ tmp/*
 solr_runtime/*
 fl_notes.txt
 *.ini
+!test-core-cypress.ini
+!test-core.ini
+!test-core-circle-ci.ini
+!test-core-docker.ini
+!test-core-github-actions.ini
 !ckan/migration/alembic.ini
 .noseids
 *~
