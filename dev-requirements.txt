@@ -15,7 +15,7 @@ responses==0.21.0
 sphinx-rtd-theme==1.0.0
 sqlalchemy-stubs==0.4
 sphinx==5.1.1
-toml==0.10.2 
+toml==0.10.2
 towncrier==22.8.0
 types-setuptools
 
@@ -25,3 +25,4 @@ pytest-factoryboy==2.4.0
 pytest-freezegun==0.4.2
 pytest-rerunfailures==10.2
 pytest-split==0.8.0
+pytest-retry==1.7.0
