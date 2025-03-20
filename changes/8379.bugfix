@@ -1,0 +1,1 @@
+Ensure `last_active` session data is stored as an integer timestamp instead of a `datetime` to ensure it can be serialized to JSON (e.g. in cookies).
