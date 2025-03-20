@@ -443,13 +443,11 @@ def package_update(
     if return_id_only and context.get('defer_commit'):
         return pkg.id
 
-    both_data = _get_action('package_show')(
-        logic.fresh_context(context, ignore_auth=True, use_cache=False),
-        {'id': pkg.id, 'use_default_schema': 'both'}
-    )
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
 
     if not context.get('defer_commit'):
-        logic.index_update_package_dict(both_data)
+        logic.index_update_package_dicts((pkg_default, pkg_custom))
 
         nested.commit()
         if not context.get('defer_commit'):
@@ -473,7 +471,7 @@ def package_update(
     if not change and original_package:
         return original_package
 
-    return both_data['with_custom_schema']
+    return pkg_custom
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:

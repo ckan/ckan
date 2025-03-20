@@ -228,19 +228,17 @@ def package_create(
     if return_id_only and context.get('defer_commit'):
         return pkg.id
 
-    both_data = _get_action('package_show')(
-        fresh_context(context, ignore_auth=True),
-        {'id': pkg.id, 'use_default_schema': 'both'}
-    )
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
 
     if not context.get('defer_commit'):
-        logic.index_insert_package_dict(both_data)
+        logic.index_insert_package_dicts((pkg_default, pkg_custom))
         model.repo.commit()
 
     if return_id_only:
         return pkg.id
 
-    return both_data['with_custom_schema']
+    return pkg_custom
 
 
 def resource_create(context: Context,

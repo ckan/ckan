@@ -967,12 +967,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :type id: string
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
-
-        When set to ``"both"`` data with the default schema is returned along
-        with the custom schema applied to data in ``with_custom_schema``.
-        This is useful for retrieving data for indexing because we cache
-        both versions in our index.
-    :type use_default_schema: ``True``, ``False`` or ``"both"``
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
@@ -1004,88 +998,66 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     context['package'] = pkg
     _check_access('package_show', context, data_dict)
 
-    use_default_schema = data_dict.get('use_default_schema', False)
-    if use_default_schema != 'both':
-        use_default_schema = asbool(use_default_schema)
+    if asbool(data_dict.get('use_default_schema', False)):
+        context['schema'] = ckan.logic.schema.default_show_package_schema()
 
-    with_default_schema = None
-    with_custom_schema = None
     package_dict = None
     use_cache = (context.get('use_cache', True))
+    package_dict_validated = False
 
     if use_cache:
         try:
             search_result = search.show(name_or_id)
         except (search.SearchError, socket.error):
-            search_result = {'metadata_modified': ''}
-
-        # solr stores less precise datetime,
-        # truncate to 22 charactors to get good enough match
-        metadata_modified = pkg.metadata_modified.isoformat()
-
-        if metadata_modified[:22] == search_result['metadata_modified'][:22]:
-            if 'schema' not in context and use_default_schema in (False, 'both'
-                    ) and 'validated_data_dict' in search_result:
-                package_json = search_result['validated_data_dict']
-                with_custom_schema = json.loads(package_json)
-            # default schema should be idempotent
-            with_default_schema = json.loads(search_result['data_dict'])
-
-    if use_default_schema in (True, 'both'):
-        if not with_default_schema:
-            with_default_schema = model_dictize.package_dictize(
-                pkg, context, include_plugin_data
-            )
-            if context.get('validate', True):
-                schema = ckan.logic.schema.default_show_package_schema()
-                with_default_schema, _errors = lib_plugins.plugin_validate(
-                    object(), context, with_default_schema, schema,
-                    'package_show')
-        package_dict = with_default_schema
-
-    if use_default_schema in (False, 'both'):
-        if not with_custom_schema:
-            if not with_default_schema:
-                with_default_schema = model_dictize.package_dictize(
-                    pkg, context, include_plugin_data
-                )
-            package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-            schema = (context.get('schema')
-                      or package_plugin.show_package_schema())
-            if schema and context.get('validate', True):
-                with_custom_schema, _errors = lib_plugins.plugin_validate(
-                    package_plugin, context, with_default_schema, schema,
-                    'package_show')
-            else:
-                with_custom_schema = with_default_schema
-
-        if package_dict:
-            package_dict['with_custom_schema'] = with_custom_schema
+            pass
         else:
-            package_dict = with_custom_schema
+            use_validated_cache = 'schema' not in context
+            if use_validated_cache and 'validated_data_dict' in search_result:
+                package_json = search_result['validated_data_dict']
+                package_dict = json.loads(package_json)
+                package_dict_validated = True
+            else:
+                package_dict = json.loads(search_result['data_dict'])
+                package_dict_validated = False
+            metadata_modified = pkg.metadata_modified.isoformat()
+            search_metadata_modified = search_result['metadata_modified']
+            # solr stores less precise datetime,
+            # truncate to 22 charactors to get good enough match
+            if metadata_modified[:22] != search_metadata_modified[:22]:
+                package_dict = None
 
-    assert isinstance(package_dict, dict)  # everything is fine, pyright
-    changing = (package_dict['with_custom_schema']
-                if use_default_schema == 'both' else package_dict)
+    if not package_dict:
+        package_dict = model_dictize.package_dictize(
+            pkg, context, include_plugin_data
+        )
+        package_dict_validated = False
+
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
-            changing = item.before_dataset_view(changing)
+            package_dict = item.before_dataset_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
-        for resource_dict in changing['resources']:
+        for resource_dict in package_dict['resources']:
             item.before_resource_show(resource_dict)
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_dataset_show(context, changing)
+    if not package_dict_validated:
+        package_plugin = lib_plugins.lookup_package_plugin(
+            package_dict['type'])
+        schema = context.get('schema') or package_plugin.show_package_schema()
 
-    if use_default_schema == 'both':
-        package_dict['with_custom_schema'] = changing
-        return package_dict
+        if bool(schema) and context.get('validate', True):
+            package_dict, _errors = lib_plugins.plugin_validate(
+                package_plugin, context, package_dict, schema,
+                'package_show')
+        else:
+            # up to caller to apply after_dataset_show plugins
+            return package_dict
 
-    return changing
+    logic.apply_after_dataset_show_plugins(context, package_dict)
+    return package_dict
 
 
 def resource_show(
