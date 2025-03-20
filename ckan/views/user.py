@@ -283,7 +283,7 @@ class ApiTokenView(MethodView):
             True
         )
         user_dict = logic.get_action(u'user_show')({}, {u'id': id})
-        return base.render(u'user/api_token_created.html', {'user': user_dict})
+        return base.render(u'user/api_token_created.html', {'user_dict': user_dict})
 
 
 def api_token_revoke(id: str, jti: str) -> Response:
