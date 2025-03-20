@@ -16,7 +16,7 @@ class TestUserApiTokenUI:
             status=200,
         )
 
-        assert 'Create API Token' in api_token_response
+        assert 'Create API Token' in api_token_response.body
 
     def test_user_page_api_token_post(self, app):
         """ user/<id>/api-tokens post to create a new token"""
@@ -30,4 +30,4 @@ class TestUserApiTokenUI:
             headers={"Authorization": user["token"]},
             status=200,
         )
-        assert 'Create New API Token' in api_token_response
+        assert 'Create New API Token' in api_token_response.body
