@@ -1,0 +1,1 @@
+Fixes dashboard bug to use htmx when clicking `newer activities` and `older activities` buttons.

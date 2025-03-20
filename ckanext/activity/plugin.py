@@ -21,9 +21,13 @@ class ActivityPlugin(p.SingletonPlugin):
 
     # IConfigurer
     def update_config(self, config: CKANConfig):
-        tk.add_template_directory(config, "templates")
+        if config["ckan.base_templates_folder"] == "templates-midnight-blue":
+            tk.add_template_directory(config, "templates-midnight-blue")
+            tk.add_resource("assets-midnight-blue", "ckanext-activity")
+        else:
+            tk.add_template_directory(config, "templates")
+            tk.add_resource("assets", "ckanext-activity")
         tk.add_public_directory(config, "public")
-        tk.add_resource("assets", "ckanext-activity")
 
     # ISignal
     def get_signal_subscriptions(self):
