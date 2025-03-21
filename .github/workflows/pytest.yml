@@ -40,7 +40,7 @@ jobs:
         id: splits
         # default maxtrix for splits if we did not get an input
         run: |
-          export SPLIT_LIST='${{ inputs.split || '["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"]' }}'
+          export SPLIT_LIST='${{ inputs.split || '["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]' }}'
           echo "this is my list: ${SPLIT_LIST}"
           export SPLIT_COUNT="$(echo ${SPLIT_LIST} | jq 'length')"
           echo "${SPLIT_COUNT} : ${SPLIT_LIST}"
