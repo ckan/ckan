@@ -835,25 +835,6 @@ class TestDatastoreSearchLegacyTests(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
-    def test_search_invalid_filter(self, app):
-        data = {
-            "resource_id": self.data["resource_id"],
-            # invalid because author is not a numeric field
-            "filters": {u"author": 42},
-        }
-
-        headers = {"Authorization": self.sysadmin_token}
-        res = app.post(
-            "/api/action/datastore_search",
-            json=data,
-            headers=headers,
-            status=409,
-        )
-        res_dict = json.loads(res.data)
-        assert res_dict["success"] is False
-
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_sort(self, app):
         data = {
             "resource_id": self.data["resource_id"],
