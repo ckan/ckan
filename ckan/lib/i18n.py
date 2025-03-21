@@ -102,7 +102,7 @@ def get_locales_from_config() -> set[str]:
 
 def _get_locales() -> list[str]:
     # FIXME this wants cleaning up and merging with get_locales_from_config()
-    assert not config.get('lang'), \
+    assert not config.get('lang', None), \
         ('"lang" config option not supported - please use ckan.locale_default '
          'instead.')
     locales_offered = config.get('ckan.locales_offered')

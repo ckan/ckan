@@ -1,5 +1,8 @@
 name: Check types
-on: [pull_request]
+on:
+#  pull_request:
+  workflow_call:
+  workflow_dispatch:
 env:
   NODE_VERSION: '18'
   PYTHON_VERSION: '3.9'
