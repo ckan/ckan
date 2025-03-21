@@ -434,8 +434,18 @@ def _where_clauses(
                 sa.column(field),
                 ','.join(f":{p}" for p in placeholders)
             ))
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = str(value)
             placeholder = f"value_{next(idx_gen)}"
             clause: tuple[Any, ...] = (
                 f'{sa.column(field)} = :{placeholder}',
@@ -1636,7 +1646,10 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
         where_clause
     )
 
-    _execute_single_statement(context, sql_string, where_values)
+    try:
+        _execute_single_statement(context, sql_string, where_values)
+    except ProgrammingError as pe:
+        raise ValidationError({'filters': [_programming_error_summary(pe)]})
 
 
 def _create_triggers(connection: Any, resource_id: str,
