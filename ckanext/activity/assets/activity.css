@@ -22,13 +22,12 @@
 }
 @media (min-width: 768px) {
   .activity {
-    background: transparent url("/dotted.png") 21px 0 repeat-y;
+    background: transparent url("../public/dotted.png") 21px 0 repeat-y;
   }
   .activity .item .date {
     margin: 5px 0 0 80px;
   }
 }
-
 .activity_buttons {
   display: flex;
   gap: 0.5rem;

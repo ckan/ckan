@@ -22,7 +22,8 @@ class ActivityPlugin(p.SingletonPlugin):
     # IConfigurer
     def update_config(self, config: CKANConfig):
         tk.add_template_directory(config, "templates")
-        tk.add_public_directory(config, "public")
+        #tk.add_public_directory(config, "assets")
+        tk.add_public_to_webasset(config,"assets/public")
         tk.add_resource("assets", "ckanext-activity")
 
     # ISignal
