@@ -13,13 +13,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 2;
     height: 100%; // allow textareas
     padding: $form-floating-padding-y $form-floating-padding-x;
-    overflow: hidden;
-    text-align: start;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     pointer-events: none;
     border: $input-border-width solid transparent; // Required for aligning label's text with the input as it affects inner box model
     transform-origin: 0 0;

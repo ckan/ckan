@@ -1,4 +1,23 @@
 {% extends "package/edit_base.html" %}
+{% set stage = form_vars.get('stage') if form_vars else stage %}
+{% set s1 = stage[0] or 'active' %}
+{% set s2 = stage[1] or 'uncomplete' %}
+{% set s3 = stage[2] or 'uncomplete' %}
+
+{% macro render_step(step_count, description, is_complete) %}
+<div class="col stage">
+  <div class="row">
+    <span class="step">Step {{ step_count }}</span>
+    <span class="step-name">{{ description }}</span>
+  </div>
+  {% if is_complete == 'complete' %}
+  <div class="icon-stage">
+    <i class="fa fa-check-circle" aria-hidden="true"></i>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
 
 {% block content_action %}{% endblock %}
 
@@ -18,17 +37,95 @@
 {% block secondary_content %}
   {% block info_module %}
     <section class="module module-narrow module-shallow">
-      <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('What are datasets?') }}</h2>
-      <div class="module-content">
-        <p>
-          {% trans %}
-          A CKAN Dataset is a collection of data resources (such as files),
-          together with a description and other information, at a fixed URL.
-          Datasets are what users see when searching for data.
-          {% endtrans %}
-        </p>
+      <div class="accordion" id="accordionPackage">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Create Dataset
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" >
+            <div class="accordion-body">
+
+             {% if s1 != 'complete' %}
+               {{ render_step(1, 'Create Dataset', s1) }}
+             {% else %}
+              <button class="stage-nohiglight" type="button"  onclick="submitForm('go-dataset')">
+                {{ render_step(1, 'Create Dataset', s1) }}
+              </button>
+             {% endif %}
+
+             {% if s2 != 'complete' %}
+               {{ render_step(2, 'Add Data', s2) }}
+             {% else %}
+              <button class="stage-nohiglight" type="button"  onclick="submitForm('go-resources')">
+                {{ render_step(2, 'Add Data', s2) }}
+              </button>
+             {% endif %}
+              
+             
+              
+              
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+              Resources
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" >
+            <div class="accordion-body">
+              
+              {% set pkg_dict = pkg_dict or (form_vars.data if form_vars and form_vars.data else None) %}
+              {% set active = data.id if data else None %}
+              {% set can_edit = pkg_dict and h.check_access('package_update', {'id':pkg_dict.id }) %}
+              {% if pkg_dict and pkg_dict.resources %}
+                <ul class="list-group">
+                  {% for res in pkg_dict.resources %}
+                    {% set url = h.url_for('dataset_resource.edit', id=pkg_dict.name, resource_id=res.id) %}
+                    {% if active == res.id %}
+                    <li class="list-group-item active">
+                      <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=res.name or res.id) }}">
+                        {{ res.name | truncate(50) }}
+                      </a>
+                    </li>
+                    {% elif can_edit %}
+                    <li class="list-group-item d-flex justify-content-between position-relative">
+                      <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=res.name or res.id) }}"> {{ res.name | truncate(25) }}</a>
+                      <div class="dropdown position-absolute end-0 me-2">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
+                          <li>{% link_for _('Edit resource'), named_route=pkg_dict.type ~ '_resource.edit', id=pkg_dict.name, resource_id=res.id, class_='dropdown-item', icon='pencil' %}</li>
+                          {% block resources_list_edit_dropdown_inner scoped %}{% endblock %}
+                          <li>{% link_for _('Views'), named_route=pkg_dict.type ~ '_resource.views', id=pkg_dict.name, resource_id=res.id, class_='dropdown-item', icon='chart-bar' %}</li>
+                        </ul>
+                      </div>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item">
+                      <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=res.name or res.id) }}">
+                        {{ res.name | truncate(50) }}
+                      </a>
+                    </li>
+                    {% endif %}
+                    
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p>No resources available in drafts.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+       
       </div>
     </section>
+  {% endblock %}
+  {% block scripts %}
+  {{ super() }}
+  {% asset 'base/draft-package' %}
   {% endblock %}
 
   {% block resources_module %}
@@ -36,3 +133,5 @@
     {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
   {% endblock %}
 {% endblock %}
+
+
