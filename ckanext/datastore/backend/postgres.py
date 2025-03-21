@@ -438,7 +438,7 @@ def _where_clauses(
                 # pSQL can do int_field = "10"
                 # but cannot do text_field = 10
                 # this fixes parity there.
-                value = [str(v) for v in value]
+                value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
             if fields_types[field] == 'text':
