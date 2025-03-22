@@ -4,7 +4,9 @@ describe('ckan.module.CustomFieldsModule()', {testIsolation: false}, function ()
     cy.window().then(win => {
       cy.wrap(win.ckan.module.registry['custom-fields']).as('CustomFieldsModule');
       win.jQuery('<div id="fixture">').appendTo(win.document.body)
-      win.jQuery.get((new win.ckan.Client()).url('/testing/custom_form_fields')).then((template) => {
+      win.jQuery.get((new win.ckan.Client()).url(
+          '/testing/custom_form_fields')).then((template) => {
+        win.jQuery('#fixture').html(template);
         cy.wrap(template).as('template');
       });
     })
