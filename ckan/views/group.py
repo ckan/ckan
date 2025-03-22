@@ -8,7 +8,6 @@ from typing import Any, Optional, Union
 from urllib.parse import urlencode
 import csv
 from io import StringIO
-from codecs import BOM_UTF8
 
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
@@ -604,7 +603,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         ])
 
     output_stream = StringIO()
-    output_stream.write(BOM_UTF8)  # type: ignore
+    output_stream.write('\N{BOM}')  # for Excel handling of non-ASCII
     csv.writer(output_stream).writerows(results)
 
     file_name = u'{org_id}-{members}'.format(

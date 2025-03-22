@@ -3076,7 +3076,7 @@ textarea.form-control-lg {
   --bs-btn-disabled-border-color: #d43f3a;
 }
 
-.btn-light, .btn-default {
+.btn-light, .btn-secondary {
   --bs-btn-color: #000;
   --bs-btn-bg: #fff;
   --bs-btn-border-color: #fff;
@@ -11842,10 +11842,10 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
   font-weight: 600;
 }
 
-.btn-light, .btn-default {
+.btn-light, .btn-secondary {
   border: #dee2e6 solid 1px;
 }
-.btn-light:hover, .btn-default:hover {
+.btn-light:hover, .btn-secondary:hover {
   background-color: #dee2e6 !important;
   border-color: #dee2e6;
 }

@@ -8,6 +8,7 @@ import copy
 import decimal
 import fractions
 import unittest.mock as mock
+from faker import Faker
 import pytest
 
 import ckan.lib.navl.dictization_functions as df
@@ -195,6 +196,26 @@ def test_email_is_unique_case_insensitive(app):
     # testing for case insensitivity
     with pytest.raises(logic.ValidationError):
         factories.User(email="Some_Email@example.org")
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_with_allowed_reused_email(faker: Faker):
+    """By default, emails of deleted users can be used again.
+    """
+    email = faker.email()
+    factories.User(state="deleted", email=email)
+    factories.User(email=email)
+
+
+@pytest.mark.ckan_config("ckan.user.unique_email_states", ["active", "deleted"])
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_with_unallowed_reused_email(faker: Faker):
+    """Configuration can prevent reusing deleted email.
+    """
+    email = faker.email()
+    factories.User(state="deleted", email=email)
+    with pytest.raises(logic.ValidationError):
+        factories.User(email=email)
 
 
 @pytest.mark.usefixtures("non_clean_db")

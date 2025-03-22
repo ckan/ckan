@@ -76,11 +76,11 @@
     {% endblock %}
     {% if stage %}
       {% block previous_button %}
-        <button class="btn btn-default" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
+        <button class="btn btn-secondary" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
       {% endblock %}
     {% endif %}
     {% block again_button %}
-      <button class="btn btn-default" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+      <button class="btn btn-secondary" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
     {% endblock %}
     {% if stage %}
       {% block save_button %}

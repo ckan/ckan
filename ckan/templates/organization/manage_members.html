@@ -37,7 +37,7 @@
             <td>
               <div class="btn-group pull-right">
                 {% if can_create_members %}
-                  <a class="btn btn-default btn-sm" href="{{ h.url_for(group_type + '.member_new', id=group_dict.id, user=user_id) }}" aria-label="{{ _('Edit role') }}" aria-description="{{ _('Edit the role of the user within the organization') }}" data-bs-title="{{ _('Edit role') }}" data-bs-toggle="tooltip">
+                  <a class="btn btn-secondary btn-sm" href="{{ h.url_for(group_type + '.member_new', id=group_dict.id, user=user_id) }}" aria-label="{{ _('Edit role') }}" aria-description="{{ _('Edit the role of the user within the organization') }}" data-bs-title="{{ _('Edit role') }}" data-bs-toggle="tooltip">
                     <i class="fa fa-wrench"></i>
                   </a>
                 {% endif %}

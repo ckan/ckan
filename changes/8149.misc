@@ -1,0 +1,2 @@
+Catch an error in datastore to avoid 500 error in POSTs to `datatables/ajax/<resource_view_id>`
+The `datastore_search` action raises this error, it's captured later in this function but not here.

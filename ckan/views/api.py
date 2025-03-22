@@ -139,7 +139,7 @@ def _wrap_jsonp(callback: str, response_msg: str) -> str:
     return u'{0}({1});'.format(callback, response_msg)
 
 
-def _get_request_data(try_url_params: bool = False):
+def _get_request_data(try_url_params: bool = False) -> dict[str, Any]:
     u'''Returns a dictionary, extracted from a request.
 
     If there is no data, None or "" is returned.

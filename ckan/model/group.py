@@ -48,7 +48,7 @@ group_table = Table('group', meta.metadata,
     Column('is_organization', types.Boolean, default=False),
     Column('approval_status', types.UnicodeText, default=u"approved"),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
-    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(  # type: ignore
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
         """
         jsonb_typeof(extras) = 'object' and
         not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')

@@ -88,7 +88,7 @@ _UPDATE = 'update'
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError  # type: ignore
 else:
-    log.warn("Running datastore without CKAN")
+    log.warning("Running datastore without CKAN")
 
     class ValidationError(Exception):
         def __init__(self, error_dict: ErrorDict):
@@ -356,8 +356,8 @@ def _cache_types(engine: Engine) -> None:
             with engine.begin() as conn:
                 native_json = _pg_version_is_at_least(conn, '9.2')
 
-            log.info("Create nested type. Native JSON: {0!r}".format(
-                native_json))
+            log.info("Create nested type. Native JSON: %r",
+                     native_json)
 
             backend = DatastorePostgresqlBackend.get_active_backend()
             write_engine: Engine = backend._get_write_engine()  # type: ignore
@@ -434,8 +434,18 @@ def _where_clauses(
                 sa.column(field),
                 ','.join(f":{p}" for p in placeholders)
             ))
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = str(value)
             placeholder = f"value_{next(idx_gen)}"
             clause: tuple[Any, ...] = (
                 f'{sa.column(field)} = :{placeholder}',
@@ -1464,8 +1474,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
@@ -1475,29 +1487,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT * FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
-        resource=resource_id,
+        resource=identifier(resource_id),
         ts_query=ts_query,
         where=where_clause,
         sort=sort_clause,
@@ -1636,7 +1653,10 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
         where_clause
     )
 
-    _execute_single_statement(context, sql_string, where_values)
+    try:
+        _execute_single_statement(context, sql_string, where_values)
+    except ProgrammingError as pe:
+        raise ValidationError({'filters': [_programming_error_summary(pe)]})
 
 
 def _create_triggers(connection: Any, resource_id: str,
@@ -1794,9 +1814,8 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
         get_names = datastore_helpers.get_table_and_function_names_from_sql
         table_names, function_names = get_names(context, sql)
-        log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
-        log.debug('Functions involved in input SQL: {0!r}'.format(
-            function_names))
+        log.debug('Tables involved in input SQL: %r', table_names)
+        log.debug('Functions involved in input SQL: %r', function_names)
 
         if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized(
@@ -1983,8 +2002,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # that we should ignore the following tests.
         args = sys.argv
         if args[0].split('/')[-1] == 'paster' and 'datastore' in args[1:]:
-            log.warn('Omitting permission checks because you are '
-                     'running paster commands.')
+            log.warning('Omitting permission checks because you are '
+                        'running paster commands.')
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
@@ -1992,15 +2011,15 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         self.read_url = self.config['ckan.datastore.read_url']
 
         if not self._is_postgresql_engine():
-            log.warn('We detected that you do not use a PostgreSQL '
-                     'database. The DataStore will NOT work and DataStore '
-                     'tests will be skipped.')
+            log.warning('We detected that you do not use a PostgreSQL '
+                        'database. The DataStore will NOT work and DataStore '
+                        'tests will be skipped.')
             return
 
         if self._is_read_only_database():
-            log.warn('We detected that CKAN is running on a read '
-                     'only database. Permission checks and the creation '
-                     'of _table_metadata are skipped.')
+            log.warning('We detected that CKAN is running on a read '
+                        'only database. Permission checks and the creation '
+                        'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
 

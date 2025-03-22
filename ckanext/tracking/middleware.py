@@ -39,7 +39,11 @@ def track_request(response: Response) -> Response:
         key = h.hexdigest()
         # store key/data here
         try:
-            logger.debug(f"Tracking {data.get('type')} for {data.get('url')}")
+            logger.debug(
+                "Tracking %s for %s",
+                data.get('type'),
+                data.get('url'),
+            )
             TrackingRaw.create(
                 user_key=key,
                 url=data.get("url"),

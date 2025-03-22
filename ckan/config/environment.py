@@ -50,7 +50,7 @@ def load_environment(conf: Union[Config, CKANConfig]):
             'Possible value is: "public".'
         )
 
-    log.info('Loading static files from %s' % static_files)
+    log.info('Loading static files from %s', static_files)
 
     # Initialize main CKAN config object
     config.update(conf)
@@ -64,8 +64,8 @@ def load_environment(conf: Union[Config, CKANConfig]):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
-    # load all CKAN plugins
-    p.load_all()
+    # load all CKAN plugins and force call to environment.update_config()
+    p.load_all(force_update=True)
 
     # Check Redis availability
     if not is_redis_available():
@@ -199,7 +199,7 @@ def update_config() -> None:
         )
 
     jinja2_templates_path = os.path.join(root, templates)
-    log.info('Loading templates from %s' % jinja2_templates_path)
+    log.info('Loading templates from %s', jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
     extra_template_paths = config.get('extra_template_paths')

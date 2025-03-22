@@ -30,7 +30,7 @@
           <td>{{ capacity }}</td>
           <td>
             <div class="btn-group pull-right">
-                <a class="btn btn-default btn-sm" href="{{ h.url_for('dataset.new_collaborator', id=pkg_dict.name, user_id=user_id) }}" aria-label="{{ _('Edit role') }}" data-bs-title="{{ _('Edit role') }}" data-bs-toggle="tooltip">
+                <a class="btn btn-secondary btn-sm" href="{{ h.url_for('dataset.new_collaborator', id=pkg_dict.name, user_id=user_id) }}" aria-label="{{ _('Edit role') }}" data-bs-title="{{ _('Edit role') }}" data-bs-toggle="tooltip">
                 <i class="fa fa-wrench"></i>
               </a>
               <a class="btn btn-danger btn-sm" href="{{ h.url_for('dataset.collaborator_delete', id=pkg_dict.name, user_id=user_id) }}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this collaborator?') }}" aria-label="{{ _('Delete collaborator') }}" aria-description="{{ _('Delete this collaborator from the dataset') }}" data-bs-title="{{ _('Delete collaborator') }}" data-bs-toggle="tooltip">{% block delete_button_text %}<i class="fa fa-times"></i>{% endblock %}</a>

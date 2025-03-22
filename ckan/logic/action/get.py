@@ -357,7 +357,7 @@ def _group_or_org_list(
     # if it is supplied and sort isn't use order_by and raise a warning
     order_by = data_dict.get('order_by', '')
     if order_by:
-        log.warn('`order_by` deprecated please use `sort`')
+        log.warning('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
             sort = order_by
 
@@ -967,7 +967,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :type id: string
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
-    :type use_default_schema: bool
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
@@ -1053,10 +1052,11 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             package_dict, _errors = lib_plugins.plugin_validate(
                 package_plugin, context, package_dict, schema,
                 'package_show')
+        else:
+            # up to caller to apply after_dataset_show plugins
+            return package_dict
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_dataset_show(context, package_dict)
-
+    logic.apply_after_dataset_show_plugins(context, package_dict)
     return package_dict
 
 

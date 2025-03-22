@@ -559,8 +559,8 @@ def get_action(action: str) -> Action:
             def wrapped(context: Optional[Context] = None,
                         data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
-                    log.critical('%s was passed extra keywords %r'
-                                 % (_action.__name__, kw))
+                    log.critical('%s was passed extra keywords %r',
+                                 _action.__name__, kw)
 
                 context = _prepopulate_context(context)
 
@@ -583,7 +583,7 @@ def get_action(action: str) -> Action:
                     audit = context['__auth_audit'][-1]
                     if audit[0] == action_name and audit[1] == id(_action):
                         if action_name not in authz.auth_functions_list():
-                            log.debug('No auth function for %s' % action_name)
+                            log.debug('No auth function for %s', action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
                             raise Exception(
                                 'Action function {0} did not call its '
@@ -855,8 +855,8 @@ def get_validator(
 
         for plugin in p.PluginImplementations(p.IValidators):
             for name, fn in plugin.get_validators().items():
-                log.debug('Validator function {0} from plugin {1} was inserted'
-                          .format(name, plugin.name))
+                log.debug('Validator function %s from plugin %s was inserted',
+                          name, plugin.name)
                 _validators_cache[name] = fn
     try:
         return _validators_cache[validator]
@@ -920,3 +920,83 @@ def fresh_context(
     new_context.update(kwargs)
     new_context = cast(Context, new_context)
     return new_context
+
+
+def package_show_default_and_custom_schemas(
+        parent_context: Context,
+        package_id: str,
+        ) -> tuple[dict[str, Any], dict[str, Any]]:
+    """
+    Returns tuple containing:
+    (
+        package data with default show package schema applied,
+        package data with custom show package schema applied
+    )
+
+    Used to avoid dictizing twice before indexing package data.
+    Indexing requires package data with both default and custom
+    show schemas applied (for now).
+    """
+    context = fresh_context(
+        parent_context, ignore_auth=True, use_cache=False, validate=False)
+    pkg_dictized = get_action('package_show')(context, {'id': package_id})
+
+    from ckan.logic.schema import default_show_package_schema
+    from ckan.lib.plugins import plugin_validate, lookup_package_plugin
+    default_schema = default_show_package_schema()
+    with_default_schema, _errors = plugin_validate(
+        object(), context, pkg_dictized, default_schema,
+        'package_show')
+
+    package_plugin = lookup_package_plugin(pkg_dictized['type'])
+    custom_schema = package_plugin.show_package_schema()
+
+    if custom_schema == default_schema:
+        with_custom_schema = with_default_schema
+    else:
+        with_custom_schema, _errors = plugin_validate(
+            package_plugin, context, pkg_dictized, custom_schema,
+            'package_show')
+
+    apply_after_dataset_show_plugins(context, with_custom_schema)
+
+    return (with_default_schema, with_custom_schema)
+
+
+def apply_after_dataset_show_plugins(
+        package_show_context: Context, package_dict: dict[str, Any]):
+    "last step of package_show unless use_cache = validate = False"
+
+    for item in p.PluginImplementations(p.IPackageController):
+        item.after_dataset_show(package_show_context, package_dict)
+
+
+def index_update_package(
+        context: Context, id_: str, defer_commit: bool = False):
+    "update package in search index by id"
+    both = package_show_default_and_custom_schemas(context, id_)
+    index_update_package_dicts(both, defer_commit)
+
+
+def index_update_package_dicts(
+        both: tuple[dict[str, Any], dict[str, Any]],
+        defer_commit: bool = False):
+    "update package in search index with default and custom schema data"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.update_dict(dict(both[0], with_custom_schema=both[1]), defer_commit)
+
+
+def index_insert_package_dicts(
+        both: tuple[dict[str, Any], dict[str, Any]]):
+    "create package in search index with default and custom schema data"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.insert_dict(dict(both[0], with_custom_schema=both[1]))
+
+
+def index_remove_package(id_: str):
+    "remove package from search index by id"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.remove_dict({'id': id_})
