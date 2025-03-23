@@ -1,13 +1,30 @@
+// busy loop recommended by https://www.cypress.io/blog/when-can-the-test-start
+let appHasStarted
+function waitForAppStart() {
+  return new Cypress.Promise((resolve, reject) => {
+    const isReady = () => {
+      if (appHasStarted) {
+        return resolve()
+      }
+      setTimeout(isReady, 0)
+    }
+    isReady()
+  })
+}
+
 describe('ckan.modules.DashboardModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
       cy.wrap(win.ckan.module.registry['dashboard']).as('dashboard');
       win.jQuery('<div id="fixture">').appendTo(win.document.body)
-      cy.loadFixture('dashboard.html').then((template) => {
+      win.jQuery.get((new win.ckan.Client()).url(
+          '/testing/dashboard')).then((template) => {
+        win.jQuery('#fixture').html(template);
         cy.wrap(template).as('template');
+        appHasStarted = true
       });
-    })
+    }).then(waitForAppStart)
   });
 
   beforeEach(function () {
@@ -50,8 +67,6 @@ describe('ckan.modules.DashboardModule()', {testIsolation: false}, function () {
     });
   })
 
-/*
- * TODO: This test keeps failing randomly
   describe(".search", {testIsolation: false}, function(){
     it('should filter based on query', function() {
       this.module.initialize();
@@ -63,5 +78,4 @@ describe('ckan.modules.DashboardModule()', {testIsolation: false}, function () {
       cy.get('#fixture #followee-filter .nav li[data-search="test followee"]').should('be.visible');
     })
   })
-  */
 })
