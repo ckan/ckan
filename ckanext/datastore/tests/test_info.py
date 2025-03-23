@@ -55,12 +55,15 @@ def test_info_success():
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
 @pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_api_info(app):
-    dataset = factories.Dataset()
-    resource = factories.Resource(
-        id="588dfa82-760c-45a2-b78a-e3bc314a4a9b",
-        package_id=dataset["id"],
-        datastore_active=True,
-    )
+    resource = factories.Resource()
+    data = {
+        "resource_id": resource["id"],
+        "force": True,
+        "records": [
+            {"from": "Brazil", "to": "Brazil", "num": 2},
+        ],
+    }
+    helpers.call_action("datastore_create", **data)
 
     # the 'API info' is seen on the resource_read page, a snippet loaded by
     # javascript via data_api_button.html
