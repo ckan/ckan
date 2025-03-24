@@ -965,3 +965,16 @@ def _get_dashboard_context(
         "selected_id": False,
         "dict": None,
     }
+
+
+@bp.route("/testing/dashboard")
+def dashboard_testing() -> str:
+    return tk.render(
+        'user/snippets/followee_dropdown.html', {
+            'context': {},
+            'followees': [
+                {"dict": {"id": 1}, "display_name": "Test followee"},
+                {"dict": {"id": 2}, "display_name": "Not valid"}
+            ]
+        }
+    )
