@@ -1,6 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
+import contextlib
 import os
 import cgi
 import datetime
@@ -11,6 +12,7 @@ from pathlib import Path
 from typing import Any, IO, Optional, Union
 from urllib.parse import urlparse
 
+import file_keeper as fk
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan.lib.munge as munge
@@ -104,7 +106,7 @@ class Upload(object):
     object_type: Optional[str]
     old_filename: Optional[str]
     old_filepath: Optional[str]
-    upload_file: Optional[IO[bytes]]
+    upload_file: fk.Upload | None
 
     def __init__(self,
                  object_type: str,
@@ -160,8 +162,7 @@ class Upload(object):
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
                 self.filename = munge.munge_filename_legacy(self.filename)
                 self.filepath = os.path.join(self.storage_path, self.filename)
-                self.upload_file = _get_underlying_file(
-                    self.upload_field_storage)
+                self.upload_file = fk.make_upload(self.upload_field_storage)
                 self.tmp_filepath = self.filepath + '~'
 
                 self.verify_type()
@@ -182,27 +183,29 @@ class Upload(object):
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
 
+        storage = fk.make_storage("uploads", {
+            "type": "file_keeper:fs",
+            "path": self.storage_path,
+        })
+
         if self.filename:
             assert self.upload_file and self.filepath
+            if self.upload_file.size > max_size * 1024 * 1024:
+                raise logic.ValidationError({'upload': ['File upload too large']})
 
-            with open(self.tmp_filepath, 'wb+') as output_file:
-                try:
-                    _copy_file(self.upload_file, output_file, max_size)
-                except logic.ValidationError:
-                    os.remove(self.tmp_filepath)
-                    raise
-                finally:
-                    self.upload_file.close()
-            os.rename(self.tmp_filepath, self.filepath)
+            storage.upload(
+                fk.Location(self.filename),
+                self.upload_file,
+            )
             self.clear = True
 
         if (self.clear and self.old_filename
                 and not self.old_filename.startswith('http')
                 and self.old_filepath):
-            try:
-                os.remove(self.old_filepath)
-            except OSError:
-                pass
+            with contextlib.suppress(fk.exc.MissingFileError):
+                storage.remove(fk.FileData(
+                    fk.Location(self.old_filepath)
+                ))
 
     def verify_type(self):
 
@@ -246,10 +249,7 @@ class Upload(object):
 
         # Check that the actual type guessed from the contents is supported
         # (2KB required for detecting xlsx mimetype)
-        content = self.upload_file.read(2048)
-        guessed_mimetype = magic.from_buffer(content, mime=True)
-
-        self.upload_file.seek(0, os.SEEK_SET)
+        guessed_mimetype = self.upload_file.content_type
 
         err: ErrorDict = {
             self.file_field: [f"Unsupported upload type: {guessed_mimetype}"]
