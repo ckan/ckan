@@ -2,6 +2,7 @@
 
 import json
 import pytest
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 
 import ckan.lib.create_test_data as ctd
@@ -29,10 +30,10 @@ class TestDatastoreCreateNewTests(object):
             FROM
                 pg_class
             WHERE
-                pg_class.relname = %s
+                pg_class.relname = :relname
             """
         index_name = db._generate_index_name(resource_id, field)
-        results = execute_sql(sql, index_name).fetchone()
+        results = execute_sql(sql, {"relname": index_name}).fetchone()
         return bool(results)
 
     def _get_index_names(self, resource_id):
@@ -47,9 +48,9 @@ class TestDatastoreCreateNewTests(object):
                 t.oid = idx.indrelid
                 AND i.oid = idx.indexrelid
                 AND t.relkind = 'r'
-                AND t.relname = %s
+                AND t.relname = :relname
             """
-        results = execute_sql(sql, resource_id).fetchall()
+        results = execute_sql(sql, {"relname": resource_id}).fetchall()
         return [result[0] for result in results]
 
     def test_create_works_with_empty_array_in_json_field(self):
@@ -158,6 +159,8 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"_full_text"')
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text")
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
         data = {
@@ -307,7 +310,7 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
-    def test_remove_columns(self):
+    def test_delete_fields(self):
         resource = factories.Resource()
         data = {
             "resource_id": resource["id"],
@@ -327,6 +330,20 @@ class TestDatastoreCreateNewTests(object):
                 {"id": "col_c", "type": "text"},
             ],
             "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        info = helpers.call_action("datastore_info", id=resource["id"])
+        assert [f['id'] for f in info['fields']] == [
+            'col_a', 'col_b', 'col_c', 'col_d'
+        ]
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_c", "type": "text"},
+            ],
+            "force": True,
+            "delete_fields": True,
         }
         helpers.call_action("datastore_create", **data)
         info = helpers.call_action("datastore_info", id=resource["id"])
@@ -713,31 +730,34 @@ class TestDatastoreCreate(object):
         assert res["fields"] == data["fields"], res["fields"]
 
         c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(resource.id))
+        results = c.execute(sa.text(
+            'select * from "{0}"'.format(resource.id)
+        ))
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
-            assert data["records"][i].get("boo%k") == row["boo%k"]
+            assert data["records"][i].get("boo%k") == getattr(row, "boo%k")
+            author = getattr(row, "author")
             assert data["records"][i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                json.loads(author[0]) if author else None
             )
 
-        results = c.execute(
+        results = c.execute(sa.text(
             """
             select * from "{0}" where _full_text @@ to_tsquery('warandpeace')
             """.format(
                 resource.id
             )
-        )
+        ))
         assert results.rowcount == 1, results.rowcount
 
-        results = c.execute(
+        results = c.execute(sa.text(
             """
             select * from "{0}" where _full_text @@ to_tsquery('tolstoy')
             """.format(
                 resource.id
             )
-        )
+        ))
         assert results.rowcount == 2
         self.Session.remove()
 
@@ -747,21 +767,23 @@ class TestDatastoreCreate(object):
 
             results = [
                 row
-                for row in c.execute(
-                    u'select * from "{0}"'.format(resource.id)
-                )
+                for row in c.execute(sa.text(
+                        'select * from "{0}"'.format(resource.id)
+                ))
             ]
             results_alias = [
-                row for row in c.execute(u'select * from "{0}"'.format(alias))
+                row for row in c.execute(sa.text(
+                    'select * from "{0}"'.format(alias)
+                ))
             ]
 
             assert results == results_alias
 
             sql = (
                 u"select * from _table_metadata "
-                "where alias_of=%s and name=%s"
+                "where alias_of=:alias and name=:name"
             )
-            results = c.execute(sql, resource.id, alias)
+            results = c.execute(sa.text(sql), {"alias": resource.id, "name": alias})
             assert results.rowcount == 1
         self.Session.remove()
 
@@ -790,26 +812,29 @@ class TestDatastoreCreate(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(resource.id))
+        results = c.execute(sa.text(
+            'select * from "{0}"'.format(resource.id)
+        ))
         self.Session.remove()
 
         assert results.rowcount == 4
 
         all_data = data["records"] + data2["records"]
         for i, row in enumerate(results):
-            assert all_data[i].get("boo%k") == row["boo%k"]
+            assert all_data[i].get("boo%k") == getattr(row, "boo%k")
+            author = getattr(row, "author")
             assert all_data[i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                json.loads(author[0]) if author else None
             )
 
         c = self.Session.connection()
-        results = c.execute(
+        results = c.execute(sa.text(
             """
             select * from "{0}" where _full_text @@ 'tolstoy'
             """.format(
                 resource.id
             )
-        )
+        ))
         self.Session.remove()
         assert results.rowcount == 3
 
@@ -834,29 +859,34 @@ class TestDatastoreCreate(object):
         )
         res_dict = json.loads(res.data)
 
-        assert res_dict["success"] is True
+        assert res_dict["success"] is True, res_dict
 
         c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(resource.id))
+        results = c.execute(sa.text(
+            'select * from "{0}"'.format(resource.id)
+        ))
 
         assert results.rowcount == 5
 
         all_data = data["records"] + data2["records"] + data3["records"]
         for i, row in enumerate(results):
-            assert all_data[i].get("boo%k") == row["boo%k"], (
+            book = getattr(row, "boo%k")
+            assert all_data[i].get("boo%k") == book, (
                 i,
                 all_data[i].get("boo%k"),
-                row["boo%k"],
-            )
-            assert all_data[i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                book,
             )
 
-        results = c.execute(
+            author = getattr(row, "author")
+            assert all_data[i].get("author") == (
+                json.loads(author[0]) if author else None
+            )
+
+        results = c.execute(sa.text(
             """select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') """.format(
                 resource.id
             )
-        )
+        ))
         self.Session.remove()
         assert results.rowcount == 2
 
@@ -902,13 +932,19 @@ class TestDatastoreCreate(object):
         for alias in aliases:
             sql = (
                 "select * from _table_metadata "
-                "where alias_of=%s and name=%s"
+                "where alias_of=:alias and name=:name"
             )
-            results = c.execute(sql, resource.id, alias)
+            results = c.execute(
+                sa.text(sql),
+                {"alias": resource.id, "name": alias}
+            )
             assert results.rowcount == 0
 
-        sql = "select * from _table_metadata " "where alias_of=%s and name=%s"
-        results = c.execute(sql, resource.id, "another_alias")
+        sql = "select * from _table_metadata " "where alias_of=:alias and name=:name"
+        results = c.execute(
+            sa.text(sql),
+            {"alias": resource.id, "name": "another_alias"}
+        )
         assert results.rowcount == 1
         self.Session.remove()
 
@@ -1069,7 +1105,9 @@ class TestDatastoreCreate(object):
         res_dict = json.loads(res.data)
 
         c = self.Session.connection()
-        results = c.execute("""select * from "{0}" """.format(resource.id))
+        results = c.execute(sa.text(
+            """select * from "{0}" """.format(resource.id)
+        ))
 
         types = [
             db._pg_types[field[1]] for field in results.cursor.description
@@ -1087,9 +1125,9 @@ class TestDatastoreCreate(object):
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
-            assert data["records"][i].get("book") == row["book"]
+            assert data["records"][i].get("book") == row._mapping["book"]
             assert data["records"][i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                json.loads(row._mapping["author"][0]) if row._mapping["author"] else None
             )
         self.Session.remove()
 
@@ -1128,7 +1166,9 @@ class TestDatastoreCreate(object):
         res_dict = json.loads(res.data)
 
         c = self.Session.connection()
-        results = c.execute("""select * from "{0}" """.format(resource.id))
+        results = c.execute(sa.text(
+            """select * from "{0}" """.format(resource.id)
+        ))
         self.Session.remove()
 
         types = [

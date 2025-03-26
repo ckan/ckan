@@ -8,14 +8,14 @@
 {% block breadcrumb_content %}
   {{ super() }}
   {% if res %}
-      <li>{% link_for h.resource_display_name(res)|truncate(30), named_route=pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id %}</li>
+      <li>{% link_for h.resource_display_name(res)|truncate(30), named_route=pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id, title=h.resource_display_name(res) %}</li>
       <li{% block breadcrumb_edit_selected %} class="active"{% endblock %}><a href="">{{ _('Edit') }}</a></li>
   {% endif %}
 {% endblock %}
 
 {% block content_action %}
     {% if res %}
-	{% link_for _('View resource'), named_route=pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='eye' %}
+	{% link_for _('View resource'), named_route=pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='eye' %}
   {% endif %}
 {% endblock %}
 

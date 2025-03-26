@@ -1,0 +1,4 @@
+Reintroduced email_is_unique validator.
+-Initially removed in #6916 due to concerns about concurrent requests causing duplicate entries.
+-Ensured unique active emails through a composite database constraint.
+-Reintroducing for additional application-level validation, with minor adjustments.

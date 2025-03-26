@@ -93,6 +93,83 @@ with the ``--help`` option, for example:
 
  ckan -c |ckan.ini| user --help
 
+-------------------------------
+CLI command: ckan shell
+-------------------------------
+The main goal to execute a ckan shell command is IPython session with the application loaded for easy debugging and dynamic coding.
+
+There are three variables already populated into the namespace of the shell:
+
+•	**app** containing the Flask application
+•	**config** containing the CKAN config dictrionary
+•	**model** module to access to the database using SQLAlchemy syntax
+
+**command:**
+
+.. parsed-literal::
+ $ ckan shell
+
+Example 1:
+================
+
+.. parsed-literal::
+
+ $ ckan shell
+ Python 3.9.13 (main, Dec 11 2022, 15:23:12) 
+ Type 'copyright', 'credits' or 'license' for more information
+
+ **In [1]:** model.User.all()
+ **Out[1]:**
+ [<User id=f48287e2-6fac-41a9-9170-fc25ddbcc2d7 name=default password=$pbkdf2- sha512$25000$4rzXure2NkYoBeA8h5DyHg$yKMLOBZCtY.bA5XYq/qhzXfNCO7QOHGuRSkvCjkE2wThE.km/2L6GwQbY4p4lFXyyRMYXnACLxXvR27rVDq/yw fullname=None email=None apikey=46a0b1cc-28f3-4f96-9cf2-f0479fd3f200 created=2022-06-08 12:54:20.344765 reset_key=None about=None last_active=None activity_streams_email_notifications=False sysadmin=True state=active image_url=None plugin_extras=None>]
+
+.. parsed-literal::
+
+ **In [2]:** from ckan.logic.action.get import package_show
+
+ **In [3]:** package_show({"model": model}, {"id": "api-package-1"})
+ **Out[3]:** 
+ {'author': None,
+ 'author_email': None,
+ 'creator_user_id': 'f0c04c11-4369-4cf1-9da4-69d9aae06a2e',
+ 'id': '922f3a91-c9ed-4e19-a722-366671b7d72c',
+ 'isopen': False,
+ 'license_id': None,
+ 'license_title': None,
+ 'maintainer': None,
+ 'maintainer_email': None,
+ 'metadata_created': '2022-06-16T14:13:37.736125',
+ 'metadata_modified': '2022-06-16T14:20:19.639665',
+ 'name': 'api-package-1',
+ 'notes': 'Update from API:10000',
+ 'num_resources': 0,
+ 'num_tags': 0,
+ 'organization': None,
+ 'owner_org': None,
+ 'private': False,
+ 'state': 'active',
+ 'title': 'api-package-1',
+ 'type': 'dataset',
+ 'url': None,
+ 'version': None,
+ 'resources': [],
+ 'tags': [],
+ 'extras': [],
+ 'groups': [],
+ 'relationships_as_subject': [],
+ 'relationships_as_object': []}
+
+
+Example 2:
+================
+
+.. parsed-literal::
+
+ **In [7]:** from ckanext.activity.logic import action
+ **In [8]:** before = datetime.fromisoformat('2022-06-16T14:14:00.627446').timestamp()
+ **In [9]:** %timeit action.package_activity_list({}, {'id': 'api-package-1', 'before': before})3.17 ms ± 11.9 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+ **In [10]:** %timeit action.package_activity_list({}, {'id': 'api-package-1', 'offset': 9000})25.3 ms ± 504 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+
+
 
 -------------------------------
 Troubleshooting ckan Commands

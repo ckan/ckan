@@ -10,6 +10,7 @@ For more details, check :doc:`maintaining/configuration`.
 from typing import Any, Optional
 
 from sqlalchemy import types, Column, Table
+from sqlalchemy.orm import Mapped
 from sqlalchemy.exc import ProgrammingError
 
 
@@ -25,16 +26,17 @@ system_info_table = Table(
     Column('id', types.Integer(),  primary_key=True, nullable=False),
     Column('key', types.Unicode(100), unique=True, nullable=False),
     Column('value', types.UnicodeText),
-    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE,
+           nullable=False),
 )
 
 
 class SystemInfo(core.StatefulObjectMixin,
                  domain_object.DomainObject):
-    id: int
-    key: str
-    value: str
-    state: str
+    id: Mapped[int]
+    key: Mapped[str]
+    value: Mapped[str]
+    state: Mapped[str]
 
     def __init__(self, key: str, value: Any) -> None:
 
@@ -44,7 +46,7 @@ class SystemInfo(core.StatefulObjectMixin,
         self.value = str(value)
 
 
-meta.mapper(SystemInfo, system_info_table)
+meta.registry.map_imperatively(SystemInfo, system_info_table)
 
 
 def get_system_info(key: str, default: Optional[str]=None) -> Optional[str]:

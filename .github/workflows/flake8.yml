@@ -11,9 +11,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install requirements
-        run: pip install flake8 pycodestyle
+        run: pip install flake8 pycodestyle flake8-logging-format
       - name: Check syntax
         # Stop the build if there are Python syntax errors or undefined names
         run: flake8 --count --statistics --show-source

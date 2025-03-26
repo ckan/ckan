@@ -1,0 +1,104 @@
+{% ckan_extends %}
+
+{% block custom %}
+  {{ super() }}
+
+  {% macro js_data(obj) -%}
+    {% for k, v in obj.items() %}{{ k }}: {{ v | tojson }}
+      {%- if not loop.last %},
+{% endif -%}
+    {% endfor %}
+  {%- endmacro %}
+
+  {% if examples %}
+  {% call register_example('javascript', 'request_filter_custom') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({
+        resource_id: '{{ resource_id }}',
+        filters: {
+            {{ js_data(examples.text_column_filters_object) | indent(12) }}
+        }
+    })
+await resp.json()</code></pre>
+  {% endcall %}
+
+  {% call register_example('javascript', 'request_sql_custom') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({
+        sql: `SELECT * FROM "{{ resource_id }}" WHERE {{ examples.text_column_name_sql }} LIKE 'jones'`
+    })
+})
+await resp.json()</code></pre>
+  {% endcall %}
+
+  {% call register_example('javascript', 'request_insert') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_upsert', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({
+        resource_id: '{{ resource_id }}',
+        method: "insert",
+        records: [{
+{{ js_data(examples.insert_record_object) | indent(12, first=True) }}
+        }]
+    })
+await resp.json()</code></pre>
+  {% endcall %}
+
+  {% call register_example('javascript', 'request_update') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_upsert', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({
+        resource_id: '{{ resource_id }}',
+        method: "update",
+        records: [{
+{{ js_data(examples.update_record_object) | indent(12, first=True) }}
+        }]
+    })
+await resp.json()</code></pre>
+  {% endcall %}
+
+{% call register_example('javascript', 'request_delete') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_records_delete', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({
+        resource_id: '{{ resource_id }}',
+        filters: {
+{{ js_data(examples.unique_filter_object) | indent(12, first=True) }}
+        }
+    })
+await resp.json()</code></pre>
+  {% endcall %}
+  {% endif %}
+{% endblock %}

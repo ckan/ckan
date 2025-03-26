@@ -33,6 +33,24 @@ const watchSource = () =>
     build
   );
 
+const buildMidnightBlue = () =>
+  src([
+    __dirname + "/ckan/public-midnight-blue/base/scss/main.scss",
+    __dirname + "/ckan/public-midnight-blue/base/scss/main-rtl.scss",
+    ])
+    .pipe(if_(with_sourcemaps(), sourcemaps.init()))
+    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
+    .pipe(if_(with_sourcemaps(), sourcemaps.write()))
+    .pipe(rename(renamer))
+    .pipe(dest(__dirname + "/ckan/public-midnight-blue/base/css/"));
+
+const watchMidnightBlue = () =>
+  watch(
+    __dirname + "/ckan/public-midnight-blue/base/scss/**/*.scss",
+    { ignoreInitial: false },
+    buildMidnightBlue
+  );
+
 const jquery = () =>
   src(__dirname + "/node_modules/jquery/dist/jquery.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor")
@@ -69,7 +87,7 @@ const fontAwesomeCss = () =>
   );
 
 const fontAwesomeFonts = () =>
-  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/webfonts/*").pipe(
+  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/webfonts/*", {"encoding": false}).pipe(
     dest(__dirname + "/ckan/public/base/vendor/fontawesome-free/webfonts")
   );
 
@@ -90,6 +108,9 @@ src(__dirname + "/node_modules/htmx.org/dist/htmx.js").pipe(
 
 exports.build = build;
 exports.watch = watchSource;
+
+exports.buildMidnightBlue = buildMidnightBlue;
+exports.watchMidnightBlue = watchMidnightBlue;
 exports.updateVendorLibs = parallel(
   jquery,
   bootstrapScss,

@@ -183,8 +183,9 @@ only for explanation and you don't need them in the real file::
           # a space-separated list of validators, applied to the value of option.
           validators: not_missing boolean_validator
 
-          # shortcut for the most common option types. It adds validators, so you cannot use it
-          # when `validators` are specified(in this case `type` is silently ignored).
+          # shortcut for the most common option types. It adds type validators to the option.
+          # If both, `type` and `validators` are set, validators from `type` are added first,
+          # then validators from `validators` are appended.
           # Valid types are: bool, int, list, dynamic (see below for more information on dynamic
           # options)
           type: bool

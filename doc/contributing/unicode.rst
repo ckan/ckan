@@ -87,7 +87,7 @@ prefix. Simply use ``ur`` instead::
 For more information on string prefixes please refer to the
 `Python documentation`_.
 
-.. _Python documentation: https://docs.python.org/2.7/reference/lexical_analysis.html#string-literals
+.. _Python documentation: https://docs.python.org/3/reference/lexical_analysis.html
 
 .. note::
 

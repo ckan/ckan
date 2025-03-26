@@ -7,7 +7,7 @@ from typing import Any, Optional
 import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
-from configparser import ConfigParser, RawConfigParser
+from configparser import ConfigParser, RawConfigParser, NoOptionError
 
 from ckan.exceptions import CkanConfigurationException
 from ckan.types import Config
@@ -74,7 +74,11 @@ class CKANConfigLoader(object):
 
             parser.read(filename)
             chain.append(filename)
-            use = parser.get(self.section, "use")
+            try:
+                use = parser.get(self.section, "use")
+            except NoOptionError:
+                return chain
+
             if not use:
                 return chain
             try:
@@ -152,6 +156,6 @@ or have one of {} in the current directory.'''
 
     config_loader = CKANConfigLoader(filename)
     loggingFileConfig(filename)
-    log.info(u'Using configuration file {}'.format(filename))
+    log.info('Using configuration file %s', filename)
 
     return config_loader.get_config()

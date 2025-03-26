@@ -2,6 +2,7 @@
 
 import json
 import pytest
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 import decimal
 
@@ -129,7 +130,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "total_estimation_threshold": 50,
@@ -153,7 +155,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "filters": {u"the year": 1901},
@@ -179,7 +182,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "fields": ["the year"],
@@ -226,7 +230,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "total_estimation_threshold": 0,
@@ -251,7 +256,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "total_estimation_threshold": None,
@@ -275,7 +281,9 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
+
         search_data = {
             "resource_id": resource["id"],
             # don't specify total_estimation_threshold
@@ -477,6 +485,37 @@ class TestDatastoreSearch(object):
         }
         result = helpers.call_action("datastore_search", **search_data)
         assert result["records"][0]['b'] == 'Z'
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_search_records_text_int_filter(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "text_field", "type": "text"},
+            ],
+            "records": [
+                {"text_field": 25},
+                {"text_field": 37},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        # can search by int
+        data = {"resource_id": resource["id"],
+                "include_total": True,
+                "filters": {"text_field": 25}}
+        result = helpers.call_action("datastore_search", **data)
+        assert len(result["records"]) == 1
+
+        # can search by text
+        data = {"resource_id": resource["id"],
+                "include_total": True,
+                "filters": {"text_field": "37"}}
+        result = helpers.call_action("datastore_search", **data)
+        assert len(result["records"]) == 1
 
 
 class TestDatastoreSearchLegacyTests(object):
@@ -793,25 +832,6 @@ class TestDatastoreSearchLegacyTests(object):
         result = res_dict["result"]
         assert result["total"] == 1
         assert result["records"] == [self.expected_records[0]]
-
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
-    def test_search_invalid_filter(self, app):
-        data = {
-            "resource_id": self.data["resource_id"],
-            # invalid because author is not a numeric field
-            "filters": {u"author": 42},
-        }
-
-        headers = {"Authorization": self.sysadmin_token}
-        res = app.post(
-            "/api/action/datastore_search",
-            json=data,
-            headers=headers,
-            status=409,
-        )
-        res_dict = json.loads(res.data)
-        assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -2196,7 +2216,7 @@ class TestDatastoreSearchRecordsFormat(object):
                 {"id": "lst", "type": "_text"},
             ],
             records=[
-                {"num": 10, "dt": "2020-01-01", "txt": "aaab", "lst": ["one", "two"]},
+                {"num": 10, "dt": "2020-01-01", "txt": "aaab", "lst": ["one"]},
                 {"num": 9, "dt": "2020-01-02", "txt": "aaab"},
                 {"num": 9, "txt": "aaac", "lst": ["one", "two"]},
                 {},  # all nulls
@@ -2210,8 +2230,19 @@ class TestDatastoreSearchRecordsFormat(object):
         )["records"] == [
             [2, 9, "2020-01-02T00:00:00", "aaab", None],
             [3, 9, None, "aaac", ["one", "two"]],
-            [1, 10, "2020-01-01T00:00:00", "aaab", ["one", "two"]],
+            [1, 10, "2020-01-01T00:00:00", "aaab", ["one"]],
             [4, None, None, None, None],
+        ]
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format="lists",
+            sort="lst nulls first, num nulls last",
+        )["records"] == [
+            [2, 9, "2020-01-02T00:00:00", "aaab", None],
+            [4, None, None, None, None],
+            [1, 10, "2020-01-01T00:00:00", "aaab", ["one"]],
+            [3, 9, None, "aaac", ["one", "two"]],
         ]
         assert helpers.call_action(
             "datastore_search",
@@ -2221,6 +2252,17 @@ class TestDatastoreSearchRecordsFormat(object):
         )["records"] == [
             {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
             {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
-            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one", "two"]},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
             {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
+        ]
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format="objects",
+            sort="lst nulls first, num nulls last",
+        )["records"] == [
+            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
+            {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
+            {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
         ]

@@ -1,62 +1,64 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Type
-from typing_extensions import Protocol
+from typing import TYPE_CHECKING, Any
+from typing_extensions import Protocol, TypeAlias
 
 from sqlalchemy.orm.scoping import ScopedSession
-from sqlalchemy.orm import Query, sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm.query import Query
 from sqlalchemy import Table
 
 if TYPE_CHECKING:
     import ckan.model as _model  # noqa
 
+__all__ = [
+    "Model", "AlchemySession", "Query",
+]
 
-AlchemySession = ScopedSession
-Query = Query
+AlchemySession = ScopedSession[Any]
 
 
 class Meta(Protocol):
-    create_local_session: sessionmaker
+    create_local_session: "sessionmaker[Session]"
 
 
 class Model(Protocol):
     # Activity: ClassVar[Type["_model.Activity"]]
-    ApiToken: ClassVar[Type["_model.ApiToken"]]
-    Dashboard: ClassVar[Type["_model.Dashboard"]]
-    DomainObject: ClassVar[Type["_model.DomainObject"]]
-    Group: ClassVar[Type["_model.Group"]]
-    Member: ClassVar[Type["_model.Member"]]
-    Package: ClassVar[Type["_model.Package"]]
-    PackageMember: ClassVar[Type["_model.PackageMember"]]
-    PackageRelationship: ClassVar[Type["_model.PackageRelationship"]]
-    PackageTag: ClassVar[Type["_model.PackageTag"]]
-    Resource: ClassVar[Type["_model.Resource"]]
-    ResourceView: ClassVar[Type["_model.ResourceView"]]
-    State: ClassVar[Type["_model.State"]]
-    System: ClassVar[Type["_model.System"]]
-    Tag: ClassVar[Type["_model.Tag"]]
-    TaskStatus: ClassVar[Type["_model.TaskStatus"]]
-    User: ClassVar[Type["_model.User"]]
-    AnonymousUser: ClassVar[Type["_model.AnonymousUser"]]
-    UserFollowingDataset: ClassVar[Type["_model.UserFollowingDataset"]]
-    UserFollowingGroup: ClassVar[Type["_model.UserFollowingGroup"]]
-    UserFollowingUser: ClassVar[Type["_model.UserFollowingUser"]]
-    Vocabulary: ClassVar[Type["_model.Vocabulary"]]
+    ApiToken: TypeAlias = "_model.ApiToken"
+    Dashboard: TypeAlias = "_model.Dashboard"
+    DomainObject: TypeAlias = "_model.DomainObject"
+    Group: TypeAlias = "_model.Group"
+    Member: TypeAlias = "_model.Member"
+    Package: TypeAlias = "_model.Package"
+    PackageMember: TypeAlias = "_model.PackageMember"
+    PackageRelationship: TypeAlias = "_model.PackageRelationship"
+    PackageTag: TypeAlias = "_model.PackageTag"
+    Resource: TypeAlias = "_model.Resource"
+    ResourceView: TypeAlias = "_model.ResourceView"
+    State: TypeAlias = "_model.State"
+    System: TypeAlias = "_model.System"
+    Tag: TypeAlias = "_model.Tag"
+    TaskStatus: TypeAlias = "_model.TaskStatus"
+    User: TypeAlias = "_model.User"
+    AnonymousUser: TypeAlias = "_model.AnonymousUser"
+    UserFollowingDataset: TypeAlias = "_model.UserFollowingDataset"
+    UserFollowingGroup: TypeAlias = "_model.UserFollowingGroup"
+    UserFollowingUser: TypeAlias = "_model.UserFollowingUser"
+    Vocabulary: TypeAlias = "_model.Vocabulary"
 
-    group_table: ClassVar[Table]
-    member_table: ClassVar[Table]
-    package_extra_table: ClassVar[Table]
-    package_relationship_table: ClassVar[Table]
-    package_table: ClassVar[Table]
-    package_tag_table: ClassVar[Table]
-    resource_table: ClassVar[Table]
-    tag_table: ClassVar[Table]
-    term_translation_table: ClassVar[Table]
+    group_table: Table
+    member_table: Table
+    package_relationship_table: Table
+    package_table: Table
+    package_tag_table: Table
+    resource_table: Table
+    tag_table: Table
+    term_translation_table: Table
 
-    Session: ClassVar[AlchemySession]
-    meta: ClassVar[Meta] | Any
+    Session: AlchemySession
+    meta: Meta | Any
 
-    repo: ClassVar["_model.Repository"]
+    repo: "_model.Repository"
 
     @staticmethod
     def set_system_info(key: str, value: str) -> bool:

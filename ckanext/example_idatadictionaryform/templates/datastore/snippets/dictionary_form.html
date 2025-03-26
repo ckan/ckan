@@ -1,0 +1,31 @@
+{% ckan_extends %}
+
+{% block additional_fields %}
+  {{ form.input('fields__' ~ position ~ '__an_int',
+    label=_('An integer'), id='example-plugin-f' ~ position ~ 'an_int',
+    value=data.get('an_int', field.get('an_int', '')),
+    classes=['control-full'], error=errors.an_int) }}
+
+  {{ form.input('fields__' ~ position ~ '__json_obj',
+    label=_('JSON object'), id='example-plugin-f' ~ position ~ 'json_obj',
+    value=
+      data.json_obj if 'json_obj' in data else
+      h.dump_json(field['json_obj']) if 'json_obj' in field else '',
+    classes=['control-full'], error=errors.json_obj) }}
+
+  {{ form.input('fields__' ~ position ~ '__only_up',
+    label=_('Always increasing'), id='example-plugin-f' ~ position ~ 'only_up',
+    value=data.get('only_up', field.get('only_up', '')),
+    classes=['control-full'], error=errors.only_up) }}
+
+  {{ form.input('fields__' ~ position ~ '__sticky',
+    label=_('Sticky input'), id='example-plugin-f' ~ position ~ 'sticky',
+    value=data.get('sticky', field.get('sticky', '')),
+    classes=['control-full'], error=errors.sticky) }}
+
+  {{ form.input('fields__' ~ position ~ '__secret',
+    label=_('Secret (write-only)'),
+    id='example-plugin-f' ~ position ~ 'secret',
+    value='', classes=['control-full'],
+    error=errors.secret) }}
+{% endblock %}

@@ -21,10 +21,8 @@ from __future__ import annotations
 
 import logging
 from typing import Any, Union, Callable, Iterable, Optional, cast
-from redis import Redis
 
 import rq
-from rq.connections import push_connection
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 from rq.utils import ensure_list
@@ -38,20 +36,10 @@ import ckan.plugins as plugins
 log = logging.getLogger(__name__)
 
 DEFAULT_QUEUE_NAME = u'default'
+DEFAULT_JOB_LIST_LIMIT = 200
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
 _queues: dict[str, rq.Queue] = {}
-
-
-def _connect() -> Redis:  # type: ignore
-    u'''
-    Connect to Redis and tell RQ about it.
-
-    Workaround for https://github.com/nvie/rq/issues/479.
-    '''
-    conn = connect_to_redis()
-    push_connection(conn)
-    return conn
 
 
 def _get_queue_name_prefix() -> str:
@@ -94,7 +82,7 @@ def get_all_queues() -> list[rq.Queue]:
 
     .. seealso:: :py:func:`get_queue`
     '''
-    redis_conn = _connect()
+    redis_conn = connect_to_redis()
     prefix = _get_queue_name_prefix()
     return [q for q in rq.Queue.all(connection=redis_conn) if
             q.name.startswith(prefix)]
@@ -119,8 +107,8 @@ def get_queue(name: str = DEFAULT_QUEUE_NAME) -> rq.Queue:
     try:
         return _queues[fullname]
     except KeyError:
-        log.debug(u'Initializing background job queue "{}"'.format(name))
-        redis_conn = _connect()
+        log.debug('Initializing background job queue "%s"', name)
+        redis_conn = connect_to_redis()
         queue = _queues[fullname] = rq.Queue(fullname, connection=redis_conn)
         return queue
 
@@ -173,8 +161,8 @@ def enqueue(fn: Callable[..., Any],
     msg = u'Added background job {}'.format(job.id)
     if title:
         msg = u'{} ("{}")'.format(msg, title)
-    msg = u'{} to queue "{}"'.format(msg, queue)
-    log.info(msg)
+
+    log.info('%s to queue "%s"', msg, queue)
     return job
 
 
@@ -190,7 +178,7 @@ def job_from_id(id: str) -> Job:
     :raises KeyError: if no job with that ID exists.
     '''
     try:
-        return Job.fetch(id, connection=_connect())
+        return Job.fetch(id, connection=connect_to_redis())
     except NoSuchJobError:
         raise KeyError(u'There is no job with ID "{}".'.format(id))
 
@@ -267,8 +255,8 @@ class Worker(rq.Worker):
         result = super(Worker, self).register_birth(*args, **kwargs)
         names_list = [remove_queue_name_prefix(n) for n in self.queue_names()]
         names = u', '.join(u'"{}"'.format(n) for n in names_list)
-        log.info(u'Worker {} (PID {}) has started on queue(s) {} '.format(
-                 self.key, self.pid, names))
+        log.info('Worker %s (PID %s) has started on queue(s) %s ',
+                 self.key, self.pid, names)
         return result
 
     def execute_job(self, job: Job, *args: Any, **kwargs: Any) -> None:
@@ -296,24 +284,24 @@ class Worker(rq.Worker):
         else:
             job_id = job.id
 
-        log.info(u'Worker {} starts job {} from queue "{}"'.format(
-                 self.key, job_id, queue))
+        log.info('Worker %s starts job %s from queue "%s"',
+                 self.key, job_id, queue)
         for plugin in plugins.PluginImplementations(plugins.IForkObserver):
             plugin.before_fork()
         result = super(Worker, self).execute_job(job, *args, **kwargs)
-        log.info(u'Worker {} has finished job {} from queue "{}"'.format(
-                 self.key, job_id, queue))
+        log.info('Worker %s has finished job %s from queue "%s"',
+                 self.key, job_id, queue)
 
         return result
 
     def register_death(self, *args: Any, **kwargs: Any) -> None:
         result = super(Worker, self).register_death(*args, **kwargs)
-        log.info(u'Worker {} (PID {}) has stopped'.format(self.key, self.pid))
+        log.info('Worker %s (PID %s) has stopped', self.key, self.pid)
         return result
 
     def handle_exception(self, job: Job, *exc_info: Any) -> None:
-        log.exception(u'Job {} on worker {} raised an exception: {}'.format(
-                      job.id, self.key, exc_info[1]))
+        log.exception('Job %s on worker %s raised an exception: %s',
+                      job.id, self.key, exc_info[1])
         return super(Worker, self).handle_exception(job, *exc_info)
 
     def main_work_horse(self, job: Job, queue: rq.Queue):

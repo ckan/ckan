@@ -9,6 +9,7 @@ from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast
 from flask import Blueprint
 
 import ckan.logic.schema as schema
+from ckan.lib.maintain import deprecated
 from ckan.common import g
 from ckan import logic, model, plugins
 import ckan.authz
@@ -179,9 +180,8 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
             signals.register_blueprint.send(
                 u"resource", blueprint=resource_blueprint)
             app.register_blueprint(resource_blueprint)
-            log.debug(
-                'Registered blueprints for custom dataset type \'{}\''.format(
-                    package_type))
+            log.debug("Registered blueprints for custom dataset type '%s'"%
+                      package_type)
 
     if not registered_dataset:
         # core dataset blueprint not overridden
@@ -310,8 +310,7 @@ def set_default_group_plugin() -> None:
     global _group_controllers
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
-        _default_group_plugin = cast(
-            plugins.IDatasetForm, DefaultGroupForm())
+        _default_group_plugin = cast(plugins.IGroupForm, DefaultGroupForm())
     if _default_organization_plugin is None:
         _default_organization_plugin = cast(
             plugins.IGroupForm, DefaultOrganizationForm())
@@ -491,10 +490,25 @@ class DefaultGroupForm(object):
     def group_form(self) -> str:
         return 'group/new_group_form.html'
 
+    def create_group_schema(self) -> Schema:
+        return schema.default_create_group_schema()
+
+    def update_group_schema(self) -> Schema:
+        return schema.default_update_group_schema()
+
+    def show_group_schema(self) -> Schema:
+        return schema.default_show_group_schema()
+
+    # Deprecated schema methods, to be removed in CKAN 2.12
+
+    @deprecated(
+        "Use either `create_group_schema()` or `update_group_schema()`",
+        since="2.11.0"
+    )
     def form_to_db_schema_options(self,
                                   options: dict[str, Any]) -> dict[str, Any]:
-        ''' This allows us to select different schemas for different
-        purpose eg via the web interface or via the api or creation vs
+        ''' [Deprecated] This allows us to select different schemas for
+        different purpose eg via the web interface or via the api or creation vs
         updating. It is optional and if not available form_to_db_schema
         should be used.
         If a context is provided, and it contains a schema, it will be
@@ -512,25 +526,32 @@ class DefaultGroupForm(object):
         else:
             return self.form_to_db_schema()
 
+    @deprecated("Use `create_group_schema()`", since="2.11.0")
     def form_to_db_schema_api_create(self) -> dict[str, Any]:
-        return schema.default_group_schema()
+        """ Deprecated """
+        return schema.default_create_group_schema()
 
+    @deprecated("Use `update_group_schema()`", since="2.11.0")
     def form_to_db_schema_api_update(self) -> dict[str, Any]:
+        """ Deprecated """
         return schema.default_update_group_schema()
 
+    @deprecated("Use `create_group_schema()`", since="2.11.0")
     def form_to_db_schema(self) -> dict[str, Any]:
-        return schema.group_form_schema()
+        """ Deprecated """
+        return schema.default_create_group_schema()
 
+    @deprecated("Use `show_group_schema()`", since="2.11.0")
     def db_to_form_schema(self) -> dict[str, Any]:
-        '''This is an interface to manipulate data from the database
-        into a format suitable for the form (optional)'''
+        """ Deprecated """
         return {}
 
+    @deprecated("Use `show_group_schema()`", since="2.11.0")
     def db_to_form_schema_options(self,
                                   options: dict[str, Any]) -> dict[str, Any]:
-        '''This allows the selection of different schemas for different
-        purposes.  It is optional and if not available, ``db_to_form_schema``
-        should be used.
+        ''' [Deprecated] This allows the selection of different schemas
+        for different purposes.  It is optional and if not available,
+        ``db_to_form_schema`` should be used.
         If a context is provided, and it contains a schema, it will be
         returned.
         '''

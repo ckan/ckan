@@ -23,7 +23,7 @@ There are pre-configured Docker images for Solr for each CKAN version. Make sure
 
    .. parsed-literal::
 
-    docker run --name ckan-solr -p 8983:8983 -d ckan/ckan-solr:2.10-solr9
+    docker run --name ckan-solr -p 8983:8983 -d ckan/ckan-solr:|current_minor_version|-solr9
 
 You can now jump to the `Next steps <#next-steps-with-solr>`_ section.
 
@@ -38,15 +38,15 @@ follow the `official Solr documentation <https://solr.apache.org/guide/solr/late
 
       sudo apt-get install openjdk-11-jdk
 
-#. Download the latest supported version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 9.x (recommended) and 8.x.
+#. Download the latest supported *binary release* version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 9.x (recommended) and 8.x.
 
 #. Extract the install script file to your desired location (adjust the Solr version number to the one you are using)::
 
-    tar xzf solr-9.2.1.tgz solr-9.2.1/bin/install_solr_service.sh --strip-components=2
+    tar xzf solr-9.7.0.tgz solr-9.7.0/bin/install_solr_service.sh --strip-components=2
 
 #. Run the installation script as ``root``::
 
-    sudo bash ./install_solr_service.sh solr-9.2.1.tgz
+    sudo bash ./install_solr_service.sh solr-9.7.0.tgz
 
 #. Check that Solr started running::
 
@@ -60,7 +60,7 @@ follow the `official Solr documentation <https://solr.apache.org/guide/solr/late
 
    .. parsed-literal::
 
-    sudo -u solr wget -O /var/solr/data/ckan/conf/managed-schema https://raw.githubusercontent.com/ckan/ckan/dev-v2.10/ckan/config/solr/schema.xml
+    sudo -u solr wget -O /var/solr/data/ckan/conf/managed-schema https://raw.githubusercontent.com/ckan/ckan/dev-v|current_release_version|/ckan/config/solr/schema.xml
 
 
 #. Restart Solr::
@@ -73,12 +73,12 @@ Next steps with Solr
 
 To check that Solr started you can visit the web interface at http://localhost:8983/solr
 
-.. warning:: The two installation methods above will leave you with a setup that is fine for local development, but Solr should never be exposed publicly in a production site. Pleaser refer to the `Solr documentation <https://solr.apache.org/guide/securing-solr.html>`_ to learn how to secure your Solr instance.
+.. warning:: The two installation methods above will leave you with a setup that is fine for local development, but Solr should never be exposed publicly in a production site. Please refer to the `Solr documentation <https://solr.apache.org/guide/securing-solr.html>`_ to learn how to secure your Solr instance.
 
 
 If you followed any of the instructions above, the CKAN Solr core will be available at http://localhost:8983/solr/ckan. If for whatever reason you ended up with a different one (eg with a different port, host or core name), you need to change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to point to your Solr server, for example::
 
-       solr_url=http://my-solr-host:8080/solr/ckan-2.10
+       solr_url=http://my-solr-host:8080/solr/ckan
 
 
 .. _Solr: https://solr.apache.org/

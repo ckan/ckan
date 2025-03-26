@@ -1,10 +1,16 @@
 import hashlib
+import logging
 
 from urllib.parse import unquote
 
-from ckan.model.meta import engine
+
 from ckan.common import request
 from ckan.types import Response
+
+from ckanext.tracking.model import TrackingRaw
+
+
+logger = logging.getLogger(__name__)
 
 
 def track_request(response: Response) -> Response:
@@ -27,12 +33,23 @@ def track_request(response: Response) -> Response:
             request.environ.get('HTTP_ACCEPT_LANGUAGE', ''),
             request.environ.get('HTTP_ACCEPT_ENCODING', ''),
         ])
-        key = hashlib.md5(key.encode()).hexdigest()
+        # raises a type error on python<3.9
+        h = hashlib.new('md5', usedforsecurity=False)
+        h.update(key.encode())
+        key = h.hexdigest()
         # store key/data here
-        sql = '''INSERT INTO tracking_raw
-                    (user_key, url, tracking_type)
-                    VALUES (%s, %s, %s)'''
-        engine.execute(  # type: ignore
-            sql, key, data.get('url'), data.get('type')
+        try:
+            logger.debug(
+                "Tracking %s for %s",
+                data.get('type'),
+                data.get('url'),
             )
+            TrackingRaw.create(
+                user_key=key,
+                url=data.get("url"),
+                tracking_type=data.get("type")
+            )
+        except Exception as e:
+            logger.error("Error tracking request", e)
+
     return response

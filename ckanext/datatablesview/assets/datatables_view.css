@@ -28,6 +28,19 @@ div.dataTables_scroll{
 /* processing message should hover over table and be visible */
 #dtprv_processing {
   z-index: 100;
+  display: block;
+}
+
+#dtprv_processing.pre-init::after{
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  z-index: -1;
 }
 
 /* for table header, don't wrap */
@@ -217,4 +230,75 @@ z-index:100;
 
 .animated-shake {
   animation: shake .4s;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed {
+  width: 75%;
+  top: 10% !important;
+  margin-top: 0 !important;
+  transform: translateX(-50%);
+  margin-left: 0;
+  padding: 18px !important;
+  max-height: 80% !important;
+  overflow-y: scroll !important;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed .dropdown-menu {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  max-height: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a {
+  word-break: break-all;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a.buttons-columnVisibility {
+  max-width: 50%;
+  min-width: 50%;
+  width: 50%;
+  margin-bottom: 5px;
+  padding-left: 24px;
+  padding-right: 10px;
+  position: relative;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a.buttons-columnVisibility::before {
+  content: '\f096';
+  font: normal normal normal 14px/1 FontAwesome;
+  position: absolute;
+  left: 6px;
+  top: 6px;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a.buttons-columnVisibility.active::before {
+  content: '\f046';
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a:not(.buttons-columnVisibility) {
+  flex-basis: 100%;
+  margin-top: 8px;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a:not(.buttons-columnVisibility).buttons-colvisRestore {
+  max-width: 51%;
+  min-width: 51%;
+  width: 51%;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a:not(.buttons-columnVisibility).buttons-colvisGroup {
+  max-width: 50%;
+  min-width: 50%;
+  width: 50%;
+}
+
+.buttons-collection.buttons-colvis ~ .dt-button-collection.fixed a:not(.buttons-columnVisibility).buttons-colvisGroup:nth-last-of-type(3) {
+  max-width: 49%;
+  min-width: 49%;
+  width: 49%;
+  margin-left: -1%;
 }

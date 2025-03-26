@@ -13,7 +13,9 @@ import dominate.tags as dom_tags
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
 import ckan.lib.captcha as captcha
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
+from ckan.lib.dictization import model_dictize
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
@@ -23,7 +25,8 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import (
-    _, config, g, request, current_user, login_user, logout_user, session
+    _, config, g, request, current_user, login_user, logout_user, session,
+    repr_untrusted
 )
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
@@ -57,6 +60,10 @@ def _new_form_to_db_schema() -> Schema:
     return schema.user_new_form_schema()
 
 
+def _perform_reset_form_to_db_schema() -> Schema:
+    return schema.user_perform_reset_form_schema()
+
+
 def _extra_template_variables(context: Context,
                               data_dict: dict[str, Any]) -> dict[str, Any]:
     is_sysadmin = False
@@ -86,6 +93,10 @@ def index():
     order_by = request.args.get('order_by', 'name')
     default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
+    offset = page_number * limit - limit
+
+    # get SQLAlchemy Query object from the action to avoid dictizing all
+    # existing users at once
     context: Context = {
         u'return_query': True,
         u'user': current_user.name,
@@ -93,8 +104,8 @@ def index():
     }
 
     data_dict = {
-        u'q': q,
-        u'order_by': order_by
+        'q': q,
+        'order_by': order_by,
     }
 
     try:
@@ -104,9 +115,18 @@ def index():
 
     users_list = logic.get_action(u'user_list')(context, data_dict)
 
-    page = h.Page(
-        collection=users_list,
+    # in template we don't need complex row objects from query. Let's dictize
+    # subset of users that are shown on the current page
+    users = [
+        model_dictize.user_dictize(user[0], context)
+        for user in
+        users_list.limit(limit).offset(offset)
+    ]
+
+    page = Page(
+        collection=users,
         page=page_number,
+        presliced_list=True,
         url=h.pager_url,
         item_count=users_list.count(),
         items_per_page=limit)
@@ -249,7 +269,7 @@ class ApiTokenView(MethodView):
             u'class': u'fa fa-copy'
         }), {
             u'type': u'button',
-            u'class': u'btn btn-default btn-xs',
+            u'class': u'btn btn-secondary btn-xs',
             u'data-module': u'copy-into-buffer',
             u'data-module-copy-value': ensure_str(token)
         })
@@ -283,7 +303,7 @@ class EditView(MethodView):
         }
         if id is None:
             if current_user.is_authenticated:
-                id = current_user.id  # type: ignore
+                id = current_user.id
             else:
                 base.abort(400, _(u'No user specified'))
         assert id
@@ -340,13 +360,15 @@ class EditView(MethodView):
         # We are recognizing sysadmin user
         # by email_changed variable.. this returns True
         # and we are entering the validation.
-        if (data_dict[u'password1']
-                and data_dict[u'password2']) or email_changed:
-
+        password_changed = (
+            data_dict.get('password1') and data_dict.get('password2')
+        )
+        if password_changed or email_changed:
             # getting the identity for current logged user
             identity = {
                 u'login': current_user.name,
-                u'password': data_dict[u'old_password']
+                u'password': data_dict[u'old_password'],
+                u'check_captcha': False
             }
             auth_user = authenticator.ckan_authenticator(identity)
 
@@ -569,7 +591,10 @@ def login() -> Union[Response, str]:
                 rotate_token()
                 return next_page_or_default(next)
         else:
-            err = _(u"Login failed. Bad username or password.")
+            if config.get('ckan.recaptcha.privatekey'):
+                err = _(u"Login failed. Bad username or password or CAPTCHA.")
+            else:
+                err = _(u"Login failed. Bad username or password.")
             h.flash_error(err)
             return base.render("user/login.html", extra_vars)
 
@@ -624,7 +649,7 @@ def delete(id: str) -> Union[Response, Any]:
         return base.abort(404, _(e.message))
 
     if request.method == 'POST' and current_user.is_authenticated:
-        if current_user.id == id:  # type: ignore
+        if current_user.id == id:
             return logout()
         else:
             user_index = h.url_for(u'user.index')
@@ -656,11 +681,19 @@ class RequestResetView(MethodView):
 
     def post(self) -> Response:
         self._prepare()
+
+        try:
+            captcha.check_recaptcha(request)
+        except captcha.CaptchaError:
+            error_msg = _(u'Bad Captcha. Please try again.')
+            h.flash_error(error_msg)
+            return h.redirect_to(u'user.request_reset')
+
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
             return h.redirect_to(u'user.request_reset')
-        log.info(u'Password reset requested for user "{}"'.format(id))
+        log.info('Password reset requested for user %s', repr_untrusted(id))
 
         context: Context = {
             'user': current_user.name,
@@ -701,12 +734,11 @@ class RequestResetView(MethodView):
                 pass
 
         if not user_objs:
-            log.info(u'User requested reset link for unknown user: {}'
-                     .format(id))
+            log.info('User requested reset link for unknown user: %s',
+                     repr_untrusted(id))
 
         for user_obj in user_objs:
-            log.info(u'Emailing reset link to user: {}'
-                     .format(user_obj.name))
+            log.info('Emailing reset link to user: %s', user_obj.name)
             try:
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
@@ -740,6 +772,7 @@ class PerformResetView(MethodView):
         # FIXME 403 error for invalid key is a non helpful page
         context: Context = {
             'user': id,
+            'schema': _perform_reset_form_to_db_schema(),
             'keep_email': True,
         }
 
@@ -760,29 +793,13 @@ class PerformResetView(MethodView):
             base.abort(403, msg)
         return context, user_dict
 
-    def _get_form_password(self):
-        password1 = request.form.get(u'password1')
-        password2 = request.form.get(u'password2')
-        if (password1 is not None and password1 != u''):
-            if len(password1) < 8:
-                raise ValueError(
-                    _(u'Your password must be 8 '
-                      u'characters or longer.'))
-            elif password1 != password2:
-                raise ValueError(
-                    _(u'The passwords you entered'
-                      u' do not match.'))
-            return password1
-        msg = _(u'You must provide a password')
-        raise ValueError(msg)
-
     def post(self, id: str) -> Union[Response, str]:
         context, user_dict = self._prepare(id)
         context[u'reset_password'] = True
         user_state = user_dict[u'state']
         try:
-            new_password = self._get_form_password()
-            user_dict[u'password'] = new_password
+            user_dict['password1'] = request.form.get('password1')
+            user_dict['password2'] = request.form.get('password2')
             username = request.form.get(u'name')
             if (username is not None and username != u''):
                 user_dict[u'name'] = username
@@ -813,7 +830,9 @@ class PerformResetView(MethodView):
         except dictization_functions.DataError:
             h.flash_error(_(u'Integrity Error'))
         except logic.ValidationError as e:
-            h.flash_error(u'%r' % e.error_dict)
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.get(id, errors, error_summary)
         except ValueError as e:
             h.flash_error(str(e))
         user_dict[u'state'] = user_state
@@ -821,10 +840,14 @@ class PerformResetView(MethodView):
             u'user_dict': user_dict
         })
 
-    def get(self, id: str) -> str:
+    def get(self, id: str,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None) -> str:
         user_dict = self._prepare(id)[1]
         return base.render(u'user/perform_reset.html', {
-            u'user_dict': user_dict
+            u'user_dict': user_dict,
+            'errors': errors or {},
+            'error_summary': error_summary or {},
         })
 
 
@@ -944,7 +967,7 @@ user.add_url_rule(
     u'/register', view_func=RegisterView.as_view(str(u'register')))
 
 user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
-user.add_url_rule(u'/_logout', view_func=logout)
+user.add_url_rule(u'/_logout', view_func=logout, methods=('GET', 'POST'))
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
 user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', 'GET'))

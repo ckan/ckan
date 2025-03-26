@@ -1,0 +1,27 @@
+{% extends "group/read_base.html" %}
+
+{% block subtitle %}{{ _('Members') }} {{ g.template_title_delimiter }} {{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
+
+{% block page_primary_action %}{% endblock %}
+
+{% block primary_content_inner %}
+  <h3 class="page-heading">{{ _('{0} members'.format(members|length)) }}</h3>
+  <table class="table table-header table-hover table-bordered" id="member-table">
+    <thead>
+      <tr>
+        <th>{{ _('User') }}</th>
+        <th>{{ _('Role') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user_id, user, role in members %}
+      <tr>
+        <td class="media">
+          {{ h.linked_user(user_id, maxlength=20) }}
+        </td>
+        <td>{{ role }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

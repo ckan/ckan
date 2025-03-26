@@ -7,7 +7,7 @@ from typing import Any
 from flask import Blueprint
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 from ckan.common import _, current_user
 from ckan.views.user import _extra_template_variables
 from ckan.types import Context
@@ -24,7 +24,7 @@ def before_request() -> None:
 
         # flask types do not mention that it's possible to return a response
         # from the `before_request` callback
-        return h.redirect_to(u'user.login')  # type: ignore
+        return h.redirect_to(u'user.login')
     return None
 
 

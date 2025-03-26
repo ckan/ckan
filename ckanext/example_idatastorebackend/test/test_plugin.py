@@ -1,9 +1,9 @@
 # encoding: utf-8
 
 
-from unittest.mock import patch, Mock, call
+from unittest.mock import patch, Mock
 import pytest
-
+import sqlalchemy as sa
 from ckan.common import config
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -56,44 +56,47 @@ class TestExampleIDatastoreBackendPlugin():
     @pytest.mark.usefixtures("with_request_context")
     @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
     @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
-    @patch(class_to_patch + u"._get_engine")
-    def test_backend_functionality(self, get_engine):
-        engine = get_engine()
-        execute = engine.execute
+    @patch(class_to_patch + u".execute")
+    def test_backend_functionality(self, execute):
         fetchall = execute().fetchall
         execute.reset_mock()
 
+        COLUMN = "a;\"\' x"
         DatastoreExampleSqliteBackend.resource_fields = Mock(
-            return_value={u"meta": {}, u"schema": {u"a": u"text"}}
+            return_value={u"meta": {}, u"schema": {COLUMN: u"text"}}
         )
         records = [
-            {u"a": u"x"},
-            {u"a": u"y"},
-            {u"a": u"z"},
+            {COLUMN: u"x"},
+            {COLUMN: u"y"},
+            {COLUMN: u"z"},
         ]
         DatastoreBackend.set_active_backend(config)
         res = factories.Resource(url_type=u"datastore")
         helpers.call_action(
             u"datastore_create",
             resource_id=res["id"],
-            fields=[{u"id": u"a"}],
+            fields=[{u"id": COLUMN}],
             records=records,
         )
         # check, create and 3 inserts
         assert 4 == execute.call_count
-        insert_query = u'INSERT INTO "{0}"(a) VALUES(?)'.format(res["id"])
-        execute.assert_has_calls(
-            [
-                call(
-                    u' CREATE TABLE IF NOT EXISTS "{0}"(a text);'.format(
-                        res["id"]
-                    )
-                ),
-                call(insert_query, ["x"]),
-                call(insert_query, ["y"]),
-                call(insert_query, ["z"]),
-            ]
-        )
+        insert_query = sa.insert(sa.table(
+            res["id"], sa.column(COLUMN)
+        ))
+
+        call_args = [
+            str(call.args[0])
+            for call in execute.call_args_list
+        ]
+        assert call_args == [
+            'CREATE TABLE IF NOT EXISTS "{}"({} text);'.format(
+                res["id"],
+                sa.column(COLUMN)
+            ),
+            str(insert_query.values({COLUMN: "x"})),
+            str(insert_query.values({COLUMN: "y"})),
+            str(insert_query.values({COLUMN: "z"})),
+        ]
 
         execute.reset_mock()
         fetchall.return_value = records
@@ -112,9 +115,7 @@ class TestExampleIDatastoreBackendPlugin():
         execute.reset_mock()
         helpers.call_action(u"datastore_info", id=res["id"])
         # check
-        c = u'''
-            select name from sqlite_master
-            where type = "table" and name = "{0}"'''.format(
+        c = u'''select name from sqlite_master where type = "table" and name = "{0}"'''.format(
             res["id"]
         )
         execute.assert_called_with(c)

@@ -3,7 +3,7 @@
 from flask import Blueprint
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 from ckan.common import _, request
 from ckan.types import Response
 
@@ -29,9 +29,17 @@ def primer() -> str:
     u''' Render all HTML components out onto a single page.
     This is useful for development/styling of CKAN. '''
 
-    return base.render(u'development/primer.html')
+    return base.render('development/primer.html')
+
+
+def custom_form_fields() -> str:
+    return base.render(
+        'snippets/custom_form_fields.html',
+        {'extras': [{'key': 'key', 'value': 'value'}], 'errors': {}}
+    )
 
 
 util.add_url_rule(
-    u'/util/redirect', view_func=internal_redirect, methods=(u'GET', u'POST',))
-util.add_url_rule(u'/testing/primer', view_func=primer)
+    '/util/redirect', view_func=internal_redirect, methods=('GET', 'POST',))
+util.add_url_rule('/testing/primer', view_func=primer)
+util.add_url_rule('/testing/custom_form_fields', view_func=custom_form_fields)

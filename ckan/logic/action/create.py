@@ -192,7 +192,8 @@ def package_create(
             data['creator_user_id'] = user_obj.id
             include_plugin_data = user_obj.sysadmin and plugin_data
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_data)
+    pkg, _change = model_save.package_dict_save(
+        data, context, include_plugin_data)
 
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
@@ -200,6 +201,9 @@ def package_create(
     if data.get('resources'):
         for index, resource in enumerate(data['resources']):
             resource['id'] = pkg.resources[index].id
+
+    if not data.get('metadata_modified'):
+        pkg.metadata_modified = datetime.datetime.utcnow()
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -213,29 +217,28 @@ def package_create(
 
         item.after_dataset_create(context, data)
 
-    # Make sure that a user provided schema is not used in create_views
-    # and on package_show
-    context.pop('schema', None)
-
     # Create default views for resources if necessary
     if data.get('resources'):
         logic.get_action('package_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
+            fresh_context(context, ignore_auth=True),
             {'package': data})
 
-    if not context.get('defer_commit'):
-        model.repo.commit()
-
     return_id_only = context.get('return_id_only', False)
+
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
+
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
+
+    if not context.get('defer_commit'):
+        logic.index_insert_package_dicts((pkg_default, pkg_custom))
+        model.repo.commit()
 
     if return_id_only:
         return pkg.id
 
-    return _get_action('package_show')(
-        context.copy(),
-        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
-    )
+    return pkg_custom
 
 
 def resource_create(context: Context,
@@ -278,8 +281,6 @@ def resource_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
         data_dict['url'] = ''
@@ -293,26 +294,19 @@ def resource_create(context: Context,
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_resource_create(context, data_dict)
 
-    if 'resources' not in pkg_dict:
-        pkg_dict['resources'] = []
+    original_package = dict(pkg_dict)
 
-    upload = uploader.get_resource_uploader(data_dict)
-
-    if 'mimetype' not in data_dict:
-        if hasattr(upload, 'mimetype'):
-            data_dict['mimetype'] = upload.mimetype
-
-    if 'size' not in data_dict:
-        if hasattr(upload, 'filesize'):
-            data_dict['size'] = upload.filesize
+    # allow metadata_modified to be updated
+    pkg_dict.pop('metadata_modified', None)
+    pkg_dict['resources'] = list(pkg_dict.get('resources', []))
 
     pkg_dict['resources'].append(data_dict)
 
     try:
-        context['defer_commit'] = True
-        context['use_cache'] = False
-        _get_action('package_update')(context, pkg_dict)
-        context.pop('defer_commit')
+        update_context = Context(context)
+        update_context['original_package'] = original_package
+        updated_pkg_dict = _get_action('package_update')(
+            update_context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[-1]
@@ -320,17 +314,6 @@ def resource_create(context: Context,
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    # Get out resource_id resource from model as it will not appear in
-    # package_show until after commit
-    package = context['package']
-    assert package
-    upload.upload(package.resources[-1].id,
-                  uploader.get_max_resource_size())
-
-    model.repo.commit()
-
-    #  Run package show again to get out actual last_resource
-    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
 
     #  Add the default views to the new resource
@@ -401,8 +384,7 @@ def resource_view_create(
     last_view = model.Session.query(model.ResourceView)\
         .filter_by(resource_id=resource_id) \
         .order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.ResourceView.order.desc()  # type: ignore
+            model.ResourceView.order.desc()
         ).first()
 
     if not last_view:
@@ -610,10 +592,7 @@ def member_create(context: Context,
         filter(model.Member.table_name == obj_type).\
         filter(model.Member.table_id == obj.id).\
         filter(model.Member.group_id == group.id).\
-        order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Member.state.asc()  # type: ignore
-        ).first()
+        order_by(model.Member.state.asc()).first()
     if member:
         user_obj = model.User.get(user)
         if user_obj and member.table_name == u'user' and \
@@ -707,8 +686,8 @@ def package_collaborator_create(
     model.Session.add(collaborator)
     model.repo.commit()
 
-    log.info('User {} added as collaborator in package {} ({})'.format(
-        user.name, package.id, capacity))
+    log.info('User %s added as collaborator in package %s (%s)',
+             user.name, package.id, capacity)
 
     return model_dictize.member_dictize(collaborator, context)
 
@@ -727,12 +706,18 @@ def _group_or_org_create(context: Context,
     # get the schema
     group_type = data_dict.get('type', 'organization' if is_org else 'group')
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
-    try:
-        schema: Schema = group_plugin.form_to_db_schema_options({
+
+    if context.get("schema"):
+        schema: Schema = context["schema"]
+    elif hasattr(group_plugin, "create_group_schema"):
+        schema: Schema = group_plugin.create_group_schema()
+    # TODO: remove these fallback deprecated methods in the next release
+    elif hasattr(group_plugin, "form_to_db_schema_options"):
+        schema: Schema = getattr(group_plugin, "form_to_db_schema_options")({
             'type': 'create', 'api': 'api_version' in context,
             'context': context})
-    except AttributeError:
-        schema = group_plugin.form_to_db_schema()
+    else:
+        schema: Schema = group_plugin.form_to_db_schema()
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
@@ -780,7 +765,7 @@ def _group_or_org_create(context: Context,
     member_create_context['ignore_auth'] = True
 
     logic.get_action('member_create')(member_create_context, member_dict)
-    log.debug('Created object %s' % group.name)
+    log.debug('Created object %s', group.name)
 
     return_id_only = context.get('return_id_only', False)
     action = 'organization_show' if is_org else 'group_show'
@@ -965,7 +950,9 @@ def user_create(context: Context,
                 }
             }
     :type plugin_extras: dict
-
+    :param with_apitoken: whether to create an API token for the user.
+                    (Optional)
+    :type with_apitoken: bool
 
     :returns: the newly created user
     :rtype: dictionary
@@ -974,13 +961,15 @@ def user_create(context: Context,
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
+    with_apitoken = data_dict.pop("with_apitoken", False)
 
     _check_access('user_create', context, data_dict)
 
     author_obj = model.User.get(context.get('user'))
     if data_dict.get("id"):
         is_sysadmin = (author_obj and author_obj.sysadmin)
-        if not is_sysadmin or model.User.get(data_dict["id"]):
+        ignore_auth = context.get('ignore_auth')
+        if not (ignore_auth or is_sysadmin) or model.User.get(data_dict["id"]):
             data_dict.pop("id", None)
     context.pop("user_obj", None)
 
@@ -1003,7 +992,7 @@ def user_create(context: Context,
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        with logic.guard_against_duplicated_email(data_dict['email']):
+        with logic.guard_against_duplicated_email(data["email"]):
             model.repo.commit()
     else:
         # The Dashboard object below needs the user id, and if we didn't
@@ -1032,11 +1021,22 @@ def user_create(context: Context,
 
     # Create dashboard for user.
     dashboard = model.Dashboard(user.id)
+
     session.add(dashboard)
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created user {name}'.format(name=user.name))
+    if with_apitoken:
+        if not context['user']:
+            context["user"] = user.name
+
+        # Create apitoken for user.
+        api_token = _get_action("api_token_create")(
+            context, {"user": user.name, "name": "default"}
+        )
+        user_dict["token"] = api_token["token"]
+
+    log.debug('Created user %s', user.name)
     return user_dict
 
 
@@ -1159,7 +1159,7 @@ def vocabulary_create(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % vocabulary.name)
+    log.debug('Created Vocabulary %s', vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
@@ -1203,7 +1203,7 @@ def tag_create(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug("Created tag '%s' " % tag)
+    log.debug("Created tag '%s' ", tag)
     return model_dictize.tag_dictize(tag, context)
 
 
@@ -1257,8 +1257,8 @@ def follow_user(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following user {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following user %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_user_dictize(follower, context)
 
@@ -1307,8 +1307,8 @@ def follow_dataset(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following dataset {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following dataset %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_dataset_dictize(follower, context)
 
@@ -1444,8 +1444,8 @@ def follow_group(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following group {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following group %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_group_dictize(follower, context)
 

@@ -1,0 +1,13 @@
+{%- call
+  form.checkbox('fields__' ~ position ~ '__tdimmutable',
+    label=_('Immutable'),
+    id='field-f' ~ position ~ 'immutable',
+    checked=data.get('tdimmutable', field.get('tdimmutable', '')),
+    error=errors.tdimmutable,
+    value='true'
+  )
+  -%}
+  {{ form.info(
+    text=_('The value may be set once then not changed afterwards')
+  )}}
+{%- endcall %}

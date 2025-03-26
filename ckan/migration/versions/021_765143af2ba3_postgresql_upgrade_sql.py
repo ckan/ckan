@@ -102,4 +102,4 @@ def upgrade():
 
 def downgrade():
     for name, table, _ in indexes:
-        op.drop_index(name, table)
+        op.execute(f"ALTER TABLE \"{table}\" DROP CONSTRAINT IF EXISTS {name}")

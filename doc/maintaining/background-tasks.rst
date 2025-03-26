@@ -381,10 +381,7 @@ job ID, that will be done automatically for you.
 
 Supporting both systems at once
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Not all CKAN installations will immediately update to CKAN 2.7. It might
-therefore make sense for you to support both the new and the old job system.
-That way you are ready when the old system is removed but can continue to
-support older CKAN installations.
+It might make sense to support both the RQ and the old Celery-based job system.
 
 The easiest way to do that is to use `ckanext-rq
 <https://github.com/davidread/ckanext-rq>`_, which provides a back-port of the

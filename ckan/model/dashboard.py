@@ -2,6 +2,7 @@
 
 import datetime
 import sqlalchemy
+from sqlalchemy.orm import Mapped
 import ckan.model.meta as meta
 from typing import Optional
 from typing_extensions import Self
@@ -20,9 +21,9 @@ dashboard_table = sqlalchemy.Table('dashboard', meta.metadata,
 
 class Dashboard(object):
     '''Saved data used for the user's dashboard.'''
-    user_id: str
-    activity_stream_last_viewed: datetime.datetime
-    email_last_sent: datetime.datetime
+    user_id: Mapped[str]
+    activity_stream_last_viewed: Mapped[datetime.datetime]
+    email_last_sent: Mapped[datetime.datetime]
 
     def __init__(self, user_id: str) -> None:
         self.user_id = user_id
@@ -37,8 +38,8 @@ class Dashboard(object):
         one will be created and returned.
 
         '''
-        query = meta.Session.query(Dashboard)
+        query = meta.Session.query(cls)
         query = query.filter(Dashboard.user_id == user_id)
         return query.first()
 
-meta.mapper(Dashboard, dashboard_table)
+meta.registry.map_imperatively(Dashboard, dashboard_table)

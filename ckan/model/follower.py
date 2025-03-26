@@ -16,7 +16,7 @@ import ckan.model.domain_object as domain_object
 
 from ckan.types import Query
 
-
+Mapped = sqlalchemy.orm.Mapped
 Follower = TypeVar("Follower", bound='ckan.model.User')
 Followed = TypeVar(
     "Followed", 'ckan.model.User', 'ckan.model.Package', 'ckan.model.Group')
@@ -24,9 +24,9 @@ Followed = TypeVar(
 
 class ModelFollowingModel(domain_object.DomainObject,
                           Generic[Follower, Followed]):
-    follower_id: str
-    object_id: str
-    datetime: _datetime.datetime
+    follower_id: Mapped[str]
+    object_id: Mapped[str]
+    datetime: Mapped[_datetime.datetime]
 
     def __init__(self, follower_id: str, object_id: str) -> None:
         self.follower_id = follower_id
@@ -91,19 +91,21 @@ class ModelFollowingModel(domain_object.DomainObject,
     @classmethod
     def _filter_following_objects(
             cls,
-            query: Query[tuple[Self, Follower, Followed]]) -> list[Self]:
+            query: Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]],
+    ) -> list[Self]:
         return [q[0] for q in query]
 
     @classmethod
     def _get_followees(
             cls, follower_id: Optional[str]
-    ) -> Query[tuple[Self, Follower, Followed]]:
+    ) -> Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]]:
         return cls._get(follower_id)
 
     @classmethod
     def _get_followers(
             cls,
-            object_id: Optional[str]) -> Query[tuple[Self, Follower, Followed]]:
+            object_id: Optional[str],
+    ) -> Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]]:
         return cls._get(None, object_id)
 
     @classmethod
@@ -111,22 +113,22 @@ class ModelFollowingModel(domain_object.DomainObject,
             cls,
             follower_id: Optional[str] = None,
             object_id: Optional[str] = None
-    ) -> Query[tuple[Self, Follower, Followed]]:
+    ) -> Query[sqlalchemy.Row[tuple[Self, Follower, Followed]]]:
         follower_alias = sqlalchemy.orm.aliased(cls._follower_class())
         object_alias = sqlalchemy.orm.aliased(cls._object_class())
 
-        follower_id = follower_id or cls.follower_id
-        object_id = object_id or cls.object_id
+        fid = follower_id or cls.follower_id
+        oid = object_id or cls.object_id
 
-        query: Query[tuple[Self, Follower, Followed]] = meta.Session.query(
+        query = meta.Session.query(
             cls, follower_alias, object_alias)\
             .filter(sqlalchemy.and_(
-                follower_alias.id == follower_id,
+                follower_alias.id == fid,
                 cls.follower_id == follower_alias.id,
                 cls.object_id == object_alias.id,
                 follower_alias.state != core.State.DELETED,
                 object_alias.state != core.State.DELETED,
-                object_alias.id == object_id))
+                object_alias.id == oid))
 
         return query
 
@@ -161,7 +163,7 @@ user_following_user_table = sqlalchemy.Table('user_following_user',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingUser, user_following_user_table)
+meta.registry.map_imperatively(UserFollowingUser, user_following_user_table)
 
 class UserFollowingDataset(
         ModelFollowingModel['ckan.model.User', 'ckan.model.Package']):
@@ -193,7 +195,7 @@ user_following_dataset_table = sqlalchemy.Table('user_following_dataset',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingDataset, user_following_dataset_table)
+meta.registry.map_imperatively(UserFollowingDataset, user_following_dataset_table)
 
 
 class UserFollowingGroup(
@@ -225,4 +227,4 @@ user_following_group_table = sqlalchemy.Table('user_following_group',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingGroup, user_following_group_table)
+meta.registry.map_imperatively(UserFollowingGroup, user_following_group_table)

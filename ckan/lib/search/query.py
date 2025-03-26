@@ -4,6 +4,10 @@ from __future__ import annotations
 import re
 import logging
 from typing import Any, NoReturn, Optional, Union, cast, Dict
+from pyparsing import (
+    Word, QuotedString, Suppress, OneOrMore, Group, alphanums
+)
+from pyparsing.exceptions import ParseException
 import pysolr
 
 from ckan.common import asbool
@@ -14,7 +18,7 @@ import ckan.model as model
 
 from ckan.common import config
 from ckan.lib.search.common import (
-    make_connection, SearchError, SearchQueryError
+    make_connection, SearchError, SearchQueryError, SolrConnectionError
 )
 from ckan.types import Context
 
@@ -87,6 +91,51 @@ def convert_legacy_parameters_to_solr(
         log.debug('Converted legacy search params from %r to %r',
                  legacy_params, solr_params)
     return solr_params
+
+
+def _parse_local_params(local_params: str) -> list[Union[str, list[str]]]:
+    """
+    Parse a local parameters section as return it as a list, eg:
+
+    {!dismax qf=myfield v='some value'} -> ['dismax', ['qf', 'myfield'], ['v', 'some value']]
+
+
+    {!type=dismax qf=myfield v='some value'} -> [['type', 'dismax'], ['qf', 'myfield'], ['v', 'some value']]
+
+    """
+    key = Word(alphanums + "_.")
+    value = QuotedString('"') | QuotedString("'") | Word(alphanums + "_$")
+    pair = Group(key + Suppress("=") + value)
+    expression = Suppress("{!") + OneOrMore(pair | key) + Suppress("}")
+
+    return expression.parse_string(local_params).as_list()
+
+
+def _get_local_query_parser(q: str) -> str:
+    """
+    Given a Solr parameter, extract any custom query parsers used in the
+    local parameters, .e.g. q={!child ...}...
+    """
+    qp_type = ""
+    q = q.strip()
+    if not q.startswith("{!"):
+        return qp_type
+
+    try:
+        local_params = q[:q.rindex("}") + 1]
+        parts = _parse_local_params(local_params)
+    except (ParseException, ValueError) as e:
+        raise SearchQueryError(f"Could not parse incoming local parameters: {e}")
+
+    if isinstance(parts[0], str):
+        # Most common form of defining the query parser type e.g. {!knn ...}
+        qp_type = parts[0]
+    else:
+        # Alternative syntax e.g. {!type=knn ...}
+        type_part = [p for p in parts if p[0] == "type"]
+        if type_part:
+            qp_type = type_part[0][1]
+    return qp_type
 
 
 class QueryOptions(Dict[str, Any]):
@@ -295,14 +344,8 @@ class PackageSearchQuery(SearchQuery):
             'wt': 'json',
             'fq': 'site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'}
 
-        try:
-            if query['q'].startswith('{!'):
-                raise SearchError('Local parameters are not supported.')
-        except KeyError:
-            pass
-
         conn = make_connection(decode_dates=False)
-        log.debug('Package query: %r' % query)
+        log.debug('Package query: %r', query)
         try:
             solr_response = conn.search(**query)
         except pysolr.SolrError as e:
@@ -365,7 +408,7 @@ class PackageSearchQuery(SearchQuery):
         fq.append('+site_id:%s' % solr_literal(config.get('ckan.site_id')))
 
         # filter for package status
-        if not '+state:' in query.get('fq', ''):
+        if not any('+state:' in _item for _item in fq):
             fq.append('+state:active')
 
         # only return things we should be able to see
@@ -397,14 +440,22 @@ class PackageSearchQuery(SearchQuery):
 
         query.setdefault("df", "text")
         query.setdefault("q.op", "AND")
-        try:
-            if query['q'].startswith('{!'):
-                raise SearchError('Local parameters are not supported.')
-        except KeyError:
-            pass
+
+        def _check_query_parser(param: str, value: Any):
+            if isinstance(value, str) and value.strip().startswith("{!"):
+                if not _get_local_query_parser(value) in config["ckan.search.solr_allowed_query_parsers"]:
+                   raise SearchError(f"Local parameters are not supported in param '{param}'.")
+
+        for param in query.keys():
+            if isinstance(query[param], str):
+                _check_query_parser(param, query[param])
+            elif isinstance(query[param], list):
+                for item in query[param]:
+                    _check_query_parser(param, item)
+
 
         conn = make_connection(decode_dates=False)
-        log.debug('Package query: %r' % query)
+        log.debug('Package query: %r', query)
         try:
             solr_response = conn.search(**query)
         except pysolr.SolrError as e:
@@ -417,6 +468,12 @@ class PackageSearchQuery(SearchQuery):
                         "Can't determine Sort Order" in e.args[0] or \
                         'Unknown sort order' in e.args[0]:
                     raise SearchQueryError('Invalid "sort" parameter')
+
+                if "Failed to connect to server" in e.args[0] or \
+                        "Connection to server" in e.args[0]:
+                    log.warning("Connection Error: Failed to connect to Solr server.")
+                    raise SolrConnectionError("Solr returned an error while searching.")
+
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
         self.count = solr_response.hits

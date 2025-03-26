@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import (
-    Any, List, Optional, Tuple, Union
+    Any, List, Optional, Sequence, Tuple, Union
 )
 from typing_extensions import TypeAlias
 
@@ -12,7 +12,7 @@ AnyDict: TypeAlias = "dict[str, Any]"
 ###############################################################################
 #                                     get                                     #
 ###############################################################################
-PackageList = List[str]
+PackageList = Sequence[str]
 CurrentPackageListWithResources = List[AnyDict]
 MemberList = List[Tuple[Any, ...]]
 PackageCollaboratorList = List[AnyDict]
@@ -75,7 +75,7 @@ MemberRolesList = List[AnyDict]
 HelpShow = Optional[str]
 ConfigOptionShow = Any
 ConfigOptionList = List[str]
-JobList = List[AnyDict]
+JobList = Union[List[AnyDict], List[str]]
 JobShow = AnyDict
 ApiTokenList = List[AnyDict]
 

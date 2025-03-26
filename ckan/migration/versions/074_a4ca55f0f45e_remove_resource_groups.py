@@ -100,8 +100,6 @@ def downgrade():
         sa.Column(
             'resource_group_id',
             sa.UnicodeText,
-            nullable=False,
-            server_default=''
         )
     )
     op.add_column(
@@ -109,8 +107,6 @@ def downgrade():
         sa.Column(
             'resource_group_id',
             sa.UnicodeText,
-            nullable=False,
-            server_default=''
         )
     )
     op.create_index(

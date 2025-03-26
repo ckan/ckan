@@ -9,15 +9,14 @@ from hashlib import sha1, md5
 
 import passlib.utils
 from passlib.hash import pbkdf2_sha512
-from sqlalchemy.sql.expression import or_
-from sqlalchemy.orm import synonym
-from sqlalchemy import types, Column, Table, func
+from sqlalchemy.sql.expression import or_, and_
+from sqlalchemy.orm import synonym, Mapped
+from sqlalchemy import types, Column, Table, func, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from flask_login import AnonymousUserMixin
 from typing_extensions import Self
 
-from ckan.common import config
 from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
@@ -57,37 +56,49 @@ user_table = Table('user', meta.metadata,
         Column('activity_streams_email_notifications', types.Boolean,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE, nullable=False),
         Column('image_url', types.UnicodeText),
-        Column('plugin_extras', MutableDict.as_mutable(JSONB))
+        Column('plugin_extras', MutableDict.as_mutable(JSONB)),
+        Index('idx_user_id', 'id'),
+        Index('idx_user_name', 'name'),
+        Index('idx_only_one_active_email', 'email', 'state', unique=True,
+              postgresql_where="(state = 'active'::text)"),
         )
 
 
 class User(core.StatefulObjectMixin,
            domain_object.DomainObject):
-    id: str
-    name: str
+    id: Mapped[str]
+    name: Mapped[str]
     # password: str
-    fullname: Optional[str]
-    email: Optional[str]
-    apikey: Optional[str]
-    created: datetime.datetime
-    reset_key: str
-    about: str
-    activity_streams_email_notifications: bool
-    sysadmin: bool
-    state: str
-    image_url: str
-    plugin_extras: dict[str, Any]
+    fullname: Mapped[Optional[str]]
+    email: Mapped[Optional[str]]
+    apikey: Mapped[Optional[str]]
+    created: Mapped[datetime.datetime]
+    reset_key: Mapped[str]
+    about: Mapped[str]
+    activity_streams_email_notifications: Mapped[bool]
+    sysadmin: Mapped[bool]
+    state: Mapped[str]
+    image_url: Mapped[str]
+    plugin_extras: Mapped[dict[str, Any]]
 
-    api_tokens: list['ApiToken']
+    api_tokens: Mapped[list['ApiToken']]
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
     def by_email(cls, email: str) -> Optional[Self]:
-        return meta.Session.query(cls).filter_by(email=email).first()
+        """Case-insensitive search by email.
+
+        Returns first user with the given email. Because default CKAN
+        configuration allows reusing emails of deleted users, this method can
+        return deleted object instead of an active email owner.
+        """
+        return meta.Session.query(cls).filter(
+            func.lower(cls.email) == email.lower()
+        ).first()
 
     @classmethod
     def get(cls, user_reference: Optional[str]) -> Optional[Self]:
@@ -141,7 +152,7 @@ class User(core.StatefulObjectMixin,
         algorithm will require this code to be changed (perhaps using
         passlib's CryptContext)
         '''
-        hashed_password: Any = pbkdf2_sha512.encrypt(password)
+        hashed_password: Any = pbkdf2_sha512.hash(password)
         self._password = str(hashed_password)
 
     def _get_password(self) -> str:
@@ -205,7 +216,7 @@ class User(core.StatefulObjectMixin,
 
     @classmethod
     def check_name_available(cls, name: str) -> bool:
-        return cls.by_name(name) == None
+        return cls.by_name(name) is None
 
     def as_dict(self) -> dict[str, Any]:
         _dict = domain_object.DomainObject.as_dict(self)
@@ -230,8 +241,8 @@ class User(core.StatefulObjectMixin,
             q = q.filter_by(state='active', private=False)
 
         result: int = meta.Session.execute(
-            q.statement.with_only_columns(
-                [func.count()]
+            q.statement.with_only_columns(  # type: ignore
+                func.count()
             ).order_by(
                 None
             )
@@ -272,8 +283,8 @@ class User(core.StatefulObjectMixin,
         import ckan.model as model
 
         q: Query[model.Group] = meta.Session.query(model.Group)\
-            .join(model.Member, model.Member.group_id == model.Group.id and \
-                       model.Member.table_name == 'user').\
+            .join(model.Member, and_(model.Member.group_id == model.Group.id,
+                       model.Member.table_name == 'user')).\
                join(model.User, model.User.id == model.Member.table_id).\
                filter(model.Member.state == 'active').\
                filter(model.Member.table_id == self.id)
@@ -300,15 +311,13 @@ class User(core.StatefulObjectMixin,
             query = sqlalchemy_query
         qstr = '%' + querystr + '%'
         filters: list[Any] = [
-            # type_ignore_reason: incomplete SQLAlchemy types
-            cls.name.ilike(qstr),  # type: ignore
-            cls.fullname.ilike(qstr),  # type: ignore
+            cls.name.ilike(qstr),
+            cls.fullname.ilike(qstr),
         ]
         # sysadmins can search on user emails
         import ckan.authz as authz
         if user_name and authz.is_sysadmin(user_name):
-            # type_ignore_reason: incomplete SQLAlchemy types
-            filters.append(cls.email.ilike(qstr))  # type: ignore
+            filters.append(cls.email.ilike(qstr))
 
         query = query.filter(or_(*filters))
         return query
@@ -320,9 +329,8 @@ class User(core.StatefulObjectMixin,
         names or ids
         '''
         query: Any = meta.Session.query(cls.id)
-        # type_ignore_reason: incomplete SQLAlchemy types
-        query = query.filter(or_(cls.name.in_(user_list),  # type: ignore
-                                 cls.id.in_(user_list)))  # type: ignore
+        query = query.filter(or_(cls.name.in_(user_list),
+                                 cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
     def get_id(self) -> str:
@@ -346,9 +354,8 @@ class User(core.StatefulObjectMixin,
 
     def set_user_last_active(self) -> None:
         if self.last_active:
-            session["last_active"] = self.last_active
-
-            if session["last_active"] < last_active_check():
+            if self.last_active < last_active_check():
+                session["last_active"] = self.last_active
                 self.last_active = datetime.datetime.utcnow()
                 meta.Session.commit()
         else:
@@ -357,15 +364,16 @@ class User(core.StatefulObjectMixin,
 
 
 class AnonymousUser(AnonymousUserMixin):
-    '''Extends the default AnonymousUserMixin to have an attribute
-    `name`/`email`, so, when retrieving the current_user.name/email on an
-    anonymous user, won't break our app with `AttributeError`.
+    '''Extends the default AnonymousUserMixin to have id, name and email
+    attributes, so when retrieving the current_user.id/name/email on an
+    anonymous user it won't raise an `AttributeError`.
     '''
+    id: str = ""
     name: str = ""
     email: str = ""
 
 
-meta.mapper(
+meta.registry.map_imperatively(
     User, user_table,
     properties={'password': synonym('_password', map_column=True)}
     )

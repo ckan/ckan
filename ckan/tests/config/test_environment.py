@@ -32,7 +32,7 @@ def reset_env():
     for env_var, _ in ENV_VAR_LIST:
         if os.environ.get(env_var, None):
             del os.environ[env_var]
-    p.load()
+    p.plugins_update()
 
 
 @pytest.mark.usefixtures(u"reset_env")
@@ -43,8 +43,7 @@ def test_update_config_env_vars(ckan_config):
     """
     for env_var, value in ENV_VAR_LIST:
         os.environ.setdefault(env_var, value)
-    # plugin.load() will force the config to update
-    p.load()
+    p.plugins_update()
 
     assert ckan_config[u"solr_url"] == u"http://mynewsolrurl/solr"
     assert ckan_config[u"sqlalchemy.url"] == u"postgresql://mynewsqlurl/"
@@ -112,8 +111,6 @@ def test_config_from_envs_are_normalized(ckan_config):
 
 
 @pytest.mark.ckan_config("SECRET_KEY", "super_secret")
-@pytest.mark.ckan_config("beaker.session.secret", None)
-@pytest.mark.ckan_config("beaker.session.validate_key", None)
 @pytest.mark.ckan_config("WTF_CSRF_SECRET_KEY", None)
 def test_all_secrets_default_to_SECRET_KEY(ckan_config):
 
@@ -121,10 +118,18 @@ def test_all_secrets_default_to_SECRET_KEY(ckan_config):
 
     for key in [
         "SECRET_KEY",
-        "beaker.session.secret",
-        "beaker.session.validate_key",
         "WTF_CSRF_SECRET_KEY",
     ]:
         assert ckan_config[key] == "super_secret"
 
     # Note: api_token.jwt.*.secret are tested in ckan/tests/lib/test_api_token.py
+
+
+@pytest.mark.ckan_config("beaker.session.secret", "super_secret")
+def test_SECRET_KEY_falls_back_to_beaker_session_secret(ckan_config, monkeypatch):
+
+    monkeypatch.delitem(ckan_config, "SECRET_KEY")
+
+    environment.update_config()
+
+    assert ckan_config["SECRET_KEY"] == "super_secret"

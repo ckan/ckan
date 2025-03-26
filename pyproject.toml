@@ -1,3 +1,8 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
 [tool.towncrier]
 directory = "changes"
 package = "ckan"
@@ -37,21 +42,18 @@ preview = true
 
 [tool.pytest.ini_options]
 filterwarnings = [
-    "ignore::sqlalchemy.exc.SADeprecationWarning",
-    "ignore::sqlalchemy.exc.SAWarning",
     "ignore::DeprecationWarning",
-    "ignore::bs4.GuessedAtParserWarning"  # using lxml as default parser
+    "ignore::bs4.GuessedAtParserWarning",  # using lxml as default parser
 ]
 markers = [
     "ckan_config: patch configuration used by other fixtures via (key, value) pair.",
-    "ckan_pytest: test case that is explicitely was rewriten from `nose` style"
 ]
 
 testpaths = ["ckan", "ckanext"]
-addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb -p no:ckan"
+addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
 
 [tool.pyright]
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 include = ["ckan", "ckanext"]
 exclude = [
     "**/test*",
@@ -126,7 +128,6 @@ reportUnnecessaryTypeIgnoreComment = true
 reportMatchNotExhaustive = true
 
 [tool.mypy]
-plugins = "sqlalchemy.ext.mypy.plugin"
 files = "ckan"
 exclude = "ckan/(pastertemplates|tests|migration)"
 
@@ -134,7 +135,6 @@ exclude = "ckan/(pastertemplates|tests|migration)"
 ignore_missing_imports = true
 module = [
     "babel.*",
-    "beaker.*",
     "blinker.*",
     "cookiecutter.*",
     "dominate.*",
@@ -144,7 +144,6 @@ module = [
     "flask_multistatic.*",
     "passlib.*",
     "pysolr.*",
-    "pyutilib.*",
     "repoze.*",
     "rq.*",
     "webassets.*",

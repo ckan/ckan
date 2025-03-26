@@ -4,11 +4,13 @@ import os
 
 import pytest
 from urllib.parse import urlparse
+from sqlalchemy import inspect, Column, Integer
 
 import ckan.plugins as plugins
 from ckan.common import config, asbool
 from ckan.tests import factories
 from ckan.lib.redis import connect_to_redis
+from ckan.model.base import BaseModel
 
 
 def test_ckan_config_fixture(ckan_config):
@@ -34,10 +36,21 @@ def test_ckan_config_mark_without_explicit_config_fixture():
     assert config[u"some.new.config"] == u"exists"
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"stats")
-@pytest.mark.usefixtures(u"with_plugins")
-def test_with_plugins_is_able_to_run_with_stats():
-    assert plugins.plugin_loaded(u"stats")
+class TestWithPlugins:
+    @pytest.fixture()
+    def load_example_helpers(self):
+        plugins.unload_all()
+        plugins.load("example_itemplatehelpers")
+
+    @pytest.mark.ckan_config(u"ckan.plugins", u"stats")
+    @pytest.mark.usefixtures(u"with_plugins")
+    def test_with_plugins_is_able_to_run_with_stats(self):
+        assert plugins.plugin_loaded(u"stats")
+
+    def test_with_plugins_unloads_enabled_plugins(
+            self, load_example_helpers, with_plugins
+    ):
+        assert "example_helper" not in plugins.toolkit.h
 
 
 @pytest.mark.ckan_config("ckan.site_url", "https://example.org")
@@ -115,14 +128,16 @@ class TestMigrateDbFor(object):
     @pytest.mark.usefixtures("with_plugins", "clean_db")
     def test_migrations_applied(self, migrate_db_for):
         import ckan.model as model
-        has_table = model.Session.bind.has_table
-        assert not has_table("example_database_migrations_x")
-        assert not has_table("example_database_migrations_y")
+
+        inspector = inspect(model.Session.bind)
+        assert not inspector.has_table("example_database_migrations_x")
+        assert not inspector.has_table("example_database_migrations_y")
 
         migrate_db_for("example_database_migrations")
 
-        assert has_table("example_database_migrations_x")
-        assert has_table("example_database_migrations_y")
+        inspector = inspect(model.Session.bind)
+        assert inspector.has_table("example_database_migrations_x")
+        assert inspector.has_table("example_database_migrations_y")
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -166,3 +181,22 @@ class TestRedisFixtures:
 
         reset_redis()
         assert not redis.get("BBB-3")
+
+
+class CustomTestModel(BaseModel):
+    __tablename__ = "test_table"
+    id = Column(Integer, primary_key=True)
+
+
+@pytest.mark.parametrize("_n", [1, 2])
+@pytest.mark.usefixtures("clean_db")
+def test_clean_db_does_not_break_with_custom_models(_n):
+    """This test verifies that `CustomTestModel` that has no corresponding
+    table in DB is ignored by `clean_db` fixture. If this test is executed
+    individually, on first run DB may be empty and `clean_db` doesn't try to
+    delete anything. So we have to run this test two times to guarantee, that
+    on the second execution tables are created and `clean_db` invokes `DELETE
+    ...` statement.
+
+    """
+    pass

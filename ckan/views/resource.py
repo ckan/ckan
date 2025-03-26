@@ -12,7 +12,7 @@ from flask.views import MethodView
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
@@ -94,7 +94,7 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     try:
         package[u'isopen'] = model.Package.get_license_register()[license_id
                                                                   ].isopen()
-    except KeyError:
+    except (KeyError, AttributeError):
         package[u'isopen'] = False
 
     resource_views = get_action(u'resource_view_list')(
@@ -267,6 +267,22 @@ class CreateView(MethodView):
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
+        elif save_action == u'go-metadata-preview':
+            data_dict = get_action(u'package_show')(context, {u'id': id})
+            get_action(u'package_update')(
+                Context(context, allow_state_change=True),
+                dict(data_dict, state=u'draft')
+            )
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
+        elif save_action == u'go-metadata-publish':
+            data_dict = get_action(u'package_show')(context, {u'id': id})
+            get_action(u'package_update')(
+                Context(context, allow_state_change=True),
+                dict(data_dict, state=u'active')
+            )
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
         elif save_action == u'go-dataset':
             # go to first stage of add dataset
             return h.redirect_to(u'{}.edit'.format(package_type), id=id)
@@ -286,34 +302,33 @@ class CreateView(MethodView):
             data: Optional[dict[str, Any]] = None,
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
-        # get resources for sidebar
         context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
         }
-        try:
-            pkg_dict = get_action(u'package_show')(context, {u'id': id})
-        except NotFound:
-            return base.abort(
-                404, _(u'The dataset {id} could not be found.').format(id=id)
-            )
+
         try:
             check_access(
-                u'resource_create', context, {u"package_id": pkg_dict["id"]}
+                u'resource_create', context, {u"package_id": id}
             )
         except NotAuthorized:
             return base.abort(
                 403, _(u'Unauthorized to create a resource for this package')
             )
 
+        try:
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        except NotFound:
+            return base.abort(
+                404, _(u'The dataset {id} could not be found.').format(id=id)
+            )
+
         package_type = pkg_dict[u'type'] or package_type
 
-        errors = errors or {}
-        error_summary = error_summary or {}
         extra_vars: dict[str, Any] = {
             u'data': data,
-            u'errors': errors,
-            u'error_summary': error_summary,
+            u'errors': errors or {},
+            u'error_summary': error_summary or {},
             u'action': u'new',
             u'resource_form_snippet': _get_pkg_template(
                 u'resource_form', package_type
@@ -323,9 +338,11 @@ class CreateView(MethodView):
             u'pkg_dict': pkg_dict
         }
         template = u'package/new_resource_not_draft.html'
+
         if pkg_dict[u'state'].startswith(u'draft'):
             extra_vars[u'stage'] = ['complete', u'active']
             template = u'package/new_resource.html'
+
         return base.render(template, extra_vars)
 
 

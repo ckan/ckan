@@ -29,16 +29,40 @@ def db():
 
 
 @db.command()
-def init():
-    """Initialize the database.
+@click.option('-v', '--version', help='Migration version', default='head')
+@click.option('--skip-plugins', is_flag=True, help='Skip plugin migrations')
+@click.option('--skip-core', is_flag=True, help='Skip core migrations')
+@click.pass_context
+@applies_to_plugin
+def init(
+        ctx: click.Context, version: str, plugin: str,
+        skip_core: bool, skip_plugins: bool
+):
+
+    """Initialize the database (alias of `ckan db upgrade`)
     """
-    log.info(u"Initialize the Database")
+    ctx.forward(upgrade)
+
+
+@db.command()
+def create_from_model():
+    """Initialize database from the model instead of migrations.
+    """
     try:
-        model.repo.init_db()
-    except Exception as e:
-        error_shout(e)
+        model.repo.create_db()
+        model.repo.stamp_alembic_head()
+
+        # also mark plugins as migrated
+        # FIXME: move to model.repo?
+        pending = _get_pending_plugins()
+        for plugin in sorted(pending):
+            with _repo_for_plugin(plugin) as repo:
+                print(plugin, repo)
+                repo.stamp_alembic_head()
+    except Exception:
+        raise
     else:
-        click.secho(u'Initialising DB: SUCCESS', fg=u'green', bold=True)
+        click.secho('Create DB from model: SUCCESS', fg='green', bold=True)
 
 
 PROMPT_MSG = u'This will delete all of your data!\nDo you want to continue?'
@@ -58,13 +82,34 @@ def clean():
 
 
 @db.command()
-@click.option(u'-v', u'--version', help=u'Migration version', default=u'head')
+@click.option('-v', '--version', help='Migration version', default='head')
+@click.option('--skip-plugins', is_flag=True, help='Skip plugin migrations')
+@click.option('--skip-core', is_flag=True, help='Skip core migrations')
+@click.pass_context
 @applies_to_plugin
-def upgrade(version: str, plugin: str):
-    """Upgrade the database.
+def upgrade(
+        ctx: click.Context, version: str, plugin: str,
+        skip_core: bool, skip_plugins: bool
+):
+    """Upgrade or initialize the database.
     """
-    _run_migrations(plugin, version)
-    click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
+    if not skip_core:
+        _run_migrations(plugin, version)
+
+    if not skip_plugins and not plugin:
+        _migrate_plugins(apply=True)
+
+    click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
+
+
+def _migrate_plugins(apply: bool):
+    pending = _get_pending_plugins()
+    for plugin, n in sorted(pending.items()):
+        click.secho("{n} unapplied migrations for {p}".format(
+            p=click.style(plugin, bold=True),
+            n=click.style(str(n), bold=True)))
+        if apply:
+            _run_migrations(plugin)
 
 
 @db.command()
@@ -82,15 +127,13 @@ def downgrade(version: str, plugin: str):
 def pending_migrations(apply: bool):
     """List all sources with unapplied migrations.
     """
-    pending = _get_pending_plugins()
-    if not pending:
-        click.secho("All plugins are up-to-date", fg="green")
-    for plugin, n in sorted(pending.items()):
-        click.secho("{n} unapplied migrations for {p}".format(
-            p=click.style(plugin, bold=True),
-            n=click.style(str(n), bold=True)))
-        if apply:
-            _run_migrations(plugin)
+    if apply:
+        click.secho(
+            "Use `db upgrade` to run migrations for enabled plugins",
+            fg="yellow"
+        )
+    _migrate_plugins(apply)
+    click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
 
 
 def _get_pending_plugins() -> dict[str, int]:
@@ -152,15 +195,15 @@ def duplicate_emails():
     u'''Check users email for duplicate'''
     log.info(u"Searching for accounts with duplicate emails.")
 
-    q = model.Session.query(model.User.email,
-                            model.User.name) \
-        .filter(model.User.state == u"active") \
-        .filter(model.User.email != u"") \
-        .order_by(model.User.email).all()
+    q = model.Session.query(model.User.email, model.User.name).filter(
+        model.User.state.in_(config["ckan.user.unique_email_states"]),
+        model.User.email != u"",
+        model.User.email.isnot(None),
+    ).order_by(model.User.email).all()
 
     duplicates_found = False
     try:
-        for k, grp in groupby(q, lambda x: x[0]):
+        for k, grp in groupby(q, lambda x: x[0].lower()):
             users = [user[1] for user in grp]
             if len(users) > 1:
                 duplicates_found = True

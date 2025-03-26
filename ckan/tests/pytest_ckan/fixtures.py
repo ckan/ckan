@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """This is a collection of pytest fixtures for use in tests.
 
-All fixtures below available anywhere under the root of CKAN
-repository. Any external CKAN extension should be able to include them
-by adding next lines under root `conftest.py`
-
-.. literalinclude:: /../conftest.py
+All fixtures below are available wherever CKAN is installed.
+Any external CKAN extension should be able to include them directly into
+their tests.
 
 There are three type of fixtures available in CKAN:
 
@@ -27,10 +24,12 @@ Deeper explanation can be found in `official documentation
 <https://docs.pytest.org/en/latest/fixture.html>`_
 
 """
+from __future__ import annotations
 
 import smtplib
 
 from io import BytesIO
+from typing import Any, IO
 import copy
 
 import pytest
@@ -45,7 +44,8 @@ import ckan.tests.factories as factories
 import ckan.plugins
 import ckan.cli
 import ckan.model as model
-from ckan.common import config, aslist
+from ckan import types
+from ckan.common import config
 from ckan.lib import redis, search
 
 
@@ -98,11 +98,21 @@ class SysadminFactory(factories.Sysadmin):
     pass
 
 
+class SysadminWithTokenFactory(factories.SysadminWithToken):
+    pass
+
+
+class UserWithTokenFactory(factories.UserWithToken):
+    pass
+
+
 class OrganizationFactory(factories.Organization):
     pass
 
 
 register(SysadminFactory, "sysadmin")
+register(SysadminWithTokenFactory, "sysadmin_with_token")
+register(UserWithTokenFactory, "user_with_token")
 register(OrganizationFactory, "organization")
 
 
@@ -214,6 +224,23 @@ def reset_index():
     return search.clear_all
 
 
+def _empty_queues():
+
+    conn = redis.connect_to_redis()
+    for queue in rq.Queue.all(connection=conn):
+        queue.empty()
+        queue.delete()
+
+
+@pytest.fixture(scope=u"session")
+def reset_queues():
+    """Callable for emptying and deleting the queues.
+
+    If possible use the ``clean_queues`` fixture instead.
+    """
+    return _empty_queues
+
+
 @pytest.fixture(scope="session")
 def reset_redis():
     """Callable for removing all keys from Redis.
@@ -305,6 +332,28 @@ def clean_db(reset_db):
     reset_db()
 
 
+@pytest.fixture
+def clean_queues(reset_queues):
+    """Empties and deleted all queues.
+
+    This can be used either for all tests in a class::
+
+        @pytest.mark.usefixtures("clean_queues")
+        class TestExample(object):
+
+            def test_example(self):
+
+    or for a single test::
+
+        class TestExample(object):
+
+            @pytest.mark.usefixtures("clean_queues")
+            def test_example(self):
+
+    """
+    reset_queues()
+
+
 @pytest.fixture(scope="session")
 def migrate_db_for():
     """Apply database migration defined by plugin.
@@ -337,23 +386,57 @@ def clean_index(reset_index):
 
 @pytest.fixture
 def with_plugins(ckan_config):
-    """Load all plugins specified by the ``ckan.plugins`` config option
-    at the beginning of the test. When the test ends (even it fails), it will
-    unload all the plugins in the reverse order.
+    """Load all plugins specified by the ``ckan.plugins`` config option at the
+    beginning of the test(and disable any plugin which is not listed inside
+    ``ckan.plugins``). When the test ends (including fail), it will unload all
+    the plugins.
 
     .. literalinclude:: /../ckan/tests/test_factories.py
        :start-after: # START-CONFIG-OVERRIDE
        :end-before: # END-CONFIG-OVERRIDE
 
+    Use this fixture if test relies on CKAN plugin infrastructure. For example,
+    if test calls an action or helper registered by plugin XXX::
+
+        @pytest.mark.ckan_config("ckan.plugins", "XXX")
+        @pytest.mark.usefixtures("with_plugin")
+        def test_action_and_helper():
+            assert call_action("xxx_action")
+            assert tk.h.xxx_helper()
+
+    It will not work without ``with_plugins``. If ``XXX`` plugin is not loaded,
+    ``xxx_action`` and ``xxx_helper`` do not exist in CKAN registries.
+
+    But if the test above use direct imports instead, ``with_plugins`` is
+    optional::
+
+        def test_action_and_helper():
+            from ckanext.xxx.logic.action import xxx_action
+            from ckanext.xxx.helpers import xxx_helper
+
+            assert xxx_action()
+            assert xxx_helper()
+
+    Keep in mind, that generally it's a bad idea to import helpers and actions
+    directly. If **every** test of extension requires standard set of plugins,
+    specify these plugins inside test config file(``test.ini``)::
+
+        ckan.plugins = essential_plugin another_plugin_required_by_every_test
+
+    And create an autouse-fixture that depends on ``with_plugins`` inside
+    the main ``conftest.py`` (``ckanext/ext/tests/conftest.py``)::
+
+        @pytest.fixture(autouse=True)
+        def load_standard_plugins(with_plugins):
+            ...
+
+    This will automatically enable ``with_plugins`` for every test, even if
+    it's not required explicitely.
+
     """
-    plugins = aslist(ckan_config["ckan.plugins"])
-    for plugin in plugins:
-        if not ckan.plugins.plugin_loaded(plugin):
-            ckan.plugins.load(plugin)
+    ckan.plugins.load_all()
     yield
-    for plugin in reversed(plugins):
-        if ckan.plugins.plugin_loaded(plugin):
-            ckan.plugins.unload(plugin)
+    ckan.plugins.unload_all()
 
 
 @pytest.fixture
@@ -437,12 +520,8 @@ def non_clean_db(reset_db_once):
 
 
 class FakeFileStorage(FlaskFileStorage):
-    content_type = None
-
-    def __init__(self, stream, filename):
-        self.stream = stream
-        self.filename = filename
-        self.name = u"upload"
+    def __init__(self, stream: IO[bytes], filename: str):
+        super(FakeFileStorage, self).__init__(stream, filename, "uplod")
 
 
 @pytest.fixture
@@ -475,11 +554,18 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
-    def factory(data, filename, context={}, **kwargs):
+    def factory(
+            data: str | bytes,
+            filename: str,
+            context: types.Context | None = None,
+            **kwargs: Any
+    ):
+        if context is None:
+            context = {}
         action = kwargs.pop("action", "resource_create")
         field = kwargs.pop("upload_field_name", "upload")
         test_file = BytesIO()
-        if type(data) is not bytes:
+        if isinstance(data, str):
             data = bytes(data, encoding="utf-8")
         test_file.write(data)
         test_file.seek(0)

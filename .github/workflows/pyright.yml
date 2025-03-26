@@ -1,8 +1,8 @@
 name: Check types
 on: [pull_request]
 env:
-  NODE_VERSION: '16'
-  PYTHON_VERSION: '3.8'
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.9'
 
 permissions:
   contents: read
@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install python deps

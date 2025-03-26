@@ -1,1 +1,0 @@
-`ckan generate fake-data --factory-class x.y.z:Factory` does not accept field values.

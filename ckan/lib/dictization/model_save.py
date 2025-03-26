@@ -6,7 +6,8 @@ import datetime
 import uuid
 import logging
 from typing import (
-    Any, Collection, Optional, TYPE_CHECKING, Type, Union, cast, overload
+    Any, Collection, Optional, TYPE_CHECKING, Type, Union, cast, overload,
+    Literal,
 )
 
 import ckan.lib.dictization as d
@@ -21,15 +22,22 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def resource_dict_save(res_dict: dict[str, Any],
-                       context: Context) -> 'model.Resource':
+def resource_dict_save(
+        res_dict: dict[str, Any], context: Context) \
+        -> tuple['model.Resource', Literal['create', 'update', None]]:
+    '''
+    Returns (resource_object, change) where change is:
+    - 'create' if this is a new resource object
+    - 'update' if any core fields or extras were changed
+    - None if no change for an existing resource object
+    '''
     model = context["model"]
     session = context["session"]
 
     id = res_dict.get("id")
     obj = None
     if id:
-        obj = session.query(model.Resource).get(id)
+        obj = session.get(model.Resource, id)
     if not obj:
         new = True
         obj = model.Resource()
@@ -50,21 +58,35 @@ def resource_dict_save(res_dict: dict[str, Any],
     if 'url' in changed or ('last_modified' in changed and not new):
         obj.url_changed = True
 
-    if changed or obj.extras != skipped:
+    any_change = changed or obj.extras != skipped
+    if any_change:
         obj.metadata_modified = datetime.datetime.utcnow()
+        session.add(obj)
     obj.state = u'active'
     obj.extras = skipped
 
-    session.add(obj)
-    return obj
+    return obj, 'create' if new else 'update' if any_change else None
 
 
 def package_resource_list_save(
         res_dicts: Optional[list[dict[str, Any]]],
-        package: 'model.Package', context: Context) -> None:
-    allow_partial_update = context.get("allow_partial_update", False)
-    if res_dicts is None and allow_partial_update:
-        return
+        package: 'model.Package', context: Context,
+        copy_resources: dict[int, int] | tuple[()]) -> bool:
+    """
+    Store a list of resources in the database. Returns True if any resources
+    were changed.
+
+    :param res_dicts: List of resource dictionaries to store
+    :type res_dict: list of dicts
+    :param package: The package model object that resources belong to
+    :param package: model.Package
+    :param context: A context dict with extra information
+    :type context: dict
+    :param copy_resources: A dictionary with resource indexes that should be copied from the existing resource list rather than creating new models for them. It should have the format `{<new_index>: <old_index>,}`
+    :type copy_resources: dict
+    """
+    if res_dicts is None:
+        return False
 
     session = context['session']
     model = context['model']
@@ -74,7 +96,9 @@ def package_resource_list_save(
     # datastore have a chance to remove tables created for those resources
     old_list = session.query(model.Resource) \
         .filter(model.Resource.package_id == package.id) \
-        .filter(model.Resource.state != 'deleted')[:]
+        .filter(model.Resource.state != 'deleted') \
+        .order_by(model.Resource.position)[:]
+
     # resources previously deleted can be removed permanently as part
     # of this update
     deleted_list = session.query(model.Resource) \
@@ -82,11 +106,22 @@ def package_resource_list_save(
         .filter(model.Resource.state == 'deleted')[:]
 
     obj_list = []
-    for res_dict in res_dicts or []:
+    resources_changed = False
+    for i, res_dict in enumerate(res_dicts or []):
+        if i in copy_resources:
+            obj_list.append(old_list[copy_resources[i]])
+            if i != copy_resources[i]:
+                resources_changed = True
+            continue
         if not u'package_id' in res_dict or not res_dict[u'package_id']:
             res_dict[u'package_id'] = package.id
-        obj = resource_dict_save(res_dict, context)
+        obj, change = resource_dict_save(res_dict, context)
         obj_list.append(obj)
+        if change:
+            resources_changed = True
+
+    if old_list == obj_list:
+        return resources_changed
 
     # Set the package's resources. resource_list is an ORM relation - the
     # package's resources. If we didn't have the slice operator "[:]" then it
@@ -107,50 +142,15 @@ def package_resource_list_save(
         resource.state = 'deleted'
         resource_list.append(resource)
 
-
-def package_extras_save(
-        extra_dicts: Optional[list[dict[str, Any]]], pkg: 'model.Package',
-        context: Context) -> None:
-    allow_partial_update = context.get("allow_partial_update", False)
-    if extra_dicts is None and allow_partial_update:
-        return
-
-    session = context["session"]
-
-    old_extras = pkg._extras
-
-    new_extras: dict[str, Any] = {}
-    for extra_dict in extra_dicts or []:
-        if extra_dict.get("deleted"):
-            continue
-
-        if extra_dict['value'] is None:
-            pass
-        else:
-            new_extras[extra_dict["key"]] = extra_dict["value"]
-
-    #new
-    for key in set(new_extras.keys()) - set(old_extras.keys()):
-        pkg.extras[key] = new_extras[key]
-    #changed
-    for key in set(new_extras.keys()) & set(old_extras.keys()):
-        extra = old_extras[key]
-        if new_extras[key] == extra.value:
-            continue
-        extra.value = new_extras[key]
-        session.add(extra)
-    #deleted
-    for key in set(old_extras.keys()) - set(new_extras.keys()):
-        extra = old_extras[key]
-        session.delete(extra)
+    return True
 
 
 def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
-                          package: 'model.Package', context: Context) -> None:
-    allow_partial_update = context.get("allow_partial_update", False)
-    if tag_dicts is None and allow_partial_update:
-        return
-
+                          package: 'model.Package', context: Context) -> bool:
+    '''
+    Returns True if any tags were changed
+    '''
+    changed = False
     model = context["model"]
     session = context["session"]
 
@@ -167,7 +167,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
     for tag_dict in tag_dicts or []:
         name_vocab = (tag_dict.get('name'), tag_dict.get('vocabulary_id'))
         if name_vocab not in tag_name_vocab:
-            tag_obj = d.table_dict_save(tag_dict, model.Tag, context)
+            tag_obj, _change = d.table_dict_save(tag_dict, model.Tag, context)
             tags.add(tag_obj)
             tag_name_vocab.add((tag_obj.name, tag_obj.vocabulary_id))
 
@@ -176,6 +176,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
     for tag in set(tag_package_tag.keys()) - tags:
         package_tag = tag_package_tag[tag]
         package_tag.state = 'deleted'
+        changed = True
 
     # case 2: in new list but never used before
     for tag in tags - set(tag_package_tag.keys()):
@@ -183,22 +184,30 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
         package_tag_obj = model.PackageTag(package, tag, state)
         session.add(package_tag_obj)
         tag_package_tag[tag] = package_tag_obj
+        changed = True
 
     # case 3: in new list and already used but in deleted state
     for tag in tags.intersection(set(tag_package_tag_inactive.keys())):
         state = 'active'
         package_tag = tag_package_tag[tag]
         package_tag.state = state
+        changed = True
 
-    package.package_tags[:] = tag_package_tag.values()
+    if changed:
+        package.package_tags[:] = tag_package_tag.values()
+    return changed
+
 
 def package_membership_list_save(
         group_dicts: Optional[list[dict[str, Any]]],
-        package: 'model.Package', context: Context) -> None:
+        package: 'model.Package', context: Context) -> bool:
+    '''
+    Returns True if any member was changed.
+    '''
+    changed = False
 
-    allow_partial_update = context.get("allow_partial_update", False)
-    if group_dicts is None and allow_partial_update:
-        return
+    if group_dicts is None:
+        return changed
 
     capacity = 'public'
     model = context["model"]
@@ -220,7 +229,7 @@ def package_membership_list_save(
         if capacity == 'organization':
             continue
         if id:
-            group = session.query(model.Group).get(id)
+            group = session.get(model.Group, id)
         else:
             group = session.query(model.Group).filter_by(name=name).first()
         if group:
@@ -234,19 +243,22 @@ def package_membership_list_save(
         member_obj = group_member[group]
         if member_obj and member_obj.state == 'deleted':
             continue
-        if authz.has_user_permission_for_group_or_org(
-                member_obj.group_id, user, 'read'):
+        if (context.get('ignore_auth') or
+            authz.has_user_permission_for_group_or_org(
+                member_obj.group_id, user, 'read')):
             member_obj.capacity = capacity
             member_obj.state = 'deleted'
             session.add(member_obj)
+            changed = True
 
     # Add any new groups
     for group in groups:
         member_obj = group_member.get(group)
         if member_obj and member_obj.state == 'active':
             continue
-        if authz.has_user_permission_for_group_or_org(
-                group.id, user, 'read'):
+        if (context.get('ignore_auth') or
+            authz.has_user_permission_for_group_or_org(
+                group.id, user, 'read')):
             member_obj = group_member.get(group)
             if member_obj:
                 member_obj.capacity = capacity
@@ -259,14 +271,16 @@ def package_membership_list_save(
                                           group_id=group.id,
                                           state = 'active')
             session.add(member_obj)
+            changed = True
+
+    return changed
 
 
 def relationship_list_save(
         relationship_dicts: Optional[list[dict[str, Any]]],
         package: 'model.Package', attr: str, context: Context) -> None:
 
-    allow_partial_update = context.get("allow_partial_update", False)
-    if relationship_dicts is None and allow_partial_update:
+    if relationship_dicts is None:
         return
 
     model = context["model"]
@@ -276,8 +290,8 @@ def relationship_list_save(
 
     relationships = []
     for relationship_dict in relationship_dicts or []:
-        obj = d.table_dict_save(relationship_dict,
-                              model.PackageRelationship, context)
+        obj, _change = d.table_dict_save(
+            relationship_dict, model.PackageRelationship, context)
         relationships.append(obj)
 
     relationship_list[:] = relationships
@@ -288,31 +302,42 @@ def relationship_list_save(
 
 def package_dict_save(
         pkg_dict: dict[str, Any], context: Context,
-        include_plugin_data: bool = False) -> 'model.Package':
+        include_plugin_data: bool = False,
+        copy_resources: dict[int, int] | tuple[()] = ()) \
+        -> tuple['model.Package', Literal['create', 'update', None]]:
+    '''
+    Returns (package_object, change) where change is:
+    - 'create' if this is a new package object
+    - 'update' if any fields or resources were changed
+    - None if no change for an existing package object
+    '''
+
     model = context["model"]
-    package = context.get("package")
-    if package:
-        pkg_dict["id"] = package.id
     Package = model.Package
 
     if 'metadata_created' in pkg_dict:
         del pkg_dict['metadata_created']
-    if 'metadata_modified' in pkg_dict:
-        del pkg_dict['metadata_modified']
 
     plugin_data = pkg_dict.pop('plugin_data', None)
     if include_plugin_data:
         pkg_dict['plugin_data'] = copy.deepcopy(
             plugin_data) if plugin_data else plugin_data
 
-    pkg = d.table_dict_save(pkg_dict, Package, context)
+    extras = {
+        e['key']: e['value'] for e in pkg_dict.get('extras', [])
+    }
+
+    pkg, pkg_change = d.table_dict_save(
+        dict(pkg_dict, extras=extras), Package, context)
 
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
 
-    package_resource_list_save(pkg_dict.get("resources"), pkg, context)
-    package_tag_list_save(pkg_dict.get("tags"), pkg, context)
-    package_membership_list_save(pkg_dict.get("groups"), pkg, context)
+    res_change = package_resource_list_save(
+        pkg_dict.get("resources"), pkg, context, copy_resources)
+    tag_change = package_tag_list_save(pkg_dict.get("tags"), pkg, context)
+    group_change = package_membership_list_save(
+        pkg_dict.get("groups"), pkg, context)
 
     # relationships are not considered 'part' of the package, so only
     # process this if the key is provided
@@ -323,9 +348,12 @@ def package_dict_save(
         objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
-    package_extras_save(pkg_dict.get("extras"), pkg, context)
-
-    return pkg
+    return (
+        pkg,
+        'create' if pkg_change == 'create'
+        else 'update' if pkg_change or res_change or tag_change or group_change
+        else None
+    )
 
 def group_member_save(context: Context, group_dict: dict[str, Any],
                       member_table_name: str) -> dict[str, Any]:
@@ -338,10 +366,7 @@ def group_member_save(context: Context, group_dict: dict[str, Any],
     )
 
     if entity_list is None:
-        if context.get('allow_partial_update', False):
-            return {'added': [], 'removed': []}
-        else:
-            entity_list = []
+        return {'added': [], 'removed': []}
 
     entities: dict[tuple[str, str], Any] = {}
     Member = model.Member
@@ -409,7 +434,11 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
     if group:
         group_dict["id"] = group.id
 
-    group = d.table_dict_save(group_dict, Group, context)
+    extras = {
+        e['key']: e['value'] for e in group_dict.get('extras', [])
+    }
+
+    group, _change = d.table_dict_save(dict(group_dict, extras=extras), Group, context)
     if not group.id:
         group.id = str(uuid.uuid4())
 
@@ -428,22 +457,9 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
         }
     group_users_changed = group_member_save(context, group_dict, 'users')
     group_groups_changed = group_member_save(context, group_dict, 'groups')
-    group_tags_changed = group_member_save(context, group_dict, 'tags')
     log.debug('Group save membership changes - Packages: %r  Users: %r  '
-            'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
-            group_groups_changed, group_tags_changed)
-
-    extras = group_dict.get("extras", [])
-    new_extras = {i['key'] for i in extras}
-    if extras:
-        old_extras = group.extras
-        for key in set(old_extras) - new_extras:
-            del group.extras[key]
-        for x in extras:
-            if 'deleted' in x and x['key'] in old_extras:
-                del group.extras[x['key']]
-                continue
-            group.extras[x['key']] = x['value']
+            'Groups: %r', pkgs_edited, group_users_changed,
+            group_groups_changed)
 
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.
@@ -469,7 +485,7 @@ def user_dict_save(
     if 'password' in user_dict and not len(user_dict['password']):
         del user_dict['password']
 
-    user = d.table_dict_save(
+    user, _change = d.table_dict_save(
         user_dict,
         User,
         context,
@@ -548,7 +564,7 @@ def task_status_dict_save(task_status_dict: dict[str, Any],
     if task_status:
         task_status_dict["id"] = task_status.id
 
-    task_status = d.table_dict_save(
+    task_status, _change = d.table_dict_save(
         task_status_dict, model.TaskStatus, context)
     return task_status
 
@@ -608,7 +624,7 @@ def tag_dict_save(tag_dict: dict[str, Any], context: Context) -> 'model.Tag':
     tag = context.get('tag')
     if tag:
         tag_dict['id'] = tag.id
-    tag = d.table_dict_save(tag_dict, model.Tag, context)
+    tag, _change = d.table_dict_save(tag_dict, model.Tag, context)
     return tag
 
 @overload
@@ -662,8 +678,8 @@ def resource_view_dict_save(data_dict: dict[str, Any],
             config[key]  = value
     data_dict['config'] = config
 
-
-    return d.table_dict_save(data_dict, model.ResourceView, context)
+    resview, _change = d.table_dict_save(data_dict, model.ResourceView, context)
+    return resview
 
 
 def api_token_save(data_dict: dict[str, Any],
@@ -671,10 +687,11 @@ def api_token_save(data_dict: dict[str, Any],
     model = context[u"model"]
     user = model.User.get(data_dict['user'])
     assert user
-    return d.table_dict_save(
+    token, _change = d.table_dict_save(
         {
             u"user_id": user.id,
             u"name": data_dict[u"name"]
         },
         model.ApiToken, context
     )
+    return token

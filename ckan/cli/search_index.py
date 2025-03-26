@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import multiprocessing as mp
+import sys
 
 import click
 import sqlalchemy as sa
@@ -39,6 +40,7 @@ def rebuild(
         commit_each: bool, package_id: str, clear: bool
 ):
     u''' Rebuild search index '''
+    errors = 0
     from ckan.lib.search import rebuild, commit
     try:
 
@@ -48,10 +50,16 @@ def rebuild(
                 defer_commit=(not commit_each),
                 quiet=quiet and not verbose,
                 clear=clear)
+    except logic.NotFound:
+        error_shout("Couldn't find package %s" % package_id)
+        errors = 1
     except Exception as e:
         error_shout(e)
+        errors = 1
     if not commit_each:
         commit()
+    if errors:
+        sys.exit(errors)
 
 
 @search_index.command(name=u'check', short_help=u'Check search index')
@@ -161,7 +169,10 @@ def rebuild_fast():
     db_url = config['sqlalchemy.url']
     engine = sa.create_engine(db_url)
     package_ids = []
-    result = engine.execute(u"select id from package where state = 'active';")
+    with engine.connect() as conn:
+        result = conn.execute(
+            sa.text("SELECT id FROM package where state = 'active'")
+        )
     for row in result:
         package_ids.append(row[0])
 

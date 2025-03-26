@@ -1,0 +1,42 @@
+{#
+Inserts a stepped progress indicator for the new package form. Each stage can
+have one of three states, "uncomplete", "complete" and "active".
+
+stages - A list of states for each of the three stages. Missing stages default
+         to "uncomplete".
+
+Example:
+
+    {% snippet 'package/snippets/stages.html', stages=['active'] %}
+    {% snippet 'package/snippets/stages.html', stages=['complete', 'active'] %}
+    {% snippet 'package/snippets/stages.html', stages=['active', 'complete'] %}
+
+#}
+{% set s1 = stages[0] or 'active' %}
+{% set s2 = stages[1] or 'uncomplete' %}
+{% set dataset_type = dataset_type or h.default_package_type() %}
+
+{% if s1 != 'uncomplete' %}{% set class = 'stage-1' %}{% endif %}
+{% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
+
+<ol class="stages {{ class }}">
+  <li class="first {{ s1 }}">
+    {% if s1 != 'complete' %}
+      <span class="highlight">{{ h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset') }}</span>
+    {% else %}
+      <button class="highlight" name="save" value="go-dataset" type="submit">{{ h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset') }}</button>
+    {% endif %}
+  </li>
+  <li class="last {{ s2 }}">
+    {% if s2 != 'complete' %}
+      <span class="highlight">{{ _('Add data') }}</span>
+    {% else %}
+      {% if s1 == 'active' %}
+        {# stage 1 #}
+        <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
+      {% else %}
+        {% link_for _('Add data'), named_route='dataset.new', class_="highlight" %}
+      {% endif %}
+    {% endif %}
+  </li>
+</ol>

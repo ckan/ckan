@@ -306,7 +306,7 @@ def _build_js_translation(
             elif entry.msgstr_plural:
                 plural = result[entry.msgid] = [entry.msgid_plural]
                 ordered_plural = sorted(
-                    entry.msgstr_plural.items())  # type: ignore
+                    entry.msgstr_plural.items())
                 for _, msgstr in ordered_plural:
                     plural.append(msgstr)
     with open(dest_filename, u'w', encoding='utf-8') as f:
@@ -378,7 +378,7 @@ def build_js_translations() -> None:
 
         if (not os.path.isfile(dest_file) or
                 os.path.getmtime(dest_file) < latest):
-            log.debug('Generating JS translation for "{}"'.format(lang))
+            log.debug('Generating JS translation for "%s"', lang)
             _build_js_translation(lang, po_files, js_entries, dest_file)
 
     log.debug('All JS translation are up to date')

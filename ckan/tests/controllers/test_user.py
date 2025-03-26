@@ -223,6 +223,33 @@ class TestUser(object):
             not in response
         )
 
+    @pytest.mark.ckan_config("ckan.recaptcha.privatekey", "foo")
+    def test_registered_user_login_bad_password_or_captcha(self, app):
+        """
+        Registered user is redirected to appropriate place if they submit
+        invalid login details at /user/login.
+        Login failure gives a different message if reCAPTCHA is enabled.
+        """
+
+        # make a user
+        user = factories.User()
+
+        # get the form
+        response = app.post(
+            url_for("user.login"),
+            data={"login": user["name"], "password": "BadPass1", "save": ""},
+        )
+
+        # the response is the login page again
+        assert '<h1 class="page-heading">Login</h1>' in response
+        assert "Login failed. Bad username or password or CAPTCHA." in response
+        # and we're definitely not on the dashboard.
+        assert '<a href="/dashboard">Dashboard</a>' not in response
+        assert (
+            '<span class="username">{0}</span>'.format(user["fullname"])
+            not in response
+        )
+
     def test_user_logout_url_redirect(self, app, user):
         """_logout url redirects to logged out page.
         """
@@ -276,7 +303,7 @@ class TestUser(object):
 
         response = app.get(url=url_for("dashboard.datasets"), headers=headers)
 
-        assert not (dataset_title in response)
+        assert dataset_title not in response
 
     def test_user_edit_no_user(self, app):
 
@@ -316,7 +343,7 @@ class TestUser(object):
             headers=headers
         )
 
-        user = model.Session.query(model.User).get(user["id"])
+        user = model.Session.get(model.User, user["id"])
 
         assert user.fullname == "new full name"
         assert user.email == 'user@ckan.org'
@@ -427,6 +454,24 @@ class TestUser(object):
         )
 
         assert "That login name can not be modified" in response
+
+    def test_edit_user_logged_in_username_change_by_sysadmin(
+            self, app, user, sysadmin):
+
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.post(
+            url=url_for("user.edit", id=user["id"]),
+            data={
+                "email": user["email"],
+                "save": "",
+                "old_password": "correct123",
+                "password1": "",
+                "password2": "",
+                "name": factories.User.stub().name,
+            },
+            headers=headers
+        )
+        assert 'Profile updated' in response
 
     def test_perform_reset_for_key_change(self, app):
         password = "TestPassword1"

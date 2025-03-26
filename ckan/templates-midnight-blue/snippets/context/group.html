@@ -1,0 +1,23 @@
+{% set dataset_type = h.default_package_type() %}
+
+<div class="context-info">
+  {% if description != 'null' %}
+    {% set description = description|striptags %}
+    <p class="about">
+      {{ description|truncate(160) }}
+    </p>
+  {% endif %}
+  <div class="btn-group">
+    {{ h.follow_button('group', id) }}
+  </div>
+  <div class="nums">
+    <dl>
+      <dt>{{ _('Followers') }}</dt>
+      <dd>{{ h.SI_number_span(num_followers) }}</dd>
+    </dl>
+    <dl>
+      <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
+      <dd>{{ h.SI_number_span(package_count) }}</dd>
+    </dl>
+  </div>
+</div>

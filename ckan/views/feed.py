@@ -13,7 +13,8 @@ from flask import Blueprint, make_response
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
 from ckan.common import _, config, request, current_user
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import _url_with_params
 import ckan.lib.base as base
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -394,7 +395,7 @@ def custom() -> Response:
 
     feed_url = _feed_url(request.args, controller=u'feeds', action=u'custom')
 
-    atom_url = h._url_with_params(u'/feeds/custom.atom', search_params.items())
+    atom_url = _url_with_params(u'/feeds/custom.atom', search_params.items())
 
     alternate_url = _alternate_url(request.args)
     site_title = config.get(u'ckan.site_title')

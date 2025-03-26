@@ -3,6 +3,7 @@
 import json
 import pytest
 
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 
 import ckan.lib.create_test_data as ctd
@@ -55,7 +56,8 @@ class TestDatastoreDelete(object):
         assert resobj.extras.get('datastore_active') is False
 
         results = execute_sql(
-            u"select 1 from pg_views where viewname = %s", u"b\xfck2"
+            u"select 1 from pg_views where viewname = :name",
+            {"name": "b\xfck2"}
         )
         assert results.rowcount == 0
 
@@ -63,8 +65,8 @@ class TestDatastoreDelete(object):
         results = execute_sql(
             u"""SELECT table_name
             FROM information_schema.tables
-            WHERE table_name=%s;""",
-            resource["id"],
+            WHERE table_name=:name;""",
+            {"name": resource["id"]},
         )
         assert results.rowcount == 0
 
@@ -155,7 +157,8 @@ class TestDatastoreRecordsDelete(object):
         helpers.call_action("datastore_records_delete", **data)
 
         results = execute_sql(
-            u"select 1 from pg_views where viewname = %s", u"b\xfck2"
+            u"select 1 from pg_views where viewname = :name",
+            {"name": "b\xfck2"}
         )
         assert results.rowcount == 1
 
@@ -163,8 +166,8 @@ class TestDatastoreRecordsDelete(object):
         results = execute_sql(
             u"""SELECT table_name
             FROM information_schema.tables
-            WHERE table_name=%s;""",
-            resource["id"],
+            WHERE table_name=:name;""",
+            {"name": resource["id"]},
         )
         assert results.rowcount == 1
 
@@ -202,6 +205,41 @@ class TestDatastoreRecordsDelete(object):
         expected = {u'filters': [u'Must be a dict']}
         err = ve.value.error_dict
         assert err == expected
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_text_int_filter(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "text_field", "type": "text"},
+            ],
+            "records": [
+                {"text_field": 25},
+                {"text_field": 37},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        # can delete by int
+        data = {"resource_id": resource["id"], "force": True,
+                "filters": {"text_field": 25}}
+        helpers.call_action("datastore_records_delete", **data)
+        result = helpers.call_action("datastore_search",
+                                     resource_id=resource["id"],
+                                     include_total=True)
+        assert result["total"] == 1
+
+        # can delete by text
+        data = {"resource_id": resource["id"], "force": True,
+                "filters": {"text_field": "37"}}
+        helpers.call_action("datastore_records_delete", **data)
+        result = helpers.call_action("datastore_search",
+                                     resource_id=resource["id"],
+                                     include_total=True)
+        assert result["total"] == 0
 
 
 class TestDatastoreDeleteLegacy(object):
@@ -366,7 +404,9 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute(sa.text(
+            u'select * from "{0}";'.format(resource_id)
+        ))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == "annakarenina"
@@ -388,7 +428,9 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute(sa.text(
+            'select * from "{0}";'.format(resource_id)
+        ))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == "annakarenina"
@@ -409,7 +451,9 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute(sa.text(
+            'select * from "{0}";'.format(resource_id)
+        ))
         results = [r for r in result]
         assert len(results) == 0
         self.Session.remove()

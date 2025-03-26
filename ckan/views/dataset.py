@@ -16,7 +16,8 @@ from werkzeug.datastructures import MultiDict
 from ckan.common import asbool, current_user
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -25,7 +26,9 @@ import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
+from ckan.lib.search import (
+    SearchError, SearchQueryError, SearchIndexError, SolrConnectionError
+)
 from ckan.types import Context, Response
 
 
@@ -315,7 +318,7 @@ def search(package_type: str) -> str:
 
         extra_vars[u'sort_by_selected'] = query[u'sort']
 
-        extra_vars[u'page'] = h.Page(
+        extra_vars[u'page'] = Page(
             collection=query[u'results'],
             page=page,
             url=pager_url,
@@ -334,14 +337,17 @@ def search(package_type: str) -> str:
             _(u'Invalid search query: {error_message}')
             .format(error_message=str(se))
         )
-    except SearchError as se:
+    except (SearchError, SolrConnectionError) as se:
+        if isinstance(se, SolrConnectionError):
+            base.abort(500, se.args[0])
+
         # May be bad input from the user, but may also be more serious like
         # bad code causing a SOLR syntax error, or a problem connecting to
         # SOLR
         log.error(u'Dataset search error: %r', se.args)
         extra_vars[u'query_error'] = True
         extra_vars[u'search_facets'] = {}
-        extra_vars[u'page'] = h.Page(collection=[])
+        extra_vars[u'page'] = Page(collection=[])
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
@@ -535,8 +541,6 @@ class CreateView(MethodView):
             return base.abort(400, _(u'Integrity Error'))
         try:
             if ckan_phase:
-                # prevent clearing of groups etc
-                context[u'allow_partial_update'] = True
                 # sort the tags
                 if u'tag_string' in data_dict:
                     data_dict[u'tags'] = _tag_string_to_list(
@@ -555,10 +559,22 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    url = h.url_for(
-                        u'{}_resource.new'.format(package_type),
-                        id=pkg_dict[u'name']
-                    )
+                    if request.form[u'save'] == "go-resources":
+                        last_added_resource = pkg_dict[u'resources'][-1]
+                        url = h.url_for(
+                            u'{}_resource.edit'.format(package_type),
+                            id=pkg_dict.get('id'),
+                            resource_id=last_added_resource.get('id'))
+                    elif request.form[u'save'] == "go-metadata-preview":
+                        url = h.url_for(
+                            u'{}.read'.format(package_type),
+                            id=pkg_dict.get('id')
+                        )
+                    else:
+                        url = h.url_for(
+                            u'{}_resource.new'.format(package_type),
+                            id=pkg_dict[u'name']
+                        )
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.form[u'save'] not in [
@@ -643,7 +659,7 @@ class CreateView(MethodView):
                 )
             )
         )
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
             data[u'tag_string'] = u', '.join(
@@ -676,7 +692,7 @@ class CreateView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'new'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.resources_json = resources_json
@@ -692,7 +708,6 @@ class CreateView(MethodView):
                 u'form_snippet': form_snippet,
                 u'dataset_type': package_type,
                 u'resources_json': resources_json,
-                u'form_snippet': form_snippet,
                 u'errors_json': errors_json
             }
         )
@@ -719,8 +734,6 @@ class EditView(MethodView):
             return base.abort(400, _(u'Integrity Error'))
         try:
             if u'_ckan_phase' in data_dict:
-                # we allow partial updates to not destroy existing resources
-                context[u'allow_partial_update'] = True
                 if u'tag_string' in data_dict:
                     data_dict[u'tags'] = _tag_string_to_list(
                         data_dict[u'tag_string']
@@ -728,6 +741,9 @@ class EditView(MethodView):
                 del data_dict[u'_ckan_phase']
                 del data_dict[u'save']
             data_dict['id'] = id
+            if request.form.get(u'save', None) == u'go-metadata-unpublish':
+                data_dict[u'state'] = u'draft'
+
             pkg_dict = get_action(u'package_update')(context, data_dict)
 
             return _form_save_redirect(
@@ -788,7 +804,7 @@ class EditView(MethodView):
             )
 
         pkg = context.get(u"package")
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         user = current_user.name
         try:
             check_access(
@@ -818,7 +834,7 @@ class EditView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'edit'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.pkg = pkg
@@ -844,7 +860,6 @@ class EditView(MethodView):
                 u'pkg_dict': pkg_dict,
                 u'pkg': pkg,
                 u'resources_json': resources_json,
-                u'form_snippet': form_snippet,
                 u'errors_json': errors_json
             }
         )
@@ -922,7 +937,7 @@ def follow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 
@@ -949,7 +964,7 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 

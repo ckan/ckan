@@ -1,2 +1,0 @@
-* Fix usage of ``defer_commit`` in context in create actions for users, datasets, organizations and groups.
-* ``model.Dashboard.get()`` no longer creates a dashboard object under the hood if it does not exist in the database

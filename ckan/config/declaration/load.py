@@ -25,7 +25,7 @@ import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 from typing_extensions import TypedDict
-import yaml
+import msgspec
 
 from .key import Key
 from .option import Flag, Option
@@ -156,6 +156,6 @@ def load_core(declaration: "Declaration"):
     """Load core declarations.
     """
     source = pathlib.Path(__file__).parent / ".." / "config_declaration.yaml"
-    with source.open("r") as stream:
-        data = yaml.safe_load(stream)
+    with source.open("rb") as stream:
+        data = msgspec.yaml.decode(stream.read())
         load_dict(declaration, data)

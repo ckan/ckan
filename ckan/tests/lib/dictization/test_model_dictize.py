@@ -11,7 +11,7 @@ from ckan import model
 from ckan.logic.schema import (
     default_create_package_schema,
     default_update_package_schema,
-    default_group_schema,
+    default_update_group_schema,
     default_tags_schema,
 )
 from ckan.lib.navl.dictization_functions import validate
@@ -105,23 +105,6 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["extras"][0]["key"] == "k1"
 
-    def test_group_list_dictize_including_tags(self):
-        group = factories.Group.model()
-        tag = factories.Tag.model()
-        member = model.Member(
-            group=group, table_id=tag.id, table_name="tag"
-        )
-        model.Session.add(member)
-        model.Session.commit()
-        context = {"model": model, "session": model.Session}
-
-        group_dicts = model_dictize.group_list_dictize(
-            [group], context, include_tags=True
-        )
-
-        assert group_dicts[0]["tags"][0]["name"] == tag.name
-
-    @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
         parent = factories.Group(title="Parent")
         child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
@@ -150,7 +133,6 @@ class TestGroupDictize:
         assert group["name"] == group_obj.name
         assert group["packages"] == []
         assert group["extras"] == []
-        assert group["tags"] == []
         assert group["groups"] == []
 
     def test_group_dictize_group_with_dataset(self):
@@ -304,6 +286,8 @@ class TestGroupDictize:
         org_obj = factories.Organization.model()
         other_org_ = factories.Organization()
         factories.Dataset(owner_org=org_obj.id)
+        # only actual datasets should be returned
+        factories.Dataset(owner_org=org_obj.id, type="not_dataset")
         factories.Dataset(owner_org=other_org_["id"])
         context = {
             "model": model,
@@ -480,9 +464,7 @@ class TestPackageDictize:
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
     def test_package_dictize_resource_upload_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="some_filename.csv",
@@ -490,15 +472,13 @@ class TestPackageDictize:
 
         context = {"model": model, "session": model.Session}
 
-        result = model_save.resource_dict_save(resource, context)
+        result, _change = model_save.resource_dict_save(resource, context)
 
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
 
     def test_package_dictize_resource_upload_with_url_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="http://some_filename.csv",
@@ -506,7 +486,7 @@ class TestPackageDictize:
 
         context = {"model": model, "session": model.Session}
 
-        result = model_save.resource_dict_save(resource, context)
+        result, _change = model_save.resource_dict_save(resource, context)
 
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
@@ -538,7 +518,6 @@ class TestPackageDictize:
         assert_equal_for_keys(result["extras"][0], extras_dict, "key", "value")
         expected_dict = {
             u"key": u"latitude",
-            u"state": u"active",
             u"value": u"54.6",
         }
         self.assert_equals_expected(expected_dict, result["extras"][0])
@@ -780,7 +759,7 @@ class TestPackageSchema(object):
             ]
         }, pformat(errors)
 
-    @pytest.mark.usefixtures("clean_index")
+    @pytest.mark.usefixtures("clean_index", "clean_db")
     def test_group_schema(self):
         group = factories.Group.model()
         context = {"model": model, "session": model.Session}
@@ -791,11 +770,10 @@ class TestPackageSchema(object):
         # we don't want these here
         del data["groups"]
         del data["users"]
-        del data["tags"]
         del data["extras"]
 
         converted_data, errors = validate(
-            data, default_group_schema(), context
+            data, default_update_group_schema(), context
         )
         assert not errors
         group_pack = sorted(group.packages(), key=operator.attrgetter("id"))
@@ -839,7 +817,7 @@ class TestPackageSchema(object):
         data["packages"][1].pop("name")
 
         converted_data, errors = validate(
-            data, default_group_schema(), context
+            data, default_update_group_schema(), context
         )
         assert errors == {
             "packages": [

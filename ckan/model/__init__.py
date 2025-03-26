@@ -8,19 +8,21 @@ import re
 from time import sleep
 from typing import Any, Optional
 
+import sqlalchemy as sa
 from sqlalchemy import MetaData, Table, inspect
 
 from alembic.command import (
     upgrade as alembic_upgrade,
     downgrade as alembic_downgrade,
-    current as alembic_current
+    current as alembic_current,
+    stamp as alembic_stamp,
 )
 from alembic.config import Config as AlembicConfig
 
 import ckan.model.meta as meta
 
-from ckan.model.meta import Session
-
+from ckan.model.meta import Session, registry
+from ckan.exceptions import CkanConfigurationException
 from ckan.model.core import (
     State,
 )
@@ -54,14 +56,6 @@ from ckan.model.group import (
     Group,
     group_table,
     member_table,
-)
-from ckan.model.group_extra import (
-    GroupExtra,
-    group_extra_table,
-)
-from ckan.model.package_extra import (
-    PackageExtra,
-    package_extra_table,
 )
 from ckan.model.resource import (
     Resource,
@@ -117,13 +111,12 @@ from sqlalchemy.engine import Engine
 from ckan.types import AlchemySession
 
 __all__ = [
-    "Session", "State", "System", "Package", "PackageMember",
+    "registry", "Session", "State", "System", "Package", "PackageMember",
     "PACKAGE_NAME_MIN_LENGTH", "PACKAGE_NAME_MAX_LENGTH",
     "PACKAGE_VERSION_MAX_LENGTH", "package_table", "package_member_table",
     "Tag", "PackageTag", "MAX_TAG_LENGTH", "MIN_TAG_LENGTH", "tag_table",
     "package_tag_table", "User", "user_table", "AnonymousUser", "Member", "Group",
     "group_table", "member_table",
-    "GroupExtra", "group_extra_table", "PackageExtra", "package_extra_table",
     "Resource", "DictProxy", "resource_table",
     "ResourceView", "resource_view_table",
     "PackageRelationship", "package_relationship_table",
@@ -148,13 +141,11 @@ def init_model(engine: Engine) -> None:
     meta.Session.configure(bind=engine)
     meta.create_local_session.configure(bind=engine)
     meta.engine = engine
-    meta.metadata.bind = engine
     # sqlalchemy migrate version table
     import sqlalchemy.exc
     for i in reversed(range(DB_CONNECT_RETRIES)):
         try:
-            Table('alembic_version', meta.metadata, autoload=True)
-            break
+            Table('alembic_version', meta.metadata, autoload_with=engine)
         except sqlalchemy.exc.NoSuchTableError:
             break
         except sqlalchemy.exc.OperationalError as e:
@@ -162,6 +153,29 @@ def init_model(engine: Engine) -> None:
                 sleep(DB_CONNECT_RETRIES - i)
                 continue
             raise
+        else:
+            break
+
+
+def ensure_engine() -> Engine:
+    """Return initialized SQLAlchemy engine or raise an error.
+
+    This function guarantees that engine is initialized and provides a hint
+    when someone attempts to use the database before model is properly
+    initialized.
+
+    Prefer using this function instead of direct access to engine via
+    `meta.engine`.
+
+    """
+    if not meta.engine:
+        log.error(
+            "%s:%s must be called before any interaction with the database",
+            init_model.__module__, init_model.__name__
+
+        )
+        raise CkanConfigurationException("Model is not initialized")
+    return meta.engine
 
 
 class Repository():
@@ -196,7 +210,7 @@ class Repository():
         that may have been setup with either upgrade_db or a previous run of
         init_db.
         '''
-        warnings.filterwarnings('ignore', 'SAWarning')
+
         self.session.rollback()
         self.session.remove()
 
@@ -207,12 +221,17 @@ class Repository():
 
     def clean_db(self) -> None:
         self.commit_and_remove()
-        meta.metadata = MetaData(self.metadata.bind)
+        meta.metadata = MetaData()
+
+        engine = ensure_engine()
+
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
-            meta.metadata.reflect()
+            meta.metadata.reflect(engine)
 
-        meta.metadata.drop_all()
+        with engine.begin() as conn:
+            meta.metadata.drop_all(conn)
+
         self.tables_created_and_initialised = False
         log.info('Database tables dropped')
 
@@ -221,8 +240,18 @@ class Repository():
         i.e. the same as init_db APART from when running tests, when init_db
         has shortcuts.
         '''
-        self.metadata.create_all(bind=self.metadata.bind)
+        with ensure_engine().begin() as conn:
+            self.metadata.create_all(conn)
+
         log.info('Database tables created')
+
+    def stamp_alembic_head(self):
+        '''mark database as up to date for alembic'''
+        alembic_config = AlembicConfig(self._alembic_ini)
+        alembic_config.set_main_option(
+            "sqlalchemy.url", config.get("sqlalchemy.url")
+        )
+        alembic_stamp(alembic_config, 'head')
 
     def rebuild_db(self) -> None:
         '''Clean and init the db'''
@@ -242,11 +271,23 @@ class Repository():
         self.session.remove()
         ## use raw connection for performance
         connection: Any = self.session.connection()
+        inspector = sa.inspect(connection)
         tables = reversed(self.metadata.sorted_tables)
         for table in tables:
+            # `alembic_version` contains current migration version of the
+            # DB. If we drop this information, next attempt to apply migrations
+            # will fail. Don't worry about `<PLUGIN>_alembic_version` tables
+            # created by extensions - CKAN metadata does not track them, so
+            # they'll never appear in this list.
             if table.name == 'alembic_version':
                 continue
-            connection.execute('delete from "%s"' % table.name)
+
+            # if custom model imported without migrations applied,
+            # corresponding table can be missing from DB
+            if not inspector.has_table(table.name):
+                continue
+
+            connection.execute(sa.delete(table))
         self.session.commit()
         log.info('Database table data deleted')
 
@@ -264,19 +305,20 @@ class Repository():
         return output
 
     def setup_migration_version_control(self) -> None:
-        assert isinstance(self.metadata.bind, Engine)
         self.reset_alembic_output()
         alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
             "sqlalchemy.url", config.get("sqlalchemy.url")
         )
 
+        engine = ensure_engine()
         sqlalchemy_migrate_version = 0
-        db_inspect = inspect(self.metadata.bind)
+        db_inspect = inspect(engine)
         if db_inspect.has_table("migrate_version"):
-            sqlalchemy_migrate_version = self.metadata.bind.execute(
-                u'select version from migrate_version'
-            ).scalar()
+            with engine.connect() as conn:
+                sqlalchemy_migrate_version = conn.execute(
+                    sa.text('select version from migrate_version')
+                ).scalar()
 
         # this value is used for graceful upgrade from
         # sqlalchemy-migrate to alembic
@@ -318,13 +360,14 @@ class Repository():
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
-        assert meta.engine
-        _assert_engine_msg: str = (
-            u'Database migration - only Postgresql engine supported (not %s).'
-        ) % meta.engine.name
-        assert meta.engine.name in (
-            u'postgres', u'postgresql'
-        ), _assert_engine_msg
+        engine = ensure_engine()
+        if engine.name not in ('postgres', 'postgresql'):
+            log.error(
+                'Only Postgresql engine supported (not %s).',
+                engine.name,
+            )
+            raise CkanConfigurationException(engine.name)
+
         self.setup_migration_version_control()
         version_before = self.current_version()
         alembic_upgrade(self.alembic_config, version)
@@ -340,10 +383,13 @@ class Repository():
             log.info(u'CKAN database version remains as: %s', version_after)
 
     def are_tables_created(self) -> bool:
-        meta.metadata = MetaData(self.metadata.bind)
+        meta.metadata = MetaData()
+        if not meta.engine:
+            return False
+
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
-            meta.metadata.reflect()
+            meta.metadata.reflect(meta.engine)
         return bool(meta.metadata.tables)
 
 

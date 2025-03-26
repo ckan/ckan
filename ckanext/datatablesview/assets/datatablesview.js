@@ -288,14 +288,14 @@ this.ckan.module('datatables_view', function (jQuery) {
       const defaultview = dtprv.data('default-view')
 
       // get view mode setting from localstorage (table or list/responsive])
-      const lastView = getWithExpiry('lastView')
+      const lastView = getWithExpiry('lastView-' + gresviewId)
       if (!lastView) {
         if (responsiveflag) {
           gcurrentView = 'list' // aka responsive
         } else {
           gcurrentView = defaultview
         }
-        setWithExpiry('lastView', gcurrentView, 0)
+        setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
       } else {
         gcurrentView = lastView
       }
@@ -385,6 +385,11 @@ this.ckan.module('datatables_view', function (jQuery) {
       // en is the default language, no need to load i18n file
       if (languagefile === '/vendor/DataTables/i18n/en.json') {
         activelanguage = ''
+      // load i18n files for zh_Hant_TW and zh_Hans_CN language
+      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hant_TW.json') {
+        activelanguage = '/vendor/DataTables/i18n/zh_Hant.json'
+      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hans_CN.json') {
+        activelanguage = '/vendor/DataTables/i18n/zh_CN.json'
       }
 
       // settings if gcurrentView === table
@@ -414,9 +419,9 @@ this.ckan.module('datatables_view', function (jQuery) {
                 // add clipboard and print buttons to modal record display
                 var data = row.data();
                 return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
-                  '<button id="modalcopy-button" class="btn btn-default" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
+                  '<button id="modalcopy-button" class="btn btn-secondary" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
                   packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
-                  '<button id="modalprint-button" class="btn btn-default" title="' + that._('Print') + '" onclick="printModal(\'' +
+                  '<button id="modalprint-button" class="btn btn-secondary" title="' + that._('Print') + '" onclick="printModal(\'' +
                   packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
                   '</div>&nbsp;'
               }
@@ -476,10 +481,16 @@ this.ckan.module('datatables_view', function (jQuery) {
       })
 
       // init the datatable
+      $('#dtprv').on('preInit.dt', function (_event, _settings) {
+        // show loading indicator when first painting data into the table.
+        // useful with very large resources that take long to load
+        $('body.dt-view').css('visibility', 'visible');
+        $('#dtprv_processing').addClass('pre-init');
+      });
       datatable = $('#dtprv').DataTable({
         paging: true,
         serverSide: true,
-        processing: false,
+        processing: true,
         stateSave: statesaveflag,
         stateDuration: stateduration,
         colReorder: {
@@ -508,6 +519,9 @@ this.ckan.module('datatables_view', function (jQuery) {
           url: ajaxurl,
           type: 'POST',
           timeout: 60000,
+          headers: {
+            'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+          },
           data: function (d) {
             d.filters = ckanfilters
           }
@@ -549,7 +563,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           // save selected rows settings
           gsavedSelected = data.selected
           // save view mode
-          setWithExpiry('lastView', data.viewmode, 0)
+          setWithExpiry('lastView-' + gresviewId, data.viewmode, 0)
 
           // restore values of column filters
           const api = new $.fn.dataTable.Api(settings)
@@ -591,6 +605,9 @@ this.ckan.module('datatables_view', function (jQuery) {
             api.page.len(gsavedPagelen)
             api.page(gsavedPage)
           }
+
+          // hide the pre-loading indicator background so the table is interactive when loading
+          $('#dtprv_processing').removeClass('pre-init');
 
           // restore selected rows from state
           if (typeof gsavedSelected !== 'undefined') {
@@ -691,7 +708,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'viewToggleButton',
           text: gcurrentView === 'table' ? '<i class="fa fa-list"></i>' : '<i class="fa fa-table"></i>',
           titleAttr: that._('Table/List toggle'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           action: function (e, dt, node, config) {
             if (gcurrentView === 'list') {
               dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>')
@@ -702,7 +719,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               gcurrentView = 'list'
               $('#dtprv').addClass('dt-responsive')
             }
-            setWithExpiry('lastView', gcurrentView, 0)
+            setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
             window.localStorage.removeItem('loadctr-' + gresviewId)
             dt.state.clear()
             window.location.reload()
@@ -711,7 +728,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'copy',
           text: '<i class="fa fa-copy"></i>',
           titleAttr: that._('Copy to clipboard'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           title: function () {
             // remove html tags from filterInfo msg
             const filternohtml = filterInfo(datatable, true)
@@ -725,7 +742,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'colvis',
           text: '<i class="fa fa-eye-slash"></i>',
           titleAttr: that._('Toggle column visibility'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           columns: 'th:gt(0):not(:contains("colspacer"))',
           collectionLayout: 'fixed',
           postfixButtons: [{
@@ -763,7 +780,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         }, {
           text: '<i class="fa fa-download"></i>',
           titleAttr: that._('Filtered download'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           autoClose: true,
           extend: 'collection',
           buttons: [{
@@ -799,7 +816,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'resetButton',
           text: '<i class="fa fa-repeat"></i>',
           titleAttr: that._('Reset'),
-          className: 'btn-default resetButton',
+          className: 'btn-secondary resetButton',
           action: function (e, dt, node, config) {
             dt.state.clear()
             $('.resetButton').css('color', 'black')
@@ -810,7 +827,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'print',
           text: '<i class="fa fa-print"></i>',
           titleAttr: that._('Print'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           title: packagename + ' — ' + resourcename,
           messageTop: function () {
             return filterInfo(datatable)
@@ -826,7 +843,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'shareButton',
           text: '<i class="fa fa-share"></i>',
           titleAttr: that._('Share current view'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           action: function (e, dt, node, config) {
             dt.state.save()
             const sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()))
@@ -888,6 +905,8 @@ this.ckan.module('datatables_view', function (jQuery) {
                         : ' <span class="fa fa-sort-amount-desc"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
+        //adjust column widths after sorting
+        fitColText();
       })
     }
   }

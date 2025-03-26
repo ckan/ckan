@@ -12,8 +12,8 @@
 
 <div id="followee-filter" class="pull-right">
   <div class="dropdown">
-    <a href="#" id="followee-popover" class="btn btn-default dropdown-toggle"
-      title="{{ _('Activity from:') }} {{ context.context }}">
+    <a href="#" id="followee-popover" class="btn btn-secondary dropdown-toggle"
+      aria-label="{{ _('Activity from:') }} {{ context.context }}">
       <span>{{ _('Activity from:') }}</span> <strong>{{ context.context }}</strong> <span class="caret"></span>
     </a>
   </div>
@@ -38,7 +38,7 @@
           <li {% if context.selected_id==followee.dict.id %} class="nav-item active" {% endif %}
             data-search="{{followee.display_name|lower}}">
             <a class="nav-link" href="{{ h.url_for('activity.dashboard', type=followee.type, name=followee.dict.name) }}"
-              title="{{followee.display_name}}">
+              aria-label="{{followee.display_name}}">
               {{followee_icon(followee.type)}}
               <span>{{followee.display_name}}</span>
             </a>

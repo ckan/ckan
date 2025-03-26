@@ -34,6 +34,7 @@ from click.testing import CliRunner
 import pytest
 import unittest.mock as mock
 import rq
+from sqlalchemy.orm import close_all_sessions
 
 from ckan.common import config
 import ckan.lib.jobs as jobs
@@ -77,7 +78,7 @@ def reset_db():
     """
     # Close any database connections that have been left open.
     # This prevents CKAN from hanging waiting for some unclosed connection.
-    model.Session.close_all()
+    close_all_sessions()
 
     model.repo.rebuild_db()
 
@@ -174,6 +175,10 @@ class CKANResponse(Response):
     @property
     def body(self):
         return self.get_data(as_text=True)
+
+    @property
+    def bytes(self):
+        return self.get_data(as_text=False)
 
     def __contains__(self, segment):
         return segment in self.body
@@ -346,22 +351,11 @@ class FunctionalTestBase(object):
         config.update(cls._original_config)
 
 
-@pytest.mark.usefixtures("with_test_worker")
+@pytest.mark.usefixtures("with_test_worker", "clean_queues")
 class RQTestBase(object):
     """
     Base class for tests of RQ functionality.
     """
-
-    def setup(self):
-        u"""
-        Delete all RQ queues and jobs.
-        """
-        # See https://github.com/nvie/rq/issues/731
-        redis_conn = connect_to_redis()
-        for queue in rq.Queue.all(connection=redis_conn):
-            queue.empty()
-            redis_conn.srem(rq.Queue.redis_queues_keys, queue._key)
-            redis_conn.delete(queue._key)
 
     def all_jobs(self):
         u"""

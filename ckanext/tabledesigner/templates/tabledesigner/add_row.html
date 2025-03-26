@@ -1,0 +1,34 @@
+{% extends "package/resource_edit_base.html" %}
+
+{% import 'macros/form.html' as form %}
+
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %}
+
+{% block primary_content_inner %}
+
+  {% set action = h.url_for('tabledesigner.add_row', id=pkg.name, resource_id=res.id) %}
+  <h1>{{ _('Add row') }}</h1>
+
+  <form method="post" action="{{ action }}" >
+    {% block add_row %}
+      {% for field in fields %}
+        {% set ct = h.tabledesigner_column_type(field) %}
+        {% set form_snippet = 'tabledesigner/form_snippets/' + ct.form_snippet %}
+        {% snippet form_snippet,
+          field=field,
+          position=loop.index,
+          res=res,
+          value=row.get(field.id),
+          column_type=ct,
+          errors=errors,
+          pk=field.get('tdpkreq') == 'pk',
+          is_required=field.get('tdpkreq', '') != ''
+        %}
+      {% endfor %}
+    {% endblock %}
+    <button class="btn btn-primary" name="save" type="submit">
+      <i class="fa fa-book"></i> {{ _('Save') }}
+    </button>
+  </form>
+{% endblock %}
+

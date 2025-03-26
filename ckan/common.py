@@ -26,7 +26,7 @@ from flask_login import login_user as _login_user, logout_user as _logout_user
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
-import simplejson as json  # type: ignore # noqa: re-export
+import simplejson as json  # type: ignore # noqa
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
 from ckan.types import Model, Request
@@ -39,8 +39,8 @@ SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
-
-current_user = cast(Union["Model.User", "Model.AnonymousUser"], _cu)
+TCurrentUser = Union["Model.User", "Model.AnonymousUser"]
+current_user = cast(TCurrentUser, _cu)
 login_user = _login_user
 logout_user = _logout_user
 
@@ -212,7 +212,7 @@ class CKANRequest(LocalProxy[Request]):
         request.args
 
         '''
-        return cast(flask.Request, self).args
+        return self.args
 
 
 def _get_c():
@@ -306,6 +306,15 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return [obj]
 
 
+def repr_untrusted(danger: Any):
+    """
+    repr-format danger and truncate e.g. for logging untrusted input
+    """
+    r = repr(danger)
+    rtrunc = r[:200]
+    return rtrunc + '…' if r != rtrunc else r
+
+
 local = Local()
 
 # This a proxy to the bounded config object
@@ -318,7 +327,7 @@ local("config_declaration")
 config_declaration = local.config_declaration = Declaration()
 
 # Proxies to already thread-local safe objects
-request = cast(flask.Request, CKANRequest(_get_request))
+request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g: Any = LocalProxy(_get_c)
 c = g

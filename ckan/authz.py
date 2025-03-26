@@ -344,7 +344,7 @@ def _has_user_permission_for_groups(
     # get any roles the user has for the group
     q: Any = (model.Session.query(model.Member.capacity)
          # type_ignore_reason: attribute has no method
-         .filter(model.Member.group_id.in_(group_ids))  # type: ignore
+         .filter(model.Member.group_id.in_(group_ids))
          .filter(model.Member.table_name == 'user')
          .filter(model.Member.state == 'active')
          .filter(model.Member.table_id == user_id))
@@ -390,6 +390,11 @@ def users_role_for_group_or_org(
 def has_user_permission_for_some_org(
         user_name: Optional[str], permission: str) -> bool:
     ''' Check if the user has the given permission for any organization. '''
+
+    # Sys admins can do anything
+    if is_sysadmin(user_name):
+        return True
+
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
@@ -402,7 +407,7 @@ def has_user_permission_for_some_org(
          .filter(model.Member.table_name == 'user')
          .filter(model.Member.state == 'active')
          # type_ignore_reason: attribute has no method
-         .filter(model.Member.capacity.in_(roles))  # type: ignore
+         .filter(model.Member.capacity.in_(roles))
          .filter(model.Member.table_id == user_id))
     group_ids = []
     for row in q:
@@ -416,8 +421,7 @@ def has_user_permission_for_some_org(
         model.Session.query(model.Group)
         .filter(model.Group.is_organization == True)
         .filter(model.Group.state == 'active')
-        # type_ignore_reason: attribute has no method
-        .filter(model.Group.id.in_(group_ids)).exists()  # type: ignore
+        .filter(model.Group.id.in_(group_ids)).exists()
     ).scalar()
 
     return permission_exists
@@ -491,8 +495,7 @@ def user_is_collaborator_on_dataset(
     if capacity:
         if isinstance(capacity, str):
             capacity = [capacity]
-        # type_ignore_reason: attribute has no method
-        q = q.filter(model.PackageMember.capacity.in_(capacity))  # type: ignore
+        q = q.filter(model.PackageMember.capacity.in_(capacity))
 
     return model.Session.query(q.exists()).scalar()
 

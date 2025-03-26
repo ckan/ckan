@@ -64,6 +64,17 @@ class TestDeclaration:
             key.hey,
         ]
 
+    def test_required_option(self):
+        decl = Declaration()
+        key = "test.required.flag.adds.not_empty"
+        option = decl.declare(key)
+        _, errors = decl.validate({})
+        assert not errors
+
+        option.set_flag(Flag.required)
+        _, errors = decl.validate({})
+        assert key in errors
+
     def test_setup(self, ckan_config):
         decl = Declaration()
         decl.setup()
