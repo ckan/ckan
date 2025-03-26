@@ -26,3 +26,4 @@ pytest-freezegun==0.4.2
 pytest-rerunfailures==10.2
 pytest-split==0.8.0
 pytest-retry==1.7.0
+coverage==7.7.1
