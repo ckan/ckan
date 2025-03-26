@@ -5,6 +5,7 @@ import pytest
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 import decimal
+from unittest import mock
 
 import ckan.lib.create_test_data as ctd
 import ckan.logic as logic
@@ -12,6 +13,8 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+from ckan.lib.lazyjson import LazyJSONObject
+from ckan.lib.helpers import url_for
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract
 
@@ -2274,3 +2277,67 @@ class TestDatastoreSearchRecordsFormat(object):
             {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one", "two"]},
             {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
         ]
+
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format="objects",
+            sort="lst nulls first, num nulls last",
+        )["records"] == [
+            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
+            {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
+            {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
+        ]
+
+
+class TestDatastoreSearchLazyJSON(object):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_records_type_returned(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "from", "type": "text"},
+                {"id": "to", "type": "text"},
+            ]
+        }
+        result = helpers.call_action("datastore_create", **data)
+        search_data = {
+            "resource_id": resource["id"],
+        }
+        result = helpers.call_action(
+            "datastore_search", {'api_version': 3}, **search_data)
+        assert isinstance(result["records"], list)
+        assert result["records"] == []
+
+        helpers.call_action(
+            "datastore_upsert",
+            resource_id=resource["id"],
+            method="insert",
+            force=True,
+            records=[
+                {"from": "Brazil", "to": "Brazil"},
+                {"from": "Brazil", "to": "Italy"},
+            ],
+        )
+        result = helpers.call_action("datastore_search", **search_data)
+        assert isinstance(result["records"], list)
+
+        result = helpers.call_action(
+            "datastore_search", {'api_version': 3}, **search_data)
+        assert isinstance(result["records"], LazyJSONObject)
+
+    def test_api_returns_records_without_decoding(self, app):
+        with mock.patch(
+                "ckan.logic._actions",
+                new={'datastore_search': lambda _c, _d: {
+                    "records": LazyJSONObject('  [ "space" ]  ')
+                }}):
+            resp = app.post(
+                url_for("api.action", logic_function="datastore_search"),
+                status=200,
+            )
+        assert '"result": {"records":   [ "space" ]  }}' in resp.body
