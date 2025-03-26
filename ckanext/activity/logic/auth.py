@@ -196,3 +196,13 @@ def dashboard_mark_activities_old(
     context: Context, data_dict: DataDict
 ) -> AuthResult:
     return authz.is_authorized("dashboard_activity_list", context, data_dict)
+
+
+@tk.auth_allow_anonymous_access
+def recently_changed_packages_activity_list(
+    context: Context, data_dict: DataDict
+) -> AuthResult:
+    """Check if the activity stream of all recently added or changed packages is
+    visible. Visible to all by default.
+    Note that the actual datasets shown will be filtered by permission labels"""
+    return {"success": True}
