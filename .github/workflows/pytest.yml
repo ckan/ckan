@@ -131,7 +131,7 @@ jobs:
       PGPASSWORD: ckan
       PGHOST: localhost
       CKAN_STORAGE_PATH: /tmp/storage
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --junitxml=./junit/result/junit.xml
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit.xml
 
 
     steps:
@@ -237,6 +237,7 @@ jobs:
           echo "::endgroup::"
 
 
+
       # Each matrix job uploads its freshly updated partial test durations. We regroup them all
       # within one final file in the "Merge all partial test durations" step below.
       - name: Upload test durations
@@ -247,31 +248,44 @@ jobs:
           path: ./.test_durations
           if-no-files-found: error
           include-hidden-files: true
+          retention-days: 1
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.split }}
+          path: .coverage*
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 1
 
       - name: Store test results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: junit-results-${{ matrix.split }}
           path: ./junit
+          retention-days: 1
 
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: "./junit/result/*.xml"
-        if: always()
+        if: failure()
 
       - name: Test Summary Local copy
         uses: test-summary/action@v2
         with:
           paths: "./junit/result/*.xml"
           output: "./junit/result/test-summary.md"
-        if: always()
+        if: failure()
 
       - name: Store Test Summary results
         uses: actions/upload-artifact@v4
         with:
           name: test-summary-${{ matrix.split }}
           path: "./junit/result/test-summary.md"
+          retention-days: 30
         if: always()
 
 
@@ -289,6 +303,8 @@ jobs:
       # This step regroups the 8 partial files and sorts keys alphabetically:
       - name: Merge all partial test durations
         run: |
+          ls -ltra
+
           jq -s 'add' test-durations-after-partial-*/.test_durations \
           | jq 'to_entries | sort_by(.key) | from_entries' \
           > /tmp/.test_durations
@@ -311,3 +327,93 @@ jobs:
         with:
           path: /tmp/.test_durations
           key: tests-durations-${{ github.sha }}
+
+  merge-and-upload:
+    name: Test Result Combine
+    needs: pytest
+    if: github.run_attempt == 1 && (success() || failure())
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+#          merge-multiple: true
+          path: coverage-data
+
+      - name: Install dependencies
+        run: |
+          pip install -r dev-requirements.txt
+
+      - name: Merge coverage files
+        id: coverage
+        continue-on-error: true
+        run: |
+          set -ex
+          ROOT_DIR="./coverage-data"
+          # Loop through each subdirectory in the root directory
+          for dir in $ROOT_DIR/*; do
+              # Check if the directory exists and contains a .coverage file
+              if [[ -d "$dir" && -f "$dir/.coverage" ]]; then
+                  # Extract the folder name
+                  folder_name=$(basename "$dir")
+                  # Move and rename the .coverage file
+                  mv "$dir/.coverage" "$ROOT_DIR/coverage-data-$folder_name"
+                  rmdir $dir
+              fi
+          done
+
+          ls -ltra .
+          ls -ltra ./coverage-data
+          ls -ltra ./coverage-data/*
+
+          #since data has same name, its in sub folders.
+          coverage combine --keep -a ./coverage-data/*
+          coverage report -m
+          coverage xml
+          coverage html -d coverage_html
+
+          ls -ltra
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        if: steps.coverage.outcome == 'success'
+        with:
+          name: coverage-html
+          path: coverage_html
+#          retention-days: 7
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        id: codecov
+        continue-on-error: true
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage reports to Codecov Summary
+        if: steps.codecov.outcome != 'success'
+        run: |
+          echo "CodeCoverage was unsuccessful in uploading >> $GITHUB_STEP_SUMMARY "
+
+      - name: Download all JUnit XML results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: junit-results-*
+          merge-multiple: true
+          path: junit-results
+#
+#      ## then do a merge report generation
+
+      - name: Upload coverage reports to Codecov Summary
+        if: steps.coverage.outcome != 'success'
+        run: |
+          echo "Coverage merge was unsuccessful in uploading >> $GITHUB_STEP_SUMMARY "
+          exit 1
