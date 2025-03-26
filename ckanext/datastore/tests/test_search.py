@@ -2142,6 +2142,7 @@ class TestDatastoreSearchRecordsFormat(object):
             "datastore_search",
             resource_id=r["resource_id"],
             records_format="csv",
+            fields="dt, num, txt",
             filters={
                 "txt": "aaab"
             },
