@@ -27,7 +27,9 @@ def _get_users_with_invalid_image(mimetypes: List[str]) -> List[model.User]:
     invalid = []
     for user in users_with_img:
         upload = get_uploader("user", old_filename=user.image_url)
-        filepath = upload.old_filepath  # type: ignore
+        filename = upload.old_filename  # type: ignore
+        path = upload.storage.settings.path  # type: ignore
+        filepath = os.path.join(path, filename)
         if os.path.exists(filepath):
             mimetype = magic.from_file(filepath, mime=True)
             if mimetype not in mimetypes:
@@ -81,7 +83,10 @@ def users(force: bool):
 
     for user in invalid:
         upload = get_uploader("user", old_filename=user.image_url)
-        file_path = upload.old_filepath  # type: ignore
+        filename = upload.old_filename  # type: ignore
+        path = upload.storage.settings.path  # type: ignore
+        file_path = os.path.join(path, filename)
+
         try:
             os.remove(file_path)
         except Exception:

@@ -101,12 +101,9 @@ def get_max_resource_size() -> int:
 
 
 class Upload(object):
-    storage_path: Optional[str]
     filename: Optional[str]
-    filepath: Optional[str]
     object_type: Optional[str]
     old_filename: Optional[str]
-    old_filepath: Optional[str]
     upload_file: fk.Upload | None
 
     def __init__(self,
@@ -115,21 +112,10 @@ class Upload(object):
         ''' Setup upload by creating a subdirectory of the storage directory
         of name object_type. old_filename is the name of the file in the url
         field last time'''
-
-        self.storage_path = None
         self.filename = None
-        self.filepath = None
-        path = get_storage_path()
-        if not path:
-            return
-        self.storage_path = os.path.join(path, 'storage',
-                                         'uploads', object_type)
-        self.storage = storages[f"{object_type}_uploads"]
+        self.storage = storages.get(f"{object_type}_uploads")
         self.object_type = object_type
         self.old_filename = old_filename
-        if old_filename:
-            self.old_filepath = os.path.join(self.storage_path, old_filename)
-
 
     def update_data_dict(self, data_dict: dict[str, Any], url_field: str,
                          file_field: str, clear_field: str) -> None:
@@ -145,7 +131,7 @@ class Upload(object):
         self.file_field = file_field
         self.upload_field_storage = data_dict.pop(file_field, None)
 
-        if not self.storage_path:
+        if not self.storage:
             return
 
         if isinstance(self.upload_field_storage, ALLOWED_UPLOAD_TYPES):
@@ -153,9 +139,7 @@ class Upload(object):
                 self.filename = self.upload_field_storage.filename
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
                 self.filename = munge.munge_filename_legacy(self.filename)
-                self.filepath = os.path.join(self.storage_path, self.filename)
                 self.upload_file = fk.make_upload(self.upload_field_storage)
-                self.tmp_filepath = self.filepath + '~'
 
                 self.verify_type()
 
@@ -174,8 +158,11 @@ class Upload(object):
         been validated and flushed to the db. This is so we do not store
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
+        if not self.storage:
+            return
+
         if self.filename:
-            assert self.upload_file and self.filepath
+            assert self.upload_file
             if self.upload_file.size > max_size * 1024 * 1024:
                 raise logic.ValidationError({'upload': ['File upload too large']})
 
@@ -186,11 +173,10 @@ class Upload(object):
             self.clear = True
 
         if (self.clear and self.old_filename
-                and not self.old_filename.startswith('http')
-                and self.old_filepath):
+                and not self.old_filename.startswith('http')):
             with contextlib.suppress(fk.exc.MissingFileError):
                 self.storage.remove(fk.FileData(
-                    fk.Location(self.old_filepath)
+                    fk.Location(self.old_filename)
                 ))
 
     def verify_type(self):
@@ -251,9 +237,8 @@ class Upload(object):
             raise logic.ValidationError(err)
 
         preferred_extension = mimetypes.guess_extension(guessed_mimetype)
-        if preferred_extension and self.filename and self.filepath:
+        if preferred_extension and self.filename:
             self.filename = str(Path(self.filename).with_suffix(preferred_extension))
-            self.filepath = str(Path(self.filepath).with_suffix(preferred_extension))
 
 
 class ResourceUpload(object):

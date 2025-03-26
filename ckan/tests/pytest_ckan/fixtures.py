@@ -26,6 +26,7 @@ Deeper explanation can be found in `official documentation
 """
 from __future__ import annotations
 
+import pathlib
 import smtplib
 
 from io import BytesIO
@@ -46,7 +47,7 @@ import ckan.cli
 import ckan.model as model
 from ckan import types
 from ckan.common import config
-from ckan.lib import redis, search
+from ckan.lib import redis, search, files
 
 
 @register
@@ -525,7 +526,13 @@ class FakeFileStorage(FlaskFileStorage):
 
 
 @pytest.fixture
-def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
+def create_with_upload(
+        clean_db: None,
+        ckan_config: dict[str, Any],
+        monkeypatch: pytest.MonkeyPatch,
+        tmpdir: pathlib.Path,
+        make_app: Any
+):
     """Shortcut for creating resource/user/org with upload.
 
     Requires content and name for newly created object. By default is
@@ -553,6 +560,8 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
 
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+    files.storages.reset()
+    files.storages.collect()
 
     def factory(
             data: str | bytes,
