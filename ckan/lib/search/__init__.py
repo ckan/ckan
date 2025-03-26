@@ -16,7 +16,6 @@ from requests.auth import HTTPBasicAuth
 
 import ckan.model as model
 import ckan.model.domain_object as domain_object
-import ckan.plugins as p
 import ckan.logic as logic
 from ckan.types import Context
 
@@ -135,48 +134,6 @@ def query_for(_type: Any) -> SearchQuery:
         raise SearchError("Unknown search type: %s" % _type)
 
 
-def dispatch_by_operation(entity_type: str, entity: dict[str, Any],
-                          operation: str) -> None:
-    """Call the appropriate index method for a given notification."""
-    try:
-        index = index_for(entity_type)
-        if operation == domain_object.DomainObjectOperation.new:
-            index.insert_dict(entity)
-        elif operation == domain_object.DomainObjectOperation.changed:
-            index.update_dict(entity)
-        elif operation == domain_object.DomainObjectOperation.deleted:
-            index.remove_dict(entity)
-        else:
-            log.warning("Unknown operation: %s", operation)
-    except Exception as ex:
-        log.exception(ex)
-        # we really need to know about any exceptions, so reraise
-        # (see #1172)
-        raise
-
-
-class SynchronousSearchPlugin(p.SingletonPlugin):
-    """Update the search index automatically."""
-    p.implements(p.IDomainObjectModification, inherit=True)
-
-    def notify(self, entity: Any, operation: str) -> None:
-        if not isinstance(entity, model.Package):
-            return
-        if operation != domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(
-                entity.__class__.__name__,
-                logic.get_action('package_show')({
-                        'ignore_auth': True,
-                        'validate': False,
-                        'use_cache': False,
-                    }, {'id': entity.id}), operation)
-        elif operation == domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(entity.__class__.__name__,
-                                  {'id': entity.id}, operation)
-        else:
-            log.warning("Discarded Sync. indexing for: %s", entity)
-
-
 def rebuild(package_id: Optional[str] = None,
             only_missing: bool = False,
             force: bool = False,
@@ -198,23 +155,15 @@ def rebuild(package_id: Optional[str] = None,
     package_index = index_for(model.Package)
     context: Context = {
         'ignore_auth': True,
-        'validate': False,
-        'use_cache': False
     }
 
     if package_id:
-        pkg_dict = logic.get_action('package_show')(context, {
-            'id': package_id
-        })
-        log.info('Indexing just package %r...', pkg_dict['name'])
-        package_index.remove_dict(pkg_dict)
-        package_index.insert_dict(pkg_dict)
+        log.info('Indexing just package %r...', package_id)
+        logic.index_update_package(context, package_id)
     elif package_ids is not None:
         for package_id in package_ids:
-            pkg_dict = logic.get_action('package_show')(context,
-                {'id': package_id})
-            log.info('Indexing just package %r...', pkg_dict['name'])
-            package_index.update_dict(pkg_dict, True)
+            log.info('Indexing just package %r...', package_id)
+            logic.index_update_package(context, package_id, True)
     else:
         packages = model.Session.query(model.Package.id)
         if config.get('ckan.search.remove_deleted_packages'):
@@ -248,12 +197,7 @@ def rebuild(package_id: Optional[str] = None,
                 )
                 sys.stdout.flush()
             try:
-                package_index.update_dict(
-                    logic.get_action('package_show')(context,
-                        {'id': pkg_id}
-                    ),
-                    defer_commit
-                )
+                logic.index_update_package(context, pkg_id, defer_commit)
             except Exception as e:
                 log.error('Error while indexing dataset %s: %s',
                     pkg_id, repr(e))

@@ -109,20 +109,16 @@ class PackageSearchIndex(SearchIndex):
                       defer_commit: bool = False) -> None:
         if pkg_dict is None:
             return
+        pkg_dict = dict(pkg_dict)
 
         # Index validated data-dict
-        package_plugin = lib_plugins.lookup_package_plugin(
-            pkg_dict.get('type'))
-        schema = package_plugin.show_package_schema()
-        validated_pkg_dict, _errors = lib_plugins.plugin_validate(
-            package_plugin,
-            {'session': model.Session},
-            pkg_dict, schema, 'package_show')
+        assert 'with_custom_schema' in pkg_dict, (
+            'both default and custom schema data must be passed')
+        validated_pkg_dict = pkg_dict.pop('with_custom_schema')
+
+        pkg_dict['data_dict'] = json.dumps(pkg_dict)
         pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
             cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
-
-        data_dict_json = json.dumps(pkg_dict)
-        pkg_dict['data_dict'] = data_dict_json
 
         # add to string field for sorting
         title = pkg_dict.get('title')

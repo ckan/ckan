@@ -216,29 +216,28 @@ def package_create(
 
         item.after_dataset_create(context, data)
 
-    # Make sure that a user provided schema is not used in create_views
-    # and on package_show
-    context.pop('schema', None)
-
     # Create default views for resources if necessary
     if data.get('resources'):
         logic.get_action('package_create_default_resource_views')(
-            {'user': context['user'],
-             'ignore_auth': True},
+            fresh_context(context, ignore_auth=True),
             {'package': data})
 
-    if not context.get('defer_commit'):
-        model.repo.commit()
-
     return_id_only = context.get('return_id_only', False)
+
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
+
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
+
+    if not context.get('defer_commit'):
+        logic.index_insert_package_dicts((pkg_default, pkg_custom))
+        model.repo.commit()
 
     if return_id_only:
         return pkg.id
 
-    return _get_action('package_show')(
-        context.copy(),
-        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
-    )
+    return pkg_custom
 
 
 def resource_create(context: Context,
