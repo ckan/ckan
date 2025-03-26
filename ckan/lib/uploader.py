@@ -17,7 +17,7 @@ import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.common import config
-from ckan.lib.files import storages
+from ckan.lib.files import get_storage
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
@@ -87,7 +87,7 @@ class Upload(object):
         of name object_type. old_filename is the name of the file in the url
         field last time'''
         self.filename = None
-        self.storage = storages.get(f"{object_type}_uploads")
+        self.storage = get_storage(f"{object_type}_uploads")
         self.object_type = object_type
         self.old_filename = old_filename
 
@@ -219,7 +219,7 @@ class ResourceUpload(object):
     mimetype: Optional[str]
 
     def __init__(self, resource: dict[str, Any]) -> None:
-        self.storage = storages.get("resources")
+        self.storage = get_storage("resources")
         if not self.storage:
             return
 
@@ -264,9 +264,18 @@ class ResourceUpload(object):
             raise TypeError("storage_path is not defined")
         return os.path.join(id[0:3], id[3:6])
 
-    def get_path(self, id: str) -> str:
+    def get_path(self, id: str) -> fk.Location:
         directory = self.get_directory(id)
-        return os.path.join(directory, id[6:])
+        filepath = os.path.join(directory, id[6:])
+
+        # location is a safe version of filepath, processed with
+        # transformers(e.g., converted to safe relative path)
+        location = self.storage.prepare_location(filepath)
+
+        if filepath != location:
+            raise logic.ValidationError({'upload': ['Invalid storage path']})
+
+        return location
 
     def upload(self, id: str, max_size: int = 10) -> None:
         '''Actually upload the file.
@@ -283,11 +292,7 @@ class ResourceUpload(object):
 
         # Get filepath on the system where the file for this resource will be
         # stored
-        filepath = self.get_path(id)
-
-        # location is a safe version of filepath, processed with
-        # transformers(e.g., converted to safe relative path)
-        location = self.storage.prepare_location(filepath)
+        location = self.get_path(id)
 
         # If a filename has been provided (a file is being uploaded)
         # we write it to the filepath (and overwrite it if it already

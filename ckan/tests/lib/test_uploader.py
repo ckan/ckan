@@ -10,8 +10,9 @@ from ckan.lib.uploader import ResourceUpload, Upload
 
 class TestInitResourceUpload(object):
     def test_resource_without_upload_with_old_werkzeug(
-            self, ckan_config, monkeypatch, tmpdir):
+            self, ckan_config, monkeypatch, tmpdir, reset_storages):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        reset_storages()
 
         # this test data is based on real observation using a browser
         # and werkzeug 0.14.1
@@ -28,8 +29,9 @@ class TestInitResourceUpload(object):
         assert res_upload.filename is None
 
     def test_resource_without_upload(
-            self, ckan_config, monkeypatch, tmpdir):
+            self, ckan_config, monkeypatch, tmpdir, reset_storages):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        reset_storages()
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'true',
                u'format': u'PNG',
@@ -44,8 +46,10 @@ class TestInitResourceUpload(object):
         assert res_upload.filename is None
 
     def test_resource_with_upload(
-            self, ckan_config, monkeypatch, tmpdir):
+            self, ckan_config, monkeypatch, tmpdir, reset_storages):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        reset_storages()
+
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'',
                u'format': u'PNG',
@@ -61,8 +65,9 @@ class TestInitResourceUpload(object):
         assert res_upload.filename == u'data.csv'
 
     def test_resource_with_dodgy_id(
-            self, ckan_config, monkeypatch, tmpdir):
+            self, ckan_config, monkeypatch, tmpdir, reset_storages):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        reset_storages()
 
         resource_id = u'aaabbb/../../../../nope.txt'
         res = {u'clear_upload': u'',
@@ -80,12 +85,15 @@ class TestInitResourceUpload(object):
 
 
 class TestUpload(object):
-    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config, faker):
+    def test_group_upload(
+            self, monkeypatch, tmpdir, make_app, ckan_config, faker,
+            reset_storages):
         """Reproduce group's logo upload and check that file available through
         public url.
 
         """
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        reset_storages()
         # storages are registered when application is loaded. As we just
         # modified storage path, we have to reset storages before Uploader
         # accesses them
