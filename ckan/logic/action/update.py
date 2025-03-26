@@ -7,7 +7,6 @@ from ckan.types.logic import ActionResult
 import logging
 import datetime
 import time
-import json
 from copy import deepcopy
 from typing import Any, Union, TYPE_CHECKING, cast
 
@@ -20,7 +19,6 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions as dfunc
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.search as search
 import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
@@ -440,6 +438,17 @@ def package_update(
 
             item.after_dataset_update(context, data)
 
+    return_id_only = context.get('return_id_only', False)
+
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
+
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
+
+    if not context.get('defer_commit'):
+        logic.index_update_package_dicts((pkg_default, pkg_custom))
+
         nested.commit()
         if not context.get('defer_commit'):
             model.repo.commit()
@@ -462,12 +471,7 @@ def package_update(
     if not change and original_package:
         return original_package
 
-    # we could update the dataset so we should still be able to read it.
-    show_context = logic.fresh_context(context, ignore_auth=True)
-    return _get_action('package_show')(show_context, {
-        'id': data_dict['id'],
-        'include_plugin_data': include_plugin_data,
-    })
+    return pkg_custom
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:
@@ -1228,49 +1232,16 @@ def _bulk_update_dataset(
     org_id = data_dict.get('org_id')
 
     model = context['model']
-    model.Session.query(model.package_table) \
+    dataset_ids = model.Session.query(model.Package.id) \
         .filter(
             model.Package.id.in_(datasets)
-        ) .filter(model.Package.owner_org == org_id) \
-        .update(update_dict, synchronize_session=False)
+        ) .filter(model.Package.owner_org == org_id)
 
-    model.Session.commit()
-
-    # solr update here
-    psi = search.PackageSearchIndex()
-
-    # update the solr index in batches
-    BATCH_SIZE = 50
-
-    def process_solr(q: str):
-        # update the solr index for the query
-        query = search.PackageSearchQuery()
-        q_dict = {
-            'q': q,
-            'fl': 'data_dict',
-            'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
-            'rows': BATCH_SIZE
-        }
-
-        for result in query.run(q_dict)['results']:
-            data_dict = json.loads(result['data_dict'])
-            if data_dict['owner_org'] == org_id:
-                data_dict.update(update_dict)
-                psi.index_package(data_dict, defer_commit=True)
-
-    count = 0
-    q = []
-    for id in datasets:
-        q.append('id:"%s"' % (id))
-        count += 1
-        if count % BATCH_SIZE == 0:
-            process_solr(' OR '.join(q))
-            q = []
-    if len(q):
-        process_solr(' OR '.join(q))
-    # finally commit the changes
-    psi.commit()
+    for d in dataset_ids:
+        _get_action('package_patch')(
+            logic.fresh_context(context),
+            dict(update_dict, id=d),
+        )
 
 
 def bulk_update_private(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdatePrivate:
