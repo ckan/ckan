@@ -19,9 +19,9 @@ const build = () =>
   src([
     __dirname + "/ckan/public/base/scss/main.scss",
     __dirname + "/ckan/public/base/scss/main-rtl.scss",
-    ])
+  ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
-    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
+    .pipe(sass({ outputStyle: "expanded" }).on("error", sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))
     .pipe(rename(renamer))
     .pipe(dest(__dirname + "/ckan/public/base/css/"));

@@ -69,7 +69,7 @@ Creating a release development branch
 
 
 #. When the Tech Team decides to start a new release branch for a new minor release it's
-   always useful to try to merge any outstanding pull requests that should be included. 
+   always useful to try to merge any outstanding pull requests that should be included.
    This makes it easier to include them as when the release branch
    starts diverging there can appear conflicts when cherry-picking.
 
@@ -98,6 +98,10 @@ Creating a release development branch
    review the value of ``SUPPORTED_SCHEMA_VERSIONS`` in ``ckan/lib/search/__init__.py``.
    Aside from adding the new version, you might need to drop previous one if there have been
    incompatible changes in the Solr schema.
+
+        make frontend-build
+        git commit -am "Rebuild CSS"
+        git push
 
    .. code:: diff
 
@@ -147,19 +151,19 @@ Creating a release development branch
       file. The pot file is a text file that contains the original,
       untranslated strings extracted from the CKAN source code.::
 
-        python setup.py extract_messages
+        make translation-extract
 
    c. Get the latest translations (of the previous CKAN release) from
       Transifex, in case any have changed since::
 
-        tx pull --all --minimum-perc=5 --force
+        make translation-pull
 
    d. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file.
       Any new or updated strings from the CKAN source code will get into the po
       files, and any strings in the po files that no longer exist in the source
       code will be deleted (along with their translations)::
 
-        python setup.py update_catalog --no-fuzzy-matching
+        make translation-update
 
    e. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
       major or minor version. For instance v2.10.0, v2.10.1, v2.10.2, etc
@@ -170,7 +174,7 @@ Creating a release development branch
       ``.tx/config`` file, tx will create a new resource on Transifex
       rather than updating an existing resource ::
 
-        tx push --source --translations --force
+        make translation-push
 
    g. On Transifex give the new resource a more friendly name. Go to the
       resource (e.g. https://www.transifex.com/okfn/ckan/2-11/) and access the settings
@@ -179,7 +183,7 @@ Creating a release development branch
 
    h. Update the ``ckan.mo`` files by compiling the po files::
 
-        python setup.py compile_catalog
+        make translation-compile
 
 #. Create a new GitHub label for the backports: ``Backport dev-vX.Y``.
 
@@ -268,7 +272,14 @@ with patches and tested (this will probably be longer for bigger releases).
      using ``towncrier create --edit {PR number}.{fragment type}``.
    * When all fragments are ready, make a draft build::
 
-        towncrier build --draft
+        make changelog-view
+
+     And check output. If no problems identified, compile updated
+     changelog and commit changes::
+
+        make changelog-build
+        git commit -m "Update changelog"
+
    * It's very likely that you will need to tweak the changelog entries to fix typos or
      improve readability, and the migration or deprecation sections will need to be
      expanded. Remember that users with no prior context need to get a good understanding
@@ -390,15 +401,15 @@ To manage translations you will need the Transifex CLI.
 
    Pull the updated strings from Transifex::
 
-        tx pull --all --minimum-perc=5 --force
+       make translation-pull
 
    Check and compile them as before::
 
-        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
-        python setup.py compile_catalog
+       ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
+       make translation-compile
 
-    The compilation shows the translation percentage. Compare this with the new
-    languages directories added to ckan/i18n::
+   The compilation shows the translation percentage. Compare this with the new
+   languages directories added to ckan/i18n::
 
         git status
 
