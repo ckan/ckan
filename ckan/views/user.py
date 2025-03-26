@@ -430,7 +430,6 @@ class EditView(MethodView):
         }
 
         extra_vars = _extra_template_variables({
-            u'model': model,
             u'session': model.Session,
             u'user': current_user.name
         }, data_dict)
