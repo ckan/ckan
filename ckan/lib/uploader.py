@@ -1,4 +1,3 @@
-# encoding: utf-8
 from __future__ import annotations
 
 import contextlib
@@ -6,10 +5,9 @@ import os
 import cgi
 import datetime
 import logging
-import magic
 import mimetypes
 from pathlib import Path
-from typing import Any, IO, Optional, Union
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 import file_keeper as fk
@@ -23,31 +21,7 @@ from ckan.lib.files import storages
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
-MB = 1 << 20
-
 log = logging.getLogger(__name__)
-
-
-def _copy_file(input_file: IO[bytes],
-               output_file: IO[bytes], max_size: int) -> None:
-    input_file.seek(0)
-    current_size = 0
-    while True:
-        current_size = current_size + 1
-        # MB chunks
-        data = input_file.read(MB)
-
-        if not data:
-            break
-        output_file.write(data)
-        if current_size > max_size:
-            raise logic.ValidationError({'upload': ['File upload too large']})
-
-
-def _get_underlying_file(wrapper: Union[FlaskFileStorage, cgi.FieldStorage]):
-    if isinstance(wrapper, FlaskFileStorage):
-        return wrapper.stream
-    return wrapper.file
 
 
 def get_uploader(upload_to: str,
@@ -245,19 +219,12 @@ class ResourceUpload(object):
     mimetype: Optional[str]
 
     def __init__(self, resource: dict[str, Any]) -> None:
-        path = get_storage_path()
+        self.storage = storages.get("resources")
+        if not self.storage:
+            return
+
         config_mimetype_guess = config.get('ckan.mimetype_guess')
 
-        if not path:
-            self.storage_path = None
-            return
-        self.storage_path = os.path.join(path, 'resources')
-        try:
-            os.makedirs(self.storage_path)
-        except OSError as e:
-            # errno 17 is file already exists
-            if e.errno != 17:
-                raise
         self.filename = None
         self.mimetype = None
 
@@ -273,55 +240,33 @@ class ResourceUpload(object):
                 isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
             self.filesize = 0  # bytes
 
-            self.filename = upload_field_storage.filename
-            assert self.filename is not None
+            self.upload_file = fk.make_upload(upload_field_storage)
+            self.filename = self.upload_file.filename
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
-            self.upload_file = _get_underlying_file(upload_field_storage)
-            assert self.upload_file is not None
-            self.upload_file.seek(0, os.SEEK_END)
-            self.filesize = self.upload_file.tell()
-            # go back to the beginning of the file buffer
-            self.upload_file.seek(0, os.SEEK_SET)
+
+            self.filesize = self.upload_file.size
 
             # check if the mimetype failed from guessing with the url
             if not self.mimetype and config_mimetype_guess == 'file_ext':
                 self.mimetype = mimetypes.guess_type(self.filename)[0]
 
             if not self.mimetype and config_mimetype_guess == 'file_contents':
-                try:
-                    self.mimetype = magic.from_buffer(self.upload_file.read(),
-                                                      mime=True)
-                    self.upload_file.seek(0, os.SEEK_SET)
-                except IOError:
-                    # Not that important if call above fails
-                    self.mimetype = None
+                self.mimetype = self.upload_file.content_type
 
         elif self.clear:
             resource['url_type'] = ''
 
     def get_directory(self, id: str) -> str:
-        if self.storage_path is None:
+        if not self.storage:
             raise TypeError("storage_path is not defined")
-
-        real_storage = os.path.realpath(self.storage_path)
-        directory = os.path.join(real_storage, id[0:3], id[3:6])
-        if directory != os.path.realpath(directory):
-            raise logic.ValidationError({
-                'upload': ['Invalid storage directory']
-            })
-        return directory
+        return os.path.join(id[0:3], id[3:6])
 
     def get_path(self, id: str) -> str:
         directory = self.get_directory(id)
-        filepath = os.path.join(directory, id[6:])
-
-        if filepath != os.path.realpath(filepath):
-            raise logic.ValidationError({'upload': ['Invalid storage path']})
-
-        return filepath
+        return os.path.join(directory, id[6:])
 
     def upload(self, id: str, max_size: int = 10) -> None:
         '''Actually upload the file.
@@ -333,36 +278,26 @@ class ResourceUpload(object):
         :rtype: ``string`` or ``None``
 
         '''
-        if not self.storage_path:
+        if not self.storage:
             return
 
-        # Get directory and filepath on the system
-        # where the file for this resource will be stored
-        directory = self.get_directory(id)
+        # Get filepath on the system where the file for this resource will be
+        # stored
         filepath = self.get_path(id)
+
+        # location is a safe version of filepath, processed with
+        # transformers(e.g., converted to safe relative path)
+        location = self.storage.prepare_location(filepath)
 
         # If a filename has been provided (a file is being uploaded)
         # we write it to the filepath (and overwrite it if it already
         # exists). This way the uploaded file will always be stored
         # in the same location
         if self.filename:
-            try:
-                os.makedirs(directory)
-            except OSError as e:
-                # errno 17 is file already exists
-                if e.errno != 17:
-                    raise
-            tmp_filepath = filepath + '~'
-            with open(tmp_filepath, 'wb+') as output_file:
-                assert self.upload_file
-                try:
-                    _copy_file(self.upload_file, output_file, max_size)
-                except logic.ValidationError:
-                    os.remove(tmp_filepath)
-                    raise
-                finally:
-                    self.upload_file.close()
-            os.rename(tmp_filepath, filepath)
+            if self.upload_file.size > max_size * 1024 * 1024:
+                raise logic.ValidationError({'upload': ['File upload too large']})
+
+            self.storage.upload(location, self.upload_file)
             return
 
         # The resource form only sets self.clear (via the input clear_upload)
@@ -371,7 +306,5 @@ class ResourceUpload(object):
         # If the uploaded file is replaced by a link, we should remove the
         # previously uploaded file to clean up the file system.
         if self.clear:
-            try:
-                os.remove(filepath)
-            except OSError:
-                pass
+            with contextlib.suppress(fk.exc.MissingFileError):
+                self.storage.remove(fk.FileData(location))

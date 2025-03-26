@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 import os
-from ckan.common import config
 import file_keeper as fk
+
+from ckan.common import config
 
 
 def collect_storages() -> dict[str, fk.Storage]:
@@ -9,7 +11,19 @@ def collect_storages() -> dict[str, fk.Storage]:
     result = {}
 
     if path:
-        for object_type in ["user", "group"]:
+        result["resources"] = fk.make_storage(
+            "resources",
+            {
+                "type": "file_keeper:fs",
+                "path": os.path.join(path, "resources"),
+                "create_path": True,
+                "recursive": True,
+                "override_existing": True,
+                "location_transformers": ["safe_relative_path"],
+            },
+        )
+
+        for object_type in ["user", "group", "admin"]:
             name = f"{object_type}_uploads"
             result[name] = fk.make_storage(
                 name,
