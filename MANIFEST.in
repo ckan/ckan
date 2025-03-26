@@ -15,6 +15,7 @@ recursive-include ckanext *.py
 recursive-include ckanext/*/i18n *
 recursive-include ckanext/*/public *
 recursive-include ckanext/*/assets *
+recursive-include ckanext/*/migration *
 recursive-include ckanext/*/templates *
 recursive-include ckanext/*/theme/public *
 recursive-include ckanext/*/theme/templates *

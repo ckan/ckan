@@ -29,7 +29,7 @@ defaults:
       SQLALCHEMY_WARN_20: 1
   pg_image: &pg_image
     # Note, this should be in sync with test-infrastructure/docker-compose.yml
-    image: postgres:10
+    image: postgres:12
     environment:
       POSTGRES_USER: ckan
       POSTGRES_PASSWORD: ckan
@@ -37,7 +37,7 @@ defaults:
 
   redis_image: &redis_image
     # Note, this should be in sync with test-infrastructure/docker-compose.yml
-    image: redis:3
+    image: redis:7
     name: ckan-redis
 
   solr_image: &solr_image

@@ -1,12 +1,11 @@
 describe('ckan.modules.DashboardModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
-    cy.window().then(win => {
-      cy.wrap(win.ckan.module.registry['dashboard']).as('dashboard');
+    cy.request('/testing/dashboard').then(response => {
+      cy.wrap(response.body).as('template');
+    }).window().then(win => {
+      cy.wrap(win.ckan.module.registry['dashboard']).as('dashboard')
       win.jQuery('<div id="fixture">').appendTo(win.document.body)
-      cy.loadFixture('dashboard.html').then((template) => {
-        cy.wrap(template).as('template');
-      });
     })
   });
 
@@ -50,8 +49,6 @@ describe('ckan.modules.DashboardModule()', {testIsolation: false}, function () {
     });
   })
 
-/*
- * TODO: This test keeps failing randomly
   describe(".search", {testIsolation: false}, function(){
     it('should filter based on query', function() {
       this.module.initialize();
@@ -63,5 +60,4 @@ describe('ckan.modules.DashboardModule()', {testIsolation: false}, function () {
       cy.get('#fixture #followee-filter .nav li[data-search="test followee"]').should('be.visible');
     })
   })
-  */
 })

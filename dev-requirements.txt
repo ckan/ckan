@@ -3,22 +3,22 @@
 beautifulsoup4==4.12.3
 cookiecutter==2.6.0
 coveralls   #Let Unpinned - Requires latest coveralls
-Faker==24.4.0
-factory-boy==3.3.0
-flask-debugtoolbar==0.14.1
-freezegun==1.4.0
+Faker==33.3.1
+factory-boy==3.3.1
+flask-debugtoolbar==0.16.0
+freezegun==1.5.1
 ipdb==0.13.13
 pip-tools==7.4.1
-Pillow==10.3.0
-responses==0.25.0
-sphinx-rtd-theme==2.0.0
-sphinx==7.2.6
+Pillow==11.1.0
+responses==0.25.6
+sphinx-rtd-theme==3.0.2
+sphinx==7.4.7
 toml==0.10.2
-towncrier==23.11.0
+towncrier==24.8.0
 
-pytest==8.1.1
-pytest-cov==5.0.0
+pytest==8.3.4
+pytest-cov==6.0.0
 pytest-factoryboy==2.7.0
 pytest-freezegun==0.4.2
-pytest-rerunfailures==14.0
-pytest-split==0.8.2
+pytest-rerunfailures==15.0
+pytest-split==0.10.0

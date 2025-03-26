@@ -1,0 +1,36 @@
+{% extends 'package/snippets/package_form.html' %}
+
+{% block stages %}
+  {% if form_style != 'edit' %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block save_button_text %}
+  {% if form_style != 'edit' %}
+    {{ super() }}
+  {% else %}
+    {{ h.humanize_entity_type('package', pkg_dict.type, 'update label') or _('Update Dataset') }}
+  {% endif %}
+{% endblock %}
+
+
+{% block publish_button %}
+  {% if form_style != 'edit' %}
+    {{ super() }}
+  {% else %}
+    <button class="btn btn-success" name="save" value="go-metadata-unpublish" type="submit">{% block publish_button_text %}{{ _('Unpublish') }}{% endblock %}</button>
+  {% endif %}
+{% endblock %}
+
+{% block cancel_button %}
+  {% if form_style != 'edit' %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block delete_button %}
+  {% if form_style == 'edit' and h.check_access('package_delete', {'id': pkg_dict.id}) %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}

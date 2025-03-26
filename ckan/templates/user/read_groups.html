@@ -1,6 +1,12 @@
 {% extends "user/read_base.html" %}
 
+{% set user = user_dict %}
 {% set group_type = h.default_group_type('group') %}
+{% set groups_available = h.groups_available(am_member=True,
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['id'])
+%}
 
 {% block primary_content_inner %}
   <h2 class="hide-heading">{{ h.humanize_entity_type('group', group_type, 'facet label') or _('Groups') }}</h2>

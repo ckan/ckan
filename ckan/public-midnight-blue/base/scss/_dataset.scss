@@ -1,0 +1,390 @@
+.dataset-item {
+    border-bottom: 1px solid $genericBorderColor;
+    padding: 16px 0;
+    background-color: $gray-100;
+    margin-bottom: 0;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: stretch;
+    width: 100%;
+}
+.dataset-heading {
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+.dataset-organization {
+    color: #667085;
+    font-weight: 500;
+}
+
+@include media-breakpoint-down(sm){
+    .dataset-item {
+        word-wrap: break-word;
+    }
+}
+
+.dataset-heading .badge {
+    position: relative;
+    top: -1px;
+}
+
+.badge-inverse {
+    background-color: $gray-600;
+}
+
+.dataset-private {
+    &.pull-right {
+        margin-right: 0;
+    }
+}
+
+.dataset-resources {
+    margin-top: 8px;
+}
+
+.dataset-resources li {
+    display: inline;
+}
+
+.dataset-content {
+    width: 100%;
+}
+
+// Resource List
+.resource-list {
+    @include list-unstyled;
+    padding-left: 0;
+    margin: -10px -10px 10px -10px;
+}
+
+.resource-item {
+    position: relative;
+    padding: 10px 10px 10px 60px;
+    margin-bottom: 0px;
+    @include border-radius(3px);
+    &:hover {
+        background-color: $layoutBackgroundColor;
+    }
+}
+
+.resource-item .heading {
+    color: $layoutBoldColor;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.resource-item .format-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.resource-item .description {
+    font-size: 12px;
+    margin-bottom: 0;
+    min-height: 12px;
+}
+
+.resource-item .btn-group {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+@include media-breakpoint-down(sm) {
+    .resource-item .btn-group {
+        display: none;
+    }
+}
+
+.resource-list.reordering {
+    .resource-item {
+        border: 1px solid $moduleHeadingBorderColor;
+        margin-bottom: 10px;
+        cursor: move;
+        .handle {
+            display: block;
+            position: absolute;
+            color: $moduleHeadingActionTextColor;
+            left: -31px;
+            top: 50%;
+            margin-top: -15px;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border: 1px solid $moduleHeadingBorderColor;
+            border-width: 1px 0 1px 1px;
+            background-color: $moduleBackgroundColor;
+            @include border-radius(20px 0 0 20px);
+            &:hover {
+                text-decoration: none;
+            }
+        }
+        &:hover .handle {
+            background-color: $layoutBackgroundColor;
+        }
+        &.ui-sortable-helper {
+            background-color: $layoutBackgroundColor;
+            border: 1px solid $layoutLinkColor;
+            .handle {
+                background-color: $layoutBackgroundColor;
+                border-color: $layoutLinkColor;
+                color: $navLinkColor;
+            }
+        }
+    }
+}
+
+.resource-item .handle {
+    display: none;
+}
+
+// Dataset Forms
+// Tag List
+.tag-list {
+    padding: 10px 10px 5px 10px;
+    background-color: $gray-100;
+    border: 1px solid $genericBorderColor;
+    border-radius: 0.25rem;
+}
+
+.tag-list li {
+    display: inline-block;
+}
+
+.tag-list li:last-child {
+    margin-right: 0;
+}
+
+// Additional Info
+.additional-info td,
+.additional-info th {
+    width: 50%;
+}
+
+// FORMATS
+.badge-default[data-format] {
+    border: 1px solid #5e5e5e;
+    color: #5e5e5e;
+}
+
+.badge[data-format=html],
+.badge[data-format*=html] {
+    border: 1px solid #2E759E;
+    color: #2E759E;
+}
+
+.badge[data-format=json],
+.badge[data-format*=json] {
+    border: 1px solid #D63B00;
+    color: #D63B00;
+}
+
+.badge[data-format=xml],
+.badge[data-format*=xml] {
+    border: 1px solid #D63B00;
+    color: #D63B00;
+}
+
+.badge[data-format=text],
+.badge[data-format*=text] {
+    border: 1px solid #1A7EA3;
+    color: #1A7EA3;
+}
+
+.badge[data-format=csv],
+.badge[data-format*=csv] {
+    border: 1px solid #856A00;
+    color: #856A00;
+}
+
+.badge[data-format=xls],
+.badge[data-format*=xls] {
+    border: 1px solid #207E42;
+    color: #207E42;
+}
+
+.badge[data-format=zip],
+.badge[data-format*=zip] {
+    border: 1px solid #686868;
+    color: #686868;
+}
+
+.badge[data-format=api],
+.badge[data-format*=api] {
+    border: 1px solid #D22D81;
+    color: #D22D81;
+}
+
+.badge[data-format=pdf],
+.badge[data-format*=pdf] {
+    border: 1px solid #e0051e;
+    color: #e0051e;
+}
+
+.badge[data-format=rdf],
+.badge[data-format*=rdf],
+.badge[data-format*=nquad],
+.badge[data-format*=ntriples],
+.badge[data-format*=turtle] {
+    border: 1px solid #0b4498;
+    color: #0b4498;
+}
+
+.badge-default[href]:hover,
+.badge-default[href]:focus {
+    background-color: #5e5e5e;
+    color: $white;
+    text-decoration: none;
+}
+
+// Views
+.view-list {
+    @include list-unstyled;
+    li {
+        position: relative;
+        margin-bottom: 10px;
+        a {
+            display: block;
+            min-height: 50px;
+            padding: 10px;
+            border: 1px solid $moduleHeadingBorderColor;
+            overflow: hidden;
+            @include border-radius(3px);
+            .icon {
+                float: left;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin-right: 10px;
+                color: $layoutTextColor;
+                background-color: $layoutBackgroundColor;
+                @include border-radius(3px);
+                i {
+                    display: block;
+                    text-align: center;
+                    font-size: 28px;
+                    line-height: 50px;
+                }
+            }
+            h3 {
+                font-weight: bold;
+                color: $layoutBoldColor;
+                font-weight: bold;
+                font-size: 16px;
+                margin: 0 0 3px 0;
+            }
+            p {
+                margin: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                color: $layoutTextColor;
+            }
+            &.active,
+            &:hover {
+                text-decoration: none;
+                border-color: $layoutLinkColor;
+                .icon {
+                    background-color: $layoutLinkColor;
+                    color: $navActiveBackgroundColor;
+                }
+            }
+        }
+        .arrow {
+            position: absolute;
+            display: none;
+            border: 8px solid transparent;
+            border-top-color: $layoutLinkColor;
+            left: 50%;
+            bottom: -15px;
+            margin-left: -4px;
+        }
+        &.active {
+            a {
+                text-decoration: none;
+                border-color: $layoutLinkColor;
+                .icon {
+                    background-color: $layoutLinkColor;
+                    color: $navActiveBackgroundColor;
+                }
+            }
+            .arrow {
+                display: block;
+            }
+        }
+    }
+    &.stacked {
+        overflow-y: hidden;
+        overflow-x: auto;
+        height: 100px;
+        white-space: nowrap;
+        li {
+            display: inline-block;
+            width: 250px;
+            margin-right: 10px;
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+        &::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        &::-webkit-scrollbar-track {
+            border-radius: 10px;
+            background-color: $navActiveBackgroundColor;
+        }
+        &::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background-color: darken($navActiveBackgroundColor, 20%);
+            &:hover {
+                background-color: $layoutLinkColor;
+            }
+        }
+    }
+}
+
+.resource-view {
+    margin-top: 20px;
+}
+
+#activity-archive-notice {
+  clear: both;
+}
+
+
+/* diff styles */
+table.diff {
+  font-family:Courier;
+  border:medium;
+}
+.diff_header {
+  background-color:#e0e0e0;
+}
+td.diff_header {
+  text-align:right;
+}
+.diff_next {
+  background-color:#c0c0c0;
+}
+.diff_add {
+  background-color:#aaffaa;
+}
+.diff_chg {
+  background-color:#ffff77;
+}
+.diff_sub {
+  background-color:#ffaaaa;
+}
+// TRASH VIEW accordion
+// --------------------------------------------------
+
+  .purge-all {
+    float: right;
+    margin-bottom: 15px;
+  }

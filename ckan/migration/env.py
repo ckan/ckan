@@ -8,11 +8,6 @@ from ckan.model import init_model
 from ckan.model.meta import metadata
 from ckan.plugins import plugin_loaded
 
-# When auto-generating migration scripts, uncomment these lines to include in
-# the model the revision tables - otherwise Alembic wants to delete them
-# from ckan.migration.revision_legacy_code import RevisionTableMappings
-# RevisionTableMappings.instance()
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -41,10 +36,6 @@ def include_name(name, type_, parent_names):
     to delete them properly or create them in the models as well.
     """
     if type_ == 'table':
-        # FIXME: remove everything revision-related
-        if name == 'revision' or name.endswith('_revision'):
-            return False
-
         if name.endswith('_alembic_version'):
             # keep migration information from extensions
             return False

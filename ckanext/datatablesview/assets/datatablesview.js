@@ -385,6 +385,11 @@ this.ckan.module('datatables_view', function (jQuery) {
       // en is the default language, no need to load i18n file
       if (languagefile === '/vendor/DataTables/i18n/en.json') {
         activelanguage = ''
+      // load i18n files for zh_Hant_TW and zh_Hans_CN language
+      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hant_TW.json') {
+        activelanguage = '/vendor/DataTables/i18n/zh_Hant.json'
+      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hans_CN.json') {
+        activelanguage = '/vendor/DataTables/i18n/zh_CN.json'
       }
 
       // settings if gcurrentView === table
@@ -414,9 +419,9 @@ this.ckan.module('datatables_view', function (jQuery) {
                 // add clipboard and print buttons to modal record display
                 var data = row.data();
                 return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
-                  '<button id="modalcopy-button" class="btn btn-default" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
+                  '<button id="modalcopy-button" class="btn btn-secondary" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
                   packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
-                  '<button id="modalprint-button" class="btn btn-default" title="' + that._('Print') + '" onclick="printModal(\'' +
+                  '<button id="modalprint-button" class="btn btn-secondary" title="' + that._('Print') + '" onclick="printModal(\'' +
                   packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
                   '</div>&nbsp;'
               }
@@ -703,7 +708,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'viewToggleButton',
           text: gcurrentView === 'table' ? '<i class="fa fa-list"></i>' : '<i class="fa fa-table"></i>',
           titleAttr: that._('Table/List toggle'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           action: function (e, dt, node, config) {
             if (gcurrentView === 'list') {
               dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>')
@@ -723,7 +728,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'copy',
           text: '<i class="fa fa-copy"></i>',
           titleAttr: that._('Copy to clipboard'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           title: function () {
             // remove html tags from filterInfo msg
             const filternohtml = filterInfo(datatable, true)
@@ -737,7 +742,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'colvis',
           text: '<i class="fa fa-eye-slash"></i>',
           titleAttr: that._('Toggle column visibility'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           columns: 'th:gt(0):not(:contains("colspacer"))',
           collectionLayout: 'fixed',
           postfixButtons: [{
@@ -775,7 +780,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         }, {
           text: '<i class="fa fa-download"></i>',
           titleAttr: that._('Filtered download'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           autoClose: true,
           extend: 'collection',
           buttons: [{
@@ -811,7 +816,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'resetButton',
           text: '<i class="fa fa-repeat"></i>',
           titleAttr: that._('Reset'),
-          className: 'btn-default resetButton',
+          className: 'btn-secondary resetButton',
           action: function (e, dt, node, config) {
             dt.state.clear()
             $('.resetButton').css('color', 'black')
@@ -822,7 +827,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'print',
           text: '<i class="fa fa-print"></i>',
           titleAttr: that._('Print'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           title: packagename + ' — ' + resourcename,
           messageTop: function () {
             return filterInfo(datatable)
@@ -838,7 +843,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'shareButton',
           text: '<i class="fa fa-share"></i>',
           titleAttr: that._('Share current view'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           action: function (e, dt, node, config) {
             dt.state.save()
             const sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()))
@@ -900,6 +905,8 @@ this.ckan.module('datatables_view', function (jQuery) {
                         : ' <span class="fa fa-sort-amount-desc"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
+        //adjust column widths after sorting
+        fitColText();
       })
     }
   }

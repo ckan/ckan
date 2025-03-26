@@ -7,7 +7,7 @@ from ckan.types.logic import ActionResult
 import logging
 import datetime
 import time
-import json
+from copy import deepcopy
 from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
@@ -19,7 +19,6 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions as dfunc
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.search as search
 import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
@@ -64,35 +63,37 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     '''
     model = context['model']
-    id: str = _get_or_bust(data_dict, "id")
+    rid: str = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    resource = model.Resource.get(id)
-    if resource is None:
-        raise NotFound('Resource was not found.')
+    resource = model.Resource.get(rid)
+    if not resource:
+        log.debug('Could not find resource %s', rid)
+        raise NotFound(_('Resource was not found.'))
     context["resource"] = resource
     old_resource_format = resource.format
-
-    if not resource:
-        log.debug('Could not find resource %s', id)
-        raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    package_id = resource.package.id
-    package_show_context: Union[Context, Any] = dict(context, for_update=True)
-    pkg_dict = _get_action('package_show')(
-        package_show_context, {'id': package_id})
+    update_context = Context(context)
+    pkg_dict = context.get('original_package')
+    if not pkg_dict:
+        package_id = resource.package.id
+        package_show_context: Union[Context, Any] = dict(context, for_update=True)
+        pkg_dict = _get_action('package_show')(
+            package_show_context, {'id': package_id})
+
+    update_context['original_package'] = dict(pkg_dict)
+    # allow dataset metadata_modified to be updated
+    pkg_dict.pop('metadata_modified', None)
+    pkg_dict['resources'] = list(pkg_dict['resources'])
 
     resources = cast("list[dict[str, Any]]", pkg_dict['resources'])
-    for n, p in enumerate(resources):
-        if p['id'] == id:
-            break
-    else:
-        log.error('Could not find resource %s after all', id)
+    if resources[resource.position]['id'] != rid:
+        log.error('Could not find resource %s after all', rid)
         raise NotFound(_('Resource was not found.'))
 
     # Persist the datastore_active extra if already present and not provided
@@ -101,22 +102,26 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         data_dict['datastore_active'] = resource.extras['datastore_active']
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_resource_update(context, pkg_dict['resources'][n],
-                                      data_dict)
+        plugin.before_resource_update(
+            context,
+            pkg_dict['resources'][resource.position],
+            data_dict
+        )
 
-    resources[n] = data_dict
+    resources[resource.position] = data_dict
 
     try:
-        context['use_cache'] = False
-        updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
+        updated_pkg_dict = _get_action('package_update')(
+            update_context, pkg_dict)
     except ValidationError as e:
         try:
-            error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[n]
+            error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[
+                resource.position]
         except (KeyError, IndexError):
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    resource = _get_action('resource_show')(context, {'id': id})
+    resource = updated_pkg_dict['resources'][resource.position]
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(
@@ -235,13 +240,12 @@ def package_update(
     You must be authorized to edit the dataset and the groups that it belongs
     to.
 
-    .. note:: Update methods may delete parameters not explicitly provided in the
-        data_dict. If you want to edit only a specific attribute use `package_patch`
-        instead.
+    .. note:: Update methods may delete parameters not explicitly provided.
+        If you want to edit only a specific attribute use
+        :py:func:`ckan.logic.action.get.package_patch` instead.
 
-    It is recommended to call
-    :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
-    the result, and then call ``package_update()`` with it.
+    If the ``resources`` list is omitted the current resources will be left
+    unchanged.
 
     Plugins may change the parameters of this function depending on the value
     of the dataset's ``type`` attribute, see the
@@ -281,8 +285,57 @@ def package_update(
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     schema = context.get('schema') or package_plugin.update_package_schema()
 
+    # try to do less work
+    return_id_only = context.get('return_id_only', False)
+    original_package = context.get('original_package')
+    copy_resources = {}
+    changed_resources = data_dict.get('resources')
+    dataset_changed = True
+
+    if not original_package or original_package.get('id') != pkg.id:
+        show_context = logic.fresh_context(context, ignore_auth=True)
+        original_package = _get_action('package_show')(show_context, {
+            'id': data_dict['id'],
+        })
+
+    if data_dict.get('metadata_modified'):
+        dataset_changed = original_package != data_dict
+    else:
+        dataset_changed = dict(
+            original_package, metadata_modified=None, resources=None
+            ) != dict(data_dict, metadata_modified=None, resources=None)
+    if not dataset_changed and original_package.get('resources'
+            ) == data_dict.get('resources'):
+        return pkg.id if return_id_only else original_package
+
+    res_deps = []
+    if hasattr(package_plugin, 'resource_validation_dependencies'):
+        res_deps = package_plugin.resource_validation_dependencies(
+            pkg.type)
+
+    _missing = object()
+    if 'resources' in data_dict and all(
+            original_package.get(rd, _missing) == data_dict.get(rd, _missing)
+            for rd in res_deps):
+        oids = {r['id']: r for r in original_package['resources']}
+        copy_resources = {
+            i: r['position']
+            for (i, r) in enumerate(data_dict['resources'])
+            if r == oids.get(r.get('id'), ())
+        }
+        changed_resources = [
+            r for i, r in enumerate(data_dict['resources'])
+            if i not in copy_resources
+        ]
+
+    if 'resources' not in data_dict and any(
+            original_package.get(rd, _missing) != data_dict.get(rd, _missing)
+            for rd in res_deps):
+        # re-validate resource fields even if not passed
+        changed_resources = original_package['resources']
+
     resource_uploads = []
-    for resource in data_dict.get('resources', []):
+    for resource in changed_resources or []:
         # file uploads/clearing
         upload = uploader.get_resource_uploader(resource)
 
@@ -296,8 +349,28 @@ def package_update(
 
         resource_uploads.append(upload)
 
+    validate_data = dict(data_dict)
+    if changed_resources is not None:
+        validate_data['resources'] = changed_resources
+
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema, 'package_update')
+        package_plugin,
+        context,
+        validate_data,
+        schema,
+        'package_update'
+    )
+    # shift resource errors to the correct positions
+    if copy_resources and 'resources' in errors:
+        rerrs = []
+        i = 0
+        for e in errors['resources']:
+            while i in copy_resources:
+                rerrs.append({})
+                i += 1
+            rerrs.append(e)
+            i += 1
+        errors['resources'] = rerrs
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, user, context['package'].name, data)
 
@@ -305,10 +378,23 @@ def package_update(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    #avoid revisioning by updating directly
-    model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
-    model.Session.refresh(pkg)
+    # merge skipped resources back into validated data
+    if copy_resources:
+        assert original_package  # make pyright happy
+        resources = []
+        i = 0
+        for r in data['resources']:
+            while i in copy_resources:
+                resources.append(
+                    original_package['resources'][copy_resources[i]])
+                i += 1
+            resources.append(r)
+            i += 1
+        while i in copy_resources:
+            resources.append(
+                original_package['resources'][copy_resources[i]])
+            i += 1
+        data['resources'] = resources
 
     include_plugin_data = False
     user_obj = context.get('auth_user_obj')
@@ -319,48 +405,73 @@ def package_update(
             and plugin_data
         )
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_data)
+    nested = model.repo.session.begin_nested()
+    pkg, change = model_save.package_dict_save(
+        data, context, include_plugin_data, copy_resources)
 
-    context_org_update = context.copy()
-    context_org_update['ignore_auth'] = True
-    context_org_update['defer_commit'] = True
-    _get_action('package_owner_org_update')(context_org_update,
-                                            {'id': pkg.id,
-                                             'organization_id': pkg.owner_org})
+    if change:
+        if not data.get('metadata_modified'):
+            pkg.metadata_modified = datetime.datetime.utcnow()
 
-    # Needed to let extensions know the new resources ids
-    model.Session.flush()
-    for index, (resource, upload) in enumerate(
-            zip(data.get('resources', []), resource_uploads)):
-        resource['id'] = pkg.resources[index].id
+        context_org_update = logic.fresh_context(
+            context, ignore_auth=True, defer_commit=True)
+        _get_action('package_owner_org_update')(context_org_update,
+                                                {'id': pkg.id,
+                                                 'organization_id': pkg.owner_org})
 
-        upload.upload(resource['id'], uploader.get_max_resource_size())
+        # Needed to let extensions know the new resources ids
+        model.Session.flush()
+        if changed_resources:
+            resiter = iter(changed_resources)
+            uploaditer = iter(resource_uploads)
+            for i in range(len(pkg.resources)):
+                if i in copy_resources:
+                    continue
+                resource = next(resiter)
+                upload = next(uploaditer)
+                resource['id'] = pkg.resources[i].id
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.edit(pkg)
+                upload.upload(resource['id'], uploader.get_max_resource_size())
 
-        item.after_dataset_update(context, data)
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            item.edit(pkg)
 
-    if not context.get('defer_commit'):
-        model.repo.commit()
-
-    log.debug('Updated object %s' % pkg.name)
+            item.after_dataset_update(context, data)
 
     return_id_only = context.get('return_id_only', False)
 
-    # Make sure that a user provided schema is not used on package_show
-    context.pop('schema', None)
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
 
-    # we could update the dataset so we should still be able to read it.
-    context['ignore_auth'] = True
-    output = data_dict['id'] if return_id_only \
-            else _get_action('package_show')(
-                context,
-                {'id': data_dict['id'],
-                "include_plugin_data": include_plugin_data
-            }
-        )
-    return output
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
+
+    if not context.get('defer_commit'):
+        logic.index_update_package_dicts((pkg_default, pkg_custom))
+
+        nested.commit()
+        if not context.get('defer_commit'):
+            model.repo.commit()
+
+        # return ids of changed entities via context because return value is
+        # the action's "result" data
+        context.setdefault(
+            'changed_entities', {}
+        ).setdefault(
+            'packages', set()
+        ).add(pkg.id)
+        log.debug('Updated object %s', pkg.name)
+    else:
+        log.debug('No update for object %s', pkg.name)
+        nested.rollback()
+
+    if return_id_only:
+        return pkg.id
+
+    if not change and original_package:
+        return original_package
+
+    return pkg_custom
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:
@@ -394,9 +505,9 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     ``match`` and ``update`` parameters may also be passed as "flattened keys", using
     either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
-    ``update__resource__1f9ab__description="guidebook"`` would set the
+    ``update__resources__1f9ab__description="guidebook"`` would set the
     description of the resource with id starting with "1f9ab" to "guidebook", and
-    ``update__resource__-1__description="guidebook"`` would do the same
+    ``update__resources__-1__description="guidebook"`` would do the same
     on the last resource in the dataset.
 
     The ``extend`` suffix can also be used on the update parameter to add
@@ -465,13 +576,11 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     if name_or_id is None:
         raise ValidationError({'match__id': _('Missing value')})
 
-    package_show_context = context.copy()
+    package_show_context = Context(context)
     package_show_context['for_update'] = True
     orig = _get_action('package_show')(
         package_show_context,
         {'id': name_or_id})
-
-    pkg = package_show_context['package']  # side-effect of package_show
 
     unmatched = []
     if 'match' in data:
@@ -487,14 +596,17 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             for unm in unmatched
         ]})
 
+    revised = deepcopy(orig)
+    # allow metadata_modified to be updated if data has changed
+    revised.pop('metadata_modified', None)
+
     if 'filter' in data:
-        orig_id = orig['id']
-        dfunc.filter_glob_match(orig, data['filter'])
-        orig['id'] = orig_id
+        dfunc.filter_glob_match(revised, data['filter'])
+        revised['id'] = orig['id']
 
     if 'update' in data:
         try:
-            dfunc.update_merge_dict(orig, data['update'])
+            dfunc.update_merge_dict(revised, data['update'])
         except dfunc.DataError as de:
             model.Session.rollback()
             raise ValidationError({'update': [de.error]})
@@ -505,20 +617,21 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             data['update__'].items(),
             key=lambda s: s[0][-6] if s[0].endswith('extend') else s[0]):
         try:
-            dfunc.update_merge_string_key(orig, k, v)
+            dfunc.update_merge_string_key(revised, k, v)
         except dfunc.DataError as de:
             model.Session.rollback()
             raise ValidationError({k: [de.error]})
 
-    _check_access('package_revise', context, {"update": orig})
+    _check_access('package_revise', context, {"update": revised})
+
+    update_context = Context(context)
+    update_context['original_package'] = orig
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info
     # on update or "nothing changed" status once possible
     rval = {
-        'package': _get_action('package_update')(
-            Context(context, package=pkg),
-            orig)}
+        'package': _get_action('package_update')(update_context, revised)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])
     return rval
@@ -547,7 +660,12 @@ def package_resource_reorder(
     package_show_context: Union[Context, Any] = dict(context, for_update=True)
     package_dict = _get_action('package_show')(
         package_show_context, {'id': id})
-    existing_resources = package_dict.get('resources', [])
+
+    # allow metadata_modified to be updated if data has changed
+    # removes from original_package for comparison in package_update
+    package_dict.pop('metadata_modified', None)
+
+    existing_resources = list(package_dict.get('resources', []))
     ordered_resources = []
 
     for resource_id in order:
@@ -563,10 +681,12 @@ def package_resource_reorder(
             )
 
     new_resources = ordered_resources + existing_resources
+    update_context = Context(context)
+    update_context['original_package'] = dict(package_dict)
     package_dict['resources'] = new_resources
 
     _check_access('package_resource_reorder', context, package_dict)
-    _get_action('package_update')(context, package_dict)
+    _get_action('package_update')(update_context, package_dict)
 
     return {'id': id, 'order': [resource['id'] for resource in new_resources]}
 
@@ -736,16 +856,15 @@ def group_update(context: Context, data_dict: DataDict) -> ActionResult.GroupUpd
     For further parameters see
     :py:func:`~ckan.logic.action.create.group_create`.
 
+    Callers can choose to not specify packages, users or groups and they will be
+    left at their existing values.
+
     :param id: the name or id of the group to update
     :type id: string
 
     :returns: the updated group
     :rtype: dictionary
-
     '''
-    # Callers that set context['allow_partial_update'] = True can choose to not
-    # specify particular keys and they will be left at their existing
-    # values. This includes: packages, users, groups, tags, extras
     return _group_or_org_update(context, data_dict)
 
 def organization_update(
@@ -761,6 +880,9 @@ def organization_update(
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
 
+    Callers can choose to not specify packages, users or groups and they will be
+    left at their existing values.
+
     :param id: the name or id of the organization to update
     :type id: string
     :param packages: ignored. use
@@ -771,9 +893,6 @@ def organization_update(
     :rtype: dictionary
 
     '''
-    # Callers that set context['allow_partial_update'] = True can choose to not
-    # specify particular keys and they will be left at their existing
-    # values. This includes: users, groups, tags, extras
     return _group_or_org_update(context, data_dict, is_org=True)
 
 def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdate:
@@ -1089,7 +1208,7 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
             need_update = False
         else:
             member_obj.state = 'deleted'
-            member_obj.save()
+            model.Session.add(member_obj)
 
     # add the organization to member table
     if org and need_update:
@@ -1106,56 +1225,23 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
 
 
 def _bulk_update_dataset(
-        context: Context, data_dict: DataDict, update_dict: dict[str, Any]):
+        context: Context, data_dict: DataDict, update_dict: dict[Any, Any]):
     ''' Bulk update shared code for organizations'''
 
     datasets = data_dict.get('datasets', [])
     org_id = data_dict.get('org_id')
 
     model = context['model']
-    model.Session.query(model.package_table) \
+    dataset_ids = model.Session.query(model.Package.id) \
         .filter(
             model.Package.id.in_(datasets)
-        ) .filter(model.Package.owner_org == org_id) \
-        .update(update_dict, synchronize_session=False)
+        ) .filter(model.Package.owner_org == org_id)
 
-    model.Session.commit()
-
-    # solr update here
-    psi = search.PackageSearchIndex()
-
-    # update the solr index in batches
-    BATCH_SIZE = 50
-
-    def process_solr(q: str):
-        # update the solr index for the query
-        query = search.PackageSearchQuery()
-        q_dict = {
-            'q': q,
-            'fl': 'data_dict',
-            'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
-            'rows': BATCH_SIZE
-        }
-
-        for result in query.run(q_dict)['results']:
-            data_dict = json.loads(result['data_dict'])
-            if data_dict['owner_org'] == org_id:
-                data_dict.update(update_dict)
-                psi.index_package(data_dict, defer_commit=True)
-
-    count = 0
-    q = []
-    for id in datasets:
-        q.append('id:"%s"' % (id))
-        count += 1
-        if count % BATCH_SIZE == 0:
-            process_solr(' OR '.join(q))
-            q = []
-    if len(q):
-        process_solr(' OR '.join(q))
-    # finally commit the changes
-    psi.commit()
+    for d in dataset_ids:
+        _get_action('package_patch')(
+            logic.fresh_context(context),
+            dict(update_dict, id=d),
+        )
 
 
 def bulk_update_private(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdatePrivate:
@@ -1294,6 +1380,6 @@ def config_option_update(
     # Update the config update timestamp
     model.set_system_info('ckan.config_update', str(time.time()))
 
-    log.info('Updated config options: {0}'.format(data))
+    log.info('Updated config options: %s', data)
 
     return data

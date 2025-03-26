@@ -123,7 +123,7 @@ def activity_create(
     if not context.get("defer_commit"):
         model.repo.commit()
 
-    log.debug("Created '%s' activity" % activity.activity_type)
+    log.debug("Created '%s' activity", activity.activity_type)
     return model_activity.activity_dictize(activity, context)
 
 
@@ -539,7 +539,7 @@ def activity_show(context: Context, data_dict: DataDict) -> dict[str, Any]:
     model = context["model"]
     activity_id = tk.get_or_bust(data_dict, "id")
 
-    activity = model.Session.query(model_activity.Activity).get(activity_id)
+    activity = model.Session.get(model_activity.Activity, activity_id)
     if activity is None:
         raise tk.ObjectNotFound()
     context["activity"] = activity
@@ -571,7 +571,7 @@ def activity_data_show(
     activity_id = tk.get_or_bust(data_dict, "id")
     object_type = data_dict.get("object_type")
 
-    activity = model.Session.query(model_activity.Activity).get(activity_id)
+    activity = model.Session.get(model_activity.Activity, activity_id)
     if activity is None:
         raise tk.ObjectNotFound()
     context["activity"] = activity
@@ -614,7 +614,7 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
 
     tk.check_access("activity_diff", context, data_dict)
 
-    activity = model.Session.query(model_activity.Activity).get(activity_id)
+    activity = model.Session.get(model_activity.Activity, activity_id)
     if activity is None:
         raise tk.ObjectNotFound()
     prev_activity = (
@@ -623,7 +623,7 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
         .filter(model_activity.Activity.timestamp < activity.timestamp)
         .order_by(
             # type_ignore_reason: incomplete SQLAlchemy types
-            model_activity.Activity.timestamp.desc()  # type: ignore
+            model_activity.Activity.timestamp.desc()
         )
         .first()
     )

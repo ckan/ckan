@@ -11,9 +11,10 @@ from typing import (
     Mapping,
     Optional,
     Union,
+    Generic,
 )
 
-from typing_extensions import Protocol, TypeAlias, TypedDict
+from typing_extensions import Protocol, TypeAlias, TypedDict, TypeVar
 from blinker import Signal
 from flask.wrappers import Response, Request
 
@@ -93,7 +94,6 @@ class Context(TypedDict, total=False):
     reset_password: bool
     save: bool
     active: bool
-    allow_partial_update: bool
     for_update: bool
     for_edit: bool
     for_view: bool
@@ -133,6 +133,8 @@ class Context(TypedDict, total=False):
 
     table_names: list[str]
     plugin_data: dict[Any, Any]
+    original_package: dict[str, Any]
+    changed_entities: dict[str, set[str]]
 
 
 class AuthResult(TypedDict, total=False):
@@ -244,4 +246,25 @@ class PResourceUploader(Protocol):
         ...
 
     def upload(self, id: str, max_size: int = ...) -> None:
+        ...
+
+
+TFactoryResult = TypeVar("TFactoryResult", default="dict[str, Any]")
+TFactoryModel = TypeVar("TFactoryModel", default=Any, covariant=True)
+
+
+class TestFactory(Protocol, Generic[TFactoryModel, TFactoryResult]):
+    def __call__(self, **kwargs: Any) -> TFactoryResult:
+        ...
+
+    def api_create(self, data_dict: dict[str, Any]) -> TFactoryResult:
+        ...
+
+    def model(self, **kwargs: Any) -> TFactoryModel:
+        ...
+
+    def create_batch(self, size: int, **kwargs: Any) -> list[TFactoryResult]:
+        ...
+
+    def stub(self, **kwargs: Any) -> object:
         ...

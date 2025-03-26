@@ -39,8 +39,8 @@ SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
-
-current_user = cast(Union["Model.User", "Model.AnonymousUser"], _cu)
+TCurrentUser = Union["Model.User", "Model.AnonymousUser"]
+current_user = cast(TCurrentUser, _cu)
 login_user = _login_user
 logout_user = _logout_user
 
@@ -212,7 +212,7 @@ class CKANRequest(LocalProxy[Request]):
         request.args
 
         '''
-        return cast(flask.Request, self).args
+        return self.args
 
 
 def _get_c():
@@ -327,7 +327,7 @@ local("config_declaration")
 config_declaration = local.config_declaration = Declaration()
 
 # Proxies to already thread-local safe objects
-request = cast(flask.Request, CKANRequest(_get_request))
+request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g: Any = LocalProxy(_get_c)
 c = g

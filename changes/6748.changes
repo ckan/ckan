@@ -1,1 +1,0 @@
-`User.by_email` method no longer returns a list, instead, it returns a single user.

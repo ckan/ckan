@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import (
     Any, Callable, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Union,
+    TYPE_CHECKING, Union, List,
 )
 
 from flask.blueprints import Blueprint
@@ -1308,6 +1308,18 @@ class IDatasetForm(Interface):
         '''
         return blueprint
 
+    def resource_validation_dependencies(
+            self, package_type: str) -> List[str]:
+        '''
+        Return a list of dataset field names that affect validation of
+        resource fields.
+
+        package_update and related actions skip re-validating unchanged
+        resources unless one of the resource validation dependencies
+        fields returned here has changed.
+        '''
+        return []
+
 
 class IGroupForm(Interface):
     u'''
@@ -1750,13 +1762,16 @@ class IAuthenticator(Interface):
         return (status_code, detail, headers, comment)
 
     def authenticate(
-        self, identity: 'Mapping[str, Any]'
-    ) -> model.User | None:
+        self, identity: dict[str, Any]
+    ) -> model.User | model.AnonymousUser | None:
         """Called before the authentication starts
         (that is after clicking the login button)
 
-        Plugins should return a user object if the authentication was
-        successful, or ``None``` otherwise.
+        Plugins should return:
+
+        * `model.User` object if the authentication was successful
+        * `model.AnonymousUser` object if the authentication failed
+        * `None` to try authentication with different implementations.
         """
 
 

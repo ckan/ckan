@@ -16,3 +16,10 @@ main-js:
     - vendor/DataTables/dataTables.scrollResize.js
     - vendor/DataTables/datetime.js
     - datatablesview.js
+form-js:
+  output: ckanext-datatablesview/%(version)s_datatablesview_form.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - datatablesview_form.js

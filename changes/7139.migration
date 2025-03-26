@@ -1,1 +1,0 @@
-Users of the Xloader or DataPusher need to provide a valid API Token in their configurations using the ``ckanext.xloader.api_token`` or ``ckan.datapusher.api_token`` keys respectively.

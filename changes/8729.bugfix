@@ -1,0 +1,1 @@
+You can now use non-string values in `datastore_search` and `datastore_delete` filters for text datatype fields.

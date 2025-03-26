@@ -145,7 +145,7 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
     activity = _get_activity_object(context, data_dict)
     # NB it would be better to have recorded an activity_type against the
     # activity
-    if "package" in activity.activity_type:
+    if activity.activity_type and "package" in activity.activity_type:
         object_type = "package"
 
         # Check permission labels

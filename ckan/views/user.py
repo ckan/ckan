@@ -60,6 +60,10 @@ def _new_form_to_db_schema() -> Schema:
     return schema.user_new_form_schema()
 
 
+def _perform_reset_form_to_db_schema() -> Schema:
+    return schema.user_perform_reset_form_schema()
+
+
 def _extra_template_variables(context: Context,
                               data_dict: dict[str, Any]) -> dict[str, Any]:
     is_sysadmin = False
@@ -265,7 +269,7 @@ class ApiTokenView(MethodView):
             u'class': u'fa fa-copy'
         }), {
             u'type': u'button',
-            u'class': u'btn btn-default btn-xs',
+            u'class': u'btn btn-secondary btn-xs',
             u'data-module': u'copy-into-buffer',
             u'data-module-copy-value': ensure_str(token)
         })
@@ -299,7 +303,7 @@ class EditView(MethodView):
         }
         if id is None:
             if current_user.is_authenticated:
-                id = current_user.id  # type: ignore
+                id = current_user.id
             else:
                 base.abort(400, _(u'No user specified'))
         assert id
@@ -587,7 +591,10 @@ def login() -> Union[Response, str]:
                 rotate_token()
                 return next_page_or_default(next)
         else:
-            err = _(u"Login failed. Bad username or password.")
+            if config.get('ckan.recaptcha.privatekey'):
+                err = _(u"Login failed. Bad username or password or CAPTCHA.")
+            else:
+                err = _(u"Login failed. Bad username or password.")
             h.flash_error(err)
             return base.render("user/login.html", extra_vars)
 
@@ -642,7 +649,7 @@ def delete(id: str) -> Union[Response, Any]:
         return base.abort(404, _(e.message))
 
     if request.method == 'POST' and current_user.is_authenticated:
-        if current_user.id == id:  # type: ignore
+        if current_user.id == id:
             return logout()
         else:
             user_index = h.url_for(u'user.index')
@@ -731,8 +738,7 @@ class RequestResetView(MethodView):
                      repr_untrusted(id))
 
         for user_obj in user_objs:
-            log.info(u'Emailing reset link to user: {}'
-                     .format(user_obj.name))
+            log.info('Emailing reset link to user: %s', user_obj.name)
             try:
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
@@ -766,6 +772,7 @@ class PerformResetView(MethodView):
         # FIXME 403 error for invalid key is a non helpful page
         context: Context = {
             'user': id,
+            'schema': _perform_reset_form_to_db_schema(),
             'keep_email': True,
         }
 
@@ -786,29 +793,13 @@ class PerformResetView(MethodView):
             base.abort(403, msg)
         return context, user_dict
 
-    def _get_form_password(self):
-        password1 = request.form.get(u'password1')
-        password2 = request.form.get(u'password2')
-        if (password1 is not None and password1 != u''):
-            if len(password1) < 8:
-                raise ValueError(
-                    _(u'Your password must be 8 '
-                      u'characters or longer.'))
-            elif password1 != password2:
-                raise ValueError(
-                    _(u'The passwords you entered'
-                      u' do not match.'))
-            return password1
-        msg = _(u'You must provide a password')
-        raise ValueError(msg)
-
     def post(self, id: str) -> Union[Response, str]:
         context, user_dict = self._prepare(id)
         context[u'reset_password'] = True
         user_state = user_dict[u'state']
         try:
-            new_password = self._get_form_password()
-            user_dict[u'password'] = new_password
+            user_dict['password1'] = request.form.get('password1')
+            user_dict['password2'] = request.form.get('password2')
             username = request.form.get(u'name')
             if (username is not None and username != u''):
                 user_dict[u'name'] = username
@@ -839,7 +830,9 @@ class PerformResetView(MethodView):
         except dictization_functions.DataError:
             h.flash_error(_(u'Integrity Error'))
         except logic.ValidationError as e:
-            h.flash_error(u'%r' % e.error_dict)
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.get(id, errors, error_summary)
         except ValueError as e:
             h.flash_error(str(e))
         user_dict[u'state'] = user_state
@@ -847,10 +840,14 @@ class PerformResetView(MethodView):
             u'user_dict': user_dict
         })
 
-    def get(self, id: str) -> str:
+    def get(self, id: str,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None) -> str:
         user_dict = self._prepare(id)[1]
         return base.render(u'user/perform_reset.html', {
-            u'user_dict': user_dict
+            u'user_dict': user_dict,
+            'errors': errors or {},
+            'error_summary': error_summary or {},
         })
 
 

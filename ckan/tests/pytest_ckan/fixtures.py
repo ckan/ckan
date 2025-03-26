@@ -1,10 +1,8 @@
 """This is a collection of pytest fixtures for use in tests.
 
-All fixtures below available anywhere under the root of CKAN
-repository. Any external CKAN extension should be able to include them
-by adding next lines under root `conftest.py`
-
-.. literalinclude:: /../conftest.py
+All fixtures below are available wherever CKAN is installed.
+Any external CKAN extension should be able to include them directly into
+their tests.
 
 There are three type of fixtures available in CKAN:
 
@@ -100,11 +98,21 @@ class SysadminFactory(factories.Sysadmin):
     pass
 
 
+class SysadminWithTokenFactory(factories.SysadminWithToken):
+    pass
+
+
+class UserWithTokenFactory(factories.UserWithToken):
+    pass
+
+
 class OrganizationFactory(factories.Organization):
     pass
 
 
 register(SysadminFactory, "sysadmin")
+register(SysadminWithTokenFactory, "sysadmin_with_token")
+register(UserWithTokenFactory, "user_with_token")
 register(OrganizationFactory, "organization")
 
 
@@ -428,7 +436,7 @@ def with_plugins(ckan_config):
     """
     ckan.plugins.load_all()
     yield
-    ckan.plugins.unload_non_system_plugins()
+    ckan.plugins.unload_all()
 
 
 @pytest.fixture

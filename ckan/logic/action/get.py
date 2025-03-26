@@ -10,7 +10,7 @@ import socket
 from typing import (Container, Optional,
                     Union, Any, cast, Type)
 
-from ckan.common import config, asbool
+from ckan.common import config, asbool, aslist
 import sqlalchemy
 from sqlalchemy import text
 
@@ -357,7 +357,7 @@ def _group_or_org_list(
     # if it is supplied and sort isn't use order_by and raise a warning
     order_by = data_dict.get('order_by', '')
     if order_by:
-        log.warn('`order_by` deprecated please use `sort`')
+        log.warning('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
             sort = order_by
 
@@ -387,6 +387,7 @@ def _group_or_org_list(
     query = query.filter(model.Group.state == 'active')
 
     if groups:
+        groups = aslist(groups, sep=",")
         query = query.filter(model.Group.name.in_(groups))
     if q:
         q = u'%{0}%'.format(q)
@@ -427,7 +428,7 @@ def _group_or_org_list(
         group_list = []
         for group in groups:
             data_dict['id'] = group.id
-            for key in ('include_extras', 'include_tags', 'include_users',
+            for key in ('include_extras', 'include_users',
                         'include_groups', 'include_followers'):
                 if key not in data_dict:
                     data_dict[key] = False
@@ -477,9 +478,6 @@ def group_list(context: Context, data_dict: DataDict) -> ActionResult.GroupList:
     :param include_extras: if all_fields, include the group extra fields
         (optional, default: ``False``)
     :type include_extras: bool
-    :param include_tags: if all_fields, include the group tags
-        (optional, default: ``False``)
-    :type include_tags: bool
     :param include_groups: if all_fields, include the groups the groups are in
         (optional, default: ``False``).
     :type include_groups: bool
@@ -534,9 +532,6 @@ def organization_list(context: Context,
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: bool
-    :param include_tags: if all_fields, include the organization tags
-        (optional, default: ``False``)
-    :type include_tags: bool
     :param include_groups: if all_fields, include the organizations the
         organizations are in
         (optional, default: ``False``)
@@ -697,7 +692,7 @@ def organization_list_for_user(context: Context,
         if not user_id:
             return []
 
-        q: Query[tuple[model.Member, model.Group]] = model.Session.query(model.Member, model.Group) \
+        q = model.Session.query(model.Member, model.Group) \
             .filter(model.Member.table_name == 'user') \
             .filter(
                 model.Member.capacity.in_(roles)
@@ -972,7 +967,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :type id: string
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
-    :type use_default_schema: bool
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
@@ -1058,10 +1052,11 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             package_dict, _errors = lib_plugins.plugin_validate(
                 package_plugin, context, package_dict, schema,
                 'package_show')
+        else:
+            # up to caller to apply after_dataset_show plugins
+            return package_dict
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_dataset_show(context, package_dict)
-
+    logic.apply_after_dataset_show_plugins(context, package_dict)
     return package_dict
 
 
@@ -1170,7 +1165,6 @@ def _group_or_org_show(
         packages_field = None
 
     try:
-        include_tags = asbool(data_dict.get('include_tags', True))
         if config.get('ckan.auth.public_user_details'):
             include_users = asbool(data_dict.get('include_users', True))
         else:
@@ -1200,7 +1194,6 @@ def _group_or_org_show(
 
     group_dict = model_dictize.group_dictize(group, context,
                                              packages_field=packages_field,
-                                             include_tags=include_tags,
                                              include_extras=include_extras,
                                              include_groups=include_groups,
                                              include_users=include_users,
@@ -1263,9 +1256,6 @@ def group_show(context: Context, data_dict: DataDict) -> ActionResult.GroupShow:
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
     :type include_groups: bool
-    :param include_tags: include the group's tags
-         (optional, default: ``True``)
-    :type include_tags: bool
     :param include_followers: include the group's number of followers
          (optional, default: ``True``)
     :type include_followers: bool
@@ -1299,9 +1289,6 @@ def organization_show(context: Context, data_dict: DataDict) -> ActionResult.Org
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
     :type include_groups: bool
-    :param include_tags: include the organization's tags
-         (optional, default: ``True``)
-    :type include_tags: bool
     :param include_followers: include the organization's number of followers
          (optional, default: ``True``)
     :type include_followers: bool
@@ -1960,7 +1947,10 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
               .filter(model.Group.name.in_(group_names))
               .all()
               if group_names else [])
-    group_titles_by_name = dict(groups)
+    group_titles_by_name = {
+        row[0]: row[1]
+        for row in groups
+    }
 
     # Transform facets into a more useful data structure.
     restructured_facets: dict[str, Any] = {}
@@ -2413,8 +2403,11 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
         if not context.get('defer_commit'):
             model.repo.commit()
 
-    return {'name': user.name,
-            'apikey': user.apikey}
+    return {
+        'name': user.name,
+        'id': user.id,
+        'apikey': user.apikey,
+    }
 
 
 def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusShow:
@@ -3163,22 +3156,41 @@ def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
     :param list queues: Queues to list jobs from. If not given then the
         jobs from all queues are listed.
 
+    :param int limit: Number to limit the list of jobs by.
+
+    :param bool ids_only: Whether to return only a list if job IDs or not.
+
     :returns: The currently enqueued background jobs.
     :rtype: list
+
+    Will return the list in the way that RQ workers will execute the jobs.
+    Thus the left most non-empty queue will be emptied first
+    before the next right non-empty one.
 
     .. versionadded:: 2.7
     '''
     _check_access(u'job_list', context, data_dict)
-    dictized_jobs: ActionResult.JobList = []
+    jobs_list: ActionResult.JobList = []
     queues: Any = data_dict.get(u'queues')
+    limit = data_dict.get('limit', config.get('ckan.jobs.default_list_limit',
+                                              jobs.DEFAULT_JOB_LIST_LIMIT))
+    ids_only = asbool(data_dict.get('ids_only', False))
     if queues:
         queues = [jobs.get_queue(q) for q in queues]
     else:
         queues = jobs.get_all_queues()
     for queue in queues:
-        for job in queue.jobs:
-            dictized_jobs.append(jobs.dictize_job(job))
-    return dictized_jobs
+        if ids_only:
+            jobs_list += queue.job_ids[:limit]
+        else:
+            # type_ignore_reason: pyright does not know return from queue.jobs
+            jobs_list += [jobs.dictize_job(j)  # type: ignore
+                          for j in queue.jobs[:limit]]
+        if limit > 0 and len(jobs_list) > limit:
+            # we need to return here if there is a limit
+            # and it has been surpassed
+            return jobs_list[:limit]
+    return jobs_list
 
 
 def job_show(context: Context, data_dict: DataDict) -> ActionResult.JobShow:

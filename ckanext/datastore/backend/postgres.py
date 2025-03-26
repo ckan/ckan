@@ -39,7 +39,8 @@ import ckanext.datastore.interfaces as interfaces
 from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError, DatabaseError)
+                            DBAPIError, DataError, DatabaseError,
+                            StatementError)
 
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
@@ -87,7 +88,7 @@ _UPDATE = 'update'
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError  # type: ignore
 else:
-    log.warn("Running datastore without CKAN")
+    log.warning("Running datastore without CKAN")
 
     class ValidationError(Exception):
         def __init__(self, error_dict: ErrorDict):
@@ -130,7 +131,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
         config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
         for key, value in kwargs.items():
             config.setdefault(key, value)
-        engine = sa.engine_from_config(config,
+        engine = sa.engine_from_config(dict(config),
                                        'ckan.datastore.sqlalchemy.',
                                        **extras)
         _engines[connection_url] = engine
@@ -293,7 +294,8 @@ def _get_field_info(
     try:
         return dict(
             (n, json.loads(v)) for (n, v) in
-            connection.execute(qtext, {"res_id": resource_id}).fetchall())
+            connection.execute(qtext, {"res_id": resource_id}).fetchall()
+            if v)
     except (TypeError, ValueError):  # don't die on non-json comments
         return {}
 
@@ -354,8 +356,8 @@ def _cache_types(engine: Engine) -> None:
             with engine.begin() as conn:
                 native_json = _pg_version_is_at_least(conn, '9.2')
 
-            log.info("Create nested type. Native JSON: {0!r}".format(
-                native_json))
+            log.info("Create nested type. Native JSON: %r",
+                     native_json)
 
             backend = DatastorePostgresqlBackend.get_active_backend()
             write_engine: Engine = backend._get_write_engine()  # type: ignore
@@ -371,7 +373,7 @@ def _cache_types(engine: Engine) -> None:
         with engine.connect() as conn:
             register_composite(
                 'nested',
-                conn.connection.connection,
+                cast(Any, conn.connection).connection,
                 True
             )
 
@@ -432,8 +434,18 @@ def _where_clauses(
                 sa.column(field),
                 ','.join(f":{p}" for p in placeholders)
             ))
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = str(value)
             placeholder = f"value_{next(idx_gen)}"
             clause: tuple[Any, ...] = (
                 f'{sa.column(field)} = :{placeholder}',
@@ -444,7 +456,7 @@ def _where_clauses(
     # add full-text search where clause
     q: Union[dict[str, str], str, Any] = data_dict.get('q')
     full_text = data_dict.get('full_text')
-    if q and not full_text:
+    if q:
         if isinstance(q, str):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
@@ -458,6 +470,7 @@ def _where_clauses(
 
                 ftyp = fields_types[field]
                 if not datastore_helpers.should_fts_index_field_type(ftyp):
+                    # use general full text search to narrow results
                     clause_str = u'_full_text @@ {0}'.format(query_field)
                     clauses.append((clause_str,))
 
@@ -467,47 +480,12 @@ def _where_clauses(
                         identifier(field),
                         query_field)
                 clauses.append((clause_str,))
-    elif (full_text and not q):
-        ts_query_alias = _ts_query_alias()
-        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
-        clauses.append((clause_str,))
-
-    elif full_text and isinstance(q, dict):
-        ts_query_alias = _ts_query_alias()
-        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
-        clauses.append((clause_str,))
-        # update clauses with q dict
-        _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses)
-
-    elif full_text and isinstance(q, str):
+    if full_text:
         ts_query_alias = _ts_query_alias()
         clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
         clauses.append((clause_str,))
 
     return clauses
-
-
-def _update_where_clauses_on_q_dict(
-        data_dict: dict[str, str], fields_types: dict[str, str],
-        q: dict[str, str],
-        clauses: WhereClauses) -> None:
-    lang = _fts_lang(data_dict.get('language'))
-    for field, _ in q.items():
-        if field not in fields_types:
-            continue
-        query_field = _ts_query_alias(field)
-
-        ftyp = fields_types[field]
-        if not datastore_helpers.should_fts_index_field_type(ftyp):
-            clause_str = u'_full_text @@ {0}'.format(query_field)
-            clauses.append((clause_str,))
-
-        clause_str = (
-            u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
-                literal_string(lang),
-                identifier(field),
-                query_field)
-        clauses.append((clause_str,))
 
 
 def _textsearch_query(
@@ -658,6 +636,11 @@ def _get_resources(context: Context, alias: str):
     ]
 
 
+def _get_pgcode(error: StatementError) -> str | None:
+    if error.orig:
+        return cast(Any, error.orig).pgcode
+
+
 def create_alias(context: Context, data_dict: dict[str, Any]):
     values: Optional[str] = data_dict.get('aliases')
     aliases: Any = datastore_helpers.get_list(values)
@@ -688,8 +671,8 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
                     sql_alias_string
                 ))
         except DBAPIError as e:
-            if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
-                                 _PG_ERR_CODE['duplicate_alias']]:
+            if _get_pgcode(e) in [_PG_ERR_CODE['duplicate_table'],
+                                  _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
                     'alias': [u'"{0}" already exists'.format(alias)]
                 })
@@ -708,6 +691,7 @@ def _build_fts_indexes(
         data_dict: dict[str, Any],  # noqa
         sql_index_str_method: str, fields: list[dict[str, Any]]):
     fts_indexes: list[str] = []
+    fts_noindexes: list[str] = []
     resource_id = data_dict['resource_id']
     fts_lang = data_dict.get(
         'language', config.get('ckan.datastore.default_fts_lang'))
@@ -721,9 +705,6 @@ def _build_fts_indexes(
 
     full_text_field = {'type': 'tsvector', 'id': '_full_text'}
     for field in [full_text_field] + fields:
-        if not datastore_helpers.should_fts_index_field_type(field['type']):
-            continue
-
         field_str = field['id']
         if field['type'] not in ['text', 'tsvector']:
             field_str = cast_as_text(field_str)
@@ -731,13 +712,18 @@ def _build_fts_indexes(
             field_str = u'"{0}"'.format(field_str)
         if field['type'] != 'tsvector':
             field_str = to_tsvector(field_str)
+        if field['id'] != '_full_text' and not (
+                datastore_helpers.should_fts_index_field_type(field['type'])):
+            fts_noindexes.append(_generate_index_name(resource_id, field_str))
+            continue
+
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',
             name=_generate_index_name(resource_id, field_str),
             method=_get_fts_index_method(), fields=field_str))
 
-    return fts_indexes
+    return fts_indexes, fts_noindexes
 
 
 def _drop_indexes(context: Context, data_dict: dict[str, Any],
@@ -797,8 +783,8 @@ def _is_valid_pg_type(context: Context, type_name: str):
                 {"type": type_name}
             )
         except ProgrammingError as e:
-            if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
-                                 _PG_ERR_CODE['syntax_error']]:
+            if _get_pgcode(e) in [_PG_ERR_CODE['undefined_object'],
+                                  _PG_ERR_CODE['syntax_error']]:
                 return False
             raise
         else:
@@ -943,9 +929,8 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
     field_ids = _pluck('id', fields)
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
-    fts_indexes = _build_fts_indexes(data_dict,
-                                     sql_index_string_method,
-                                     fields)
+    fts_indexes, fts_noindexes = _build_fts_indexes(
+        data_dict, sql_index_string_method, fields)
     sql_index_strings = sql_index_strings + fts_indexes
 
     if indexes is not None:
@@ -985,10 +970,13 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
 
     current_indexes = _get_index_names(context['connection'],
                                        data_dict['resource_id'])
+
+    for fts_idx in current_indexes:
+        if fts_idx in fts_noindexes:
+            connection.execute(sa.text(
+                'DROP INDEX {0} CASCADE'.format(sa.column(fts_idx))))
     for sql_index_string in sql_index_strings:
-        has_index = [c for c in current_indexes
-                     if sql_index_string.find(c) != -1]
-        if not has_index:
+        if not any(c in sql_index_string for c in current_indexes):
             connection.execute(sa.text(sql_index_string))
 
 
@@ -1486,8 +1474,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
@@ -1497,29 +1487,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT * FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
-        resource=resource_id,
+        resource=identifier(resource_id),
         ts_query=ts_query,
         where=where_clause,
         sort=sort_clause,
@@ -1658,7 +1653,10 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
         where_clause
     )
 
-    _execute_single_statement(context, sql_string, where_values)
+    try:
+        _execute_single_statement(context, sql_string, where_values)
+    except ProgrammingError as pe:
+        raise ValidationError({'filters': [_programming_error_summary(pe)]})
 
 
 def _create_triggers(connection: Any, resource_id: str,
@@ -1675,7 +1673,7 @@ def _create_triggers(connection: Any, resource_id: str,
             sa.column("tgname")
         ).select_from(sa.table("pg_trigger")).where(
             sa.column("tgrelid") == sa.cast(
-                resource_id,  # type: ignore
+                resource_id,
                 REGCLASS
             ),
             sa.column("tgname").like("t___")
@@ -1734,13 +1732,14 @@ def upsert(context: Context, data_dict: dict[str, Any]):
             trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
+        pgcode = _get_pgcode(e)
+        if pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError(cast(ErrorDict, {
                 'constraints': ['Cannot insert records or create index because'
                                 ' of uniqueness constraint'],
                 'info': {
                     'orig': str(e.orig),
-                    'pgcode': e.orig.pgcode
+                    'pgcode': pgcode
                 }
             }))
         raise
@@ -1751,7 +1750,7 @@ def upsert(context: Context, data_dict: dict[str, Any]):
                 'orig': [str(e.orig)]
             }}))
     except DBAPIError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+        if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1776,7 +1775,7 @@ def search(context: Context, data_dict: dict[str, Any]):
         ))
         return search_data(context, data_dict)
     except DBAPIError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+        if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
             })
@@ -1815,9 +1814,8 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
         get_names = datastore_helpers.get_table_and_function_names_from_sql
         table_names, function_names = get_names(context, sql)
-        log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
-        log.debug('Functions involved in input SQL: {0!r}'.format(
-            function_names))
+        log.debug('Tables involved in input SQL: %r', table_names)
+        log.debug('Functions involved in input SQL: %r', function_names)
 
         if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized(
@@ -1843,7 +1841,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
         return format_results(context, results, data_dict)
 
     except ProgrammingError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['permission_denied']:
+        if _get_pgcode(e) == _PG_ERR_CODE['permission_denied']:
             raise toolkit.NotAuthorized('Not authorized to read resource.')
 
         def _remove_explain(msg: str):
@@ -1853,13 +1851,13 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
         raise ValidationError(cast(ErrorDict, {
             'query': [_remove_explain(str(e))],
             'info': {
-                'statement': [_remove_explain(e.statement)],
+                'statement': [_remove_explain(e.statement or "")],
                 'params': [e.params],
                 'orig': [_remove_explain(str(e.orig))]
             }
         }))
     except DBAPIError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+        if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1913,7 +1911,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = _get_engine_from_url(url).connect()
             try:
-                is_writable: bool = connection.scalar(sa.select(
+                is_writable = connection.scalar(sa.select(
                     sa.func.has_schema_privilege("public", "CREATE")
                 ))
             finally:
@@ -1950,7 +1948,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
 
                 for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                    have_privilege: bool = conn.scalar(sa.select(
+                    have_privilege = conn.scalar(sa.select(
                         sa.func.has_table_privilege(
                             read_connection_user,
                             "_foo",
@@ -2004,8 +2002,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # that we should ignore the following tests.
         args = sys.argv
         if args[0].split('/')[-1] == 'paster' and 'datastore' in args[1:]:
-            log.warn('Omitting permission checks because you are '
-                     'running paster commands.')
+            log.warning('Omitting permission checks because you are '
+                        'running paster commands.')
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
@@ -2013,15 +2011,15 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         self.read_url = self.config['ckan.datastore.read_url']
 
         if not self._is_postgresql_engine():
-            log.warn('We detected that you do not use a PostgreSQL '
-                     'database. The DataStore will NOT work and DataStore '
-                     'tests will be skipped.')
+            log.warning('We detected that you do not use a PostgreSQL '
+                        'database. The DataStore will NOT work and DataStore '
+                        'tests will be skipped.')
             return
 
         if self._is_read_only_database():
-            log.warn('We detected that CKAN is running on a read '
-                     'only database. Permission checks and the creation '
-                     'of _table_metadata are skipped.')
+            log.warning('We detected that CKAN is running on a read '
+                        'only database. Permission checks and the creation '
+                        'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
 
@@ -2174,13 +2172,14 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             trans.commit()
             return _unrename_json_field(data_dict)
         except IntegrityError as e:
-            if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
+            pgcode = _get_pgcode(e)
+            if pgcode == _PG_ERR_CODE['unique_violation']:
                 raise ValidationError(cast(ErrorDict, {
                     'constraints': ['Cannot insert records or create index'
                                     'because of uniqueness constraint'],
                     'info': {
                         'orig': str(e.orig),
-                        'pgcode': e.orig.pgcode
+                        'pgcode': pgcode
                     }
                 }))
             raise
@@ -2191,7 +2190,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     'orig': [str(e.orig)]
                 }}))
         except DBAPIError as e:
-            if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
+            if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
                 raise ValidationError({
                     'query': ['Query took too long']
                 })
@@ -2422,7 +2421,9 @@ def create_function(name: str, arguments: Iterable[dict[str, Any]],
         or_replace=u'OR REPLACE' if or_replace else u'',
         name=identifier(name),
         args=u', '.join(
-            u'{argname} {argtype}'.format(
+            u'{argmode} {argname} {argtype}'.format(
+                # validator one_of checks for safety of argmode(in, out, inout)
+                argmode=a['argmode'] if 'argmode' in a else '',
                 argname=identifier(a['argname']),
                 argtype=identifier(a['argtype']))
             for a in arguments),

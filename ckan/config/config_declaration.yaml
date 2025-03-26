@@ -76,15 +76,25 @@ groups:
         internal: true
       - key: MAX_COOKIE_SIZE
         internal: true
+      - key: MAX_FORM_MEMORY_SIZE
+        internal: true
+      - key: MAX_FORM_PARTS
+        internal: true
       - key: PREFERRED_URL_SCHEME
         internal: true
       - key: PRESERVE_CONTEXT_ON_EXCEPTION
         internal: true
+      - key: PROVIDE_AUTOMATIC_OPTIONS
+        internal: true
       - key: PROPAGATE_EXCEPTIONS
+        internal: true
+      - key: SECRET_KEY_FALLBACKS
         internal: true
       - key: SEND_FILE_MAX_AGE_DEFAULT
         internal: true
       - key: SERVER_NAME
+        internal: true
+      - key: SESSION_COOKIE_PARTITIONED
         internal: true
       - key: TEMPLATES_AUTO_RELOAD
         internal: true
@@ -93,6 +103,8 @@ groups:
       - key: TRAP_BAD_REQUEST_ERRORS
         internal: true
       - key: TRAP_HTTP_EXCEPTIONS
+        internal: true
+      - key: TRUSTED_HOSTS
         internal: true
       - key: USE_X_SENDFILE
         internal: true
@@ -141,6 +153,7 @@ groups:
         placeholder: egg:ckan
 
       - key: SECRET_KEY
+        legacy_key: beaker.session.secret
         validators: not_empty
         required: true
         placeholder_callable: secrets:token_urlsafe
@@ -155,6 +168,9 @@ groups:
             python -c "import secrets; print(secrets.token_urlsafe(20))"
 
           When used in a cluster environment, the value must be the same on every machine.
+
+          If not provided, for backwards compatibility with earlier configurations the value of
+          ``beaker.session.secret`` will be used.
 
 
       - key: ckan.legacy_route_mappings
@@ -322,7 +338,7 @@ groups:
         default: 31_536_000 # 1 year
         description: |
           If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
-          set this number of seconds in the future. Note that you can not set a 
+          set this number of seconds in the future. Note that you can not set a
           session that never expires (only very far into the future).
 
       - key: SESSION_USE_SIGNER
@@ -1038,10 +1054,14 @@ groups:
               they're given in the config file, regardless of which Python modules
               they're implemented in.
 
-      - key: ckan.resource_proxy.timeout
-        type: int
-        default: 5
-        description: Timeout in seconds to use on Resource Proxy requests.
+      - key: ckan.download_proxy
+        example: http://proxy:3128
+        description: |
+          Specifies a HTTP proxy to be used by extensions such as Resource Proxy, XLoader or Archiver
+          when downloading remote files. This may be useful for enabling access to
+          restricted network locations, or restricting access to privileged ones, eg
+          preventing `Server Side Request Forgery <https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/>`_.
+          It will not be used by CKAN core.
 
   - annotation: Front-End Settings
     options:
@@ -1308,25 +1328,36 @@ groups:
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as user's avatar. No restrictions applied when empty
+        description: File types allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.mimetypes`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended). Note also that ``text/svg`` can contain embedded
+          javascript code so it only should be used in trusted environments.
 
       - key: ckan.upload.user.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+        example: image/png
+        description: File MIMETypes allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.types`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.types
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as group image. No restrictions applied when empty
+        description: File types allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
+        example: image/png
+        description: File MIMEtypes allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.types` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
+          Note also that ``text/svg`` can contain embedded javascript code so it only should be used in
+          trusted environments.
 
   - annotation: Webassets Settings
     options:
@@ -1366,6 +1397,28 @@ groups:
         description: |
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
+
+      - key: ckan.user.unique_email_states
+        type: list
+        default: [active]
+        example: [pending, active]
+        description: |
+          When a new user created, uniqueness of its email is checked among
+          users with specified statuses.
+
+          Using `active` is appropriate if users are created on portal only
+          through original user registration form and always have active
+          status. When user is deleted, his email can be reused by a new
+          account.
+
+          Using `pending active` is suitable for workflows with user approval
+          or invitations. In such scenario, user is created with `pending`
+          status initially and activated at some point in future.
+
+          Adding `deleted` to this option makes sense if email of removed users
+          must not be reused. In other words, when user is deleted, he is not
+          able to create a new account with the same email and is virtually
+          blocked on the portal.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings
@@ -1563,11 +1616,6 @@ groups:
 
           .. seealso::
               The host of your CKAN installation can be set via :ref:`ckan.site_url`.
-
-          The CKAN repoze config file ``who.ini`` file will also need to be edited
-          by adding the path prefix to the options in the ``[plugin:friendlyform]``
-          section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
-          Do not change the login/logout_handler_path options.
 
       - key: ckan.resource_formats
         example: /path/to/resource_formats
