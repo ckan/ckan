@@ -1,0 +1,1 @@
+fix error in datastore upgrade: don't process datastore column comments for sqlalchemy bind parameters
