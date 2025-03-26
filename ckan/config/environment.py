@@ -18,6 +18,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
+from ckan.lib.files import storages
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
@@ -145,6 +146,10 @@ def update_config() -> None:
         )
         msg = "Invalid configuration values provided:\n" + msg
         raise CkanConfigurationException(msg)
+
+    # storages rely only on valid configuration
+    storages.reset()
+    storages.collect()
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

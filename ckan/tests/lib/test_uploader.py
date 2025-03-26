@@ -86,6 +86,11 @@ class TestUpload(object):
 
         """
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        # storages are registered when application is loaded. As we just
+        # modified storage path, we have to reset storages before Uploader
+        # accesses them
+        app = make_app()
+
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
                      BytesIO(faker.image()),
@@ -99,7 +104,6 @@ class TestUpload(object):
         uploads_dir = tmpdir / u'storage' / u'uploads' / u'group'
         logo = uploads_dir.listdir()[0]
         assert logo.basename == group[u'url']
-        app = make_app()
         resp = app.get(u'/uploads/group/' + group[u'url'])
         assert resp.status_code == 200
         # PNG signature

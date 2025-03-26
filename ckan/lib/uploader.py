@@ -19,6 +19,7 @@ import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.common import config
+from ckan.lib.files import storages
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
@@ -123,21 +124,12 @@ class Upload(object):
             return
         self.storage_path = os.path.join(path, 'storage',
                                          'uploads', object_type)
-        # check if the storage directory is already created by
-        # the user or third-party
-        if os.path.isdir(self.storage_path):
-            pass
-        else:
-            try:
-                os.makedirs(self.storage_path)
-            except OSError as e:
-                # errno 17 is file already exists
-                if e.errno != 17:
-                    raise
+        self.storage = storages[f"{object_type}_uploads"]
         self.object_type = object_type
         self.old_filename = old_filename
         if old_filename:
             self.old_filepath = os.path.join(self.storage_path, old_filename)
+
 
     def update_data_dict(self, data_dict: dict[str, Any], url_field: str,
                          file_field: str, clear_field: str) -> None:
@@ -182,18 +174,12 @@ class Upload(object):
         been validated and flushed to the db. This is so we do not store
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
-
-        storage = fk.make_storage("uploads", {
-            "type": "file_keeper:fs",
-            "path": self.storage_path,
-        })
-
         if self.filename:
             assert self.upload_file and self.filepath
             if self.upload_file.size > max_size * 1024 * 1024:
                 raise logic.ValidationError({'upload': ['File upload too large']})
 
-            storage.upload(
+            self.storage.upload(
                 fk.Location(self.filename),
                 self.upload_file,
             )
@@ -203,7 +189,7 @@ class Upload(object):
                 and not self.old_filename.startswith('http')
                 and self.old_filepath):
             with contextlib.suppress(fk.exc.MissingFileError):
-                storage.remove(fk.FileData(
+                self.storage.remove(fk.FileData(
                     fk.Location(self.old_filepath)
                 ))
 
