@@ -166,7 +166,7 @@ def download(package_type: str,
 
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
-        filepath = upload.get_path(rsc[u'id'])
+        filepath = upload.get_path(rsc[u'id'], absolute=True)
         resp = flask.send_file(filepath, download_name=filename)
 
         if rsc.get('mimetype'):

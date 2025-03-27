@@ -261,7 +261,7 @@ class ResourceUpload(object):
             raise TypeError("storage_path is not defined")
         return os.path.join(id[0:3], id[3:6])
 
-    def get_path(self, id: str) -> fk.Location:
+    def get_path(self, id: str, /, absolute: bool = False) -> fk.Location:
         directory = self.get_directory(id)
         filepath = os.path.join(directory, id[6:])
 
@@ -271,6 +271,11 @@ class ResourceUpload(object):
 
         if filepath != location:
             raise logic.ValidationError({'upload': ['Invalid storage path']})
+
+        if absolute:
+            return os.path.join(
+                self.storage.settings.path, filepath   # type: ignore
+            )
 
         return location
 

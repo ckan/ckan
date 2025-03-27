@@ -25,7 +25,7 @@ MultipartData: TypeAlias = fk.MultipartData
 
 
 def is_supported_type(content_type: str, supported: Iterable[str]) -> bool:
-    """Check whether content_type it matches supported types."""
+    """Check whether content_type matches supported types."""
     maintype, subtype = content_type.split("/")
     desired = {content_type, maintype, subtype}
     return any(st in desired for st in supported)

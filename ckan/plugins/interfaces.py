@@ -2255,23 +2255,21 @@ class IFiles(Interface):
 
     This interface is not stabilized. Implement it with `inherit=True`.
 
-    Example:
-        ```python
+    Example::
+
         class MyPlugin(p.SingletonPlugin):
             p.implements(p.IFiles, inherit=True)
-        ```
     """
 
     def files_get_storage_adapters(self) -> dict[str, type[Storage]]:
         """Return mapping of storage type to adapter class.
 
-        Example:
-            ```python
+        Example::
+
             def files_get_storage_adapters(self):
                 return {
                     "my_ext:dropbox": DropboxStorage,
                 }
-            ```
 
         :returns: adapters provided by the implementation
         """
