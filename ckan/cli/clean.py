@@ -9,6 +9,7 @@ from typing import List
 from ckan import model
 from ckan import logic
 from ckan.common import config
+from ckan.lib import files
 from ckan.lib.uploader import get_uploader
 from ckan.types import Context
 
@@ -28,11 +29,12 @@ def _get_users_with_invalid_image(mimetypes: List[str]) -> List[model.User]:
     for user in users_with_img:
         upload = get_uploader("user", old_filename=user.image_url)
         filename = upload.old_filename  # type: ignore
-        path = upload.storage.settings.path  # type: ignore
-        filepath = os.path.join(path, filename)
-        if os.path.exists(filepath):
-            mimetype = magic.from_file(filepath, mime=True)
-            if mimetype not in mimetypes:
+
+        storage: files.Storage = upload.storage  # type: ignore
+        location = files.Location(filename)
+        if storage.exists(files.FileData(location)):
+            info = storage.analyze(location)
+            if info.content_type not in mimetypes:
                 invalid.append(user)
     return invalid
 
@@ -84,16 +86,30 @@ def users(force: bool):
     for user in invalid:
         upload = get_uploader("user", old_filename=user.image_url)
         filename = upload.old_filename  # type: ignore
-        path = upload.storage.settings.path  # type: ignore
-        file_path = os.path.join(path, filename)
 
+        storage: files.Storage = upload.storage  # type: ignore
         try:
-            os.remove(file_path)
+            storage.remove(
+                files.FileData(files.Location(filename))
+            )
+
+        except files.exc.MissingFileError as err:
+            # file does not exist and we can continue with user removal
+            click.echo(str(err))
+
+        except files.exc.UnsupportedOperationError as err:
+            # file cannot be removed. Maybe it still possible to remove the
+            # user, but because files are not tracked yet, there will be no way
+            # to identify orphaned files in future. So, let's keep user for now
+            click.echo(str(err))
+            continue
+
         except Exception:
             msg = "Cannot remove {}. User will not be deleted.".format(
-                file_path
+                filename
             )
             click.echo(msg)
-        else:
-            logic.get_action("user_delete")(context, {"id": user.name})
-            click.secho("Deleted user: %s" % user.name, fg="green", bold=True)
+            continue
+
+        logic.get_action("user_delete")(context, {"id": user.name})
+        click.secho("Deleted user: %s" % user.name, fg="green", bold=True)

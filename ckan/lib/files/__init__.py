@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any, cast
 
-import file_keeper as fk
+from file_keeper import exc, make_upload, Registry, Location, Upload
 
 import ckan.plugins as p
 from ckan.common import config
@@ -27,12 +27,13 @@ __all__ = [
     "Uploader",
     "FileData",
     "MultipartData",
+    "Upload",
+    "Location",
     "storages",
     "adapters",
+    "make_upload",
     "exc",
 ]
-
-exc = fk.exc
 
 
 def make_storage(name: str, settings: dict[str, Any]):
@@ -60,7 +61,7 @@ def make_storage(name: str, settings: dict[str, Any]):
     adapter_type = settings.pop("type", None)
     adapter = adapters.get(adapter_type)
     if not adapter:
-        raise fk.exc.UnknownAdapterError(adapter_type)
+        raise exc.UnknownAdapterError(adapter_type)
 
     settings.setdefault("name", name)
 
@@ -99,7 +100,7 @@ def get_storage(name: str | None = None) -> Storage:
     storage = storages.get(name)
 
     if not storage:
-        raise fk.exc.UnknownStorageError(name)
+        raise exc.UnknownStorageError(name)
 
     return storage
 
@@ -145,5 +146,5 @@ def collect_storages() -> dict[str, Storage]:
     return result
 
 
-adapters = fk.Registry["type[Storage]"](collector=collect_adapters)
-storages = fk.Registry["Storage"](collector=collect_storages)
+adapters = Registry["type[Storage]"](collector=collect_adapters)
+storages = Registry["Storage"](collector=collect_storages)

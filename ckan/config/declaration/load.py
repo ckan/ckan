@@ -165,7 +165,13 @@ def load_core(declaration: "Declaration"):
 
 @handler.register("files")
 def load_files(declaration: "Declaration"):
-    """Load declarations for configured storages."""
+    """Generate declarations for configured storages.
+
+    Every uniques storage in the config will produce declarations depending on
+    its type. These declarations will be used to discover possible
+    configuration and validate settings specific for the selected storage
+    adapter.
+    """
     from ckan.common import config
     from ckan.lib.files import adapters
 

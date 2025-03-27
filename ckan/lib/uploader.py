@@ -10,14 +10,13 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlparse
 
-import file_keeper as fk
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.common import config
-from ckan.lib.files import storages
+from ckan.lib import files
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
@@ -78,7 +77,7 @@ class Upload(object):
     filename: Optional[str]
     object_type: Optional[str]
     old_filename: Optional[str]
-    upload_file: fk.Upload | None
+    upload_file: files.Upload | None
 
     def __init__(self,
                  object_type: str,
@@ -87,7 +86,7 @@ class Upload(object):
         of name object_type. old_filename is the name of the file in the url
         field last time'''
         self.filename = None
-        self.storage = storages.get(f"{object_type}_uploads")
+        self.storage = files.storages.get(f"{object_type}_uploads")
         self.object_type = object_type
         self.old_filename = old_filename
 
@@ -113,7 +112,7 @@ class Upload(object):
                 self.filename = self.upload_field_storage.filename
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
                 self.filename = munge.munge_filename_legacy(self.filename)
-                self.upload_file = fk.make_upload(self.upload_field_storage)
+                self.upload_file = files.make_upload(self.upload_field_storage)
 
                 self.verify_type()
 
@@ -141,16 +140,16 @@ class Upload(object):
                 raise logic.ValidationError({'upload': ['File upload too large']})
 
             self.storage.upload(
-                fk.Location(self.filename),
+                files.Location(self.filename),
                 self.upload_file,
             )
             self.clear = True
 
         if (self.clear and self.old_filename
                 and not self.old_filename.startswith('http')):
-            with contextlib.suppress(fk.exc.MissingFileError):
-                self.storage.remove(fk.FileData(
-                    fk.Location(self.old_filename)
+            with contextlib.suppress(files.exc.MissingFileError):
+                self.storage.remove(files.FileData(
+                    files.Location(self.old_filename)
                 ))
 
     def verify_type(self):
@@ -219,7 +218,7 @@ class ResourceUpload(object):
     mimetype: Optional[str]
 
     def __init__(self, resource: dict[str, Any]) -> None:
-        self.storage = storages.get("resources")
+        self.storage = files.storages.get("resources")
         if not self.storage:
             return
 
@@ -239,7 +238,7 @@ class ResourceUpload(object):
         if bool(upload_field_storage) and \
                 isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
 
-            self.upload_file = fk.make_upload(upload_field_storage)
+            self.upload_file = files.make_upload(upload_field_storage)
             self.filesize = self.upload_file.size
             self.filename = munge.munge_filename(self.upload_file.filename)
             resource['url'] = self.filename
@@ -261,7 +260,7 @@ class ResourceUpload(object):
             raise TypeError("storage_path is not defined")
         return os.path.join(id[0:3], id[3:6])
 
-    def get_path(self, id: str, /, absolute: bool = False) -> fk.Location:
+    def get_path(self, id: str) -> files.Location:
         directory = self.get_directory(id)
         filepath = os.path.join(directory, id[6:])
 
@@ -271,11 +270,6 @@ class ResourceUpload(object):
 
         if filepath != location:
             raise logic.ValidationError({'upload': ['Invalid storage path']})
-
-        if absolute:
-            return os.path.join(
-                self.storage.settings.path, filepath   # type: ignore
-            )
 
         return location
 
@@ -313,5 +307,5 @@ class ResourceUpload(object):
         # If the uploaded file is replaced by a link, we should remove the
         # previously uploaded file to clean up the file system.
         if self.clear:
-            with contextlib.suppress(fk.exc.MissingFileError):
-                self.storage.remove(fk.FileData(location))
+            with contextlib.suppress(files.exc.MissingFileError):
+                self.storage.remove(files.FileData(location))
