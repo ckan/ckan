@@ -1,25 +1,25 @@
 from __future__ import annotations
 
-from collections import defaultdict
+import logging
 import os
-from typing import Any, cast
+from collections import defaultdict
+from typing import Any, Mapping, cast
 
-from file_keeper import exc, make_upload, Registry, Location, Upload
+from file_keeper import Location, Registry, Upload, exc, make_upload
 
 import ckan.plugins as p
-from ckan.common import config, CKANConfig
+from ckan.common import config
 from ckan.exceptions import CkanConfigurationException
 
 from . import default
 from .base import (
-    Storage,
-    Reader,
-    Manager,
-    Uploader,
     FileData,
+    Manager,
     MultipartData,
+    Reader,
+    Storage,
+    Uploader,
 )
-
 
 __all__ = [
     "get_storage",
@@ -39,6 +39,8 @@ __all__ = [
 
 STORAGE_PREFIX = "ckan.files.storage."
 
+log = logging.getLogger(__name__)
+
 
 def make_storage(name: str, settings: dict[str, Any]):
     """Initialize storage instance with specified settings.
@@ -57,7 +59,7 @@ def make_storage(name: str, settings: dict[str, Any]):
         UnknownAdapterError: storage adapter is not registered
 
     Example:
-        ```
+        ```py
         storage = make_storage("memo", {"type": "files:redis"})
         ```
 
@@ -69,18 +71,18 @@ def make_storage(name: str, settings: dict[str, Any]):
 
     settings.setdefault("name", name)
 
-    storage = adapter(settings)
-
-    return storage
+    return adapter(settings)
 
 
 def get_storage(name: str | None = None) -> Storage:
     """Return existing storage instance.
 
-    Storages are initialized when plugin is loaded. As result, this function
-    always returns the same storage object for the given name.
-
     If no name specified, default storage is returned.
+
+    Storages are initialized when application is loaded. As result, this
+    function always returns the same storage object for the given name. But if
+    configuration changes in runtime, storage registry must be updated
+    manually.
 
     Args:
         name: name of the configured storage
@@ -96,7 +98,6 @@ def get_storage(name: str | None = None) -> Storage:
         default_storage = get_storage()
         storage = get_storage("storage name")
         ```
-
     """
     if name is None:
         name = cast(str, config["ckan.files.default_storage"])
@@ -110,17 +111,37 @@ def get_storage(name: str | None = None) -> Storage:
 
 
 def collect_adapters() -> dict[str, type[Storage]]:
+    """Collect adapters from core and IFiles implementations.
+
+    Returns:
+        mapping with storage adapters
+    """
     result: dict[str, type[Storage]] = {
         "ckan:fs": default.FsStorage,
     }
 
     for plugin in p.PluginImplementations(p.IFiles):
         result.update(plugin.files_get_storage_adapters())
+
     return result
 
 
-def collect_storage_configuration(config: CKANConfig, prefix: str = STORAGE_PREFIX):
-    """Return configuration of every storage located in config dictionary."""
+def collect_storage_configuration(
+    config: Mapping[str, Any], prefix: str = STORAGE_PREFIX, /, flat: bool = False
+):
+    """Return settings of every storage located in the config.
+
+    Args:
+        config: mapping with configuration
+        prefix: common prefix for storage options
+
+    Keyword Args:
+        flat: do not transfrom nested keys into dictionaries
+
+    Returns:
+        dictionary with configuration of all storages
+
+    """
     storages = defaultdict(dict)  # type: dict[str, dict[str, Any]]
     prefix_len = len(prefix)
 
@@ -129,12 +150,20 @@ def collect_storage_configuration(config: CKANConfig, prefix: str = STORAGE_PREF
         if not k.startswith(prefix):
             continue
 
-        try:
-            name, option = k[prefix_len:].split(".", 1)
-        except ValueError:
+        # when `flat` flag is enabled, nested keys `a.b.c` kept as a string:
+        # `{"a.b.c": ...}`. When it's disabled, transform such keys into nested
+        # dictionaries `{"a": {"b": {"c": ...}}}`
+        name, *path = k[prefix_len:].split(".", 1 if flat else -1)
+        if not path:
+            log.warning("Unrecognized storage configuration: %s = %s", k, v)
             continue
 
-        storages[name][option] = v
+        here = storages[name]
+        for segment in path[:-1]:
+            here = here.setdefault(segment, {})
+
+        here[path[-1]] = v
+
     return storages
 
 
@@ -142,6 +171,7 @@ def collect_storages() -> dict[str, Storage]:
     result = {}
 
     mapping = collect_storage_configuration(config)
+
     for name, settings in mapping.items():
         try:
             storage = make_storage(name, settings)
@@ -180,5 +210,5 @@ def collect_storages() -> dict[str, Storage]:
     return result
 
 
-adapters = Registry["type[Storage]"](collector=collect_adapters)
-storages = Registry["Storage"](collector=collect_storages)
+adapters = Registry[type[Storage]](collector=collect_adapters)
+storages = Registry[Storage](collector=collect_storages)

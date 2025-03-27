@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from ckan.config.declaration import Key, Declaration
 from ckan.config.declaration.load import loader
 

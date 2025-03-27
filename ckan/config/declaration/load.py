@@ -25,7 +25,6 @@ from __future__ import annotations
 import json
 import logging
 import pathlib
-from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 from typing_extensions import TypedDict
 import msgspec
@@ -174,7 +173,7 @@ def load_files(declaration: "Declaration", /, config: Any = None):
     if config is None:
         config = default_config
 
-    storages = collect_storage_configuration(config, STORAGE_PREFIX)
+    storages = collect_storage_configuration(config, STORAGE_PREFIX, flat=True)
 
     # add config declarations for configured storages. In this way user can
     # print all available options for every storage via `ckan config
@@ -185,10 +184,7 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
         storage_key = Key().from_string(STORAGE_PREFIX + name)
 
-        available_adapters = json.dumps(
-            list(adapters),
-            separators=(",", ":"),
-        )
+        available_adapters = json.dumps(list(adapters), separators=(",", ":"))
 
         # this option reports unrecognized type of the storage and shows all
         # available correct types
