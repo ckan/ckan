@@ -5,17 +5,11 @@ on:
   workflow_call:
   workflow_dispatch:
     inputs:
-      split:
-        type: choice
-        options:
-          - '["1"]'
-          - '["1", "2", "3", "4"]'
-          - '["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]'
-          - '["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"]'
-          - '["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]'
-        description: 'Number of test splits (set to ["1"])'
-        required: false
-        default: '["1"]'
+      splits:
+        type: number
+        description: 'Number of test splits default 1 (max 24)'
+        required: true
+        default: '1'
 env:
   NODE_VERSION: '16'
   PYTHON_VERSION: '3.9'
@@ -44,8 +38,31 @@ jobs:
         id: splits
         # default maxtrix for splits if we did not get an input
         run: |
-          export SPLIT_LIST='${{ inputs.split || '["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]' }}'
-          echo "this is my list: ${SPLIT_LIST}"
+          set -ex
+          export SPLIT_COUNT=${{ inputs.splits || 12 }}
+          if [ "$SPLIT_COUNT" -gt 24 ]; then
+            echo "Splits cannot exceed 24"
+            export SPLIT_COUNT=24
+          fi
+
+          if [ "$ACT" == "true" ] && [ -z "${{ inputs.splits }}" ]; then
+            echo "Running with act limiting splits to 1 as splits not provided"
+            export SPLIT_COUNT=1
+          else
+            echo "Running on GitHub Actions"
+          fi
+
+          SPLIT_LIST="["
+          for ((i=1; i<=SPLIT_COUNT; i++)); do
+            SPLIT_LIST+="\"$i\""
+            if [ $i -lt $SPLIT_COUNT ]; then
+              SPLIT_LIST+=", "
+            fi
+          done
+          SPLIT_LIST+="]"
+
+          echo "Generated list: $SPLIT_LIST"
+
           export SPLIT_COUNT="$(echo ${SPLIT_LIST} | jq 'length')"
           echo "${SPLIT_COUNT} : ${SPLIT_LIST}"
           echo "SPLIT_LIST=${SPLIT_LIST}" >> "$GITHUB_OUTPUT"
@@ -76,8 +93,6 @@ jobs:
           name: test-durations-before
           path: /tmp/.test_durations
           include-hidden-files: true
-
-
 
   pytest:
     needs: define-matrix
@@ -131,7 +146,7 @@ jobs:
       PGPASSWORD: ckan
       PGHOST: localhost
       CKAN_STORAGE_PATH: /tmp/storage
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit.xml
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
 
 
     steps:
@@ -149,7 +164,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history, including tags
+          fetch-depth: 1  # Fetch all history, including tags
 
       # These two steps will be executed only when there IS a cache hit (exact match or not). When a matrix
       # job is retried, it will reuse the same artifact, to execute the exact same split.
@@ -158,9 +173,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: test-durations-before
-#      - name: Use cached test durations
-#        if: needs.define-matrix.outputs.restored == 'true'
-#        run: mv .test_durations /path/to/your/app/.test_durations
 
       # This step will be executed only when there is NO cache hit.
       # You need to commit file `.test_durations_fallback`.
@@ -172,8 +184,6 @@ jobs:
           # Note: to update this, you must run pytest --store-durations and commit to repo
           echo "unzip pytest test duration details"
           gunzip .test_durations.gz
-
-
 
       - uses: actions/setup-python@v4
         with:
@@ -198,22 +208,6 @@ jobs:
           ckan -c test-core-github-actions.ini datastore set-permissions | grep -v "Using configuration file" | psql --host=${PGHOST} --username=${POSTGRES_USER}
           ckan -c test-core-github-actions.ini db init
 
-
-
-      #as pytest runs test_building_the_docs, we might as well have an output
-      - name: Create Docs
-        if: matrix.split == '1'
-        run: |
-           sphinx-build doc build/sphinx
-
-      #as pytest runs test_building_the_docs, we might as well have an output
-      - name: Store docs
-        if: matrix.split == '1'
-        uses: actions/upload-artifact@v4
-        with:
-          name: docs-${{ matrix.split }}
-          path: ./build/sphinx
-
       # When running pytest, we write the new test durations using options
       # `--store-durations --clean-durations`.
       # Option `--clean-durations` is undocumented but you can check its implementation here:
@@ -222,7 +216,7 @@ jobs:
       # > '--store-durations'.
       - name: Run pytest
         run: |
-          echo "::group::prepTest"
+          set -ex
           unset CKAN_SQLALCHEMY_URL CKAN_SOLR_URL CKAN_REDIS_URL POSTGRES_USER POSTGRES_PASSWORD
           unset CKAN_DB CKAN_DATASTORE_POSTGRES_DB CKAN_DATASTORE_POSTGRES_READ_USER CKAN_DATASTORE_POSTGRES_READ_PWD
           unset CKAN_DATASTORE_POSTGRES_WRITE_USER CKAN_DATASTORE_POSTGRES_WRITE_PWD CKAN_POSTGRES_DB
@@ -230,13 +224,12 @@ jobs:
 
           mkdir -p ./junit/result
           echo "${{ matrix.split }} of $SPLIT_COUNT"
-          echo "::endgroup::"
+
 
           echo "::group::pytest"
-          pytest $PYTEST_COMMON_OPTIONS --splits $SPLIT_COUNT --group ${{ matrix.split }} --splitting-algorithm least_duration --store-durations --clean-durations
+          #we ignore test 'test_building_the_docs' as its looked after by the docs.yml workflow which provides the sphinx documentation build artifact and it also takes 50 seconds to run
+          pytest $PYTEST_COMMON_OPTIONS --splits $SPLIT_COUNT --group ${{ matrix.split }} --splitting-algorithm least_duration --store-durations --clean-durations  -k 'not test_building_the_docs'
           echo "::endgroup::"
-
-
 
       # Each matrix job uploads its freshly updated partial test durations. We regroup them all
       # within one final file in the "Merge all partial test durations" step below.
@@ -250,11 +243,15 @@ jobs:
           include-hidden-files: true
           retention-days: 1
 
+      - name: Prep test coverage split file
+        run: |
+          mv .coverage coverage-${{ matrix.split }}
+
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.split }}
-          path: .coverage*
+          name: internal_coverage-${{ matrix.split }}
+          path: coverage-${{ matrix.split }}
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 1
@@ -263,30 +260,30 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: junit-results-${{ matrix.split }}
-          path: ./junit
+          name: internal_junit-results-${{ matrix.split }}
+          path: ./junit/result
           retention-days: 1
 
-      - name: Test Summary
+      - name: Test Summary (if Failure)
         uses: test-summary/action@v2
         with:
           paths: "./junit/result/*.xml"
         if: failure()
 
-      - name: Test Summary Local copy
+      - name: Test Summary Local copy (If Failure)
         uses: test-summary/action@v2
         with:
           paths: "./junit/result/*.xml"
           output: "./junit/result/test-summary.md"
         if: failure()
 
-      - name: Store Test Summary results
+      - name: Store Test Summary results (If Failure)
         uses: actions/upload-artifact@v4
         with:
-          name: test-summary-${{ matrix.split }}
+          name: split-test-summary-${{ matrix.split }}.md
           path: "./junit/result/test-summary.md"
           retention-days: 30
-        if: always()
+        if: failure()
 
 
   cache-test-durations:
@@ -310,7 +307,7 @@ jobs:
           > /tmp/.test_durations
 
       # This step uploads the final file as an artifact. You can then download it from the Github GUI,
-      # and use it to manually commit file `.test_durations_fallback` from time to time,
+      # and use it to manually commit file gzip `.test_durations` from time to time,
       # to keep an up-to-date fallback:
       - name: Upload final test durations
         uses: actions/upload-artifact@v4
@@ -328,7 +325,7 @@ jobs:
           path: /tmp/.test_durations
           key: tests-durations-${{ github.sha }}
 
-  merge-and-upload:
+  merge-code-coverage-and-upload:
     name: Test Result Combine
     needs: pytest
     if: github.run_attempt == 1 && (success() || failure())
@@ -342,78 +339,64 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
-      - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: coverage-*
-#          merge-multiple: true
-          path: coverage-data
-
       - name: Install dependencies
         run: |
           pip install -r dev-requirements.txt
 
-      - name: Merge coverage files
-        id: coverage
-        continue-on-error: true
-        run: |
-          set -ex
-          ROOT_DIR="./coverage-data"
-          # Loop through each subdirectory in the root directory
-          for dir in $ROOT_DIR/*; do
-              # Check if the directory exists and contains a .coverage file
-              if [[ -d "$dir" && -f "$dir/.coverage" ]]; then
-                  # Extract the folder name
-                  folder_name=$(basename "$dir")
-                  # Move and rename the .coverage file
-                  mv "$dir/.coverage" "$ROOT_DIR/coverage-data-$folder_name"
-                  rmdir $dir
-              fi
-          done
-
-          ls -ltra .
-          ls -ltra ./coverage-data
-          ls -ltra ./coverage-data/*
-
-          #since data has same name, its in sub folders.
-          coverage combine --keep -a ./coverage-data/*
-          coverage report -m
-          coverage xml
-          coverage html -d coverage_html
-
-          ls -ltra
-
-      - name: Upload HTML coverage report
-        uses: actions/upload-artifact@v4
-        if: steps.coverage.outcome == 'success'
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
         with:
-          name: coverage-html
-          path: coverage_html
-#          retention-days: 7
+          pattern: internal_coverage-*
+          path: coverage-data
+          merge-multiple: 'true'
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        id: codecov
-        continue-on-error: true
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload coverage reports to Codecov Summary
-        if: steps.codecov.outcome != 'success'
-        run: |
-          echo "CodeCoverage was unsuccessful in uploading >> $GITHUB_STEP_SUMMARY "
 
       - name: Download all JUnit XML results
         uses: actions/download-artifact@v4
         with:
-          pattern: junit-results-*
+          pattern: internal_junit-results-*
           merge-multiple: true
           path: junit-results
-#
-#      ## then do a merge report generation
 
-      - name: Upload coverage reports to Codecov Summary
-        if: steps.coverage.outcome != 'success'
+      - name: Merge Coverage and JUnit XML files
         run: |
-          echo "Coverage merge was unsuccessful in uploading >> $GITHUB_STEP_SUMMARY "
-          exit 1
+          set -ex
+          mkdir -p results
+          echo "merge junit test results"
+          junitparser merge junit-results/*.xml merged.xml
+          junit2html merged.xml results/pytest-results.html
+
+          echo "merge pytest coverage results"
+          coverage combine --keep -a ./coverage-data/*
+
+          echo "::group::pytest-console-report"
+          coverage report -m
+          echo "::endgroup::"
+
+          coverage xml
+          coverage html -d results/coverage_html
+
+          cp coverage.xml results/coverage.xml
+
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-test-coverage-reports
+          path: results
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        id: codecov
+        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
+          files: ./merged.xml # optional

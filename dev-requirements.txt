@@ -24,3 +24,6 @@ pytest-rerunfailures==15.0
 pytest-split==0.10.0
 pytest-retry==1.7.0
 coverage==7.7.1
+#used for nice pytest reports
+junitparser==3.2.0
+junit2html==31.0.2
