@@ -21,6 +21,8 @@ avoided unless you have an irresistible desire to hack into CKAN core.
 """
 from __future__ import annotations
 
+from collections import defaultdict
+import json
 import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
@@ -159,3 +161,60 @@ def load_core(declaration: "Declaration"):
     with source.open("rb") as stream:
         data = msgspec.yaml.decode(stream.read())
         load_dict(declaration, data)
+
+
+@handler.register("files")
+def load_files(declaration: "Declaration"):
+    """Load declarations for configured storages."""
+    from ckan.common import config
+    from ckan.lib.files import adapters
+
+    storages = defaultdict(dict)  # type: dict[str, dict[str, Any]]
+    prefix = "ckan.files.storage."
+    prefix_len = len(prefix)
+
+    # first, group config options by the storage name
+    for k, v in config.items():
+        if not k.startswith(prefix):
+            continue
+
+        try:
+            name, option = k[prefix_len:].split(".", 1)
+        except ValueError:
+            continue
+
+        storages[name][option] = v
+
+    # add config declarations for configured storages. In this way user can
+    # print all available options for every storage via `ckan config
+    # declaration --core`
+    for name, settings in storages.items():
+        # make base key so that storage can declare options by extending. I.e.,
+        # `storage_key.option_name`, instead of logner form
+        # `key.ckanext.files.storage.STORAGE_NAME.option_name`
+        storage_key = Key().from_string(prefix + name)
+
+        available_adapters = json.dumps(
+            list(adapters),
+            separators=(",", ":"),
+        )
+
+        # this option reports unrecognized type of the storage and shows all
+        # available correct types
+        declaration.declare(
+            storage_key.type,
+            settings.get("type"),
+        ).append_validators(
+            f"one_of({available_adapters})",
+        ).set_description(
+            "Adapter used by the storage",
+        ).required()
+
+        # obviously, adapter must be specified. But at this point validation
+        # hasn't happened yet, and settings can include anything. If `type` is
+        # missing, it will be reported after the validation.
+        adapter = adapters.get(settings.get("type", ""))
+        if not adapter:
+            continue
+
+        adapter.declare_config_options(declaration, storage_key)

@@ -18,10 +18,10 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
-from ckan.lib.files import storages
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
+from ckan.lib import files
 from ckan.lib.webassets_tools import webassets_init, register_core_assets
 
 from ckan.common import CKANConfig, config, config_declaration
@@ -113,6 +113,11 @@ def update_config() -> None:
         if from_env:
             config[option] = from_env
 
+    # adapters must be registered before declarations to properly extend
+    # declarations with adapter-specific configuration
+    files.adapters.reset()
+    files.adapters.collect()
+
     config_declaration.setup()
     config_declaration.make_safe(config)
     config_declaration.normalize(config)
@@ -148,8 +153,8 @@ def update_config() -> None:
         raise CkanConfigurationException(msg)
 
     # storages rely only on valid configuration
-    storages.reset()
-    storages.collect()
+    files.storages.reset()
+    files.storages.collect()
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

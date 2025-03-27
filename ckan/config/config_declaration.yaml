@@ -1730,7 +1730,7 @@ groups:
         default: 180
         description: The option defines the timeout in seconds until giving up on a job
 
-  - annotation: File settings
+  - annotation: Files settings
     options:
       - key: ckan.files.default_storage
         default: default
