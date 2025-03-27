@@ -5,7 +5,6 @@ import dataclasses
 from file_keeper.default.adapters import fs
 
 from ckan.config.declaration import Declaration, Key
-
 from ckan.lib.files import base
 
 

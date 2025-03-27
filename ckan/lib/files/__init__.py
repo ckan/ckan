@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 import os
 from collections import defaultdict
-from typing import Any, Mapping, cast
+from collections.abc import Mapping
+from typing import Any, cast
 
-from file_keeper import Location, Registry, Upload, exc, make_upload
+from file_keeper import Registry, Upload, exc, make_upload
 
 import ckan.plugins as p
 from ckan.common import config
@@ -14,6 +15,7 @@ from ckan.exceptions import CkanConfigurationException
 from . import default
 from .base import (
     FileData,
+    Location,
     Manager,
     MultipartData,
     Reader,
@@ -168,6 +170,11 @@ def collect_storage_configuration(
 
 
 def collect_storages() -> dict[str, Storage]:
+    """Initialize configured storages.
+
+    Returns:
+        mapping with storages
+    """
     result = {}
 
     mapping = collect_storage_configuration(config)
