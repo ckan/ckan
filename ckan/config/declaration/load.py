@@ -164,7 +164,7 @@ def load_core(declaration: "Declaration"):
 
 
 @handler.register("files")
-def load_files(declaration: "Declaration"):
+def load_files(declaration: "Declaration", /, config: Any = None):
     """Generate declarations for configured storages.
 
     Every uniques storage in the config will produce declarations depending on
@@ -172,8 +172,11 @@ def load_files(declaration: "Declaration"):
     configuration and validate settings specific for the selected storage
     adapter.
     """
-    from ckan.common import config
+    from ckan.common import config as default_config
     from ckan.lib.files import adapters
+
+    if config is None:
+        config = default_config
 
     storages = defaultdict(dict)  # type: dict[str, dict[str, Any]]
     prefix = "ckan.files.storage."
@@ -184,12 +187,16 @@ def load_files(declaration: "Declaration"):
         if not k.startswith(prefix):
             continue
 
-        try:
-            name, option = k[prefix_len:].split(".", 1)
-        except ValueError:
+        name, *path = k[prefix_len:].split(".")
+        if not path:
+            log.warning("Unrecognized storage configuration: %s = %s", k, v)
             continue
 
-        storages[name][option] = v
+        here = storages[name]
+        for segment in path[:-1]:
+            here = here.setdefault(segment, {})
+
+        here[path[-1]] = v
 
     # add config declarations for configured storages. In this way user can
     # print all available options for every storage via `ckan config
