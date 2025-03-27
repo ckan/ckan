@@ -43,6 +43,39 @@ class Settings(fk.Settings):
 
     Generally, Settings should not validate configuration. It just holds it and
     initializes additional instances, like connections to external services.
+
+    Example:
+        ```py
+        @dataclasses.dataclass()
+        class MySettings(Settings)
+
+            # normal configurable parameter. Prefer this type of settings
+            verbose: bool = False
+
+            # this attribute will be initialized inside __post_init__. All
+            # setting's attributes must be supplied with default values, but we
+            # cannot set "default" connection. Instead we are using `None` and
+            # type-ignore annotation to avoid attention from typechecker. If we
+            # can guarantee that settings will not be initialized without a
+            # connection, that's ok.
+            conn: Engine = None # type: ignore
+
+            # db_url will be used to initialize connection and
+            # there is no need to keep it after that
+            db_url: dataclasses.InitVar[str] = ""
+
+            def __post_init__(self, db_url: str, **kwargs: Any):
+                # always call original implementation
+                super().__post_init__(**kwargs)
+
+                if not db_url:
+                    msg = "db_url is not valid"
+                    raise files.exc.InvalidStorageConfigurationError(
+                        self.name,
+                        msg,
+                    )
+                self.conn = create_engine(db_url)
+        ```
     """
 
     supported_types: list[str] = dataclasses.field(default_factory=list)

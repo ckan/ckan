@@ -19,6 +19,7 @@ from .base import (
     Manager,
     MultipartData,
     Reader,
+    Settings,
     Storage,
     Uploader,
 )
@@ -31,6 +32,7 @@ __all__ = [
     "Uploader",
     "FileData",
     "MultipartData",
+    "Settings",
     "Upload",
     "Location",
     "storages",

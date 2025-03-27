@@ -50,4 +50,7 @@ class TestStorage:
             storage.validate_content_type("image/jpeg")
 
         with pytest.raises(files.exc.WrongUploadTypeError):
-            storage.validate_content_type("binary/json")
+            storage.validate_content_type("application/pdf")
+
+        with pytest.raises(files.exc.WrongUploadTypeError):
+            storage.validate_content_type("binary/csv")
