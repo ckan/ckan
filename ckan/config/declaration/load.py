@@ -19,6 +19,7 @@ This mechanism allows you to re-define default loaders, though it should be
 avoided unless you have an irresistible desire to hack into CKAN core.
 
 """
+
 from __future__ import annotations
 
 import json
@@ -81,8 +82,7 @@ DeclarationDict = DeclarationDictV1
 
 @handler.register("plugin")
 def load_plugin(declaration: "Declaration", name: str):
-    """Load declarations from CKAN plugin.
-    """
+    """Load declarations from CKAN plugin."""
     from ckan.plugins import IConfigDeclaration, PluginNotFoundException
     from ckan.plugins.core import _get_service
 
@@ -101,8 +101,7 @@ def load_plugin(declaration: "Declaration", name: str):
 
 @handler.register("dict")
 def load_dict(declaration: "Declaration", definition: DeclarationDict):
-    """Load declarations from dictionary.
-    """
+    """Load declarations from dictionary."""
     from ckan.logic.schema import config_declaration_v1
     from ckan.logic import ValidationError
     from ckan.lib.navl.dictization_functions import validate
@@ -115,9 +114,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
         for group in data["groups"]:
             if group["annotation"]:
-                declaration.annotate(group["annotation"]).set_section(
-                    group["section"]
-                )
+                declaration.annotate(group["annotation"]).set_section(group["section"])
 
             for details in group["options"]:
                 factory = option_types[details["type"]]
@@ -155,8 +152,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
 @handler.register("core")
 def load_core(declaration: "Declaration"):
-    """Load core declarations.
-    """
+    """Load core declarations."""
     source = pathlib.Path(__file__).parent / ".." / "config_declaration.yaml"
     with source.open("rb") as stream:
         data = msgspec.yaml.decode(stream.read())
@@ -173,30 +169,12 @@ def load_files(declaration: "Declaration", /, config: Any = None):
     adapter.
     """
     from ckan.common import config as default_config
-    from ckan.lib.files import adapters
+    from ckan.lib.files import adapters, collect_storage_configuration, STORAGE_PREFIX
 
     if config is None:
         config = default_config
 
-    storages = defaultdict(dict)  # type: dict[str, dict[str, Any]]
-    prefix = "ckan.files.storage."
-    prefix_len = len(prefix)
-
-    # first, group config options by the storage name
-    for k, v in config.items():
-        if not k.startswith(prefix):
-            continue
-
-        name, *path = k[prefix_len:].split(".")
-        if not path:
-            log.warning("Unrecognized storage configuration: %s = %s", k, v)
-            continue
-
-        here = storages[name]
-        for segment in path[:-1]:
-            here = here.setdefault(segment, {})
-
-        here[path[-1]] = v
+    storages = collect_storage_configuration(config, STORAGE_PREFIX)
 
     # add config declarations for configured storages. In this way user can
     # print all available options for every storage via `ckan config
@@ -205,7 +183,7 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         # make base key so that storage can declare options by extending. I.e.,
         # `storage_key.option_name`, instead of logner form
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
-        storage_key = Key().from_string(prefix + name)
+        storage_key = Key().from_string(STORAGE_PREFIX + name)
 
         available_adapters = json.dumps(
             list(adapters),

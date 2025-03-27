@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from collections import defaultdict
 import os
 from typing import Any, cast
 
 from file_keeper import exc, make_upload, Registry, Location, Upload
 
 import ckan.plugins as p
-from ckan.common import config
+from ckan.common import config, CKANConfig
+from ckan.exceptions import CkanConfigurationException
 
 from . import default
 from .base import (
@@ -34,6 +36,8 @@ __all__ = [
     "make_upload",
     "exc",
 ]
+
+STORAGE_PREFIX = "ckan.files.storage."
 
 
 def make_storage(name: str, settings: dict[str, Any]):
@@ -107,7 +111,7 @@ def get_storage(name: str | None = None) -> Storage:
 
 def collect_adapters() -> dict[str, type[Storage]]:
     result: dict[str, type[Storage]] = {
-        "files:fs": default.FsStorage,
+        "ckan:fs": default.FsStorage,
     }
 
     for plugin in p.PluginImplementations(p.IFiles):
@@ -115,15 +119,45 @@ def collect_adapters() -> dict[str, type[Storage]]:
     return result
 
 
+def collect_storage_configuration(config: CKANConfig, prefix: str = STORAGE_PREFIX):
+    """Return configuration of every storage located in config dictionary."""
+    storages = defaultdict(dict)  # type: dict[str, dict[str, Any]]
+    prefix_len = len(prefix)
+
+    # first, group config options by the storage name
+    for k, v in config.items():
+        if not k.startswith(prefix):
+            continue
+
+        try:
+            name, option = k[prefix_len:].split(".", 1)
+        except ValueError:
+            continue
+
+        storages[name][option] = v
+    return storages
+
+
 def collect_storages() -> dict[str, Storage]:
-    path = config["ckan.storage_path"]
     result = {}
 
-    if path:
+    mapping = collect_storage_configuration(config)
+    for name, settings in mapping.items():
+        try:
+            storage = make_storage(name, settings)
+        except (
+            exc.UnknownAdapterError,
+            exc.InvalidStorageConfigurationError,
+        ) as err:
+            raise CkanConfigurationException(str(err)) from err
+
+        storages.register(name, storage)
+
+    if path := config["ckan.storage_path"]:
         result["resources"] = make_storage(
             "resources",
             {
-                "type": "files:fs",
+                "type": "ckan:fs",
                 "path": os.path.join(path, "resources"),
                 "create_path": True,
                 "recursive": True,
@@ -137,7 +171,7 @@ def collect_storages() -> dict[str, Storage]:
             result[name] = make_storage(
                 name,
                 {
-                    "type": "files:fs",
+                    "type": "ckan:fs",
                     "path": os.path.join(path, "storage", "uploads", object_type),
                     "create_path": True,
                 },

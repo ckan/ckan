@@ -1,8 +1,4 @@
-# encoding: utf-8
-
 import click
-import magic
-import os
 
 from typing import List
 
