@@ -29,8 +29,8 @@ import ckan.lib.signals as signals
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
 import ckan.authz as authz
-import ckan.model
 
+from ckan import model
 from ckan.common import _, asbool
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
@@ -153,7 +153,6 @@ def package_create(
     :rtype: dictionary
 
     '''
-    model = context['model']
     user = context['user']
 
     if 'type' not in data_dict:
@@ -217,29 +216,28 @@ def package_create(
 
         item.after_dataset_create(context, data)
 
-    # Make sure that a user provided schema is not used in create_views
-    # and on package_show
-    context.pop('schema', None)
-
     # Create default views for resources if necessary
     if data.get('resources'):
         logic.get_action('package_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
+            fresh_context(context, ignore_auth=True),
             {'package': data})
 
-    if not context.get('defer_commit'):
-        model.repo.commit()
-
     return_id_only = context.get('return_id_only', False)
+
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
+
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
+
+    if not context.get('defer_commit'):
+        logic.index_insert_package_dicts((pkg_default, pkg_custom))
+        model.repo.commit()
 
     if return_id_only:
         return pkg.id
 
-    return _get_action('package_show')(
-        context.copy(),
-        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
-    )
+    return pkg_custom
 
 
 def resource_create(context: Context,
@@ -319,8 +317,7 @@ def resource_create(context: Context,
 
     #  Add the default views to the new resource
     logic.get_action('resource_create_default_resource_views')(
-        {'model': context['model'],
-         'user': context['user'],
+        {'user': context['user'],
          'ignore_auth': True
          },
         {'resource': resource,
@@ -353,8 +350,6 @@ def resource_view_create(
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     resource_id = _get_or_bust(data_dict, 'resource_id')
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
@@ -511,7 +506,6 @@ def package_relationship_create(
     :rtype: dictionary
 
     '''
-    model = context['model']
     schema = context.get('schema') \
         or ckan.logic.schema.default_create_relationship_schema()
     api = context.get('api_version')
@@ -571,7 +565,6 @@ def member_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
     user = context['user']
 
     group_id, obj_id, obj_type, capacity = \
@@ -646,9 +639,6 @@ def package_collaborator_create(
     :returns: the newly created (or updated) collaborator
     :rtype: dictionary
     '''
-
-    model = context['model']
-
     package_id, user_id, capacity = _get_or_bust(
         data_dict,
         ['id', 'user_id', 'capacity']
@@ -696,7 +686,6 @@ def package_collaborator_create(
 def _group_or_org_create(context: Context,
                          data_dict: DataDict,
                          is_org: bool = False) -> Union[str, dict[str, Any]]:
-    model = context['model']
     user = context['user']
     session = context['session']
     data_dict['is_organization'] = is_org
@@ -959,7 +948,6 @@ def user_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
     with_apitoken = data_dict.pop("with_apitoken", False)
@@ -1066,7 +1054,6 @@ def user_invite(context: Context,
     if errors:
         raise ValidationError(errors)
 
-    model = context['model']
     group = model.Group.get(data['group_id'])
     if not group:
         raise NotFound()
@@ -1121,7 +1108,7 @@ def _get_random_username_from_email(email: str):
     for _i in range(max_name_creation_attempts):
         random_number = random.SystemRandom().random() * 10000
         name = '%s-%d' % (cleaned_localpart, random_number)
-        if not ckan.model.User.get(name):
+        if not model.User.get(name):
             return name
 
     return cleaned_localpart
@@ -1143,7 +1130,6 @@ def vocabulary_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
     schema = context.get('schema') or \
         ckan.logic.schema.default_create_vocabulary_schema()
 
@@ -1189,8 +1175,6 @@ def tag_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     _check_access('tag_create', context, data_dict)
 
     schema = context.get('schema') or \
@@ -1224,8 +1208,6 @@ def follow_user(context: Context,
     '''
     if not context.get('user'):
         raise NotAuthorized(_("You must be logged in to follow users"))
-
-    model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -1281,8 +1263,6 @@ def follow_dataset(context: Context,
     if not context.get('user'):
         raise NotAuthorized(_("You must be logged in to follow users"))
 
-    model = context['model']
-
     userobj = model.User.get(context['user'])
     if not userobj:
         raise NotAuthorized(_("You must be logged in to follow users"))
@@ -1319,7 +1299,6 @@ def _group_or_org_member_create(
 ) -> ActionResult.GroupOrOrgMemberCreate:
     # creator of group/org becomes an admin
     # this needs to be after the repo.commit or else revisions break
-    model = context['model']
     user = context['user']
 
     schema = ckan.logic.schema.member_schema()
@@ -1418,8 +1397,6 @@ def follow_group(context: Context,
     if not context.get('user'):
         raise NotAuthorized(_("You must be logged in to follow users"))
 
-    model = context['model']
-
     userobj = model.User.get(context['user'])
     if not userobj:
         raise NotAuthorized(_("You must be logged in to follow users"))
@@ -1471,7 +1448,6 @@ def api_token_create(context: Context,
     :rtype: dictionary
 
     """
-    model = context[u'model']
     user, name = _get_or_bust(data_dict, [u'user', u'name'])
 
     if model.User.get(user) is None:

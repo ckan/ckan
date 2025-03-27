@@ -1,0 +1,46 @@
+<li>
+  <p>
+    {% set org_link = (h.url_for('organization.read', id=change.pkg_id)) %}
+    {% if change.method == "change" %}
+
+      {{ _('Changed the image URL of') }}
+      <a href="{{org_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('from') }}
+      <a href="{{'http://' + change.old_image_url if not change.old_image_url[0:4] == 'http' else change.old_image_url}}">
+        {{change.old_image_url}}
+      </a>
+
+      {{ _('to') }}
+      <a href="{{'http://' + change.new_image_url if not change.new_image_url[0:4] == 'http' else change.new_image_url}}">
+        {{change.new_image_url}}
+      </a>
+
+    {% elif change.method == "remove" %}
+
+      {{ _('Removed the image URL from') }}
+      <a href="{{org_link}}">
+        {{change.title}}
+      </a>
+
+    {% elif change.method == "add" %}
+
+      {{ _('Changed the image URL of') }}
+      <a href="{{org_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('to') }}
+      <a href="{{'http://' + change.new_image_url if not change.new_image_url[0:4] == 'http' else change.new_image_url}}">
+        {{change.new_image_url}}
+      </a>
+
+    {% else %}
+
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>
