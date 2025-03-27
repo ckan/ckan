@@ -21,10 +21,10 @@ avoided unless you have an irresistible desire to hack into CKAN core.
 """
 from __future__ import annotations
 
-from collections import defaultdict
 import json
 import logging
 import pathlib
+from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 from typing_extensions import TypedDict
 import msgspec

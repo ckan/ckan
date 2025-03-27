@@ -117,7 +117,6 @@ class Declaration:
         self.load_core_declaration()
         for plugin in p.PluginImplementations(p.IConfigDeclaration):
             plugin.declare_config_options(self, Key())
-
         self._seal()
 
     def make_safe(self, config: "CKANConfig"):

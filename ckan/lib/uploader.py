@@ -17,7 +17,7 @@ import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.common import config
-from ckan.lib.files import get_storage
+from ckan.lib.files import storages
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
@@ -87,7 +87,7 @@ class Upload(object):
         of name object_type. old_filename is the name of the file in the url
         field last time'''
         self.filename = None
-        self.storage = get_storage(f"{object_type}_uploads")
+        self.storage = storages.get(f"{object_type}_uploads")
         self.object_type = object_type
         self.old_filename = old_filename
 
@@ -219,7 +219,7 @@ class ResourceUpload(object):
     mimetype: Optional[str]
 
     def __init__(self, resource: dict[str, Any]) -> None:
-        self.storage = get_storage("resources")
+        self.storage = storages.get("resources")
         if not self.storage:
             return
 
@@ -238,16 +238,13 @@ class ResourceUpload(object):
 
         if bool(upload_field_storage) and \
                 isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
-            self.filesize = 0  # bytes
 
             self.upload_file = fk.make_upload(upload_field_storage)
-            self.filename = self.upload_file.filename
-            self.filename = munge.munge_filename(self.filename)
+            self.filesize = self.upload_file.size
+            self.filename = munge.munge_filename(self.upload_file.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
-
-            self.filesize = self.upload_file.size
 
             # check if the mimetype failed from guessing with the url
             if not self.mimetype and config_mimetype_guess == 'file_ext':
@@ -270,7 +267,7 @@ class ResourceUpload(object):
 
         # location is a safe version of filepath, processed with
         # transformers(e.g., converted to safe relative path)
-        location = self.storage.prepare_location(filepath)
+        location = self.storage.prepare_location(filepath)  # type: ignore
 
         if filepath != location:
             raise logic.ValidationError({'upload': ['Invalid storage path']})

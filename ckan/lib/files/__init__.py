@@ -29,7 +29,10 @@ __all__ = [
     "MultipartData",
     "storages",
     "adapters",
+    "exc",
 ]
+
+exc = fk.exc
 
 
 def make_storage(name: str, settings: dict[str, Any]):
@@ -46,7 +49,7 @@ def make_storage(name: str, settings: dict[str, Any]):
         storage instance
 
     Raises:
-        exceptions.UnknownAdapterError: storage adapter is not registered
+        UnknownAdapterError: storage adapter is not registered
 
     Example:
         ```
