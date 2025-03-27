@@ -103,7 +103,7 @@ class Storage(fk.Storage):
     @classmethod
     def declare_config_options(cls, declaration: Declaration, key: Key):
         declaration.declare(key.max_size, 0).append_validators(
-            "files_parse_filesize",
+            "parse_filesize",
         ).set_description(
             "The maximum size of a single upload."
             + "\nSupports size suffixes: 42B, 2M, 24KiB, 1GB."

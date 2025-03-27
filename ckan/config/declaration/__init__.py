@@ -118,7 +118,6 @@ class Declaration:
         for plugin in p.PluginImplementations(p.IConfigDeclaration):
             plugin.declare_config_options(self, Key())
 
-        loader(self, "files")
         self._seal()
 
     def make_safe(self, config: "CKANConfig"):
@@ -206,6 +205,7 @@ class Declaration:
             return
 
         loader(self, "core")
+        loader(self, "files")
         self._core_loaded = True
 
     def load_plugin(self, name: str):

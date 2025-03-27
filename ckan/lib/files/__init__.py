@@ -8,6 +8,7 @@ import file_keeper as fk
 import ckan.plugins as p
 from ckan.common import config
 
+from . import default
 from .base import (
     Storage,
     Reader,
@@ -16,6 +17,7 @@ from .base import (
     FileData,
     MultipartData,
 )
+
 
 __all__ = [
     "get_storage",
@@ -31,14 +33,40 @@ __all__ = [
 
 
 def make_storage(name: str, settings: dict[str, Any]):
-    storage = fk.make_storage(name, settings)
-    if not isinstance(storage, Storage):
-        msg = "Does not extend ckan.lib.files.Storage"
-        raise fk.exc.InvalidStorageConfigurationError(name, msg)
+    """Initialize storage instance with specified settings.
+
+    Storage adapter is defined by `type` key of the settings. The rest of
+    settings depends on the specific adapter.
+
+    Args:
+        name: name of the storage
+        settings: configuration for the storage
+
+    Returns:
+        storage instance
+
+    Raises:
+        exceptions.UnknownAdapterError: storage adapter is not registered
+
+    Example:
+        ```
+        storage = make_storage("memo", {"type": "files:redis"})
+        ```
+
+    """
+    adapter_type = settings.pop("type", None)
+    adapter = adapters.get(adapter_type)
+    if not adapter:
+        raise fk.exc.UnknownAdapterError(adapter_type)
+
+    settings.setdefault("name", name)
+
+    storage = adapter(settings)
+
     return storage
 
 
-def get_storage(name: str | None = None) -> fk.Storage:
+def get_storage(name: str | None = None) -> Storage:
     """Return existing storage instance.
 
     Storages are initialized when plugin is loaded. As result, this function
@@ -74,30 +102,9 @@ def get_storage(name: str | None = None) -> fk.Storage:
 
 
 def collect_adapters() -> dict[str, type[Storage]]:
-    result = {}
-    # result = {
-    #     "files:fs": storage.FsStorage,
-    #     "files:public_fs": storage.PublicFsStorage,
-    #     "files:ckan_resource_fs": storage.CkanResourceFsStorage,
-    #     "files:redis": storage.RedisStorage,
-    #     "files:filebin": storage.FilebinStorage,
-    #     "files:db": storage.DbStorage,
-    #     "files:link": storage.LinkStorage,
-    # }
-    #     adapters: dict[str, type[base.Storage]] = {
-    #     }
-
-    #     if hasattr(storage, "S3Storage"):
-    #         adapters.update({"files:s3": storage.S3Storage})
-
-    #     if hasattr(storage, "GoogleCloudStorage"):
-    #         adapters.update({"files:google_cloud_storage": storage.GoogleCloudStorage})
-
-    #     if hasattr(storage, "OpenDalStorage"):
-    #         adapters.update({"files:opendal": storage.OpenDalStorage})
-
-    #     if hasattr(storage, "LibCloudStorage"):
-    #         adapters.update({"files:libcloud": storage.LibCloudStorage})
+    result: dict[str, type[Storage]] = {
+        "files:fs": default.FsStorage,
+    }
 
     for plugin in p.PluginImplementations(p.IFiles):
         result.update(plugin.files_get_storage_adapters())
@@ -112,7 +119,7 @@ def collect_storages() -> dict[str, Storage]:
         result["resources"] = make_storage(
             "resources",
             {
-                "type": "file_keeper:fs",
+                "type": "files:fs",
                 "path": os.path.join(path, "resources"),
                 "create_path": True,
                 "recursive": True,
@@ -123,10 +130,10 @@ def collect_storages() -> dict[str, Storage]:
 
         for object_type in ["user", "group", "admin"]:
             name = f"{object_type}_uploads"
-            result[name] = fk.make_storage(
+            result[name] = make_storage(
                 name,
                 {
-                    "type": "file_keeper:fs",
+                    "type": "files:fs",
                     "path": os.path.join(path, "storage", "uploads", object_type),
                     "create_path": True,
                 },
