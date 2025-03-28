@@ -173,6 +173,8 @@ custom types get registered on startup::
             # ...
 
 
+.. _using-configured-storages:
+
 -------------------------
 Using configured storages
 -------------------------
