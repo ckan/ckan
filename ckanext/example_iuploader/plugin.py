@@ -18,14 +18,8 @@ class ExampleIUploader(plugins.SingletonPlugin):
 class ResourceUpload(DefaultResourceUpload):
     path_prefix = 'filename_prefix_'
 
-    def get_path(self, id: str, /, absolute: bool = True):
+    def get_path(self, id: str):
         directory = self.get_directory(id)
         filepath = os.path.join(
             directory, '{}_{}'.format(self.path_prefix, id[6:]))
-
-        if absolute:
-            return os.path.join(
-                self.storage.settings.path, filepath   # type: ignore
-            )
-
         return filepath

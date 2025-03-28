@@ -41,8 +41,8 @@ rst_epilog = '''
 .. |production.ini| replace:: |config_dir|/production.ini
 .. |development.ini| replace:: |config_dir|/development.ini
 .. |ckan.ini| replace:: |config_dir|/ckan.ini
-.. |git_url| replace:: \https://github.com/ckan/ckan.git
-.. |raw_git_url| replace:: \https://raw.githubusercontent.com/ckan/ckan
+.. |git_url| replace:: https://github.com/ckan/ckan.git
+.. |raw_git_url| replace:: https://raw.githubusercontent.com/ckan/ckan
 .. |postgres| replace:: PostgreSQL
 .. |database| replace:: ckan_default
 .. |database_user| replace:: ckan_default
@@ -85,7 +85,7 @@ rst_epilog = '''
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.todo',
     'sphinx.ext.autosummary', 'ckan.plugins.toolkit_sphinx_extension',
-    'sphinx_rtd_theme', 'sphinx.ext.extlinks',
+    'sphinx_rtd_theme', 'sphinx.ext.extlinks', 'sphinx.ext.napoleon'
 ]
 html_theme = 'sphinx_rtd_theme'
 autodoc_member_order = 'bysource'
@@ -95,7 +95,7 @@ todo_include_todos = True
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = {".rst": "restructuredtext"}
 
 # The encoding of source files.
 #source_encoding = 'utf-8'

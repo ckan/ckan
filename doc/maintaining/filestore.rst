@@ -16,6 +16,9 @@ organization.
    :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
    to give CKAN more control over the files and make access control possible.
 
+.. versionchanged:: 2.12
+   Add support of configurable storages.
+
 .. seealso::
 
    :doc:`datastore`
@@ -60,7 +63,6 @@ To setup CKAN's FileStore with local file storage:
 
     sudo supervisorctl restart ckan-uwsgi:*
 
-
 -------------
 FileStore API
 -------------
@@ -79,9 +81,10 @@ The extra key ``upload`` is used to actually post the binary data.
 For example, to create a new CKAN resource and upload a file to it using
 `curl <http://curl.haxx.se/>`_:
 
-.. parsed-literal::
+::
 
- curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_create' --form upload=@filetoupload --form package_id=my_dataset
+   curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_create' \
+       --form upload=@filetoupload --form package_id=my_dataset
 
 (Curl automatically sends a ``multipart-form-data`` heading with you use the
 ``--form`` option.)
@@ -104,12 +107,14 @@ To overwrite an uploaded file with a new version of the file, post to the
 :py:func:`~ckan.logic.action.update.resource_update` action and use the
 ``upload`` field::
 
-    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form upload=@newfiletoupload --form id=resourceid
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' \
+        --form upload=@newfiletoupload --form id=resourceid
 
 To replace an uploaded file with a link to a file at a remote URL, use the
 ``clear_upload`` field::
 
-    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form url=http://expample.com --form clear_upload=true --form id=resourceid
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' \
+        --form url=http://expample.com --form clear_upload=true --form id=resourceid
 
 
 .. _filestore_21_to_22_migration:
@@ -168,5 +173,44 @@ custom types get registered on startup::
             # ...
 
 
+-------------------------
+Using configured storages
+-------------------------
+
+CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
+the file storages. With it, it's possible to initialize storage instance that
+exposes standard interface disregarding of the type of underlying system. As
+result, saving files into local filesystem, cloud or DB looks exactly the same
+from code perspective.
+
+Storages are initialized during application startup and must be configured in
+advance. The exact settings depend on the type of the storage, but general form
+is following::
+
+  ckan.files.storage.my_storage.type = ckan:fs
+  ckan.files.storage.my_storage.path = /tmp/my_storage
+  ckan.files.storage.my_storage.create_path = true
+
+Any option that starts with ``ckan.files.storage.`` is a storage
+configuration. After the prefix fillows the name of the storage,
+``my_storage``, and everything after the name is an option that will be
+consumed by the storage.
+
+In the example above, storage ``my_storage`` is detected with configuration
+``{"type": "ckan:fs", "path": "/tmp/my_storage", "create_path":
+true}``. Configuration for storages is grouped by the name, and that's how
+multiple storages can be configured::
+
+  ckan.files.storage.a.type = xxx
+  ckan.files.storage.b.type = yyy
+  ckan.files.storage.c.type = zzz
+
+It results in three storages:
+
+* ``a`` with configuration ``{"type": "xxx"}``
+* ``b`` with configuration ``{"type": "yyy"}``
+* ``c`` with configuration ``{"type": "zzz"}``
+
 
 .. _mimetypes: http://docs.python.org/2/library/mimetypes.html
+.. _file-keeper: https://pypi.org/project/file-keeper/
