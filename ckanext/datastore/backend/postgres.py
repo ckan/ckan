@@ -1774,7 +1774,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         ''' Returns True if the read engine is a Postgresql Database.
 
         According to
-        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        https://docs.sqlalchemy.org/en/20/core/engines.html#postgresql
         all Postgres driver names start with `postgres`.
         '''
         drivername = self._get_read_engine().engine.url.drivername
