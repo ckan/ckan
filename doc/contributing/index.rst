@@ -34,7 +34,6 @@ of contributions to CKAN:
    javascript
    python
    string-i18n
-   unicode
    testing
    frontend/index
 
