@@ -214,6 +214,33 @@ class TestPatch(object):
         assert user2["fullname"] == "Mr. Test User"
         assert user2["about"] == "somethingnew"
 
+    def test_extensions_successful_patch_updating_user_name(self):
+        user = factories.User()
+
+        updated_user = helpers.call_action(
+            "user_patch",
+            context={"user": user["name"], "ignore_auth": True},
+            id=user["id"],
+            name="somethingnew"
+        )
+
+        assert updated_user["name"] == "somethingnew"
+
+        user2 = helpers.call_action("user_show", id=user["id"])
+
+        assert user2["name"] == "somethingnew"
+
+    def test_extensions_failed_patch_updating_user_name(self):
+        user = factories.User()
+
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "user_patch",
+                context={"user": user["name"], "ignore_auth": False},
+                id=user["id"],
+                name="somethingnew2"
+            )
+
     def test_package_patch_for_update(self):
 
         dataset = factories.Dataset()

@@ -2,4 +2,36 @@
     display: inline-flex;
     gap: 0.5rem;
     align-items: center;
+    justify-content: center;
+    @include box-shadow(none);
+}
+
+@each $name, $color in $theme-colors {
+    .btn-#{$name}-outline {
+        border: solid 2px $color;
+        background-color: $white;
+        color: $color;
+        &:hover {
+            background-color: $color;
+            color: $white
+        }
+    }
+}
+
+.btn-primary {
+    color: $white;
+    &:hover {
+        background-color: $brand-700;
+    }
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: $gray-800;
+    border: $table-border-color solid 2px;
+    &:hover {
+        background-color: $gray-300 !important;
+        border: $gray-300 solid 2px;
+        color: $gray-800;
+    }
 }

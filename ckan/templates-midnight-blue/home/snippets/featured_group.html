@@ -1,7 +1,12 @@
-{% set groups = h.get_featured_groups() %}
-
-{% for group in groups %}
-  <div class="card box">
-    {% snippet 'snippets/group_item.html', group=group %}
-  </div>
-{% endfor %}
+{% set groups = h.get_featured_groups(count=6) %}
+<h2>{{ _("Groups") }}</h2>
+<ul class="featured-groups">
+  {% for group in groups %}
+    {% snippet "group/snippets/group_item.html", group=group %}
+  {% endfor %}
+</ul>
+<div>
+  <a class="btn btn-primary-outline pull-right" href="{{ h.url_for('group.index') }}">
+    {{ _('View all groups') }}
+  </a>
+</div>

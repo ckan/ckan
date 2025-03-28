@@ -7,17 +7,10 @@
 
     {% block core_fields %}
       {% block required_core_fields %}
-        {{ form.input("name", id="field-username", label=_("Username"), placeholder=_("username"), value=data.name, error=errors.name, classes=["control-medium"], is_required=True) }}
-        {{ form.input("fullname", id="field-fullname", label=_("Full Name"), placeholder=_("Joe Bloggs"), value=data.fullname, error=errors.fullname, classes=["control-medium"]) }}
-        {{ form.input("email", id="field-email", label=_("Email"), type="email", placeholder=_("joe@example.com"), value=data.email, error=errors.email, classes=["control-medium"], is_required=True) }}
-        {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="••••••••", value=data.password1, error=errors.password1, classes=["control-medium"], is_required=True) }}
-        {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="••••••••", value=data.password2, error=errors.password2, classes=["control-medium"], is_required=True) }}
-      {% endblock %}
-
-      {% block optional_core_fields %}
-        {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
-        {% set is_url = data.image_url and data.image_url.startswith('http') %}
-        {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture'), url_label=_('Profile picture URL')) }}
+        {{ form.input("name", id="field-username", label=_("Username"), placeholder="", value=data.name, icon='user', error=errors.name, classes=["control-medium"], is_required=True) }}
+        {{ form.input("email", id="field-email", label=_("Email"), type="email", placeholder="", value=data.email, icon='envelope', error=errors.email, classes=["control-medium"], is_required=True) }}
+        {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="", value=data.password1, icon="fingerprint", error=errors.password1, classes=["control-medium"], is_required=True) }}
+        {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="", value=data.password2, icon="fingerprint", error=errors.password2, classes=["control-medium"], is_required=True) }}
       {% endblock %}
     {% endblock %}
 

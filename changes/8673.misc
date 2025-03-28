@@ -1,0 +1,1 @@
+Add `--create` option to `ckan sysadmin add` command to automatically create the user if it doesn't exist

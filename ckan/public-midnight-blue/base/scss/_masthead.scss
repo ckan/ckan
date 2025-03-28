@@ -130,7 +130,7 @@ $notificationsBg: #C9403A;
             justify-content: center;
             flex-wrap: wrap;
             padding: 10px 0;
-            @include media-breakpoint-up(md){
+            @include media-breakpoint-up(lg){
                 gap: 24px
             }
             li {

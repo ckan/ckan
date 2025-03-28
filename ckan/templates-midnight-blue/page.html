@@ -24,7 +24,7 @@
             <div class="flash-messages">
               {% block flash_inner %}
                 {% for category, message in h.get_flashed_messages(with_categories=true) %}
-                  <div class="alert alert-dismissible fade show {{ category }}">
+                  <div class="alert alert-dismissible fade show {{ category }}" role="alert">
                     {{ h.literal(message) }}
                   </div>
                 {% endfor %}
@@ -45,16 +45,21 @@
             </div>
           {% endblock %}
 
-          <div class="row wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' or c.action=='resource_read' %} no-nav{% endif %}">
+          <div class="row {% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' or c.action=='resource_read' %} no-nav{% endif %}">
             {#
             The pre_primary block can be used to add content to before the
             rendering of the main content columns of the page.
             #}
             {% block pre_primary %}
+              {% if self.content_action() | trim %}
+                <div class="content_action">
+                  {% block content_action %}{% endblock %}
+                </div>
+              {% endif %}
             {% endblock %}
 
             {% block secondary %}
-              <aside class="secondary col-md-3">
+              <aside class="secondary col-md-4 col-lg-3">
                 {#
                 The secondary_content block can be used to add content to the
                 sidebar of the page. This is the main block that is likely to be
@@ -72,7 +77,7 @@
             {% endblock %}
 
             {% block primary %}
-              <div class="primary col-md-9 col-xs-12" role="main">
+              <div class="primary col-md-8 col-lg-9 col-xs-12" role="main">
                 {#
                 The primary_content block can be used to add content to the page.
                 This is the main block that is likely to be used within a template.
@@ -88,12 +93,7 @@
                   <article class="module">
                     {% block page_header %}
                       <header class="module-content page-header">
-                        {% if self.content_action() | trim %}
-                          <div class="content_action">
-                            {% block content_action %}{% endblock %}
-                          </div>
-                        {% endif %}
-                        <ul class="nav nav-tabs">
+                        <ul class="nav nav-pills">
                           {% block content_primary_nav %}{% endblock %}
                         </ul>
                       </header>

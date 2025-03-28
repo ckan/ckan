@@ -6,21 +6,16 @@
 {% block actions %}{% endblock %}
 
 {% block form %}
-  <div class="alert alert-danger">{{ _("You're already logged in as {user}.").format(user=current_user.name) }} <a href="{{ logout_url }}">{{ _('Logout') }}</a>?</div>
-    {{ form.input('login', label=_('Username'), id='field-login', value="", error="", classes=["control-full"], attrs={"disabled": "disabled"}) }}
-    {{ form.input('password', label=_('Password'), id='field-password', type="password", value="", error="", classes=["control-full"], attrs={"disabled": "disabled"}) }}
-    {{ form.checkbox('remember', label=_('Remember me'), id='field-remember', checked=true, attrs={"disabled": "disabled"}) }}
-    <div class="form-actions">
-      <button class="btn btn-primary disabled" type="submit" disabled>{{ _('Log in') }}</button>
-    </div>
+  <div class="alert alert-danger" role="alert">{{ _("You're already logged in as {user}.").format(user=current_user.name) }}</div>
+  {{ form.input('login', label=_('Username'), id='field-login', icon='user', value="", error="", classes=["control-full"], attrs={"disabled": "disabled", "class": "form-control"}) }}
+  {{ form.input('password', label=_('Password'), id='field-password', icon='fingerprint', type="password", value="", error="", classes=["control-full"], attrs={"disabled": "disabled", "class": "form-control"}) }}
+  {{ form.checkbox('remember', label=_('Remember me'), id='field-remember', checked=true, attrs={"disabled": "disabled"}) }}
+  <div class="form-actions">
+    <button class="btn btn-primary disabled" type="submit" disabled>{{ _('Log in') }}</button>
+  </div>
 {% endblock %}
 
-{% block secondary_content %}
-  <section class="module module-narrow module-shallow">
-    <h2 class="module-heading">{{ _("You're already logged in") }}</h2>
-    <div class="module-content">
-      <p>{{ _("You need to log out before you can log in with another account.") }}</p>
-      <p class="action"><a class="btn btn-default" href="{{ logout_url }}">{{ _("Log out now") }}</a></p>
-    </div>
-  </section>
+{% block primary_content_inner %}
+  <p>{{ _("You need to log out before you can log in with another account.") }}</p>
+  <a class="btn btn-secondary" href="{{ logout_url }}">{{ _("Log out now") }}</a>
 {% endblock %}

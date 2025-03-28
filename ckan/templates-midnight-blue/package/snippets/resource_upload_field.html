@@ -38,24 +38,22 @@ placeholder - placeholder text for url field
   <input type="radio" id="resource-url-none" name="url_type" value="" {{
     'checked' if not data.url and not data.url_type else '' }}>
   <div class="select-type">
-    <label id="resource-menu-label" class="form-label"
-      >{{ menu_label or _('Data') }}</label>
     <div role="group" aria-labelledby="resource-menu-label">
       {% block url_type_select %}
         {% if is_upload_enabled %}
-          <button type="button" class="btn btn-default" id="resource-upload-button"
+          <button type="button" class="btn btn-secondary" id="resource-upload-button"
             aria-label="{{ _('Upload a file on your computer') }}" data-bs-title="{{ _('Upload a file on your computer') }}" data-bs-toggle="tooltip"
             onclick="
               document.getElementById('resource-url-upload').checked = true;
               document.getElementById('field-resource-upload').click();
-            "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
+            "autofocus="true"><i class="fa fa-upload"></i>{{ _("Upload") }}</button>
         {% endif %}
-        <button type="button" class="btn btn-default" id="resource-link-button"
+        <button type="button" class="btn btn-secondary" id="resource-link-button"
           aria-label="{{ _('Link to a URL on the internet (you can also link to an API)') }}" data-bs-title="{{ _('Link to a URL on the internet (you can also link to an API)') }}" data-bs-toggle="tooltip"
             onclick="
               document.getElementById('resource-url-link').checked = true;
               document.getElementById('field-resource-url').focus();
-            "><i class="fa fa-globe"></i>{{ _('Link') }}</button>
+            "><i class="fa fa-link"></i>{{ _('Link') }}</button>
       {% endblock %}
     </div>
   </div>

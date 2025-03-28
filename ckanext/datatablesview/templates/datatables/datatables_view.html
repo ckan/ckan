@@ -51,7 +51,7 @@
        <th id="_colspacer">colspacer</th>
       </tr>
       <tr>
-        <th><button id="refit-button" class="btn btn-default" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
+        <th><button id="refit-button" class="btn btn-secondary" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
         {% for field in datadictionary -%}
           <th id="cdx{{ loop.index }}" class="fhead" data-type="{{ field.type }}">
               {{- field.id -}}

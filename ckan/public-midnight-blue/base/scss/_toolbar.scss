@@ -1,8 +1,8 @@
 .toolbar {
     @include clearfix;
     position: relative;
-    margin-bottom: 10px;
-    padding: 5px 0;
+    margin-top: 43px;
+    margin-bottom: 63px;
 }
 
 .page_primary_action {
@@ -18,7 +18,10 @@
     padding: 0;
     border: none;
     background: none;
-    font-size: $font-size-lg;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+
 }
 
 .toolbar .breadcrumb li {
@@ -33,9 +36,6 @@
     }
 }
 
-.toolbar .breadcrumb .active {
-    color: $breadcrumb-active-color;
-}
 
 
 .toolbar .home a {
@@ -43,7 +43,7 @@
 }
 
 .toolbar .home span {
-    display: none;
+    display: inline;
 }
 
 .toolbar .breadcrumb a {
@@ -60,6 +60,7 @@
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
     font-weight: bold;
+    color: $primary;
 }
 
 .actions {
@@ -83,9 +84,9 @@
     margin-right: 0;
 }
 
-.hide-heading {
-    display: none;
-}
+// .hide-heading {
+//     display: none;
+// }
 
 .page-header {
     &.module-content{
@@ -94,9 +95,6 @@
     }
     margin-top: $grid-gutter-width;
     @include clearfix;
-    border-bottom: 1px solid $moduleHeadingBorderColor;
-    background-color: $moduleHeadingBackgroundColor;
-    @include border-radius(0 3px 0 0);
     .nav-tabs {
         float: left;
         margin-bottom: -1px;
@@ -113,10 +111,12 @@
             border-bottom-color: transparent;
         }
     }
-    .content_action {
+}
+
+.content_action {
+    .btn {
         float: right;
-        margin-top: -3px;
-        // margin-right: -7px;
+        margin-bottom: 1rem;
     }
 }
 

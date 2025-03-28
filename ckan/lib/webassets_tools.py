@@ -146,7 +146,7 @@ def include_asset(name: str) -> None:
             type_ = "script"
             break
     else:
-        log.warn("Undefined asset type: %s", urls)
+        log.warning("Undefined asset type: %s", urls)
         return
 
     g._webassets[type_].extend(urls)

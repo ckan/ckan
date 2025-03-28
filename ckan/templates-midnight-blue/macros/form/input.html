@@ -21,10 +21,11 @@ Examples:
 {{ form.input('title', label=_('Title'), value=data.title, error=errors.title) }}
 
 #}
-{% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={'class': 'form-control'}, is_required=false) %}
+{% macro input(name, id='', label='', value='', placeholder='', type='text', icon="", error="", classes=[], attrs={'class': 'form-control'}, is_required=false) %}
 {%- set extra_html = caller() if caller -%}
 
-{% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %} 
+{% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
+{% if icon %}<i class="fa fa-{{ icon }} icon"></i>{% endif %}
 <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
 {% endcall %} 
 {% endmacro %}

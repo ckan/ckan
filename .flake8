@@ -6,6 +6,8 @@ exclude =
         ./bin
         ./node_modules
 
+enable-extensions = G
+extend-ignore = G2
 per-file-ignores =
                  test_*.py:E501
 extend-exclude =

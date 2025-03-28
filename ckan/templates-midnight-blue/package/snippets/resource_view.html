@@ -3,14 +3,14 @@
 {% block resource_view %}
   <div id="view-{{ resource_view['id'] }}" class="resource-view" data-id="{{ resource_view['id'] }}" data-title="{{ resource_view['title'] }}" data-description="{{ resource_view['descripion'] }}">
   <div class="actions">
-    <a class="btn btn-default"
+    <a class="btn btn-secondary"
        target="_blank"
        rel="noreferrer"
        href="{{ h.url_for(package['type'] ~ '_resource.view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
       <i class="fa fa-arrows-alt"></i>
       {{ _("Fullscreen") }}
     </a>
-    <a class="btn btn-default"
+    <a class="btn btn-secondary"
        href="#embed-{{ resource_view['id'] }}"
        data-module="resource-view-embed"
        data-module-id="{{ resource_view['id'] }}"
@@ -37,7 +37,7 @@
           </p>
           <p id="data-view-error" class="collapse"></p>
           <p>
-            <a href="{{ resource.url }}" class="btn btn-default btn-lg resource-url-analytics" target="_blank" rel="noreferrer">
+            <a href="{{ resource.url }}" class="btn btn-secondary btn-lg resource-url-analytics" target="_blank" rel="noreferrer">
               <i class="fa fa-lg fa-arrow-circle-down"></i>
               {{ _('Download resource') }}
             </a>

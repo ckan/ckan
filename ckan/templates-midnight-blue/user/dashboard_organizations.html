@@ -8,8 +8,11 @@
   {% endif %}
 {% endblock %}
 
+{% block page_heading %}
+  <h1>{{ h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations') }}</h1>
+{% endblock %}
+
 {% block primary_content_inner %}
-  <h2 class="hide-heading">{{ h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations') }}</h2>
   {% set organizations = h.organizations_available(permission='manage_group',
     include_dataset_count=True,
     include_member_count=True) %}

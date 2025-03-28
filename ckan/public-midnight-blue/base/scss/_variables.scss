@@ -4,12 +4,13 @@ $bgPath: "#{$imagePath}/bg.png";
 
 // Layout Variables
 $layoutFontFamily: $font-family-sans-serif;
-$layoutTextColor: #444;
-$layoutBoldColor: #000;
-$layoutLinkColor: #187794;
-$layoutBackgroundColor: #eee;
-$layoutTrimBackgroundColor: #fff;
-$layoutTrimBorderColor: #ccc;
+$layoutTextColor: $gray-700;
+$layoutBoldColor: $black;
+$layoutLinkColor: $primary;
+$layoutBackgroundColor: $gray-200;
+$layoutTrimBackgroundColor: $white;
+$layoutTrimBorderColor: $gray-400;
+$layoutPrimaryBackgroundColor: $gray-100;
 $logoMaxHeight: 60px;
 
 $navLinkColor: $gray-900;
@@ -53,7 +54,7 @@ $footerLinkColor: $footerTextColor;
 $inputColor: $black;
 $inputBackground: $body-bg;
 $inputBorder: #ccc;
-$inputBorderRadius: 3px;
+$inputBorderRadius: 6px;
 $disabledCustomInputTextColor: #aaa;
 $disabledCustomInputBackground: #f3f3f3;
 
@@ -89,8 +90,8 @@ $codeTextColor: #000;
 
 // Datasets
 
-$listingHeadingTextColor: #333;
-$resourceFormatBackground: #6e6e6e;
+$listingHeadingTextColor: $gray-700;
+$resourceFormatBackground: $gray-500;
 
 // Table
 

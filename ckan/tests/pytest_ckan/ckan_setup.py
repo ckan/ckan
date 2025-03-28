@@ -56,11 +56,8 @@ def pytest_runtestloop(session):
     Make sure all normal plugins are disabled. If test requires a plugin, it
     must rely on `with_plugins` fixture.
 
-    We keep system plugins enabled in order to keep auto-indexing of datasets
-    available without `with_plugins` fixture.
-
     """
-    plugins.unload_non_system_plugins()
+    plugins.unload_all()
 
 
 def pytest_runtest_setup(item):

@@ -43,14 +43,14 @@ placeholder - placeholder text for url field
     <div role="group" aria-labelledby="resource-menu-label">
       {% block url_type_select %}
         {% if is_upload_enabled %}
-          <button type="button" class="btn btn-default" id="resource-upload-button"
+          <button type="button" class="btn btn-secondary" id="resource-upload-button"
             aria-label="{{ _('Upload a file on your computer') }}" data-bs-title="{{ _('Upload a file on your computer') }}" data-bs-toggle="tooltip"
             onclick="
               document.getElementById('resource-url-upload').checked = true;
               document.getElementById('field-resource-upload').click();
             "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
         {% endif %}
-        <button type="button" class="btn btn-default" id="resource-link-button"
+        <button type="button" class="btn btn-secondary" id="resource-link-button"
           aria-label="{{ _('Link to a URL on the internet (you can also link to an API)') }}" data-bs-title="{{ _('Link to a URL on the internet (you can also link to an API)') }}" data-bs-toggle="tooltip"
             onclick="
               document.getElementById('resource-url-link').checked = true;

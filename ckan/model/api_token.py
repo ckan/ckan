@@ -32,7 +32,7 @@ api_token_table = Table(
     Column(u"user_id", types.UnicodeText, ForeignKey(u"user.id")),
     Column(u"created_at", types.DateTime, default=datetime.datetime.utcnow),
     Column(u"last_access", types.DateTime, nullable=True),
-    Column(u"plugin_extras", MutableDict.as_mutable(JSONB)),  # type: ignore
+    Column(u"plugin_extras", MutableDict.as_mutable(JSONB)),
 )
 
 
