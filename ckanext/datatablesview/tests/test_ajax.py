@@ -48,5 +48,6 @@ def test_ajax_data(app, user):
                 'b': '',
                 'DT_RowId': 'row3',
             },
-        ]
+        ],
+        'total_was_estimated': False,
     }
