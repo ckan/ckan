@@ -141,7 +141,7 @@ class Storage(fk.Storage):
             raise fk.exc.WrongUploadTypeError(content_type)
 
     def upload(
-        self, location: fk.Location, upload: fk.Upload, /, **kwargs: Any
+        self, location: Location, upload: fk.Upload, /, **kwargs: Any
     ) -> FileData:
         """Upload file to the storage.
 
@@ -162,7 +162,7 @@ class Storage(fk.Storage):
         return super().upload(location, upload, **kwargs)
 
     def multipart_start(
-        self, location: fk.Location, data: MultipartData, /, **kwargs: Any
+        self, location: Location, data: MultipartData, /, **kwargs: Any
     ) -> MultipartData:
         """Prepare data for multipart upload.
 

@@ -178,10 +178,9 @@ Using configured storages
 -------------------------
 
 CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
-the file storages. With it, it's possible to initialize storage instance that
-exposes standard interface disregarding of the type of underlying system. As
-result, saving files into local filesystem, cloud or DB looks exactly the same
-from code perspective.
+the file storages. It exposes classes that provide standard storage interface
+disregarding of the type of underlying system. As result, saving files into
+local filesystem, cloud or DB looks exactly the same from code perspective.
 
 Storages are initialized during application startup and must be configured in
 advance. The exact settings depend on the type of the storage, but general form
@@ -211,6 +210,52 @@ It results in three storages:
 * ``b`` with configuration ``{"type": "yyy"}``
 * ``c`` with configuration ``{"type": "zzz"}``
 
+To get the instance of the storage, use ``ckan.lib.files.get_storage``
+function::
+
+  storage = get_storage("my_storage")
+
+Create a new file in the storage using it's ``upload`` method and
+``ckan.lib.files.make_upload`` function that thansforms variety of objects into
+uploadable structure::
+
+  upload = make_upload(b"hello world")
+  info = storage.upload("file.txt", upload)
+
+When storage uploads the file, it returns an object with file details, namely
+its location, size, content type and content hash. This information is required
+to read file back from the storage::
+
+  content = storage.content(info)
+
+When the object with file details is not available, usually it can be created
+manually using location of the file and ``ckan.lib.files.FileData`` class::
+
+  path = "path/to/file/inside/the/storage.txt"
+  info = FileData(path)
+  content = storage.content(info)
+
+
+Additional information about storage functionality is available inside
+`file-keeper`_ documentation.
 
 .. _mimetypes: http://docs.python.org/2/library/mimetypes.html
 .. _file-keeper: https://pypi.org/project/file-keeper/
+
+-------------
+Storage types
+-------------
+
+Storage configuration requires ``type`` of the storage. Out of the box,
+following storage types are available:
+
+.. list-table::
+   :widths: 25 50 25
+   :header-rows: 1
+
+   * - Type
+     - Description
+     - Required options
+   * - `ckan:fs`
+     - Keeps files inside local filesystem
+     - * ``path``: root directory of the storage
