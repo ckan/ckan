@@ -6,7 +6,7 @@ CKAN: The Open Source Data Portal Software
     :alt: License
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
-    :target: http://docs.ckan.org
+    :target: https://docs.ckan.org
     :alt: Documentation
 .. image:: https://img.shields.io/badge/support-StackOverflow-yellowgreen.svg?style=flat
     :target: https://stackoverflow.com/questions/tagged/ckan
@@ -28,13 +28,13 @@ CKAN: The Open Source Data Portal Software
 CKAN makes it easy to publish, share and work with data. It's a data management
 system that provides a powerful platform for cataloging, storing and accessing
 datasets with a rich front-end, full API (for both data and catalog), visualization
-tools and more. Read more at `ckan.org <http://ckan.org/>`_.
+tools and more. Read more at `ckan.org <https://ckan.org/>`_.
 
 
 Installation
 ------------
 
-See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructions.
+See the `CKAN Documentation <https://docs.ckan.org>`_ for installation instructions.
 
 
 Support

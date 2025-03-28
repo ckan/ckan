@@ -2,7 +2,7 @@
 Writing documentation
 =====================
 
-.. _docs.ckan.org: http://docs.ckan.org
+.. _docs.ckan.org: https://docs.ckan.org
 
 This section gives some guidelines to help us to write consistent and good
 quality documentation for CKAN.

@@ -119,8 +119,6 @@ the top-level ``ckan/tests/`` directory. There shouldn't be too many of these.
 Naming test methods
 -------------------
 
-`The name of a test method should clearly explain the intent of the test <http://docs.pylonsproject.org/en/latest/community/testing.html#rule-name-tcms-to-indicate-what-they-test>`_.
-
 Test method names are printed out when tests fail, so the user can often
 see what went wrong without having to look into the test file. When they
 do need to look into the file to debug or update a test, the test name
@@ -174,7 +172,7 @@ Bad test names:
 Recipe for a test method
 ========================
 
-The `Pylons Unit Testing Guidelines <http://docs.pylonsproject.org/en/latest/community/testing.html#tips-for-avoiding-bad-unit-tests>`_
+The `Pylons Unit Testing Guidelines <https://pylonsproject.org/community-unit-testing-guidelines.html#tips-for-avoiding-bad-unit-tests>`_
 give the following recipe for all unit test methods to follow:
 
 1. Set up the preconditions for the method / function being tested.

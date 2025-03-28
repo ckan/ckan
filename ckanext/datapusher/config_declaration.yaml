@@ -26,7 +26,7 @@ groups:
       DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
       installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
       running on port 8800. If you want to manually install the DataPusher, follow
-      the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
+      the installation `instructions <https://docs.ckan.org/projects/datapusher>`_.
 
   - key: ckan.datapusher.api_token
     description: >-

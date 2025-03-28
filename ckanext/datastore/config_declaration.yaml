@@ -82,7 +82,7 @@ groups:
 
       To get the list of all the available properties check the `SQLAlchemy documentation`_
 
-      .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+      .. _SQLAlchemy documentation: https://docs.sqlalchemy.org/en/20/core/engines.html#engine-creation-api
 
   - default: english
     key: ckan.datastore.default_fts_lang

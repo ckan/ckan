@@ -120,7 +120,7 @@ functions:
 To use variables in strings, use Python `format string syntax`_
 and then call the ``.format()`` method on the string that ``_()`` returns:
 
-.. _format string syntax: https://docs.python.org/2/library/string.html#formatstrings
+.. _format string syntax: https://docs.python.org/3/library/string.html#formatstrings
 
 .. code-block:: jinja
 
@@ -156,16 +156,10 @@ strings in Python code.
 
 .. _Flask-Babel: https://pythonhosted.org/Flask-Babel/
 
-.. note::
-    Code running on Pylons will use the functions provided by
-    the `pylons.i18n.translation`_ module, but their behaviour is the same.
-
-.. _pylons.i18n.translation: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/modules/i18n_translation.html#module-pylons.i18n.translation
-
 Core CKAN modules should import :py:func:`~ckan.common._` and
 :py:func:`~ckan.common.ungettext` from :py:mod:`ckan.common`,
 i.e. ``from ckan.common import _, ungettext``
-(don't import :py:func:`flask_babel._` or :py:func:`pylons.i18n.translation._` directly, for example).
+(don't import :py:func:`flask_babel._` directly, for example).
 
 CKAN plugins should import :py:mod:`ckan.plugins.toolkit` and use
 :py:func:`ckan.plugins.toolkit._` and
@@ -388,9 +382,9 @@ the quality of CKAN's translations:
          translated_string = _(
              'There are {num_people} people here'.format(num_people=num_people))
 
-* Don't use `old-style %s string formatting <https://docs.python.org/2/library/stdtypes.html#string-formatting>`_
-  in Python, use the new `.format() method`_
-  instead.
+* Don't use `old-style %s string formatting
+  <https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting>`_
+  in Python, use the new `.format() method`_ instead.
 
   Strings formatted with ``.format()`` give translators more context.
   The ``.format()`` method is also more expressive, and is the preferred way
@@ -483,4 +477,4 @@ the quality of CKAN's translations:
    (e.g. different positioning and separators used for decimal points in
    different languages).
 
-.. _.format() method: https://docs.python.org/2/library/stdtypes.html#str.format
+.. _.format() method: https://docs.python.org/3/library/stdtypes.html#str.format
