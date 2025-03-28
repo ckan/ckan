@@ -16,9 +16,12 @@ CKAN: The Open Source Data Portal Software
     :target: https://circleci.com/gh/ckan/ckan
     :alt: Build Status
 
-.. image:: https://coveralls.io/repos/github/ckan/ckan/badge.svg?branch=master
-    :target: https://coveralls.io/github/ckan/ckan?branch=master
-    :alt: Coverage Status
+.. image:: https://github.com/ckan/ckan/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/ckan/ckan/actions/workflows/test.yml
+    :alt: GitHub Actions Build Status
+
+.. image:: https://codecov.io/github/ckan/ckan/graph/badge.svg?token=aXdmn98Yu2
+ :target: https://codecov.io/github/ckan/ckan
 
 .. image:: https://badges.gitter.im/gitterHQ/gitter.svg
     :target: https://gitter.im/ckan/chat
