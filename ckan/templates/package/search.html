@@ -50,7 +50,7 @@
         {% block package_search_results_api_inner %}
           <small>
             {% set api_link = h.link_to(_('API'), h.url_for('api.get_api', ver=3)) %}
-            {% set api_doc_link = h.link_to(_('API Docs'), 'http://docs.ckan.org/en/{0}/api/'.format(g.ckan_doc_version)) %}
+            {% set api_doc_link = h.link_to(_('API Docs'), 'https://docs.ckan.org/en/{0}/api/'.format(g.ckan_doc_version)) %}
             {% trans %} You can also access this registry using the {{ api_link }} (see {{ api_doc_link}}). {% endtrans %}
           </small>
         {% endblock %}
