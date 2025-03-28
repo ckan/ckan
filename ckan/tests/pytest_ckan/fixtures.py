@@ -49,6 +49,9 @@ from ckan.common import config
 from ckan.lib import redis, search
 
 
+_loaded_plugins = ""
+
+
 @register
 class UserFactory(factories.User):
     pass
@@ -434,9 +437,12 @@ def with_plugins(ckan_config):
     it's not required explicitely.
 
     """
-    ckan.plugins.load_all()
+    global _loaded_plugins
+    if _loaded_plugins != ckan_config["ckan.plugins"]:
+        ckan.plugins.unload_non_system_plugins()
+        ckan.plugins.load_all()
     yield
-    ckan.plugins.unload_non_system_plugins()
+    _loaded_plugins = ckan_config["ckan.plugins"]
 
 
 @pytest.fixture
