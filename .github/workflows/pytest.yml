@@ -1,5 +1,6 @@
 name: Pytest
 #pytest split data storage https://github.com/jerry-git/pytest-split/issues/20#issuecomment-2576031836
+#GitHub actions variables. IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED when set to 'True', will disable rollup (default will run)
 on:
   #pull_request: #disabled as its called via test.yml uses delegation
   workflow_call:
@@ -10,6 +11,9 @@ on:
         description: 'Number of test splits default 1 (max 24)'
         required: true
         default: '1'
+      IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED:
+        type: boolean
+        description: Override flag for skipping rollup of pytest/coverage html reports
 env:
   NODE_VERSION: '16'
   PYTHON_VERSION: '3.9'
@@ -24,6 +28,8 @@ jobs:
     outputs:
       SPLIT_LIST: ${{ steps.splits.outputs.SPLIT_LIST }}
       SPLIT_COUNT: ${{ steps.splits.outputs.SPLIT_COUNT }}
+      IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED: ${{ steps.splits.outputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED }}
+
       # This output will be used to know if we had a cache hit (exact match or not), or no cache hit at all.
       # See documentation about the `cache-hit` output:
       # https://github.com/actions/cache/blob/main/README.md#outputs
@@ -67,6 +73,10 @@ jobs:
           echo "${SPLIT_COUNT} : ${SPLIT_LIST}"
           echo "SPLIT_LIST=${SPLIT_LIST}" >> "$GITHUB_OUTPUT"
           echo "SPLIT_COUNT=${SPLIT_COUNT}" >> "$GITHUB_OUTPUT"
+
+
+          echo "IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED=${{ inputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED || vars.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED == 'True' }}" >> $GITHUB_OUTPUT
+
 
       # It's mandatory to use the exact same path when saving/restoring cache, otherwise it won't work
       # (the same key is not enough - see documentation:
@@ -231,6 +241,22 @@ jobs:
           pytest $PYTEST_COMMON_OPTIONS --splits $SPLIT_COUNT --group ${{ matrix.split }} --splitting-algorithm least_duration --store-durations --clean-durations  -k 'not test_building_the_docs'
           echo "::endgroup::"
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        if: ${{ !cancelled() }}
+        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: false # optional (default = false)
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: false # optional (default = false)
+
       # Each matrix job uploads its freshly updated partial test durations. We regroup them all
       # within one final file in the "Merge all partial test durations" step below.
       - name: Upload test durations
@@ -328,7 +354,7 @@ jobs:
   merge-code-coverage-and-upload:
     name: Test Result Combine
     needs: pytest
-    if: github.run_attempt == 1 && (success() || failure())
+    if: github.run_attempt == 1 && (success() || failure()) && needs.define-matrix.outputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -363,40 +389,34 @@ jobs:
           set -ex
           mkdir -p results
           echo "merge junit test results"
+
+          echo "::group::junitparser-merge"
           junitparser merge junit-results/*.xml merged.xml
-          junit2html merged.xml results/pytest-results.html
-
-          echo "merge pytest coverage results"
-          coverage combine --keep -a ./coverage-data/*
-
-          echo "::group::pytest-console-report"
-          coverage report -m
           echo "::endgroup::"
 
-          coverage xml
+          echo "::group::junit2html generate"
+          junit2html merged.xml results/pytest-results.html
+          cp merged.xml results/junit_results.xml
+          echo "::endgroup::"
+
+          echo "merge pytest coverage results"
+
+          echo "::group::coverage combine"
+          coverage combine --keep -a ./coverage-data/*
+          echo "::endgroup::"
+
+
+          echo "::group::pytest-html-report"
           coverage html -d results/coverage_html
+          echo "::endgroup::"
 
-          cp coverage.xml results/coverage.xml
-
+      - name: Pytest Coverage Console Report
+        run: |
+          set -ex
+          coverage report -m
 
       - name: Upload HTML coverage report
         uses: actions/upload-artifact@v4
         with:
           name: combined-test-coverage-reports
           path: results
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        id: codecov
-        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
-
-      - name: Upload test results to Codecov
-        uses: codecov/test-results-action@v1
-        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
-          files: ./merged.xml # optional
