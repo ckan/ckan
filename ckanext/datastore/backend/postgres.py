@@ -1582,8 +1582,15 @@ def _execute_single_statement_copy_to(
             'query': ['Query is not a single statement.']
         })
 
+    params = {}
+    for chunk in where_values:
+        params.update(chunk)
+
+    clause = sa.text(sql_string).bindparams(
+        **params).compile(compile_kwargs={"literal_binds": True})
+
     cursor = context['connection'].connection.cursor()
-    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
+    cursor.copy_expert(str(clause), buf)
     cursor.close()
 
 

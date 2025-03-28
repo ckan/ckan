@@ -2123,6 +2123,36 @@ class TestDatastoreSearchRecordsFormat(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_filter_results_csv(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[
+                {u"id": u"num", u"type": u"numeric"},
+                {u"id": u"dt", u"type": u"timestamp"},
+                {u"id": u"txt", u"type": u"text"},
+            ],
+            records=[
+                {u"num": 9, u"dt": u"2020-01-02", u"txt": u"aaab"},
+                {u"num": 9, u"dt": u"2020-01-01", u"txt": u"aaac"},
+            ],
+        )
+        r = helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format="csv",
+            fields="dt, num, txt",
+            filters={
+                "txt": "aaab"
+            },
+        )
+        assert (
+            r["records"] == "2020-01-02T00:00:00,9,aaab\n"
+        )
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_fts_on_field_calculates_ranks_specific_field_and_all_fields(self):
         resource = factories.Resource()
         data = {
