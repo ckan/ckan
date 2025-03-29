@@ -405,7 +405,7 @@ class DefaultDatasetForm(object):
         return 'package/resource_read.html'
 
     def package_form(self) -> str:
-        return 'package/new_package_form.html'
+        return 'package/snippets/package_form.html'
 
     def resource_form(self) -> str:
         return 'package/snippets/resource_form.html'
