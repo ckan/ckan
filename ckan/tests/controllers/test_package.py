@@ -2,7 +2,6 @@
 
 import uuid
 from bs4 import BeautifulSoup
-from werkzeug.routing import BuildError
 from flask_babel import refresh as refresh_babel
 import unittest.mock as mock
 
