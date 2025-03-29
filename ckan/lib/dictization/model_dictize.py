@@ -155,7 +155,6 @@ def _execute(q: Select[Any], table: Table, context: Context) -> Any:
     Analogous with _execute_with_revision, so takes the same params, even
     though it doesn't need the table.
     '''
-    model = context['model']
     session = model.Session
     result: Any = session.execute(q)
     return result
@@ -167,7 +166,6 @@ def package_dictize(
     '''
     Given a Package object, returns an equivalent dictionary.
     '''
-    model = context['model']
     assert not (context.get('revision_id') or
                 context.get('revision_date')), \
         'Revision functionality has been removed'
@@ -316,7 +314,6 @@ def _get_members(context: Context, group: model.Group,
 def _get_members(context: Context, group: model.Group,
                  member_type: str) -> list[tuple[Any, str]]:
 
-    model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
     q = model.Session.query(
         Entity, model.Member.capacity).\
@@ -510,7 +507,6 @@ def tag_dictize(tag: model.Tag, context: Context,
         vocab_id = tag_dict.get('vocabulary_id')
 
         if vocab_id:
-            model = context['model']
             vocab = model.Vocabulary.get(vocab_id)
             assert vocab
             tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
@@ -569,7 +565,6 @@ def user_dictize(
         user: Union[model.User, tuple[model.User, str]], context: Context,
         include_password_hash: bool=False,
         include_plugin_extras: bool=False) -> dict[str, Any]:
-    model = context['model']
 
     if context.get('with_capacity'):
         # Fix type: "User" is not iterable
@@ -667,7 +662,7 @@ def resource_view_dictize(resource_view: model.ResourceView,
     dictized.pop('order')
     config = dictized.pop('config', {})
     dictized.update(config)
-    resource = context['model'].Resource.get(resource_view.resource_id)
+    resource = model.Resource.get(resource_view.resource_id)
     assert resource
     package_id = resource.package_id
     dictized['package_id'] = package_id

@@ -28,6 +28,7 @@ from urllib.parse import (
     urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
+import msgspec
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -1530,8 +1531,12 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             context, sql_string, where_values))[0][0]
         if v is None or v == '[]':
             records = []
-        else:
+        elif 'api_version' in context:
+            # LazyJSONObject only for api view where it can be
+            # serialized with simplejson without decoding
             records = LazyJSONObject(v)
+        else:
+            records = msgspec.json.decode(v)
     data_dict['records'] = records
 
     data_dict['fields'] = _result_fields(
@@ -1605,8 +1610,15 @@ def _execute_single_statement_copy_to(
             'query': ['Query is not a single statement.']
         })
 
+    params = {}
+    for chunk in where_values:
+        params.update(chunk)
+
+    clause = sa.text(sql_string).bindparams(
+        **params).compile(compile_kwargs={"literal_binds": True})
+
     cursor = context['connection'].connection.cursor()
-    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
+    cursor.copy_expert(str(clause), buf)
     cursor.close()
 
 
