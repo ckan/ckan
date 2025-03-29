@@ -1929,9 +1929,9 @@ class TestCollaborators(object):
             )
         assert 'Collaborators' not in response
 
-        # Route not registered
-        with pytest.raises(BuildError):
-            url_for('dataset.collaborators_read', id=dataset['name'])
+        # Route registered because flask is bad in conditional routes. But it
+        # gives 404 upon visit
+        assert url_for('dataset.collaborators_read', id=dataset['name'])
         app.get(
             '/dataset/collaborators/{}'.format(dataset['name']), status=404)
 
