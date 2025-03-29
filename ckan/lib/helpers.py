@@ -1666,7 +1666,7 @@ def _create_url_with_params(params: Optional[Iterable[tuple[str, Any]]] = None,
                             action: Optional[str] = None,
                             extras: Optional[dict[str, Any]] = None):
     """internal function for building urls with parameters."""
-    if extras is None:
+    if not extras:
         extras = {}
 
     if not controller and not action and request.view_args:
