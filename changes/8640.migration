@@ -1,0 +1,17 @@
+`url_for` now resembles closer corresponding function from Flask. Namely,
+following breaking changes are introduced:
+
+* It accepts one positional argument with the endpoint name and arbitrary
+  number of keyword-only arguments.
+* Relative and absolute URLs are no longer accepted. Use
+  `url_for_static_or_external` helper instead.
+* `qualified` parameter is deprecated. Use `_external` flag instead to build
+  external URL.
+* Old-style endpoints with underscore(`dataset_search`) are not allowed. Use
+  dotted endpoints(`dataset.search`).
+* `ckan.legacy_route_mappings` option was removed and now the helper does not
+  translate old aliases to correct route name.
+
+Additionally, `url_for_static` and `url_for_static_or_external` now encode
+URL. It means, ``/hello?a=b`` turns into ``/hello%3Fa%3Db``. Query parameters
+must be specified as keyword arguments: ``h.url_for_static("/hello", a="b")``.
