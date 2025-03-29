@@ -49,6 +49,9 @@ def add_user(ctx: click.Context, username: str, args: list[str]):
         data_dict['password'] = click.prompt(u'Password ', hide_input=True,
                                              confirmation_prompt=True)
 
+    if u'fullname' not in data_dict:
+        data_dict['fullname'] = click.prompt(u'Full Name ').strip()
+
     import ckan.logic as logic
 
     try:
