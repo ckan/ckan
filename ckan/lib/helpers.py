@@ -1666,13 +1666,16 @@ def _create_url_with_params(params: Optional[Iterable[tuple[str, Any]]] = None,
                             action: Optional[str] = None,
                             extras: Optional[dict[str, Any]] = None):
     """internal function for building urls with parameters."""
-    if not extras:
-        if not controller and not action:
-            # it's an url for the current page. Let's keep all interlal params,
-            # like <package_type>
-            extras = dict(request.view_args or {})
-        else:
-            extras = {}
+    if extras is None:
+        extras = {}
+
+    if not controller and not action and request.view_args:
+        # it's an url for the current page. Let's keep all interlal params,
+        # like <package_type> if thes are not overriden in extras
+        extras.update({
+            k: v for k, v in request.view_args.items()
+            if k not in extras
+        })
 
     blueprint, view = p.toolkit.get_endpoint()
     if not controller:
