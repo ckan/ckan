@@ -5,22 +5,28 @@
 then itself be extended to add/remove blocks of functionality. #}
 <form id="dataset-edit" method="post" action="{{ action }}" data-module="basic-form" novalidate>
   {{ h.csrf_input() }}
-  {% block stages %}
+  <!-- {% block stages %}
     {% snippet 'package/snippets/stages.html', stages=stage, dataset_type=dataset_type %}
-  {% endblock %}
+  {% endblock %} -->
 
   <input type="hidden" name="_ckan_phase" value="dataset_new_1" />
   {# pkg_name used in 3 stage edit #}
   <input type="hidden" name="pkg_name" value="{{ data.id }}" />
   {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
-  {% block basic_fields %}
-    {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors %}
-  {% endblock %}
-
-  {% block metadata_fields %}
-    {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors %}
-  {% endblock %}
+  <div class="package-metadata-field rounded container">
+    <div class="row ">
+      
+        {% block basic_fields %}
+          {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors %}
+        {% endblock %}
+  
+        {% block metadata_fields %}
+          {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors %}
+        {% endblock %}
+      
+    </div>
+  </div>
 
   {% block form_actions %}
     {{ form.required_message() }}
@@ -44,6 +50,9 @@ then itself be extended to add/remove blocks of functionality. #}
       {% endblock %}
       {% block save_button %}
         <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Next: Add Data') }}{% endblock %}</button>
+      {% endblock %}
+      {% block publish_button %}
+        
       {% endblock %}
     </div>
   {% endblock %}

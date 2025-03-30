@@ -277,7 +277,7 @@ class CreateView(MethodView):
             return base.abort(
                 404, _(u'The dataset {id} could not be found.').format(id=id)
             )
-        if save_action == 'go-metadata':
+        if save_action in ('go-metadata', 'go-metadata-publish'):
             get_action('package_patch')(
                 Context(context, allow_state_change=True),
                 {'id': id, 'state': 'active'}

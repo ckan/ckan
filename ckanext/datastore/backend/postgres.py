@@ -28,6 +28,7 @@ from urllib.parse import (
     urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
+import msgspec
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -434,8 +435,18 @@ def _where_clauses(
                 sa.column(field),
                 ','.join(f":{p}" for p in placeholders)
             ))
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = str(value)
             placeholder = f"value_{next(idx_gen)}"
             clause: tuple[Any, ...] = (
                 f'{sa.column(field)} = :{placeholder}',
@@ -1464,8 +1475,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
@@ -1475,29 +1488,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT * FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
-        resource=resource_id,
+        resource=identifier(resource_id),
         ts_query=ts_query,
         where=where_clause,
         sort=sort_clause,
@@ -1513,8 +1531,12 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             context, sql_string, where_values))[0][0]
         if v is None or v == '[]':
             records = []
-        else:
+        elif 'api_version' in context:
+            # LazyJSONObject only for api view where it can be
+            # serialized with simplejson without decoding
             records = LazyJSONObject(v)
+        else:
+            records = msgspec.json.decode(v)
     data_dict['records'] = records
 
     data_dict['fields'] = _result_fields(
@@ -1588,8 +1610,15 @@ def _execute_single_statement_copy_to(
             'query': ['Query is not a single statement.']
         })
 
+    params = {}
+    for chunk in where_values:
+        params.update(chunk)
+
+    clause = sa.text(sql_string).bindparams(
+        **params).compile(compile_kwargs={"literal_binds": True})
+
     cursor = context['connection'].connection.cursor()
-    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
+    cursor.copy_expert(str(clause), buf)
     cursor.close()
 
 
@@ -1636,7 +1665,10 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
         where_clause
     )
 
-    _execute_single_statement(context, sql_string, where_values)
+    try:
+        _execute_single_statement(context, sql_string, where_values)
+    except ProgrammingError as pe:
+        raise ValidationError({'filters': [_programming_error_summary(pe)]})
 
 
 def _create_triggers(connection: Any, resource_id: str,
@@ -2226,15 +2258,17 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             plugin_data, _old = _get_raw_field_info(conn, id)
             return plugin_data
 
-    def resource_fields(self, id: str) -> dict[str, Any]:
+    def resource_fields(
+            self, id: str, include_meta: bool = True,
+            include_fields_schema: bool = True) -> dict[str, Any]:
 
-        info: dict[str, Any] = {'meta': {}, 'fields': []}
+        info: dict[str, Any] = {'fields': []}
+        engine = self._get_read_engine()
 
-        try:
-            engine = self._get_read_engine()
-
+        if include_meta:
             # resource id for deferencing aliases
-            info['meta']['id'] = id
+            meta: dict[str, Any] = {'id': id}
+            info['meta'] = meta
 
             # count of rows in table
             meta_sql = sa.text(
@@ -2291,19 +2325,23 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             ''')
             with engine.connect() as conn:
                 alias_results = conn.execute(alias_sql)
-            aliases = []
+            aliases: list[str] = []
             for alias in alias_results.fetchall():
                 aliases.append(alias[0])
             info['meta']['aliases'] = aliases
 
-            # get the data dictionary for the resource
-            with engine.connect() as conn:
-                data_dictionary = _result_fields(
-                    _get_fields_types(conn, id),
-                    _get_field_info(conn, id),
-                    None
-                )
+        # get the data dictionary for the resource
+        with engine.connect() as conn:
+            data_dictionary = _result_fields(
+                _get_fields_types(conn, id),
+                _get_field_info(conn, id),
+                None
+            )
+        info['fields'] = [
+            f for f in data_dictionary if not f['id'].startswith('_')
+        ]
 
+        if include_fields_schema:
             schema_sql = sa.text(f'''
                 SELECT
                 f.attname AS column_name,
@@ -2351,10 +2389,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 if field['id'].startswith('_'):
                     continue
                 field.update({'schema': schemainfo[field['id']]})
-                info['fields'].append(field)
 
-        except Exception:
-            pass
         return info
 
     def get_all_ids(self) -> list[str]:

@@ -14,6 +14,15 @@
   {% endif %}
 {% endblock %}
 
+
+{% block publish_button %}
+  {% if form_style != 'edit' %}
+    {{ super() }}
+  {% else %}
+    <button class="btn btn-success" name="save" value="go-metadata-unpublish" type="submit">{% block publish_button_text %}{{ _('Unpublish') }}{% endblock %}</button>
+  {% endif %}
+{% endblock %}
+
 {% block cancel_button %}
   {% if form_style != 'edit' %}
     {{ super() }}

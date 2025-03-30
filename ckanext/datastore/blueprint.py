@@ -16,7 +16,7 @@ from ckan.logic import (
 )
 from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
-    abort, render, g, h, ValidationError
+    abort, render, g, h, ValidationError, asbool
 )
 from ckan.types import Schema, ValidatorFactory
 from ckanext.datastore.logic.schema import (
@@ -147,7 +147,11 @@ class DictionaryView(MethodView):
             # resource_edit_base template uses these
             pkg_dict = get_action(u'package_show')({}, {'id': id})
             resource = get_action(u'resource_show')({}, {'id': resource_id})
-            rec = get_action(u'datastore_info')({}, {'id': resource_id})
+            rec = get_action(u'datastore_info')({}, {
+                'id': resource_id,
+                'include_meta': False,
+                'include_fields_schema': False,
+            })
             return {
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
@@ -311,8 +315,22 @@ def dump_to(
     return stream_dump(offset, limit, paginate_by, result)
 
 
+def api_info(resource_id: str):
+    try:
+        get_action('datastore_search')({}, {'resource_id': resource_id,
+                                            'limit': 0})
+    except (ObjectNotFound, NotAuthorized):
+        abort(404, _('DataStore resource not found'))
+
+    return render('datastore/snippets/api_info.html', {
+        'resource_id': resource_id,
+        'embedded': asbool(request.args.get('embedded', False)),
+    })
+
+
 datastore.add_url_rule(u'/datastore/dump/<resource_id>', view_func=dump)
 datastore.add_url_rule(
     u'/dataset/<id>/dictionary/<resource_id>',
     view_func=DictionaryView.as_view(str(u'dictionary'))
 )
+datastore.add_url_rule('/datastore/api_info/<resource_id>', view_func=api_info)

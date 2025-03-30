@@ -621,6 +621,8 @@ class EditView(MethodView):
             data_dict.pop('_ckan_phase', None)
             save_action = data_dict.pop('save', None)
             data_dict['id'] = id
+            if request.form.get(u'save', None) == u'go-metadata-unpublish':
+                data_dict[u'state'] = u'draft'
             pkg_dict = get_action('package_update')(context, data_dict)
 
             for plugin in plugins.PluginImplementations(plugins.IFormRedirect):
@@ -805,7 +807,7 @@ def follow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 
@@ -832,7 +834,7 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 
