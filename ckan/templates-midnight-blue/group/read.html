@@ -33,11 +33,12 @@
 {% block secondary_content %}
   {{ super() }}
   <div class="filters">
+    <span class="close no-text hide-filters" tabindex="0"><i class="fa-solid fa-xmark"></i><span class="text">close</span></span>
     <div>
+      <h2 class="d-sm-block d-md-none">Filter results</h2>
       {% for facet in facet_titles %}
         {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets, default_collapsed=default_collapsed %}
       {% endfor %}
     </div>
-    <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
   </div>
 {% endblock %}

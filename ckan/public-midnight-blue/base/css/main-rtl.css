@@ -14042,24 +14042,6 @@ td.diff_header {
   font-style: italic;
 }
 
-.wrapper {
-  position: relative;
-  min-height: 300px;
-}
-.wrapper::after {
-  display: block;
-  clear: both;
-  content: "";
-}
-@media (min-width: 768px) {
-  .wrapper.no-nav:before {
-    display: none;
-  }
-  .wrapper.no-nav .module > .page-header {
-    margin-top: 0;
-  }
-}
-
 [role=main],
 .main {
   position: relative;
@@ -14097,6 +14079,11 @@ td.diff_header {
   overflow: hidden;
 }
 
+.show-filters.btn {
+  background-color: #f9fafb;
+  font-weight: 500;
+}
+
 .show-filters.btn,
 .hide-filters {
   display: none;
@@ -14115,9 +14102,8 @@ td.diff_header {
     right: 0;
     bottom: 0;
     z-index: 1000;
-    padding: 10px;
-    background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.5);
+    padding: 40px 10px 0;
+    background-color: #fff;
   }
   .js body.filters-modal .secondary .filters {
     display: block;
@@ -14128,19 +14114,16 @@ td.diff_header {
     -moz-border-radius: 4px;
     border-radius: 4px;
     overflow: hidden;
-  }
-  .js .main .secondary .filters > div .module-footer {
-    display: none;
+    padding: 0 10px;
   }
   .js body.filters-modal .secondary .filters .hide-filters {
     display: inline-block;
     position: absolute;
     top: 14px;
     right: 17px;
-    opacity: 0.6;
   }
   .js body.filters-modal .secondary .filters .hide-filters i {
-    font-size: 18px;
+    font-size: 24px;
   }
   .js .show-filters.btn {
     display: inline-block;
