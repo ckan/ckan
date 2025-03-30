@@ -1,0 +1,37 @@
+{% ckan_extends %}
+
+{% block stages %}
+  {%- set pages = h.scheming_get_dataset_form_pages(dataset_type) -%}
+  {%- if pages -%}
+    {%- set active_page = data.get('_form_page', 1) | int -%}
+    <ol class="stages stage-1">
+      {%- if form_style != 'edit' -%}
+        <li class="first {{ s2 }}" style="width:{{ 100 / (pages | length + 1) }}%">
+          <span class="highlight"><a href="{{
+            h.url_for('dataset_resource.new', id=data.name or data.id)
+          }}">{{ _('Add data') }}</a></span>
+        </li>
+      {%- endif -%}
+      {%- for p in pages -%}
+        <li class="{{
+          'last ' if loop.last else ''}}{{
+          'active ' if loop.index == active_page else '' }}"
+          style="width:{{ 100 / (loop.length + (0 if form_style == 'edit' else 1)) }}%">
+          <span class="highlight" style="padding-right:0">{% if loop.index < active_page
+              or (form_style == 'edit' and loop.index != active_page)
+            %}<a href="{{
+              h.url_for(dataset_type +
+                  ('.scheming_edit_page' if form_style == 'edit' else '.scheming_new_page'),
+                package_type=dataset_type,
+                id=data.name or data.id,
+                page=loop.index)
+            }}">{{ h.scheming_language_text(p.title) }}</a>{%
+            else %}{{ h.scheming_language_text(p.title) }}{% endif %}
+          </span>
+        </li>
+      {%- endfor -%}
+    </ol>
+  {%- else -%}
+    {{ super() }}
+  {%- endif -%}
+{% endblock %}
