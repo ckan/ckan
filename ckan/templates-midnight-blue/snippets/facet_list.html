@@ -36,7 +36,6 @@ search_facets
 Dictionary with search facets
 
 #}
-{% set default_collapsed = h.default_collapse_facets() %}
 {% block facet_list %}
 	{% set hide_empty = hide_empty or false %}
 	{% with items = items or h.get_facet_items_dict(name, search_facets, exclude_active=true) %}

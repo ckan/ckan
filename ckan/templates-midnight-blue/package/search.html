@@ -1,5 +1,6 @@
 {% extends "page.html" %}
 {% import 'macros/form.html' as form %}
+{% set default_collapsed = h.default_collapse_facets() %}
 
 {% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
 
@@ -64,7 +65,7 @@
   <div class="filters">
     <div>
       {% for facet in facet_titles %}
-        {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets %}
+        {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets, default_collapsed=default_collapsed %}
       {% endfor %}
     </div>
     <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
