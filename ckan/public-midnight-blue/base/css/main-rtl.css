@@ -12302,6 +12302,7 @@ a.tag:hover {
   line-height: 1.5;
   padding: 10px 25px;
   border-radius: 0.5rem;
+  position: relative;
 }
 .module-narrow .nav-item > a:hover,
 .module-narrow .nav-aside li a:hover {
@@ -12317,7 +12318,8 @@ a.tag:hover {
   background-color: #667085;
   border-radius: 6px;
   padding: 5px 6px;
-  color: white;
+  color: #fff;
+  border: 1px solid #fff;
   min-width: 2rem;
 }
 .module-narrow .nav-item > a .item-label,
@@ -12389,13 +12391,6 @@ a.tag:hover {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.module-narrow .nav-item > a,
-.module-narrow .nav-aside li a {
-  padding-left: 15px;
-  padding-right: 15px;
-  position: relative;
 }
 
 .module-narrow .nav-item.image,

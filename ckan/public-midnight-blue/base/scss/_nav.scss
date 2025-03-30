@@ -1,3 +1,4 @@
+// Variables for filters icons
 $removeState: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'><path d='M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z' stroke='white' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 $addState: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'><path d='M12 8V16M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z' stroke='black' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 
@@ -26,7 +27,7 @@ $addState: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width
         line-height: $line-height-base;
         padding: 10px ($gutterX);
         border-radius: .5rem;
-
+        position: relative;
         &:hover {
             text-decoration: none;
             background-color: #f8f9fa;
@@ -40,7 +41,8 @@ $addState: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width
             background-color: $emptyTextColor;
             border-radius: 6px;
             padding: 5px 6px;
-            color: white;
+            color: $white;
+            border: 1px solid $white;
             min-width: 2rem;
         }
 
@@ -122,13 +124,6 @@ $addState: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width
         stroke-linecap: round;
         stroke-linejoin: round;
     }
-}
-
-.module-narrow .nav-item>a,
-.module-narrow .nav-aside li a {
-    padding-left: $gutterSmallX;
-    padding-right: $gutterSmallX;
-    position: relative;
 }
 
 .module-narrow .nav-item.image,
