@@ -1,41 +1,41 @@
 {#
-	Construct a facet module populated with links to filtered results.
-	
-	name
-	The field name identifying the facet field, eg. "tags"
-	
-	title
-	The title of the facet, eg. "Tags", or "Tag Cloud"
-	
-	label_function
-	Renders the human-readable label for each facet value.
-	If defined, this should be a callable that accepts a `facet_item`.
-	eg. lambda facet_item: facet_item.display_name.upper()
-	By default it displays the facet item's display name, which should
-	usually be good enough
-	
-	if_empty
-	A string, which if defined, and the list of possible facet items is empty,
-	is displayed in lieu of an empty list.
-	
-	count_label
-	A callable which accepts an integer, and returns a string.  This controls
-	how a facet-item's count is displayed.
-	
-	extras
-	Extra info passed into the add/remove params to make the url
-	
-	alternative_url
-	URL to use when building the necessary URLs, instead of the default
-	ones returned by url_for. Useful eg for dataset types.
-	
-	hide_empty
-	Do not show facet if there are none, Default: false.
-	
-	search_facets
-	Dictionary with search facets
-	
-	#}
+Construct a facet module populated with links to filtered results.
+
+name
+The field name identifying the facet field, eg. "tags"
+
+title
+The title of the facet, eg. "Tags", or "Tag Cloud"
+
+label_function
+Renders the human-readable label for each facet value.
+If defined, this should be a callable that accepts a `facet_item`.
+eg. lambda facet_item: facet_item.display_name.upper()
+By default it displays the facet item's display name, which should
+usually be good enough
+
+if_empty
+A string, which if defined, and the list of possible facet items is empty,
+is displayed in lieu of an empty list.
+
+count_label
+A callable which accepts an integer, and returns a string.  This controls
+how a facet-item's count is displayed.
+
+extras
+Extra info passed into the add/remove params to make the url
+
+alternative_url
+URL to use when building the necessary URLs, instead of the default
+ones returned by url_for. Useful eg for dataset types.
+
+hide_empty
+Do not show facet if there are none, Default: false.
+
+search_facets
+Dictionary with search facets
+
+#}
 {% set default_collapsed = h.default_collapse_facets() %}
 {% block facet_list %}
 	{% set hide_empty = hide_empty or false %}
