@@ -7,16 +7,9 @@
     <ol class="stages stage-1">
       {%- if form_style != 'edit' -%}
         <li class="first {{ s2 }}" style="width:{{ 100 / (pages | length + 1) }}%">
-          {% if s2 != 'complete' %}
-            <span class="highlight">{{ _('Add data') }}</span>
-          {% else %}
-            {% if s1 == 'active' %}
-              {# stage 1 #}
-              <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
-            {% else %}
-              {% link_for _('Add data'), named_route='dataset.new', class_="highlight" %}
-            {% endif %}
-          {% endif %}
+          <span class="highlight"><a href="{{
+            h.url_for('dataset_resource.new', id=data.name or data.id)
+          }}">{{ _('Add data') }}</a></span>
         </li>
       {%- endif -%}
       {%- for p in pages -%}
