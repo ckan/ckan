@@ -1204,7 +1204,8 @@ def has_more_facets(facet: str,
 @core_helper
 def currently_active_facet(facet: str) -> bool:
     params_items = request.args.keys()
-    if facet in params_items:
+    expanded_facet = "_" + facet + "_limit"
+    if facet in params_items or expanded_facet in params_items:
         return True
     else:
         return False
