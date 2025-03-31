@@ -49,7 +49,7 @@ from ckan.common import config
 from ckan.lib import redis, search
 
 
-_loaded_plugins = ""
+_current_config = None
 
 
 @register
@@ -437,12 +437,13 @@ def with_plugins(ckan_config):
     it's not required explicitely.
 
     """
-    global _loaded_plugins
-    if _loaded_plugins != ckan_config["ckan.plugins"]:
+    global _current_config
+
+    if _current_config != ckan_config:
         ckan.plugins.unload_non_system_plugins()
         ckan.plugins.load_all()
     yield
-    _loaded_plugins = ckan_config["ckan.plugins"]
+    _current_config = dict(ckan_config)
 
 
 @pytest.fixture
