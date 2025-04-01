@@ -109,18 +109,6 @@ replacement field, for example::
 .. _new .format() method: https://docs.python.org/3/library/stdtypes.html#str.format
 
 
-Unicode handling
-----------------
-CKAN strives to only use Unicode internally (via the ``unicode`` type) and to
-convert to/from ASCII at the interface to other systems and libraries if
-necessary.
-
-.. seealso::
-
-   :doc:`unicode`
-     Details on Unicode handling in CKAN
-
-
 .. _docstrings:
 
 Docstrings
