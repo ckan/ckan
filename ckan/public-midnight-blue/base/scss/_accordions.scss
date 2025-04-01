@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: $accordion-button-padding-y $accordion-button-padding-x;
+  padding: $accordion-button-padding-y 0.9em;
   @include font-size($font-size-base);
   color: $accordion-button-color;
   text-align: left; // Reset button style
@@ -96,11 +96,11 @@
     color: $white;
 
     .filter-svg {
-      stroke: $white;
+      -webkit-text-stroke: 2px $white;
     }
 
     &::after {
-      background-image: escape-svg($accordion-button-active-icon);
+      background-image: escape-svg($chevronActiveIcon);
     }
   }
 

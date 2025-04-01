@@ -4525,7 +4525,7 @@ textarea.form-control-lg {
   --bs-accordion-border-width: 1px;
   --bs-accordion-border-radius: 0.375rem;
   --bs-accordion-inner-border-radius: calc(0.375rem - 1px);
-  --bs-accordion-btn-padding-x: 0.9rem;
+  --bs-accordion-btn-padding-x: 1.25rem;
   --bs-accordion-btn-padding-y: 1rem;
   --bs-accordion-btn-color: #101828;
   --bs-accordion-btn-bg: #fff;
@@ -4533,7 +4533,7 @@ textarea.form-control-lg {
   --bs-accordion-btn-icon-width: 1.25rem;
   --bs-accordion-btn-icon-transform: rotate(-180deg);
   --bs-accordion-btn-icon-transition: transform 0.2s ease-in-out;
-  --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23132b77'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(21, 48, 132, 0.25);
   --bs-accordion-body-padding-x: 1.25rem;
   --bs-accordion-body-padding-y: 1rem;
@@ -11855,6 +11855,12 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
   border-left: solid;
 }
 
+.filter-svg {
+  font-size: 24px;
+  -webkit-text-stroke: 2px #667085;
+  color: transparent;
+}
+
 .tag {
   display: inline-block;
   margin-bottom: 4px;
@@ -12380,13 +12386,6 @@ a.tag:hover {
 .filters .module-narrow .nav-simple > li {
   margin-bottom: 4px;
   border-bottom: unset;
-}
-.filters .filter-svg {
-  fill: none;
-  stroke: #667085;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .module-narrow .nav-item.image,
@@ -15463,7 +15462,7 @@ td.diff_header {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 1rem 0.9rem;
+  padding: 1rem 0.9em;
   font-size: 1rem;
   color: #101828;
   text-align: left;
@@ -15549,7 +15548,7 @@ td.diff_header {
   color: #fff;
 }
 .secondary .accordion .accordion-button:not(.collapsed) .filter-svg {
-  stroke: #fff;
+  -webkit-text-stroke: 2px #fff;
 }
 .secondary .accordion .accordion-button:not(.collapsed)::after {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
