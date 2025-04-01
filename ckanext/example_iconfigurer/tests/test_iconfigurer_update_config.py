@@ -12,6 +12,7 @@ import ckan.logic as logic
 import ckan.tests.helpers as helpers
 
 
+@pytest.mark.usefixtures("with_plugins")
 class TestConfigOptionUpdatePluginNotEnabled(object):
     def test_updating_unregistered_core_setting_not_allowed(self):
         key = "ckan.datasets_per_page"
