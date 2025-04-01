@@ -147,7 +147,11 @@ class DictionaryView(MethodView):
             # resource_edit_base template uses these
             pkg_dict = get_action(u'package_show')({}, {'id': id})
             resource = get_action(u'resource_show')({}, {'id': resource_id})
-            rec = get_action(u'datastore_info')({}, {'id': resource_id})
+            rec = get_action(u'datastore_info')({}, {
+                'id': resource_id,
+                'include_meta': False,
+                'include_fields_schema': False,
+            })
             return {
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,

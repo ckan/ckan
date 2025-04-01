@@ -307,7 +307,7 @@ def flatten_to_string_key(dict: dict[str, Any]) -> dict[str, Any]:
 def _prepopulate_context(context: Optional[Context]) -> Context:
     if context is None:
         context = {}
-    context.setdefault('model', model)
+    context.setdefault('model', model)  # type: ignore # deprecated since v2.12
     context.setdefault('session', model.Session)
 
     try:
@@ -913,7 +913,7 @@ def fresh_context(
         we want a clean version with minimum fields """
     new_context = {
         k: context[k] for k in (
-            'model', 'session', 'user', 'auth_user_obj',
+            'session', 'user', 'auth_user_obj',
             'ignore_auth', 'defer_commit',
         ) if k in context
     }
