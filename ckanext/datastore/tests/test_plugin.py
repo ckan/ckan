@@ -11,6 +11,7 @@ import ckanext.datastore.plugin as plugin
 DatastorePlugin = plugin.DatastorePlugin
 
 
+@pytest.mark.usefixtures("with_plugins")
 class TestPluginLoadingOrder(object):
     def setup(self):
         if p.plugin_loaded("datastore"):
