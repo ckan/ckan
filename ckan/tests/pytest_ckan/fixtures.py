@@ -440,7 +440,7 @@ def with_plugins(ckan_config):
     global _current_config
 
     if _current_config != ckan_config:
-        ckan.plugins.unload_non_system_plugins()
+        ckan.plugins.unload_all()
         ckan.plugins.load_all()
     yield
     _current_config = dict(ckan_config)
