@@ -42,7 +42,7 @@ jobs:
       # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#example-using-an-output-to-define-two-matrice
       - name: Define matrix split
         id: splits
-        # default maxtrix for splits if we did not get an input
+        # default matrix for splits if we did not get an input
         run: |
           set -ex
           export SPLIT_COUNT=${{ inputs.splits || 12 }}
