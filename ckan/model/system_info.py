@@ -53,11 +53,12 @@ def get_system_info(key: str, default: Optional[str]=None) -> Optional[str]:
     ''' get data from system_info table '''
     try:
         obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
-        meta.Session.commit()
         if obj:
             return obj.value
     except ProgrammingError:
         meta.Session.rollback()
+    finally:
+        meta.Session.close()  # Always close
     return default
 
 
