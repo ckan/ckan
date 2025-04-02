@@ -166,6 +166,41 @@
     }
 }
 
+// Nav options in secondary
+.secondary .nav-options {
+    background-color: $gray-100;
+    border-radius: 8px;
+    .active {
+        background-color: $brand-600;
+        a {
+            color: $white;
+        }
+        &:hover {
+            background-color: $brand-600;
+        }
+    }
+    li {
+        border-radius: 8px;
+        padding: 10px 16px;
+        width: 100%;
+        a {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row-reverse;
+            i {
+                display: flex;
+                align-items: center;
+            }
+            &:hover {
+                text-decoration: none;
+            }
+        }
+        &:hover {
+            background-color: $gray-200;
+        }
+    }
+}
+
 // STACKED NAV
 // -----------
 

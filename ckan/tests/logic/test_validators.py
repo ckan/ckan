@@ -445,19 +445,16 @@ def test_user_name_validator_with_non_string_value():
 # END-BEFORE
 
 
-def test_user_name_validator_with_a_name_that_already_exists():
+@pytest.mark.usefixtures("non_clean_db")
+def test_user_name_validator_with_a_name_that_already_exists(user):
     """user_name_validator() should add to the errors dict if given a
     user name that already exists.
 
     """
-    # Mock ckan.model. model.User.get('user_name') will return another mock
-    # object rather than None, which will simulate an existing user with
-    # the same user name in the database.
-    mock_model = mock.MagicMock()
 
     data = validator_data_dict()
     key = ("name",)
-    data[key] = "user_name"
+    data[key] = user["name"]
     errors = validator_errors_dict()
     errors[key] = []
 
@@ -468,7 +465,7 @@ def test_user_name_validator_with_a_name_that_already_exists():
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
 
-    call_validator(key, data, errors, context={"model": mock_model})
+    call_validator(key, data, errors, context={})
 
 
 def test_user_name_validator_successful():

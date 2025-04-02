@@ -8,7 +8,7 @@ For Python code style follow `PEP 8`_ plus the guidelines below.
 
 Some good links about Python code style:
 
-- `Guide to Python <http://docs.python-guide.org/en/latest/writing/style/>`_ from Hitchhiker's
+- `Guide to Python <https://docs.python-guide.org/writing/style/>`_ from Hitchhiker's
 - `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html>`_
 
 .. seealso::
@@ -93,7 +93,7 @@ When logging:
 - Choose an appropriate log-level (DEBUG, INFO, ERROR, WARNING or CRITICAL,
   see `Python's Logging HOWTO`_).
 
-.. _Python's Logging HOWTO: http://docs.python.org/2/howto/logging.html
+.. _Python's Logging HOWTO: https://docs.python.org/3/howto/logging.html
 
 String formatting
 ------------------
@@ -107,18 +107,6 @@ replacement field, for example::
   _(' ... {foo} ... {bar} ...').format(foo='foo-value', bar='bar-value')
 
 .. _new .format() method: https://docs.python.org/3/library/stdtypes.html#str.format
-
-
-Unicode handling
-----------------
-CKAN strives to only use Unicode internally (via the ``unicode`` type) and to
-convert to/from ASCII at the interface to other systems and libraries if
-necessary.
-
-.. seealso::
-
-   :doc:`unicode`
-     Details on Unicode handling in CKAN
 
 
 .. _docstrings:

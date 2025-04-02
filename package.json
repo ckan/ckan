@@ -16,8 +16,8 @@
   },
   "devDependencies": {
     "axe-core": "^4.9.0",
-    "cypress": "^13.7.2",
-    "cypress-axe": "^1.5.0",
+    "cypress": "^14.2.0",
+    "cypress-axe": "^1.6.0",
     "gulp": "^5.0.0",
     "gulp-if": "^3.0.0",
     "gulp-rename": "^2.0.0",
@@ -27,7 +27,7 @@
     "sass": "^1.74.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cypress run",
     "watch": "gulp watch",
     "build": "gulp build",
     "watch-midnight-blue": "gulp watchMidnightBlue",

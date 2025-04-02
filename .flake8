@@ -10,6 +10,8 @@ enable-extensions = G
 extend-ignore = G2
 per-file-ignores =
                  test_*.py:E501
+                 ckan/lib/helpers.py:F824
+                 ckan/lib/jobs.py:F824
 extend-exclude =
                ckan/lib/app_globals.py
                ckan/lib/cli.py
