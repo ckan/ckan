@@ -559,8 +559,11 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    if request.form[u'save'] == "go-resources":
+                    try:
                         last_added_resource = pkg_dict[u'resources'][-1]
+                    except IndexError:
+                        last_added_resource = None
+                    if last_added_resource and request.form[u'save'] == "go-resources":
                         url = h.url_for(
                             u'{}_resource.edit'.format(package_type),
                             id=pkg_dict.get('id'),
