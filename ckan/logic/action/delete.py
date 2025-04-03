@@ -225,6 +225,10 @@ def resource_view_delete(context: Context, data_dict: DataDict) -> ActionResult.
     resource_view.delete()
     model.repo.commit()
 
+    # resource_view_changed in ckanext/activity/subscriptions.py
+    # needs the resource id
+    return {'resource_id': resource_view.resource_id}
+
 
 def resource_view_clear(context: Context, data_dict: DataDict) -> ActionResult.ResourceViewClear:
     '''Delete all resource views, or all of a particular type.

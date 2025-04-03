@@ -197,7 +197,7 @@ def resource_view_changed(sender: str, **kwargs: Any):
     elif isinstance(result, str):
         id_ = result
     else:
-        id_ = result["id"]
+        id_ = result.get("id", data_dict.get("id"))
 
     if sender == "resource_view_create":
         activity_type = "new resource view"
@@ -211,7 +211,7 @@ def resource_view_changed(sender: str, **kwargs: Any):
         assert view
         view_dict = dictization.table_dictize(view, context)
     else:
-        view_dict = data_dict
+        view_dict = {"id": id_, "resource_id": result.get("resource_id")}
 
     assert view_dict.get('id')
     assert view_dict.get('resource_id')
