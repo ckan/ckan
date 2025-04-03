@@ -57,8 +57,6 @@ def get_system_info(key: str, default: Optional[str]=None) -> Optional[str]:
             return obj.value
     except ProgrammingError:
         meta.Session.rollback()
-    finally:
-        meta.Session.close()  # Always close
     return default
 
 
