@@ -1,0 +1,6 @@
+The PSQL pool could be improved in order to avoid unnecessary connections.  
+The default value for `sqlalchemy.pool_recycle` is -1 meaning that the
+connections are never recycled. This can lead to problems with long-lived
+connections. It'll be good to define `sqlalchemy.pool_recycle = 3600` as
+default to recycle connections after 1 hour.  
+Also, there is a commit after a read-only query that looks like an error.  

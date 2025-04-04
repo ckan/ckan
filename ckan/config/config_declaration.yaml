@@ -363,6 +363,13 @@ groups:
         type: bool
         default: true
 
+      - key: sqlalchemy.pool_recycle
+        type: int
+        default: 3600
+        description: |
+          The number of seconds after which a connection is recycled. The
+          default is -1 and means that connections are never recycled.
+
       - key: sqlalchemy.<OPTION>
         type: dynamic
         description: |
