@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
+from ckan.lib.search import SearchIndexError
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -71,19 +72,19 @@ class TestPackageNew(object):
     @pytest.mark.usefixtures("clean_index")
     def test_new_indexerror(self, app, user):
         from ckan.lib.search.common import SolrSettings
-        bad_solr_url = "http://example.com/badsolrurl"
+        bad_solr_url = "http://0.0.0.0/badsolrurl"
         solr_url = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
             new_package_name = u"new-package-missing-solr"
             offset = url_for("dataset.new")
             headers = {"Authorization": user["token"]}
-            res = app.post(
-                offset,
-                headers=headers,
-                data={"save": "", "name": new_package_name},
-            )
-            assert "Unable to add package to search index" in res, res
+            with pytest.raises(SearchIndexError):
+                app.post(
+                    offset,
+                    headers=headers,
+                    data={"save": "", "name": new_package_name},
+                )
         finally:
             SolrSettings.init(solr_url)
 
