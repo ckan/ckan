@@ -501,7 +501,7 @@ class CreateView(MethodView):
             create_on_ui_requires_resources = config.get(
                 'ckan.dataset.create_on_ui_requires_resources'
             )
-            if not create_on_ui_requires_resources:
+            if create_on_ui_requires_resources:
                 data_dict['state'] = 'draft'
             # required for setting state = draft in ignore_not_package_admin
             context['allow_state_change'] = True

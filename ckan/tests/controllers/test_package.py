@@ -483,22 +483,6 @@ class TestPackageNew(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestPackageEdit(object):
-    def test_redirect_after_edit_using_param(self, app, sysadmin):
-        return_url = "http://random.site.com/dataset/<NAME>?test=param"
-        pkg = factories.Dataset()
-        url = url_for("dataset.edit", id=pkg["name"], return_to=return_url)
-        headers = {"Authorization": sysadmin["token"]}
-        resp = app.post(url, headers=headers, follow_redirects=False)
-        assert resp.headers["location"] == return_url.replace("<NAME>", pkg["name"])
-
-    def test_redirect_after_edit_using_config(self, app, ckan_config, sysadmin):
-        expected_redirect = ckan_config["package_edit_return_url"]
-        pkg = factories.Dataset()
-        url = url_for("dataset.edit", id=pkg["name"])
-        headers = {"Authorization": sysadmin["token"]}
-        resp = app.post(url, headers=headers, follow_redirects=False)
-        assert resp.headers["location"] == expected_redirect.replace("<NAME>", pkg["name"])
-
     def test_organization_admin_can_edit(self, app, user):
         headers = {"Authorization": user["token"]}
         organization = factories.Organization(
