@@ -26,7 +26,7 @@
     "sass": "^1.49.8"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cypress run",
     "watch": "gulp watch",
     "build": "gulp build",
     "postinstall": "gulp updateVendorLibs"

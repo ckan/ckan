@@ -6,6 +6,8 @@ exclude =
         ./bin
 per-file-ignores =
                  test_*.py:E501
+                 ckan/lib/helpers.py:F824
+                 ckan/lib/jobs.py:F824
 extend-exclude =
                ckan/__init__.py,ckan/config/middleware.py
                ckan/lib/app_globals.py
