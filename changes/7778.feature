@@ -1,0 +1,1 @@
+IFormRedirect interface allows customizing the redirect at the end of form submissions to allow custom workflows for dataset/resource editing and creation without re-implementing/copying view code from ckan core.

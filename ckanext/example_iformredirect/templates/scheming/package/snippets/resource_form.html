@@ -1,0 +1,27 @@
+{% ckan_extends %}
+
+{% block stages %}
+  {%- set pages = h.scheming_get_dataset_form_pages(dataset_type) -%}
+  {%- if pages and stage -%}
+    <ol class="stages stage-1">
+      <li class="first active" style="width:{{ 100 / (pages | length + 1) }}%">
+        <span class="highlight">{{ _('Add data') }}</span>
+      </li>
+      {%- for p in pages -%}
+        <li class="{{
+          'last ' if loop.last else ''}}"
+          style="width:{{ 100 / (loop.length + 1) }}%">
+          <span class="highlight" style="padding-right:0"><a href="{{
+              h.url_for(dataset_type + '.scheming_new_page',
+                package_type=dataset_type,
+                id=pkg_name,
+                page=loop.index)
+            }}">{{ h.scheming_language_text(p.title) }}</a>
+          </span>
+        </li>
+      {%- endfor -%}
+    </ol>
+  {%- else -%}
+    {{ super() }}
+  {%- endif -%}
+{% endblock %}

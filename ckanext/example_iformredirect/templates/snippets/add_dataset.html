@@ -1,0 +1,24 @@
+{# Adds 'Add Dataset' button #}
+
+{% macro add_button(dataset_type) %}
+  {% set link_label = h.humanize_entity_type('package', dataset_type, 'add link') or _("Add Dataset") %}
+
+  {% if h.check_config_permission('ckan.auth.create_unowned_dataset') or group %}
+    <form action="{% url_for 'resource_first.new' %}" method=post>
+      {% if group %}
+        <input type="hidden" name="owner_org" value="{{ group }}">
+      {% endif %}
+      <input type="hidden" name="type" value="{{ dataset_type }}">
+      <input class="btn btn-primary" type="submit" value="{{ link_label }}">
+    </form>
+  {% endif %}
+{% endmacro %}
+
+{% if 'scheming_dataset_schemas' in h %}
+  {% for dataset_type in h.scheming_dataset_schemas(expanded=false) %}
+    {{ add_button(dataset_type) }}
+  {% endfor %}
+{% else %}
+  {% set dataset_type = dataset_type if dataset_type else h.default_package_type() %}
+  {{ add_button(dataset_type) }}
+{% endif %}

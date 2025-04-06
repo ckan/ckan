@@ -27,7 +27,7 @@ from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.search import (
-    SearchError, SearchQueryError, SearchIndexError, SolrConnectionError
+    SearchError, SearchQueryError, SolrConnectionError
 )
 from ckan.types import Context, Response
 
@@ -129,39 +129,6 @@ def _pager_url(params_nopage: Params,
     params = list(params_nopage)
     params.append((u'page', page))
     return search_url(params, package_type)
-
-
-def _tag_string_to_list(tag_string: str) -> list[dict[str, str]]:
-    """This is used to change tags from a sting to a list of dicts.
-    """
-    out: list[dict[str, str]] = []
-    for tag in tag_string.split(u','):
-        tag = tag.strip()
-        if tag:
-            out.append({u'name': tag, u'state': u'active'})
-    return out
-
-
-def _form_save_redirect(pkg_name: str,
-                        action: str,
-                        package_type: Optional[str] = None) -> Response:
-    """This redirects the user to the CKAN package/read page,
-    unless there is request parameter giving an alternate location,
-    perhaps an external website.
-    @param pkg_name - Name of the package just edited
-    @param action - What the action of the edit was
-    """
-    assert action in (u'new', u'edit')
-    url = request.args.get(u'return_to') or config.get(
-        u'package_%s_return_url' % action
-    )
-    if url:
-        url = url.replace(u'<NAME>', pkg_name)
-    else:
-        if not package_type:
-            package_type = u'dataset'
-        url = h.url_for(u'{0}.read'.format(package_type), id=pkg_name)
-    return h.redirect_to(url)
 
 
 def _get_package_type(id: str) -> str:
@@ -510,29 +477,19 @@ def read(package_type: str, id: str) -> Union[Response, str]:
 
 
 class CreateView(MethodView):
-    def _is_save(self) -> bool:
-        return u'save' in request.form
-
-    def _prepare(self) -> Context:  # noqa
-
+    def _prepare(self) -> Context:
         context: Context = {
-            u'user': current_user.name,
-            u'auth_user_obj': current_user,
-            u'save': self._is_save()
+            'user': current_user.name,
+            'auth_user_obj': current_user,
         }
         try:
-            check_access(u'package_create', context)
+            check_access('package_create', context)
         except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to create a package'))
+            return base.abort(403, _('Unauthorized to create a package'))
         return context
 
     def post(self, package_type: str) -> Union[Response, str]:
-        # The staged add dataset used the new functionality when the dataset is
-        # partially created so we need to know if we actually are updating or
-        # this is a real new.
         context = self._prepare()
-        is_an_update = False
-        ckan_phase = request.form.get(u'_ckan_phase')
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
@@ -540,107 +497,43 @@ class CreateView(MethodView):
         except dict_fns.DataError:
             return base.abort(400, _(u'Integrity Error'))
         try:
-            if ckan_phase:
-                # sort the tags
-                if u'tag_string' in data_dict:
-                    data_dict[u'tags'] = _tag_string_to_list(
-                        data_dict[u'tag_string']
-                    )
-                if data_dict.get(u'pkg_name'):
-                    is_an_update = True
-                    # This is actually an update not a save
-                    data_dict[u'id'] = data_dict[u'pkg_name']
-                    del data_dict[u'pkg_name']
-                    # don't change the dataset state
-                    data_dict[u'state'] = u'draft'
-                    # this is actually an edit not a save
-                    pkg_dict = get_action(u'package_update')(
-                        context, data_dict
-                    )
-
-                    # redirect to add dataset resources
-                    if request.form[u'save'] == "go-resources":
-                        last_added_resource = pkg_dict[u'resources'][-1]
-                        url = h.url_for(
-                            u'{}_resource.edit'.format(package_type),
-                            id=pkg_dict.get('id'),
-                            resource_id=last_added_resource.get('id'))
-                    elif request.form[u'save'] == "go-metadata-preview":
-                        url = h.url_for(
-                            u'{}.read'.format(package_type),
-                            id=pkg_dict.get('id')
-                        )
-                    else:
-                        url = h.url_for(
-                            u'{}_resource.new'.format(package_type),
-                            id=pkg_dict[u'name']
-                        )
-                    return h.redirect_to(url)
-                # Make sure we don't index this dataset
-                if request.form[u'save'] not in [
-                    u'go-resource', u'go-metadata'
-                ]:
-                    data_dict[u'state'] = u'draft'
-                # allow the state to be changed
-                context[u'allow_state_change'] = True
-
-            data_dict[u'type'] = package_type
-            pkg_dict = get_action(u'package_create')(context, data_dict)
-
+            save_action = data_dict.pop('save', None)
             create_on_ui_requires_resources = config.get(
                 'ckan.dataset.create_on_ui_requires_resources'
             )
-            if ckan_phase:
-                if create_on_ui_requires_resources:
-                    # redirect to add dataset resources if
-                    # create_on_ui_requires_resources is set to true
-                    url = h.url_for(
-                        u'{}_resource.new'.format(package_type),
-                        id=pkg_dict[u'name']
-                    )
+            if create_on_ui_requires_resources:
+                data_dict['state'] = 'draft'
+            # required for setting state = draft in ignore_not_package_admin
+            context['allow_state_change'] = True
+
+            data_dict['type'] = package_type
+            pkg_dict = get_action('package_create')(context, data_dict)
+
+            for plugin in plugins.PluginImplementations(plugins.IFormRedirect):
+                url = plugin.dataset_save_redirect(
+                    package_type, pkg_dict['name'], 'create', save_action,
+                    data_dict)
+                if url:
                     return h.redirect_to(url)
 
-                get_action(u'package_update')(
-                    Context(context, allow_state_change=True),
-                    dict(pkg_dict, state=u'active')
+            if create_on_ui_requires_resources:
+                url = h.url_for(
+                    '{}_resource.new'.format(package_type),
+                    id=pkg_dict['name']
                 )
-                return h.redirect_to(
-                    u'{}.read'.format(package_type),
-                    id=pkg_dict["id"]
-                )
+                return h.redirect_to(url)
 
-            return _form_save_redirect(
-                pkg_dict[u'name'], u'new', package_type=package_type
+            return h.redirect_to(
+                '{}.read'.format(package_type),
+                id=pkg_dict["id"]
             )
         except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to read package'))
+            return base.abort(403, _('Unauthorized to read package'))
         except NotFound:
-            return base.abort(404, _(u'Dataset not found'))
-        except SearchIndexError as e:
-            try:
-                exc_str = str(repr(e.args))
-            except Exception:  # We don't like bare excepts
-                exc_str = str(str(e))
-            return base.abort(
-                500,
-                _(u'Unable to add package to search index.') + exc_str
-            )
+            return base.abort(404, _('Dataset not found'))
         except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
-            if is_an_update:
-                # we need to get the state of the dataset to show the stage we
-                # are on.
-                pkg_dict = get_action(u'package_show')(context, data_dict)
-                data_dict[u'state'] = pkg_dict[u'state']
-                return EditView().get(
-                    package_type,
-                    data_dict[u'id'],
-                    data_dict,
-                    errors,
-                    error_summary
-                )
-            data_dict[u'state'] = u'none'
             return self.get(package_type, data_dict, errors, error_summary)
 
     def get(self,
@@ -659,7 +552,6 @@ class CreateView(MethodView):
                 )
             )
         )
-        resources_json = h.dump_json(data.get(u'resources', []))
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
             data[u'tag_string'] = u', '.join(
@@ -692,11 +584,6 @@ class CreateView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'new'
         }
-        errors_json = h.dump_json(errors)
-
-        # TODO: remove
-        g.resources_json = resources_json
-        g.errors_json = errors_json
 
         _setup_template_variables(context, {}, package_type=package_type)
 
@@ -707,8 +594,6 @@ class CreateView(MethodView):
                 u'form_vars': form_vars,
                 u'form_snippet': form_snippet,
                 u'dataset_type': package_type,
-                u'resources_json': resources_json,
-                u'errors_json': errors_json
             }
         )
 
@@ -733,35 +618,27 @@ class EditView(MethodView):
         except dict_fns.DataError:
             return base.abort(400, _(u'Integrity Error'))
         try:
-            if u'_ckan_phase' in data_dict:
-                if u'tag_string' in data_dict:
-                    data_dict[u'tags'] = _tag_string_to_list(
-                        data_dict[u'tag_string']
-                    )
-                del data_dict[u'_ckan_phase']
-                del data_dict[u'save']
+            data_dict.pop('_ckan_phase', None)
+            save_action = data_dict.pop('save', None)
             data_dict['id'] = id
             if request.form.get(u'save', None) == u'go-metadata-unpublish':
                 data_dict[u'state'] = u'draft'
+            pkg_dict = get_action('package_update')(context, data_dict)
 
-            pkg_dict = get_action(u'package_update')(context, data_dict)
+            for plugin in plugins.PluginImplementations(plugins.IFormRedirect):
+                url = plugin.dataset_save_redirect(
+                    package_type, pkg_dict['name'], 'edit', save_action,
+                    data_dict)
+                if url:
+                    return h.redirect_to(url)
 
-            return _form_save_redirect(
-                pkg_dict[u'name'], u'edit', package_type=package_type
-            )
+            url = h.url_for('{0}.read'.format(package_type), id=id)
+            return h.redirect_to(url)
+
         except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to read package %s') % id)
+            return base.abort(403, _('Unauthorized to read package %s') % id)
         except NotFound:
-            return base.abort(404, _(u'Dataset not found'))
-        except SearchIndexError as e:
-            try:
-                exc_str = str(repr(e.args))
-            except Exception:  # We don't like bare excepts
-                exc_str = str(str(e))
-            return base.abort(
-                500,
-                _(u'Unable to update search index.') + exc_str
-            )
+            return base.abort(404, _('Dataset not found'))
         except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -793,7 +670,6 @@ class EditView(MethodView):
         assert data is not None
         # are we doing a multiphase add?
         if data.get(u'state', u'').startswith(u'draft'):
-            g.form_action = h.url_for(u'{}.new'.format(package_type))
             g.form_style = u'new'
 
             return CreateView().get(
@@ -804,7 +680,6 @@ class EditView(MethodView):
             )
 
         pkg = context.get(u"package")
-        resources_json = h.dump_json(data.get(u'resources', []))
         user = current_user.name
         try:
             check_access(
@@ -834,12 +709,9 @@ class EditView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'edit'
         }
-        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.pkg = pkg
-        g.resources_json = resources_json
-        g.errors_json = errors_json
 
         _setup_template_variables(
             context, {u'id': id}, package_type=package_type
@@ -859,8 +731,6 @@ class EditView(MethodView):
                 u'dataset_type': package_type,
                 u'pkg_dict': pkg_dict,
                 u'pkg': pkg,
-                u'resources_json': resources_json,
-                u'errors_json': errors_json
             }
         )
 

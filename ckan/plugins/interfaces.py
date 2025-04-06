@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import (
     Any, Callable, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Union, List,
+    TYPE_CHECKING, Union, List, Literal,
 )
 
 from flask.blueprints import Blueprint
@@ -32,37 +32,38 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    u'Interface',
-    u'IMiddleware',
-    u'IAuthFunctions',
-    u'IDomainObjectModification',
-    u'IFeed',
-    u'IGroupController',
-    u'IOrganizationController',
-    u'IPackageController',
-    u'IPluginObserver',
-    u'IConfigurable',
-    u'IConfigDeclaration',
-    u'IConfigurer',
-    u'IActions',
-    u'IResourceUrlChange',
-    u'IDatasetForm',
-    u'IValidators',
-    u'IResourceView',
-    u'IResourceController',
-    u'IGroupForm',
-    u'ITagController',
-    u'ITemplateHelpers',
-    u'IFacets',
-    u'IAuthenticator',
-    u'ITranslation',
-    u'IUploader',
-    u'IBlueprint',
-    u'IPermissionLabels',
-    u'IForkObserver',
-    u'IApiToken',
-    u'IClick',
-    u'ISignal',
+    'Interface',
+    'IMiddleware',
+    'IAuthFunctions',
+    'IDomainObjectModification',
+    'IFeed',
+    'IGroupController',
+    'IOrganizationController',
+    'IPackageController',
+    'IPluginObserver',
+    'IConfigurable',
+    'IConfigDeclaration',
+    'IConfigurer',
+    'IActions',
+    'IResourceUrlChange',
+    'IDatasetForm',
+    'IValidators',
+    'IResourceView',
+    'IResourceController',
+    'IGroupForm',
+    'ITagController',
+    'ITemplateHelpers',
+    'IFacets',
+    'IAuthenticator',
+    'ITranslation',
+    'IUploader',
+    'IBlueprint',
+    'IPermissionLabels',
+    'IForkObserver',
+    'IApiToken',
+    'IClick',
+    'ISignal',
+    'IFormRedirect',
 ]
 
 
@@ -2246,3 +2247,44 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class IFormRedirect(Interface):
+    """Override the default redirect target after submitting dataset-related
+    forms to allow modified workflow rules.
+
+    Return None from any method to fall back to the default target (or one
+    set by a later plugin)
+    """
+
+    def dataset_save_redirect(
+            self, package_type: str, package_name: str,
+            action: Literal['create', 'edit'], save_action: Optional[str],
+            data: dict[str, Any],
+            ) -> Optional[str]:
+        """return target url for dataset save page redirect
+
+        By default redirects to resource new page when action == 'create'
+        and ckan.dataset.create_on_ui_requires_resources is True.
+        Redirects to dataset read page otherwise.
+        """
+        return
+
+    def resource_save_redirect(
+            self, package_type: str, package_name: str, resource_id: Optional[str],
+            action: Literal['create', 'edit'], save_action: str,
+            data: dict[str, Any],
+            ) -> Optional[str]:
+        """return target url for resource save page redirect
+
+        By default if action == 'edit' redirects to the resource read page,
+        otherwise when action == 'create' it redirects to the dataset edit
+        page, dataset read page or back to the resource create page based on
+        the value of save_action.
+
+        :param resource_id: None if no data was provided (no resource created)
+        :param save_action: "go-dataset" to return to dataset editing page,
+            "go-dataset-complete" or "go-metadata" to finish editing the
+            dataset, "again" to create another resource
+        """
+        return
