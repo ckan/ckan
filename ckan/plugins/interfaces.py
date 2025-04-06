@@ -2288,13 +2288,3 @@ class IFormRedirect(Interface):
             dataset, "again" to create another resource
         """
         return
-
-    def data_dictionary_save_redirect(
-            self, package_type: str, package_name: str, resource_id: str,
-            data: dict[str, Any]) -> Optional[str]:
-        return
-
-    def resource_view_save_redirect(
-            self, package_type: str, package_name: str, resource_id: str,
-            view_id: str, data: dict[str, Any]) -> Optional[str]:
-        return
