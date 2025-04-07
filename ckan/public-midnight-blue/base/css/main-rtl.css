@@ -225,11 +225,11 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
 }
 
 h1, .h1 {
-  font-size: calc(1.325rem + 0.9vw);
+  font-size: calc(1.425rem + 2.1vw);
 }
 @media (min-width: 1200px) {
   h1, .h1 {
-    font-size: 2rem;
+    font-size: 3rem;
   }
 }
 
@@ -4659,6 +4659,7 @@ textarea.form-control-lg {
   --bs-breadcrumb-padding-x: 0;
   --bs-breadcrumb-padding-y: 0;
   --bs-breadcrumb-margin-bottom: 1rem;
+  --bs-breadcrumb-font-size: 0.875rem;
   --bs-breadcrumb-bg: ;
   --bs-breadcrumb-border-radius: ;
   --bs-breadcrumb-divider-color: #475467;
@@ -8232,7 +8233,7 @@ textarea.form-control-lg {
 }
 
 .fs-1 {
-  font-size: calc(1.325rem + 0.9vw) !important;
+  font-size: calc(1.425rem + 2.1vw) !important;
 }
 
 .fs-2 {
@@ -11795,7 +11796,7 @@ textarea.form-control-lg {
 }
 @media (min-width: 1200px) {
   .fs-1 {
-    font-size: 2rem !important;
+    font-size: 3rem !important;
   }
   .fs-2 {
     font-size: 1.75rem !important;
@@ -13848,8 +13849,8 @@ td.diff_header {
 
 .toolbar {
   position: relative;
-  margin-top: 43px;
-  margin-bottom: 63px;
+  margin-bottom: 10px;
+  padding: 5px 0;
 }
 .toolbar::after {
   display: block;
@@ -13870,8 +13871,6 @@ td.diff_header {
   border: none;
   background: none;
   font-size: 14px;
-  line-height: 20px;
-  font-weight: 400;
 }
 .toolbar .breadcrumb::after {
   display: block;
@@ -13879,7 +13878,7 @@ td.diff_header {
   content: "";
 }
 
-.toolbar .breadcrumb li {
+.toolbar .breadcrumb li:not(:first-child) {
   padding-left: 0.5rem;
 }
 .toolbar .breadcrumb li:not(:first-child)::before {
@@ -13910,7 +13909,7 @@ td.diff_header {
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
   font-weight: bold;
-  color: #153084;
+  color: #0a1d5e;
 }
 
 .actions {
@@ -14182,7 +14181,7 @@ td.diff_header {
   margin: 0;
   overflow: auto;
 }
-.context-info h1.heading, .context-info .heading.h1 {
+.context-info h1.heading, .context-info .heading.h1, .context-info span.heading {
   margin: 0 0 5px 0;
   font-size: 18px;
   line-height: 1.3;
@@ -15399,21 +15398,6 @@ td.diff_header {
 
 .stage > .row > .stage-nohiglight > .col-auto > .row {
   width: 164px;
-}
-
-.page-heading,
-.hide-heading {
-  font-size: 3rem;
-  line-height: 3rem;
-  font-weight: 600;
-  color: #153084;
-}
-@media screen and (max-width: 768px) {
-  .page-heading,
-  .hide-heading {
-    font-size: 1.875rem;
-    line-height: 1.875rem;
-  }
 }
 
 .col.stage {

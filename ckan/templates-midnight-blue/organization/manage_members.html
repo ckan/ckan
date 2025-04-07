@@ -15,7 +15,8 @@
   {% set members_count = ungettext('{count} member', '{count} members', count).format(count=count) %}
   {% set can_create_members = h.check_access('organization_member_create', {'id': organization.id}) %}
   {% set can_delete_members = h.check_access('organization_member_delete', {'id': organization.id}) %}
-  <h3 class="page-heading">{{ members_count }}</h3>
+  <h1 class="page-heading">{{ _('Members') }}</h1>
+  <h2>{{ members_count }}</h2>
   <table class="table table-header table-hover table-bordered">
     <thead>
       <tr>

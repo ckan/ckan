@@ -2,6 +2,11 @@
 {% set dataset_type = h.default_package_type() %}
 
 {% block primary_content_inner %}
+  <h1 class="page-heading">
+    {{ group_dict.display_name }}
+    {% if group_dict.state == 'deleted' %}
+      [{{ _('Deleted') }}]
+    {% endif %}</h1>
   {% block groups_search_form %}
     {% set facets = {
       'fields': fields_grouped,

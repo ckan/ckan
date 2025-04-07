@@ -7,6 +7,12 @@
   <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), named_route='%s.search' % dataset_type) }}</li>
 {% endblock %}
 
+{% block pre_primary %}
+  <div class="pre-primary page-heading">
+    <h1>{{ h.humanize_entity_type('dataset', dataset_type, 'page title') or _('Datasets') }}</h1>
+  </div>
+{% endblock %}
+
 {% block primary_content %}
   <section class="module">
     <div class="module-content">

@@ -8,6 +8,12 @@
 {% endblock %}
 
 {% block primary_content_inner %}
+    <h1 class="page-heading">
+      {{ organization.title or organization.name }}
+      {% if organization.state == 'deleted' %}
+        [{{ _('Deleted') }}]
+      {% endif %}
+    </h1>
     {% block groups_search_form %}
       {% set facets = {
         'fields': fields_grouped,

@@ -8,7 +8,8 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h3 class="page-heading">{{ _('{0} members'.format(members|length)) }}</h3>
+  <h1 class="page-heading">{{ _('Members') }}</h1>
+  <h2>{{ _('{0} members'.format(members|length)) }}</h2>
   <table class="table table-header table-hover table-bordered" id="member-table">
     <thead>
       <tr>

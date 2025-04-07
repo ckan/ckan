@@ -1,8 +1,8 @@
 .toolbar {
     @include clearfix;
     position: relative;
-    margin-top: 43px;
-    margin-bottom: 63px;
+    margin-bottom: 10px;
+    padding: 5px 0;
 }
 
 .page_primary_action {
@@ -18,15 +18,12 @@
     padding: 0;
     border: none;
     background: none;
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: 400;
-
+    font-size: $breadcrumb-font-size;
 }
 
 .toolbar .breadcrumb li {
-    padding-left: $breadcrumb-item-padding-x;
     &:not(:first-child) {
+        padding-left: $breadcrumb-item-padding-x;
         &::before {
             float: left; // Suppress inline spacings and underlining of the separator
             padding-right: $breadcrumb-item-padding-x;
@@ -60,7 +57,7 @@
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
     font-weight: bold;
-    color: $primary;
+    color: $brand-700;
 }
 
 .actions {
