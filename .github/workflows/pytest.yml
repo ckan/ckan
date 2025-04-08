@@ -117,7 +117,8 @@ jobs:
 
     services:
       ckan_postgres:
-        image: postgres:12 # should be postgres:15
+
+        image: ckan/ckan-postgres-dev:master
         ports:
           - 5432:5432
         options: >-
@@ -126,9 +127,9 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         env:
-          POSTGRES_USER: ckan
-          POSTGRES_PASSWORD: ckan
-          POSTGRES_DB: ckan
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
           PGDATA: "/data"
 
       ckan_redis:
@@ -142,21 +143,13 @@ jobs:
 
     env:
       SPLIT_COUNT: ${{ needs.define-matrix.outputs.SPLIT_COUNT }}
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+
       CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@localhost/ckan_test
       CKAN_SOLR_URL: http://localhost:8983/solr/ckan
       CKAN_REDIS_URL: redis://localhost:6379/1
-      POSTGRES_USER: ckan
-      POSTGRES_PASSWORD: ckan
-      CKAN_DB: ckan_test
-      CKAN_DATASTORE_POSTGRES_DB: datastore_test
-      CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
-      CKAN_DATASTORE_POSTGRES_READ_PWD: pass
-      CKAN_DATASTORE_POSTGRES_WRITE_USER: datastore_write
-      CKAN_DATASTORE_POSTGRES_WRITE_PWD: pass
-      CKAN_POSTGRES_DB: ckan_test
-      CKAN_POSTGRES_USER: ckan_default
-      CKAN_POSTGRES_PWD: pass
-      PGPASSWORD: ckan
       PGHOST: localhost
       CKAN_STORAGE_PATH: /tmp/storage
       PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
@@ -165,15 +158,6 @@ jobs:
     steps:
       - run: |
           echo "${{ matrix.split }} of $SPLIT_COUNT"
-      - name: Setup Database
-        run: |
-          # Database Creation
-          psql     --host=${PGHOST} --username=${POSTGRES_USER} --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
-          createdb --encoding=utf-8 --host=${PGHOST} --username=${POSTGRES_USER} --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
-          psql     --host=${PGHOST} --username=${POSTGRES_USER} --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_READ_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_READ_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
-          psql     --host=${PGHOST} --username=${POSTGRES_USER} --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_WRITE_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_WRITE_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
-          createdb --encoding=utf-8 --host=${PGHOST} --username=${POSTGRES_USER} --owner=${CKAN_DATASTORE_POSTGRES_WRITE_USER} ${CKAN_DATASTORE_POSTGRES_DB}
-
 
       - uses: actions/checkout@v4
         with:
