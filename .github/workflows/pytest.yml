@@ -112,21 +112,20 @@ jobs:
       matrix:
         split: ${{ fromJSON(needs.define-matrix.outputs.SPLIT_LIST) }}
     container:
-      image: ckan/ckan-base:master
-      options: --user root
+      image: python:3.10-bullseye
 
     services:
       postgres:
 
-        image: ckan/ckan-postgres-dev:master
+        image: postgres:12 
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ckan
+          POSTGRES_PASSWORD: ckan
           POSTGRES_DB: postgres
       solr:
         image: ckan/ckan-solr:master
@@ -135,13 +134,24 @@ jobs:
 
     env:
       SPLIT_COUNT: ${{ needs.define-matrix.outputs.SPLIT_COUNT }}
-      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
-      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
-      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
-      CKAN_SOLR_URL: http://solr:8983/solr/ckan
-      CKAN_REDIS_URL: redis://redis:6379/1
-      PGHOST: localhost
-      CKAN_STORAGE_PATH: /tmp/storage
+      CKAN_DATASTORE_POSTGRES_DB: datastore_test
+      CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
+      CKAN_DATASTORE_POSTGRES_READ_PWD: pass
+      CKAN_DATASTORE_POSTGRES_WRITE_USER: datastore_write
+      CKAN_DATASTORE_POSTGRES_WRITE_PWD: pass
+      CKAN_POSTGRES_DB: ckan_test
+      CKAN_POSTGRES_USER: ckan_default
+      CKAN_POSTGRES_PWD: pass
+      PGPASSWORD: ckan
+
+
+        #      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+        #      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+        #      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+        #      CKAN_SOLR_URL: http://solr:8983/solr/ckan
+        #      CKAN_REDIS_URL: redis://redis:6379/1
+        #      PGHOST: localhost
+        #      CKAN_STORAGE_PATH: /tmp/storage
       PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
 
 
@@ -172,16 +182,13 @@ jobs:
           echo "unzip pytest test duration details"
           gunzip .test_durations.gz
 
-      - name: Install python deps
+      - name: Install deps
         run: |
-         pip install -U pip
-         pip install -r requirements.txt -r dev-requirements.txt -e .
-         pip check
+         ./test-infrastructure/install_deps.sh
 
       - name: Init environment
         run: |
-          # Database Initialization
-          ckan -c test-core-github-actions.ini db init
+         ./test-infrastructure/init_environment.sh
 
       # When running pytest, we write the new test durations using options
       # `--store-durations --clean-durations`.
