@@ -88,12 +88,12 @@ $brand-900: #000312;
 
 // scss-docs-start theme-color-variables
 $primary:       $brand-600 !default;
-$secondary:     $gray-600 !default;
+$secondary:     $gray-500 !default;
 $success:       $green !default;
 $info:          $cyan !default;
 $warning:       $yellow !default;
 $danger:        darken($red, 5%) !default;
-$light:         $white !default;
+$light:         $gray-100 !default;
 $dark:          $gray-900 !default;
 // scss-docs-end theme-color-variables
 
@@ -563,14 +563,14 @@ $table-cell-padding-x-sm:     .25rem !default;
 $table-cell-vertical-align:   top !default;
 
 $table-color:                 $body-color !default;
-$table-bg:                    transparent !default;
+$table-bg:                    $gray-100 !default;
 $table-accent-bg:             transparent !default;
 
 $table-th-font-weight:        null !default;
 
 $table-striped-color:         $table-color !default;
 $table-striped-bg-factor:     .05 !default;
-$table-striped-bg:            rgba($black, $table-striped-bg-factor) !default;
+$table-striped-bg:            $white !default;
 
 $table-active-color:          $table-color !default;
 $table-active-bg-factor:      .1 !default;
@@ -581,7 +581,7 @@ $table-hover-bg-factor:       .075 !default;
 $table-hover-bg:              rgba($black, $table-hover-bg-factor) !default;
 
 $table-border-factor:         .1 !default;
-$table-border-width:          $border-width !default;
+$table-border-width:          0 !default;
 $table-border-color:          $border-color !default;
 
 $table-striped-order:         odd !default;

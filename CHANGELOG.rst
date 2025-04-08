@@ -9,6 +9,61 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.12.0 (Not yet released)
+===========================
+
+Migration notes
+---------------
+
+* Going forward, if both ``ckan.upload.[type].mimetypes`` and
+  ``ckan.upload.[type].types`` are empty, no uploads will be allowed
+  for this object type (e.g. ``user`` or ``group``). It previoulsy
+  meant that all file types were allowed. To keep the old behaviour use
+  the string ``*`` as value in both options (this is dangerous and
+  **not** recommended).
+
+Minor changes
+-------------
+
+- Remove helper ``get_site_statistics()`` (#8705)
+
+v.2.11.2 2025-02-05
+===================
+
+Migration notes
+---------------
+
+* Going forward, if both ``ckan.upload.[type].mimetypes`` and
+  ``ckan.upload.[type].types`` are empty, no uploads will be allowed
+  for this object type (e.g. ``user`` or ``group``). It previoulsy
+  meant that all file types were allowed. To keep the old behaviour use
+  the string ``*`` as value in both options (this is dangerous and
+  **not** recommended).
+
+Minor changes
+-------------
+
+- Adapt login failure message if reCAPTCHA is enabled (`#8627
+  <https://github.com/ckan/ckan/pull/8627>`_)
+- Update release process docs (`#8586
+  <https://github.com/ckan/ckan/pull/8586>`_)
+
+
+Bugfixes
+--------
+
+- `CVE-2025-24372 <https://github.com/ckan/ckan/security/advisories/GHSA-7pq5-qcp6-mcww>`_: Fix potential
+  XSS vector through user and group/organization images.
+- Invalidate cached pages and load fresh ones if cookies change (`#6955
+  <https://github.com/ckan/ckan/pull/6955>`_)
+- Fix `check_access` order for resource create view (`#8588
+  <https://github.com/ckan/ckan/pull/8588>`_)
+- Fix CSV export error by ensuring BOM is written correctly as a string for
+  Excel compatibility. (`#8635 <https://github.com/ckan/ckan/pull/8635>`_)
+- Fix auth check for datastore data dictionary view (`#8639
+  <https://github.com/ckan/ckan/pull/8639>`_)
+
+
 v.2.11.1 2024-12-11
 ===================
 
@@ -672,8 +727,43 @@ Removals and deprecations
       class FirstPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(ISomething)
 
-      class SecondPlugin(p.SingletonPlugin, BasePlutin):
+      class SecondPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(IAnything)
+
+
+
+v.2.10.7 2025-02-05
+===================
+
+Migration notes
+---------------
+
+* Going forward, if both ``ckan.upload.[type].mimetypes`` and
+  ``ckan.upload.[type].types`` are empty, no uploads will be allowed
+  for this object type (e.g. ``user`` or ``group``). It previoulsy
+  meant that all file types were allowed. To keep the old behaviour use
+  the string ``*`` as value in both options (this is dangerous and
+  **not** recommended).
+
+Minor changes
+-------------
+- Adapt login failure message if reCAPTCHA is enabled (`#8627
+  <https://github.com/ckan/ckan/pull/8627>`_)
+- Update release process docs (`#8586
+  <https://github.com/ckan/ckan/pull/8586>`_)
+- Support 2.11 version of the Solr schema in CKAN 2.10 (``5acfeda6e``)
+
+
+Bugfixes
+--------
+- `CVE-2025-24372 <https://github.com/ckan/ckan/security/advisories/GHSA-7pq5-qcp6-mcww>`_: Fix potential
+  XSS vector through user and group/organization images.
+- Invalidate cached pages and load fresh ones if cookies change (`#6955
+  <https://github.com/ckan/ckan/pull/6955>`_)
+- Fix `check_access` order for resource create view (`#8588
+  <https://github.com/ckan/ckan/pull/8588>`_)
+- Fix auth check for datastore data dictionary view (`#8639
+  <https://github.com/ckan/ckan/pull/8639>`_)
 
 v.2.10.6 2024-12-11
 ===================
@@ -910,13 +1000,13 @@ v.2.10.2
 ========
 
 Unreleased
- 
+
 v.2.10.1 2023-05-24
 ===================
 
 Bug fixes
 ---------
-- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix
   potential path traversal, remote code execution, information disclosure and
   DOS vulnerabilities via crafted resource ids.
 - Redirect on password reset form error now maintains root_path and locale (`#7006 <https://github.com/ckan/ckan/pull/7006>`_)
@@ -1517,7 +1607,7 @@ v.2.9.9 2023-05-24
 Bugfixes
 --------
 
-- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix
   potential path traversal, remote code execution, information disclosure and
   DOS vulnerabilities via crafted resource ids.
 - Names are now quoted in From and To addresses in emails, meaning that site titles with
@@ -2535,7 +2625,7 @@ Changes and deprecations:
  * The API versions 1 and 2 (also known as the REST API), ie ``/api/rest/*`` have been
    completely removed in favour of the version 3 (action API, ``/api/action/*``).
  * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
-   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   jobs (https://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
  * After introducing dataset blueprint, `h.get_facet_items_dict` takes search_facets as second argument.
    This change is aimed to reduce usage of global variables in context. For a while, it has default value
@@ -2787,7 +2877,7 @@ General notes:
  * Starting from this version, CKAN requires at least Postgres 9.3
  * Starting from this version, CKAN requires a Redis database. Please
    refer to the new `ckan.redis.url
-   <http://docs.ckan.org/en/ckan-2.7.0/maintaining/configuration.html#ckan-redis-url>`_
+   <https://docs.ckan.org/en/ckan-2.7.0/maintaining/configuration.html#ckan-redis-url>`_
    configuration option.
  * This version requires a requirements upgrade on source installations
  * This version requires a database upgrade
@@ -2882,7 +2972,7 @@ Deprecations:
    more efficient alternatives and are now deprecated.
  * The legacy revisions controller (ie ``/revisions/*``) will be completely removed in CKAN 2.8.
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
-   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   jobs (https://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
 
 v.2.6.9 2020-04-15
@@ -3573,7 +3663,7 @@ Major:
    to know more, and the "Changes and deprecations" section for migration
    details:
 
-     http://docs.ckan.org/en/latest/maintaining/data-viewer.html
+     https://docs.ckan.org/en/latest/maintaining/data-viewer.html
 
  * Responsive design for the default theme, that allows nicer rendering across
    different devices (#1935)
@@ -3725,7 +3815,7 @@ Changes and deprecations
   a migration command on existing instances. Please refer to the migration
   guide for more details:
 
-    http://docs.ckan.org/en/latest/maintaining/data-viewer.html#migrating-from-previous-ckan-versions
+    https://docs.ckan.org/en/latest/maintaining/data-viewer.html#migrating-from-previous-ckan-versions
 
 * The PDF Viewer extension has been moved to a separate extension:
   https://github.com/ckan/ckanext-pdfview. Please install it separately if
@@ -4046,7 +4136,7 @@ API changes and deprecations:
    the FileStore to hosted files will still work, but there is a command
    available to migrate the files to new Filestore. See this page for more
    details:
-   http://docs.ckan.org/en/latest/filestore.html#filestore-21-to-22-migration
+   https://docs.ckan.org/en/latest/filestore.html#filestore-21-to-22-migration
  * By default, the authorization for any action defined from an extension will
    require a logged in user, otherwise a :py:class:`ckan.logic.NotAuthorized`
    exception will be raised. If an action function allows anonymous access (eg
@@ -4376,10 +4466,10 @@ v2.0 2013-05-10
 ===============
 
 .. note:: Starting on v2.0, issue numbers with four digits refer to the old
- ticketing system at http://trac.ckan.org and the ones with three digits refer
+ ticketing system at https://trac.ckan.org and the ones with three digits refer
  to GitHub issues. For example:
 
- * #3020 is http://trac.ckan.org/ticket/3020
+ * #3020 is https://trac.ckan.org/ticket/3020
  * #271 is https://github.com/ckan/ckan/issues/271
 
  Some GitHub issues URLs will redirect to GitHub pull request pages.

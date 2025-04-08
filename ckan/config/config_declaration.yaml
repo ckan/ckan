@@ -338,7 +338,7 @@ groups:
         default: 31_536_000 # 1 year
         description: |
           If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
-          set this number of seconds in the future. Note that you can not set a 
+          set this number of seconds in the future. Note that you can not set a
           session that never expires (only very far into the future).
 
       - key: SESSION_USE_SIGNER
@@ -377,7 +377,7 @@ groups:
 
           To get the list of all the available properties check the `SQLAlchemy documentation`_
 
-          .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+          .. _SQLAlchemy documentation: https://docs.sqlalchemy.org/en/20/core/engines.html#engine-creation-api
 
   - annotation: Site Settings
     options:
@@ -1328,25 +1328,36 @@ groups:
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as user's avatar. No restrictions applied when empty
+        description: File types allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.mimetypes`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended). Note also that ``text/svg`` can contain embedded
+          javascript code so it only should be used in trusted environments.
 
       - key: ckan.upload.user.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+        example: image/png
+        description: File MIMETypes allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.types`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.types
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as group image. No restrictions applied when empty
+        description: File types allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
+        example: image/png
+        description: File MIMEtypes allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.types` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
+          Note also that ``text/svg`` can contain embedded javascript code so it only should be used in
+          trusted environments.
 
   - annotation: Webassets Settings
     options:
@@ -1386,6 +1397,28 @@ groups:
         description: |
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
+
+      - key: ckan.user.unique_email_states
+        type: list
+        default: [active]
+        example: [pending, active]
+        description: |
+          When a new user created, uniqueness of its email is checked among
+          users with specified statuses.
+
+          Using `active` is appropriate if users are created on portal only
+          through original user registration form and always have active
+          status. When user is deleted, his email can be reused by a new
+          account.
+
+          Using `pending active` is suitable for workflows with user approval
+          or invitations. In such scenario, user is created with `pending`
+          status initially and activated at some point in future.
+
+          Adding `deleted` to this option makes sense if email of removed users
+          must not be reused. In other words, when user is deleted, he is not
+          able to create a new account with the same email and is virtually
+          blocked on the portal.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings

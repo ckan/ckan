@@ -870,6 +870,14 @@ this.ckan.module('datatables_view', function (jQuery) {
         gelapsedTime = window.performance.now() - gstartTime
       })
 
+      // indicate when total displayed is estimated
+      datatable.on('draw.dt', function() {
+        if (datatable.ajax.json().total_was_estimated) {
+          document.getElementById('dtprv_info'
+            ).innerHTML += ' ' + that._('(estimated)')
+        }
+      })
+
       // save state of table when row selection is changed
       datatable.on('select deselect', function () {
         datatable.state.save()
