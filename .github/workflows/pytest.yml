@@ -111,7 +111,8 @@ jobs:
       fail-fast: false
       matrix:
         split: ${{ fromJSON(needs.define-matrix.outputs.SPLIT_LIST) }}
-
+    container:
+      image: python:3.10-slim-bookworm
     services:
       ckan_postgres:
         image: postgres:12 # should be postgres:15
