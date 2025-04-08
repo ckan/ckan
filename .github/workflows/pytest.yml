@@ -180,11 +180,6 @@ jobs:
           echo "unzip pytest test duration details"
           gunzip .test_durations.gz
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
