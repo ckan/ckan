@@ -3,6 +3,7 @@
 {% set dataset_count = h.get_dataset_count() %}
 
 <div class="module-search">
+  {% block site_search_form %}
   <form class="search-form" method="get" action="{% url_for dataset_type ~ '.search' %}">
     <h2 class="heading">{{ dataset_count }}<span> {{ ungettext('dataset', 'datasets', dataset_count) }}</span></h2>
     <div class="search-input form-group">
@@ -13,4 +14,9 @@
       </button>
     </div>
   </form>
+  {% endblock site_search_form %}
+
+  {% block site_search_post %}
+  {% endblock site_search_post %}
+
 </div>
