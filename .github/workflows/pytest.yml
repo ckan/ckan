@@ -172,11 +172,6 @@ jobs:
           echo "unzip pytest test duration details"
           gunzip .test_durations.gz
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
       - name: Install python deps
         run: |
          pip install -U pip
@@ -197,14 +192,9 @@ jobs:
       - name: Run pytest
         run: |
           set -ex
-          unset CKAN_SQLALCHEMY_URL CKAN_SOLR_URL CKAN_REDIS_URL POSTGRES_USER POSTGRES_PASSWORD
-          unset CKAN_DB CKAN_DATASTORE_POSTGRES_DB CKAN_DATASTORE_POSTGRES_READ_USER CKAN_DATASTORE_POSTGRES_READ_PWD
-          unset CKAN_DATASTORE_POSTGRES_WRITE_USER CKAN_DATASTORE_POSTGRES_WRITE_PWD CKAN_POSTGRES_DB
-          unset CKAN_POSTGRES_USER CKAN_POSTGRES_PWD PGPASSWORD PGHOST CKAN_STORAGE_PATH
 
           mkdir -p ./junit/result
           echo "${{ matrix.split }} of $SPLIT_COUNT"
-
 
           echo "::group::pytest"
           #we ignore test 'test_building_the_docs' as its looked after by the docs.yml workflow which provides the sphinx documentation build artifact and it also takes 50 seconds to run
