@@ -4,6 +4,8 @@
     }
 
     > .module-content{
+        border-radius: 20px;
+        background-color: $layoutPrimaryBackgroundColor;
         &:nth-child(2n){
             padding-top: $grid-gutter-width;
         }
