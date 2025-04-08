@@ -115,7 +115,7 @@ jobs:
       image: python:3.10-bullseye
 
     services:
-      postgres:
+      ckan-postgres:
 
         image: postgres:12 
         options: >-
@@ -126,10 +126,9 @@ jobs:
         env:
           POSTGRES_USER: ckan
           POSTGRES_PASSWORD: ckan
-          POSTGRES_DB: postgres
-      solr:
+      ckan-solr:
         image: ckan/ckan-solr:master
-      redis:
+      ckan-redis:
         image: redis:7
 
     env:
