@@ -116,11 +116,9 @@ jobs:
       options: --user root
 
     services:
-      ckan_postgres:
+      postgres:
 
         image: ckan/ckan-postgres-dev:master
-        ports:
-          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -130,24 +128,18 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
-          PGDATA: "/data"
-
-      ckan_redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-      ckan_solr:
+      solr:
         image: ckan/ckan-solr:master
-        ports:
-          - 8983:8983
+      redis:
+        image: redis:7
 
     env:
       SPLIT_COUNT: ${{ needs.define-matrix.outputs.SPLIT_COUNT }}
-      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@localhost/ckan_test
-      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@localhost/datastore_test
-      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@localhost/datastore_test
-      CKAN_SOLR_URL: http://localhost:8983/solr/ckan
-      CKAN_REDIS_URL: redis://localhost:6379/1
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+      CKAN_SOLR_URL: http://solr:8983/solr/ckan
+      CKAN_REDIS_URL: redis://redis:6379/1
       PGHOST: localhost
       CKAN_STORAGE_PATH: /tmp/storage
       PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
@@ -193,9 +185,7 @@ jobs:
 
       - name: Init environment
         run: |
-          export PGPASSWORD=${POSTGRES_PASSWORD}
           # Database Initialization
-          ckan -c test-core-github-actions.ini datastore set-permissions | grep -v "Using configuration file" | psql --host=${PGHOST} --username=${POSTGRES_USER}
           ckan -c test-core-github-actions.ini db init
 
       # When running pytest, we write the new test durations using options
