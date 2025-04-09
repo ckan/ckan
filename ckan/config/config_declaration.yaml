@@ -414,14 +414,47 @@ groups:
         example: 2592000
         description: This sets ``Cache-Control`` header's max-age value.
 
+      - key: ckan.private_cache_expires
+        type: int
+        default: 9999999
+        example: 3600
+        description: |
+          This sets ``Cache-Control`` header's max-age value on private cache.
+          When value is 9999999, max-age is not set
+
       - key: ckan.cache_enabled
         type: bool
+        default: false
         example: "true"
         description: |
           This enables cache control headers on all requests. If the user is
           not logged in and there is no session data a ``Cache-Control:
-          public`` header will be added. For all other requests the
-          ``Cache-control: private`` header will be added.
+          public`` header will be added. For all other requests see ``ckan.cache_private_enabled``
+          config option.
+
+      - key: ckan.cache_private_enabled
+        type: bool
+        default: true
+        example: "true"
+        description: |
+          When this is set to true and ``__no_cache__`` is set on requests,
+          then ``Cache-control: private`` header will be added,
+          else ``Cache-Control: no-cache no-store must-revalidate max-age=0``, ``Expires: 0``
+
+      - key: ckan.cache_etags
+        type: bool
+        default: true
+        example: "true"
+        description: |
+          Add etag response header on all payloads
+
+      - key: ckan.cache_etags_notModified
+        type: bool
+        default: true
+        example: "true"
+        description: |
+          When `ckan.cache_etags` is enabled, then if request `if_none_match` match's response etag, return a 302 not
+          modified instead of the full payload.
 
       - key: ckan.mimetype_guess
         default: file_ext
