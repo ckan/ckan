@@ -366,8 +366,7 @@ jobs:
 
           echo "::group::pytest-html-report"
           find . -name "*.pyc" -exec rm -rf {} \;
-          rm .coverage
-          coverage html -d results/coverage_html
+          coverage html -i -d results/coverage_html
           echo "::endgroup::"
 
       - name: Pytest Coverage Console Report
