@@ -453,6 +453,7 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
 
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'false')
+@pytest.mark.ckan_config('ckan.cache_private_enabled', 'true')
 def test_cache_control_in_when_cache_is_not_enabled(app):
     request_headers = {}
     response = app.get('/', headers=request_headers)
@@ -495,6 +496,7 @@ def test_cache_control_when_cache_is_not_set_in_config(app):
 
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache_private_enabled', 'true')
 def test_cache_control_while_logged_in(app):
     from ckan.lib.helpers import url_for
     user = factories.User(password="correct123")
@@ -508,3 +510,20 @@ def test_cache_control_while_logged_in(app):
 
     assert 'Cache-Control' in response_headers
     assert response_headers['Cache-Control'] == 'private'
+
+
+@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache_private_enabled', 'false')
+def test_cache_control_while_logged_in_private_cache_disable(app):
+    from ckan.lib.helpers import url_for
+    user = factories.User(password="correct123")
+    identity = {"login": user["name"], "password": "correct123"}
+    request_headers = {}
+
+    response = app.post(
+        url_for("user.login"), data=identity, headers=request_headers
+    )
+    response_headers = dict(response.headers)
+
+    assert 'Cache-Control' in response_headers
+    assert response_headers['Cache-Control'] == 'no-cache, no-store, must-revalidate, max-age=0'
