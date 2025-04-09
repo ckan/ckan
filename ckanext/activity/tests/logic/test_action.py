@@ -2748,3 +2748,16 @@ class TestActivityCreate:
         }
         result = helpers.call_action("activity_create", **activity_dict)
         assert result.get("activity_type") == 'changed package'
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity image_view")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+class TestDeleteResourceViewActivity(object):
+    def test_resource_view_delete(self):
+        resource_view = factories.ResourceView()
+        user = factories.Sysadmin()
+
+        context = {"user": user["name"], "ignore_auth": False}
+        params = {"id": resource_view["id"]}
+
+        helpers.call_action("resource_view_delete", context=context, **params)
