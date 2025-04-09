@@ -263,6 +263,41 @@ const esc = function (t) {
     .replace(/"/g, '&quot;')
 }
 
+function responsiveModalSettings (that, packagename, resourcename) {
+  return {
+    details: {
+      display: $.fn.dataTable.Responsive.display.modal({
+        header: function (row) {
+          // add clipboard and print buttons to modal record display
+          var data = row.data();
+          return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
+            '<button id="modalcopy-button" class="btn btn-secondary" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
+            packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
+            '<button id="modalprint-button" class="btn btn-secondary" title="' + that._('Print') + '" onclick="printModal(\'' +
+            packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
+            '</div>&nbsp;'
+        }
+      }),
+      // render the Record Details in a modal dialog box
+      // do not render the _colspacer column, which has the 'none' class
+      // the none class in responsive mode forces the _colspacer column to be hidden
+      // guaranteeing the blue record details button is always displayed, even for narrow tables
+      // also, when a column's content has been truncated with an ellipsis, show the untruncated content
+      renderer: function (api, rowIdx, columns) {
+        const data = $.map(columns, function (col, i) {
+          return col.className !== ' none'
+            ? '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+              '<td>' + col.title + ':' + '</td><td>' +
+              (col.data.startsWith('<span class="ellipsis"') ? col.data.substr(30, col.data.indexOf('">') - 30) : col.data) +
+              '</td></tr>'
+            : ''
+        }).join('')
+        return data ? $('<table class="dtr-details" width="100%"/>').append(data) : false
+      }
+    }
+  }
+}
+
 // MAIN
 this.ckan.module('datatables_view', function (jQuery) {
 
@@ -413,38 +448,7 @@ this.ckan.module('datatables_view', function (jQuery) {
             className: 'none',
             defaultContent: ''
           })
-          responsiveSettings = {
-            details: {
-              display: $.fn.dataTable.Responsive.display.modal({
-                header: function (row) {
-                  // add clipboard and print buttons to modal record display
-                  var data = row.data();
-                  return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
-                    '<button id="modalcopy-button" class="btn btn-secondary" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
-                    packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
-                    '<button id="modalprint-button" class="btn btn-secondary" title="' + that._('Print') + '" onclick="printModal(\'' +
-                    packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
-                    '</div>&nbsp;'
-                }
-              }),
-              // render the Record Details in a modal dialog box
-              // do not render the _colspacer column, which has the 'none' class
-              // the none class in responsive mode forces the _colspacer column to be hidden
-              // guaranteeing the blue record details button is always displayed, even for narrow tables
-              // also, when a column's content has been truncated with an ellipsis, show the untruncated content
-              renderer: function (api, rowIdx, columns) {
-                const data = $.map(columns, function (col, i) {
-                  return col.className !== ' none'
-                    ? '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
-                      '<td>' + col.title + ':' + '</td><td>' +
-                      (col.data.startsWith('<span class="ellipsis"') ? col.data.substr(30, col.data.indexOf('">') - 30) : col.data) +
-                      '</td></tr>'
-                    : ''
-                }).join('')
-                return data ? $('<table class="dtr-details" width="100%"/>').append(data) : false
-              }
-            }
-          }
+          responsiveSettings = responsiveModalSettings(that, packagename, resourcename)
         } else {
           responsiveSettings = {}
           $('#_colspacer').remove()
