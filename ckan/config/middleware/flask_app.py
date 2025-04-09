@@ -42,6 +42,8 @@ from ckan.config.middleware.common_middleware import (
     RootPathMiddleware,
     CKANSecureCookieSessionInterface,
     CKANRedisSessionInterface,
+    static_or_webasset_pre_configuration,
+    static_or_webasset_post_configuration
 )
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
@@ -53,6 +55,7 @@ from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         set_controller_and_action,
                         set_cache_control_headers_for_response,
+                        set_etag_for_response,
                         handle_i18n,
                         set_ckan_current_url,
                         _get_user_for_apitoken,
@@ -222,7 +225,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     wtf_key = "WTF_CSRF_SECRET_KEY"
     if not app.config.get(wtf_key):
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
+    app.config["WTF_CSRF_ENABLED"] = config.get('WTF_CSRF_ENABLED')
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
+    app.config['WTF_CSRF_TIME_LIMIT'] = config.get('WTF_CSRF_TIME_LIMIT')
     csrf.init_app(app)
 
     if config.get("ckan.csrf_protection.ignore_extensions"):
@@ -346,6 +351,11 @@ def ckan_before_request() -> Optional[Response]:
 
     g.__timer = time.time()
 
+    session_access = session.accessed
+    # used to mimic session.new since flask_session.new can lie
+    g.__session_was_empty = len(session.keys()) == 0
+    session.accessed = session_access  # reset session accessed state
+
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -372,6 +382,7 @@ def ckan_before_request() -> Optional[Response]:
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
+    g.csrf_enabled = config.get('WTF_CSRF_ENABLED')
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
@@ -392,7 +403,37 @@ def ckan_after_request(response: Response) -> Response:
     response = set_cors_headers_for_response(response)
 
     # Set Cache Control headers
-    response = set_cache_control_headers_for_response(response)
+    default_cors_enabled = True
+    for plugin in PluginImplementations(IMiddleware):
+        if hasattr(plugin, 'set_cors_headers_for_response'):
+            response_returned = plugin.set_cors_headers_for_response(response)
+            if response_returned:
+                response = response_returned
+                default_cors_enabled = False
+    if default_cors_enabled:
+        response = set_cors_headers_for_response(response)
+
+    # Set Cache Control headers
+    default_cache_control_enabled = True
+    for plugin in PluginImplementations(IMiddleware):
+        if hasattr(plugin, 'set_cache_control_headers_for_response'):
+            response_returned = plugin.set_cache_control_headers_for_response(response)
+            if response_returned:
+                response = response_returned
+                default_cache_control_enabled = False
+    if default_cache_control_enabled:
+        response = set_cache_control_headers_for_response(response)
+
+    # Set ETag response headers
+    default_etag_enabled = True
+    for plugin in PluginImplementations(IMiddleware):
+        if hasattr(plugin, 'set_etag_for_response'):
+            response_returned = plugin.set_etag_for_response(response)
+            if response_returned:
+                response = response_returned
+                default_etag_enabled = False
+    if default_etag_enabled:
+        response = set_etag_for_response(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
@@ -561,8 +602,12 @@ def _setup_webassets(app: CKANApp):
 
     webassets_folder = get_webassets_path()
 
-    def webassets(path: str):
-        return send_from_directory(webassets_folder, path)
+    def webassets(path: str) -> Response:
+        cache_expire, shared_cache_expire = static_or_webasset_pre_configuration(None)
+        response = send_from_directory(webassets_folder, path,
+                                       etag=True, max_age=cache_expire)
+        static_or_webasset_post_configuration(response, shared_cache_expire)
+        return response
 
     path = config["ckan.webassets.url"].rstrip("/")
     app.add_url_rule(f'{path}/<path:path>', 'webassets.index', webassets)

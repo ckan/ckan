@@ -95,12 +95,26 @@ class TestSessionTypes:
         redis = connect_to_redis()
 
         assert not redis.keys("*")
-        response = app.get("/")
+        # A page that sets session
+        response = app.get("/user/login")
 
         cookie = re.match(r'ckan=([^;]+)', response.headers['set-cookie'])
         assert cookie
 
         assert redis.keys("*") == [f"session:{cookie.group(1)}".encode()]
+
+    @pytest.mark.usefixtures("clean_redis")
+    @pytest.mark.ckan_config("SESSION_TYPE", "redis")
+    def test_redis_storage_no_session(self, app, monkeypatch):
+        """Redis session interface creates a record in redis upon request.
+        """
+        redis = connect_to_redis()
+
+        assert not redis.keys("*")
+        # A request that has no session
+        response = app.get("/")
+        assert 'Set-Cookie' not in response.headers
+        assert not redis.keys("*")
 
     @pytest.mark.usefixtures("test_request_context")
     def test_cookie_storage(self, app, user_factory, faker):

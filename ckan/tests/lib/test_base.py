@@ -1,21 +1,11 @@
 # encoding: utf-8
+import json
 
 import pytest
 
 import ckan.tests.factories as factories
 import ckan.lib.helpers as h
-
-
-@pytest.mark.ckan_config("debug", True)
-def test_comment_present_if_debug_true(app):
-    response = app.get("/")
-    assert "<!-- Snippet " in response
-
-
-@pytest.mark.ckan_config("debug", False)
-def test_comment_absent_if_debug_false(app):
-    response = app.get("/")
-    assert "<!-- Snippet " not in response
+from ckan.tests.helpers import CKANTestApp
 
 
 def test_apitoken_missing(app):
@@ -452,59 +442,95 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
     assert "Access-Control-Allow-Headers" not in response_headers
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', 'false')
-def test_cache_control_in_when_cache_is_not_enabled(app):
+# Disable CSRF so we have a known session state
+@pytest.mark.ckan_config("WTF_CSRF_ENABLED", False)
+@pytest.mark.ckan_config('ckan.cache.public.enabled', False)
+@pytest.mark.ckan_config('ckan.cache.private.enabled', True)
+def test_cache_control_in_when_public_cache_is_not_enabled(app: CKANTestApp):
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    response_headers = dict(response.headers)
 
-    assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private'
+    assert 'Cache-Control' in response.headers
+    assert 'Set-Cookie' not in response.headers
+    assert response.headers['Cache-Control'] == 'must-understand, private, max-age=60, stale-while-revalidate=0, stale-if-error=86400'
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
-def test_cache_control_when_cache_enabled(app):
+# Disable CSRF so we have a known session state
+@pytest.mark.ckan_config("WTF_CSRF_ENABLED", False)
+@pytest.mark.ckan_config('ckan.cache.public.enabled', True)
+def test_cache_control_when_cache_enabled(app: CKANTestApp):
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    response_headers = dict(response.headers)
 
-    assert 'Cache-Control' in response_headers
-    assert 'public' in response_headers['Cache-Control']
+    assert 'Cache-Control' in response.headers
+    assert 'Set-Cookie' not in response.headers
+    assert ('must-understand, public, max-age=3600, s-maxage=7200, stale-while-revalidate=0, stale-if-error=86400'
+            == response.headers['Cache-Control'])
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
-@pytest.mark.ckan_config('ckan.cache_expires', 300)
-def test_cache_control_max_age_when_cache_enabled(app):
+# Disable CSRF so we have a known session state
+@pytest.mark.ckan_config("WTF_CSRF_ENABLED", False)
+@pytest.mark.ckan_config('ckan.cache.public.enabled', True)
+@pytest.mark.ckan_config('ckan.cache.expires', 300)
+def test_cache_control_max_age_when_cache_enabled(app: CKANTestApp):
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    response_headers = dict(response.headers)
+
+    response_headers = response.headers
 
     assert 'Cache-Control' in response_headers
     assert 'public' in response_headers['Cache-Control']
     assert 'max-age=300' in response_headers['Cache-Control']
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', None)
-def test_cache_control_when_cache_is_not_set_in_config(app):
+@pytest.mark.ckan_config('ckan.cache.public.enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache.private.enabled', 'true')
+def test_cache_control_while_logged_in(app: CKANTestApp):
+    # Collect client, so cookies persist for session
+    client = app.test_client()
+    user = factories.User(fullname="Logged-In-User", password="correct123")
+
+    # get csrf input token via rest endpoint (also sets session cookie)
+    csrf_object = json.loads(client.get(h.url_for("util.csrf_input")).get_data(as_text=True))
+
+    identity = {"login": user["name"], "password": "correct123", csrf_object["name"]: csrf_object["value"]}
+    response = client.post(h.url_for("user.login"), data=identity)
+
+    # Verify we did log in
+    assert "Logged-In-User" in response.get_data(as_text=True)
+
+    # test client is too helpful and will automatically follow redirects for us,
+    # need to look up response history for 302 header checks
+    assert len(response.history) == 1
+    assert 'Cache-Control' in response.history[0].headers
+    assert response.history[0].headers['Cache-Control'] == 'must-understand, no-cache, max-age=0, no-store'
+    assert 'Set-Cookie' in response.history[0].headers.keys()
+
+    # Now test the page we were redirected to
+    assert 'Set-Cookie' not in response.headers.keys()
+    assert 'Cache-Control' in response.headers
+    assert response.headers['Cache-Control'] == 'must-understand, private, max-age=60, stale-while-revalidate=0, stale-if-error=86400'
+
+
+@pytest.mark.ckan_config("WTF_CSRF_ENABLED", False)
+@pytest.mark.ckan_config('ckan.cache.public.enabled', True)
+@pytest.mark.ckan_config('ckan.cache.private.enabled', False)
+def test_cache_control_while_logged_in_private_cache_disable(app: CKANTestApp):
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    response_headers = dict(response.headers)
 
-    assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private'
+    assert 'Cache-Control' in response.headers
+    assert ('must-understand, public, max-age=3600, s-maxage=7200, stale-while-revalidate=0, stale-if-error=86400'
+            == response.headers['Cache-Control'])
 
-
-@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
-def test_cache_control_while_logged_in(app):
-    from ckan.lib.helpers import url_for
     user = factories.User(password="correct123")
     identity = {"login": user["name"], "password": "correct123"}
     request_headers = {}
 
     response = app.post(
-        url_for("user.login"), data=identity, headers=request_headers
+        h.url_for("user.login"), data=identity, headers=request_headers
     )
     response_headers = dict(response.headers)
 
     assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private'
+    assert response_headers['Cache-Control'] == 'must-understand, no-cache, max-age=0, no-store'
