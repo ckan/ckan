@@ -12,6 +12,10 @@
   </div>
   {% block primary_content %}
   <div role="main">
+
+    {% block main_top %}
+    {% endblock %}
+
     <div class="main hero">
       <div class="container">
         <div class="row">
@@ -28,6 +32,9 @@
         </div>
       </div>
     </div>
+
+    {% block main_middle %}
+    {% endblock %}
 
     <div class="main module-feeds">
       <div class="container">
@@ -50,6 +57,10 @@
         </div>
       </div>
     </div>
+
+    {% block main_bottom %}
+    {% endblock %}
+
   </div>
   {% endblock %}
 </div>
