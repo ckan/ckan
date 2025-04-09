@@ -16,6 +16,7 @@
     {% block main_top %}
     {% endblock %}
 
+    {% block main_hero %}
     <div class="main hero">
       <div class="container">
         <div class="row">
@@ -32,10 +33,13 @@
         </div>
       </div>
     </div>
+    {% endblock %}
 
     {% block main_middle %}
     {% endblock %}
 
+    {% block main_feeds %}
+    {% block main_feed_feat_org %}
     <div class="main module-feeds">
       <div class="container">
         <div class="row">
@@ -45,6 +49,8 @@
         </div>
       </div>
     </div>
+    {% endblock %}
+    {% block main_feed_recent_datasets %}
     <div class="main module-feeds">
       <div class="container">
         <div class="row">
@@ -54,6 +60,8 @@
         </div>
       </div>
     </div>
+    {% endblock %}
+    {% block main_feed_feat_group %}
     <div class="main module-feeds">
       <div class="container">
         <div class="row">
@@ -68,6 +76,8 @@
         </div>
       </div>
     </div>
+    {% endblock %}
+    {% endblock %}
 
     {% block main_bottom %}
     {% endblock %}
