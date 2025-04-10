@@ -76,6 +76,7 @@ class MockPackageSearchPlugin(p.SingletonPlugin):
         return data_dict
 
 
+@pytest.mark.ckan_plugin("mock_search_plugin", MockPackageSearchPlugin)
 @pytest.mark.ckan_config("ckan.plugins", "mock_search_plugin")
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
 class TestSearchPluginInterface(object):
