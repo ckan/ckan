@@ -1,6 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import Any, Optional
 import hashlib
 import re
@@ -50,9 +51,13 @@ def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
 
     enable_etags = config.get(u'ckan.cache_etags', True)
     enable_etags_not_modified = config.get(u'ckan.cache_etags_notModified', True)
-    etag = None
-
-    allowed_status_codes = {200, 404}
+    allowed_status_codes = {HTTPStatus.OK,  # 200
+                            HTTPStatus.MOVED_PERMANENTLY,  # 301
+                            HTTPStatus.FOUND,  # 302
+                            HTTPStatus.UNAUTHORIZED,  # 401
+                            HTTPStatus.FORBIDDEN,  # 403
+                            HTTPStatus.NOT_FOUND  # 404
+                            }
     if response.status_code in allowed_status_codes and enable_etags:
         if 'etag' not in response.headers:
             # s3 etag uses md5, so using it here also
@@ -82,22 +87,14 @@ def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
                 response.set_etag(etag)
             except (AttributeError, IndexError, TypeError,
                     UnicodeEncodeError, ValueError, re.error) as e:
-                # not text file not adding etag
-                logging.exception("Failed to compute and set ETag: %s", e)
+                logging.info("Failed to compute and set ETag: %s", e)
         else:
             etag = response.headers.get('etag')
 
-        # Fast 304 Not Modified response if ETag matches
-        if (enable_etags_not_modified
-                and request.if_none_match
-                and etag is not None):
-            etag_str: str = etag  # Explicit type assertion
-            if request.if_none_match.contains(etag_str):
-                # Remove body for faster response
-                response.status_code = 304
-                response.set_data(b'')
-                # Remove Content-Length for 304
-                response.headers.pop('Content-Length', None)
+        # Allow legacy behaviour if config is set
+        if enable_etags_not_modified:
+            # Use built-in function now that we have an eTag
+            response.make_conditional(request.environ)
 
     return response
 
