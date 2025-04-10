@@ -1,8 +1,10 @@
 name: Docs
 on:
+#  pull_request:
   workflow_call:
   workflow_dispatch:
 env:
+  NODE_VERSION: '16'
   PYTHON_VERSION: '3.9'
 
 permissions:
@@ -22,6 +24,11 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
       - name: Install python deps
         run: |
          pip install -U pip
@@ -31,3 +38,10 @@ jobs:
       - name: Create Docs
         run: |
            sphinx-build doc build/sphinx
+
+      #as pytest runs test_building_the_docs, we might as well have an output
+      - name: Store docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ckan-docs-${{ github.sha }}
+          path: ./build/sphinx
