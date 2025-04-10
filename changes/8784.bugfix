@@ -1,0 +1,4 @@
+Add activity migration to fix existing activities created before a 2.11 migration not showing up in `package_activity_list` calls.
+It requires a database migration: 
+
+    ckan db upgrade -p activity
