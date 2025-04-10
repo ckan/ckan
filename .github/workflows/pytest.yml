@@ -15,8 +15,8 @@ on:
         type: boolean
         description: Override flag for skipping rollup of pytest/coverage html reports
 env:
-  NODE_VERSION: '16'
-  PYTHON_VERSION: '3.9'
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.10'
 
 permissions:
   contents: read
