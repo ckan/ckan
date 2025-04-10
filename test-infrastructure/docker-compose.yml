@@ -23,7 +23,7 @@ services:
     image: "ckan/ckan-solr:master"
 
   ckan:
-    image: python:3.9-bullseye
+    image: python:3.10-bookworm
     networks:
       - default
     environment:
