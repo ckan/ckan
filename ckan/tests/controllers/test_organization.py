@@ -168,8 +168,8 @@ class TestOrganizationEdit(object):
             ),
             headers=headers,
             data={
-                "name": u"all-fields-edited",
-                "title": "Science",
+                "name": u"all-fields-edited-organization",
+                "title": "Science Organization Test",
                 "description": "Sciencey datasets",
                 "image_url": "http://example.com/image.png",
                 "save": ""
@@ -178,7 +178,7 @@ class TestOrganizationEdit(object):
         group = helpers.call_action(
             "organization_show", id=group["id"]
         )
-        assert group["title"] == u"Science"
+        assert group["title"] == u"Science Organization Test"
         assert group["description"] == "Sciencey datasets"
         assert group["image_url"] == "http://example.com/image.png"
 
