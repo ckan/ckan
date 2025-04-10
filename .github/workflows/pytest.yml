@@ -1,4 +1,6 @@
 name: Pytest
+# If you update container.image i.e. python:3.10-bookworm you must update all places.
+
 #pytest split data storage https://github.com/jerry-git/pytest-split/issues/20#issuecomment-2576031836
 #GitHub actions variables. IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED when set to 'True', will disable rollup (default will run)
 on:
@@ -15,13 +17,67 @@ on:
         type: boolean
         description: Override flag for skipping rollup of pytest/coverage html reports
 env:
-  NODE_VERSION: '20'
-  PYTHON_VERSION: '3.10'
+  # Ensure we have a known standard cache location's for faster builds
+  PIP_CACHE_DIR: /root/.cache/pip
+  SOLR_VERSION: 9.8
+  IMAGE_NAME: ckan-solr-temp
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
+  build-solr-schema-container:
+    runs-on: ubuntu-latest
+    outputs:
+      SOLR_IMAGE: ${{ steps.build.outputs.SOLR_IMAGE }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Push image
+        id: build
+        run: |
+          set -ex
+
+          # We care about 2 things the solr version and the hash of the schema, this allows reuse
+          # i.e. solr9.8-2a86c4ca719150edb97bafd4dde30a60ac417d1f
+          HASH=`sha256sum ckan/config/solr/schema.xml | cut -c1-16`
+          TAG=solr${SOLR_VERSION}-${HASH}
+          OWNER=${GITHUB_REPOSITORY_OWNER,,}
+
+          #https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+          # Upstream repo: ghcr.io/ckan/ckan-solr-temp:solr9.8-51cf1f4e73d82b42
+          # Forked repo: ghcr.io/duttonw/ckan-solr-temp:solr9.8-51cf1f4e73d82b42
+          SOLR_IMAGE="ghcr.io/${OWNER}/${IMAGE_NAME}:${TAG}"
+          echo "SOLR_IMAGE: $SOLR_IMAGE"
+          # We only care about our self, so if we are forked don't use another persons
+          listing=`curl -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/user/packages/container/${IMAGE_NAME}/versions
+          `
+          echo "$listing"
+          # Check if image exists in GHCR for TAG
+          if echo "$listing" | jq -e ".[] | select(.metadata.container.tags[]? == \"$TAG\")" > /dev/null; then
+            echo "Image $IMAGE already exists. Skipping build and push."
+          else
+            echo "::group::container-build"
+            docker build -t ${SOLR_IMAGE} --build-arg SOLR_VERSION=${SOLR_VERSION} \
+            -f ./.devcontainer/solr/DockerFile ckan/config/solr
+            echo "::endgroup::"
+            echo "::group::container-push"
+            docker push ${SOLR_IMAGE}
+            echo "::endgroup::"
+          fi
+
+          echo "SOLR_IMAGE=${SOLR_IMAGE}" >> $GITHUB_OUTPUT
+
+
+
   define-matrix:
     runs-on: ubuntu-latest
 
@@ -105,7 +161,7 @@ jobs:
           include-hidden-files: true
 
   pytest:
-    needs: define-matrix
+    needs: [define-matrix, build-solr-schema-container]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -116,7 +172,6 @@ jobs:
 
     services:
       ckan-postgres:
-
         image: postgres:12
         options: >-
           --health-cmd pg_isready
@@ -127,7 +182,11 @@ jobs:
           POSTGRES_USER: ckan
           POSTGRES_PASSWORD: ckan
       ckan-solr:
-        image: ckan/ckan-solr:master
+#        image: ckan/ckan-solr:master
+        image: ${{ needs.build-solr-schema-container.outputs.SOLR_IMAGE }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       ckan-redis:
         image: redis:7
 
@@ -142,8 +201,9 @@ jobs:
       CKAN_POSTGRES_USER: ckan_default
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
-
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
+      SPLIT_GROUP: ${{ matrix.split }}
+      SKIP_TESTS_ARG: "-k 'not test_building_the_docs'"
+      PYTEST_COMMON_OPTIONS: "-v --ckan-ini=test-core-github-actions.ini --junitxml=./junit/result/junit-${{ matrix.split }}.xml"
 
 
     steps:
@@ -173,6 +233,14 @@ jobs:
           echo "unzip pytest test duration details"
           gunzip .test_durations.gz
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install deps
         run: |
          ./test-infrastructure/install_deps.sh
@@ -181,23 +249,10 @@ jobs:
         run: |
          ./test-infrastructure/init_environment.sh
 
-      # When running pytest, we write the new test durations using options
-      # `--store-durations --clean-durations`.
-      # Option `--clean-durations` is undocumented but you can check its implementation here:
-      # https://github.com/jerry-git/pytest-split/blob/fb9af7e0122c18a96a7c01ca734c4ab01027f8d9/src/pytest_split/plugin.py#L68-L76
-      # > Removes the test duration info for tests which are not present while running the suite with
-      # > '--store-durations'.
       - name: Run pytest
         run: |
-          set -ex
-
-          mkdir -p ./junit/result
-          echo "${{ matrix.split }} of $SPLIT_COUNT"
-
-          echo "::group::pytest"
-          #we ignore test 'test_building_the_docs' as its looked after by the docs.yml workflow which provides the sphinx documentation build artifact and it also takes 50 seconds to run
-          pytest $PYTEST_COMMON_OPTIONS --splits $SPLIT_COUNT --group ${{ matrix.split }} --splitting-algorithm least_duration --store-durations --clean-durations  -k 'not test_building_the_docs'
-          echo "::endgroup::"
+          ./test-infrastructure/run_tests_splits.sh
+        working-directory: .
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -227,6 +282,7 @@ jobs:
           include-hidden-files: true
           retention-days: 1
 
+      # Due to downloading will place in same folder, if named the same they will overwrite
       - name: Prep test coverage split file
         run: |
           mv .coverage coverage-${{ matrix.split }}
@@ -261,6 +317,7 @@ jobs:
           output: "./junit/result/test-summary.md"
         if: failure()
 
+      # This is needed if the summary is too large
       - name: Store Test Summary results (If Failure)
         uses: actions/upload-artifact@v4
         with:
@@ -314,59 +371,46 @@ jobs:
     needs: pytest
     if: github.run_attempt == 1 && (success() || failure()) && needs.define-matrix.outputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED == 'false'
     runs-on: ubuntu-latest
+    container:
+      # Needed for source path discovery to match what pytest had.
+      image: python:3.10-bookworm
+    env:
+      JUNIT_RESULTS_DIR: ./junit-results
+      COVERAGE_DATA_DIR: ./coverage-data
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Cache pip
+        uses: actions/cache@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          pip install -r dev-requirements.txt
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Download all coverage artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: internal_coverage-*
-          path: coverage-data
+          path: ${{ env.COVERAGE_DATA_DIR }}
           merge-multiple: 'true'
-
 
       - name: Download all JUnit XML results
         uses: actions/download-artifact@v4
         with:
           pattern: internal_junit-results-*
           merge-multiple: true
-          path: junit-results
+          path: ${{ env.JUNIT_RESULTS_DIR  }}
 
-      - name: Merge Coverage and JUnit XML files
+      - name: Install deps
         run: |
-          set -ex
-          mkdir -p results
-          echo "merge junit test results"
+         ./test-infrastructure/install_dev_deps.sh
 
-          echo "::group::junitparser-merge"
-          junitparser merge junit-results/*.xml merged.xml
-          echo "::endgroup::"
-
-          echo "::group::junit2html generate"
-          junit2html merged.xml results/pytest-results.html
-          cp merged.xml results/junit_results.xml
-          echo "::endgroup::"
-
-          echo "merge pytest coverage results"
-
-          echo "::group::coverage combine"
-          coverage combine --keep -a ./coverage-data/*
-          echo "::endgroup::"
-
-
-          echo "::group::pytest-html-report"
-          coverage html -d results/coverage_html
-          echo "::endgroup::"
+      - name: Merge and Gen test reports
+        run: |
+          ./test-infrastructure/generate_combined_results.sh
 
       - name: Pytest Coverage Console Report
         run: |

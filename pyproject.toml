@@ -41,9 +41,10 @@ line-length = 79
 preview = true
 
 [tool.pytest.ini_options]
-retries = 1
+retries = 0
 retry_delay = 0.5
 cumulative_timing = true
+
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::bs4.GuessedAtParserWarning",  # using lxml as default parser
@@ -53,7 +54,8 @@ markers = [
 ]
 
 testpaths = ["ckan", "ckanext"]
-addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
+# Set sensible defaults, cli will overide these (except for flag options
+addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing --junitxml=./junit/result/junit.xml   -o junit_family=legacy --store-durations --clean-durations"
 
 [tool.pyright]
 pythonVersion = "3.9"

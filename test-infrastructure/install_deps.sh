@@ -10,7 +10,5 @@ apt-get install -y postgresql-client
 #Python Dependencies
 pip install -U pip
 pip install -U setuptools
-pip install -r requirements.txt
-pip install -r dev-requirements.txt
-pip install -e .
+pip install -r requirements.txt -r dev-requirements.txt -e .
 pip check

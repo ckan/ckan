@@ -1,0 +1,45 @@
+name: Clean up old GHCR tags
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # daily
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ckan-solr-temp
+
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old images via gh api
+        run: |
+          gh api -H "Accept: application/vnd.github.v3+json" \
+          /user/packages/container/${IMAGE_NAME}/versions |
+          jq 'sort_by(.created_at) | reverse | .[2:] | .[].id' |
+          while read id; do
+            echo "Deleting version ID $id"
+            gh api --method DELETE /user/packages/container/${IMAGE_NAME}/versions/$id
+          done
+
+          #https://gist.github.com/ferferga/93ca1ab3056257d05f6e33af0d6ead49
+          OWNER=${GITHUB_REPOSITORY_OWNER,,}
+          page=1
+
+          while read -r id; do
+            echo $id
+            if [ "${id}" = "" ]
+            then
+              echo "There are no dangling images to remove for ${OWNER}/${IMAGE_NAME}"
+              exit 0
+            fi
+            curl -H "Authorization: Bearer ${GITHUB_TOKEN}" -X DELETE "https://api.github.com/user/packages/container/${IMAGE_NAME}/versions/${id}";
+          done <<< "$(curl -s "https://api.github.com/user/packages/container/${IMAGE_NAME}/versions?page=${page}&per_page=100" -H "Authorization: Bearer ${GITHUB_TOKEN}" | jq -r '.[] | select(.metadata.IMAGE_NAME.tags==[]) | .id')"
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
