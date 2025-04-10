@@ -3,6 +3,7 @@ import re
 import hashlib
 from flask import Request, Response
 from werkzeug.test import EnvironBuilder
+from ckan.common import request
 
 from ckan.tests.helpers import CKANTestApp
 from werkzeug.test import TestResponse
@@ -17,7 +18,7 @@ def clean_dynamic_values(text):
     return re.sub(pattern, lambda m: m.group(1) + '="etag_removed"', text)
 
 
-@pytest.mark.ckan_config("ckan.cache_expires", 3600)
+@pytest.mark.ckan_config("ckan.cache_enabled", True)
 def test_sets_cache_control_headers_default(app: CKANTestApp):
     """Test that cache control headers are set correctly when caching is allowed."""
 
@@ -27,15 +28,18 @@ def test_sets_cache_control_headers_default(app: CKANTestApp):
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        assert request.environ.get('__no_cache__') is None
+        assert request.environ.get('__no_private_cache__') is None
         updated_response = views.set_cache_control_headers_for_response(response)
     assert updated_response.cache_control.public is True, updated_response
-    assert updated_response.cache_control.max_age == 3600, updated_response
+    assert updated_response.cache_control.max_age == 0, updated_response
     assert updated_response.cache_control.must_revalidate is True, updated_response
 
 
+@pytest.mark.ckan_config("ckan.cache_enabled", True)
 @pytest.mark.ckan_config("ckan.cache_expires", 3600)
 def test_sets_cache_control_headers_with__no_private_cache__set(app: CKANTestApp):
-    """Test that cache control headers are set correctly when caching is allowed."""
+    """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
 
     builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={'__no_private_cache__': True})
     env = builder.get_environ()
@@ -43,6 +47,8 @@ def test_sets_cache_control_headers_with__no_private_cache__set(app: CKANTestApp
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        assert request.environ.get('__no_cache__') is None
+        assert request.environ.get('__no_private_cache__') is True
         updated_response = views.set_cache_control_headers_for_response(response)
     assert updated_response.cache_control.public is True
     assert updated_response.cache_control.max_age == 3600
@@ -60,7 +66,10 @@ def test_disables_cache_when_no_cache_env_present(app: CKANTestApp):
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        assert request.environ.get('__no_cache__') is True
+        assert request.environ.get('__no_private_cache__') is True
         updated_response = views.set_cache_control_headers_for_response(response)
+
     assert updated_response.cache_control.no_cache is True
     assert updated_response.cache_control.no_store is True
     assert updated_response.cache_control.must_revalidate is True
@@ -77,6 +86,8 @@ def test_sets_private_cache_when___no_cache__is_set_and_no_private_cache_env_pre
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        assert request.environ.get('__no_cache__') is True
+        assert request.environ.get('__no_private_cache__') is None
         updated_response = views.set_cache_control_headers_for_response(response)
 
     assert updated_response.cache_control.private is True
@@ -93,6 +104,8 @@ def test_sets_private_cache_when_no_private_cache_env_present(app: CKANTestApp):
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        assert request.environ.get('__no_cache__') is True
+        assert request.environ.get('__no_private_cache__') is None
         updated_response = views.set_cache_control_headers_for_response(response)
     assert updated_response.cache_control.private is True
     assert updated_response.cache_control.public is False
@@ -108,6 +121,7 @@ def test_adds_vary_cookie_when_limit_cache_by_cookie_is_present(app: CKANTestApp
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        assert request.environ.get('__limit_cache_by_cookie__') is True
         updated_response = views.set_cache_control_headers_for_response(response)
     assert "Cookie" in updated_response.vary
 
@@ -168,7 +182,7 @@ def test_returns_304_if_etag_matches(app: CKANTestApp):
     request_headers["if_none_match"] = response.headers["Etag"]
     updated_response: TestResponse = app.get('/', headers=request_headers)
 
-    # should be called inline, no need to call independandly.
+    # should be called inline, no need to call independently.
     # updated_response = views.set_etag_and_fast_304_response_if_unchanged(response)
 
     assert updated_response.status_code == 304, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
