@@ -65,7 +65,6 @@ class FlashMessagePlugin(p.SingletonPlugin):
         return blueprint
 
 
-@pytest.mark.ckan_plugin("test_flash_plugin", FlashMessagePlugin)
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
 class TestWithFlashPlugin:
     def test_flash_success(self, app):
