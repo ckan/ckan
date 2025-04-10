@@ -24,7 +24,8 @@ def datatablesview_get_language_file_path(lang: str) -> str:
     Get the language file path for the given language.
 
     If the language is not in the LANGUAGE_MAP, use the language as is.
-    If the language is "en", return an empty string, cause we don't need to load the i18n file.
+    If the language is "en", return an empty string, cause we don't need
+    to load the i18n file.
 
     :param lang: The language to get the language file path for.
     :type lang: str
