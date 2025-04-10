@@ -124,7 +124,8 @@ def test_no_wtf_secret_falls_back_to_secret_key(app):
     assert config["WTF_CSRF_SECRET_KEY"] == config["SECRET_KEY"]
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"test_middleware_plugin")
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.ckan_plugin("test_middleware_plugin", MiddlewarePlugin)
+@pytest.mark.ckan_config("ckan.plugins", "test_middleware_plugin")
+@pytest.mark.usefixtures("with_plugins")
 def test_custom_middleware_does_not_break_the_app(app):
     app.get("/", status=200)
