@@ -26,12 +26,13 @@ Deeper explanation can be found in `official documentation
 """
 from __future__ import annotations
 
+import copy
 import smtplib
 
 from io import BytesIO
-from typing import Any, IO
-import copy
-
+from typing import Any, IO, cast
+from unittest import mock
+from collections.abc import Iterable, Callable
 import pytest
 import rq
 
@@ -385,7 +386,45 @@ def clean_index(reset_index):
 
 
 @pytest.fixture
-def with_plugins(ckan_config):
+def provide_plugin(
+    request: pytest.FixtureRequest,
+) -> Iterable[Callable[[str, type], Any]]:
+    """Register CKAN plugins during test execution.
+
+    This fixture can be used inside test to register a new plugin::
+
+        def test_fake_plugin(provide_plugin):
+            provide_plugin("list_plugin", list)
+            assert plugins.load("list_plugin") == []
+
+    Alternatively, test plugins can be added with `ckan_plugin` mark, which
+    inernally relies on the current fixture::
+
+        @pytest.mark.ckan_plugin("list_plugin", list)
+        @pytest.mark.ckan_config("ckan.plugins", "list_plugin")
+        @pytest.mark.usefixtures("with_plugins")
+        def test_fake_plugin(provide_plugin):
+            plugin = plugins.get_plugin("list_plugin")
+            assert  plugin == []
+    """
+    from ckan.plugins.core import _get_service
+
+    markers = cast(
+        "list[pytest.Mark]",
+        request.node.iter_markers("ckan_plugin"),
+    )
+    plugins: dict[str, type] = dict(mark.args for mark in markers)
+
+    plugin_maker = mock.Mock(
+        side_effect=lambda name: plugins[name]() if name in plugins else mock.DEFAULT,
+        wraps=_get_service,
+    )
+    with mock.patch("ckan.plugins.core._get_service", plugin_maker):
+        yield lambda name, plugin: plugins.update({name: plugin})
+
+
+@pytest.fixture
+def with_plugins(ckan_config, provide_plugin):
     """Load all plugins specified by the ``ckan.plugins`` config option at the
     beginning of the test(and disable any plugin which is not listed inside
     ``ckan.plugins``). When the test ends (including fail), it will unload all

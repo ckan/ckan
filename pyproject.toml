@@ -50,6 +50,7 @@ filterwarnings = [
 ]
 markers = [
     "ckan_config: patch configuration used by other fixtures via (key, value) pair.",
+    "ckan_plugin: register class as a plugin during the test execution",
 ]
 
 testpaths = ["ckan", "ckanext"]
