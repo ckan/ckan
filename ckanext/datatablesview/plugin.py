@@ -56,6 +56,7 @@ class DataTablesView(p.SingletonPlugin):
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_resource(u'assets', u'ckanext-datatablesview')
+        toolkit.add_public_directory(config, u'public')
 
     # IResourceView
 

@@ -10,6 +10,8 @@
 {#- pass the datadictionary to javascript, so we can init columns there -#}
 {%- set datadictionary = h.datastore_dictionary(resource.id, resource_view.get('show_fields')) -%}
 {%- set nbspval = "&nbsp;"|safe -%}
+{%- set current_language = h.lang() -%}
+
 <script type=text/javascript>
     const gdataDict = {{ datadictionary|tojson }}
     const gresviewId = '{{ resource_view.id }}'
@@ -25,8 +27,8 @@
       data-date-format="{{ resource_view.date_format  if resource_view.date_format is defined else date_format }}"
       data-package-name="{{ package.name }}"
       data-resource-name="{{ h.resource_display_name(resource) }}"
-      data-languagecode="{{ h.lang() }}"
-      data-languagefile="{{ h.url_for_static('vendor/DataTables/i18n/' + h.lang() + '.json') }}"
+      data-languagecode="{{ current_language }}"
+      data-languagefile="{{ h.datatablesview_get_language_file_path(current_language) }}"
       data-ajaxurl="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
       data-ckanfilters="{{ request.args.get('filters', '')|e }}"
       data-responsive-flag="{{ resource_view.get('responsive')|lower }}"
