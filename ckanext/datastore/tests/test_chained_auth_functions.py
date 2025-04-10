@@ -47,10 +47,6 @@ class ExampleDataStoreSearchSQLPlugin(p.SingletonPlugin):
         }
 
 
-@pytest.mark.ckan_plugin(
-    "example_data_store_search_sql_plugin",
-    ExampleDataStoreSearchSQLPlugin,
-)
 @pytest.mark.ckan_config(
     u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
 )
@@ -84,10 +80,6 @@ class TestChainedAuth(object):
             )
 
 
-@pytest.mark.ckan_plugin(
-    "example_data_store_search_sql_plugin",
-    ExampleDataStoreSearchSQLPlugin,
-)
 @pytest.mark.ckan_config(
     u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
 )
