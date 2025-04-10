@@ -37,7 +37,7 @@ services:
       CKAN_POSTGRES_USER: ckan_default
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=~/junit/junit.xml
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --junitxml=~/junit/junit.xml
       # report usage of deprecated features
       SQLALCHEMY_WARN_20: 1
     working_dir: "/usr/src"
