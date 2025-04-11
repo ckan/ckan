@@ -61,14 +61,21 @@ def pytest_runtestloop(session):
 
 
 def pytest_runtest_setup(item):
-    """Automatically apply `ckan_config` fixture if test has `ckan_config`
-    mark.
+    """Standard initialization of the test.
+
+    Automatically apply `ckan_config` fixture if test has `ckan_config` mark.
 
     `ckan_config` mark itself does nothing(as any mark). All actual
     config changes performed inside `ckan_config` fixture. So let's
     implicitly use `ckan_config` fixture inside any test that patches
     config object. This will save us from adding
     `@mark.usefixtures("ckan_config")` every time.
+
+    Automatically apply `provide_plugin` fixture if test has `ckan_plugin`
+    mark.
+
+    `provide_plugin` fixture mocks plugin-loader adding any fake plugin
+    specified via `ckan_plugin` mark to the list of available plugins.
 
     """
     # Restore configuration from the snapshot, removing all customization that
@@ -86,3 +93,6 @@ def pytest_runtest_setup(item):
 
     if custom_config:
         item.fixturenames.append(u"ckan_config")
+
+    if any(mark.args for mark in item.iter_markers(name="ckan_plugin")):
+        item.fixturenames.append("provide_plugin")
