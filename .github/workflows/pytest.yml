@@ -314,6 +314,10 @@ jobs:
     needs: pytest
     if: github.run_attempt == 1 && (success() || failure()) && needs.define-matrix.outputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED == 'false'
     runs-on: ubuntu-latest
+    container:
+      # Needs to run on the same image the tests were run
+      image: python:3.10-bookworm
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
