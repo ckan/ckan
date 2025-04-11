@@ -453,3 +453,14 @@ ckan.logic.action.delete
 
 .. automodule:: ckan.logic.action.delete
    :members:
+
+
+ckanext.activity.logic.action
+=============================
+
+.. note::
+
+   These actions are only available when the ``activity`` plugin is enabled.
+
+.. automodule:: ckanext.activity.logic.action
+   :members:
