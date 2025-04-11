@@ -13,3 +13,9 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
     border: unset;
     border-left: map-get($map: $border-widths, $key: "4") solid;
 }
+
+.filter-svg {
+    font-size: 24px;
+    -webkit-text-stroke: 2px $gray-500;
+    color: transparent;
+}

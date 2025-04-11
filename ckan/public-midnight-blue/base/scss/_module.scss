@@ -47,14 +47,10 @@
 }
 
 .module-footer {
-    padding: 7px $gutterX 7px;
+    padding: 7px 7px;
     margin: 0;
-    border-top: 1px dotted $genericBorderColor;
-}
-
-.module .read-more {
-    font-weight: bold;
-    color: $layoutBoldColor;
+    text-align: center;
+    font-weight: 500;
 }
 
 .pagination-wrapper {
@@ -92,6 +88,10 @@
 
 .module-shallow .module-content:last-child {
     padding-bottom: 10px;
+}
+
+.module-shallow {
+    margin-bottom: 1rem;
 }
 
 // Secondary column specific
