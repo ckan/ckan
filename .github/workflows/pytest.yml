@@ -322,11 +322,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-
       - name: Install dependencies
         run: |
           pip install -r dev-requirements.txt
@@ -337,7 +332,6 @@ jobs:
           pattern: internal_coverage-*
           path: coverage-data
           merge-multiple: 'true'
-
 
       - name: Download all JUnit XML results
         uses: actions/download-artifact@v4
