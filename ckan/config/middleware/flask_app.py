@@ -53,6 +53,7 @@ from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         set_controller_and_action,
                         set_cache_control_headers_for_response,
+                        set_etag_and_fast_304_response_if_unchanged,
                         handle_i18n,
                         set_ckan_current_url,
                         _get_user_for_apitoken,
@@ -393,6 +394,9 @@ def ckan_after_request(response: Response) -> Response:
 
     # Set Cache Control headers
     response = set_cache_control_headers_for_response(response)
+
+    # Set ETag headers and unchanged response if config allows it
+    response = set_etag_and_fast_304_response_if_unchanged(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']

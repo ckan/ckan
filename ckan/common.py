@@ -216,6 +216,14 @@ class CKANRequest(LocalProxy[Request]):
         return self.args
 
 
+def overide_cache(etag_super_strong: bool = True,
+                  no_private_cache: bool = True,
+                  no_cache: bool = True):
+    request.environ['__etag_super_strong__'] = etag_super_strong
+    request.environ['__no_private_cache__'] = no_private_cache
+    request.environ['__no_cache__'] = no_cache
+
+
 def _get_c():
     return flask.g
 

@@ -1,7 +1,10 @@
 # encoding: utf-8
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import Any, Optional
+import hashlib
+import re
 
 from urllib.parse import quote
 from flask.wrappers import Response
@@ -13,6 +16,7 @@ from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 
 import logging
+
 log = logging.getLogger(__name__)
 
 
@@ -43,10 +47,78 @@ def set_cors_headers_for_response(response: Response) -> Response:
     return response
 
 
+def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
+    """Set ETag and return 304 if content is unchanged."""
+
+    # skip stremaing content
+    if not response.is_streamed:
+        enable_etags = config.get(u'ckan.cache_etags', True)
+        enable_etags_not_modified = config.get(u'ckan.cache_etags_notModified', True)
+        allowed_status_codes = {HTTPStatus.OK,  # 200
+                                HTTPStatus.MOVED_PERMANENTLY,  # 301
+                                HTTPStatus.FOUND,  # 302
+                                HTTPStatus.UNAUTHORIZED,  # 401
+                                HTTPStatus.FORBIDDEN,  # 403
+                                HTTPStatus.NOT_FOUND  # 404
+                                }
+
+        if response.status_code in allowed_status_codes and enable_etags:
+            if 'etag' not in response.headers:
+                # s3 etag uses md5, so using it here also
+
+                content_type = response.mimetype or ''
+                allowed_types = {'text/plain', 'text/css',
+                                 'text/html', 'application/json'}
+                etag_super_strong = u'__etag_super_strong__' in request.environ
+
+                try:
+                    # anon/public get ignored csrf
+                    if (etag_super_strong
+                            or content_type not in allowed_types
+                            or current_user.is_authenticated or g.user):
+                        data_to_hash = response.get_data()
+                    else:
+                        # Regex for both _csrf_token content and csp nonce and don't
+                        # care if there is new lines spacing etc attributes which are
+                        # dynamic on pages
+                        # May need to add more when we come across them.
+
+                        field_name = re.escape(config.get("WTF_CSRF_FIELD_NAME", "_csrf_token"))  # noqa: E501
+                        pattern = fr'(?i)((?:_csrf_token|{field_name})[^>]*?\b(?:content|value)=|\bnonce=)["\'][^"\']+(["\'])'  # noqa: E501
+
+                        # Replace values with etag_removed
+                        response_data = re.sub(pattern,
+                                               lambda m: m.group(1) + '="etag_removed"',
+                                               response.get_data(as_text=True))
+                        data_to_hash = response_data.encode()
+
+                    etag = hashlib.md5(data_to_hash).hexdigest()
+                    response.set_etag(etag)
+                except (AttributeError, IndexError, TypeError,
+                        UnicodeEncodeError, ValueError, re.error) as e:
+                    logging.info("Failed to compute and set ETag: %s", e)
+            else:
+                etag = response.headers.get('etag')
+
+            etag_not_conditional = u'__etag_not_conditional__' not in request.environ
+            # Allow legacy behaviour if config is set
+            if enable_etags_not_modified and etag_not_conditional:
+                # Use built-in function now that we have an eTag
+                response.make_conditional(request.environ)
+
+    return response
+
+
 def set_cache_control_headers_for_response(response: Response) -> Response:
+    """ This uses the presents of request environ's: '__no_cache__',
+    '__no_private_cache__', '__limit_cache_by_cookie__' as well
+    as config variables to control cache response headers"""
 
     # __no_cache__ should not be present when caching is allowed
     allow_cache = u'__no_cache__' not in request.environ
+    # __no_private_cache__ should not be present when private caching is allowed
+    private_cache = u'__no_private_cache__' not in request.environ
+    # __limit_cache_by_cookie__ should not vary by cookie
     limit_cache_by_cookie = u'__limit_cache_by_cookie__' in request.environ
 
     if u'Pragma' in response.headers:
@@ -54,14 +126,23 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
 
     if allow_cache:
         response.cache_control.public = True
-        try:
-            cache_expire = config.get(u'ckan.cache_expires')
-            response.cache_control.max_age = cache_expire
-            response.cache_control.must_revalidate = True
-        except ValueError:
-            pass
-    else:
+        cache_expire = config.get(u'ckan.cache_expires', 0)
+        response.cache_control.max_age = cache_expire
+        response.cache_control.must_revalidate = True
+        response.cache_control.private = None  # Reset
+    elif private_cache:
+        response.cache_control.public = False  # Reset
         response.cache_control.private = True
+        private_cache_expire = config.get(u'ckan.private_cache_expires')
+        if private_cache_expire != 9999999:  # ckan config int blocks None
+            response.cache_control.max_age = private_cache_expire
+    else:
+        response.cache_control.public = False  # Reset
+        response.cache_control.private = None  # Reset
+        response.cache_control.no_cache = True
+        response.cache_control.no_store = True
+        response.cache_control.must_revalidate = True
+        response.cache_control.max_age = 0
 
     # Invalidate cached pages upon login/logout
     if limit_cache_by_cookie:

@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 
 from flask import Blueprint
 from flask.views import MethodView
-from ckan.common import asbool
+from ckan.common import asbool, overide_cache
 from six import ensure_str
 import dominate.tags as dom_tags
 
@@ -442,6 +442,7 @@ class EditView(MethodView):
 
 class RegisterView(MethodView):
     def _prepare(self):
+        overide_cache()
         context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
@@ -556,6 +557,7 @@ def rotate_token():
 
 
 def login() -> Union[Response, str]:
+    overide_cache()
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
         if response:
@@ -601,6 +603,7 @@ def login() -> Union[Response, str]:
 
 
 def logout() -> Response:
+    overide_cache()
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.logout()
         if response:
@@ -623,6 +626,7 @@ def logout() -> Response:
 
 
 def logged_out_page() -> str:
+    overide_cache()
     return base.render(u'user/logout.html', {})
 
 
@@ -669,6 +673,7 @@ def delete(id: str) -> Union[Response, Any]:
 
 class RequestResetView(MethodView):
     def _prepare(self):
+        overide_cache()
         context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
@@ -768,6 +773,7 @@ class RequestResetView(MethodView):
 
 class PerformResetView(MethodView):
     def _prepare(self, id: str) -> tuple[Context, dict[str, Any]]:
+        overide_cache()
         # FIXME 403 error for invalid key is a non helpful page
         context: Context = {
             'user': id,

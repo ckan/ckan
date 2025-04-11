@@ -124,12 +124,17 @@ def _allow_caching(cache_force: Optional[bool] = None):
     elif request.args.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
-    elif not config.get('ckan.cache_enabled'):
+    elif not h.asbool(config.get('ckan.cache_enabled', True)):
         allow_cache = False
 
     # Any rendered template will have a login-sensitive header
     request.environ['__limit_cache_by_cookie__'] = True
     if not allow_cache:
+        # flag to allow private cache to be disabled
+        # and setting: "max-age=0, must-revalidate, no-cache, no-store"
+        if not h.asbool(config.get('ckan.cache_private_enabled', True)):
+            request.environ['__no_private_cache__'] = True
+
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
 
