@@ -1,0 +1,2 @@
+"Encoding objects of type Markup is unsupported" error when ``flash_success``
+and ``flash_error`` helpers called with enabled ``html`` flag.
