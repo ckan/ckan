@@ -460,7 +460,7 @@ ckanext.activity.logic.action
 
 .. note::
 
-   These actions are available only when ``activity`` plugin is enabled.
+   These actions are only available when the ``activity`` plugin is enabled.
 
 .. automodule:: ckanext.activity.logic.action
    :members:
