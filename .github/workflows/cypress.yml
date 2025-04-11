@@ -61,14 +61,14 @@ jobs:
 
       - name: Init environment
         run: |
-          ckan -c test-core-github-actions.ini db init
+          ckan -c test-core-ci.ini db init
           #cypress testing requires activity plugin to be active
-          ckan config-tool test-core-github-actions.ini "ckan.plugins = activity"
+          ckan config-tool test-core-ci.ini "ckan.plugins = activity"
 
       - name: Run Cypress
         uses: cypress-io/github-action@v6
         with:
-          start: ckan -c test-core-github-actions.ini run
+          start: ckan -c test-core-ci.ini run
 
       - uses: actions/upload-artifact@v4
         if: failure()

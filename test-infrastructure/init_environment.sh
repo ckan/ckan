@@ -8,9 +8,9 @@ psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTOR
 createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_DATASTORE_POSTGRES_WRITE_USER} ${CKAN_DATASTORE_POSTGRES_DB}
 
 # Database Initialization
-ckan -c test-core-github-actions.ini datastore set-permissions | psql --host=ckan-postgres --username=ckan
+ckan -c test-core-ci.ini datastore set-permissions | psql --host=ckan-postgres --username=ckan
 psql --host=ckan-postgres --username=ckan --dbname=${CKAN_DATASTORE_POSTGRES_DB} --command="CREATE extension tablefunc;"
-ckan -c test-core-github-actions.ini db init
+ckan -c test-core-ci.ini db init
 gunzip .test_durations.gz
 
 # git doesn't like having the directory owned by a different user, and

@@ -57,7 +57,7 @@ Or, if you wish to run a specific test, for example
 
 .. parsed-literal::
 
-   docker compose exec ckan pytest --ckan-ini=test-core-github-actions.ini ckan/tests/lib/test_helpers.py::test_get_translated
+   docker compose exec ckan pytest --ckan-ini=test-core-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
 
 
 Teardown
