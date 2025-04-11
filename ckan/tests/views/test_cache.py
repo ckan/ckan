@@ -143,12 +143,19 @@ def test_removes_pragma_header_if_present(app: CKANTestApp):
     assert "Pragma" not in updated_response.headers
 
 
+@pytest.mark.ckan_config("ckan.cache_etags", False)
+def test_etag_not_set_when_config_disables_it(app: CKANTestApp):
+    """Test that ETag is set if missing in the response headers."""
+    request_headers = {}
+    response = app.get('/', headers=request_headers)
+    assert "ETag" not in response.headers, response.headers
+
+
 @pytest.mark.ckan_config("ckan.cache_etags", True)
 def test_sets_etag_when_missing(app: CKANTestApp):
     """Test that ETag is set if missing in the response headers."""
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    #  updated_response = views.set_etag_and_fast_304_response_if_unchanged(response)
     expected_etag = hashlib.md5(clean_dynamic_values(response.get_data(as_text=True)).encode()).hexdigest()
     assert response.headers["ETag"] == f'"{expected_etag}"'
 
@@ -182,9 +189,6 @@ def test_returns_304_if_etag_matches(app: CKANTestApp):
     request_headers["if_none_match"] = response.headers["Etag"]
     updated_response: TestResponse = app.get('/', headers=request_headers)
 
-    # should be called inline, no need to call independently.
-    # updated_response = views.set_etag_and_fast_304_response_if_unchanged(response)
-
     assert updated_response.status_code == 304, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
     assert updated_response.get_data() == b""
     assert "Content-Length" not in updated_response.headers
@@ -205,3 +209,65 @@ def test_does_not_return_304_if_etag_does_not_match(app: CKANTestApp):
     under_test_response_data = updated_response.get_data(as_text=True)
     assert clean_dynamic_values(clean_response_data) == clean_dynamic_values(under_test_response_data)
     assert updated_response.get_etag() == clean_response.get_etag(), "etag were not the same, got {}, original etag was {}".format(updated_response.get_etag(), clean_response.get_etag())
+
+
+def streaming_generator():
+    yield b"streaming response data"
+
+
+@pytest.mark.ckan_config("ckan.cache_etags", True)
+@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
+def test_does_not_add_etag_if_streaming_response_encountered(app: CKANTestApp):
+    """Test that response is not modified if request's If-None-Match does not match the ETag."""
+    from types import GeneratorType
+    builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={
+        "__limit_cache_by_cookie__": True})
+    env = builder.get_environ()
+    Request(env)
+    response = Response(streaming_generator(), mimetype='text/plain')
+
+    with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        # Ensure it is detected as streamed prior to calling function under test
+        assert response.is_streamed
+        assert isinstance(response.response, GeneratorType)
+
+        # recall set_etag_and_fast_304_response_if_unchanged again eith different etag to verify that it does not override
+        updated_response = views.set_etag_and_fast_304_response_if_unchanged(response)
+    assert "ETag" not in updated_response.headers, updated_response.headers
+
+
+@pytest.mark.ckan_config("ckan.cache_etags", True)
+@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
+def test_returns_200_if_etag_matches_but_override_flag_set(app: CKANTestApp):
+    request_headers = {}
+    response: TestResponse = app.get('/', headers=request_headers)
+    # use previous response ETag on next call
+    assert response.headers["Etag"] is not None, response.headers
+
+    request_headers["if_none_match"] = response.headers["Etag"]
+    extra_environ = {"__etag_not_conditional__": True}
+    request_headers = {}
+    updated_response: TestResponse = app.get('/', headers=request_headers, extra_environ=extra_environ)
+
+    assert updated_response.status_code == 200, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
+    assert updated_response.get_data() != response.get_data()
+    assert "Content-Length" in updated_response.headers
+    assert updated_response.headers["ETag"] == response.headers["ETag"]
+
+
+@pytest.mark.ckan_config("ckan.cache_etags", True)
+@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
+def test_returns_200_if_etat_super_strong_set_on_environ(app: CKANTestApp):
+    extra_environ = {"__etag_super_strong__": True}
+    request_headers = {}
+    response: TestResponse = app.get('/', headers=request_headers, extra_environ=extra_environ)
+    # use previous response ETag on next call
+    assert response.headers["Etag"] is not None, response.headers
+
+    request_headers["if_none_match"] = response.headers["Etag"]
+    request_headers = {}
+    updated_response: TestResponse = app.get('/', headers=request_headers, extra_environ=extra_environ)
+
+    assert updated_response.headers["ETag"] != response.headers["ETag"]
+    assert updated_response.status_code == 200, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
+    assert updated_response.get_data() != response.get_data()
