@@ -41,7 +41,7 @@ line-length = 79
 preview = true
 
 [tool.pytest.ini_options]
-retries = 1
+retries = 0
 retry_delay = 0.5
 cumulative_timing = true
 filterwarnings = [

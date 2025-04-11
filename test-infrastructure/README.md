@@ -1,6 +1,6 @@
 # Local testing
 
-This is a set of scripts that replicate the contents of `/.circleci/config.yml`, enabling testing on the local machine with the same setup as circleci. It requires docker with the compose plugin to be installed and on the path, as well as the `sh` shell. It should work out of the box on linux/mac, Windows is unknown.
+This is a set of scripts that replicate the contents of `/.github/workflows/pytest.yml`, enabling testing on the local machine with the same setup as GitHub Actions. It requires docker with the compose plugin to be installed and on the path, as well as the `sh` shell. It should work out of the box on linux/mac, Windows is unknown.
 
 NOTE: This is not intended to be a pattern for running anything other than tests. This is not a deployment template.
 
@@ -18,7 +18,7 @@ test-infrastructure$ ./setup.sh
 ]]
 test-infrastructure$ ./execute.sh
 $ ./execute.sh
-2022-09-22 14:42:28,959 INFO  [ckan.cli] Using configuration file /usr/src/test-core-circle-ci.ini
+2022-09-22 14:42:28,959 INFO  [ckan.cli] Using configuration file /usr/src/test-core-ci.ini
 2022-09-22 14:42:28,960 INFO  [ckan.config.environment] Loading static files from public
 2022-09-22 14:42:29,371 WARNI [ckan.common] Option ckan.plugins is not declared
 2022-09-22 14:42:29,618 INFO  [ckan.config.environment] Loading templates from /usr/src/ckan/templates
@@ -46,7 +46,7 @@ test-infrastructure$ ./teardown.sh
 
 If you wish to run individual tests, it can be done with:
 ```
-docker compose exec ckan pytest -vv --ckan-ini=test-core-circle-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
+docker compose exec ckan pytest -vv --ckan-ini=test-core-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
 ```
 
 If you wish to run cypress tests, launch the server in one terminal:
