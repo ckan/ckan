@@ -51,11 +51,25 @@ jobs:
           TAG=solr${SOLR_VERSION}-${HASH}
 
           if [[ "${IS_PR}" == "true" && "${PR_REPO}" != "${GITHUB_REPOSITORY}" ]]; then
-            IMAGE_NAMESPACE=ghcr.io/${{ github.actor }}
-            LOOKUP=${{ github.actor }}
+            ACTOR_TYPE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/users/${GITHUB_ACTOR} | jq -r .type)
+            if [[ "$ACTOR_TYPE" == "Organization" ]]; then
+              ACTOR_API_PATH=orgs/${GITHUB_ACTOR}
+            else
+              ACTOR_API_PATH=users/${GITHUB_ACTOR}
+            fi
+            IMAGE_NAMESPACE=ghcr.io/${GITHUB_ACTOR}
+
           else
+            ACTOR_TYPE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/users/${GITHUB_REPOSITORY_OWNER} | jq -r .type)
+            if [[ "$ACTOR_TYPE" == "Organization" ]]; then
+              ACTOR_API_PATH=orgs/${GITHUB_REPOSITORY_OWNER}
+            else
+              ACTOR_API_PATH=users/${GITHUB_REPOSITORY_OWNER}
+            fi
+
             IMAGE_NAMESPACE=ghcr.io/${GITHUB_REPOSITORY_OWNER}
-            LOOKUP=user
           fi
 
 
@@ -69,7 +83,7 @@ jobs:
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/${LOOKUP}/packages/container/${IMAGE_NAME}/versions
+          https://api.github.com/${ACTOR_API_PATH}/packages/container/${IMAGE_NAME}/versions
           `
           echo "$listing"
           # Check if image exists in GHCR for TAG
