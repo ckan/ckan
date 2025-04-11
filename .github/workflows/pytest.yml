@@ -228,7 +228,7 @@ jobs:
       PGPASSWORD: ckan
       SPLIT_GROUP: ${{ matrix.split }}
       SKIP_TESTS_ARG: "-k 'not test_building_the_docs'"
-      PYTEST_COMMON_OPTIONS: "-v --ckan-ini=test-core-github-actions.ini --junitxml=./junit/result/junit-${{ matrix.split }}.xml"
+      PYTEST_COMMON_OPTIONS: "-v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing --junitxml=./junit/result/junit-${{ matrix.split }}.xml"
 
 
     steps:

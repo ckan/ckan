@@ -55,7 +55,7 @@ markers = [
 
 testpaths = ["ckan", "ckanext"]
 # Set sensible defaults, cli will overide these (except for flag options
-addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing --junitxml=./junit/result/junit.xml   -o junit_family=legacy --store-durations --clean-durations"
+addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini --junitxml=./junit/result/junit.xml   -o junit_family=legacy --store-durations --clean-durations"
 
 [tool.pyright]
 pythonVersion = "3.9"
