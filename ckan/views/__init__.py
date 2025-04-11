@@ -16,6 +16,7 @@ from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 
 import logging
+
 log = logging.getLogger(__name__)
 
 
@@ -49,52 +50,61 @@ def set_cors_headers_for_response(response: Response) -> Response:
 def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
     """Set ETag and return 304 if content is unchanged."""
 
-    enable_etags = config.get(u'ckan.cache_etags', True)
-    enable_etags_not_modified = config.get(u'ckan.cache_etags_notModified', True)
-    allowed_status_codes = {HTTPStatus.OK,  # 200
-                            HTTPStatus.MOVED_PERMANENTLY,  # 301
-                            HTTPStatus.FOUND,  # 302
-                            HTTPStatus.UNAUTHORIZED,  # 401
-                            HTTPStatus.FORBIDDEN,  # 403
-                            HTTPStatus.NOT_FOUND  # 404
-                            }
-    if response.status_code in allowed_status_codes and enable_etags:
-        if 'etag' not in response.headers:
-            # s3 etag uses md5, so using it here also
+    # skip stremaing content
+    if not response.is_streamed:
+        enable_etags = config.get(u'ckan.cache_etags', True)
+        enable_etags_not_modified = config.get(u'ckan.cache_etags_notModified', True)
+        allowed_status_codes = {HTTPStatus.OK,  # 200
+                                HTTPStatus.MOVED_PERMANENTLY,  # 301
+                                HTTPStatus.FOUND,  # 302
+                                HTTPStatus.UNAUTHORIZED,  # 401
+                                HTTPStatus.FORBIDDEN,  # 403
+                                HTTPStatus.NOT_FOUND  # 404
+                                }
 
-            content_type = response.mimetype or ''
-            allowed_types = {'text/plain', 'text/css', 'text/html', 'application/json'}
+        if response.status_code in allowed_status_codes and enable_etags:
+            if 'etag' not in response.headers:
+                # s3 etag uses md5, so using it here also
 
-            try:
-                if content_type not in allowed_types:
-                    data_to_hash = response.get_data()
-                else:
-                    # Regex for both _csrf_token content and csp nonce and don't care
-                    # if there is new lines spacing etc attributes which are dynamic
-                    # on pages
-                    # May need to add more when we come across them.
+                content_type = response.mimetype or ''
+                allowed_types = {'text/plain', 'text/css',
+                                 'text/html', 'application/json'}
+                etag_super_strong = u'__etag_super_strong__' in request.environ
 
-                    field_name = re.escape(config.get("WTF_CSRF_FIELD_NAME", "_csrf_token"))  # noqa: E501
-                    pattern = fr'(?i)((?:_csrf_token|{field_name})[^>]*?\b(?:content|value)=|\bnonce=)["\'][^"\']+(["\'])'  # noqa: E501
+                try:
+                    # anon/public get ignored csrf
+                    if (etag_super_strong
+                            or content_type not in allowed_types
+                            or current_user.is_authenticated or g.user):
+                        data_to_hash = response.get_data()
+                    else:
+                        # Regex for both _csrf_token content and csp nonce and don't
+                        # care if there is new lines spacing etc attributes which are
+                        # dynamic on pages
+                        # May need to add more when we come across them.
 
-                    # Replace values with etag_removed
-                    response_data = re.sub(pattern,
-                                           lambda m: m.group(1) + '="etag_removed"',
-                                           response.get_data(as_text=True))
-                    data_to_hash = response_data.encode()
+                        field_name = re.escape(config.get("WTF_CSRF_FIELD_NAME", "_csrf_token"))  # noqa: E501
+                        pattern = fr'(?i)((?:_csrf_token|{field_name})[^>]*?\b(?:content|value)=|\bnonce=)["\'][^"\']+(["\'])'  # noqa: E501
 
-                etag = hashlib.md5(data_to_hash).hexdigest()
-                response.set_etag(etag)
-            except (AttributeError, IndexError, TypeError,
-                    UnicodeEncodeError, ValueError, re.error) as e:
-                logging.info("Failed to compute and set ETag: %s", e)
-        else:
-            etag = response.headers.get('etag')
+                        # Replace values with etag_removed
+                        response_data = re.sub(pattern,
+                                               lambda m: m.group(1) + '="etag_removed"',
+                                               response.get_data(as_text=True))
+                        data_to_hash = response_data.encode()
 
-        # Allow legacy behaviour if config is set
-        if enable_etags_not_modified:
-            # Use built-in function now that we have an eTag
-            response.make_conditional(request.environ)
+                    etag = hashlib.md5(data_to_hash).hexdigest()
+                    response.set_etag(etag)
+                except (AttributeError, IndexError, TypeError,
+                        UnicodeEncodeError, ValueError, re.error) as e:
+                    logging.info("Failed to compute and set ETag: %s", e)
+            else:
+                etag = response.headers.get('etag')
+
+            etag_not_conditional = u'__etag_not_conditional__' not in request.environ
+            # Allow legacy behaviour if config is set
+            if enable_etags_not_modified and etag_not_conditional:
+                # Use built-in function now that we have an eTag
+                response.make_conditional(request.environ)
 
     return response
 
