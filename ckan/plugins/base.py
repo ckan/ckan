@@ -36,7 +36,7 @@ class PluginNotFoundException(PluginException):
         self.name = name
 
     def __str__(self):
-        return f"Interface {self.name} does not exist"
+        return f"Plugin {self.name} does not exist"
 
 
 class Interface:
