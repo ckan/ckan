@@ -39,6 +39,9 @@ jobs:
 
       - name: Build and Push image
         id: build
+        env:
+          IS_PR: ${{ github.event_name == 'pull_request' }}
+          PR_REPO: ${{ github.event.pull_request.head.repo.full_name || '' }}
         run: |
           set -ex
 
@@ -46,12 +49,18 @@ jobs:
           # i.e. solr9.8-2a86c4ca719150edb97bafd4dde30a60ac417d1f
           HASH=`sha256sum ckan/config/solr/schema.xml | cut -c1-16`
           TAG=solr${SOLR_VERSION}-${HASH}
-          OWNER=${GITHUB_REPOSITORY_OWNER,,}
+
+          if [[ "${IS_PR}" == "true" && "${PR_REPO}" != "${GITHUB_REPOSITORY}" ]]; then
+            echo "IMAGE_NAMESPACE=ghcr.io/${{ github.actor }}" >> $GITHUB_ENV
+          else
+            echo "IMAGE_NAMESPACE=ghcr.io/${GITHUB_REPOSITORY_OWNER}" >> $GITHUB_ENV
+          fi
+
 
           #https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
           # Upstream repo: ghcr.io/ckan/ckan-solr-temp:solr9.8-51cf1f4e73d82b42
           # Forked repo: ghcr.io/duttonw/ckan-solr-temp:solr9.8-51cf1f4e73d82b42
-          SOLR_IMAGE="ghcr.io/${OWNER}/${IMAGE_NAME}:${TAG}"
+          SOLR_IMAGE="${IMAGE_NAMESPACE}/${IMAGE_NAME}:${TAG}"
           echo "SOLR_IMAGE: $SOLR_IMAGE"
           # We only care about our self, so if we are forked don't use another persons
           listing=`curl -L \
