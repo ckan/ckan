@@ -44,7 +44,6 @@ def temp_i18n_dir():
     shutil.rmtree(I18N_TEMP_DIR, ignore_errors=True)
 
 
-@pytest.mark.ckan_plugin("test_js_translations_plugin", JSTranslationsTestPlugin)
 @pytest.mark.ckan_config("ckan.plugins", "test_js_translations_plugin")
 @pytest.mark.usefixtures("with_plugins", "temp_i18n_dir")
 class TestBuildJSTranslations(object):

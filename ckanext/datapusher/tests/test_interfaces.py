@@ -27,7 +27,6 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
         self.after_upload_calls += 1
 
 
-@pytest.mark.ckan_plugin("test_datapusher_plugin", FakeDataPusherPlugin)
 @pytest.mark.ckan_config(
     "ckan.plugins", "datastore datapusher test_datapusher_plugin"
 )

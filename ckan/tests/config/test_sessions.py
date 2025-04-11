@@ -10,6 +10,27 @@ from ckan.lib.redis import connect_to_redis
 from ckan.tests.helpers import body_contains
 
 
+@pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
+class TestWithFlashPlugin:
+    def test_flash_success(self, app):
+        """
+        Test flash_success messages are rendered.
+        """
+        url = "/flash_success_redirect"
+        res = app.get(url)
+        assert body_contains(res, "This is a success message")
+        assert body_contains(res, 'alert-success')
+
+    def test_flash_success_with_html(self, app):
+        """
+        Test flash_success messages are rendered.
+        """
+        url = "/flash_success_html_redirect"
+        res = app.get(url)
+        assert body_contains(res, "<h1> This is a success message with HTML</h1>")
+        assert body_contains(res, 'alert-success')
+
+
 class FlashMessagePlugin(p.SingletonPlugin):
     """
     A Flask compatible IBlueprint plugin to add Flask views to display flash
@@ -63,27 +84,6 @@ class FlashMessagePlugin(p.SingletonPlugin):
             blueprint.add_url_rule(*rule)
 
         return blueprint
-
-
-@pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
-class TestWithFlashPlugin:
-    def test_flash_success(self, app):
-        """
-        Test flash_success messages are rendered.
-        """
-        url = "/flash_success_redirect"
-        res = app.get(url)
-        assert body_contains(res, "This is a success message")
-        assert body_contains(res, 'alert-success')
-
-    def test_flash_success_with_html(self, app):
-        """
-        Test flash_success messages are rendered.
-        """
-        url = "/flash_success_html_redirect"
-        res = app.get(url)
-        assert body_contains(res, "<h1> This is a success message with HTML</h1>")
-        assert body_contains(res, 'alert-success')
 
 
 class TestSessionTypes:
