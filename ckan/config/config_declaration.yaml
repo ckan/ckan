@@ -1196,7 +1196,7 @@ groups:
       
       - key: ckan.default_collapse_facets
         type: bool
-        example: "false"
+        default: False
         description: |
           This controls the default view of the facet accordions, i.e. whether the accordions are expanded or collapsed
           by default.

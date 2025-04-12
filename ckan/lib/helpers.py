@@ -1218,7 +1218,7 @@ def default_collapse_facets():
     If false, the facets will all be open, unless closed by the user.
     Default is false
     '''
-    return config.get('ckan.default_collapse_facets') or False
+    return config['ckan.default_collapse_facets']
 
 
 @core_helper
