@@ -18,13 +18,13 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 .. versionadded:: 2.7
 '''
 from __future__ import annotations
-
+from datetime import datetime
 import logging
 from typing import Any, Union, Callable, Iterable, Optional, cast
 
 import rq
 from rq.exceptions import NoSuchJobError
-from rq.job import Job
+from rq.job import Job, JobStatus
 from rq.utils import ensure_list
 
 from ckan.lib.redis import connect_to_redis
@@ -118,7 +118,8 @@ def enqueue(fn: Callable[..., Any],
             kwargs: Optional[dict[str, Any]] = None,
             title: Optional[str] = None,
             queue: str = DEFAULT_QUEUE_NAME,
-            rq_kwargs: Optional[dict[str, Any]] = None) -> Job:
+            rq_kwargs: Optional[dict[str, Any]] = None,
+            enqueue_at: Optional[datetime] = None) -> Job:
     u'''
     Enqueue a job to be run in the background.
 
@@ -140,6 +141,10 @@ def enqueue(fn: Callable[..., Any],
         to the RQ ``enqueue_call`` invocation (eg ``timeout``, ``depends_on``,
         ``ttl`` etc).
 
+    :param datetime enqueue_at: Optional datetime object to specify when
+        the job should be enqueued. If not given then the job will be
+        enqueued immediately.
+
     :returns: The enqueued job.
     :rtype: ``rq.job.Job``
     '''
@@ -152,13 +157,24 @@ def enqueue(fn: Callable[..., Any],
     timeout = config.get(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
 
-    job = get_queue(queue).enqueue_call(
+    rq_queue = get_queue(queue)
+    if enqueue_at:
+        rq_kwargs['status'] = JobStatus.SCHEDULED
+        rq_kwargs['datetime'] = enqueue_at
+        enqueue_function = rq_queue.enqueue_at
+    else:
+        rq_kwargs['status'] = JobStatus.QUEUED
+        enqueue_function = rq_queue.enqueue_call
+
+    job = enqueue_function(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
     if not job.meta:
         job.meta = {}
     job.meta["title"] = title
     job.save()
     msg = u'Added background job {}'.format(job.id)
+    if enqueue_at:
+        msg = u'{} to be run at {}'.format(msg, enqueue_at)
     if title:
         msg = u'{} ("{}")'.format(msg, title)
 
