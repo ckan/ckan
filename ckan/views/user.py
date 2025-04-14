@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 
 from flask import Blueprint
 from flask.views import MethodView
-from ckan.common import asbool, overide_cache
+from ckan.common import asbool
 from six import ensure_str
 import dominate.tags as dom_tags
 
@@ -247,6 +247,7 @@ class ApiTokenView(MethodView):
         return base.render(u'user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
+        request.environ[u'__is_sensitive__'] = True
 
         data_dict = logic.clean_dict(
             dictization_functions.unflatten(
@@ -295,6 +296,7 @@ def api_token_revoke(id: str, jti: str) -> Response:
 
 class EditView(MethodView):
     def _prepare(self, id: Optional[str]) -> tuple[Context, str]:
+        request.environ[u'__is_sensitive__'] = True
         context: Context = {
             u'save': u'save' in request.form,
             u'schema': _edit_form_to_db_schema(),
@@ -441,8 +443,9 @@ class EditView(MethodView):
 
 
 class RegisterView(MethodView):
+
     def _prepare(self):
-        overide_cache()
+        request.environ[u'__is_sensitive__'] = True
         context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
@@ -557,7 +560,7 @@ def rotate_token():
 
 
 def login() -> Union[Response, str]:
-    overide_cache()
+    request.environ[u'__is_sensitive__'] = True
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
         if response:
@@ -603,7 +606,7 @@ def login() -> Union[Response, str]:
 
 
 def logout() -> Response:
-    overide_cache()
+    request.environ[u'__is_sensitive__'] = True
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.logout()
         if response:
@@ -626,7 +629,7 @@ def logout() -> Response:
 
 
 def logged_out_page() -> str:
-    overide_cache()
+    request.environ[u'__is_sensitive__'] = True
     return base.render(u'user/logout.html', {})
 
 
@@ -673,7 +676,7 @@ def delete(id: str) -> Union[Response, Any]:
 
 class RequestResetView(MethodView):
     def _prepare(self):
-        overide_cache()
+        request.environ[u'__is_sensitive__'] = True
         context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
@@ -773,7 +776,7 @@ class RequestResetView(MethodView):
 
 class PerformResetView(MethodView):
     def _prepare(self, id: str) -> tuple[Context, dict[str, Any]]:
-        overide_cache()
+        request.environ[u'__is_sensitive__'] = True
         # FIXME 403 error for invalid key is a non helpful page
         context: Context = {
             'user': id,

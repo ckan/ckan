@@ -107,6 +107,9 @@ def render(template_name: str,
 def _allow_caching(cache_force: Optional[bool] = None):
     # Caching Logic
 
+    # Q: should api public/public dataset/resources be public cache
+    #    allowed even when logged in?
+
     allow_cache = True
     # Force cache or not if explicit.
     if cache_force is not None:

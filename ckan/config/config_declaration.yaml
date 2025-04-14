@@ -409,14 +409,22 @@ groups:
           causes problems.
 
       - key: ckan.cache_expires
-        default: 0
+        default: 300 # 5min before revalidate
         type: int
         example: 2592000
         description: This sets ``Cache-Control`` header's max-age value.
 
+      - key: ckan.shared_cache_expires
+        default: 3600 # 1 hour before shared cache revalidates
+        type: int
+        example: 7200
+        description: |
+          This sets ``Cache-Control`` header's s-maxage value.
+          When value is 9999999, max-age is not set
+
       - key: ckan.private_cache_expires
         type: int
-        default: 9999999
+        default: 60
         example: 3600
         description: |
           This sets ``Cache-Control`` header's max-age value on private cache.
@@ -424,7 +432,7 @@ groups:
 
       - key: ckan.cache_enabled
         type: bool
-        default: false
+        default: true
         example: "true"
         description: |
           This enables cache control headers on all requests. If the user is

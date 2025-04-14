@@ -19,6 +19,9 @@ import logging
 
 log = logging.getLogger(__name__)
 
+# For more details about caching, please read the spec located at
+# https://datatracker.ietf.org/doc/html/rfc7234
+
 
 def set_cors_headers_for_response(response: Response) -> Response:
     u'''
@@ -47,6 +50,10 @@ def set_cors_headers_for_response(response: Response) -> Response:
     return response
 
 
+# ETag's are very useful since it allows conditional freshness checks
+# without bandwidth costs by the browser/cdn.
+# Since html pages from ckan are always generated on the fly it
+# can't use last modified and content length our Nginx does it
 def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
     """Set ETag and return 304 if content is unchanged."""
 
@@ -84,7 +91,9 @@ def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
                         # May need to add more when we come across them.
 
                         field_name = re.escape(config.get("WTF_CSRF_FIELD_NAME", "_csrf_token"))  # noqa: E501
-                        pattern = fr'(?i)((?:_csrf_token|{field_name})[^>]*?\b(?:content|value)=|\bnonce=)["\'][^"\']+(["\'])'  # noqa: E501
+                        # csrf meta only, if to include value,
+                        #   update (?:content) to (?:content|value)
+                        pattern = fr'(?i)((?:_csrf_token|{field_name})[^>]*?\b(?:content)=|\bnonce=)["\'][^"\']+(["\'])'  # noqa: E501
 
                         # Replace values with etag_removed
                         response_data = re.sub(pattern,
@@ -114,37 +123,69 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
     '__no_private_cache__', '__limit_cache_by_cookie__' as well
     as config variables to control cache response headers"""
 
+    is_webasset = u'__webasset__' in request.environ
+    if is_webasset:
+        # Don't alter web assets as flask_app has handled cache control for us
+        return response
+
     # __no_cache__ should not be present when caching is allowed
     allow_cache = u'__no_cache__' not in request.environ
     # __no_private_cache__ should not be present when private caching is allowed
-    private_cache = u'__no_private_cache__' not in request.environ
-    # __limit_cache_by_cookie__ should not vary by cookie
-    limit_cache_by_cookie = u'__limit_cache_by_cookie__' in request.environ
+    allow_private_cache = u'__no_private_cache__' not in request.environ
+
+    # Use sparingly as this kills full browser caching (including dev tools)
+    is_sensitive = u'__is_sensitive__' in request.environ
+    # If cookie is changing, don't allow it to be cached/stored
+    is_set_cookie_header = u'Set-Cookie' in response.headers
+    if is_sensitive or is_set_cookie_header:
+        # https://developer.chrome.com/docs/web-platform/bfcache-ccns
+        # no_store Chrome assumes the page should never be reused, even in memory.
+        response.cache_control.no_store = True
+        # enforce no caching defaults
+        allow_cache = False
+        allow_private_cache = False
 
     if u'Pragma' in response.headers:
+        # Pragma has been replaced with Cache-Control
         del response.headers["Pragma"]
 
     if allow_cache:
         response.cache_control.public = True
         cache_expire = config.get(u'ckan.cache_expires', 0)
         response.cache_control.max_age = cache_expire
+        shared_cache_expire = config.get(u'ckan.shared_cache_expires', 0)
+        response.cache_control.s_maxage = shared_cache_expire
         response.cache_control.must_revalidate = True
         response.cache_control.private = None  # Reset
-    elif private_cache:
+    elif allow_private_cache:
         response.cache_control.public = False  # Reset
         response.cache_control.private = True
         private_cache_expire = config.get(u'ckan.private_cache_expires')
         if private_cache_expire != 9999999:  # ckan config int blocks None
             response.cache_control.max_age = private_cache_expire
+            # best to ensure freshness if you give a max_age
+            response.cache_control.must_revalidate = True
     else:
+
+        # no_cache is like private, max-age=0
+        # no_cache Does not block bfcache — revalidation applies to HTTP cache only
+        response.cache_control.no_cache = True
+        response.cache_control.max_age = 0  # This is fall back for older browsers
         response.cache_control.public = False  # Reset
         response.cache_control.private = None  # Reset
-        response.cache_control.no_cache = True
-        response.cache_control.no_store = True
-        response.cache_control.must_revalidate = True
-        response.cache_control.max_age = 0
 
-    # Invalidate cached pages upon login/logout
+    # __limit_cache_by_api_header_name__ should vary by api auth header name
+    api_header_name = u'__limit_cache_by_api_header_name__' in request.environ
+    if api_header_name:
+        # So api users get their own payloads
+        # Q: If a user is using their own key for public resources and
+        #    its public/public dataset/resources and it's a side effect
+        #    free `get` should we not vary on api key allowing a shared
+        #    cache hit?
+        response.vary.add(request.environ.get('__limit_cache_by_api_header_name__'))
+
+    limit_cache_by_cookie = u'__limit_cache_by_cookie__' in request.environ
+    # __limit_cache_by_cookie__ should vary by cookie
     if limit_cache_by_cookie:
         response.vary.add("Cookie")
 
@@ -205,14 +246,19 @@ def identify_user() -> Optional[Response]:
 
 def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
     apitoken_header_name = config.get("apitoken_header_name")
-    apitoken: str = request.headers.get(apitoken_header_name, u'')
+    apitoken_value: str = request.headers.get(apitoken_header_name, u'')
 
-    if not apitoken:
+    if not apitoken_value:
         return None
-    apitoken = str(apitoken)
-    log.debug('Received API Token: %s[...]', apitoken[:10])
 
-    user = api_token.get_user_from_token(apitoken)
+    # ensure response cache-control `Vary` includes api auth header
+    # (like cookie on template pages)
+    request.environ['__limit_cache_by_api_header_name__'] = apitoken_header_name
+
+    apitoken_value = str(apitoken_value)
+    log.debug('Received API Token: %s[...]', apitoken_value[:10])
+
+    user = api_token.get_user_from_token(apitoken_value)
 
     return user
 

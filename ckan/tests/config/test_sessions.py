@@ -95,7 +95,8 @@ class TestSessionTypes:
         redis = connect_to_redis()
 
         assert not redis.keys("*")
-        response = app.get("/")
+        # A page that sets session
+        response = app.get("/user/login")
 
         cookie = re.match(r'ckan=([^;]+)', response.headers['set-cookie'])
         assert cookie
