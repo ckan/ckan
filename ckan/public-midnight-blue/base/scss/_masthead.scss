@@ -1,82 +1,4 @@
 $notificationsBg: #C9403A;
-.account-masthead {
-    @extend .clearfix;
-    min-height: 30px;
-    color: $mastheadTextColor;
-    background: darken($mastheadBackgroundColor, 10%);
-    .account {
-        float: right;
-        ul {
-            display: inline-flex;
-            justify-content: center;
-            align-items: baseline;
-            li {
-                display: block;
-                float: left;
-                border-left: 1px solid darken($mastheadBackgroundColor, 15%);
-                a {
-                    display: block;
-                    text-decoration: none;
-                    color: $link-color;
-                    font-size: 13px;
-                    font-weight: bold;
-                    padding: 0 10px;
-                    line-height: 31px;
-                    span.username,
-                    span.text {
-                        margin: 0 2px 0 4px;
-                    }
-                    span.text {
-                        position: absolute;
-                        top: -9999px;
-                        left: -9999px;
-                    }
-                    &:hover {
-                        color: $link-hover-color;
-                        background-color: darken($mastheadBackgroundColor, 15%);
-                        text-decoration: none;
-                    }
-                    &.sub {
-                        font-weight: 300;
-                    }
-                }
-                .btn-link {
-                    border-radius: 0;
-                }
-            }
-        }
-        .notifications {
-            a {
-                span.badge {
-                    font-size: 12px;
-                    margin-left: 3px;
-                    padding: 1px 6px;
-                    background-color: darken($mastheadBackgroundColor, 15%);
-                    @include border-radius(4px);
-                    text-shadow: none;
-                    color: mix($mastheadBackgroundColor, $mastheadLinkColor, 25%);
-                }
-                &:hover span {
-                    color: $mastheadLinkColor;
-                    background-color: darken($mastheadBackgroundColor, 20%);
-                }
-            }
-            &.notifications-important a {
-                span.badge {
-                    color: $mastheadLinkColor;
-                    background-color: $notificationsBg;
-                }
-            }
-        }
-        &.authed {
-            .image {
-                img {
-                    @include border-radius(4px);
-                }
-            }
-        }
-    }
-}
 
 .masthead {
     background: $mastheadBackgroundColor;
@@ -153,6 +75,55 @@ $notificationsBg: #C9403A;
                 &.active {
                     a {
                         font-weight: $font-weight-semibold;
+                    }
+                }
+            }
+        }
+        .account-masthead {
+            .dropdown, .dropdown-menu {
+                width: 100%;
+            }
+            .dropdown-toggle::after {
+                margin: 0 auto;
+            }
+            ul {
+                li {
+                    margin-right: 0;
+                    a {
+                        display: block;
+                    }
+                    &:hover,
+                    &:focus,
+                    &.active {
+                        a {
+                            border-radius: 0;
+                        }
+                    }
+                    i {
+                        margin-right: 5px;
+                    }
+                }
+                .notifications {
+                    a {
+                        span.badge {
+                            font-size: 12px;
+                            margin-left: 3px;
+                            padding: 1px 6px;
+                            background-color: darken($mastheadBackgroundColor, 15%);
+                            @include border-radius(4px);
+                            text-shadow: none;
+                            color: mix($mastheadBackgroundColor, $mastheadLinkColor, 25%);
+                        }
+                        &:hover span.badge {
+                            color: $mastheadLinkColor;
+                            background-color: darken($mastheadBackgroundColor, 20%);
+                        }
+                    }
+                    &.notifications-important a {
+                        span.badge {
+                            color: $mastheadLinkColor;
+                            background-color: $notificationsBg;
+                        }
                     }
                 }
             }
