@@ -5,6 +5,7 @@ set -e
 # OS Dependencies
 apt update
 apt install -y postgresql-client
+## MacOS  ``brew install postgresql libmagic``
 
 #Python Dependencies
 pip install -U pip
