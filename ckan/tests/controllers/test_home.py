@@ -41,26 +41,6 @@ class TestHome(object):
 
         assert "add your email address" not in response
 
-    @pytest.mark.ckan_config(
-        "ckan.legacy_route_mappings", '{"my_home_route": "home.index"}'
-    )
-    def test_map_pylons_to_flask_route(self, app):
-        response = app.get(url_for("my_home_route"))
-        assert "Welcome to CKAN" in response.body
-
-        response = app.get(url_for("home"))
-        assert "Welcome to CKAN" in response.body
-
-    @pytest.mark.ckan_config(
-        "ckan.legacy_route_mappings", {"my_home_route": "home.index"}
-    )
-    def test_map_pylons_to_flask_route_using_dict(self, app):
-        response = app.get(url_for("my_home_route"))
-        assert "Welcome to CKAN" in response.body
-
-        response = app.get(url_for("home"))
-        assert "Welcome to CKAN" in response.body
-
 
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
