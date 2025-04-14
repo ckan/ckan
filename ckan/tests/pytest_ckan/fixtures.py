@@ -440,7 +440,7 @@ def with_plugins(ckan_config):
 
 
 @pytest.fixture
-def test_request_context(app):
+def test_request_context(app: test_helpers.CKANTestApp):
     """Provide function for creating Flask request context.
     """
     return app.flask_app.test_request_context

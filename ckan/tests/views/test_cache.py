@@ -32,7 +32,8 @@ def test_sets_cache_control_headers_default(app: CKANTestApp):
         assert request.environ.get('__no_private_cache__') is None
         updated_response = views.set_cache_control_headers_for_response(response)
     assert updated_response.cache_control.public is True, updated_response
-    assert updated_response.cache_control.max_age == 0, updated_response
+    assert updated_response.cache_control.max_age == 300, updated_response  # 300 == default
+    assert updated_response.cache_control.s_maxage == 3600, updated_response  # 3600 == default
     assert updated_response.cache_control.must_revalidate is True, updated_response
 
 
@@ -70,10 +71,11 @@ def test_disables_cache_when_no_cache_env_present(app: CKANTestApp):
         assert request.environ.get('__no_private_cache__') is True
         updated_response = views.set_cache_control_headers_for_response(response)
 
-    assert updated_response.cache_control.no_cache is True
-    assert updated_response.cache_control.no_store is True
-    assert updated_response.cache_control.must_revalidate is True
-    assert updated_response.cache_control.max_age == 0
+    assert updated_response.cache_control.no_cache is True, updated_response
+    assert updated_response.cache_control.no_store is None, updated_response
+    assert updated_response.cache_control.max_age == 0, updated_response
+    assert updated_response.cache_control.public is False, updated_response
+    assert updated_response.cache_control.private is None, updated_response
 
 
 @pytest.mark.ckan_config("ckan.cache_expires", 7200)
@@ -257,7 +259,7 @@ def test_returns_200_if_etag_matches_but_override_flag_set(app: CKANTestApp):
 
 @pytest.mark.ckan_config("ckan.cache_etags", True)
 @pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
-def test_returns_200_if_etat_super_strong_set_on_environ(app: CKANTestApp):
+def test_returns_200_if_etag_super_strong_set_on_environ(app: CKANTestApp):
     extra_environ = {"__etag_super_strong__": True}
     request_headers = {}
     response: TestResponse = app.get('/', headers=request_headers, extra_environ=extra_environ)

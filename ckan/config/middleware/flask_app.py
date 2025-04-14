@@ -12,7 +12,7 @@ import logging
 from logging.handlers import SMTPHandler
 from typing import Any, Optional, Union, cast
 
-from flask import Blueprint, send_from_directory, current_app
+from flask import Blueprint, send_from_directory, current_app, session
 from flask.ctx import _AppCtxGlobals
 from flask_session import Session
 
@@ -27,7 +27,7 @@ from flask_babel import Babel
 
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, session, current_user
+from ckan.common import CKANConfig, asbool, current_user
 
 import ckan.model as model
 from ckan.lib import base
@@ -402,6 +402,16 @@ def ckan_after_request(response: Response) -> Response:
     url = request.environ['PATH_INFO']
     status_code = response.status_code
 
+    is_sensitive = u'__is_sensitive__' in request.environ
+    is_debug = config.get('debug')
+    if current_user.is_anonymous and not is_sensitive and not is_debug:
+        # we don't want to create anon sessions as
+        # it will then split the cache for static pages
+        log.debug("removing session for anonymous user")
+        # Force set to not create cookie session
+        session.modified = False
+        session.accessed = False
+
     log.info(' %s %s render time %.3f seconds', status_code, url, r_time)
 
     return response
@@ -565,8 +575,21 @@ def _setup_webassets(app: CKANApp):
 
     webassets_folder = get_webassets_path()
 
-    def webassets(path: str):
-        return send_from_directory(webassets_folder, path)
+    def webassets(path: str) -> Response:
+        request.environ['__webasset__'] = True
+
+        cache_expire = config.get(u'ckan.cache_expires', 0)
+        if cache_expire == 0:
+            # If set, ``Cache-Control`` will be ``public``, otherwise
+            #         it will be ``no-cache``
+            cache_expire = None
+        response = send_from_directory(webassets_folder, path,
+                                       etag=True, max_age=cache_expire)
+
+        shared_cache_expire = config.get(u'ckan.shared_cache_expires', 0)
+        if cache_expire is not None and cache_expire != 9999999:
+            response.cache_control.s_maxage = shared_cache_expire
+        return response
 
     path = config["ckan.webassets.url"].rstrip("/")
     app.add_url_rule(f'{path}/<path:path>', 'webassets.index', webassets)
