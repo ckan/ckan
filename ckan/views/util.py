@@ -1,11 +1,14 @@
 # encoding: utf-8
 
-from flask import Blueprint
+from flask import Blueprint, g
 
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
 from ckan.common import _, request
 from ckan.types import Response
+
+from markupsafe import escape
+from flask_wtf.csrf import generate_csrf
 
 util = Blueprint(u'util', __name__)
 
@@ -32,6 +35,15 @@ def primer() -> str:
     return base.render(u'development/primer.html')
 
 
+def csrf_input() -> str:
+    # rendering a snippet is overkill for one tag
+    return (
+        f'<input type="hidden" name="{escape(g.csrf_field_name)}"'
+        f' value="{escape(generate_csrf())}"/>'
+    )
+
+
 util.add_url_rule(
     u'/util/redirect', view_func=internal_redirect, methods=(u'GET', u'POST',))
 util.add_url_rule(u'/testing/primer', view_func=primer)
+util.add_url_rule('/csrf-input', view_func=csrf_input)
