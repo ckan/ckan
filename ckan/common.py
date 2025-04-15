@@ -222,7 +222,7 @@ def _get_g():
 
 
 # Deprecated, use _get_g()
-def _get_c(): # pyright: ignore[reportUnusedFunction]
+def _get_c():  # pyright: ignore[reportUnusedFunction]
     return _get_g()
 
 
