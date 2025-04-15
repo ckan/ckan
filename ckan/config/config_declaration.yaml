@@ -420,7 +420,6 @@ groups:
         example: 7200
         description: |
           This sets ``Cache-Control`` header's s-maxage value.
-          When value is 9999999, max-age is not set
 
       - key: ckan.private_cache_expires
         type: int
@@ -428,7 +427,6 @@ groups:
         example: 3600
         description: |
           This sets ``Cache-Control`` header's max-age value on private cache.
-          When value is 9999999, max-age is not set
 
       - key: ckan.cache_enabled
         type: bool
@@ -455,14 +453,6 @@ groups:
         example: "true"
         description: |
           Add etag response header on all payloads
-
-      - key: ckan.cache_etags_notModified
-        type: bool
-        default: true
-        example: "true"
-        description: |
-          When `ckan.cache_etags` is enabled, then if request `if_none_match` match's response etag, return a 302 not
-          modified instead of the full payload.
 
       - key: ckan.mimetype_guess
         default: file_ext
@@ -738,9 +728,10 @@ groups:
 
       - key: WTF_CSRF_TIME_LIMIT
         type: int
-        default: 3600
+        default: 10200
         description: |
           Max age in seconds for CSRF tokens.
+          Must be longer than shared/max cache age + standard session length
           This value is capped by the lifetime of the session.
 
       - key: WTF_CSRF_SSL_STRICT

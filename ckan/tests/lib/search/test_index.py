@@ -102,7 +102,6 @@ class TestSearchIndex(object):
         response_ids = sorted([x["id"] for x in response.docs])
         assert response_ids == ["test-index"]
 
-    @pytest.mark.flaky(reruns=1)
     def test_index_illegal_xml_chars(self):
 
         pkg_dict = self.base_package_dict.copy()

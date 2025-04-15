@@ -12,7 +12,7 @@ import logging
 from logging.handlers import SMTPHandler
 from typing import Any, Optional, Union, cast
 
-from flask import Blueprint, send_from_directory, current_app, session
+from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
 from flask_session import Session
 
@@ -27,7 +27,7 @@ from flask_babel import Babel
 
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, current_user
+from ckan.common import CKANConfig, asbool, current_user, session, CacheType
 
 import ckan.model as model
 from ckan.lib import base
@@ -53,7 +53,7 @@ from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         set_controller_and_action,
                         set_cache_control_headers_for_response,
-                        set_etag_and_fast_304_response_if_unchanged,
+                        set_etag_for_response,
                         handle_i18n,
                         set_ckan_current_url,
                         _get_user_for_apitoken,
@@ -224,6 +224,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     if not app.config.get(wtf_key):
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
+    app.config['WTF_CSRF_TIME_LIMIT'] = config.get('WTF_CSRF_TIME_LIMIT')
     csrf.init_app(app)
 
     if config.get("ckan.csrf_protection.ignore_extensions"):
@@ -393,23 +394,47 @@ def ckan_after_request(response: Response) -> Response:
     response = set_cors_headers_for_response(response)
 
     # Set Cache Control headers
-    response = set_cache_control_headers_for_response(response)
+    default_cors_enabled = True
+    for plugin in PluginImplementations(IMiddleware):
+        if hasattr(plugin, 'set_cors_headers_for_response'):
+            response_returned = plugin.set_cors_headers_for_response(response)
+            if response_returned:
+                response = response_returned
+                default_cors_enabled = False
+    if default_cors_enabled:
+        response = set_cors_headers_for_response(response)
 
-    # Set ETag headers and unchanged response if config allows it
-    response = set_etag_and_fast_304_response_if_unchanged(response)
+    # Set Cache Control headers
+    default_cache_control_enabled = True
+    for plugin in PluginImplementations(IMiddleware):
+        if hasattr(plugin, 'set_cache_control_headers_for_response'):
+            response_returned = plugin.set_cache_control_headers_for_response(response)
+            if response_returned:
+                response = response_returned
+                default_cache_control_enabled = False
+    if default_cache_control_enabled:
+        response = set_cache_control_headers_for_response(response)
+
+    # Set ETag response headers
+    default_etag_enabled = True
+    for plugin in PluginImplementations(IMiddleware):
+        if hasattr(plugin, 'set_etag_for_response'):
+            response_returned = plugin.set_etag_for_response(response)
+            if response_returned:
+                response = response_returned
+                default_etag_enabled = False
+    if default_etag_enabled:
+        response = set_etag_for_response(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
     status_code = response.status_code
 
-    is_sensitive = u'__is_sensitive__' in request.environ
-    is_debug = config.get('debug')
-    if current_user.is_anonymous and not is_sensitive and not is_debug:
+    if current_user.is_anonymous and not session.modified:
         # we don't want to create anon sessions as
-        # it will then split the cache for static pages
-        log.debug("removing session for anonymous user")
-        # Force set to not create cookie session
-        session.modified = False
+        # we always access but may never add data.
+        log.error("DEBUG: removing session for anonymous user")
+        # Not modified, not accessed.
         session.accessed = False
 
     log.info(' %s %s render time %.3f seconds', status_code, url, r_time)
@@ -576,18 +601,21 @@ def _setup_webassets(app: CKANApp):
     webassets_folder = get_webassets_path()
 
     def webassets(path: str) -> Response:
-        request.environ['__webasset__'] = True
+        g.cacheType = CacheType.OVERRIDDEN
 
         cache_expire = config.get(u'ckan.cache_expires', 0)
         if cache_expire == 0:
             # If set, ``Cache-Control`` will be ``public``, otherwise
             #         it will be ``no-cache``
             cache_expire = None
+            shared_cache_expire = 0
+        else:
+            shared_cache_expire = config.get(u'ckan.shared_cache_expires')
+
         response = send_from_directory(webassets_folder, path,
                                        etag=True, max_age=cache_expire)
 
-        shared_cache_expire = config.get(u'ckan.shared_cache_expires', 0)
-        if cache_expire is not None and cache_expire != 9999999:
+        if shared_cache_expire != 0:
             response.cache_control.s_maxage = shared_cache_expire
         return response
 

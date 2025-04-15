@@ -107,15 +107,6 @@ def sysadmin():
     return user
 
 
-def assert_sensitive_cache_control_headers(response: helpers.CKANResponse):
-    assert response.cache_control.private is None, response
-    assert response.cache_control.no_cache is True, response
-    assert response.cache_control.no_store is True, response
-    assert response.cache_control.must_revalidate is None, response
-    assert response.cache_control.max_age == 0, response
-    assert response.cache_control.public is False, response
-
-
 @pytest.mark.usefixtures("clean_db")
 class TestUser(object):
 
@@ -137,8 +128,12 @@ class TestUser(object):
 
         assert 200 == response.status_code
         assert response.get_etag(), response
-
-        assert_sensitive_cache_control_headers(response)
+        assert response.cache_control.private is None, response
+        assert response.cache_control.no_cache is True, response
+        assert response.cache_control.no_store is True, response
+        assert response.cache_control.must_revalidate is None, response
+        assert response.cache_control.max_age == 0, response
+        assert response.cache_control.public is False, response
 
         user = helpers.call_action("user_show", id=stub.name)
         assert user["name"] == stub.name

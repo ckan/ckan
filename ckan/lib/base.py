@@ -20,7 +20,7 @@ from flask import (
 import ckan.lib.helpers as h
 import ckan.plugins as p
 
-from ckan.common import request, config, session, g
+from ckan.common import request, config, session, g, CacheType
 
 log = logging.getLogger(__name__)
 
@@ -107,6 +107,14 @@ def render(template_name: str,
 def _allow_caching(cache_force: Optional[bool] = None):
     # Caching Logic
 
+    # Any rendered template will have a login-sensitive header
+    g.limit_cache_by_cookie = True
+
+    cacheType = getattr(g, 'CacheType', None)
+    if cacheType:
+        # cache setting found, not altering
+        return
+
     # Q: should api public/public dataset/resources be public cache
     #    allowed even when logged in?
 
@@ -127,19 +135,15 @@ def _allow_caching(cache_force: Optional[bool] = None):
     elif request.args.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
-    elif not h.asbool(config.get('ckan.cache_enabled', True)):
+    elif not config.get('ckan.cache_enabled'):
         allow_cache = False
 
-    # Any rendered template will have a login-sensitive header
-    request.environ['__limit_cache_by_cookie__'] = True
-    if not allow_cache:
-        # flag to allow private cache to be disabled
-        # and setting: "max-age=0, must-revalidate, no-cache, no-store"
-        if not h.asbool(config.get('ckan.cache_private_enabled', True)):
-            request.environ['__no_private_cache__'] = True
-
-        # Prevent any further rendering from being cached.
-        request.environ['__no_cache__'] = True
+    if allow_cache:
+        g.cacheType = CacheType.PUBLIC
+    elif config.get('ckan.cache_private_enabled'):
+        g.cacheType = CacheType.PRIVATE
+    else:
+        g.cacheType = CacheType.NO_CACHE
 
 
 def _is_valid_session_cookie_data() -> bool:

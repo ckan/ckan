@@ -3,8 +3,13 @@
 import flask
 import pytest
 
-from ckan import common
-from ckan.common import CKANConfig
+from ckan.common import (
+    CKANConfig,
+    config as ckan_config,
+    request as ckan_request,
+    g as ckan_g,
+    c as ckan_c,
+)
 from ckan.tests import helpers
 
 
@@ -89,7 +94,7 @@ def test_true_if_not_empty():
 
 @pytest.mark.usefixtures("with_request_context")
 def test_setting_a_key_sets_it_on_flask_config_if_app_context(monkeypatch):
-    monkeypatch.setitem(common.config, u"ckan.site_title", u"Example title")
+    monkeypatch.setitem(ckan_config, u"ckan.site_title", u"Example title")
     assert flask.current_app.config[u"ckan.site_title"] == u"Example title"
 
 
@@ -102,8 +107,8 @@ def test_setting_a_key_does_set_it_on_flask_config_if_outside_app_context():
 
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
 def test_deleting_a_key_deletes_it_on_ckan_config():
-    del common.config[u"ckan.site_title"]
-    assert u"ckan.site_title" not in common.config
+    del ckan_config[u"ckan.site_title"]
+    assert u"ckan.site_title" not in ckan_config
 
 
 # START-CONFIG-OVERRIDE
@@ -119,9 +124,9 @@ def test_deleting_a_key_delets_it_on_flask_config(monkeypatch, ckan_config):
 
 @pytest.mark.usefixtures("with_request_context")
 def test_update_works_on_flask_config():
-    common.config[u"ckan.site_title"] = u"Example title"
+    ckan_config[u"ckan.site_title"] = u"Example title"
 
-    common.config.update(
+    ckan_config.update(
         {u"ckan.site_title": u"Example title 2", u"ckan.new_key": u"test"}
     )
     assert flask.current_app.config[u"ckan.site_title"] == u"Example title 2"
@@ -137,8 +142,8 @@ def test_config_option_update_action_works_on_flask(reset_db, ckan_config):
 
 def test_params_also_works_on_flask_request(test_request_context):
     with test_request_context(u"/?a=1"):
-        assert u"a" in common.request.args
-        assert u"a" in common.request.args
+        assert u"a" in ckan_request.args
+        assert u"a" in ckan_request.args
 
 
 def test_other_missing_attributes_raise_attributeerror_exceptions(
@@ -146,58 +151,58 @@ def test_other_missing_attributes_raise_attributeerror_exceptions(
 ):
     with test_request_context(u"/?a=1"):
         with pytest.raises(AttributeError):
-            getattr(common.request, u"not_here")
+            getattr(ckan_request, u"not_here")
 
 
 @pytest.mark.usefixtures("with_request_context")
 def test_flask_g_is_used_on_a_flask_request():
-    assert u"flask.g" in str(common.g)
+    assert u"flask.g" in str(ckan_g)
     flask.g.user = u"example"
-    assert common.g.user == u"example"
+    assert ckan_g.user == u"example"
 
 
 @pytest.mark.usefixtures("with_request_context")
 def test_can_also_use_c_on_a_flask_request():
     flask.g.user = u"example"
-    assert common.c.user == u"example"
+    assert ckan_c.user == u"example"
 
-    common.g.user = u"example2"
-    assert common.c.user == u"example2"
+    ckan_g.user = u"example2"
+    assert ckan_c.user == u"example2"
 
 
 @pytest.mark.usefixtures("with_request_context")
 def test_accessing_missing_key_raises_error_on_flask_request():
     with pytest.raises(AttributeError):
-        getattr(common.g, u"user")
+        getattr(ckan_g, u"user")
 
 
 def test_htmx_headers(test_request_context):
     with test_request_context("/"):
-        assert not common.request.htmx
+        assert not ckan_request.htmx
 
     with test_request_context("/", headers={"HX-Request": "true"}):
-        assert common.request.htmx
+        assert ckan_request.htmx
 
     with test_request_context("/", headers={"HX-Request": "true", "HX-Boosted": "true"}):
-        assert common.request.htmx.boosted is True
+        assert ckan_request.htmx.boosted is True
 
     with test_request_context("/", headers={"HX-Request": "true", "HX-Boosted": "false"}):
-        assert common.request.htmx.boosted is False
+        assert ckan_request.htmx.boosted is False
 
     with test_request_context("/datasets", headers={"HX-Request": "true", "HX-Current-URL": "/datasets"}):
-        assert common.request.htmx.current_url == "/datasets"
+        assert ckan_request.htmx.current_url == "/datasets"
 
     with test_request_context("/", headers={"HX-Request": "true", "HX-History-Restore-Request": "true"}):
-        assert common.request.htmx.history_restore_request is True
+        assert ckan_request.htmx.history_restore_request is True
 
     with test_request_context("/", headers={"HX-Request": "true", "HX-Prompt": "prompt"}):
-        assert common.request.htmx.prompt == "prompt"
+        assert ckan_request.htmx.prompt == "prompt"
 
     with test_request_context("/", headers={"HX-Request": "true", "HX-Target": "target-id"}):
-        assert common.request.htmx.target == "target-id"
+        assert ckan_request.htmx.target == "target-id"
 
     with test_request_context("/", headers={"HX-Request": "true", "HX-Trigger": "trigger"}):
-        assert common.request.htmx.trigger == "trigger"
+        assert ckan_request.htmx.trigger == "trigger"
 
     with test_request_context("/", headers={"HX-Request": "true", "HX-Trigger-Name": "trigger-name"}):
-        assert common.request.htmx.trigger_name == "trigger-name"
+        assert ckan_request.htmx.trigger_name == "trigger-name"

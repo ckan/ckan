@@ -1,17 +1,18 @@
 # encoding: utf-8
 from __future__ import annotations
 
+import time
 from http import HTTPStatus
 from typing import Any, Optional
-import hashlib
-import re
+from zlib import adler32
 
 from urllib.parse import quote
 from flask.wrappers import Response
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
-from ckan.common import g, request, config, current_user, logout_user
+from ckan.common import (g, request, config, current_user,
+                         logout_user, session, CacheType)
 from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 
@@ -20,7 +21,7 @@ import logging
 log = logging.getLogger(__name__)
 
 # For more details about caching, please read the spec located at
-# https://datatracker.ietf.org/doc/html/rfc7234
+# https://datatracker.ietf.org/doc/html/rfc9111
 
 
 def set_cors_headers_for_response(response: Response) -> Response:
@@ -54,13 +55,14 @@ def set_cors_headers_for_response(response: Response) -> Response:
 # without bandwidth costs by the browser/cdn.
 # Since html pages from ckan are always generated on the fly it
 # can't use last modified and content length our Nginx does it
-def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
+# This is a simple etag which changes on each request
+# If you wish to have etags always use etag plugin
+def set_etag_for_response(response: Response) -> Response:
     """Set ETag and return 304 if content is unchanged."""
 
-    # skip stremaing content
+    # skip streaming content
     if not response.is_streamed:
         enable_etags = config.get(u'ckan.cache_etags', True)
-        enable_etags_not_modified = config.get(u'ckan.cache_etags_notModified', True)
         allowed_status_codes = {HTTPStatus.OK,  # 200
                                 HTTPStatus.MOVED_PERMANENTLY,  # 301
                                 HTTPStatus.FOUND,  # 302
@@ -71,73 +73,42 @@ def set_etag_and_fast_304_response_if_unchanged(response: Response) -> Response:
 
         if response.status_code in allowed_status_codes and enable_etags:
             if 'etag' not in response.headers:
-                # s3 etag uses md5, so using it here also
+                # s3 etag uses md5 if you want that, load etag plugin, this is weak etag
+                check = adler32(request.environ['PATH_INFO']) & 0xFFFFFFFF
+                mtime = time.time()
+                size = response.content_length
+                response.set_etag(f"{mtime}-{size}-{check}")
 
-                content_type = response.mimetype or ''
-                allowed_types = {'text/plain', 'text/css',
-                                 'text/html', 'application/json'}
-                etag_super_strong = u'__etag_super_strong__' in request.environ
-
-                try:
-                    # anon/public get ignored csrf
-                    if (etag_super_strong
-                            or content_type not in allowed_types
-                            or current_user.is_authenticated or g.user):
-                        data_to_hash = response.get_data()
-                    else:
-                        # Regex for both _csrf_token content and csp nonce and don't
-                        # care if there is new lines spacing etc attributes which are
-                        # dynamic on pages
-                        # May need to add more when we come across them.
-
-                        field_name = re.escape(config.get("WTF_CSRF_FIELD_NAME", "_csrf_token"))  # noqa: E501
-                        # csrf meta only, if to include value,
-                        #   update (?:content) to (?:content|value)
-                        pattern = fr'(?i)((?:_csrf_token|{field_name})[^>]*?\b(?:content)=|\bnonce=)["\'][^"\']+(["\'])'  # noqa: E501
-
-                        # Replace values with etag_removed
-                        response_data = re.sub(pattern,
-                                               lambda m: m.group(1) + '="etag_removed"',
-                                               response.get_data(as_text=True))
-                        data_to_hash = response_data.encode()
-
-                    etag = hashlib.md5(data_to_hash).hexdigest()
-                    response.set_etag(etag)
-                except (AttributeError, IndexError, TypeError,
-                        UnicodeEncodeError, ValueError, re.error) as e:
-                    logging.info("Failed to compute and set ETag: %s", e)
-            else:
-                etag = response.headers.get('etag')
-
-            etag_not_conditional = u'__etag_not_conditional__' not in request.environ
-            # Allow legacy behaviour if config is set
-            if enable_etags_not_modified and etag_not_conditional:
-                # Use built-in function now that we have an eTag
-                response.make_conditional(request.environ)
+        # Use built-in function for make_conditional
+        response.make_conditional(request.environ)
 
     return response
 
 
 def set_cache_control_headers_for_response(response: Response) -> Response:
-    """ This uses the presents of request environ's: '__no_cache__',
+    """ This uses the presents of ckan g's: 'cache_enabled',
     '__no_private_cache__', '__limit_cache_by_cookie__' as well
     as config variables to control cache response headers"""
+    cacheType = getattr(g, 'cacheType', None)
 
-    is_webasset = u'__webasset__' in request.environ
-    if is_webasset:
-        # Don't alter web assets as flask_app has handled cache control for us
+    if cacheType == CacheType.OVERRIDDEN:
+        # Don't alter notified overridden response
         return response
 
     # __no_cache__ should not be present when caching is allowed
-    allow_cache = u'__no_cache__' not in request.environ
-    # __no_private_cache__ should not be present when private caching is allowed
-    allow_private_cache = u'__no_private_cache__' not in request.environ
+    # environ is deprecated will be removed in 2026/7
+
+    environ_allow_cache = u'__no_cache__' not in request.environ
+
+    allow_cache = environ_allow_cache or not getattr(g, 'no_cache', False)
+    # no_private_cache should not be present when private caching is allowed
+    allow_private_cache = not getattr(g, 'no_private_cache', False)
 
     # Use sparingly as this kills full browser caching (including dev tools)
-    is_sensitive = u'__is_sensitive__' in request.environ
+    is_sensitive = getattr(g, 'is_sensitive', False)
     # If cookie is changing, don't allow it to be cached/stored
     is_set_cookie_header = u'Set-Cookie' in response.headers
-    if is_sensitive or is_set_cookie_header:
+    if is_sensitive or is_set_cookie_header or session.modified:
         # https://developer.chrome.com/docs/web-platform/bfcache-ccns
         # no_store Chrome assumes the page should never be reused, even in memory.
         response.cache_control.no_store = True
@@ -161,10 +132,8 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
         response.cache_control.public = False  # Reset
         response.cache_control.private = True
         private_cache_expire = config.get(u'ckan.private_cache_expires')
-        if private_cache_expire != 9999999:  # ckan config int blocks None
-            response.cache_control.max_age = private_cache_expire
-            # best to ensure freshness if you give a max_age
-            response.cache_control.must_revalidate = True
+        response.cache_control.max_age = private_cache_expire
+        response.cache_control.must_revalidate = True
     else:
 
         # no_cache is like private, max-age=0
