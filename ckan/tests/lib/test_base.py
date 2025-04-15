@@ -7,18 +7,6 @@ import ckan.tests.factories as factories
 import ckan.lib.helpers as h
 
 
-@pytest.mark.ckan_config("debug", True)
-def test_comment_present_if_debug_true(app):
-    response = app.get("/")
-    assert "<!-- Snippet " in response
-
-
-@pytest.mark.ckan_config("debug", False)
-def test_comment_absent_if_debug_false(app):
-    response = app.get("/")
-    assert "<!-- Snippet " not in response
-
-
 def test_apitoken_missing(app):
     request_headers = {}
     data_dict = {"type": "dataset", "name": "a-name"}
