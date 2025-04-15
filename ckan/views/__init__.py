@@ -74,7 +74,8 @@ def set_etag_for_response(response: Response) -> Response:
         if response.status_code in allowed_status_codes and enable_etags:
             if 'etag' not in response.headers:
                 # s3 etag uses md5 if you want that, load etag plugin, this is weak etag
-                check = adler32(request.environ['PATH_INFO']) & 0xFFFFFFFF
+                check = (adler32(request.environ['PATH_INFO'].encode('utf-8'))
+                         & 0xFFFFFFFF)
                 mtime = time.time()
                 size = response.content_length
                 response.set_etag(f"{mtime}-{size}-{check}")
