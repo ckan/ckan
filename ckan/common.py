@@ -5,12 +5,13 @@
 # but at the same time making it easy to change for example the json lib
 # used.
 #
-# NOTE:  This file is specificaly created for
+# NOTE:  This file is specifically created for
 # from ckan.common import x, y, z to be allowed
 from __future__ import annotations
 
 import logging
 from collections.abc import MutableMapping, Iterable
+from enum import Enum
 
 from typing import (
     Any, Optional, TYPE_CHECKING,
@@ -216,8 +217,13 @@ class CKANRequest(LocalProxy[Request]):
         return self.args
 
 
-def _get_c():
+def _get_g():
     return flask.g
+
+
+# Deprecated, use _get_g()
+def _get_c(): # pyright: ignore[reportUnusedFunction]
+    return _get_g()
 
 
 def _get_session():
@@ -330,9 +336,25 @@ config_declaration = local.config_declaration = Declaration()
 # Proxies to already thread-local safe objects
 request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
-g: Any = LocalProxy(_get_c)
+g: Any = LocalProxy(_get_g)  # flask.ctx._AppCtxGlobals
 c = g
-session: Any = LocalProxy(_get_session)
+session = LocalProxy(_get_session)
 
 truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
 falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
+
+
+class CacheType(Enum):
+    """ This enum is to simplify cache control's since you can only have one type set
+
+    If response cache_controls are manually configured, use context OVERRIDDEN to
+    not allow default behaviour to alter your settings"""
+    PUBLIC = 'public'
+    PRIVATE = 'private'
+    NO_CACHE = 'no-cache'
+    SENSITIVE = 'no-store'
+    OVERRIDDEN = 'overridden'
+
+
+# This is what can be passed into the query args that is removed from dicts
+CACHE_PARAMETERS = frozenset([u'__cache', u'__no_cache__'])

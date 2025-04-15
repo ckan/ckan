@@ -175,7 +175,7 @@ def test_does_not_modify_etag_if_already_set(app: CKANTestApp):
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
         response.headers["ETag"] = '"existing-etag"'
         # recall set_etag_and_fast_304_response_if_unchanged again eith different etag to verify that it does not override
-        updated_response = views.set_etag_and_fast_304_response_if_unchanged(response)
+        updated_response = views.set_etag_for_response(response)
     assert updated_response.headers["ETag"] == '"existing-etag"'
 
 
@@ -234,7 +234,7 @@ def test_does_not_add_etag_if_streaming_response_encountered(app: CKANTestApp):
         assert isinstance(response.response, GeneratorType)
 
         # recall set_etag_and_fast_304_response_if_unchanged again eith different etag to verify that it does not override
-        updated_response = views.set_etag_and_fast_304_response_if_unchanged(response)
+        updated_response = views.set_etag_for_response(response)
     assert "ETag" not in updated_response.headers, updated_response.headers
 
 
