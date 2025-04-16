@@ -2840,14 +2840,7 @@ def make_login_url(
 def csrf_input():
     '''
     Render a hidden CSRF input field that refreshes automatically
-    so that users won't get an expired token error if they step
-    away from the form for too long (default 60 minutes).
+    so that users won't get an expired token error.
     '''
     from ckan.views.util import csrf_input
-    # refresh just before expiration (enforce min in case of misconfiguration)
-    refresh_time = max(60, config["WTF_CSRF_TIME_LIMIT"] - 5)
-    # rendering a snippet from a helper is slow, use string formatting instead
-    return Markup(
-        f'<div hx-get="{escape(url_for("util.csrf_input"))}"'
-        f' hx-trigger="every {escape(refresh_time)}s">{csrf_input()}</div>'
-    )
+    return Markup(csrf_input())
