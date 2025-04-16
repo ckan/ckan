@@ -246,19 +246,13 @@ request that doesn't specify the API version number cannot be relied on.
 Authentication and API tokens
 -----------------------------
 
-.. warning:: Starting from CKAN 2.9, API tokens are the preferred way of authenticating API calls.
-    The old legacy API keys will still work but they will be removed in future versions so it is
-    recommended to switch to use API tokens. Read below for more details.
-
-
 Some API functions require authorization. The API uses the same authorization
 functions and configuration as the web interface, so if a user is authorized to
 do something in the web interface they'll be authorized to do it via the API as
 well.
 
 When calling an API function that requires authorization, you must
-authenticate yourself by providing an authentication key with your
-HTTP request. Starting from CKAN 2.9 the recommended mechanism to use are API tokens. These are
+authenticate yourself by providing an API token. Tokens are
 encrypted keys that can be generated manually from the UI (User Profile > Manage > API tokens)
 or via the :py:func:`~ckan.logic.action.create.api_token_create` function. A user can create as many tokens as needed
 for different uses, and revoke one or multiple tokens at any time. In addition, enabling
@@ -266,14 +260,9 @@ the ``expire_api_token`` core plugin allows to define the expiration timestamp f
 
 Site maintainers can use :ref:`api-token-settings` to configure the token generation.
 
-Legacy API keys (UUIDs that look like `ec5c0860-9e48-41f3-8850-4a7128b18df8`) are still supported,
-but its use is discouraged as they are not as secure as tokens and are limited to one per user.
-Support for legacy API keys will be removed in future CKAN versions.
-
-
-To provide your API token in an HTTP request, include it in either an
-``Authorization`` or ``X-CKAN-API-Key`` header.  (The name of the HTTP header
-can be configured with the ``apikey_header_name`` option in your CKAN
+To provide your API token in an HTTP request, include it in an
+``Authorization`` header.  (The name of the HTTP header
+can be configured with the :ref:``apitoken_header_name`` option in your CKAN
 configuration file.)
 
 For example, to ask whether or not you're currently following the user
