@@ -1,2 +1,8 @@
 {# Adds a csrf_token to the forms as a hidden input. #}
+{%- if refresh_time -%}
+  <div hx-get="{{ h.url_for("util.csrf_input") }}" hx-trigger="load delay:{{ refresh_time }}s" hx-swap="outerHTML">
+{%- endif -%}
 <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/>
+{%- if refresh_time -%}
+  </div>
+{%- endif -%}
