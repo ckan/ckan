@@ -1,14 +1,11 @@
 # encoding: utf-8
 
-from flask import Blueprint, g
+from flask import Blueprint
 
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
-from ckan.common import _, request
+from ckan.common import _, request, config
 from ckan.types import Response
-
-from markupsafe import escape
-from flask_wtf.csrf import generate_csrf
 
 util = Blueprint(u'util', __name__)
 
@@ -36,11 +33,14 @@ def primer() -> str:
 
 
 def csrf_input() -> str:
-    # rendering a snippet is overkill for one tag
-    return (
-        f'<input type="hidden" name="{escape(g.csrf_field_name)}"'
-        f' value="{escape(generate_csrf())}"/>'
-    )
+    '''
+    Render a hidden CSRF input field that refreshes automatically
+    so that users won't get an expired token error.
+    '''
+    # refresh just before expiration (enforce min in case of misconfiguration)
+    return base.render('snippets/csrf_input.html', {
+        'refresh_time': max(60, config["WTF_CSRF_TIME_LIMIT"] - 5)
+    })
 
 
 util.add_url_rule(
