@@ -2883,4 +2883,9 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_input.html')
+    '''
+    Render a hidden CSRF input field that refreshes automatically
+    so that users won't get an expired token error.
+    '''
+    from ckan.views.util import csrf_input
+    return Markup(csrf_input())
