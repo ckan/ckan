@@ -7,8 +7,6 @@ from typing import Any, Optional, Union
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import ensure_str
-import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
@@ -233,10 +231,7 @@ class ApiTokenView(MethodView):
         data_dict: dict[str, Any] = {
             u'id': id,
             u'user_obj': current_user,
-            u'include_datasets': True,
-            u'include_num_followers': True
         }
-
         extra_vars = _extra_template_variables(context, data_dict)
         extra_vars[u'tokens'] = tokens
         extra_vars.update({
@@ -253,36 +248,40 @@ class ApiTokenView(MethodView):
                 logic.tuplize_dict(logic.parse_params(request.form))))
 
         data_dict[u'user'] = id
+        token = None
+        errors = None
+        error_summary = None
+
         try:
-            token = logic.get_action(u'api_token_create')(
-                {},
-                data_dict
-            )[u'token']
+            token = logic.get_action('api_token_create')({}, data_dict)
         except logic.NotAuthorized:
-            base.abort(403, _(u'Unauthorized to create API tokens.'))
+            base.abort(403, _('Unauthorized to create API tokens.'))
         except logic.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(id, data_dict, errors, error_summary)
+        else:
+            token['name'] = data_dict['name']
+            data_dict = {}  # clear form
 
-        copy_btn = dom_tags.button(dom_tags.i(u'', {
-            u'class': u'fa fa-copy'
-        }), {
-            u'type': u'button',
-            u'class': u'btn btn-secondary btn-xs',
-            u'data-module': u'copy-into-buffer',
-            u'data-module-copy-value': ensure_str(token)
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+            'for_view': True,
+            'include_plugin_extras': True
+        }
+        data_dict: dict[str, Any] = {
+            'id': id,
+            'user_obj': current_user,
+        }
+        extra_vars = _extra_template_variables(context, data_dict)
+        extra_vars.update({
+            'user': extra_vars['user_dict'],  # because user/read_base.html
+            'data': data_dict,
+            'created': token,
+            'errors': errors,
+            'error_summary': error_summary,
         })
-        h.flash_success(
-            _(
-                u"API Token created: <code style=\"word-break:break-all;\">"
-                u"{token}</code> {copy}<br>"
-                u"Make sure to copy it now, "
-                u"you won't be able to see it again!"
-            ).format(token=ensure_str(token), copy=copy_btn),
-            True
-        )
-        return h.redirect_to(u'user.api_tokens', id=id)
+        return base.render('user/snippets/api_token_create_form.html', extra_vars)
 
 
 def api_token_revoke(id: str, jti: str) -> Response:
