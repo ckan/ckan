@@ -1,0 +1,45 @@
+{% import 'macros/form.html' as form %}
+
+<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form">
+  {{ h.csrf_input() }}
+  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+
+  {% block base_fields %}
+    <div class="form-group ">
+        {{ form.input('name', label='Name', is_required=True, value=data.name, error=errors.name) }}
+    </div>
+  {% endblock base_fields %}
+  {% block form_actions %}
+    <button class="btn btn-primary" type="submit" value="create">
+      {{ _('Create API Token') }}
+    </button>
+  {% endblock form_actions %}
+</form>
+
+{% if created %}
+  <template>
+    <tbody hx-swap-oob="beforeend:#api-tokens-table tbody">
+      <tr>
+        <td colspan="2"><code>{{ created.name }}</code>
+          {% set copy_button %}<button class="btn btn-secondary btn-xs" data-module="copy-into-buffer" data-module-copy-value="{{ created.token }}" type="button"><i class="fa fa-copy"></i></button>{% endset %}
+          {{ _("API Token created: <code style=\"word-break:break-all;\">"
+               "{token}</code> {copy}<br>"
+               "Make sure to copy it now, "
+               "you won't be able to see it again!").format(
+               token=created.token, copy=copy_button) }}
+        </td>
+        <td>
+          {% set action = h.url_for("user.api_token_revoke", id=user['name'], jti=created.id) %}
+          <form action="{{ action }}" method="POST">
+            {{ h.csrf_input() }}
+            <div class="btn-group">
+              <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" aria-label="{{ _('Revoke token') }}" data-bs-title="{{ _('Revoke token') }}" data-bs-toggle="tooltip" data-module="confirm-action">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </form>
+        </td>
+      </tr>
+    </tbody>
+  </template>
+{% endif %}
