@@ -95,7 +95,7 @@
                     <li class="list-group-item d-flex justify-content-between position-relative">
                       <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=res.name or res.id) }}"> {{ res.name | truncate(25) }}</a>
                       <div class="dropdown position-absolute end-0 me-2">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
                           <li>{% link_for _('Edit resource'), named_route=pkg_dict.type ~ '_resource.edit', id=pkg_dict.name, resource_id=res.id, class_='dropdown-item', icon='pencil' %}</li>
                           {% block resources_list_edit_dropdown_inner scoped %}{% endblock %}
