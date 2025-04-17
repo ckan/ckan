@@ -1,6 +1,7 @@
 {% import 'macros/form.html' as form %}
 
-<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form">
+<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form"
+  {% if created %}hx-on:htmx:after-settle="document.getElementById('token-{{ created.id }}').scrollIntoView(false)"{% endif %}>
   {{ h.csrf_input() }}
   {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
@@ -18,7 +19,7 @@
 
 {% if created %}
   <template>
-    <tbody hx-swap-oob="beforeend:#api-tokens-table tbody" hx-on:htmx:after-settle="document.getElementById('token-{{ created.id }}').scrollIntoView(false)">
+    <tbody hx-swap-oob="beforeend:#api-tokens-table tbody">
       <tr id="token-{{ created.id }}">
         <td colspan="3">
           <div class="form-check">
