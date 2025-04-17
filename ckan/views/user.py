@@ -284,12 +284,16 @@ class ApiTokenView(MethodView):
         return base.render('user/snippets/api_token_create_form.html', extra_vars)
 
 
-def api_token_revoke(id: str, jti: str) -> Response:
-    try:
-        logic.get_action(u'api_token_revoke')({}, {u'jti': jti})
-    except logic.NotAuthorized:
-        base.abort(403, _(u'Unauthorized to revoke API tokens.'))
-    return h.redirect_to(u'user.api_tokens', id=id)
+def api_tokens_revoke(id: str) -> Response:
+    tokens = request.form.getlist('token')
+    for jti in tokens:
+        try:
+            logic.get_action(u'api_token_revoke')({}, {u'jti': jti})
+        except logic.NotAuthorized:
+            base.abort(403, _(u'Unauthorized to revoke API tokens.'))
+    return base.render('user/snippets/api_tokens_revoke.html', {
+        'tokens': tokens
+    })
 
 
 class EditView(MethodView):
@@ -986,7 +990,7 @@ user.add_url_rule(
     u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
 )
 user.add_url_rule(
-    u'/<id>/api-tokens/<jti>/revoke', view_func=api_token_revoke,
+    u'/<id>/api-tokens/revoke', view_func=api_tokens_revoke,
     methods=(u'POST',)
 )
 user.add_url_rule(rule=u'/sysadmin', view_func=sysadmin, methods=['POST'])

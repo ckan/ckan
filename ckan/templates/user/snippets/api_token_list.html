@@ -6,47 +6,51 @@
 
   #}
 
-<table class="table table-stripped table-condensed table-header table-hover table-bordered" id="api-tokens-table">
-  <thead>
-    <tr>
-      {% block head_cells %}
-        {% block head_cell_token %}<th scope="col">{{ _('Token') }}</th>{% endblock %}
-        {% block head_cell_last_access %}<th scope="col">{{ _('Last access') }}</th>{% endblock %}
-        {% block head_cell_actions %}<th scope="col">{{ _('Actions') }}</th>{% endblock %}
-      {% endblock head_cells %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for token in tokens %}
+{% set action = h.url_for("user.api_tokens_revoke", id=user['name']) %}
+<div>
+<form hx-post="{{ action }}" class="form" hx-swap="none">
+  {{ h.csrf_input() }}
+
+  <table class="table table-stripped table-condensed table-header table-hover table-bordered" id="api-tokens-table">
+    <thead>
       <tr>
-        {% block token_cells scoped %}
-          {% block token_cell_token %}
-            <td colspan="1">
-              <code>
-                {{ token.name }}
-              </code>
+        {% block head_cells %}
+          <th scope="col">{{ _('Token') }}</th>
+          <th scope="col">{{ _('Created') }}</th>
+          <th scope="col">{{ _('Last access') }}</th>
+        {% endblock head_cells %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for token in tokens %}
+        <tr id="token-{{ token.id }}">
+          {% block token_cells scoped %}
+            <td>
+              <div class="form-check">
+                <label class="form-check-label radio">
+                  <input class="form-check-input" type="checkbox" value="{{ token.id }}" name="token">
+                  <code>
+                    {{ token.name }}
+                  </code>
+                </label>
+              </div>
             </td>
-          {% endblock token_cell_token %}
-          {% block token_cell_last_access %}
+            <td>
+              {{ h.render_datetime(token.created_at, with_hours=True) }}
+            </td>
             <td>
               {{ h.render_datetime(token.last_access, with_hours=True) or _('Never') }}
             </td>
-          {% endblock token_cell_last_access %}
-          {% block token_cell_actions %}
-            <td>
-              {% set action = h.url_for("user.api_token_revoke", id=user['name'], jti=token['id']) %}
-              <form action="{{ action }}" method="POST">
-                {{ h.csrf_input() }}
-                <div class="btn-group">
-                  <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" aria-label="{{ _('Revoke token') }}" data-bs-title="{{ _('Revoke token') }}" data-bs-toggle="tooltip" data-module="confirm-action">
-                    <i class="fa fa-times"></i>
-                  </button>
-                </div>
-              </form>
-            </td>
-          {% endblock token_cell_actions %}
-        {% endblock token_cells %}
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+          {% endblock token_cells %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="btn-group">
+    <button type="submit" class="btn btn-danger btn-sm">
+      <i class="fa fa-times"></i> {{ _('Revoke tokens') }}
+    </button>
+  </div>
+</form>
+</div>
