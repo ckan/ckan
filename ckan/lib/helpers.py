@@ -706,6 +706,7 @@ def get_rtl_theme() -> str:
 @core_helper
 def flash_notice(message: Any, allow_html: bool = False) -> None:
     ''' Show a flash message of type notice '''
+    request.environ[u'__is_sensitive__'] = True
     if allow_html:
         message = Markup(message)
     else:
@@ -716,6 +717,7 @@ def flash_notice(message: Any, allow_html: bool = False) -> None:
 @core_helper
 def flash_error(message: Any, allow_html: bool = False) -> None:
     ''' Show a flash message of type error '''
+    request.environ[u'__is_sensitive__'] = True
     if allow_html:
         message = Markup(message)
     else:
@@ -726,6 +728,7 @@ def flash_error(message: Any, allow_html: bool = False) -> None:
 @core_helper
 def flash_success(message: Any, allow_html: bool = False) -> None:
     ''' Show a flash message of type success '''
+    request.environ[u'__is_sensitive__'] = True
     if allow_html:
         message = Markup(message)
     else:
