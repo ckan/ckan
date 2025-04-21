@@ -15,32 +15,36 @@
     <div class="module context-info">
       <div class="module-content">
         {% block inner %}
-        {% block image %}
-          <div class="image">
-            <a href="{{ url }}">
-              <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" alt="{{ organization.name }}" />
-            </a>
-          </div>
-        {% endblock %}
-        {% block heading %}
-        <span class="heading">{{ organization.title or organization.name }}
-          {% if organization.state == 'deleted' %}
-            [{{ _('Deleted') }}]
+          <div class="image-container">
+          {% block image %}
+            <div class="image">
+              <a href="{{ url }}">
+                <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" width="200" alt="{{ organization.name }}" />
+              </a>
+            </div>
+          {% endblock %}
+          <div class="heading-container">
+          {% block heading %}
+          <span class="heading">{{ organization.title or organization.name }}
+            {% if organization.state == 'deleted' %}
+              [{{ _('Deleted') }}]
+            {% endif %}
+          </span>
+          {% endblock %}
+          {% block description %}
+          {% if organization.description %}
+            <p class="description">
+              {{ h.markdown_extract(organization.description, 180) }}
+            </p>
+            <p class="read-more">
+              {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
+            </p>
+          {% else %}
+            <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization') }}</p>
           {% endif %}
-        </span>
-        {% endblock %}
-        {% block description %}
-        {% if organization.description %}
-          <p class="description">
-            {{ h.markdown_extract(organization.description, 180) }}
-          </p>
-          <p class="read-more">
-            {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
-          </p>
-        {% else %}
-          <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization') }}</p>
-        {% endif %}
-        {% endblock %}
+          {% endblock %}
+          </div>
+        </div>
         {% if show_nums %}
           {% block nums %}
           {% set num_followers = h.follow_count('group', organization.id) %}

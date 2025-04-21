@@ -14157,7 +14157,19 @@ td.diff_header {
 }
 
 .context-info .module-content {
-  padding: 15px;
+  padding: 1rem 0;
+}
+@media (max-width: 767.98px) {
+  .context-info .module-content {
+    padding: 1rem 1.5rem;
+  }
+  .context-info .image-container {
+    display: flex;
+  }
+  .context-info .image {
+    margin-right: 0.5rem;
+    width: 50%;
+  }
 }
 .context-info .image {
   margin-bottom: 10px;
@@ -14185,6 +14197,7 @@ td.diff_header {
   margin: 0 0 5px 0;
   font-size: 18px;
   line-height: 1.3;
+  font-weight: 600;
   -ms-word-break: break-all;
   word-break: break-all;
   /* Non standard for webkit */
@@ -14197,7 +14210,6 @@ td.diff_header {
 .context-info .info {
   margin-top: 15px;
   padding-top: 10px;
-  border-top: 1px dotted #DDD;
   word-break: break-word;
 }
 .context-info .info dl dd {
@@ -14209,24 +14221,17 @@ td.diff_header {
   flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 10px;
-  border-top: 1px dotted #DDD;
-}
-.context-info .nums::after {
-  display: block;
-  clear: both;
-  content: "";
+  column-gap: 5%;
 }
 .context-info .nums dl {
   color: #344054;
 }
 .context-info .nums dl dt {
-  font-size: 13px;
-  font-weight: 300;
+  font-weight: 400;
 }
 .context-info .nums dl dd {
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 36px;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 .context-info.editing .module-content {
   margin-top: 0;
