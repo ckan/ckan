@@ -1,9 +1,10 @@
 import pytest
 import re
-import hashlib
+
 from flask import Request, Response
 from werkzeug.test import EnvironBuilder
-from ckan.common import request
+from ckan.common import request, CacheType, session
+from ckan.lib import helpers as h, base
 
 from ckan.tests.helpers import CKANTestApp
 from werkzeug.test import TestResponse
@@ -18,7 +19,6 @@ def clean_dynamic_values(text):
     return re.sub(pattern, lambda m: m.group(1) + '="etag_removed"', text)
 
 
-@pytest.mark.ckan_config("ckan.cache_enabled", True)
 def test_sets_cache_control_headers_default(app: CKANTestApp):
     """Test that cache control headers are set correctly when caching is allowed."""
 
@@ -28,92 +28,143 @@ def test_sets_cache_control_headers_default(app: CKANTestApp):
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
-        assert request.environ.get('__no_cache__') is None
-        assert request.environ.get('__no_private_cache__') is None
+        h.set_cache_level(CacheType.PUBLIC)
         updated_response = views.set_cache_control_headers_for_response(response)
-    assert updated_response.cache_control.public is True, updated_response
-    assert updated_response.cache_control.max_age == 300, updated_response  # 300 == default
-    assert updated_response.cache_control.s_maxage == 3600, updated_response  # 3600 == default
-    assert updated_response.cache_control.must_revalidate is True, updated_response
+    assert ('must-understand, public, max-age=3600, s-maxage=7200, stale-while-revalidate=0, stale-if-error=86400' ==
+            updated_response.headers['Cache-Control'])
 
 
-@pytest.mark.ckan_config("ckan.cache_enabled", True)
-@pytest.mark.ckan_config("ckan.cache_expires", 3600)
-def test_sets_cache_control_headers_with__no_private_cache__set(app: CKANTestApp):
+@pytest.mark.ckan_config("ckan.cache.expires", 3600)
+def test_sets_cache_control_headers_cache_expires(app: CKANTestApp):
     """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
 
-    builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={'__no_private_cache__': True})
+    builder = EnvironBuilder(path='/', method='GET', headers={})
     env = builder.get_environ()
     Request(env)
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
-        assert request.environ.get('__no_cache__') is None
-        assert request.environ.get('__no_private_cache__') is True
+        h.set_cache_level(CacheType.PUBLIC, True)
         updated_response = views.set_cache_control_headers_for_response(response)
-    assert updated_response.cache_control.public is True
-    assert updated_response.cache_control.max_age == 3600
-    assert updated_response.cache_control.must_revalidate is True
+    assert ('must-understand, public, max-age=3600, s-maxage=7200, stale-while-revalidate=0, stale-if-error=86400'
+            == updated_response.headers['Cache-Control'])
 
 
-@pytest.mark.ckan_config("ckan.cache_expires", 0)
-def test_disables_cache_when_no_cache_env_present(app: CKANTestApp):
-    """Test that no-cache headers are set when `__no_cache__` is true and `__no_private_cache__` is true in the environment."""
-    builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={
-        "__no_cache__": True,
-        '__no_private_cache__': True})
+@pytest.mark.ckan_config("ckan.cache.shared.expires", 1)
+def test_sets_cache_control_headers_shared_cache_expires(app: CKANTestApp):
+    """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
+
+    builder = EnvironBuilder(path='/', method='GET', headers={})
     env = builder.get_environ()
     Request(env)
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
-        assert request.environ.get('__no_cache__') is True
-        assert request.environ.get('__no_private_cache__') is True
+        assert h.set_cache_level(CacheType.PUBLIC, True) is CacheType.PUBLIC
         updated_response = views.set_cache_control_headers_for_response(response)
-
-    assert updated_response.cache_control.no_cache is True, updated_response
-    assert updated_response.cache_control.no_store is None, updated_response
-    assert updated_response.cache_control.max_age == 0, updated_response
-    assert updated_response.cache_control.public is False, updated_response
-    assert updated_response.cache_control.private is None, updated_response
+    assert ('must-understand, public, max-age=3600, s-maxage=1, stale-while-revalidate=0, stale-if-error=86400'
+            == updated_response.headers['Cache-Control'])
 
 
-@pytest.mark.ckan_config("ckan.cache_expires", 7200)
-def test_sets_private_cache_when___no_cache__is_set_and_no_private_cache_env_present(app: CKANTestApp):
-    """Test that private cache is set when `__no_private_cache__` is absent but `__no_cache__` is present."""
-    builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={
-        "__no_cache__": True})
+@pytest.mark.ckan_config("ckan.cache.stale_while_revalidates", 1)
+@pytest.mark.ckan_config("ckan.cache.stale_if_error", 2)
+def test_sets_cache_control_headers_stale_config_settings(app: CKANTestApp):
+    """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
+
+    builder = EnvironBuilder(path='/', method='GET', headers={})
     env = builder.get_environ()
     Request(env)
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
-        assert request.environ.get('__no_cache__') is True
-        assert request.environ.get('__no_private_cache__') is None
+        assert h.set_cache_level(CacheType.PUBLIC, True)
         updated_response = views.set_cache_control_headers_for_response(response)
+    assert ('must-understand, public, max-age=3600, s-maxage=7200, stale-while-revalidate=1, stale-if-error=2'
+            == updated_response.headers['Cache-Control'])
 
-    assert updated_response.cache_control.private is True
-    assert updated_response.cache_control.public is False
 
+@pytest.mark.ckan_config("ckan.stale-while-revalidate", 0)
+@pytest.mark.ckan_config("ckan.cache.stale_if_error", 0)
+def test_sets_cache_control_headers_stale_config_settings_disable(app: CKANTestApp):
+    """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
 
-@pytest.mark.ckan_config("ckan.cache_expires", 7200)
-def test_sets_private_cache_when_no_private_cache_env_present(app: CKANTestApp):
-    """Test that private cache is set when `__no_private_cache__` is not present but `__no_cache__` is present."""
-    builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={
-        "__no_cache__": True})
+    builder = EnvironBuilder(path='/', method='GET', headers={})
     env = builder.get_environ()
     Request(env)
     response = Response()  # dummy response
 
     with app.flask_app.request_context(env):  # only works if you have app.flask_app
-        assert request.environ.get('__no_cache__') is True
-        assert request.environ.get('__no_private_cache__') is None
+        assert h.set_cache_level(CacheType.PUBLIC, True)
         updated_response = views.set_cache_control_headers_for_response(response)
-    assert updated_response.cache_control.private is True
-    assert updated_response.cache_control.public is False
+    assert 'must-understand, public, max-age=3600, s-maxage=7200, must-revalidate' == updated_response.headers['Cache-Control']
 
 
-@pytest.mark.ckan_config("ckan.cache_expires", 1800)
+@pytest.mark.ckan_config("ckan.cache.private.expires", 1234)
+def test_sets_cache_control_headers_private_cache_expires(app: CKANTestApp):
+    """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
+
+    builder = EnvironBuilder(path='/', method='GET', headers={})
+    env = builder.get_environ()
+    Request(env)
+    response = Response()  # dummy response
+
+    with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        assert h.set_cache_level(CacheType.PRIVATE, True)
+        updated_response = views.set_cache_control_headers_for_response(response)
+    assert 'must-understand, private, max-age=1234, stale-while-revalidate=0, stale-if-error=86400' == updated_response.headers['Cache-Control']
+
+
+def setSessionCookieHeader(response):
+    match = re.search(r'ckan=([^;]+)', response.headers['set-cookie'])
+    if match:
+        cookie_value = match.group(0)  # Includes 'ckan=...' part
+        headers = {"Cookie": cookie_value}
+
+    else:
+        pytest.fail("Not CKAN cookie found in Set-Cookie header")
+    return headers
+
+
+@pytest.mark.ckan_config("ckan.cache.public.enabled", False)
+def test_cache_enabled_false_defaults_to_private(app: CKANTestApp):
+    """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
+    response = app.get(h.url_for("/"))
+    headers = setSessionCookieHeader(response)
+
+    builder = EnvironBuilder(path='/', method='GET', headers=headers)
+    env = builder.get_environ()
+    Request(env)
+    response = Response()  # dummy response
+
+    with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        session.accessed = False
+        session.modified = False  # CSRF is getting in the way of testing public overrides, disable session for now
+        base._allow_caching()
+        assert h.cache_level() == CacheType.PRIVATE
+        updated_response = views.set_cache_control_headers_for_response(response)
+    assert 'private, max-age=300, must-revalidate' == updated_response.headers['Cache-Control']
+
+
+@pytest.mark.ckan_config("ckan.cache.public.enabled", False)
+@pytest.mark.ckan_config("ckan.cache.private.enabled", False)
+def test_cache_enabled_false_private_enabled_false_defaults_to_no_cache(app: CKANTestApp):
+    """Test that cache control headers are set correctly when caching is allowed with override on max-age."""
+    builder = EnvironBuilder(path='/', method='GET', headers={})
+    env = builder.get_environ()
+    Request(env)
+    response = Response()  # dummy response
+
+    with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        session.accessed = False
+        session.modified = False  # CSRF is getting in the way of testing public overrides, disable session for now
+        base._allow_caching()
+        assert h.cache_level() == CacheType.NO_CACHE
+        updated_response = views.set_cache_control_headers_for_response(response)
+    assert 'private, max-age=300, must-revalidate' == updated_response.headers['Cache-Control']
+
+
+# Vary testing
+
 def test_adds_vary_cookie_when_limit_cache_by_cookie_is_present(app: CKANTestApp):
     """Test that `Vary: Cookie` is added when `__limit_cache_by_cookie__` is in the environment."""
     builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={
@@ -126,9 +177,26 @@ def test_adds_vary_cookie_when_limit_cache_by_cookie_is_present(app: CKANTestApp
         assert request.environ.get('__limit_cache_by_cookie__') is True
         updated_response = views.set_cache_control_headers_for_response(response)
     assert "Cookie" in updated_response.vary
+    assert "HX-Request" in updated_response.vary
 
 
-@pytest.mark.ckan_config("ckan.cache_expires", 300)
+def test_adds_vary_cookie_when_g_limit_cache_for_page_is_true(app: CKANTestApp):
+    """Test that `Vary: Cookie` is added when `__limit_cache_by_cookie__` is in the environment."""
+    builder = EnvironBuilder(path='/', method='GET', headers={},)
+    env = builder.get_environ()
+    Request(env)
+    response = Response()  # dummy response
+
+    with app.flask_app.request_context(env):  # only works if you have app.flask_app
+        with app.flask_app.app_context() as ctx:
+            assert request.environ.get('__limit_cache_by_cookie__') is None
+            base._allow_caching()
+            assert ctx.g.limit_cache_for_page is True
+            updated_response = views.set_cache_control_headers_for_response(response)
+    assert "Cookie" in updated_response.vary
+    assert "HX-Request" in updated_response.vary
+
+
 def test_removes_pragma_header_if_present(app: CKANTestApp):
     """Test that the `Pragma` header is removed if present in the response."""
     builder = EnvironBuilder(path='/', method='GET', headers={}, environ_overrides={
@@ -145,7 +213,8 @@ def test_removes_pragma_header_if_present(app: CKANTestApp):
     assert "Pragma" not in updated_response.headers
 
 
-@pytest.mark.ckan_config("ckan.cache_etags", False)
+# Etag testing
+@pytest.mark.ckan_config("ckan.etags.enabled", False)
 def test_etag_not_set_when_config_disables_it(app: CKANTestApp):
     """Test that ETag is set if missing in the response headers."""
     request_headers = {}
@@ -153,16 +222,15 @@ def test_etag_not_set_when_config_disables_it(app: CKANTestApp):
     assert "ETag" not in response.headers, response.headers
 
 
-@pytest.mark.ckan_config("ckan.cache_etags", True)
+@pytest.mark.ckan_config("ckan.etags.enabled", True)
 def test_sets_etag_when_missing(app: CKANTestApp):
     """Test that ETag is set if missing in the response headers."""
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    expected_etag = hashlib.md5(clean_dynamic_values(response.get_data(as_text=True)).encode()).hexdigest()
-    assert response.headers["ETag"] == f'"{expected_etag}"'
+    assert response.headers["ETag"] is not None
 
 
-@pytest.mark.ckan_config("ckan.cache_etags", True)
+@pytest.mark.ckan_config("ckan.etags.enabled", True)
 def test_does_not_modify_etag_if_already_set(app: CKANTestApp):
     """Test that an existing ETag is not modified."""
 
@@ -179,25 +247,37 @@ def test_does_not_modify_etag_if_already_set(app: CKANTestApp):
     assert updated_response.headers["ETag"] == '"existing-etag"'
 
 
-@pytest.mark.ckan_config("ckan.cache_etags", True)
-@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
+@pytest.mark.ckan_config("ckan.etags.enabled", True)
 def test_returns_304_if_etag_matches(app: CKANTestApp):
     """Test that response is changed to 304 Not Modified if ETag matches request."""
     request_headers = {}
-    response: TestResponse = app.get('/', headers=request_headers)
+    with app.flask_app.app_context() as ctx:
+        ctx.g.etag_modified_time = "fixed"
+        response: TestResponse = app.get('/', headers=request_headers)
     # use previous response ETag on next call
     assert response.headers["Etag"] is not None, response.headers
 
-    request_headers["if_none_match"] = response.headers["Etag"]
-    updated_response: TestResponse = app.get('/', headers=request_headers)
+    with app.flask_app.app_context() as ctx:
+        ctx.g.etag_modified_time = "fixed"  # expecting fixed-11683-3145776
+        request_headers["if_none_match"] = response.headers["Etag"]
+        updated_response: TestResponse = app.get('/', headers=request_headers)
 
-    assert updated_response.status_code == 304, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
-    assert updated_response.get_data() == b""
-    assert "Content-Length" not in updated_response.headers
+        assert updated_response.status_code == 304, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
+        assert updated_response.get_data() == b""
+        assert "Content-Length" not in updated_response.headers
+
+    with app.flask_app.app_context() as ctx:
+        request_headers["if_none_match"] = response.headers["Etag"]
+        # Due to hash system always different, we fix it for this test
+        ctx.g.etag_replace = response.headers["Etag"].replace('"', '',)
+        updated_response: TestResponse = app.get('/', headers=request_headers)
+
+        assert updated_response.status_code == 304, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
+        assert updated_response.get_data() == b""
+        assert "Content-Length" not in updated_response.headers
 
 
-@pytest.mark.ckan_config("ckan.cache_etags", True)
-@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
+@pytest.mark.ckan_config("ckan.etags.enabled", True)
 def test_does_not_return_304_if_etag_does_not_match(app: CKANTestApp):
     """Test that response is not modified if request's If-None-Match does not match the ETag."""
 
@@ -207,18 +287,17 @@ def test_does_not_return_304_if_etag_does_not_match(app: CKANTestApp):
     request_headers: dict = {"if_none_match": "some-other-etag"}
     updated_response: TestResponse = app.get('/', headers=request_headers)
 
-    assert updated_response.status_code == 200, "should have received payload, not 304 as invalid etag was passed in"
+    assert updated_response.status_code == 200
     under_test_response_data = updated_response.get_data(as_text=True)
     assert clean_dynamic_values(clean_response_data) == clean_dynamic_values(under_test_response_data)
-    assert updated_response.get_etag() == clean_response.get_etag(), "etag were not the same, got {}, original etag was {}".format(updated_response.get_etag(), clean_response.get_etag())
+    assert updated_response.get_etag() != clean_response.get_etag(), "etag were not the same, got {}, original etag was {}".format(updated_response.get_etag(), clean_response.get_etag())
 
 
 def streaming_generator():
     yield b"streaming response data"
 
 
-@pytest.mark.ckan_config("ckan.cache_etags", True)
-@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
+@pytest.mark.ckan_config("ckan.etags.enabled", True)
 def test_does_not_add_etag_if_streaming_response_encountered(app: CKANTestApp):
     """Test that response is not modified if request's If-None-Match does not match the ETag."""
     from types import GeneratorType
@@ -236,40 +315,3 @@ def test_does_not_add_etag_if_streaming_response_encountered(app: CKANTestApp):
         # recall set_etag_and_fast_304_response_if_unchanged again eith different etag to verify that it does not override
         updated_response = views.set_etag_for_response(response)
     assert "ETag" not in updated_response.headers, updated_response.headers
-
-
-@pytest.mark.ckan_config("ckan.cache_etags", True)
-@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
-def test_returns_200_if_etag_matches_but_override_flag_set(app: CKANTestApp):
-    request_headers = {}
-    response: TestResponse = app.get('/', headers=request_headers)
-    # use previous response ETag on next call
-    assert response.headers["Etag"] is not None, response.headers
-
-    request_headers["if_none_match"] = response.headers["Etag"]
-    extra_environ = {"__etag_not_conditional__": True}
-    request_headers = {}
-    updated_response: TestResponse = app.get('/', headers=request_headers, extra_environ=extra_environ)
-
-    assert updated_response.status_code == 200, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
-    assert updated_response.get_data() != response.get_data()
-    assert "Content-Length" in updated_response.headers
-    assert updated_response.headers["ETag"] == response.headers["ETag"]
-
-
-@pytest.mark.ckan_config("ckan.cache_etags", True)
-@pytest.mark.ckan_config("ckan.cache_etags_notModified", True)
-def test_returns_200_if_etag_super_strong_set_on_environ(app: CKANTestApp):
-    extra_environ = {"__etag_super_strong__": True}
-    request_headers = {}
-    response: TestResponse = app.get('/', headers=request_headers, extra_environ=extra_environ)
-    # use previous response ETag on next call
-    assert response.headers["Etag"] is not None, response.headers
-
-    request_headers["if_none_match"] = response.headers["Etag"]
-    request_headers = {}
-    updated_response: TestResponse = app.get('/', headers=request_headers, extra_environ=extra_environ)
-
-    assert updated_response.headers["ETag"] != response.headers["ETag"]
-    assert updated_response.status_code == 200, "original Etag was {}, second call etag was {}".format(response.headers["Etag"], updated_response.headers["Etag"])
-    assert updated_response.get_data() != response.get_data()

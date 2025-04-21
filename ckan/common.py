@@ -16,6 +16,8 @@ from enum import Enum
 from typing import (
     Any, Optional, TYPE_CHECKING,
     TypeVar, cast, overload, Union)
+
+from flask.sessions import SessionMixin
 from typing_extensions import Literal
 
 import flask
@@ -31,7 +33,6 @@ import simplejson as json  # type: ignore # noqa
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
 from ckan.types import Request
-
 
 if TYPE_CHECKING:
     MutableMapping = MutableMapping[str, Any]
@@ -226,7 +227,7 @@ def _get_c():  # pyright: ignore[reportUnusedFunction]
     return _get_g()
 
 
-def _get_session():
+def _get_session() -> SessionMixin:
     return flask.session
 
 
@@ -336,7 +337,7 @@ config_declaration = local.config_declaration = Declaration()
 # Proxies to already thread-local safe objects
 request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
-g: Any = LocalProxy(_get_g)  # flask.ctx._AppCtxGlobals
+g = LocalProxy(_get_g)  # flask.ctx._AppCtxGlobals
 c = g
 session = LocalProxy(_get_session)
 
@@ -346,14 +347,35 @@ falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
 
 class CacheType(Enum):
     """ This enum is to simplify cache control's since you can only have one type set
-
     If response cache_controls are manually configured, use context OVERRIDDEN to
     not allow default behaviour to alter your settings"""
-    PUBLIC = 'public'
-    PRIVATE = 'private'
-    NO_CACHE = 'no-cache'
-    SENSITIVE = 'no-store'
-    OVERRIDDEN = 'overridden'
+
+    priority: int
+
+    def __new__(cls, value: str, priority: int):
+        obj = object.__new__(cls)
+        obj._value_ = value
+        obj.priority = priority
+        return obj
+
+    PUBLIC = ('public', 1)
+    PRIVATE = ('private', 2)
+    NO_CACHE = ('no-cache', 3)
+    SENSITIVE = ('no-store', 4)
+    OVERRIDDEN = ('overridden', 99)
+
+    @classmethod
+    def can_override(cls, current_in: 'str|CacheType', new_in: 'str|CacheType') -> bool:
+        """Returns True if `new` can override `current`"""
+        if isinstance(current_in, str):
+            current: CacheType = cls(current_in)
+        else:
+            current = current_in
+        if isinstance(new_in, str):
+            new: CacheType = cls(new_in)
+        else:
+            new = new_in
+        return new.priority >= current.priority
 
 
 # This is what can be passed into the query args that is removed from dicts
