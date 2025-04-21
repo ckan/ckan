@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # For more details about caching, please read the spec located at
 # https://datatracker.ietf.org/doc/html/rfc9111
+# as well as RFC 7234 + RFC 5861 + RFC 9111
 
 
 def set_cors_headers_for_response(response: Response) -> Response:
@@ -51,6 +52,15 @@ def set_cors_headers_for_response(response: Response) -> Response:
     return response
 
 
+allowed_status_codes = frozenset({HTTPStatus.OK,  # 200
+                                  HTTPStatus.MOVED_PERMANENTLY,  # 301
+                                  HTTPStatus.FOUND,  # 302
+                                  HTTPStatus.UNAUTHORIZED,  # 401
+                                  HTTPStatus.FORBIDDEN,  # 403
+                                  HTTPStatus.NOT_FOUND  # 404
+                                  })
+
+
 # ETag's are very useful since it allows conditional freshness checks
 # without bandwidth costs by the browser/cdn.
 # Since html pages from ckan are always generated on the fly it
@@ -61,82 +71,102 @@ def set_etag_for_response(response: Response) -> Response:
     """Set ETag and return 304 if content is unchanged."""
 
     # skip streaming content
-    if not response.is_streamed:
-        enable_etags = config.get(u'ckan.cache_etags', True)
-        allowed_status_codes = {HTTPStatus.OK,  # 200
-                                HTTPStatus.MOVED_PERMANENTLY,  # 301
-                                HTTPStatus.FOUND,  # 302
-                                HTTPStatus.UNAUTHORIZED,  # 401
-                                HTTPStatus.FORBIDDEN,  # 403
-                                HTTPStatus.NOT_FOUND  # 404
-                                }
+    if response.is_streamed:
+        return response
 
-        if response.status_code in allowed_status_codes and enable_etags:
-            if 'etag' not in response.headers:
-                # s3 etag uses md5 if you want that, load etag plugin, this is weak etag
+    enable_etags = config.get(u'ckan.etags.enabled', True)
+    if enable_etags and response.status_code in allowed_status_codes:
+        if 'etag' not in response.headers:
+            etag_replace = getattr(g, 'etag_replace', None)
+            if etag_replace:
+                response.set_etag(etag_replace)
+            else:
+                # s3 etag uses md5 if you want that, load `etag` plugin, this is fast
+                # hash etag which h.set_etag_modified_time(str) can be used to set
+                # correct modified time as well as extended by plugins via
+                # `h.etag_append(str)` for their uniqueness constraints
+                mtime = getattr(g, 'etag_modified_time', time.time())
+                size = response.content_length
+                etag_append = getattr(g, 'etag_append', "")
                 check = (adler32(request.environ['PATH_INFO'].encode('utf-8'))
                          & 0xFFFFFFFF)
-                mtime = time.time()
-                size = response.content_length
-                response.set_etag(f"{mtime}-{size}-{check}")
+                response.set_etag(f"{mtime}-{size}-{check}{etag_append}")
 
-        # Use built-in function for make_conditional
-        response.make_conditional(request.environ)
+    # Use built-in function for make_conditional
+    response.make_conditional(request.environ)
 
     return response
 
 
 def set_cache_control_headers_for_response(response: Response) -> Response:
-    """ This uses the presents of ckan g's: 'cache_enabled',
-    '__no_private_cache__', '__limit_cache_by_cookie__' as well
-    as config variables to control cache response headers"""
-    cacheType = getattr(g, 'cacheType', None)
+    cache_type: Optional[CacheType] = getattr(g, 'cache_type', None)
+    # log.debug("set_cache_control_headers_for_response %r", cacheType)
+    cache_type = set_cache_control_headers_from_request(cache_type, response)
 
-    if cacheType == CacheType.OVERRIDDEN:
+    if cache_type == CacheType.OVERRIDDEN:
         # Don't alter notified overridden response
         return response
 
-    # __no_cache__ should not be present when caching is allowed
-    # environ is deprecated will be removed in 2026/7
-
-    environ_allow_cache = u'__no_cache__' not in request.environ
-
-    allow_cache = environ_allow_cache or not getattr(g, 'no_cache', False)
-    # no_private_cache should not be present when private caching is allowed
-    allow_private_cache = not getattr(g, 'no_private_cache', False)
-
-    # Use sparingly as this kills full browser caching (including dev tools)
-    is_sensitive = getattr(g, 'is_sensitive', False)
-    # If cookie is changing, don't allow it to be cached/stored
-    is_set_cookie_header = u'Set-Cookie' in response.headers
-    if is_sensitive or is_set_cookie_header or session.modified:
-        # https://developer.chrome.com/docs/web-platform/bfcache-ccns
-        # no_store Chrome assumes the page should never be reused, even in memory.
-        response.cache_control.no_store = True
-        # enforce no caching defaults
-        allow_cache = False
-        allow_private_cache = False
+    # the must-understand directive is recommended to be used in conjunction
+    # with no-store in the case that said directive is unsupported by a
+    # legacu cache and thus ignored.
+    response.cache_control.must_understand = True
 
     if u'Pragma' in response.headers:
         # Pragma has been replaced with Cache-Control
         del response.headers["Pragma"]
 
-    if allow_cache:
+    no_transform = config.get(u'ckan.cache.no_transform')
+    if no_transform:
+        response.cache_control.no_transform = True
+
+    set_vary_cache_settings(response)
+
+    # environ is deprecated and will be removed in 2026/7
+    environ_no_cache = u'__no_cache__' in request.environ
+    if environ_no_cache:
+        log.warning("environ '__no_cache__' is deprecated, "
+                    "use 'h.set_cache_level' function instead")
+        if cache_type is None or cache_type == CacheType.PUBLIC:
+            # Only make private, don't override other levels
+            cache_type = CacheType.PRIVATE
+
+    # log.debug("session accessed: %r modified: %r, keys: %r",
+    #           session.accessed, session.modified, session.keys())
+    if (session.accessed and len(session.keys()) > 0
+       and cache_type != CacheType.SENSITIVE):
+        # If we have session data, it can't be public
+        # Note: due to CSRF protection being 'session' based. All html pages will
+        # now be classified non-public due to needing to vary on at least cookie.
+        # as session stores '_csrf_token', '_fresh', '_permanent'
+        cache_type = CacheType.PRIVATE
+
+    # If cookie's is changing, don't allow it to be cached/stored
+    is_set_cookie_header = u'Set-Cookie' in response.headers
+    if is_set_cookie_header or session.modified:
+        # Note, flask_session occurs after ckan cache controls. So must use
+        # session.modified flag for swap outs
+        # If you use redis session, then the cookie only changes on
+        # first access/login/logout.
+        cache_type = CacheType.SENSITIVE
+
+    log.error("chacheType = %r", cache_type)
+
+    if cache_type == CacheType.PUBLIC:
         response.cache_control.public = True
-        cache_expire = config.get(u'ckan.cache_expires', 0)
-        response.cache_control.max_age = cache_expire
-        shared_cache_expire = config.get(u'ckan.shared_cache_expires', 0)
-        response.cache_control.s_maxage = shared_cache_expire
-        response.cache_control.must_revalidate = True
         response.cache_control.private = None  # Reset
-    elif allow_private_cache:
+        response.cache_control.max_age = config.get(u'ckan.cache.expires')
+        response.cache_control.s_maxage = config.get(u'ckan.cache.shared.expires')
+        set_cache_control_while_stale(response)
+
+    elif cache_type == CacheType.PRIVATE:
         response.cache_control.public = False  # Reset
         response.cache_control.private = True
-        private_cache_expire = config.get(u'ckan.private_cache_expires')
+        private_cache_expire = config.get(u'ckan.cache.private.expires')
         response.cache_control.max_age = private_cache_expire
-        response.cache_control.must_revalidate = True
-    else:
+        set_cache_control_while_stale(response)
 
+    elif cache_type in (CacheType.NO_CACHE, CacheType.SENSITIVE):
         # no_cache is like private, max-age=0
         # no_cache Does not block bfcache — revalidation applies to HTTP cache only
         response.cache_control.no_cache = True
@@ -144,22 +174,63 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
         response.cache_control.public = False  # Reset
         response.cache_control.private = None  # Reset
 
-    # __limit_cache_by_api_header_name__ should vary by api auth header name
-    api_header_name = u'__limit_cache_by_api_header_name__' in request.environ
-    if api_header_name:
-        # So api users get their own payloads
-        # Q: If a user is using their own key for public resources and
-        #    its public/public dataset/resources and it's a side effect
-        #    free `get` should we not vary on api key allowing a shared
-        #    cache hit?
-        response.vary.add(request.environ.get('__limit_cache_by_api_header_name__'))
-
-    limit_cache_by_cookie = u'__limit_cache_by_cookie__' in request.environ
-    # __limit_cache_by_cookie__ should vary by cookie
-    if limit_cache_by_cookie:
-        response.vary.add("Cookie")
+    if cache_type == CacheType.SENSITIVE:
+        # https://developer.chrome.com/docs/web-platform/bfcache-ccns
+        # no_store Chrome assumes the page should never be reused, even in memory.
+        response.cache_control.no_store = True
 
     return response
+
+
+def set_vary_cache_settings(rs: Response):
+    # limit_cache_for_api should vary by api auth header name
+    limit_cache_by_api = getattr(g, 'limit_cache_for_api', False)
+    if limit_cache_by_api:
+        rs.vary.add(config.get("apitoken_header_name"))
+
+    limit_cache_by_cookie = u'__limit_cache_by_cookie__' in request.environ
+    if limit_cache_by_cookie:
+        log.warning("environ: '__limit_cache_by_cookie__' is deprecated, "
+                    "use 'g.limit_cache_for_page = True' instead")
+
+    limit_cache_for_page = getattr(g, 'limit_cache_for_page', False)
+    if limit_cache_for_page or limit_cache_by_cookie:
+        rs.vary.add("Cookie")
+        rs.vary.add("HX-Request")
+
+
+def set_cache_control_while_stale(rs: Response) -> None:
+    """This functions updates cache_control with config settings.
+    If both stale configs are set to 0, then must-validate will be enabled"""
+    stale_while_revalidates = config.get(u'ckan.cache.stale_while_revalidates')
+    stale_if_error = config.get(u'ckan.cache.stale_if_error')
+    if stale_while_revalidates == 0 and stale_if_error == 0:
+        # must_revalidate overrides staleness values.
+        rs.cache_control.must_revalidate = True
+    else:
+        rs.cache_control.stale_while_revalidate = stale_while_revalidates
+        rs.cache_control.stale_if_error = stale_if_error
+        rs.cache_control.must_revalidate = False
+
+
+def set_cache_control_headers_from_request(cache_type: Optional[CacheType],
+                                           rs: Response) -> Optional[CacheType]:
+    """This function returns updated cacheType if request headers wants us
+    to disable cache, also sets no-transform if also found."""
+    # https://http.dev/cache-control
+    # This is very useful for developer tools testing
+    if 'Cache-Control' in request.headers:
+        request_cache_control = request.headers.get('Cache-Control', '')
+        directives = {d.strip() for d in request_cache_control.lower().split(',')}
+
+        if 'no-cache' in directives:
+            cache_type = CacheType.NO_CACHE
+        elif 'no-store' in directives:
+            cache_type = CacheType.SENSITIVE
+
+        if 'no-transform' in directives:
+            rs.cache_control.no_transform = True
+    return cache_type
 
 
 def identify_user() -> Optional[Response]:
@@ -221,9 +292,8 @@ def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
     if not apitoken_value:
         return None
 
-    # ensure response cache-control `Vary` includes api auth header
-    # (like cookie on template pages)
-    request.environ['__limit_cache_by_api_header_name__'] = apitoken_header_name
+    # If it is set, then Response Vary. This is a catch-all for extensions
+    g.limit_cache_for_api = True
 
     apitoken_value = str(apitoken_value)
     log.debug('Received API Token: %s[...]', apitoken_value[:10])

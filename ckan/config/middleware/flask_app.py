@@ -27,7 +27,7 @@ from flask_babel import Babel
 
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, current_user, session, CacheType
+from ckan.common import CKANConfig, asbool, current_user, session
 
 import ckan.model as model
 from ckan.lib import base
@@ -42,6 +42,8 @@ from ckan.config.middleware.common_middleware import (
     RootPathMiddleware,
     CKANSecureCookieSessionInterface,
     CKANRedisSessionInterface,
+    static_or_webasset_pre_configuration,
+    static_or_webasset_post_configuration
 )
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
@@ -56,8 +58,7 @@ from ckan.views import (identify_user,
                         set_etag_for_response,
                         handle_i18n,
                         set_ckan_current_url,
-                        _get_user_for_apitoken,
-                        )
+                        _get_user_for_apitoken, )
 from ckan.types import CKANApp, Config, Response
 
 log = logging.getLogger(__name__)
@@ -223,6 +224,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     wtf_key = "WTF_CSRF_SECRET_KEY"
     if not app.config.get(wtf_key):
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
+    app.config["WTF_CSRF_ENABLED"] = config.get('WTF_CSRF_ENABLED')
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
     app.config['WTF_CSRF_TIME_LIMIT'] = config.get('WTF_CSRF_TIME_LIMIT')
     csrf.init_app(app)
@@ -430,13 +432,6 @@ def ckan_after_request(response: Response) -> Response:
     url = request.environ['PATH_INFO']
     status_code = response.status_code
 
-    if current_user.is_anonymous and not session.modified:
-        # we don't want to create anon sessions as
-        # we always access but may never add data.
-        log.error("DEBUG: removing session for anonymous user")
-        # Not modified, not accessed.
-        session.accessed = False
-
     log.info(' %s %s render time %.3f seconds', status_code, url, r_time)
 
     return response
@@ -601,22 +596,10 @@ def _setup_webassets(app: CKANApp):
     webassets_folder = get_webassets_path()
 
     def webassets(path: str) -> Response:
-        g.cacheType = CacheType.OVERRIDDEN
-
-        cache_expire = config.get(u'ckan.cache_expires', 0)
-        if cache_expire == 0:
-            # If set, ``Cache-Control`` will be ``public``, otherwise
-            #         it will be ``no-cache``
-            cache_expire = None
-            shared_cache_expire = 0
-        else:
-            shared_cache_expire = config.get(u'ckan.shared_cache_expires')
-
+        cache_expire, shared_cache_expire = static_or_webasset_pre_configuration(None)
         response = send_from_directory(webassets_folder, path,
                                        etag=True, max_age=cache_expire)
-
-        if shared_cache_expire != 0:
-            response.cache_control.s_maxage = shared_cache_expire
+        static_or_webasset_post_configuration(response, shared_cache_expire)
         return response
 
     path = config["ckan.webassets.url"].rstrip("/")

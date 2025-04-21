@@ -195,7 +195,7 @@ jobs:
           echo "unzip pytest test duration details"
           gunzip .test_durations.gz
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -360,7 +360,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -420,3 +420,8 @@ jobs:
         with:
           name: combined-test-coverage-reports
           path: results
+
+      - name: Test Summary Combined (if Failure)
+        uses: test-summary/action@v2
+        with:
+          paths: "./merged.xml"

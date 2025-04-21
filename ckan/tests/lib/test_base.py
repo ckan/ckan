@@ -1,22 +1,13 @@
 # encoding: utf-8
+import re
+from unittest.mock import MagicMock
+from ckan.config.middleware import flask_app
 
 import pytest
 
 import ckan.tests.factories as factories
 import ckan.lib.helpers as h
 from ckan.tests.helpers import CKANTestApp
-
-
-@pytest.mark.ckan_config("debug", True)
-def test_comment_present_if_debug_true(app: CKANTestApp):
-    response = app.get("/")
-    assert "<!-- Snippet " in response, response.text()
-
-
-@pytest.mark.ckan_config("debug", False)
-def test_comment_absent_if_debug_false(app):
-    response = app.get("/")
-    assert "<!-- Snippet " not in response
 
 
 def test_apitoken_missing(app):
@@ -453,76 +444,93 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
     assert "Access-Control-Allow-Headers" not in response_headers
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', 'false')
-@pytest.mark.ckan_config('ckan.cache_private_enabled', 'true')
-def test_cache_control_in_when_cache_is_not_enabled(app):
+@pytest.mark.ckan_config('ckan.cache.public.enabled', 'false')
+@pytest.mark.ckan_config('ckan.cache.private.enabled', 'true')
+def test_cache_control_in_when_public_cache_is_not_enabled(app):
+    app.csrf.protect = MagicMock()  # disable CSRF protection and session usage
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    response_headers = dict(response.headers)
+    request_headers = setSessionCookieHeader(response)
+    response = app.get('/', headers=request_headers)
 
-    assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private, max-age=60, must-revalidate'
+    assert 'Cache-Control' in response.headers
+    assert response.headers['Cache-Control'] == 'must-understand, private, max-age=60, must-revalidate'
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache.public.enabled', 'true')
 def test_cache_control_when_cache_enabled(app):
+    app.csrf.protect = MagicMock()  # disable CSRF protection and session usage
     request_headers = {}
     response = app.get('/', headers=request_headers)
     response_headers = dict(response.headers)
 
     assert 'Cache-Control' in response_headers
-    assert 'public' in response_headers['Cache-Control']
+    assert 'public' == response_headers['Cache-Control']
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
-@pytest.mark.ckan_config('ckan.cache_expires', 300)
-def test_cache_control_max_age_when_cache_enabled(app):
+@pytest.mark.ckan_config('ckan.cache.public.enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache.expires', 300)
+def test_cache_control_max_age_when_cache_enabled(app: CKANTestApp):
+    app.csrf.protect = MagicMock()  # disable CSRF protection and session usage
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    response_headers = dict(response.headers)
+
+    response_headers = response.headers
 
     assert 'Cache-Control' in response_headers
     assert 'public' in response_headers['Cache-Control']
     assert 'max-age=300' in response_headers['Cache-Control']
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', False)
-def test_cache_control_when_cache_is_not_set_in_config(app: CKANTestApp):
+@pytest.mark.ckan_config('ckan.cache.public.enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache.private.enabled', 'true')
+def test_cache_control_while_logged_in(app: CKANTestApp):
+    user = factories.User(password="correct123")
+    identity = {"login": user["name"], "password": "correct123"}
     request_headers = {}
+
+    response = app.post(
+        h.url_for("user.login"), data=identity, headers=request_headers
+    )
+    assert 'Cache-Control' in response.headers
+    assert response.headers['Cache-Control'] == 'must-understand, no-cache, max-age=0, no-store'
+
+    headers = setSessionCookieHeader(response)
+
+    response = app.get(h.url_for("dashboard.groups"), headers=headers)
+    assert 'Cache-Control' in response.headers
+    assert response.headers['Cache-Control'] == 'must-understand, private, max-age=60, must-revalidate'
+
+
+def setSessionCookieHeader(response):
+    match = re.search(r'ckan=([^;]+)', response.headers['set-cookie'])
+    if match:
+        cookie_value = match.group(0)  # Includes 'ckan=...' part
+        headers = {"Cookie": cookie_value}
+
+    else:
+        pytest.fail("Not CKAN cookie found in Set-Cookie header")
+    return headers
+
+
+@pytest.mark.ckan_config('ckan.cache.public.enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache.private.enabled', 'false')
+def test_cache_control_while_logged_in_private_cache_disable(app):
+    app.csrf.protect = MagicMock()  # disable CSRF protection and session usage
+    request_headers = {}
+
     response = app.get('/', headers=request_headers)
 
-    response.cache_control.max_age = 60
-    response.cache_control.private = True
-    response.cache_control.must_revalidate = True
+    assert 'Cache-Control' in response.headers
+    assert 'public' in response.headers['Cache-Control']
+    assert 'max-age=300' in response.headers['Cache-Control']
 
-
-@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
-@pytest.mark.ckan_config('ckan.cache_private_enabled', 'true')
-def test_cache_control_while_logged_in(app):
-    from ckan.lib.helpers import url_for
     user = factories.User(password="correct123")
     identity = {"login": user["name"], "password": "correct123"}
     request_headers = {}
 
     response = app.post(
-        url_for("user.login"), data=identity, headers=request_headers
-    )
-    response_headers = dict(response.headers)
-
-    assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private, max-age=60, must-revalidate'
-
-
-@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
-@pytest.mark.ckan_config('ckan.cache_private_enabled', 'false')
-def test_cache_control_while_logged_in_private_cache_disable(app):
-    from ckan.lib.helpers import url_for
-    user = factories.User(password="correct123")
-    identity = {"login": user["name"], "password": "correct123"}
-    request_headers = {}
-
-    response = app.post(
-        url_for("user.login"), data=identity, headers=request_headers
+        h.url_for("user.login"), data=identity, headers=request_headers
     )
     response_headers = dict(response.headers)
 

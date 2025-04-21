@@ -105,45 +105,51 @@ def render(template_name: str,
 
 
 def _allow_caching(cache_force: Optional[bool] = None):
-    # Caching Logic
+    """Will configure cache type if not already set prior.
 
-    # Any rendered template will have a login-sensitive header
-    g.limit_cache_by_cookie = True
+    cache_force is depreciated, use 'h.set_cache_level' function instead
+    """
+    if cache_force is not None:
+        log.error("cache_force is deprecated use "
+                  "h.set_cache_level(CacheType.PUBLIC, True)")
 
-    cacheType = getattr(g, 'CacheType', None)
-    if cacheType:
-        # cache setting found, not altering
+    # Any rendered template will have Very header added, unless OVERRIDDEN flag is found
+    if h.cache_level() != CacheType.OVERRIDDEN:
+        if h.limit_cache_for_page() is None:
+            g.limit_cache_for_page = True
+
+    if h.cache_level():
+        log.error("Cache Level found: %r, skipping default cache config", h.cache_level)
         return
 
-    # Q: should api public/public dataset/resources be public cache
-    #    allowed even when logged in?
-
-    allow_cache = True
-    # Force cache or not if explicit.
-    if cache_force is not None:
-        allow_cache = cache_force
     # Do not allow caching of pages for logged in users/flash messages etc.
     elif ('user' in g and g.user) or _is_valid_session_cookie_data():
-        allow_cache = False
+        h.set_cache_level(CacheType.PRIVATE)
     # Tests etc.
     elif session.get("_user_id"):
-        allow_cache = False
+        h.set_cache_level(CacheType.PRIVATE)
+
     # Don't cache if based on a non-cachable template used in this.
-    elif request.environ.get('__no_cache__'):
-        allow_cache = False
+    if request.environ.get('__no_cache__'):
+        # Depreciated, use h.set_cache_level(CacheType.NO_CACHE)
+        h.set_cache_level(CacheType.NO_CACHE)
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.args.get('__no_cache__'):
-        allow_cache = False
-    # Don't cache if caching is not enabled in config
-    elif not config.get('ckan.cache_enabled'):
-        allow_cache = False
+        # Depreciated, use header Cache-Control: no-cache
+        h.set_cache_level(CacheType.NO_CACHE)
 
-    if allow_cache:
-        g.cacheType = CacheType.PUBLIC
-    elif config.get('ckan.cache_private_enabled'):
-        g.cacheType = CacheType.PRIVATE
-    else:
-        g.cacheType = CacheType.NO_CACHE
+    # Don't allow public cache if caching is not enabled in config
+    if not config.get('ckan.cache.public.enabled'):
+        h.set_cache_level(CacheType.PRIVATE)
+
+    # Don't allow private cache if caching is not enabled in config
+    if (h.cache_level() == CacheType.PRIVATE
+       and config.get('ckan.cache.private.enabled')):
+        h.set_cache_level(CacheType.NO_CACHE)
+
+    if h.cache_level() is None:
+        log.error("Cache Level not set")
+        h.set_cache_level(CacheType.PUBLIC)
 
 
 def _is_valid_session_cookie_data() -> bool:
