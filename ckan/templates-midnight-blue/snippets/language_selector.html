@@ -1,5 +1,5 @@
 {% set current_lang = request.environ.CKAN_LANG %}
-<form class="lang-select" action="{% url_for 'util.internal_redirect' %}" data-module="select-switch" method="POST">
+<form class="lang-select" action="{% url_for 'util.internal_redirect' %}" data-module="select-switch" method="GET">
   {{ h.csrf_input() }}
   <div class="form-group">
     <label for="field-lang-select">{{ _('Language') }}</label>

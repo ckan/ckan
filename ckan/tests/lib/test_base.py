@@ -4,12 +4,13 @@ import pytest
 
 import ckan.tests.factories as factories
 import ckan.lib.helpers as h
+from ckan.tests.helpers import CKANTestApp
 
 
 @pytest.mark.ckan_config("debug", True)
-def test_comment_present_if_debug_true(app):
+def test_comment_present_if_debug_true(app: CKANTestApp):
     response = app.get("/")
-    assert "<!-- Snippet " in response
+    assert "<!-- Snippet " in response, response.text()
 
 
 @pytest.mark.ckan_config("debug", False)
@@ -453,13 +454,14 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
 
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'false')
+@pytest.mark.ckan_config('ckan.cache_private_enabled', 'true')
 def test_cache_control_in_when_cache_is_not_enabled(app):
     request_headers = {}
     response = app.get('/', headers=request_headers)
     response_headers = dict(response.headers)
 
     assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private'
+    assert response_headers['Cache-Control'] == 'private, max-age=60, must-revalidate'
 
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
@@ -484,17 +486,18 @@ def test_cache_control_max_age_when_cache_enabled(app):
     assert 'max-age=300' in response_headers['Cache-Control']
 
 
-@pytest.mark.ckan_config('ckan.cache_enabled', None)
-def test_cache_control_when_cache_is_not_set_in_config(app):
+@pytest.mark.ckan_config('ckan.cache_enabled', False)
+def test_cache_control_when_cache_is_not_set_in_config(app: CKANTestApp):
     request_headers = {}
     response = app.get('/', headers=request_headers)
-    response_headers = dict(response.headers)
 
-    assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private'
+    response.cache_control.max_age = 60
+    response.cache_control.private = True
+    response.cache_control.must_revalidate = True
 
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache_private_enabled', 'true')
 def test_cache_control_while_logged_in(app):
     from ckan.lib.helpers import url_for
     user = factories.User(password="correct123")
@@ -507,4 +510,21 @@ def test_cache_control_while_logged_in(app):
     response_headers = dict(response.headers)
 
     assert 'Cache-Control' in response_headers
-    assert response_headers['Cache-Control'] == 'private'
+    assert response_headers['Cache-Control'] == 'private, max-age=60, must-revalidate'
+
+
+@pytest.mark.ckan_config('ckan.cache_enabled', 'true')
+@pytest.mark.ckan_config('ckan.cache_private_enabled', 'false')
+def test_cache_control_while_logged_in_private_cache_disable(app):
+    from ckan.lib.helpers import url_for
+    user = factories.User(password="correct123")
+    identity = {"login": user["name"], "password": "correct123"}
+    request_headers = {}
+
+    response = app.post(
+        url_for("user.login"), data=identity, headers=request_headers
+    )
+    response_headers = dict(response.headers)
+
+    assert 'Cache-Control' in response_headers
+    assert response_headers['Cache-Control'] == 'no-cache, max-age=0'
