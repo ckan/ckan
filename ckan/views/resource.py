@@ -169,16 +169,16 @@ def download(package_type: str,
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
+        mimetype = rsc.get('mimetype')
         if storage := getattr(upload, "storage", None):
-            file_data = files.FileData(
-                files.Location(filepath),
-                content_type=rsc.get("mimetype"),
-            )
+            file_data = files.FileData(files.Location(filepath))
+            if mimetype:
+                file_data.content_type = mimetype
             resp = storage.as_response(file_data, filename)
         else:
             resp = flask.send_file(filepath, download_name=filename)
-            if rsc.get('mimetype'):
-                resp.headers['Content-Type'] = rsc['mimetype']
+            if mimetype:
+                resp.headers['Content-Type'] = mimetype
         signals.resource_download.send(resource_id)
         return resp
 

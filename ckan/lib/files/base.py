@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from urllib.parse import quote
 import dataclasses
 from collections.abc import Iterable
 from typing import Any
@@ -273,5 +272,6 @@ class Storage(fk.Storage):
             raise fk.exc.UnsupportedOperationError("stream", self)
 
         return flask.Response(
-            self.reader.stream(data, extras), mimetype=data.content_type
+            self.reader.stream(data, extras),
+            mimetype=data.content_type or None,
         )
