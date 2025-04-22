@@ -1,6 +1,7 @@
 {% import 'macros/form.html' as form %}
 
 <form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form"
+  autocomplete="off"
   {% if created %}hx-on:htmx:after-settle="document.getElementById('token-{{ created.id }}').scrollIntoView(false)"{% endif %}>
   {{ h.csrf_input() }}
   {% block base_fields %}
