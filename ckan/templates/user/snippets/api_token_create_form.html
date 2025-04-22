@@ -24,7 +24,8 @@
         <td colspan="3">
           <div class="form-check">
             <label class="form-check-label radio">
-              <input class="form-check-input" type="checkbox" value="{{ created.id }}" name="token">
+              <input class="form-check-input" type="checkbox" value="{{ created.id }}" name="token"
+                onchange="$('#revoke-tokens-button').attr('disabled', !$('[name=token]:checked').length)">
               <code>
                 {{ created.name }}
               </code>
