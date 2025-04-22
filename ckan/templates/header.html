@@ -75,7 +75,8 @@
       {% if g.site_logo %}
       <a class="logo" href="{{ h.url_for('home.index') }}">
         <img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}"
-          aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"/>
+          aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"
+          height="35" />
       </a>
       {% else %}
       <h1>
