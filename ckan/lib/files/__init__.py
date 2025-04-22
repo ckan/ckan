@@ -212,6 +212,9 @@ def collect_storages() -> dict[str, Storage]:
 
         for object_type in ["user", "group", "admin"]:
             name = f"{object_type}_uploads"
+            if name in result:
+                continue
+
             result[name] = make_storage(
                 name,
                 {
