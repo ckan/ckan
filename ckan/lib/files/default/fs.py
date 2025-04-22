@@ -17,14 +17,6 @@ class Settings(base.Settings, fs.Settings):
     pass
 
 
-class Reader(base.Reader, fs.Reader):
-    def as_response(
-        self, data: base.FileData, extras: dict[str, Any]
-    ) -> types.Response:
-        filepath = os.path.join(self.storage.settings.path, data.location)
-        return flask.send_file(filepath, download_name=data.location)
-
-
 class FsStorage(base.Storage, fs.FsStorage):
     """Store files in local filesystem."""
 
@@ -45,4 +37,14 @@ class FsStorage(base.Storage, fs.FsStorage):
         declaration.declare_bool(key.recursive).set_description(
             "Use this flag if files can be stored inside subfolders"
             + " of the main storage path.",
+        )
+
+    def _base_response(
+        self, data: base.FileData, extras: dict[str, Any]
+    ) -> types.Response:
+        filepath = os.path.join(self.settings.path, data.location)
+        return flask.send_file(
+            filepath,
+            download_name=data.location,
+            mimetype=data.content_type,
         )

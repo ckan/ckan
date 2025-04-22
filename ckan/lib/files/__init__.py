@@ -124,6 +124,7 @@ def collect_adapters() -> dict[str, type[Storage]]:
     """
     result: dict[str, type[Storage]] = {
         "ckan:fs": default.FsStorage,
+        "ckan:libcloud": default.LibCloudStorage,
     }
 
     for plugin in p.PluginImplementations(p.IFiles):
@@ -192,20 +193,22 @@ def collect_storages() -> dict[str, Storage]:
         ) as err:
             raise CkanConfigurationException(str(err)) from err
 
-        storages.register(name, storage)
+        result[name] = storage
+
 
     if path := config["ckan.storage_path"]:
-        result["resources"] = make_storage(
-            "resources",
-            {
-                "type": "ckan:fs",
-                "path": os.path.join(path, "resources"),
-                "create_path": True,
-                "recursive": True,
-                "override_existing": True,
-                "location_transformers": ["safe_relative_path"],
-            },
-        )
+        if "resources" not in result:
+            result["resources"] = make_storage(
+                "resources",
+                {
+                    "type": "ckan:fs",
+                    "path": os.path.join(path, "resources"),
+                    "create_path": True,
+                    "recursive": True,
+                    "override_existing": True,
+                    "location_transformers": ["safe_relative_path"],
+                },
+            )
 
         for object_type in ["user", "group", "admin"]:
             name = f"{object_type}_uploads"

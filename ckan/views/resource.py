@@ -13,6 +13,7 @@ from flask.views import MethodView
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
+from ckan.lib import files
 from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
@@ -168,14 +169,16 @@ def download(package_type: str,
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
-        if hasattr(upload, "storage"):
-            filepath = os.path.join(
-                upload.storage.settings.path, filepath   # type: ignore
+        if storage := getattr(upload, "storage", None):
+            file_data = files.FileData(
+                files.Location(filepath),
+                content_type=rsc.get("mimetype"),
             )
-        resp = flask.send_file(filepath, download_name=filename)
-
-        if rsc.get('mimetype'):
-            resp.headers['Content-Type'] = rsc['mimetype']
+            resp = storage.as_response(file_data, filename)
+        else:
+            resp = flask.send_file(filepath, download_name=filename)
+            if rsc.get('mimetype'):
+                resp.headers['Content-Type'] = rsc['mimetype']
         signals.resource_download.send(resource_id)
         return resp
 
