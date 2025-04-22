@@ -3,8 +3,6 @@
 <form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form"
   {% if created %}hx-on:htmx:after-settle="document.getElementById('token-{{ created.id }}').scrollIntoView(false)"{% endif %}>
   {{ h.csrf_input() }}
-  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
-
   {% block base_fields %}
     <div class="form-group ">
         {{ form.input('name', label='Name', is_required=True, value=data.name, error=errors.name) }}
