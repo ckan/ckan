@@ -148,7 +148,7 @@ class PackageSearchIndex(SearchIndex):
         # vocab_<tag name> so that they can be used in facets
         non_vocab_tag_names = []
         tags = pkg_dict.pop('tags', [])
-        context: Context = {'model': model}
+        context = Context()
 
         for tag in tags:
             if tag.get('vocabulary_id'):

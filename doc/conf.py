@@ -19,7 +19,7 @@ import re
 import os
 import subprocess
 
-from packaging.version import parse as version_parse
+from packaging.version import parse as version_parse, VERSION_PATTERN
 
 import ckan
 
@@ -95,7 +95,7 @@ todo_include_todos = True
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = {".rst": "restructuredtext"}
+source_suffix = {'.rst': 'restructuredtext'}
 
 # The encoding of source files.
 #source_encoding = 'utf-8'
@@ -133,12 +133,20 @@ point_releases_ = None
 
 SUPPORTED_CKAN_VERSIONS = 2
 
+def extract_version(tag):
+    """ Ensure we only work with 'valid' ckan tagged releases"""
+    _regex = re.compile(r"^\s*ckan-" + VERSION_PATTERN + r"\s*$", re.VERBOSE | re.IGNORECASE)
+    match = re.search(_regex, tag)
+    if not match:
+        return False
+    else:
+        return True
 
 def get_release_tags():
     git_tags = subprocess.check_output(
         ['git', 'tag', '-l'], stderr=subprocess.STDOUT).decode('utf8')
     git_tags = git_tags.split()
-    release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
+    release_tags_ = [tag for tag in git_tags if extract_version(tag)]
 
     # git tag -l prints out the tags in the right order anyway, but don't rely
     # on that, sort them again here for good measure.

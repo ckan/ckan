@@ -381,17 +381,6 @@ this.ckan.module('datatables_view', function (jQuery) {
       gtableSearchText = that._('TABLE FILTER')
       gcolFilterText = that._('COLUMN FILTER/S')
 
-      let activelanguage = languagefile
-      // en is the default language, no need to load i18n file
-      if (languagefile === '/vendor/DataTables/i18n/en.json') {
-        activelanguage = ''
-      // load i18n files for zh_Hant_TW and zh_Hans_CN language
-      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hant_TW.json') {
-        activelanguage = '/vendor/DataTables/i18n/zh_Hant.json'
-      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hans_CN.json') {
-        activelanguage = '/vendor/DataTables/i18n/zh_CN.json'
-      }
-
       // settings if gcurrentView === table
       let fixedColumnSetting = true
       let scrollXflag = true
@@ -508,7 +497,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           blurable: true
         },
         language: {
-          url: activelanguage,
+          url: languagefile,
           paginate: {
             previous: '&lt;',
             next: '&gt;'
@@ -703,6 +692,9 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           }
+
+          // publish the event for other modules that are subscribed to it
+          that.sandbox.publish("datatablesview:init-complete", settings, json);
         }, // end InitComplete
         buttons: [{
           name: 'viewToggleButton',
@@ -868,6 +860,14 @@ this.ckan.module('datatables_view', function (jQuery) {
       // called after getting an AJAX response from CKAN
       datatable.on('xhr', function (e, settings, json, xhr) {
         gelapsedTime = window.performance.now() - gstartTime
+      })
+
+      // indicate when total displayed is estimated
+      datatable.on('draw.dt', function() {
+        if (datatable.ajax.json().total_was_estimated) {
+          document.getElementById('dtprv_info'
+            ).innerHTML += ' ' + that._('(estimated)')
+        }
       })
 
       // save state of table when row selection is changed

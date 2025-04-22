@@ -241,7 +241,8 @@ manually using location of the file and ``ckan.lib.files.FileData`` class::
 Additional information about storage functionality is available inside
 `file-keeper`_ documentation.
 
-.. _mimetypes: http://docs.python.org/2/library/mimetypes.html
+.. _mimetypes: https://docs.python.org/3/library/mimetypes.html
+
 .. _file-keeper: https://pypi.org/project/file-keeper/
 
 -------------
