@@ -1,20 +1,24 @@
 from __future__ import annotations
 
+from urllib.parse import quote
 import dataclasses
 from collections.abc import Iterable
 from typing import Any
 
+import flask
 import file_keeper as fk
-from typing_extensions import TypeAlias
 
+from typing_extensions import TypeAlias
+from ckan import types
+from ckan.common import config
 from ckan.config.declaration import Declaration
 from ckan.config.declaration.key import Key
 
 Location: TypeAlias = fk.Location
+Capability: TypeAlias = fk.Capability
 
 Uploader: TypeAlias = fk.Uploader
 Manager: TypeAlias = fk.Manager
-Reader: TypeAlias = fk.Reader
 
 FileData: TypeAlias = fk.FileData
 MultipartData: TypeAlias = fk.MultipartData
@@ -82,6 +86,29 @@ class Settings(fk.Settings):
     max_size: int = 0
 
 
+class Reader(fk.Reader):
+    """Service responsible for reading data from the storage.
+
+    `Storage` internally calls methods of this service. For example,
+    `Storage.stream(data, **kwargs)` results in `Reader.stream(data, kwargs)`.
+
+    Example:
+        ```python
+        class MyReader(Reader):
+            def stream(
+                self, data: FileData, extras: dict[str, Any]
+            ) -> Iterable[bytes]:
+                return open(data.location, "rb")
+        ```
+    """
+
+    def as_response(self, data: FileData, extras: dict[str, Any]) -> types.Response:
+        if not self.capabilities.can(Capability.STREAM):
+            raise fk.exc.UnsupportedOperationError("stream", self.storage)
+
+        return flask.Response(self.stream(data, extras), mimetype=data.content_type)
+
+
 class Storage(fk.Storage):
     """Base class for storage implementation.
 
@@ -109,7 +136,9 @@ class Storage(fk.Storage):
     """
 
     settings: Settings
+    reader: Reader
     SettingsFactory = Settings
+    ReaderFactory = Reader
 
     def validate_size(self, size: int):
         """Verify that size of upload does not go over the configured limit.
@@ -220,3 +249,45 @@ class Storage(fk.Storage):
             " transforms filename into UUID and appends original file's extension"
             " to it.",
         ).set_example("datetime_prefix")
+
+    def as_response(
+        self,
+        data: FileData,
+        filename: str | None = None,
+        /,
+        send_inline: bool = False,
+        **kwargs: Any,
+    ) -> Any:
+        """Make Flask response with file attachment.
+
+        By default, files are served as attachments and are downloaded as
+        result.
+
+        If rendering is safe and preferable enable ``send_inline`` flag.
+
+        Args:
+            data: file details
+            filename: expected name of the file used instead of the real name
+
+        Keyword args:
+            send_inline: do not force download and try rendering file in browser
+
+        Returns:
+            Flask response with file's content
+        """
+        resp = self.reader.as_response(data, kwargs)
+
+        inline_types = config["ckan.files.inline_content_types"]
+        disposition = (
+            "inline"
+            if send_inline or is_supported_type(data.content_type, inline_types)
+            else "attachment"
+        )
+
+        resp.headers.set(
+            "content-disposition",
+            disposition,
+            filename=filename or data.location,
+        )
+
+        return resp

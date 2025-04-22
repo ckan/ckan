@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import os
 import dataclasses
+from typing import Any
 
+import flask
 from file_keeper.default.adapters import fs
 
+from ckan import types
 from ckan.config.declaration import Declaration, Key
 from ckan.lib.files import base
 
@@ -11,6 +15,14 @@ from ckan.lib.files import base
 @dataclasses.dataclass()
 class Settings(base.Settings, fs.Settings):
     pass
+
+
+class Reader(base.Reader, fs.Reader):
+    def as_response(
+        self, data: base.FileData, extras: dict[str, Any]
+    ) -> types.Response:
+        filepath = os.path.join(self.storage.settings.path, data.location)
+        return flask.send_file(filepath, download_name=data.location)
 
 
 class FsStorage(base.Storage, fs.FsStorage):

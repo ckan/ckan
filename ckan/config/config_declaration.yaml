@@ -1736,3 +1736,10 @@ groups:
         default: default
         description: |
           Default storage used for uploads when no explicit storage specified.
+
+      - key: ckan.files.inline_content_types
+        example: application/pdf image video
+        type: list
+        description: |
+            MIMEtypes that can be served without
+            ``content-disposition:attachment`` header.

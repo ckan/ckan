@@ -14,6 +14,7 @@ from ckan.exceptions import CkanConfigurationException
 
 from . import default
 from .base import (
+    Capability,
     FileData,
     Location,
     Manager,
@@ -26,6 +27,7 @@ from .base import (
 
 __all__ = [
     "get_storage",
+    "Capability",
     "Storage",
     "Reader",
     "Manager",
