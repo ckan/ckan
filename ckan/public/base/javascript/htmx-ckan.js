@@ -16,6 +16,10 @@ htmx.on('htmx:configRequest', (event) => {
 
 
 function htmx_initialize_ckan_modules(event) {
+  /* ignore swap=none and swap=delete events */
+  if (!event.detail.shouldSwap) {
+    return;
+  }
   var elements = event.detail.target.querySelectorAll("[data-module]");
 
   for (let node of elements) {

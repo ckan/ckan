@@ -50,7 +50,8 @@
   </table>
 
   <div class="btn-group">
-    <button id="revoke-tokens-button" type="submit" class="btn btn-danger btn-sm" disabled>
+    <button id="revoke-tokens-button" type="submit" class="btn btn-danger" disabled
+      data-module="confirm-action" data-module-content="{{ _('Are you sure you want to revoke these tokens?') }}">
       <i class="fa fa-times"></i> {{ _('Revoke tokens') }}
     </button>
   </div>
