@@ -233,7 +233,7 @@ class ApiTokenView(MethodView):
             u'user_obj': current_user,
         }
         extra_vars = _extra_template_variables(context, data_dict)
-        extra_vars[u'tokens'] = tokens
+        extra_vars[u'tokens'] = reversed(tokens)
         extra_vars.update({
             u'data': data,
             u'errors': errors,

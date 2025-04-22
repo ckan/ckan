@@ -19,7 +19,7 @@
 
 {% if created %}
   <template>
-    <tbody hx-swap-oob="beforeend:#api-tokens-table tbody">
+    <tbody hx-swap-oob="afterbegin:#api-tokens-table tbody">
       <tr id="token-{{ created.id }}">
         <td colspan="3">
           <div class="form-check">
