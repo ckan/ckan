@@ -125,8 +125,13 @@ def collect_adapters() -> dict[str, type[Storage]]:
     result: dict[str, type[Storage]] = {
         "ckan:fs": default.FsStorage,
         "ckan:public_fs": default.PublicFsStorage,
-        "ckan:libcloud": default.LibCloudStorage,
     }
+
+    if adapter := getattr(default, "LibCloudStorage", None):
+        result["ckan:libcloud"] = adapter
+
+    if adapter := getattr(default, "OpenDalStorage", None):
+        result["ckan:opendal"] = adapter
 
     for plugin in p.PluginImplementations(p.IFiles):
         result.update(plugin.files_get_storage_adapters())
