@@ -23,7 +23,7 @@ pytest==7.4.4
 pytest-cov==3.0.0
 pytest-factoryboy==2.4.0
 pytest-freezegun==0.4.2
-pytest-rerunfailures==15.0
+pytest-rerunfailures==14.0
 pytest-split==0.10.0
 pytest-retry==1.7.0
 coverage==7.7.1
