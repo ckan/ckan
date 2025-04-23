@@ -211,35 +211,27 @@ def read_groups(id: str) -> Union[Response, str]:
 class ApiTokenView(MethodView):
     def get(self,
             id: str,
-            data: Optional[dict[str, Any]] = None,
-            errors: Optional[dict[str, Any]] = None,
-            error_summary: Optional[dict[str, Any]] = None
             ) -> Union[Response, str]:
         context: Context = {
-            u'user': current_user.name,
-            u'auth_user_obj': current_user,
-            u'for_view': True,
-            u'include_plugin_extras': True
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+            'for_view': True,
+            'include_plugin_extras': True
         }
         try:
-            tokens = logic.get_action(u'api_token_list')(
-                context, {u'user': id}
+            tokens = logic.get_action('api_token_list')(
+                context, {'user': id}
             )
         except logic.NotAuthorized:
-            base.abort(403, _(u'Unauthorized to view API tokens.'))
+            base.abort(403, _('Unauthorized to view API tokens.'))
 
         data_dict: dict[str, Any] = {
-            u'id': id,
-            u'user_obj': current_user,
+            'id': id,
+            'user_obj': current_user,
         }
         extra_vars = _extra_template_variables(context, data_dict)
-        extra_vars[u'tokens'] = reversed(tokens)
-        extra_vars.update({
-            u'data': data,
-            u'errors': errors,
-            u'error_summary': error_summary
-        })
-        return base.render(u'user/api_tokens.html', extra_vars)
+        extra_vars['tokens'] = reversed(tokens)
+        return base.render('user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
 
@@ -247,10 +239,9 @@ class ApiTokenView(MethodView):
             dictization_functions.unflatten(
                 logic.tuplize_dict(logic.parse_params(request.form))))
 
-        data_dict[u'user'] = id
+        data_dict['user'] = id
         token = None
         errors = None
-        error_summary = None
 
         try:
             token = logic.get_action('api_token_create')({}, data_dict)
@@ -258,7 +249,6 @@ class ApiTokenView(MethodView):
             base.abort(403, _('Unauthorized to create API tokens.'))
         except logic.ValidationError as e:
             errors = e.error_dict
-            error_summary = e.error_summary
         else:
             token['name'] = data_dict['name']
             data_dict = {}  # clear form
@@ -279,7 +269,6 @@ class ApiTokenView(MethodView):
             'data': data_dict,
             'created': token,
             'errors': errors,
-            'error_summary': error_summary,
         })
         return base.render('user/snippets/api_token_create_form.html', extra_vars)
 
@@ -288,9 +277,9 @@ def api_tokens_revoke(id: str) -> Response:
     tokens = request.form.getlist('token')
     for jti in tokens:
         try:
-            logic.get_action(u'api_token_revoke')({}, {u'jti': jti})
+            logic.get_action('api_token_revoke')({}, {'jti': jti})
         except logic.NotAuthorized:
-            base.abort(403, _(u'Unauthorized to revoke API tokens.'))
+            base.abort(403, _('Unauthorized to revoke API tokens.'))
     return base.render('user/snippets/api_tokens_revoke.html', {
         'tokens': tokens
     })
