@@ -1,1 +1,1 @@
-refresh CSRF token before it expires on forms to fix "The CSRF token is invalid." errors
+default to a long CSRF token timeout to fix "The CSRF token is invalid." errors

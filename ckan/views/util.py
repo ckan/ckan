@@ -32,18 +32,6 @@ def primer() -> str:
     return base.render(u'development/primer.html')
 
 
-def csrf_input() -> str:
-    '''
-    Render a hidden CSRF input field that refreshes automatically
-    so that users won't get an expired token error.
-    '''
-    # refresh just before expiration (enforce min in case of misconfiguration)
-    return base.render('snippets/csrf_input.html', {
-        'refresh_time': max(60, config["WTF_CSRF_TIME_LIMIT"] - 5)
-    })
-
-
 util.add_url_rule(
     u'/util/redirect', view_func=internal_redirect, methods=(u'GET', u'POST',))
 util.add_url_rule(u'/testing/primer', view_func=primer)
-util.add_url_rule('/csrf-input', view_func=csrf_input)
