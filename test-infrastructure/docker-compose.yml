@@ -20,7 +20,7 @@ services:
   ckan-solr:
     networks:
       - default
-    image: "ckan/ckan-solr:2.11-solr9"
+    image: "ckan/ckan-solr:2.10-solr9"
 
   ckan:
     image: python:3.10-bookworm
