@@ -241,10 +241,6 @@ manually using location of the file and ``ckan.lib.files.FileData`` class::
 Additional information about storage functionality is available inside
 `file-keeper`_ documentation.
 
-.. _mimetypes: https://docs.python.org/3/library/mimetypes.html
-
-.. _file-keeper: https://pypi.org/project/file-keeper/
-
 -------------
 Storage types
 -------------
@@ -252,13 +248,34 @@ Storage types
 Storage configuration requires ``type`` of the storage. Out of the box,
 following storage types are available:
 
+
 .. list-table::
    :widths: 25 50 25
    :header-rows: 1
 
    * - Type
      - Description
-     - Required options
+     - Important options
    * - `ckan:fs`
      - Keeps files inside local filesystem
      - * ``path``: root directory of the storage
+   * - `ckan:public_fs`
+     - Keeps files inside directory that provides direct access to its content
+     - * ``path``: root directory of the storage
+       * ``public_prefix``: prefix for building a valid URL. If ``/var/x`` is
+         registered as a static folder, but files are uploaded into
+         ``/var/x/y/z/``, the ``public_prefix`` is ``y/z``.
+
+   * - `ckan:libcloud`
+     - Keeps files inside the cloud using `Apache Libcloud`_
+     - * ``provider``: one of `Apache Libcloud providers`_
+       * ``key``: API key or username
+       * ``secret``: Secret password
+       * ``params``: additional options for the provider specified as JSON
+
+
+
+.. _mimetypes: https://docs.python.org/3/library/mimetypes.html
+.. _file-keeper: https://pypi.org/project/file-keeper/
+.. _Apache Libcloud: https://libcloud.apache.org/
+.. _Apache Libcloud providers: https://libcloud.readthedocs.io/en/stable/storage/supported_providers.html#provider-matrix
