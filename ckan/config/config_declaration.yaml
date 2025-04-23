@@ -685,7 +685,7 @@ groups:
 
       - key: WTF_CSRF_TIME_LIMIT
         type: int
-        default: 3600
+        default: 31536000
         description: |
           Max age in seconds for CSRF tokens.
           This value is capped by the lifetime of the session.
