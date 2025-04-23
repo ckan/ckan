@@ -53,7 +53,7 @@ def test_info_success():
     assert info["meta"]["id"] == resource["id"]
 
     info = helpers.call_action(
-        "datastore_info", id=resource["id"],
+        "datastore_info", resource_id=resource["id"],
         include_meta=False, include_fields_schema=False)
 
     assert 'meta' not in info

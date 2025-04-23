@@ -389,7 +389,7 @@ def datastore_info(context: Context, data_dict: dict[str, Any]
     if errors:
         raise p.toolkit.ValidationError(errors)
 
-    resource_id = data_dict['id']
+    resource_id = data_dict['resource_id']
     res_exists = backend.resource_exists(resource_id)
     if not res_exists:
         alias_exists, real_id = backend.resource_id_from_alias(resource_id)

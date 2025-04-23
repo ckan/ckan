@@ -242,8 +242,10 @@ def datastore_analyze_schema() -> Schema:
 
 
 def datastore_info_schema() -> Schema:
-    return {
-        'id': [unicode_only, not_empty],
+    return {       
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'id': [ignore_missing],       
         'include_meta': [default(True), boolean_validator],
         'include_fields_schema': [default(True), boolean_validator],
+        '__before': [rename('id', 'resource_id')]
     }
