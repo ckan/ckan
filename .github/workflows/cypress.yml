@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 env:
   NODE_VERSION: '16'
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.9'
 
 permissions:
   contents: read
@@ -66,17 +66,18 @@ jobs:
           ckan config-tool test-core-ci.ini "ckan.plugins = activity"
 
       - name: Run Cypress
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
           start: ckan -c test-core-ci.ini run
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
           if-no-files-found: ignore
-      - uses: actions/upload-artifact@v1
+
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress-videos
