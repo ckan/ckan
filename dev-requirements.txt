@@ -16,8 +16,8 @@ sphinx==7.3.7
 toml==0.10.2
 towncrier==23.11.0
 
-pytest==8.2.2
-pytest-cov==5.0.0
+pytest==8.3.4
+pytest-cov==6.0.0
 pytest-factoryboy==2.7.0
 pytest-freezegun==0.4.2
 pytest-rerunfailures==15.0
