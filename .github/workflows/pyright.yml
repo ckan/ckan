@@ -4,8 +4,8 @@ on:
   workflow_call:
   workflow_dispatch:
 env:
-  NODE_VERSION: '16'
-  PYTHON_VERSION: '3.8'
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.9'
 
 permissions:
   contents: read
