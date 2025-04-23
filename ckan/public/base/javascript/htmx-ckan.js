@@ -33,3 +33,11 @@ function htmx_initialize_ckan_modules(event) {
 }
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
+document.body.addEventListener("htmx:responseError", function(event) {
+  /* copy error content from response into an alert flash message
+     so that the user can see it */
+  let message = $(event.detail.xhr.response).find('#error-content')
+  message.removeAttr('id').removeAttr('class')
+  let alrt = $('<div class="alert alert-danger">').append(message)
+  $('#content .flash-messages').append(alrt)[0].scrollIntoView()
+})

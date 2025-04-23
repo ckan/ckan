@@ -231,6 +231,8 @@ class ApiTokenView(MethodView):
         }
         extra_vars = _extra_template_variables(context, data_dict)
         extra_vars['tokens'] = reversed(tokens)
+        extra_vars['data'] = data_dict
+        extra_vars['errors'] = None
         return base.render('user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
@@ -280,6 +282,8 @@ def api_tokens_revoke(id: str) -> Response:
             logic.get_action('api_token_revoke')({}, {'jti': jti})
         except logic.NotAuthorized:
             base.abort(403, _('Unauthorized to revoke API tokens.'))
+        except logic.NotFound:
+            pass  # ignore already-deleted tokens
     return base.render('user/snippets/api_tokens_revoke.html', {
         'tokens': tokens
     })
