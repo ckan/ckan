@@ -1,10 +1,8 @@
-# encoding: utf-8
 from __future__ import annotations
 
 import cgi
 import json
 import logging
-import os
 from typing import Any, Optional, Union, cast
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse

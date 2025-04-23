@@ -124,6 +124,7 @@ def collect_adapters() -> dict[str, type[Storage]]:
     """
     result: dict[str, type[Storage]] = {
         "ckan:fs": default.FsStorage,
+        "ckan:public_fs": default.PublicFsStorage,
         "ckan:libcloud": default.LibCloudStorage,
     }
 
@@ -195,7 +196,6 @@ def collect_storages() -> dict[str, Storage]:
 
         result[name] = storage
 
-
     if path := config["ckan.storage_path"]:
         if "resources" not in result:
             result["resources"] = make_storage(
@@ -213,16 +213,22 @@ def collect_storages() -> dict[str, Storage]:
         for object_type in ["user", "group", "admin"]:
             name = f"{object_type}_uploads"
             if name in result:
+                if not result[name].supports(Capability.PERMANENT_LINK):
+                    msg = f"PERMANENT_LINK capability is required for storage {name}"
+                    raise CkanConfigurationException(msg)
                 continue
 
-            result[name] = make_storage(
+            prefix = os.path.join(os.path.join("uploads", object_type))
+            storage = make_storage(
                 name,
                 {
-                    "type": "ckan:fs",
-                    "path": os.path.join(path, "storage", "uploads", object_type),
+                    "type": "ckan:public_fs",
+                    "path": os.path.join(path, "storage", prefix),
+                    "public_prefix": prefix,
                     "create_path": True,
                 },
             )
+            result[name] = storage
 
     return result
 

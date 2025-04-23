@@ -35,6 +35,7 @@ import ckan.authz as authz
 import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
+from ckan.lib import files
 from ckan.types import Context
 from ckan.common import config
 
@@ -458,13 +459,14 @@ def group_dictize(group: model.Group, context: Context,
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
     if image_url and not image_url.startswith('http'):
-        #munge here should not have an effect only doing it incase
-        #of potential vulnerability of dodgy api input
-        image_url = munge.munge_filename_legacy(image_url)
-        result_dict['image_display_url'] = h.url_for_static(
-            'uploads/group/%s' % result_dict.get('image_url'),
-            qualified=True
-        )
+        try:
+            storage = files.get_storage("group_uploads")
+        except files.exc.UnknownStorageError:
+            pass
+        else:
+            result_dict['image_display_url'] = storage.permanent_link(files.FileData(
+                files.Location(image_url)
+            ))
     return result_dict
 
 def tag_list_dictize(
@@ -615,13 +617,14 @@ def user_dictize(
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
     if image_url and not image_url.startswith('http'):
-        # munge here should not have any effect, only doing it in case
-        # of potential vulnerability of dodgy api input.
-        image_url = munge.munge_filename_legacy(image_url)
-        result_dict['image_display_url'] = h.url_for_static(
-            'uploads/user/%s' % result_dict.get('image_url'),
-            qualified=True
-        )
+        try:
+            storage = files.get_storage("user_uploads")
+        except files.exc.UnknownStorageError:
+            pass
+        else:
+            result_dict['image_display_url'] = storage.permanent_link(files.FileData(
+                files.Location(image_url)
+            ))
 
     return result_dict
 

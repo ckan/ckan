@@ -228,6 +228,8 @@ class ResourceUpload(object):
         self.mimetype = None
 
         url = resource.get('url')
+        if url and config_mimetype_guess == 'file_ext' and urlparse(url).path:
+            self.mimetype = mimetypes.guess_type(url)[0]
 
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
