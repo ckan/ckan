@@ -66,7 +66,6 @@ allowed_status_codes = frozenset({HTTPStatus.OK,  # 200
 # Since html pages from ckan are always generated on the fly it
 # can't use last modified and content length our Nginx does it
 # This is a simple etag which changes on each request
-# If you wish to have etags always use etag plugin
 def set_etag_for_response(response: Response) -> Response:
     """Set ETag and return 304 if content is unchanged."""
 
@@ -109,7 +108,7 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
 
     # the must-understand directive is recommended to be used in conjunction
     # with no-store in the case that said directive is unsupported by a
-    # legacu cache and thus ignored.
+    # legacy cache and thus ignored.
     response.cache_control.must_understand = True
 
     if u'Pragma' in response.headers:
@@ -131,26 +130,43 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
             # Only make private, don't override other levels
             cache_type = CacheType.PRIVATE
 
-    # log.debug("session accessed: %r modified: %r, keys: %r",
-    #           session.accessed, session.modified, session.keys())
-    if (session.accessed and len(session.keys()) > 0
-       and cache_type != CacheType.SENSITIVE):
-        # If we have session data, it can't be public
-        # Note: due to CSRF protection being 'session' based. All html pages will
-        # now be classified non-public due to needing to vary on at least cookie.
-        # as session stores '_csrf_token', '_fresh', '_permanent'
-        cache_type = CacheType.PRIVATE
-
+    session_type = config.get(u'SESSION_TYPE')
     # If cookie's is changing, don't allow it to be cached/stored
     is_set_cookie_header = u'Set-Cookie' in response.headers
-    if is_set_cookie_header or session.modified:
-        # Note, flask_session occurs after ckan cache controls. So must use
-        # session.modified flag for swap outs
-        # If you use redis session, then the cookie only changes on
-        # first access/login/logout.
+    if is_set_cookie_header:
+        # If cookie's is changing, don't allow it to be cached/stored
         cache_type = CacheType.SENSITIVE
 
-    log.error("chacheType = %r", cache_type)
+    # log.debug("session accessed: %r modified: %r, keys: %r",
+    #           session.accessed, session.modified, session.keys())
+
+    if session_type == 'redis':
+        if not g.__session_was_empty and cache_type != CacheType.SENSITIVE:
+            # Session exists, so can't be public
+            # As session data is in redis, it won't alter its cookie
+            cache_type = CacheType.PRIVATE
+        elif g.__session_was_empty and session.modified:
+            # Redis session created, cookie will be created
+            cache_type = CacheType.SENSITIVE
+
+    else:
+        # Cookie based session handling
+        if not g.__session_was_empty and cache_type != CacheType.SENSITIVE:
+            # If we have session data, it can't be public
+            # Note: due to CSRF protection being 'session' based. All html pages will
+            # now be classified non-public due to needing to vary on at least cookie.
+            # as session stores '_csrf_token', '_fresh', '_permanent'
+            cache_type = CacheType.PRIVATE
+
+        if session.modified:
+            # Note, flask_session occurs after ckan cache controls. So must use
+            # session.modified flag for swap outs
+
+            cache_type = CacheType.SENSITIVE
+
+    # log.error("chacheType = %r", cache_type)
+    # log.error("session keys %r", session.keys())
+    # log.error("session %r", session)
 
     if cache_type == CacheType.PUBLIC:
         response.cache_control.public = True
@@ -218,7 +234,8 @@ def set_cache_control_headers_from_request(cache_type: Optional[CacheType],
     """This function returns updated cacheType if request headers wants us
     to disable cache, also sets no-transform if also found."""
     # https://http.dev/cache-control
-    # This is very useful for developer tools testing
+    # This is very useful for developer tools testing as well as
+    # loopback to break cdn cache is 'Cache-Control' is set as a key
     if 'Cache-Control' in request.headers:
         request_cache_control = request.headers.get('Cache-Control', '')
         directives = {d.strip() for d in request_cache_control.lower().split(',')}

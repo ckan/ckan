@@ -112,7 +112,7 @@ class TestSessionTypes:
 
         assert not redis.keys("*")
         # A request that has no session
-        response = app.get("/base/images/ckan-logo-footer.png")
+        response = app.get("/")
         assert 'Set-Cookie' not in response.headers
         assert not redis.keys("*")
 

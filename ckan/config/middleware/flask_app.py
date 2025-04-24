@@ -27,7 +27,7 @@ from flask_babel import Babel
 
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, current_user, session
+from ckan.common import CKANConfig, asbool, session, current_user
 
 import ckan.model as model
 from ckan.lib import base
@@ -58,7 +58,8 @@ from ckan.views import (identify_user,
                         set_etag_for_response,
                         handle_i18n,
                         set_ckan_current_url,
-                        _get_user_for_apitoken, )
+                        _get_user_for_apitoken,
+                        )
 from ckan.types import CKANApp, Config, Response
 
 log = logging.getLogger(__name__)
@@ -350,6 +351,11 @@ def ckan_before_request() -> Optional[Response]:
 
     g.__timer = time.time()
 
+    session_access = session.accessed
+    # used to mimic session.new since flask_session.new can lie
+    g.__session_was_empty = len(session.keys()) == 0
+    session.accessed = session_access  # reset session accessed state
+
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -376,6 +382,7 @@ def ckan_before_request() -> Optional[Response]:
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
+    g.csrf_enabled = config.get('WTF_CSRF_ENABLED')
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
