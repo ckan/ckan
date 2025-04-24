@@ -33,6 +33,7 @@
       data-ckanfilters="{{ request.args.get('filters', '')|e }}"
       data-responsive-flag="{{ resource_view.get('responsive')|lower }}"
       data-page-length-choices="{{ page_length_choices }}"
+      data-responsive-modal="{{ responsive_modal|lower }}"
       data-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id ) }}">
     <thead>
       <tr>
