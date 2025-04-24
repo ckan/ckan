@@ -33,11 +33,28 @@ function htmx_initialize_ckan_modules(event) {
 }
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
+
 document.body.addEventListener("htmx:responseError", function(event) {
-  /* copy error content from response into an alert flash message
-     so that the user can see it */
-  let message = $(event.detail.xhr.response).find('#error-content')
-  message.removeAttr('id').removeAttr('class')
-  let alrt = $('<div class="alert alert-danger">').append(message)
-  $('#content .flash-messages').append(alrt)[0].scrollIntoView()
+  let xhr = event.detail.xhr
+  let url = URL.createObjectURL(new Blob([xhr.response]))
+  let modal = $(`
+    <div class="modal fade">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">${xhr.status} ${xhr.statusText}</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+              aria-label="${ckan.i18n._("Close")}"></button>
+          </div>
+        <div class="modal-body">
+          <iframe style="width:100%; height:100%;" src="${url}"></iframe>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-cancel" data-bs-dismiss="modal"
+            >${ckan.i18n._("Close")}</button>
+        </div>
+      </div>
+    </div>`
+  )
+  modal.modal('show')
 })

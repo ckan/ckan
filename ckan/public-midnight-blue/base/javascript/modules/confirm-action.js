@@ -96,7 +96,7 @@ this.ckan.module('confirm-action', function (jQuery) {
         return;
       }
 
-      if (!this.options.withData && !form.attr('hx-post')) {
+      if (!this.options.withData) {
         // create a form and submit it to confirm the deletion
         form = jQuery('<form/>', {
           action: this.el.attr('href'),
