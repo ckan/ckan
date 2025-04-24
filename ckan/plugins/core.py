@@ -10,7 +10,7 @@ import warnings
 from contextlib import contextmanager
 from typing import (Any, Generic, Iterator, Optional,
                     Type, TypeVar, Union)
-from pkg_resources import iter_entry_points
+from pkg_resources import iter_entry_points  # type: ignore
 
 from pyutilib.component.core import PluginGlobals, implements
 from pyutilib.component.core import ExtensionPoint
