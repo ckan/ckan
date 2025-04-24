@@ -354,9 +354,8 @@ class User(core.StatefulObjectMixin,
 
     def set_user_last_active(self) -> None:
         if self.last_active:
-            session["last_active"] = self.last_active
-
-            if session["last_active"] < last_active_check():
+            if self.last_active < last_active_check():
+                session["last_active"] = self.last_active.isoformat()
                 self.last_active = datetime.datetime.utcnow()
                 meta.Session.commit()
         else:
