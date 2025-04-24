@@ -33,28 +33,24 @@ function htmx_initialize_ckan_modules(event) {
 }
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
-
 document.body.addEventListener("htmx:responseError", function(event) {
-  let xhr = event.detail.xhr
-  let url = URL.createObjectURL(new Blob([xhr.response]))
-  let modal = $(`
-    <div class="modal fade">
-      <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title">${xhr.status} ${xhr.statusText}</h3>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"
-              aria-label="${ckan.i18n._("Close")}"></button>
-          </div>
-        <div class="modal-body">
-          <iframe style="width:100%; height:100%;" src="${url}"></iframe>
+  const xhr = event.detail.xhr
+  const error = $(xhr.response).find('#error-content')
+  const headerHTML = error.find('h1').remove().html() || `${xhr.status} ${xhr.statusText}`
+  const messageHTML = error.html() || event.detail.error
+  $('#responseErrorToast').remove()
+  $(`
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+      <div id="responseErrorToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto text-danger">${headerHTML}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="${ckan.i18n._("Close")}"></button>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary btn-cancel" data-bs-dismiss="modal"
-            >${ckan.i18n._("Close")}</button>
+        <div class="toast-body">
+          ${messageHTML}
         </div>
       </div>
-    </div>`
-  )
-  modal.modal('show')
+    </div>
+  `).appendTo('body')
+  $('#responseErrorToast').toast('show')
 })
