@@ -516,8 +516,6 @@ class TestTrashView(object):
         """Cancelling purge doesn't purge anything."""
         factories.Organization(state="deleted")
         factories.Organization(state="deleted")
-        sysadmin = factories.SysadminWithToken()
-        env = {"Authorization": sysadmin["token"]}
 
         # how many organizations before purge
         orgs_before_purge = model.Session.query(model.Group).filter_by(
