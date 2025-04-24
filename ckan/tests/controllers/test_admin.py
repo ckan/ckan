@@ -2,7 +2,6 @@
 
 import pytest
 from bs4 import BeautifulSoup
-from unittest import mock
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -15,22 +14,15 @@ from ckan.model.system_info import get_system_info
 @pytest.fixture
 def sysadmin_env():
     user = factories.SysadminWithToken()
-    env = {"Authorization": user["token"]}
+    env = {"HTTP_AUTHORIZATION": user["token"]}
     return env
 
 
 @pytest.fixture
 def user_env():
     user = factories.UserWithToken()
-    env = {"Authorization": user["token"]}
+    env = {"HTTP_AUTHORIZATION": user["token"]}
     return env
-
-
-def mock_current_user(current_user):
-    user = factories.Sysadmin()
-    user_obj = model.User.get(user["name"])
-    # mock current_user
-    current_user.return_value = user_obj
 
 
 def _reset_config(app, sysadmin_env):
@@ -59,6 +51,9 @@ class TestConfig(object):
 
     def test_site_title(self, app, sysadmin_env):
         """Configure the site title"""
+
+        _reset_config(app, sysadmin_env)
+
         # current site title
         index_response = app.get("/")
         assert "Welcome - CKAN" in index_response
@@ -94,10 +89,8 @@ class TestConfig(object):
         assert "main-rtl.css" in resp or "main-rtl.min.css" in resp
         assert not helpers.body_contains(resp, "main.min.css")
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_tag_line(self, current_user, app, sysadmin_env):
+    def test_tag_line(self, app, sysadmin_env):
         """Add a tag line (only when no logo)"""
-        mock_current_user(current_user)
 
         # current tagline
         index_response = app.get("/")
@@ -107,7 +100,7 @@ class TestConfig(object):
 
         # set new tagline css
         form = {"ckan.site_description": "Special Tagline", "save": ""}
-        app.post(url, data=form)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline not visible yet
         new_index_response = app.get("/")
@@ -116,7 +109,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
         # remove logo
         form = {"ckan.site_logo": "", "save": ""}
-        app.post(url, data=form)
+        app.post(url, data=form, environ_overrides=sysadmin_env)
 
         # new tagline
         new_index_response = app.get("/")
@@ -372,18 +365,16 @@ class TestTrashView(object):
         # One entity of each type in the list to purge
         assert entities_amount == 3
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_trash_purge_custom_ds_type(self, current_user, app):
+    def test_trash_purge_custom_ds_type(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
         factories.Dataset(state="deleted", type="custom_dataset")
-        mock_current_user(current_user)
         # how many datasets before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 1
 
         trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "package"}, status=200)
+        response = app.post(trash_url, data={"action": "package"}, environ_overrides=sysadmin_env)
         # check for flash success msg
         assert "datasets have been purged" in response.body
 
@@ -391,21 +382,19 @@ class TestTrashView(object):
         pkgs_after_purge = model.Session.query(model.Package).count()
         assert pkgs_after_purge == 0
 
-    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
-    def test_trash_purge_deleted_datasets(self, current_user, app):
+    def test_trash_purge_deleted_datasets(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
         factories.Dataset(state="deleted")
         factories.Dataset(state="deleted")
         factories.Dataset()
-        mock_current_user(current_user)
         # how many datasets before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
         trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "package"}, status=200)
+        response = app.post(trash_url, data={"action": "package"}, environ_overrides=sysadmin_env)
         # check for flash success msg
         assert "datasets have been purged" in response.body
 
@@ -413,22 +402,20 @@ class TestTrashView(object):
         pkgs_after_purge = model.Session.query(model.Package).count()
         assert pkgs_after_purge == 1
 
-    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.usefixtures("clean_index")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
-    def test_trash_purge_deleted_datasets_no_remove_deleted_packages(self, current_user, app):
+    def test_trash_purge_deleted_datasets_no_remove_deleted_packages(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
         factories.Dataset(state="deleted")
         factories.Dataset(state="deleted")
         factories.Dataset()
-        mock_current_user(current_user)
         # how many datasets before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
         trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "package"}, status=200)
+        response = app.post(trash_url, data={"action": "package"}, environ_overrides=sysadmin_env)
         # check for flash success msg
         assert "datasets have been purged" in response.body
 
@@ -436,20 +423,18 @@ class TestTrashView(object):
         pkgs_after_purge = model.Session.query(model.Package).count()
         assert pkgs_after_purge == 1
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_trash_purge_deleted_groups(self, current_user, app):
+    def test_trash_purge_deleted_groups(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' groups, purges the
         groups."""
         factories.Group(state="deleted")
         factories.Group(state="deleted")
         factories.Group()
-        mock_current_user(current_user)
         # how many groups before purge
         grps_before_purge = model.Session.query(model.Group).count()
         assert grps_before_purge == 3
 
         trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "group"}, status=200)
+        response = app.post(trash_url, data={"action": "group"}, environ_overrides=sysadmin_env)
         # check for flash success msg
         assert "groups have been purged" in response
 
@@ -457,21 +442,19 @@ class TestTrashView(object):
         grps_after_purge = model.Session.query(model.Group).count()
         assert grps_after_purge == 1
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_trash_purge_deleted_organization(self, current_user, app):
+    def test_trash_purge_deleted_organization(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' organizations, purges the
         organizations."""
         factories.Organization(state="deleted")
         factories.Organization(state="deleted")
         factories.Organization()
-        mock_current_user(current_user)
         # how many organizations before purge
         orgs_before_purge = model.Session.query(model.Group).filter_by(
             is_organization=True).count()
         assert orgs_before_purge == 3
 
         trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "organization"}, status=200)
+        response = app.post(trash_url, data={"action": "organization"}, environ_overrides=sysadmin_env)
         # check for flash success msg
         assert "organizations have been purged" in response
 
@@ -480,9 +463,8 @@ class TestTrashView(object):
             is_organization=True).count()
         assert orgs_after_purge == 1
 
-    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
-    def test_trash_purge_all(self, current_user, app):
+    def test_trash_purge_all(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' entities and
         purge all button purges everything"""
         factories.Dataset(state="deleted", type="custom_dataset")
@@ -490,14 +472,13 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization(state="deleted", type="custom_org")
         factories.Organization()
-        mock_current_user(current_user)
         # how many entities before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 5
 
         trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "all"}, status=200)
+        response = app.post(trash_url, data={"action": "all"}, environ_overrides=sysadmin_env)
         # check for flash success msg
         assert "Massive purge complete" in response
 
@@ -506,10 +487,9 @@ class TestTrashView(object):
         orgs_and_grps_after_purge = model.Session.query(model.Group).count()
         assert pkgs_after_purge + orgs_and_grps_after_purge == 1
 
-    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.usefixtures("clean_index")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
-    def test_trash_purge_all_no_remove_deleted_packages(self, current_user, app):
+    def test_trash_purge_all_no_remove_deleted_packages(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' entities and
         purge all button purges everything"""
         factories.Dataset(state="deleted", type="custom_dataset")
@@ -517,14 +497,13 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization(state="deleted", type="custom_org")
         factories.Organization()
-        mock_current_user(current_user)
 
         # how many entities before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 5
         trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "all"}, status=200)
+        response = app.post(trash_url, data={"action": "all"}, environ_overrides=sysadmin_env)
         # check for flash success msg
         assert "Massive purge complete" in response
 
@@ -533,12 +512,10 @@ class TestTrashView(object):
         orgs_and_grps_after_purge = model.Session.query(model.Group).count()
         assert pkgs_after_purge + orgs_and_grps_after_purge == 1
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_trash_cancel_purge(self, current_user, app):
+    def test_trash_cancel_purge(self, app, sysadmin_env):
         """Cancelling purge doesn't purge anything."""
         factories.Organization(state="deleted")
         factories.Organization(state="deleted")
-        mock_current_user(current_user)
 
         # how many organizations before purge
         orgs_before_purge = model.Session.query(model.Group).filter_by(
@@ -546,7 +523,7 @@ class TestTrashView(object):
         assert orgs_before_purge == 2
 
         trash_url = url_for("admin.trash", name="purge-organization")
-        response = app.post(trash_url, data={"cancel": ""}, status=200)
+        response = app.post(trash_url, data={"cancel": ""}, environ_overrides=sysadmin_env, status=200)
         # flash success msg should be absent
         assert "Organizations have been purged" not in response
 
@@ -627,3 +604,5 @@ class TestAdminConfigUpdate(object):
         # title tag contains new value
         home_page_after = app.get("/", status=200)
         assert "Welcome - My Updated Site Title" in home_page_after
+
+        _reset_config(app, sysadmin_env)

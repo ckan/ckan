@@ -1,0 +1,38 @@
+name: Test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+
+  flake8:
+    name: Lint (Flake8)
+    uses: ./.github/workflows/flake8.yml # Call the reusable workflow
+    secrets: inherit
+
+  pyright:
+    name: Lint (PyRight)
+    uses: ./.github/workflows/pyright.yml # Call the reusable workflow
+    secrets: inherit
+
+  cypress:
+    name: Test (Cypress)
+    #needs: [flake8]
+    uses: ./.github/workflows/cypress.yml # Call the reusable workflow
+    secrets: inherit
+
+  docs:
+    name: Documentation
+    uses: ./.github/workflows/docs.yml # Call the reusable workflow
+    secrets: inherit
+
+  pytest:
+    name: Test (Pytest)
+    #needs: [flake8]
+    uses: ./.github/workflows/pytest.yml # Call the reusable workflow
+    secrets: inherit

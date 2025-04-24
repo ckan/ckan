@@ -1,0 +1,47 @@
+networks:
+  default:
+volumes:
+  postgres-db-volume:
+
+services:
+  ckan-postgres:
+    networks:
+      - default
+    image: "postgres:12"
+    environment:
+      POSTGRES_USER: ckan
+      POSTGRES_PASSWORD: ckan
+
+  ckan-redis:
+    networks:
+      - default
+    image: "redis:3"
+
+  ckan-solr:
+    networks:
+      - default
+    image: "ckan/ckan-solr:2.10-solr9"
+
+  ckan:
+    image: python:3.10-bookworm
+    networks:
+      - default
+    environment:
+      HOME: /usr/src
+      CKAN_DATASTORE_POSTGRES_DB: datastore_test
+      CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
+      CKAN_DATASTORE_POSTGRES_READ_PWD: pass
+      CKAN_DATASTORE_POSTGRES_WRITE_USER: datastore_write
+      CKAN_DATASTORE_POSTGRES_WRITE_PWD: pass
+      CKAN_POSTGRES_DB: ckan_test
+      CKAN_POSTGRES_USER: ckan_default
+      CKAN_POSTGRES_PWD: pass
+      PGPASSWORD: ckan
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-ci.ini --cov=ckan --cov=ckanext --junitxml=~/junit/junit.xml
+      # report usage of deprecated features
+      SQLALCHEMY_WARN_20: 1
+    working_dir: "/usr/src"
+    volumes:
+      - "../:/usr/src"
+    command:
+      ['tail', '-f', '/etc/debian_version']
