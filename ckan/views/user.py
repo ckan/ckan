@@ -209,18 +209,10 @@ def read_groups(id: str) -> Union[Response, str]:
 
 
 class ApiTokenView(MethodView):
-    def get(self,
-            id: str,
-            ) -> Union[Response, str]:
-        context: Context = {
-            'user': current_user.name,
-            'auth_user_obj': current_user,
-            'for_view': True,
-            'include_plugin_extras': True
-        }
+    def get(self, id: str) -> Union[Response, str]:
         try:
             tokens = logic.get_action('api_token_list')(
-                context, {'user': id}
+                {}, {'user': id}
             )
         except logic.NotAuthorized:
             base.abort(403, _('Unauthorized to view API tokens.'))
@@ -229,14 +221,13 @@ class ApiTokenView(MethodView):
             'id': id,
             'user_obj': current_user,
         }
-        extra_vars = _extra_template_variables(context, data_dict)
+        extra_vars = _extra_template_variables({}, data_dict)
         extra_vars['tokens'] = reversed(tokens)
         extra_vars['data'] = data_dict
         extra_vars['errors'] = None
         return base.render('user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
-
         data_dict = logic.clean_dict(
             dictization_functions.unflatten(
                 logic.tuplize_dict(logic.parse_params(request.form))))
@@ -255,19 +246,13 @@ class ApiTokenView(MethodView):
             token['name'] = data_dict['name']
             data_dict = {}  # clear form
 
-        context: Context = {
-            'user': current_user.name,
-            'auth_user_obj': current_user,
-            'for_view': True,
-            'include_plugin_extras': True
-        }
         data_dict: dict[str, Any] = {
             'id': id,
             'user_obj': current_user,
         }
-        extra_vars = _extra_template_variables(context, data_dict)
+        extra_vars = _extra_template_variables({}, data_dict)
         extra_vars.update({
-            'user': extra_vars['user_dict'],  # because user/read_base.html
+            'user': extra_vars['user_dict'],  # renamed in user/read_base.html
             'data': data_dict,
             'created': token,
             'errors': errors,
