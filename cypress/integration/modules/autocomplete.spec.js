@@ -302,6 +302,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
           assert.deepEqual(value, [{id: 'test', text: 'test'}])
         } else {
           assert.deepEqual(value, {id: 'test', text: 'test'})
+        }
       })
     });
   });
