@@ -1,0 +1,392 @@
+name: Pytest
+#pytest split data storage https://github.com/jerry-git/pytest-split/issues/20#issuecomment-2576031836
+#GitHub actions variables. IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED when set to 'True', will disable rollup (default will run)
+on:
+  #pull_request: #disabled as its called via test.yml uses delegation
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      splits:
+        type: number
+        description: 'Number of test splits default 1 (max 24)'
+        required: true
+        default: '1'
+      IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED:
+        type: boolean
+        description: Override flag for skipping rollup of pytest/coverage html reports
+env:
+  PIP_CACHE_DIR: /root/.cache/pip
+
+permissions:
+  contents: read
+
+jobs:
+  define-matrix:
+    runs-on: ubuntu-latest
+
+    outputs:
+      SPLIT_LIST: ${{ steps.splits.outputs.SPLIT_LIST }}
+      SPLIT_COUNT: ${{ steps.splits.outputs.SPLIT_COUNT }}
+      IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED: ${{ steps.splits.outputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED }}
+
+      # This output will be used to know if we had a cache hit (exact match or not), or no cache hit at all.
+      # See documentation about the `cache-hit` output:
+      # https://github.com/actions/cache/blob/main/README.md#outputs
+      # > cache-hit - A string value to indicate an exact match was found for the key.
+      # > If there's a cache hit, this will be 'true' or 'false' to indicate if there's an exact match
+      # > for key.
+      # > If there's a cache miss, this will be an empty string.
+      restored: ${{ steps.restore-test-durations.outputs.cache-hit == '' && 'false' || 'true' }}
+    steps:
+      # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#example-using-an-output-to-define-two-matrice
+      - name: Define matrix split
+        id: splits
+        # default matrix for splits if we did not get an input
+        run: |
+          set -ex
+          export SPLIT_COUNT=${{ inputs.splits || 12 }}
+          if [ "$SPLIT_COUNT" -gt 24 ]; then
+            echo "Splits cannot exceed 24"
+            export SPLIT_COUNT=24
+          fi
+
+          if [ "$ACT" == "true" ] && [ -z "${{ inputs.splits }}" ]; then
+            echo "Running with act limiting splits to 1 as splits not provided"
+            export SPLIT_COUNT=1
+          else
+            echo "Running on GitHub Actions"
+          fi
+
+          SPLIT_LIST="["
+          for ((i=1; i<=SPLIT_COUNT; i++)); do
+            SPLIT_LIST+="\"$i\""
+            if [ $i -lt $SPLIT_COUNT ]; then
+              SPLIT_LIST+=", "
+            fi
+          done
+          SPLIT_LIST+="]"
+
+          echo "Generated list: $SPLIT_LIST"
+
+          export SPLIT_COUNT="$(echo ${SPLIT_LIST} | jq 'length')"
+          echo "${SPLIT_COUNT} : ${SPLIT_LIST}"
+          echo "SPLIT_LIST=${SPLIT_LIST}" >> "$GITHUB_OUTPUT"
+          echo "SPLIT_COUNT=${SPLIT_COUNT}" >> "$GITHUB_OUTPUT"
+
+
+          echo "IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED=${{ inputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED || vars.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED == 'True' }}" >> $GITHUB_OUTPUT
+
+
+      # It's mandatory to use the exact same path when saving/restoring cache, otherwise it won't work
+      # (the same key is not enough - see documentation:
+      # https://github.com/actions/cache/blob/main/README.md#cache-version).
+      # I went with `/tmp/.test_durations`.
+      - name: Restore test durations
+        id: restore-test-durations
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/.test_durations
+          key: tests-durations-${{ github.sha }}
+          restore-keys: |
+            tests-durations-${{ github.sha }}-
+            tests-durations-
+          fail-on-cache-miss: false
+
+      # Then we upload the restored test durations as an artifact. This way, each matrix job will download
+      # it when it starts. When a matrix job will be manually retried, it will also reuse the artifact (to
+      # retry the exact same tests, even if the cache has been updated in the meantime).
+      - name: Upload test durations
+        if: steps.restore-test-durations.outputs.cache-hit != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-durations-before
+          path: /tmp/.test_durations
+          include-hidden-files: true
+
+  pytest:
+    needs: define-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        split: ${{ fromJSON(needs.define-matrix.outputs.SPLIT_LIST) }}
+    container:
+      image: python:3.10-bookworm
+
+    services:
+      ckan-postgres:
+
+        image: postgres:12
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_USER: ckan
+          POSTGRES_PASSWORD: ckan
+      ckan-solr:
+        image: ckan/ckan-solr:2.10-solr9
+      ckan-redis:
+        image: redis:7
+
+    env:
+      SPLIT_COUNT: ${{ needs.define-matrix.outputs.SPLIT_COUNT }}
+      CKAN_DATASTORE_POSTGRES_DB: datastore_test
+      CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
+      CKAN_DATASTORE_POSTGRES_READ_PWD: pass
+      CKAN_DATASTORE_POSTGRES_WRITE_USER: datastore_write
+      CKAN_DATASTORE_POSTGRES_WRITE_PWD: pass
+      CKAN_POSTGRES_DB: ckan_test
+      CKAN_POSTGRES_USER: ckan_default
+      CKAN_POSTGRES_PWD: pass
+      PGPASSWORD: ckan
+
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-ci.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
+
+
+    steps:
+      - run: |
+          echo "${{ matrix.split }} of $SPLIT_COUNT"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Fetch all history, including tags
+
+      # These two steps will be executed only when there IS a cache hit (exact match or not). When a matrix
+      # job is retried, it will reuse the same artifact, to execute the exact same split.
+      - name: Download test durations
+        if: needs.define-matrix.outputs.restored == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: test-durations-before
+
+      # This step will be executed only when there is NO cache hit.
+      # You need to commit file `.test_durations_fallback`.
+      # You can also refresh it manually from time to time to keep an up-to-date fallback
+      # (see step "Upload final test durations" below).
+      - name: Use fallback test durations
+        if: needs.define-matrix.outputs.restored == 'false'
+        run: |
+          # Note: to update this, you must run pytest --store-durations and commit to repo
+          echo "unzip pytest test duration details"
+          gunzip .test_durations.gz
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install deps
+        run: |
+         ./test-infrastructure/install_deps.sh
+
+      - name: Init environment
+        run: |
+         ./test-infrastructure/init_environment.sh
+
+      # When running pytest, we write the new test durations using options
+      # `--store-durations --clean-durations`.
+      # Option `--clean-durations` is undocumented but you can check its implementation here:
+      # https://github.com/jerry-git/pytest-split/blob/fb9af7e0122c18a96a7c01ca734c4ab01027f8d9/src/pytest_split/plugin.py#L68-L76
+      # > Removes the test duration info for tests which are not present while running the suite with
+      # > '--store-durations'.
+      - name: Run pytest
+        run: |
+          set -ex
+
+          mkdir -p ./junit/result
+          echo "${{ matrix.split }} of $SPLIT_COUNT"
+
+          echo "::group::pytest"
+          #we ignore test 'test_building_the_docs' as its looked after by the docs.yml workflow which provides the sphinx documentation build artifact and it also takes 50 seconds to run
+          pytest $PYTEST_COMMON_OPTIONS --splits $SPLIT_COUNT --group ${{ matrix.split }} --splitting-algorithm least_duration --store-durations --clean-durations  -k 'not test_building_the_docs'
+          echo "::endgroup::"
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        if: ${{ !cancelled() }}
+        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: false # optional (default = false)
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: false # optional (default = false)
+
+      # Each matrix job uploads its freshly updated partial test durations. We regroup them all
+      # within one final file in the "Merge all partial test durations" step below.
+      - name: Upload test durations
+        if: github.run_attempt == 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-durations-after-partial-${{ matrix.split }}
+          path: ./.test_durations
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 1
+
+      - name: Prep test coverage split file
+        run: |
+          mv .coverage coverage-${{ matrix.split }}
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: internal_coverage-${{ matrix.split }}
+          path: coverage-${{ matrix.split }}
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 1
+
+      - name: Store test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: internal_junit-results-${{ matrix.split }}
+          path: ./junit/result
+          retention-days: 1
+
+      - name: Test Summary (if Failure)
+        uses: test-summary/action@v2
+        with:
+          paths: "./junit/result/*.xml"
+        if: failure()
+
+      - name: Test Summary Local copy (If Failure)
+        uses: test-summary/action@v2
+        with:
+          paths: "./junit/result/*.xml"
+          output: "./junit/result/test-summary.md"
+        if: failure()
+
+      - name: Store Test Summary results (If Failure)
+        uses: actions/upload-artifact@v4
+        with:
+          name: split-test-summary-${{ matrix.split }}.md
+          path: "./junit/result/test-summary.md"
+          retention-days: 30
+        if: failure()
+
+
+  cache-test-durations:
+    name: Cache test durations
+    needs: pytest
+    if: github.run_attempt == 1 && (success() || failure())
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all partial test durations
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-durations-after-partial-*
+
+      # This step regroups the 8 partial files and sorts keys alphabetically:
+      - name: Merge all partial test durations
+        run: |
+          ls -ltra
+
+          jq -s 'add' test-durations-after-partial-*/.test_durations \
+          | jq 'to_entries | sort_by(.key) | from_entries' \
+          > /tmp/.test_durations
+
+      # This step uploads the final file as an artifact. You can then download it from the Github GUI,
+      # and use it to manually commit file gzip `.test_durations` from time to time,
+      # to keep an up-to-date fallback:
+      - name: Upload final test durations
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-durations-after
+          path: /tmp/.test_durations
+          if-no-files-found: error
+          include-hidden-files: true
+
+      # Finally, we cache the new test durations. This file will be restored in next CI execution
+      # (see step "Restore test durations" above).
+      - name: Cache final test durations
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/.test_durations
+          key: tests-durations-${{ github.sha }}
+
+  merge-code-coverage-and-upload:
+    name: Test Result Combine
+    needs: pytest
+    if: github.run_attempt == 1 && (success() || failure()) && needs.define-matrix.outputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED == 'false'
+    runs-on: ubuntu-latest
+    container:
+      # Needs to run on the same image the tests were run
+      image: python:3.10-bookworm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          pip install -r dev-requirements.txt
+
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: internal_coverage-*
+          path: coverage-data
+          merge-multiple: 'true'
+
+      - name: Download all JUnit XML results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: internal_junit-results-*
+          merge-multiple: true
+          path: junit-results
+
+      - name: Merge Coverage and JUnit XML files
+        run: |
+          set -ex
+          mkdir -p results
+          echo "merge junit test results"
+
+          echo "::group::junitparser-merge"
+          junitparser merge junit-results/*.xml merged.xml
+          echo "::endgroup::"
+
+          echo "::group::junit2html generate"
+          junit2html merged.xml results/pytest-results.html
+          cp merged.xml results/junit_results.xml
+          echo "::endgroup::"
+
+          echo "merge pytest coverage results"
+
+          echo "::group::coverage combine"
+          coverage combine --keep -a ./coverage-data/*
+          echo "::endgroup::"
+
+          echo "::group::pytest-html-report"
+          coverage html -d results/coverage_html
+          echo "::endgroup::"
+
+      - name: Pytest Coverage Console Report
+        run: |
+          set -ex
+          coverage report -m
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-test-coverage-reports
+          path: results

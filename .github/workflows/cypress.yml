@@ -1,8 +1,11 @@
 name: Cypress
-on: [pull_request]
+on:
+#  pull_request:
+  workflow_call:
+  workflow_dispatch:
 env:
   NODE_VERSION: '16'
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.9'
 
 permissions:
   contents: read
@@ -11,8 +14,8 @@ jobs:
   cypress:
     runs-on: ubuntu-latest
     services:
-      ckan-postgres:
-        image: postgres:10
+      ckan_postgres:
+        image: postgres:15
         ports:
           - 5432:5432
         options: >-
@@ -25,12 +28,12 @@ jobs:
           POSTGRES_PASSWORD: pass
           POSTGRES_DB: ckan_test
 
-      ckan-redis:
+      ckan_redis:
         image: redis
         ports:
           - 6379:6379
-      ckan-solr:
-        image: ckan/ckan-solr:master
+      ckan_solr:
+        image: ckan/ckan-solr:2.10-solr9
         ports:
           - 8983:8983
 
@@ -44,30 +47,39 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
       - name: Install python deps
-        run: pip install -r requirements.txt -r dev-requirements.txt -e.
+        run: |
+         pip install -U pip
+         pip install -r requirements.txt -r dev-requirements.txt -e.
+         pip check
 
       - name: Init environment
         run: |
-          ckan -c test-core-cypress.ini db init
+          ckan -c test-core-ci.ini db init
+          #cypress testing requires activity plugin to be active
+          ckan config-tool test-core-ci.ini "ckan.plugins = activity"
 
       - name: Run Cypress
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
-          start: ckan -c test-core-cypress.ini run
+          start: ckan -c test-core-ci.ini run
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      # Test run video was always captured, so this action uses "always()" condition
-      - uses: actions/upload-artifact@v1
-        if: always()
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
         with:
           name: cypress-videos
           path: cypress/videos
+          if-no-files-found: ignore
