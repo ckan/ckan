@@ -122,13 +122,14 @@ def list_orphans_command():
     short_help=u'Clear any non-existant packages in the search index'
 )
 @click.option(u'-v', u'--verbose', is_flag=True)
-def clear_orphans(verbose: bool = False):
+@click.pass_context
+def clear_orphans(ctx: click.Context, verbose: bool = False):
     for orphaned_package_id in get_orphans():
         if verbose:
             click.echo("Clearing search index for dataset {}...".format(
                 orphaned_package_id
             ))
-        clear(orphaned_package_id)
+        ctx.invoke(clear, dataset_name=orphaned_package_id)
 
 
 @search_index.command(
