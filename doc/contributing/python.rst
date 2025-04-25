@@ -8,7 +8,7 @@ For Python code style follow `PEP 8`_ plus the guidelines below.
 
 Some good links about Python code style:
 
-- `Guide to Python <http://docs.python-guide.org/en/latest/writing/style/>`_ from Hitchhiker's
+- `Guide to Python <https://docs.python-guide.org/writing/style/>`_ from Hitchhiker's
 - `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html>`_
 
 .. seealso::
@@ -93,7 +93,7 @@ When logging:
 - Choose an appropriate log-level (DEBUG, INFO, ERROR, WARNING or CRITICAL,
   see `Python's Logging HOWTO`_).
 
-.. _Python's Logging HOWTO: http://docs.python.org/2/howto/logging.html
+.. _Python's Logging HOWTO: https://docs.python.org/3/howto/logging.html
 
 String formatting
 ------------------

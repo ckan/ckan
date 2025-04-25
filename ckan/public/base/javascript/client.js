@@ -262,7 +262,7 @@
 
     /* Requests config options for a file upload.
      *
-     * See: http://docs.ckan.org/en/latest/filestore.html
+     * See: https://docs.ckan.org/en/latest/filestore.html
      *
      * key     - A unique id/filename for the resource.
      * success - A callback to be called on successful response.
@@ -298,7 +298,7 @@
 
     /* Requests metadata for a file upload.
      *
-     * See: http://docs.ckan.org/en/latest/filestore.html
+     * See: https://docs.ckan.org/en/latest/filestore.html
      *
      * key     - A unique id/filename for the resource.
      * success - A callback to be called on successful response.

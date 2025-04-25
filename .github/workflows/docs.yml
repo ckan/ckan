@@ -1,0 +1,33 @@
+name: Docs
+on:
+  workflow_call:
+  workflow_dispatch:
+env:
+  PYTHON_VERSION: '3.9'
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history, including tags
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install python deps
+        run: |
+         pip install -U pip
+         pip install -r requirements.txt -r dev-requirements.txt -e .
+         pip check
+
+      - name: Create Docs
+        run: |
+           sphinx-build doc build/sphinx
