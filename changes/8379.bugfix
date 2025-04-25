@@ -1,0 +1,2 @@
+Ensure `session["last_active"]` is stored as an iso string instead of a `datetime` so that it can be serialized to JSON (e.g. in cookies).
+

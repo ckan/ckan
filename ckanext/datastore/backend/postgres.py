@@ -28,6 +28,7 @@ from urllib.parse import (
     urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
+import msgspec
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -1468,8 +1469,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
@@ -1479,29 +1482,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT * FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
-        resource=resource_id,
+        resource=identifier(resource_id),
         ts_query=ts_query,
         where=where_clause,
         sort=sort_clause,
@@ -1517,8 +1525,12 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             context, sql_string, where_values))[0][0]
         if v is None or v == '[]':
             records = []
-        else:
+        elif 'api_version' in context:
+            # LazyJSONObject only for api view where it can be
+            # serialized with simplejson without decoding
             records = LazyJSONObject(v)
+        else:
+            records = msgspec.json.decode(v)
     data_dict['records'] = records
 
     data_dict['fields'] = _result_fields(
@@ -1893,7 +1905,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         ''' Returns True if the read engine is a Postgresql Database.
 
         According to
-        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        https://docs.sqlalchemy.org/en/20/core/engines.html#postgresql
         all Postgres driver names start with `postgres`.
         '''
         drivername = self._get_read_engine().engine.url.drivername
