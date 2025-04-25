@@ -156,8 +156,8 @@ class TestGroupControllerEdit(object):
         group = factories.Group(user=user)
 
         form = {
-            "name": u"all-fields-edited",
-            "title": "Science",
+            "name": u"all-fields-edited-test-group",
+            "title": "Science Test Group Test",
             "description": "Sciencey datasets",
             "image_url": "http://example.com/image.png",
             "save": "",
@@ -165,8 +165,8 @@ class TestGroupControllerEdit(object):
         url = url_for("group.edit", id=group["name"])
         app.post(url=url, extra_environ=env, data=form)
 
-        group = model.Group.by_name(u"all-fields-edited")
-        assert group.title == u"Science"
+        group = model.Group.by_name(u"all-fields-edited-test-group")
+        assert group.title == u"Science Test Group Test"
         assert group.description == "Sciencey datasets"
         assert group.image_url == "http://example.com/image.png"
 

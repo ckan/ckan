@@ -64,7 +64,7 @@ Some notes on how these tests work:
 
 * You might also find it useful to read the
   `Flask testing documentation <https://flask-doc.readthedocs.io/en/latest/testing.html>`_ (or
-  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_
+  `Pylons testing documentation <https://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_
   for plugins using legacy pylons controllers).
 
 * Avoid importing the plugin modules directly into your test modules

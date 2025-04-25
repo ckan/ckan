@@ -90,7 +90,7 @@ templates in their top-level namespace:
 
 .. py:function:: _()
 
-   The `pylons.i18n.translation.ugettext(value) <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/modules/i18n_translation.html?highlight=ugettext#pylons.i18n.translation.ugettext>`_ function:
+   The `flask_babel.gettext(value) <https://python-babel.github.io/flask-babel/#flask_babel.gettext>`_ function:
 
     Mark a string for translation. Returns the localized unicode string of
     value.
@@ -99,30 +99,10 @@ templates in their top-level namespace:
 
      _('This should be in lots of languages')
 
-.. py:function:: N_()
-
-   The `pylons.i18n.translation.gettext_noop(value) <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/modules/i18n_translation.html?highlight=gettext_noop#pylons.i18n.translation.gettext_noop>`_ function:
-
-    Mark a string for translation without translating it. Returns value.
-
-    Used for global strings, e.g.::
-
-        foo = N_('Hello')
-
-        class Bar:
-            def __init__(self):
-                self.local_foo = _(foo)
-
-        h.set_lang('fr')
-        assert Bar().local_foo == 'Bonjour'
-        h.set_lang('es')
-        assert Bar().local_foo == 'Hola'
-        assert foo == 'Hello'
-
 
 .. py:function:: ungettext
 
-   The `pylons.i18n.translation.ungettext(singular, plural, n) <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/modules/i18n_translation.html?highlight=ungettext#pylons.i18n.translation.ungettext>`_
+   The `flask_babel.ngettext(singular, plural, n) <https://python-babel.github.io/flask-babel/#flask_babel.ngettext>`_
    function:
 
     Mark a string for translation. Returns the localized unicode string of the
@@ -140,7 +120,7 @@ templates in their top-level namespace:
 
 .. py:data:: translator
 
-   An instance of the `gettext.NullTranslations <http://docs.python.org/2/library/gettext.html#the-nulltranslations-class>`_
+   An instance of the `gettext.NullTranslations <https://docs.python.org/3/library/gettext.html#the-nulltranslations-class>`_
    class. This is for internal use only, templates shouldn't need to use this.
 
 

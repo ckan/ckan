@@ -69,7 +69,7 @@ Creating a release development branch
 
 
 #. When the Tech Team decides to start a new release branch for a new minor release it's
-   always useful to try to merge any outstanding pull requests that should be included. 
+   always useful to try to merge any outstanding pull requests that should be included.
    This makes it easier to include them as when the release branch
    starts diverging there can appear conflicts when cherry-picking.
 
@@ -420,7 +420,7 @@ stages involved::
 
    This is an issue to track progress on the patch releases (2.X.Y and 2.Z.A)
 
-   [Full docs](http://docs.ckan.org/en/latest/contributing/release-process.html)
+   [Full docs](https://docs.ckan.org/en/latest/contributing/release-process.html)
 
    ### Create a new release branch (remove for patch releases)
 

@@ -223,9 +223,9 @@ class Upload(object):
 
         # Check that the declared types in the request are supported
         declared_mimetype_from_filename = mimetypes.guess_type(
-            self.upload_field_storage.filename
+            self.upload_field_storage.filename  # type: ignore
         )[0]
-        declared_content_type = self.upload_field_storage.content_type
+        declared_content_type = self.upload_field_storage.content_type  # type: ignore
         for declared_mimetype in (
             declared_mimetype_from_filename,
             declared_content_type,

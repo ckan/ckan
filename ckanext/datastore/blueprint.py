@@ -141,7 +141,10 @@ class DictionaryView(MethodView):
         try:
             check_access(
                 "datastore_create",
-                context={"user": current_user.name, "auth_user_obj": current_user},
+                context={
+                    "user": current_user.name,
+                    "auth_user_obj": current_user  # type: ignore
+                },
                 data_dict={"resource_id": resource_id},
             )
 
