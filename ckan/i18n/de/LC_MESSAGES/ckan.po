@@ -2106,7 +2106,7 @@ msgstr "z.B. Umwelt"
 
 #: ckan/templates/home/snippets/search.html:7
 msgid "Search data"
-msgstr "Suchdaten"
+msgstr "Datensuche"
 
 #: ckan/templates/home/snippets/search.html:9
 msgid "Search datasets"
