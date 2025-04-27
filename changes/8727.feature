@@ -1,0 +1,1 @@
+The resource side nav will now only show 8 by default. The user can expand to show more. Configurable with `ckan.resource_list_view_limit`

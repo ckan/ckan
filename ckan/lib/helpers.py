@@ -2904,3 +2904,8 @@ def make_login_url(
 @core_helper
 def csrf_input():
     return snippet('snippets/csrf_input.html')
+
+
+@core_helper
+def resource_list_view_limit():
+    return int(config.get('ckan.resource_list_view_limit', 8))

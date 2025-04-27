@@ -1201,6 +1201,13 @@ groups:
           This controls the default view of the facet accordions, i.e. whether the accordions are expanded or collapsed
           by default.
 
+      - key: ckan.resource_list_view_limit
+        type: int
+        example: 15
+        default: 8
+        description: |
+          Sets the maximum number of visible resources in the side panel nav by default.
+
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
