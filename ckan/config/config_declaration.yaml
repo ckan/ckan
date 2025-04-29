@@ -716,14 +716,6 @@ groups:
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
 
-      - key: ckan.csrf_protection.ignore_extensions
-        type: bool
-        default: true
-        description: |
-          Exempt plugins blueprints from CSRF protection.
-
-          .. warning:: This feature will be deprecated in future versions.
-
   - annotation: Flask-Login Remember me cookie settings
     options:
       - key: REMEMBER_COOKIE_NAME
