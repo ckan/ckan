@@ -1,0 +1,1 @@
+Fixed slightly too large slug edit button, as .btn-xs was dropped from Bootstrap.

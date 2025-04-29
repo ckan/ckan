@@ -1,5 +1,6 @@
 {% extends "page.html" %}
 {% import 'macros/form.html' as form %}
+{% set default_collapsed = h.default_collapse_facets() %}
 
 {% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
 
@@ -68,11 +69,12 @@
 
 {% block secondary_content %}
   <div class="filters">
+    <span class="close no-text hide-filters" tabindex="0"><i class="fa-solid fa-xmark"></i><span class="text">close</span></span>
     <div>
+      <h2 class="d-sm-block d-md-none">{{ _("Filter results") }}</h2>
       {% for facet in facet_titles %}
-        {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets %}
+        {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets, default_collapsed=default_collapsed %}
       {% endfor %}
     </div>
-    <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
   </div>
 {% endblock %}
