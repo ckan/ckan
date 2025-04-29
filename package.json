@@ -9,7 +9,7 @@
     "blueimp-file-upload": "^10.32.0",
     "bootstrap": "^5.3.3",
     "dompurify": "^3.2.4",
-    "htmx.org": "^1.9.11",
+    "htmx.org": "^2.0.4",
     "jquery": "^3.7.1",
     "moment": "^2.30.1",
     "qs": "^6.12.0"

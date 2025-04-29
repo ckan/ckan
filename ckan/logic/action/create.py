@@ -1476,5 +1476,5 @@ def api_token_create(context: Context,
     data = api_token.postprocess(data, token_obj.id, validated_data_dict)
     token = api_token.encode(data)
 
-    result = api_token.add_extra({u'token': token})
+    result = api_token.add_extra({'token': token, 'id': token_obj.id})
     return result
