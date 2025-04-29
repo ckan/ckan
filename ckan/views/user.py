@@ -260,7 +260,7 @@ class ApiTokenView(MethodView):
         return base.render('user/snippets/api_token_create_form.html', extra_vars)
 
 
-def api_tokens_revoke(id: str) -> Response:
+def api_tokens_revoke(id: str) -> Union[Response, str]:
     tokens = request.form.getlist('token')
     for jti in tokens:
         try:
