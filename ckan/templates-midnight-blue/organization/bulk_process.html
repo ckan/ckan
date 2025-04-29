@@ -10,20 +10,8 @@
 
 {% block primary_content_inner %}
   <div class="row">
-    <h1 class="hide-heading">{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }}</h1>
+    <h1>{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }}</h1>
     <div class="primary col-md-12">
-      <h3 class="page-heading">
-        {% block page_heading %}
-          {%- if page.item_count -%}
-            {{ page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=q) if q }}
-          {%- elif request.args -%}
-            {{ _('Sorry no datasets found for "{query}"').format(query=q) }}
-          {%- else -%}
-            {{ _('Datasets') }}
-          {%- endif -%}
-        {% endblock %}
-      </h3>
-
       {% block search_form %}
         {% set sorting = [
             (_('Name Ascending'), 'title_string asc'),
