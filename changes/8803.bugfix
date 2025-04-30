@@ -1,0 +1,1 @@
+default to a long CSRF token timeout to fix "The CSRF token is invalid." errors
