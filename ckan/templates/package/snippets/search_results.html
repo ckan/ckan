@@ -1,0 +1,35 @@
+<section class="module" id="search-results" hx-swap-oob="true" hx-swap="none">
+  <div class="module-content">
+    {% block page_primary_action %}
+      {% if h.check_access('package_create') %}
+        <div class="page_primary_action">
+          {% snippet 'snippets/add_dataset.html', dataset_type=dataset_type %}
+        </div>
+      {% endif %}
+    {% endblock %}
+    {% block form %}
+      {% set facets = {
+        'fields': fields_grouped,
+        'search': search_facets,
+        'titles': facet_titles,
+        'translated_fields': translated_fields,
+        'remove_field': remove_field }
+      %}
+      {% set sorting = [
+        (_('Relevance'), 'score desc, metadata_modified desc'),
+        (_('Name Ascending'), 'title_string asc'),
+        (_('Name Descending'), 'title_string desc'),
+        (_('Last Modified'), 'metadata_modified desc')
+        ]
+      %}
+      {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('package', dataset_type, 'search placeholder') or _('Search datasets...'), facets=facets, show_empty=request.args, error=query_error, fields=fields %}
+    {% endblock %}
+    {% block package_search_results_list %}
+      {% snippet 'snippets/package_list.html', packages=page.items %}
+    {% endblock %}
+  </div>
+
+  {% block page_pagination %}
+    {{ page.pager(q=q) }}
+  {% endblock %}
+</section>

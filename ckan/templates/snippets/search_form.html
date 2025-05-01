@@ -6,7 +6,7 @@
 {% set no_bottom_border = no_bottom_border if no_bottom_border else false %}
 {% set form_id = form_id if form_id else false %}
 
-<form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" method="get" data-module="select-switch">
+<form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" hx-boost="true" method="get" data-module="select-switch"><div hx-boost="false">
 
   {% block search_input %}
     <div class="input-group search-input-group">
@@ -75,7 +75,7 @@
     {% endif %}
   {% endblock %}
 
-</form>
+</div></form>
 
 {% if show_empty and count == 0 and not error %}
   {% trans %}

@@ -16,10 +16,6 @@ htmx.on('htmx:configRequest', (event) => {
 
 
 function htmx_initialize_ckan_modules(event) {
-  /* ignore swap=none and swap=delete events */
-  if (!event.detail.shouldSwap) {
-    return;
-  }
   var elements = event.detail.target.querySelectorAll("[data-module]");
 
   for (let node of elements) {
@@ -33,6 +29,7 @@ function htmx_initialize_ckan_modules(event) {
 }
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
+
 document.body.addEventListener("htmx:responseError", function(event) {
   const xhr = event.detail.xhr
   const error = $(xhr.response).find('#error-content')

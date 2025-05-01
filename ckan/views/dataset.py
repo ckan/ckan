@@ -377,6 +377,12 @@ def search(package_type: str) -> str:
     for key, value in extra_vars.items():
         setattr(g, key, value)
 
+    if request.htmx:
+        return base.render(
+            _get_pkg_template('search_template_htmx', package_type),
+            extra_vars
+        )
+
     return base.render(
         _get_pkg_template(u'search_template', package_type), extra_vars
     )
