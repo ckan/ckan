@@ -1,0 +1,6 @@
+"Encoding objects of type Markup is unsupported" error when ``flash_success``
+and ``flash_error`` helpers called with enabled ``html`` flag is fixed by
+changing session serialization strategy. Existing sessions stored inside Redis
+cannot be deserialized with this new strategy and must be removed using the
+command ``redis-cli keys "session:*" | xargs redis-cli del``. Non-redis session
+backends are not affected by this change.
