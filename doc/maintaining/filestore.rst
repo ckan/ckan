@@ -262,3 +262,92 @@ following storage types are available:
    * - `ckan:fs`
      - Keeps files inside local filesystem
      - * ``path``: root directory of the storage
+
+
+-----------------
+Storage utilities
+-----------------
+
+.. autofunction:: ckan.lib.files.get_storage
+.. autoattribute:: ckan.lib.files.make_upload(value: Any) -> Upload
+
+   Convert value into Upload object.
+
+   Use this function for simple and reliable initialization of Upload
+   object. Avoid creating Upload manually, unless you are 100% sure you can
+   provide correct MIMEtype, size and stream.
+
+   >>> upload = make_upload(b"hello world")
+   >>> file_data = storage.upload("file.txt", upload)
+
+   :param value: content of the file
+   :returns: upload object with specified content
+   :raises TypeError: content has unsupported type
+
+.. autoclass:: ckan.lib.files.Storage
+   :members:
+   :exclude-members: SettingsFactory, UploaderFactory, ReaderFactory, ManagerFactory, capabilities
+
+   .. autoattribute:: capabilities
+      :no-value:
+      :no-index:
+
+.. autoclass:: ckan.lib.files.Settings
+.. autoclass:: ckan.lib.files.Uploader
+.. autoclass:: ckan.lib.files.Reader
+.. autoclass:: ckan.lib.files.Manager
+
+.. autoattribute:: ckan.lib.files.Upload
+
+   Standard upload details produced by :py:func:`make_upload`.
+
+   .. autoattribute:: ckan.lib.files.Upload.stream
+   .. autoattribute:: ckan.lib.files.Upload.filename
+   .. autoattribute:: ckan.lib.files.Upload.size
+   .. autoattribute:: ckan.lib.files.Upload.content_type
+
+
+.. autoattribute:: ckan.lib.files.FileData
+
+   Information required by storage to operate the file.
+
+   >>> info = FileData("local/path.txt", 123, "text/plain", md5_of_content)
+
+   Location of the file usually requires sanitization and as a reminder about
+   this step, typechecker produces warning whenever plain string is passed to
+   the :py:class:`FileData`. The proper way of initializing file data is
+   using already sanitized path wrapped into :py:class:`Location`.
+
+   >>> safe_path = Location("sanitized/local/path.txt")
+   >>> info = FileData(location)
+
+   Logic of the process is not changed when :py:class:`Location` comes into a
+   play, because it's a mere alias for ``str`` class. This flow exists to help
+   detecting security issues. If any value can be safely used as a location(for
+   example, file is kept in DB and location will be sanitized during execution
+   of SQL statement), typechecker warnings can be ignored.
+
+   As sanitization rules depend on storage, the recommended option is to
+   configure :py:attr:`Settings.location_transformers` and apply them to
+   path.
+
+   >>> unsafe_path = "local/path.txt"
+   >>> safe_path = storage.prepare_location(unsafe_path)
+
+   :param location: filepath, filename or any other type of unique identifier
+   :param size: size of the file in bytes
+   :param content_type: MIMEtype of the file
+   :param hash: checksum of the file
+   :param storage_data: additional details set by storage adapter
+
+.. autoattribute:: ckan.lib.files.Capability
+
+   Enumeration of operations supported by the storage.
+
+   >>> read_and_write = Capability.STREAM | Capability.CREATE
+   >>> if storage.supports(read_and_write)
+   >>>     ...
+
+.. autoattribute:: ckan.lib.files.Location
+
+   Alias of ``str`` that represents sanitized location of the file

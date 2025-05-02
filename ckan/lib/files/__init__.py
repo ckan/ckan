@@ -14,18 +14,22 @@ from ckan.exceptions import CkanConfigurationException
 
 from . import default
 from .base import (
-    FileData,
-    Location,
-    Manager,
-    MultipartData,
-    Reader,
-    Settings,
     Storage,
+    Settings,
     Uploader,
+    Reader,
+    Manager,
+    Capability,
+    FileData,
+    MultipartData,
+    Location,
 )
 
 __all__ = [
     "get_storage",
+    "make_upload",
+
+    "Capability",
     "Storage",
     "Reader",
     "Manager",
@@ -37,7 +41,6 @@ __all__ = [
     "Location",
     "storages",
     "adapters",
-    "make_upload",
     "exc",
 ]
 
@@ -52,21 +55,12 @@ def make_storage(name: str, settings: dict[str, Any]):
     Storage adapter is defined by `type` key of the settings. The rest of
     settings depends on the specific adapter.
 
-    Args:
-        name: name of the storage
-        settings: configuration for the storage
+    >>> storage = make_storage("memo", {"type": "files:redis"})
 
-    Returns:
-        storage instance
-
-    Raises:
-        UnknownAdapterError: storage adapter is not registered
-
-    Example:
-        ```py
-        storage = make_storage("memo", {"type": "files:redis"})
-        ```
-
+    :param name: name of the storage
+    :param settings: configuration for the storage
+    :returns: storage instance
+    :raises UnknownAdapterError: storage adapter is not registered
     """
     adapter_type = settings.pop("type", None)
     adapter = adapters.get(adapter_type)
@@ -88,20 +82,18 @@ def get_storage(name: str | None = None) -> Storage:
     configuration changes in runtime, storage registry must be updated
     manually.
 
-    Args:
-        name: name of the configured storage
+    >>> default_storage = get_storage()
+    >>> assert default_storage.settings.name == "default"
 
-    Returns:
-        storage instance
+    >>> try:
+    >>>     storage = get_storage("storage name")
+    >>> except files.exc.UnknownStorageError:
+    >>>     log.exception("Storage 'storage name' is not configured")
 
-    Raises:
-        UnknownStorageError: storage with the given name is not configured
+    :param name: name of the configured storage
+    :returns: storage instance
+    :raises UnknownStorageError: storage with the given name is not configured
 
-    Example:
-        ```
-        default_storage = get_storage()
-        storage = get_storage("storage name")
-        ```
     """
     if name is None:
         name = cast(str, config["ckan.files.default_storage"])
