@@ -28,7 +28,6 @@ from .base import (
 __all__ = [
     "get_storage",
     "make_upload",
-
     "Capability",
     "Storage",
     "Reader",
@@ -194,6 +193,7 @@ def collect_storages() -> dict[str, Storage]:
                 "recursive": True,
                 "override_existing": True,
                 "location_transformers": ["safe_relative_path"],
+                "max_size": config["ckan.max_resource_size"] * 1024 * 1024,
             },
         )
 
@@ -205,6 +205,7 @@ def collect_storages() -> dict[str, Storage]:
                     "type": "ckan:fs",
                     "path": os.path.join(path, "storage", "uploads", object_type),
                     "create_path": True,
+                    "max_size": config["ckan.max_image_size"] * 1024 * 1024,
                 },
             )
 
