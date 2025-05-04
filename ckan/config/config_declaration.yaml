@@ -697,7 +697,7 @@ groups:
 
       - key: WTF_CSRF_TIME_LIMIT
         type: int
-        default: 3600
+        default: 31536000
         description: |
           Max age in seconds for CSRF tokens.
           This value is capped by the lifetime of the session.
@@ -715,14 +715,6 @@ groups:
         description: |
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
-
-      - key: ckan.csrf_protection.ignore_extensions
-        type: bool
-        default: true
-        description: |
-          Exempt plugins blueprints from CSRF protection.
-
-          .. warning:: This feature will be deprecated in future versions.
 
   - annotation: Flask-Login Remember me cookie settings
     options:
@@ -1193,6 +1185,13 @@ groups:
       - key: ckan.site_custom_css
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
+      
+      - key: ckan.default_collapse_facets
+        type: bool
+        default: False
+        description: |
+          This controls the default view of the facet accordions, i.e. whether the accordions are expanded or collapsed
+          by default.
 
   - annotation: Resource Views Settings
     options:

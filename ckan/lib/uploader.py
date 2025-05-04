@@ -74,6 +74,7 @@ def get_max_resource_size() -> int:
 
 
 class Upload(object):
+    storage: Optional[files.Storage]
     filename: Optional[str]
     object_type: Optional[str]
     old_filename: Optional[str]
@@ -86,9 +87,17 @@ class Upload(object):
         of name object_type. old_filename is the name of the file in the url
         field last time'''
         self.filename = None
-        self.storage = files.storages.get(f"{object_type}_uploads")
         self.object_type = object_type
         self.old_filename = old_filename
+
+        storage_name = f"{object_type}_uploads"
+        self.storage = files.storages.get(storage_name)
+        if not self.storage:
+            log.debug(
+                "Storage %s is not configured and upload of %s will be ignored",
+                storage_name,
+                object_type,
+            )
 
     def update_data_dict(self, data_dict: dict[str, Any], url_field: str,
                          file_field: str, clear_field: str) -> None:
@@ -136,8 +145,11 @@ class Upload(object):
 
         if self.filename:
             assert self.upload_file
-            if self.upload_file.size > max_size * 1024 * 1024:
-                raise logic.ValidationError({'upload': ['File upload too large']})
+
+            try:
+                self.storage.validate_size(self.upload_file.size)
+            except files.exc.LargeUploadError as err:
+                raise logic.ValidationError({"upload": [str(err)]})
 
             self.storage.upload(
                 files.Location(self.filename),
@@ -220,6 +232,7 @@ class ResourceUpload(object):
     def __init__(self, resource: dict[str, Any]) -> None:
         self.storage = files.storages.get("resources")
         if not self.storage:
+            log.debug("Storage resources is not configured")
             return
 
         config_mimetype_guess = config.get('ckan.mimetype_guess')
@@ -294,8 +307,10 @@ class ResourceUpload(object):
         # exists). This way the uploaded file will always be stored
         # in the same location
         if self.filename:
-            if self.upload_file.size > max_size * 1024 * 1024:
-                raise logic.ValidationError({'upload': ['File upload too large']})
+            try:
+                self.storage.validate_size(self.upload_file.size)
+            except files.exc.LargeUploadError as err:
+                raise logic.ValidationError({'upload': [str(err)]})
 
             self.storage.upload(location, self.upload_file)
             return

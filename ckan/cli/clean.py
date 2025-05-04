@@ -89,18 +89,11 @@ def users(force: bool):
                 files.FileData(files.Location(filename))
             )
 
-        except files.exc.MissingFileError as err:
-            # file does not exist and we can continue with user removal
-            click.echo(str(err))
-
         except files.exc.UnsupportedOperationError as err:
             # file cannot be removed. Maybe it still possible to remove the
             # user, but because files are not tracked yet, there will be no way
             # to identify orphaned files in future. So, let's keep user for now
             click.echo(str(err))
-            continue
-
-        except Exception:
             msg = "Cannot remove {}. User will not be deleted.".format(
                 filename
             )

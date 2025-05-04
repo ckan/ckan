@@ -1070,7 +1070,7 @@ Major features
   extensions are excluded from the CSRF protection to give time to update them,
   but CSRF protection will be enforced in the future.
   To enforce the CSRF protection in extensions you can use
-  the :ref:`ckan.csrf_protection.ignore_extensions` setting.
+  the `ckan.csrf_protection.ignore_extensions` setting.
   See the :ref:`CSRF section <csrf_best_practices>` in the extension best practices
   for more information on how to enable it. (`#6920 <https://github.com/ckan/ckan/pull/6920>`_)
 - Refactored the **Authentication logic** to use `Flask-login <https://flask-login.readthedocs.io/en/latest/>`_
