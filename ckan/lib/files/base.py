@@ -51,7 +51,6 @@ class Uploader(fk.Uploader):
     """
 
 
-
 class Reader(fk.Reader):
     """Service responsible for reading data from the storage.
 
@@ -66,7 +65,6 @@ class Reader(fk.Reader):
     >>>         return open(data.location, "rb")
 
     """
-
 
 
 class Manager(fk.Manager):
@@ -84,7 +82,6 @@ class Manager(fk.Manager):
     >>>         return True
 
     """
-
 
 
 @dataclasses.dataclass()
@@ -134,6 +131,7 @@ class Settings(fk.Settings):
     """Supported types of uploads"""
     max_size: int = 0
     """Max allowed size of the upload"""
+
 
 class Storage(fk.Storage):
     """Base class for storage implementation.
