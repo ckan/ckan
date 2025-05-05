@@ -1,4 +1,0 @@
-Update CICD Infrastructure
-* Swap Code Coverage tool coveralls.io for codecov.io
-* Generate combined pytest report and coverage report's
-* Build Documentation and product doc's artifact
