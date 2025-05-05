@@ -14179,12 +14179,10 @@ td.diff_header {
   .context-info .module-content {
     padding: 1rem 1.5rem;
   }
-  .context-info .image-container {
-    display: flex;
-  }
   .context-info .image {
     margin-right: 0.5rem;
     width: 50%;
+    float: left;
   }
 }
 .context-info .image {
@@ -14199,8 +14197,7 @@ td.diff_header {
 }
 .context-info .description {
   word-wrap: break-word;
-  word-break: break-all;
-  overflow: auto;
+  overflow: visible;
 }
 .context-info code {
   display: block;
@@ -14238,6 +14235,7 @@ td.diff_header {
   justify-content: space-between;
   padding-top: 10px;
   column-gap: 5%;
+  clear: both;
 }
 .context-info .nums dl {
   color: #344054;

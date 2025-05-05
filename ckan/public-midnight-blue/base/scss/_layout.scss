@@ -132,12 +132,10 @@
         .module-content {
             padding: 1rem 1.5rem;
         }
-        .image-container {
-            display: flex;
-        }
         .image {
             margin-right: .5rem;
             width: 50%;
+            float: left;
         }
     }
     .image {
@@ -152,8 +150,7 @@
     }
     .description {
         word-wrap: break-word;
-        word-break: break-all;
-        overflow: auto;
+        overflow: visible;
     }
     code {
         display: block;
@@ -184,6 +181,7 @@
         justify-content: space-between;
         padding-top: 10px;
         column-gap: 5%;
+        clear: both;
         dl {
             color: $layoutTextColor;
             dt {
