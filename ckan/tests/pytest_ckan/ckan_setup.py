@@ -6,7 +6,7 @@ from ckan.common import config
 
 # This is a test Flask request context to be used internally.
 # Do not use it!
-_tests_test_request_context = None
+_tests_app_context = None
 
 # Initial config snapshot that is used to restore config object before each
 # test. This allows us to keep tests independent while we are using global
@@ -35,14 +35,14 @@ def pytest_sessionstart(session):
     conf = load_config(session.config.option.ckan_ini)
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from the cli.
-    global _tests_test_request_context
+    global _tests_app_context
 
     app = make_app(conf)
     try:
         flask_app = app.apps['flask_app']._wsgi_app
     except AttributeError:
         flask_app = app._wsgi_app
-    _tests_test_request_context = flask_app.test_request_context()
+    _tests_app_context = flask_app.app_context()
 
     # Create the snapshot of the initial configuration
     global _config
