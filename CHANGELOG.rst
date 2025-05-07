@@ -9,6 +9,55 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.10.8 2025-05-07
+===================
+
+Minor changes
+-------------
+
+- Register pytest plugins as entrypoints to make them available to all
+  extensions (`#8507 <https://github.com/ckan/ckan/pull/8507>`_)
+- Update release process docs (`#8586
+  <https://github.com/ckan/ckan/pull/8586>`_)
+- Migrate CI checks to GitHub Actions (`#8909
+  <https://github.com/ckan/ckan/pull/8909>`_)
+- Upgrade Jinja2 requirement to address CVE-2025-27516
+
+
+Bugfixes
+--------
+- Default to a long CSRF token timeout to fix "The CSRF token is invalid."
+  errors (`#8803 <https://github.com/ckan/ckan/pull/8803>`_)
+- Fix search button styling by removing deprecated wrapper
+  (`#8737 <https://github.com/ckan/ckan/pull/8737>`_)
+- Catch an error in datastore to avoid 500 error in POSTs to
+  `datatables/ajax/<resource_view_id>`
+  (`#8149 <https://github.com/ckan/ckan/pull/8149>`_)
+- Invalidate cached pages and load fresh ones if cookies change (`#6955
+  <https://github.com/ckan/ckan/pull/6955>`_)
+- Remove unsupported legacy API keys from documentation (`#8195
+  <https://github.com/ckan/ckan/pull/8195>`_)
+- Ensure ``session["last_active"]`` is stored as an iso string instead of a
+  `datetime` so that it can be serialized to JSON (e.g. in cookies). (`#8379
+  <https://github.com/ckan/ckan/pull/8379>`_)
+- Fix ``check_access`` order for resource create view (`#8588
+  <https://github.com/ckan/ckan/pull/8588>`_)
+- Fix auth check for datastore data dictionary view (`#8639
+  <https://github.com/ckan/ckan/pull/8639>`_)
+- Add missing boolean_validator to sysadmin field in user schema (`#8674
+  <https://github.com/ckan/ckan/pull/8674>`_)
+- ``authz.has_user_permission_for_some_org`` returns True for sysadmins. (`#8680
+  <https://github.com/ckan/ckan/pull/8679>`_)
+- Apply ``humanize_entity_type`` helper consistently across the group listing
+  page (`#8682 <https://github.com/ckan/ckan/pull/8682>`_)
+- ``datastore_search``: fix for sort on array column types (`#8709
+  <https://github.com/ckan/ckan/pull/8709>`_)
+- Fix some ``.btn-default`` classes that were mistakenly changed to ``.btn-light``. (`#8828
+  <https://github.com/ckan/ckan/pull/8828>`_)
+
+
+
+
 v.2.10.7 2025-02-05
 ===================
 
@@ -30,7 +79,7 @@ Minor changes
   <https://github.com/ckan/ckan/pull/8586>`_)
 - Support 2.11 version of the Solr schema in CKAN 2.10 (``5acfeda6e``)
 
-  
+
 Bugfixes
 --------
 - `CVE-2025-24372 <https://github.com/ckan/ckan/security/advisories/GHSA-7pq5-qcp6-mcww>`_: Fix potential
@@ -840,6 +889,113 @@ Removals and deprecations
 - ``ckan.route_after_login`` renamed to ``ckan.auth.route_after_login`` (`#7350
   <https://github.com/ckan/ckan/pull/7350>`_)
 
+v.2.9.11 2024-03-13
+===================
+
+Minor changes
+-------------
+- Define allowed alternative Solr query parsers via the :ref:`ckan.search.solr_allowed_query_parsers`
+  config option (`#8053 <https://github.com/ckan/ckan/pull/8053>`_). Note that the 2.9 version of this
+  patch does not use pyparsing to parse the local parameters string, so some limitations are in place,
+  mainly that no quotes are allowed in the local paramaters definition.
+- Get default formats for DataStore views from config (`#8095 <https://github.com/ckan/ckan/pull/8095>`_)
+
+Bugfixes
+--------
+- `CVE-2024-27097 <https://github.com/ckan/ckan/security/advisories/GHSA-8g38-3m6v-232j>`_: fixed
+  potential log injection in reset user endpoint.
+- Fixed Octet Streaming for Datastore Dump requests. (`#7899 <https://github.com/ckan/ckan/pull/7899>`_)
+- Fix Password Reset Keys with multiple accounts (`#8079 <https://github.com/ckan/ckan/pull/8079>`_)
+- Detect XLSX mimetypes correctly in uploader (`#8088 <https://github.com/ckan/ckan/pull/8088>`_)
+
+
+v.2.9.10 2023-12-13
+===================
+
+Bugfixes
+--------
+
+- `CVE-2023-50248 <https://github.com/ckan/ckan/security/advisories/GHSA-7fgc-89cx-w8j5>`_: fix potential
+  out of memory error when submitting the dataset form with a specially-crafted field.
+- Update resource datastore_active with a single statement (`#7833 <https://github.com/ckan/ckan/pull/7833>`_)
+- Fix downloading datastore resources as json with null values in json columns
+  (`#7545 <https://github.com/ckan/ckan/pull/7545>`_)
+- Fix errors when running the `ckan db upgrade` command (`#7681
+  <https://github.com/ckan/ckan/pull/7681>`_)
+- Fix ``deprecated`` decorator (`#7939
+  <https://github.com/ckan/ckan/pull/7939>`_)
+- Changed dataset query to check for ``+state:`` in the ``fq_list`` as well as the
+  `fq` parameter before forcing ``state:active`` (`#7905
+  <https://github.com/ckan/ckan/pull/7905>`_)
+
+v.2.9.9 2023-05-24
+==================
+
+Bugfixes
+--------
+
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix
+  potential path traversal, remote code execution, information disclosure and
+  DOS vulnerabilities via crafted resource ids.
+- Names are now quoted in From and To addresses in emails, meaning that site titles with
+  commas no longer break email clients. (`#7508 <https://github.com/ckan/ckan/pull/7508>`_)
+
+Migration notes
+---------------
+- The default storage backend for the session data used by the Beaker library
+  uses the Python ``pickle`` module, which is considered unsafe. While there is
+  no direct known vulnerability using this vector, a safer alternative is to
+  store the session data in the `client-side cookie <https://beaker.readthedocs.io/en/latest/sessions.html#cookie-based>`_.
+  This will probably be the default behaviour in future CKAN versions::
+
+	# ckan.ini
+	beaker.session.type = cookie
+    beaker.session.data_serializer = json
+	beaker.session.validate_key = CHANGE_ME
+
+	beaker.session.httponly = True
+	beaker.session.secure = True
+	beaker.session.samesite = Lax
+    # or Strict, depending on your setup
+
+v.2.9.8 2023-02-15
+==================
+
+Major changes
+-------------
+
+- Disable public registration of users by default (`#7210
+  <https://github.com/ckan/ckan/pull/7210>`_)
+- Restrict user and group/org image upload formats by default (`#7210
+  <https://github.com/ckan/ckan/pull/7210>`_)
+
+
+Minor changes
+-------------
+
+- Add dev containers / GitHub Codespaces config for CKAN 2.9 (See the `documentation <https://github.com/ckan/ckan/wiki/CKAN-in-GitHub-Codespaces>`_
+- Add new group command: ``clean``.
+  Add ``clean users`` command to delete users containing images with formats
+  not supported in ``ckan.upload.user.mimetypes`` config option (`#7241
+  <https://github.com/ckan/ckan/pull/7241>`_)
+- Set the ``resource`` blueprint to not auto register. (`#7374
+  <https://github.com/ckan/ckan/pull/7374>`_)
+- ``prepare_dataset_blueprint``: support dataset type (`#7031
+  <https://github.com/ckan/ckan/pull/7031>`_)
+- Add ``--quiet`` option to ``ckan user token add`` command to mak easier to
+  integrate with automated scripts (`#7217
+  <https://github.com/ckan/ckan/pull/7217>`_)
+
+Bugfixes
+--------
+- Fix ``package_update`` performance (`#7219 <https://github.com/ckan/ckan/pull/7219>`_)
+- Fix ``_()`` function override (`#7232 <https://github.com/ckan/ckan/pull/7232>`_)
+- Fix 404 when selecting the same date in the changes view (`#7192 <https://github.com/ckan/ckan/pull/7192>`_)
+- Enable DateTime to be returned through Actions, allowing ``datapusher_status`` to
+  be accessed through the API. (`#7110
+  <https://github.com/ckan/ckan/pull/7110>`_)
+- Fixed broken organization delete form (`#7150
+  <https://github.com/ckan/ckan/pull/7150>`_)
 
 v.2.9.7 2022-10-26
 ==================
@@ -1793,7 +1949,7 @@ Changes and deprecations:
  * The API versions 1 and 2 (also known as the REST API), ie ``/api/rest/*`` have been
    completely removed in favour of the version 3 (action API, ``/api/action/*``).
  * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
-   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   jobs (https://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
  * After introducing dataset blueprint, `h.get_facet_items_dict` takes search_facets as second argument.
    This change is aimed to reduce usage of global variables in context. For a while, it has default value
@@ -2045,7 +2201,7 @@ General notes:
  * Starting from this version, CKAN requires at least Postgres 9.3
  * Starting from this version, CKAN requires a Redis database. Please
    refer to the new `ckan.redis.url
-   <http://docs.ckan.org/en/ckan-2.7.0/maintaining/configuration.html#ckan-redis-url>`_
+   <https://docs.ckan.org/en/ckan-2.7.0/maintaining/configuration.html#ckan-redis-url>`_
    configuration option.
  * This version requires a requirements upgrade on source installations
  * This version requires a database upgrade
@@ -2140,7 +2296,7 @@ Deprecations:
    more efficient alternatives and are now deprecated.
  * The legacy revisions controller (ie ``/revisions/*``) will be completely removed in CKAN 2.8.
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
-   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   jobs (https://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
 
 v.2.6.9 2020-04-15
@@ -2831,7 +2987,7 @@ Major:
    to know more, and the "Changes and deprecations" section for migration
    details:
 
-     http://docs.ckan.org/en/latest/maintaining/data-viewer.html
+     https://docs.ckan.org/en/latest/maintaining/data-viewer.html
 
  * Responsive design for the default theme, that allows nicer rendering across
    different devices (#1935)
@@ -2983,7 +3139,7 @@ Changes and deprecations
   a migration command on existing instances. Please refer to the migration
   guide for more details:
 
-    http://docs.ckan.org/en/latest/maintaining/data-viewer.html#migrating-from-previous-ckan-versions
+    https://docs.ckan.org/en/latest/maintaining/data-viewer.html#migrating-from-previous-ckan-versions
 
 * The PDF Viewer extension has been moved to a separate extension:
   https://github.com/ckan/ckanext-pdfview. Please install it separately if
@@ -3304,7 +3460,7 @@ API changes and deprecations:
    the FileStore to hosted files will still work, but there is a command
    available to migrate the files to new Filestore. See this page for more
    details:
-   http://docs.ckan.org/en/latest/filestore.html#filestore-21-to-22-migration
+   https://docs.ckan.org/en/latest/filestore.html#filestore-21-to-22-migration
  * By default, the authorization for any action defined from an extension will
    require a logged in user, otherwise a :py:class:`ckan.logic.NotAuthorized`
    exception will be raised. If an action function allows anonymous access (eg
@@ -3634,10 +3790,10 @@ v2.0 2013-05-10
 ===============
 
 .. note:: Starting on v2.0, issue numbers with four digits refer to the old
- ticketing system at http://trac.ckan.org and the ones with three digits refer
+ ticketing system at https://trac.ckan.org and the ones with three digits refer
  to GitHub issues. For example:
 
- * #3020 is http://trac.ckan.org/ticket/3020
+ * #3020 is https://trac.ckan.org/ticket/3020
  * #271 is https://github.com/ckan/ckan/issues/271
 
  Some GitHub issues URLs will redirect to GitHub pull request pages.

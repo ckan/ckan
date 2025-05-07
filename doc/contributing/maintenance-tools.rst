@@ -87,7 +87,7 @@ Besides the workflow file there are two additional configurations needed:
 
 --------------------------------------
 Automatic creation of a GitHub release
--------------------------------------
+--------------------------------------
 
 
 .. note:: Automatic publishing to PyPI was added on December 2024

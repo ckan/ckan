@@ -182,7 +182,6 @@ class Upload(object):
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
 
-
         if self.filename:
             assert self.upload_file and self.filepath
 
@@ -216,15 +215,17 @@ class Upload(object):
         if not allowed_mimetypes and not allowed_types:
             raise logic.ValidationError(
                 {
-                    self.file_field: [f"No uploads allowed for object type {self.object_type}"]
+                    self.file_field: [
+                        f"No uploads allowed for object type {self.object_type}"
+                    ]
                 }
             )
 
         # Check that the declared types in the request are supported
         declared_mimetype_from_filename = mimetypes.guess_type(
-            self.upload_field_storage.filename
+            self.upload_field_storage.filename  # type: ignore
         )[0]
-        declared_content_type = self.upload_field_storage.content_type
+        declared_content_type = self.upload_field_storage.content_type  # type: ignore
         for declared_mimetype in (
             declared_mimetype_from_filename,
             declared_content_type,
@@ -254,7 +255,9 @@ class Upload(object):
             self.file_field: [f"Unsupported upload type: {guessed_mimetype}"]
         }
 
-        if allowed_mimetypes and allowed_mimetypes[0] != "*" and guessed_mimetype not in allowed_mimetypes:
+        if (allowed_mimetypes
+                and allowed_mimetypes[0] != "*"
+                and guessed_mimetype not in allowed_mimetypes):
             raise logic.ValidationError(err)
 
         type_ = guessed_mimetype.split("/")[0]
@@ -262,7 +265,7 @@ class Upload(object):
             raise logic.ValidationError(err)
 
         preferred_extension = mimetypes.guess_extension(guessed_mimetype)
-        if preferred_extension:
+        if preferred_extension and self.filename and self.filepath:
             self.filename = str(Path(self.filename).with_suffix(preferred_extension))
             self.filepath = str(Path(self.filepath).with_suffix(preferred_extension))
 

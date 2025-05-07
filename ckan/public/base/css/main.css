@@ -13945,8 +13945,7 @@ td.diff_header {
 .input-group .form-control {
   z-index: 0;
 }
-
-.input-group-btn:last-child > .btn {
+.input-group > .btn:last-child {
   z-index: 0;
 }
 
