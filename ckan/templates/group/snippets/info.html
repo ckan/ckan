@@ -53,11 +53,7 @@
           {% if error_message %}
             <div class="alert alert-danger">{{ error_message }}</div>
           {% endif %}
-          {% if am_following %}
-            <a class="btn btn-danger" hx-post="{{ h.url_for('group.unfollow', id=group.id) }}" hx-target="#group-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
-          {% else %}
-            <a class="btn btn-success" hx-post="{{ h.url_for('group.follow', id=group.id) }}" hx-target="#group-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
-          {% endif %}
+          {% snippet 'snippets/follow_button.html', am_following=am_following, obj_type='group', obj_id=group.id %}
         {% endif %}
       {% endblock %}
     {% endif %}

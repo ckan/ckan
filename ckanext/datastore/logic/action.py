@@ -27,6 +27,7 @@ from ckanext.datastore import interfaces
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
+ValidationError = logic.ValidationError
 
 WHITELISTED_RESOURCES = ['_table_metadata']
 
@@ -380,7 +381,10 @@ def datastore_info(context: Context, data_dict: dict[str, Any]
     '''
     backend = DatastoreBackend.get_active_backend()
 
-    resource_id = _get_or_bust(data_dict, 'id')
+    resource_id = data_dict.get("resource_id", data_dict.get("id"))
+    if not resource_id:
+        raise ValidationError({"resource_id": ["Missing value"]})
+
     res_exists = backend.resource_exists(resource_id)
     if not res_exists:
         alias_exists, real_id = backend.resource_id_from_alias(resource_id)

@@ -13,7 +13,7 @@ Flask-Babel==4.0.0
 Flask-Login==0.6.3
 Flask-Session==0.8.0
 Flask-WTF==1.2.1
-Jinja2==3.1.5
+Jinja2==3.1.6
 Markdown==3.6
 msgspec==0.18.6
 packaging==24.1

@@ -1,5 +1,8 @@
 name: Check types
-on: [pull_request]
+on:
+#  pull_request:
+  workflow_call:
+  workflow_dispatch:
 env:
   NODE_VERSION: '18'
   PYTHON_VERSION: '3.9'
@@ -11,13 +14,15 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/setup-node@v3
+          cache: 'pip'
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
       - name: Install python deps
         run: pip install -r requirements.txt -r dev-requirements.txt -e.
       - name: Install node deps
