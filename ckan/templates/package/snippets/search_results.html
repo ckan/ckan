@@ -30,6 +30,8 @@
   </div>
 
   {% block page_pagination %}
-    {{ page.pager(q=q) }}
+    <div hx-boost="true">
+      {{ page.pager(q=q) }}
+    </div>
   {% endblock %}
 </section>
