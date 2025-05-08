@@ -398,6 +398,9 @@ class DefaultDatasetForm(object):
     def search_template(self) -> str:
         return 'package/search.html'
 
+    def search_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
+
     def history_template(self) -> None:
         return None
 
