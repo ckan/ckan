@@ -12,7 +12,7 @@ import copy
 import logging
 import sys
 from typing import (
-    Any, Callable, Container, Dict, Iterable, Optional, Set, Union,
+    Any, Container, Dict, Iterable, Optional, Set, Union,
     cast)
 import sqlalchemy as sa
 import os
@@ -37,7 +37,7 @@ from ckan.lib.lazyjson import LazyJSONObject
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 
-from psycopg2.extras import register_default_json, register_composite
+from psycopg2.extras import register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError, DatabaseError)
@@ -138,7 +138,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     engine = sa.engine_from_config(
         config,
         "ckan.datastore.sqlalchemy.",
-        json_deserializer=lambda x: x, # do not convert to python objects
+        json_deserializer=lambda x: x,  # do not convert to python objects
         **{"url": connection_url},
     )
 
