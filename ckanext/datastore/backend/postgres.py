@@ -132,7 +132,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
         config.setdefault(key, value)
 
     engine = sa.engine_from_config(
-        config,
+        dict(config),
         "ckan.datastore.sqlalchemy.",
         json_deserializer=lambda x: x,  # do not convert to python objects
         **{"url": connection_url},
