@@ -6,8 +6,9 @@ from flask import Blueprint, render_template
 
 import ckan.lib.helpers as h
 import ckan.plugins as p
+from ckan.config.middleware.flask_app import CKANJsonSessionSerializer, CKANSession
 from ckan.lib.redis import connect_to_redis
-from ckan.tests.helpers import body_contains
+from ckan.tests.helpers import body_contains, CKANTestApp
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
@@ -130,3 +131,26 @@ class TestSessionTypes:
         )
         data = serializer.loads(cookie.group(1))
         assert data["_user_id"] == user["id"]
+
+class TestCKANJsonSessionSerializer:
+    def test_encode_returns_bytes(self):
+        serializer = CKANJsonSessionSerializer()
+        session_data = CKANSession({'user_id': '123'})
+        encoded = serializer.encode(session_data)
+        assert isinstance(encoded, bytes)
+        assert b'"user_id": "123"' in encoded
+
+    def test_decode_round_trip(self):
+        serializer = CKANJsonSessionSerializer()
+        session_data = CKANSession({'theme': 'qld'})
+        encoded = serializer.encode(session_data)
+        decoded = serializer.decode(encoded)
+        assert decoded == session_data
+
+    def test_decode_unicode_error_logs(self):
+        serializer = CKANJsonSessionSerializer()
+        bad_data = b'\xff\xfe\xfd'  # Invalid UTF-8
+
+        result = serializer.decode(bad_data)
+
+        assert result is None
