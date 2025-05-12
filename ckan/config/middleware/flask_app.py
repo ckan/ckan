@@ -82,7 +82,12 @@ class CKANJsonSessionSerializer(TaggedJSONSerializer, FlaskSessionSerializer):
         try:
             return self.loads(serialized_data.decode())
         except UnicodeDecodeError:
-            log.error("unable to decode session data, dropping: %s", serialized_data)
+            log.info(
+                "Unable to decode session data, X-Forward-For/remote_addr: %s, "
+                "dropping: %s ",
+                request.headers.get('X-Forwarded-For',
+                                    request.remote_addr),
+                serialized_data)
 
 
 class CKANSession(Session):

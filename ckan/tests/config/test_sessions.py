@@ -6,8 +6,9 @@ from flask import Blueprint, render_template
 
 import ckan.lib.helpers as h
 import ckan.plugins as p
-from ckan.config.middleware.flask_app import CKANJsonSessionSerializer, CKANSession
+from ckan.config.middleware.flask_app import CKANJsonSessionSerializer
 from ckan.lib.redis import connect_to_redis
+from ckan import common as c
 from ckan.tests.helpers import body_contains, CKANTestApp
 
 
@@ -134,26 +135,32 @@ class TestSessionTypes:
 
 
 @pytest.mark.ckan_config("SESSION_TYPE", "redis")
-@pytest.mark.usefixtures("test_request_context")
 class TestCKANJsonSessionSerializer:
-    def test_encode_returns_bytes(self):
-        serializer = CKANJsonSessionSerializer()
-        session_data = CKANSession({'user_id': '123'})
-        encoded = serializer.encode(session_data)
-        assert isinstance(encoded, bytes)
-        assert b'"user_id": "123"' in encoded
+    def test_encode_returns_bytes(self, app: CKANTestApp):
+        with app.flask_app.test_request_context():
+            serializer = CKANJsonSessionSerializer()
+            session = c.session
+            session['user_id'] = '123'
 
-    def test_decode_round_trip(self):
-        serializer = CKANJsonSessionSerializer()
-        session_data = CKANSession({'theme': 'qld'})
-        encoded = serializer.encode(session_data)
-        decoded = serializer.decode(encoded)
-        assert decoded == session_data
+            encoded = serializer.encode(session)
+            assert isinstance(encoded, bytes)
+            assert b'"user_id":"123"' in encoded
 
-    def test_decode_unicode_error_logs(self):
-        serializer = CKANJsonSessionSerializer()
-        bad_data = b'\xff\xfe\xfd'  # Invalid UTF-8
+    def test_decode_round_trip(self, app: CKANTestApp):
+        with app.flask_app.test_request_context():
+            serializer = CKANJsonSessionSerializer()
+            session = c.session
+            session['theme'] = 'qld'
 
-        result = serializer.decode(bad_data)
+            encoded = serializer.encode(session)
+            decoded = serializer.decode(encoded)
+            assert decoded == session
 
-        assert result is None
+    def test_decode_unicode_error_logs(self, app: CKANTestApp):
+        with app.flask_app.test_request_context():
+            serializer = CKANJsonSessionSerializer()
+            bad_data = b'\xff\xfe\xfd'  # Invalid UTF-8
+
+            result = serializer.decode(bad_data)
+
+            assert result is None
