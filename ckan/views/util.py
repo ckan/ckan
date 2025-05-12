@@ -1,10 +1,11 @@
 # encoding: utf-8
 
-from flask import Blueprint
+from flask import Blueprint, jsonify
+from flask_wtf.csrf import generate_csrf
 
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
-from ckan.common import _, request
+from ckan.common import _, request, g
 from ckan.types import Response
 
 util = Blueprint(u'util', __name__)
@@ -39,7 +40,16 @@ def custom_form_fields() -> str:
     )
 
 
+def csrf_input() -> Response:
+    """ Generate a CSRF token and return it in a JSON response for XHR POST requests."""
+    return jsonify({
+        "name": g.csrf_field_name,
+        "value": generate_csrf()
+    })
+
+
 util.add_url_rule(
     '/util/redirect', view_func=internal_redirect, methods=('GET', 'POST',))
 util.add_url_rule('/testing/primer', view_func=primer)
 util.add_url_rule('/testing/custom_form_fields', view_func=custom_form_fields)
+util.add_url_rule('/csrf-input', view_func=csrf_input, methods=('GET',))

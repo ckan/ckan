@@ -48,14 +48,17 @@
         success: fn,
         error: error
       };
-      if (type == 'POST') {
-        options.type = 'POST';
-        options.data = JSON.stringify(data);
-        var csrf_field = $('meta[name=csrf_field_name]').attr('content');
-        var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
-        options.headers = {
-          'X-CSRFToken': csrf_token
-        }
+      if (type === 'POST') {
+        ckan.fetchCsrfToken().then(csrf => {
+          options.type = 'POST';
+          options.data = JSON.stringify(data);
+          options.headers = {
+            'X-CSRFToken': csrf.token
+          }
+        }).catch((err) => {
+          console.error('CSRF token fetch failed:', err);
+          if (typeof error === 'function') error(err);
+        })
       } else {
         options.type = 'GET';
         options.url += data;

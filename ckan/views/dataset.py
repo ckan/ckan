@@ -13,7 +13,7 @@ from flask import Blueprint
 from flask.views import MethodView
 from jinja2.exceptions import TemplateNotFound
 from werkzeug.datastructures import MultiDict
-from ckan.common import asbool, current_user
+from ckan.common import asbool, current_user, CACHE_PARAMETERS
 
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
@@ -24,7 +24,6 @@ import ckan.model as model
 import ckan.plugins as plugins
 import ckan.authz as authz
 from ckan.common import _, config, g, request
-from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.search import (
     SearchError, SearchQueryError, SearchIndexError, SolrConnectionError
