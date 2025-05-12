@@ -4,7 +4,7 @@ from __future__ import annotations
 import cgi
 import json
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -24,7 +24,7 @@ from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
 
-from ckan.types import Context, Response
+from ckan.types import Context, Response, ErrorDict
 
 Blueprint = flask.Blueprint
 NotFound = logic.NotFound
@@ -206,13 +206,19 @@ class CreateView(MethodView):
                 data_provided = True
                 break
 
-        if not data_provided and save_action != u"go-dataset-complete":
-            if save_action == u'go-dataset':
+        if not data_provided and save_action != "go-dataset-complete":
+            if save_action == 'again':
+                errors: dict[str, Any] = {}
+                error_summary = {_('Error'): _('No resource data entered')}
+                return self.get(package_type, id, data, errors, error_summary)
+            if save_action == 'go-dataset':
                 # go to final stage of adddataset
                 return h.redirect_to(u'{}.edit'.format(package_type), id=id)
-            # see if we have added any resources
             try:
-                data_dict = get_action(u'package_show')(context, {u'id': id})
+                get_action('package_patch')(
+                    logic.fresh_context(context),
+                    {'id': id, 'state': 'active'}
+                )
             except NotAuthorized:
                 return base.abort(403, _(u'Unauthorized to update dataset'))
             except NotFound:
@@ -220,21 +226,11 @@ class CreateView(MethodView):
                     404,
                     _(u'The dataset {id} could not be found.').format(id=id)
                 )
-            if not len(data_dict[u'resources']):
-                # no data so keep on page
-                msg = _(u'You must add at least one data resource')
-                # On new templates do not use flash message
-
-                errors: dict[str, Any] = {}
-                error_summary = {_(u'Error'): msg}
+            except ValidationError as e:
+                errors = cast(
+                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
+                error_summary = e.error_summary
                 return self.get(package_type, id, data, errors, error_summary)
-
-            # XXX race condition if another user edits/deletes
-            data_dict = get_action(u'package_show')(context, {u'id': id})
-            get_action(u'package_update')(
-                Context(context, allow_state_change=True),
-                dict(data_dict, state=u'active')
-            )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
@@ -259,12 +255,16 @@ class CreateView(MethodView):
                 404, _(u'The dataset {id} could not be found.').format(id=id)
             )
         if save_action == u'go-metadata':
-            # XXX race condition if another user edits/deletes
-            data_dict = get_action(u'package_show')(context, {u'id': id})
-            get_action(u'package_update')(
-                Context(context, allow_state_change=True),
-                dict(data_dict, state=u'active')
-            )
+            try:
+                get_action('package_patch')(
+                    logic.fresh_context(context),
+                    {'id': id, 'state': 'active'}
+                )
+            except ValidationError as e:
+                errors = cast(
+                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
+                error_summary = e.error_summary
+                return self.get(package_type, id, data, errors, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
         elif save_action == u'go-metadata-preview':
             data_dict = get_action(u'package_show')(context, {u'id': id})

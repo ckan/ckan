@@ -271,7 +271,7 @@ class ApiTokenView(MethodView):
             u'class': u'fa fa-copy'
         }), {
             u'type': u'button',
-            u'class': u'btn btn-secondary btn-xs',
+            u'class': u'btn btn-secondary btn-sm',
             u'data-module': u'copy-into-buffer',
             u'data-module-copy-value': ensure_str(token)
         })

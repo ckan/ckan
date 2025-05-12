@@ -23,7 +23,7 @@ groups:
         ignored: true
         type: bool
 
-  # Options that are available inside CircleCI containers:
+  # Options that are available inside the Docker / CI containers:
   - annotation: ~
     options:
       - key: CKAN_POSTGRES_USER
@@ -1151,7 +1151,7 @@ groups:
 
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
-        example: /images/ckan_logo_fullname_long.png
+        example: /base/images/ckan-logo.png
         description: This sets the logo used in the title bar.
         editable: true
 
@@ -1317,7 +1317,7 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. Starting CKAN 2.11 it only accepts: ``public`` as a value.
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``public`` or ``public-midenight-blue`` as a value.
           (This variable is kept for backwards compatibility when updating Bootstrap
           versions.)
 

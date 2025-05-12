@@ -31,7 +31,7 @@ import dominate.tags as dom_tags
 from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import asbool, config, current_user, CacheType
+from ckan.common import asbool, config, current_user, CacheType, session
 from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
@@ -2884,6 +2884,15 @@ def make_login_url(
 @core_helper
 def csrf_input():
     return snippet('snippets/csrf_input.html')
+
+
+@core_helper
+def csrf_session_enabled() -> bool:
+    """ Returns true if the session is enabled for CSRF protection """
+    log.debug("WTF_CSRF_FIELD_NAME: %r", config.get('WTF_CSRF_FIELD_NAME'))
+    log.debug("session: %r", session)
+
+    return config.get('WTF_CSRF_FIELD_NAME') in session
 
 
 @core_helper
