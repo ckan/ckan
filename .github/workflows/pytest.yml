@@ -15,8 +15,7 @@ on:
         type: boolean
         description: Override flag for skipping rollup of pytest/coverage html reports
 env:
-  NODE_VERSION: '16'
-  PYTHON_VERSION: '3.9'
+  PIP_CACHE_DIR: /root/.cache/pip
 
 permissions:
   contents: read
@@ -111,12 +110,13 @@ jobs:
       fail-fast: false
       matrix:
         split: ${{ fromJSON(needs.define-matrix.outputs.SPLIT_LIST) }}
+    container:
+      image: python:3.10-bookworm
 
     services:
-      ckan_postgres:
-        image: postgres:12 # should be postgres:15
-        ports:
-          - 5432:5432
+      ckan-postgres:
+
+        image: postgres:12
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -125,26 +125,13 @@ jobs:
         env:
           POSTGRES_USER: ckan
           POSTGRES_PASSWORD: ckan
-          POSTGRES_DB: ckan
-          PGDATA: "/data"
-
-      ckan_redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-      ckan_solr:
+      ckan-solr:
         image: ckan/ckan-solr:master
-        ports:
-          - 8983:8983
+      ckan-redis:
+        image: redis:7
 
     env:
       SPLIT_COUNT: ${{ needs.define-matrix.outputs.SPLIT_COUNT }}
-      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@localhost/ckan_test
-      CKAN_SOLR_URL: http://localhost:8983/solr/ckan
-      CKAN_REDIS_URL: redis://localhost:6379/1
-      POSTGRES_USER: ckan
-      POSTGRES_PASSWORD: ckan
-      CKAN_DB: ckan_test
       CKAN_DATASTORE_POSTGRES_DB: datastore_test
       CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
       CKAN_DATASTORE_POSTGRES_READ_PWD: pass
@@ -154,23 +141,13 @@ jobs:
       CKAN_POSTGRES_USER: ckan_default
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
-      PGHOST: localhost
-      CKAN_STORAGE_PATH: /tmp/storage
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-github-actions.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
+
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-ci.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy
 
 
     steps:
       - run: |
           echo "${{ matrix.split }} of $SPLIT_COUNT"
-      - name: Setup Database
-        run: |
-          # Database Creation
-          psql     --host=${PGHOST} --username=${POSTGRES_USER} --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
-          createdb --encoding=utf-8 --host=${PGHOST} --username=${POSTGRES_USER} --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
-          psql     --host=${PGHOST} --username=${POSTGRES_USER} --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_READ_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_READ_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
-          psql     --host=${PGHOST} --username=${POSTGRES_USER} --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_WRITE_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_WRITE_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
-          createdb --encoding=utf-8 --host=${PGHOST} --username=${POSTGRES_USER} --owner=${CKAN_DATASTORE_POSTGRES_WRITE_USER} ${CKAN_DATASTORE_POSTGRES_DB}
-
 
       - uses: actions/checkout@v4
         with:
@@ -195,28 +172,21 @@ jobs:
           echo "unzip pytest test duration details"
           gunzip .test_durations.gz
 
-      - uses: actions/setup-python@v4
+      - name: Cache pip
+        uses: actions/cache@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install python deps
+      - name: Install deps
         run: |
-         pip install -U pip
-         pip install -r requirements.txt -r dev-requirements.txt -e .
-         pip check
+         ./test-infrastructure/install_deps.sh
 
       - name: Init environment
         run: |
-          export PGPASSWORD=${POSTGRES_PASSWORD}
-          # Database Initialization
-          ckan -c test-core-github-actions.ini datastore set-permissions | grep -v "Using configuration file" | psql --host=${PGHOST} --username=${POSTGRES_USER}
-          ckan -c test-core-github-actions.ini db init
+         ./test-infrastructure/init_environment.sh
 
       # When running pytest, we write the new test durations using options
       # `--store-durations --clean-durations`.
@@ -227,14 +197,9 @@ jobs:
       - name: Run pytest
         run: |
           set -ex
-          unset CKAN_SQLALCHEMY_URL CKAN_SOLR_URL CKAN_REDIS_URL POSTGRES_USER POSTGRES_PASSWORD
-          unset CKAN_DB CKAN_DATASTORE_POSTGRES_DB CKAN_DATASTORE_POSTGRES_READ_USER CKAN_DATASTORE_POSTGRES_READ_PWD
-          unset CKAN_DATASTORE_POSTGRES_WRITE_USER CKAN_DATASTORE_POSTGRES_WRITE_PWD CKAN_POSTGRES_DB
-          unset CKAN_POSTGRES_USER CKAN_POSTGRES_PWD PGPASSWORD PGHOST CKAN_STORAGE_PATH
 
           mkdir -p ./junit/result
           echo "${{ matrix.split }} of $SPLIT_COUNT"
-
 
           echo "::group::pytest"
           #we ignore test 'test_building_the_docs' as its looked after by the docs.yml workflow which provides the sphinx documentation build artifact and it also takes 50 seconds to run
@@ -356,14 +321,21 @@ jobs:
     needs: pytest
     if: github.run_attempt == 1 && (success() || failure()) && needs.define-matrix.outputs.IS_PYTEST_COMBINE_TEST_RESULTS_DISABLED == 'false'
     runs-on: ubuntu-latest
+    container:
+      # Needs to run on the same image the tests were run
+      image: python:3.10-bookworm
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Cache pip
+        uses: actions/cache@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
@@ -375,7 +347,6 @@ jobs:
           pattern: internal_coverage-*
           path: coverage-data
           merge-multiple: 'true'
-
 
       - name: Download all JUnit XML results
         uses: actions/download-artifact@v4
@@ -404,7 +375,6 @@ jobs:
           echo "::group::coverage combine"
           coverage combine --keep -a ./coverage-data/*
           echo "::endgroup::"
-
 
           echo "::group::pytest-html-report"
           coverage html -d results/coverage_html
