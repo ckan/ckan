@@ -408,20 +408,87 @@ groups:
           token. This is useful in some scenarios where using the default ``Authorization`` one
           causes problems.
 
-      - key: ckan.cache_expires
-        default: 0
+      - key: ckan.cache.expires
+        default: 3600
+        legacy_key: ckan.cache_expires
         type: int
         example: 2592000
-        description: This sets ``Cache-Control`` header's max-age value.
+        description: |
+          This sets ``Cache-Control`` header's max-age value on public cache.
+          3600 = 1 hour before revalidate with shared cache
 
-      - key: ckan.cache_enabled
+      - key: ckan.cache.shared.expires
+        default: 7200
+        type: int
+        example: 7200
+        description: |
+          This sets ``Cache-Control`` header's s-maxage value on public cache.
+          7200 = 2 hour before shared cache revalidates
+
+      - key: ckan.cache.private.expires
+        type: int
+        default: 60
+        example: 3600
+        description: |
+          This sets ``Cache-Control`` header's max-age value on private cache.
+
+      - key: ckan.cache.public.enabled
+        legacy_key: ckan.cache_enabled
+        default: True
         type: bool
         example: "true"
         description: |
           This enables cache control headers on all requests. If the user is
           not logged in and there is no session data a ``Cache-Control:
-          public`` header will be added. For all other requests the
-          ``Cache-control: private`` header will be added.
+          public`` header will be added. For all other requests see ``ckan.cache.private.enabled``
+          config option.
+
+      - key: ckan.cache.private.enabled
+        default: true
+        type: bool
+        example: "true"
+        description: |
+          When this is set to true and cache type requested is private,
+          then ``Cache-control: private`` header will be added,
+          else ``Cache-Control: no-cache max-age=0``
+          will be set on all requests except for sensitive responses where no-store
+          will also be set.
+
+      - key: ckan.cache.stale_while_revalidates
+        default: 0
+        type: int
+        example: 3600
+        description: |
+          This sets ``Cache-Control`` header's stale-while-revalidate value on public/private cache.
+          3600 = 1 hour to serve stale content while being background revalidated
+          users will continue to receive stale data until refresh call is returned
+          limiting requests to one per edge cache instead of all users when shared
+          cache is stale/expired - dependant on cache keys.
+          Set to 0 to disallow stale cache server on requests.
+
+      - key: ckan.cache.stale_if_error
+        default: 86400
+        type: int
+        example: 7200
+        description: |
+          This sets ``Cache-Control`` header's stale-if-error value on public/private cache.
+          86400 = 1 day if origin server throws 5xx error.
+          Set to 0 to disallow stale cache server on 5xx errors.
+
+      - key: ckan.cache.no_transform
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          If the HTTP response is not to be manipulated, Default: False
+          Adds to ``Cache-control`` ``no-transform``.
+
+      - key: ckan.etags.enabled
+        type: bool
+        default: true
+        example: "true"
+        description: |
+          Add etag response header on all payloads
 
       - key: ckan.mimetype_guess
         default: file_ext
@@ -700,6 +767,7 @@ groups:
         default: 31536000
         description: |
           Max age in seconds for CSRF tokens.
+          Must be longer than shared/max cache age + standard session length
           This value is capped by the lifetime of the session.
 
       - key: WTF_CSRF_SSL_STRICT
@@ -1075,7 +1143,7 @@ groups:
 
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
-        example: /images/ckan_logo_fullname_long.png
+        example: /base/images/ckan-logo.png
         description: This sets the logo used in the title bar.
         editable: true
 
@@ -1185,7 +1253,7 @@ groups:
       - key: ckan.site_custom_css
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
-      
+
       - key: ckan.default_collapse_facets
         type: bool
         default: False
@@ -1248,7 +1316,7 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. Starting CKAN 2.11 it only accepts: ``public`` as a value.
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``public`` or ``public-midenight-blue`` as a value.
           (This variable is kept for backwards compatibility when updating Bootstrap
           versions.)
 

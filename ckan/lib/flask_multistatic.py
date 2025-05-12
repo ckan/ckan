@@ -34,6 +34,10 @@ from flask import Flask
 from flask.helpers import send_from_directory
 from werkzeug.exceptions import NotFound
 
+from ckan.config.middleware.common_middleware import (
+    static_or_webasset_pre_configuration,
+    static_or_webasset_post_configuration)
+
 string_types = (str,)
 
 
@@ -84,6 +88,8 @@ class MultiStaticFlask(Flask):
         # Ensure get_send_file_max_age is called in all cases.
         # Here, we ensure get_send_file_max_age is called for Blueprints.
         max_age = self.get_send_file_max_age(filename)
+        cache_expire, shared_cache_expire = static_or_webasset_pre_configuration(
+            max_age)
 
         folders = self.static_folder
         if isinstance(self.static_folder, string_types):
@@ -91,9 +97,11 @@ class MultiStaticFlask(Flask):
 
         for directory in folders:  # type: ignore
             try:
-                return send_from_directory(
-                    directory, filename, max_age=max_age
+                response = send_from_directory(
+                    directory, filename, etag=True, max_age=cache_expire
                 )
+                static_or_webasset_post_configuration(response, shared_cache_expire)
+                return response
             except NotFound:
                 pass
         raise NotFound()
