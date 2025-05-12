@@ -13,7 +13,7 @@ from ckan.tests.helpers import body_contains, CKANTestApp
 
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
 class TestWithFlashPlugin:
-    def test_flash_success(self, app):
+    def test_flash_success(self, app: CKANTestApp):
         """
         Test flash_success messages are rendered.
         """
@@ -98,7 +98,7 @@ class FlashMessagePlugin(p.SingletonPlugin):
 class TestSessionTypes:
     @pytest.mark.usefixtures("clean_redis")
     @pytest.mark.ckan_config("SESSION_TYPE", "redis")
-    def test_redis_storage(self, app, ckan_config, monkeypatch):
+    def test_redis_storage(self, app: CKANTestApp, monkeypatch):
         """Redis session interface creates a record in redis upon request.
         """
         redis = connect_to_redis()
@@ -112,7 +112,7 @@ class TestSessionTypes:
         assert redis.keys("*") == [f"session:{cookie.group(1)}".encode()]
 
     @pytest.mark.usefixtures("test_request_context")
-    def test_cookie_storage(self, app, user_factory, faker):
+    def test_cookie_storage(self, app: CKANTestApp, user_factory, faker):
         """User's ID added to session cookie upon login
         """
         password = faker.password()
@@ -132,6 +132,9 @@ class TestSessionTypes:
         data = serializer.loads(cookie.group(1))
         assert data["_user_id"] == user["id"]
 
+
+@pytest.mark.ckan_config("SESSION_TYPE", "redis")
+@pytest.mark.usefixtures("test_request_context")
 class TestCKANJsonSessionSerializer:
     def test_encode_returns_bytes(self):
         serializer = CKANJsonSessionSerializer()
