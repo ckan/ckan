@@ -1,0 +1,1 @@
+Ensure UnicodeDecodeError is caught if session data was not improperly encoded
