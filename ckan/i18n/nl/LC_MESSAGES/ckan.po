@@ -2614,7 +2614,7 @@ msgstr "Versie"
 #: ckan/templates/package/snippets/package_basic_fields.html:113
 #: ckan/templates/user/snippets/info.html:99
 msgid "State"
-msgstr "Provincie"
+msgstr "Status"
 
 #: ckan/templates/package/snippets/additional_info.html:66
 msgid "Last Updated"
