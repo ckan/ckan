@@ -79,7 +79,10 @@ class CKANJsonSessionSerializer(TaggedJSONSerializer, FlaskSessionSerializer):
 
     def decode(self, serialized_data: bytes) -> Any:
         """Deserialize the session data."""
-        return self.loads(serialized_data.decode())
+        try:
+            return self.loads(serialized_data.decode())
+        except UnicodeDecodeError:
+            log.error("unable to decode session data, dropping: %s", serialized_data)
 
 
 class CKANSession(Session):
