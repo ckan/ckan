@@ -11922,6 +11922,10 @@ a.tag:hover {
 .module > .page-header {
   margin-top: 0px;
 }
+.module > .module-content {
+  border-radius: 20px;
+  background-color: #f2f4f7;
+}
 .module > .module-content:nth-child(2n) {
   padding-top: 1.5rem;
 }
@@ -14053,7 +14057,6 @@ td.diff_header {
 
 .main .primary {
   border-radius: 20px;
-  background-color: #f2f4f7;
   position: relative;
   float: right;
   margin-left: 0;
