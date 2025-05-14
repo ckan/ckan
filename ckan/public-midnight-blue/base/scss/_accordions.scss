@@ -1,76 +1,131 @@
-section.module.module-narrow.module-shallow {
-    .accordion {
-      &-button {
-        background-color: $gray-400;
-        color: white;
-        font-size: 20px;
-        font-weight: 500;
-        border-radius: 6px;
-    
-        &::after {
-          color: white;
-          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-        }
-    
-        &:not(.collapsed) {
-          background-color: $primary;
-          color: white;
-    
-          &::after {
-            color: white;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-          }
-        }
-        &.accordion-header2 {
-        font-size: 16px !important;
-      }
-      }
-    
-      &-item {
-        border: none !important;
-        box-shadow: none !important;
-        margin-bottom: 48px;
-    
-        &:last-of-type .accordion-button.collapsed {
-          border-radius: 6px;
-        }
-    
-        &:first-of-type .accordion-button {
-          border-radius: 6px;
-        }
+//
+// Base styles
+//
 
-        
-      }
+.accordion-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: $accordion-button-padding-y 0.9em;
+  @include font-size($font-size-base);
+  color: $accordion-button-color;
+  text-align: left; // Reset button style
+  background-color: $accordion-button-bg;
+  border: 0;
+  @include border-radius(0);
+  overflow-anchor: none;
+  @include transition($accordion-transition);
 
-     
-    
-      &-body {
-        padding: 0;
-      }
-    }
-  
-    .accordion-item {
-      border: none !important;
-      content: none;
-      box-shadow: none !important;
-      outline: none !important;
-      margin-bottom: 48px;
-    
-      &:last-of-type .accordion-button.collapsed {
-        border-radius: 6px;
-      }
-    
-      &:first-of-type .accordion-button {
-        border-radius: 6px;
-      }
-    }
-    
-    .accordion-body {
-      background-color: white;
-    }
+  &:not(.collapsed) {
+    color: $accordion-button-color;
+    background-color: $gray-100;
+    box-shadow: inset 0 ($accordion-border-width * -1) 0 $accordion-border-color;
 
-    .accordion-body .list-group {
-      padding-top: 4px;
+    &::after {
+      background-image: escape-svg($accordion-button-icon);
+      transform: $accordion-icon-transform;
     }
-  
   }
+
+  // Accordion icon
+  &::after {
+    flex-shrink: 0;
+    width: $accordion-icon-width;
+    height: $accordion-icon-width;
+    margin-left: auto;
+    content: "";
+    background-image: escape-svg($accordion-button-icon);
+    background-repeat: no-repeat;
+    background-size: $accordion-icon-width;
+    @include transition($accordion-icon-transition);
+  }
+
+  &:hover {
+    z-index: 2;
+  }
+
+  &:focus {
+    z-index: 3;
+    border-color: $accordion-button-focus-border-color;
+    outline: 0;
+    box-shadow: $accordion-button-focus-box-shadow;
+  }
+}
+
+.accordion-header,
+.accordion-heading {
+  margin-bottom: 0;
+}
+
+.accordion-item {
+  border-bottom: $accordion-border-width solid $gray-300;
+  background-color: $accordion-bg;
+}
+
+.accordion-body {
+  padding: $accordion-body-padding-y $accordion-body-padding-x;
+}
+
+// Secondary accordions
+
+.secondary .accordion {
+  .accordion-item {
+    background-color: transparent;
+    border: none;
+    border-radius: 0.5rem;
+
+    &:has(.accordion-button:disabled),
+    .module-content {
+      background-color: $gray-100;
+    }
+
+    &:first-of-type .accordion-button {
+      border-radius: 0.5rem;
+    }
+
+    .module-content {
+      padding: 1rem;
+      border-radius: 0 0 0.5rem 0.5rem;
+    }
+  }
+
+  .accordion-button:not(.collapsed) {
+    box-shadow: none;
+    background-color: $primary;
+    color: $white;
+
+    .filter-svg {
+      -webkit-text-stroke: 2px $white;
+    }
+
+    &::after {
+      background-image: escape-svg($chevronActiveIcon);
+    }
+  }
+
+  .accordion-button {
+    background-color: $gray-100;
+
+    &:disabled::after {
+      background-image: none;
+    }
+  }
+
+  .module-heading {
+    border-radius: 0.5rem;
+    font-weight: $font-weight-normal;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  nav {
+    padding: 0.5rem;
+  }
+
+  .accordion-collapse.show {
+    background-color: $gray-100;
+    border-radius: 0 0 0.5rem 0.5rem;
+  }
+}

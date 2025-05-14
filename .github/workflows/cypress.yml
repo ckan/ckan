@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -61,23 +61,25 @@ jobs:
 
       - name: Init environment
         run: |
-          ckan -c test-core-github-actions.ini db init
+          ckan -c test-core-ci.ini db init
           #cypress testing requires activity plugin to be active
-          ckan config-tool test-core-github-actions.ini "ckan.plugins = activity"
+          ckan config-tool test-core-ci.ini "ckan.plugins = activity"
 
       - name: Run Cypress
         uses: cypress-io/github-action@v6
         with:
-          start: ckan -c test-core-github-actions.ini run
+          start: ckan -c test-core-ci.ini run
 
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      # Test run video was always captured, so this action uses "always()" condition
+          if-no-files-found: ignore
+
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
           name: cypress-videos
           path: cypress/videos
+          if-no-files-found: ignore

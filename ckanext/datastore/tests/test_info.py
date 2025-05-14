@@ -29,7 +29,7 @@ def test_info_success():
     }
     helpers.call_action("datastore_create", **data)
 
-    info = helpers.call_action("datastore_info", id=resource["id"])
+    info = helpers.call_action("datastore_info", resource_id=resource["id"])
 
     assert len(info["meta"]) == 7, info["meta"]
     assert info["meta"]["count"] == 2
@@ -52,7 +52,7 @@ def test_info_success():
     assert info["meta"]["id"] == resource["id"]
 
     info = helpers.call_action(
-        "datastore_info", id=resource["id"],
+        "datastore_info", resource_id=resource["id"],
         include_meta=False, include_fields_schema=False)
 
     assert 'meta' not in info
