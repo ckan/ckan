@@ -15453,6 +15453,10 @@ td.diff_header {
   color: white !important;
 }
 
+.list-group-item a {
+  min-height: 24px !important;
+}
+
 section.module.module-narrow.module-shallow .accordion-button {
   background-color: #98a2b3;
   color: white;
