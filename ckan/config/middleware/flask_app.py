@@ -389,6 +389,7 @@ def ckan_before_request() -> Optional[Response]:
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
+    g.csrf_enabled = config.get('WTF_CSRF_ENABLED')
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
