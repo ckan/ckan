@@ -119,11 +119,12 @@ class CKANConfigLoader(object):
         # If storage isn't an absolute, then the webassets module will generate
         # in a different root than the one the dev server will try to serve
         # from.
-        storage = Path(self.config['ckan.storage_path'])
-        if not storage.is_absolute():
-            raise CkanConfigurationException(
-                u'ckan.storage_path must be an absolute path'
-            )
+        storage = self.config.get('ckan.storage_path')
+        if storage:
+            if not Path(storage).is_absolute():
+                raise CkanConfigurationException(
+                    u'ckan.storage_path must be an absolute path'
+                )
 
     def get_config(self) -> Config:
         return self.config.copy()
