@@ -14,6 +14,18 @@ htmx.on('htmx:configRequest', (event) => {
   }
 });
 
+function htmx_cleanup_before_swap(event) {
+  // Dispose any active tooltips before HTMX swaps the DOM
+  event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(
+      el => {
+    const tooltip = bootstrap.Tooltip.getInstance(el)
+    if (tooltip) {
+      tooltip.dispose()
+    }
+  })
+}
+document.body.addEventListener("htmx:beforeSwap", htmx_cleanup_before_swap);
+document.body.addEventListener("htmx:oobBeforeSwap", htmx_cleanup_before_swap);
 
 function htmx_initialize_ckan_modules(event) {
   var elements = event.detail.target.querySelectorAll("[data-module]");
@@ -26,6 +38,11 @@ function htmx_initialize_ckan_modules(event) {
     ckan.module.initializeElement(node);
     node.setAttribute("dm-initialized", true)
   }
+
+  event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]'
+      ).forEach(node => {
+    bootstrap.Tooltip.getOrCreateInstance(node)
+  })
 }
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);

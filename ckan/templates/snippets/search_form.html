@@ -66,7 +66,7 @@
               {%- else -%}
                 {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
               {%- endif %}
-              <a href="{{ facets.remove_field(field, value) }}" class="remove" aria-label="{{ _('Remove applied filter: {value}').format(value=value) }}" title="{{ _('Remove') }}" data-toggle="tooltip" hx-boost="true"><i class="fa fa-times"></i></a>
+              <a href="{{ facets.remove_field(field, value) }}" class="remove" aria-label="{{ _('Remove applied filter: {value}').format(value=value) }}" data-bs-title="{{ _('Remove') }}" data-bs-toggle="tooltip" hx-boost="true"><i class="fa fa-times"></i></a>
             </span>
           {% endfor %}
         {% endfor %}
