@@ -43,6 +43,16 @@ function htmx_initialize_ckan_modules(event) {
       ).forEach(node => {
     bootstrap.Tooltip.getOrCreateInstance(node)
   })
+  event.detail.target.querySelectorAll('.show-filters').forEach(node => {
+    node.onclick = function() {
+      $("body").addClass("filters-modal")
+    }
+  })
+  event.detail.target.querySelectorAll('.hide-filters').forEach(node => {
+    node.onclick = function() {
+      $("body").removeClass("filters-modal")
+    }
+  })
 }
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
