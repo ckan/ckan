@@ -1480,6 +1480,13 @@ class IGroupForm(Interface):
         '''
         return ''
 
+    def read_template_htmx(self, group_type: str) -> str:
+        u'''
+        Returns a string representing the location of the template to be
+        rendered for the read htmx page
+        '''
+        return ''
+
     def history_template(self, group_type: str) -> str:
         u'''
         Returns a string representing the location of the template to be
