@@ -242,6 +242,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     if not app.config.get(wtf_key):
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
+    app.config["WTF_CSRF_HEADERS"] = config.get('WTF_CSRF_HEADERS')
     app.config["WTF_CSRF_ENABLED"] = config.get("WTF_CSRF_ENABLED")
     app.config["WTF_CSRF_TIME_LIMIT"] = config.get("WTF_CSRF_TIME_LIMIT")
     csrf.init_app(app)
@@ -387,8 +388,11 @@ def ckan_before_request() -> Optional[Response]:
             dest = f"{view.__module__}.{view.__name__}"
             csrf.exempt(dest)
 
-    # Set the csrf_field_name so we can use it in our templates
+    # Set the csrf_field_name, so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
+    g.csrf_header_name = config.get("WTF_CSRF_HEADERS")[0] \
+        if isinstance(config.get("WTF_CSRF_HEADERS"), list) \
+        else config.get("WTF_CSRF_HEADERS")
     g.csrf_enabled = config.get('WTF_CSRF_ENABLED')
 
     # Provide g.controller and g.action for backward compatibility

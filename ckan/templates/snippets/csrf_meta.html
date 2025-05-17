@@ -1,6 +1,7 @@
 {#- Adds a csrf_token to meta for javascript usage. -#}
 {%- block csrf_meta -%}
       <meta name="csrf_field_name" content="{{ g.csrf_field_name }}" />
+      <meta name="csrf_header_name" content="{{ g.csrf_header_name }}" />
 {%- if g.csrf_enabled and h.csrf_session_enabled() %}
 {#- only add when session is in use, if not found xhr will need to lookup /csrf-input for csrf token #}
       <meta name="{{ g.csrf_field_name }}" content="{{ csrf_token() }}" />

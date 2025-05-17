@@ -883,9 +883,11 @@ class TestCSRFToken:
         response = app.get(url_for("util.csrf_input"))
         csrf_object = json.loads(response.get_data(as_text=True))
         assert 'name' in csrf_object
-        assert 'value' in csrf_object
+        assert 'token' in csrf_object
+        assert 'header' in csrf_object
         assert csrf_object["name"] == '_csrf_token'
-        assert csrf_object["value"] is not None
+        assert csrf_object["header"] == 'X-CSRFToken'
+        assert csrf_object["token"] is not None
 
     def test_csrf_token_tags_get_render(self, app: helpers.CKANTestApp):
         # init single client so cookies persist between calls
