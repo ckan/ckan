@@ -50,7 +50,7 @@ def csrf_input() -> Response:
     Note: CORS protects this endpoint cross domain in XHR/Fetch context"""
     origin = request.headers.get("Origin")
     if origin is None or origin == '':
-        _abort(400, "Origin header is missing.")
+        return _abort(400, "Origin header is missing.")
 
     domain = config.get('ckan.site_url')
     if g.debug:
@@ -62,7 +62,7 @@ def csrf_input() -> Response:
     if request.method == "OPTIONS":
         response = Response()
         response.headers["Access-Control-Allow-Origin"] = domain
-        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
         response.headers["Access-Control-Allow-Credentials"] = "true"
         return response
@@ -70,10 +70,10 @@ def csrf_input() -> Response:
     # Handle GET request protections
     if 'application/json' not in request.accept_mimetypes:
         # Disallowing simple content types to ensure browser CORS checking
-        _abort(400, "Only application/json content-type accept is allowed.")
+        return _abort(400, "Only application/json content-type accept is allowed.")
 
     if origin != domain:
-        _abort(403, "Origin not allowed.")
+        return _abort(400, "Origin not allowed.")
 
     if g.csrf_enabled:
         csrf_token = generate_csrf()

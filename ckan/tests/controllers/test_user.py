@@ -879,8 +879,63 @@ class TestUserImage(object):
 
 @pytest.mark.usefixtures("clean_db")
 class TestCSRFToken:
+
+    def test_csrf_token_get_rest_endpoint_options_header(self, app: helpers.CKANTestApp):
+        response = app.options(url_for("util.csrf_input"), headers={"Origin": "http://test.ckan.net",
+                                                                    "Accept": "application/json"})
+
+        assert "Access-Control-Allow-Origin" in response.headers
+        assert "Access-Control-Allow-Methods" in response.headers
+        assert "Access-Control-Allow-Headers" in response.headers
+        assert "Access-Control-Allow-Credentials" in response.headers
+        assert response.headers["Access-Control-Allow-Methods"] == "GET, OPTIONS"
+        assert response.headers["Access-Control-Allow-Headers"] == "Content-Type"
+        assert response.headers["Access-Control-Allow-Credentials"] == "true"
+        assert response.headers["Access-Control-Allow-Origin"] == 'http://test.ckan.net'
+
+    @pytest.mark.ckan_config("DEBUG", "true")
+    def test_csrf_token_get_rest_endpoint_options_debug_mode(self, app: helpers.CKANTestApp):
+        response = app.options(url_for("util.csrf_input"), headers={"Origin": "http://api.test.ckan.net",
+                                                                    "Accept": "application/json"})
+
+        assert "Access-Control-Allow-Origin" in response.headers
+        assert "Access-Control-Allow-Methods" in response.headers
+        assert "Access-Control-Allow-Headers" in response.headers
+        assert "Access-Control-Allow-Credentials" in response.headers
+        assert response.headers["Access-Control-Allow-Methods"] == "GET, OPTIONS"
+        assert response.headers["Access-Control-Allow-Headers"] == "Content-Type"
+        assert response.headers["Access-Control-Allow-Credentials"] == "true"
+        assert response.headers["Access-Control-Allow-Origin"] == 'http://test.ckan.net'
+
+    @pytest.mark.ckan_config("DEBUG", "true")
+    def test_csrf_token_get_rest_endpoint_options_debug_mode_different_host(self, app: helpers.CKANTestApp):
+        headers = {"Origin": "http://localhost:5000", "Accept": "application/json"}
+        response = app.options(url_for("util.csrf_input"), headers=headers)
+
+        assert "Access-Control-Allow-Origin" in response.headers
+        assert "Access-Control-Allow-Methods" in response.headers
+        assert "Access-Control-Allow-Headers" in response.headers
+        assert "Access-Control-Allow-Credentials" in response.headers
+        assert response.headers["Access-Control-Allow-Methods"] == "GET, OPTIONS"
+        assert response.headers["Access-Control-Allow-Headers"] == "Content-Type"
+        assert response.headers["Access-Control-Allow-Credentials"] == "true"
+        assert response.headers["Access-Control-Allow-Origin"] == 'http://test.ckan.net'
+
+    @pytest.mark.ckan_config("WTF_CSRF_ENABLED", "false")
+    def test_csrf_token_get_rest_endpoint_returns_disabled_token(self, app: helpers.CKANTestApp):
+        response = app.get(url_for("util.csrf_input"), headers={"Origin": "http://test.ckan.net",
+                                                                "Accept": "application/json"})
+        csrf_object = json.loads(response.get_data(as_text=True))
+        assert 'name' in csrf_object
+        assert 'token' in csrf_object
+        assert 'header' in csrf_object
+        assert csrf_object["name"] == '_csrf_token'
+        assert csrf_object["header"] == 'X-CSRFToken'
+        assert csrf_object["token"] == 'disabled'
+
     def test_csrf_token_get_rest_endpoint(self, app: helpers.CKANTestApp):
-        response = app.get(url_for("util.csrf_input"))
+        response = app.get(url_for("util.csrf_input"), headers={"Origin": "http://test.ckan.net",
+                                                                "Accept": "application/json"})
         csrf_object = json.loads(response.get_data(as_text=True))
         assert 'name' in csrf_object
         assert 'token' in csrf_object
@@ -888,6 +943,21 @@ class TestCSRFToken:
         assert csrf_object["name"] == '_csrf_token'
         assert csrf_object["header"] == 'X-CSRFToken'
         assert csrf_object["token"] is not None
+
+    def test_csrf_token_get_rest_endpoint_cors_breach(self, app: helpers.CKANTestApp):
+        headers = {"Origin": "https://evil.com:443", "Accept": "application/json"}
+        response = app.get(url_for("util.csrf_input"), headers=headers)
+        assert response.status_code == 400
+
+    def test_csrf_token_get_rest_endpoint_cors_breach_accept_bypass(self, app: helpers.CKANTestApp):
+        headers = {"Origin": "https://evil.com:443", "Accept": "text/html"}
+        response = app.get(url_for("util.csrf_input"), headers=headers)
+        assert response.status_code == 400
+
+    def test_csrf_token_get_rest_endpoint_origin_missing(self, app: helpers.CKANTestApp):
+        headers = {"Origin": ""}
+        response = app.get(url_for("util.csrf_input"), headers=headers)
+        assert response.status_code == 400
 
     def test_csrf_token_tags_get_render(self, app: helpers.CKANTestApp):
         # init single client so cookies persist between calls
