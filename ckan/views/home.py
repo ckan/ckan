@@ -12,14 +12,13 @@ import ckan.lib.base as base
 import ckan.lib.search as search
 from ckan.lib.helpers import helper_functions as h
 
-from ckan.common import g, config, current_user, _
+from ckan.common import g, config, current_user, _, CACHE_PARAMETERS as cache_params
 from ckan.types import Context, Response
 
-
-CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
-
-
 home = Blueprint(u'home', __name__)
+
+# Deprecated use common.CACHE_PARAMETERS
+CACHE_PARAMETERS = cache_params
 
 
 def index() -> str:

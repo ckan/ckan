@@ -128,6 +128,8 @@ class TestUser(object):
         )
 
         assert 200 == response.status_code
+        assert response.get_etag(), response
+        assert response.cache_control.to_header() == 'must-understand, no-cache, max-age=0, no-store'
 
         user = helpers.call_action("user_show", id=stub.name)
         assert user["name"] == stub.name
