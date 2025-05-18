@@ -36,48 +36,43 @@
 
 {% block secondary_content %}
   {% block info_module %}
-    <section class="module module-narrow module-shallow">
-      <div class="accordion" id="accordionPackage">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-              Create Dataset
+    <section class="module module-narrow module-shallow accordion" id="accordionPackage">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            Create Dataset
+          </button>
+        </h2>
+        <div id="collapseOne" class="package-accordion accordion-collapse collapse show" aria-labelledby="headingOne" >
+          <div class="accordion-body">
+            {% if s1 != 'complete' %}
+              {{ render_step(1, 'Create Dataset', s1) }}
+            {% else %}
+            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-dataset')">
+              {{ render_step(1, 'Create Dataset', s1) }}
             </button>
-          </h2>
-          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" >
-            <div class="accordion-body">
+            {% endif %}
 
-             {% if s1 != 'complete' %}
-               {{ render_step(1, 'Create Dataset', s1) }}
-             {% else %}
-              <button class="stage-nohiglight" type="button"  onclick="submitForm('go-dataset')">
-                {{ render_step(1, 'Create Dataset', s1) }}
-              </button>
-             {% endif %}
-
-             {% if s2 != 'complete' %}
-               {{ render_step(2, 'Add Data', s2) }}
-             {% else %}
-              <button class="stage-nohiglight" type="button"  onclick="submitForm('go-resources')">
-                {{ render_step(2, 'Add Data', s2) }}
-              </button>
-             {% endif %}
-              
-             
-              
-              
-            </div>
+            {% if s2 != 'complete' %}
+              {{ render_step(2, 'Add Data', s2) }}
+            {% else %}
+            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-resources')">
+              {{ render_step(2, 'Add Data', s2) }}
+            </button>
+            {% endif %}
           </div>
         </div>
+      </div>
+    </section>
+    <section class="module module-narrow module-shallow accordion" id="accordionPackageResources">
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingTwo">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
               Resources
             </button>
           </h2>
-          <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" >
+          <div id="collapseTwo" class="package-accordion accordion-collapse collapse show" aria-labelledby="headingTwo" >
             <div class="accordion-body">
-              
               {% set pkg_dict = pkg_dict or (form_vars.data if form_vars and form_vars.data else None) %}
               {% set active = data.id if data else None %}
               {% set can_edit = pkg_dict and h.check_access('package_update', {'id':pkg_dict.id }) %}
@@ -119,8 +114,6 @@
             </div>
           </div>
         </div>
-       
-      </div>
     </section>
   {% endblock %}
   {% block scripts %}
