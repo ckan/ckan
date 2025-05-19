@@ -8,28 +8,23 @@ Example:
   {% snippet "package/snippets/resource_info.html", res=res %}
 
 #}
-<section id="package-info" class="module module-narrow module-shallow">
-  <div class="accordion" id="accordionPackage">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingOne">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-          {{ _("Metadata") }}
-        </button>
-        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" >
-          <div class="accordion-body">
-          {% block page_title %}
-            <h3 class="heading">{{ h.resource_display_name(res) or res.id }}</h3>
-          {% endblock %}
-          {% block resource_info %}
-            <div class="nums">
-              <dl>
-                <dt>{{ _('Format') }}</dt>
-                <dd>{{ h.get_translated(res, 'format') }}</dd>
-              </dl>
-            </div>
-          {% endblock %}
+
+<div class="module context-info">
+  <div class="module-content">
+    <div class="module-heading">
+      {% block page_title %}
+        <h1 class="heading">{{ h.resource_display_name(res) or res.id }}</h1>
+      {% endblock %}
+    </div>
+    <div class="package-info">
+      {% block resource_info %}
+        <div class="nums">
+          <dl>
+            <dt>{{ _('Format') }}</dt>
+            <dd>{{ h.get_translated(res, 'format') }}</dd>
+          </dl>
         </div>
-      </div>
+      {% endblock %}
+    </div>
   </div>
-  </div>
-</section>
+</div>

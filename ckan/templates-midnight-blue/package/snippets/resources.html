@@ -16,55 +16,47 @@ Example:
 {% if pkg and resources %}
   {% block resources %}
     <section class="module module-narrow module-shallow">
-      <div class="accordion" id="accordionPackage">
-        <div class="accordion-item">
+      <div class="module-group">
       {% block resources_inner %}
         {% block resources_title %}
-        <h2 class="accordion-header" id="headingTwo">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        <h2 class="module-heading" id="headingTwo">
             {{ _("Resources") }}
-          </button>
         </h2>
         {% endblock %}
-        <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" >
-          <div class="accordion-body">
-            {% block resources_list %}
-              <ul class="list-group">
-                {% for resource in resources %}
-                  {% set url = h.url_for('%s_resource.read' % pkg.type, id=pkg.name, resource_id=resource.id) %}
-                  {% if active == resource.id %}
-                    <li class="list-group-item active">
-                      <a href="#" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
-                    </li>
-                  {% elif can_edit %}
-                    <li class="list-group-item d-flex justify-content-between position-relative">
-                      <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
-                      <div class="dropdown position-absolute end-0 me-2">
-                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
-                          <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='pencil' %}</li>
-                          {% block resources_list_edit_dropdown_inner scoped %}{% endblock %}
-                          <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='chart-bar' %}</li>
-                        </ul>
-                      </div>
-                    </li>
-                  {% else %}
-                    <li class="list-group-item">
-                      <a href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
-                    </li>
-                  {% endif %}
-                {% endfor %}
-              </ul>
-            {% endblock %}
-            {% if can_edit and not is_activity_archive %}
-              <div class="module-content">
-                {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-secondary btn-sm', icon='plus' %}
-              </div>
-            {% endif %}
+        {% block resources_list %}
+          <ul class="list-group">
+            {% for resource in resources %}
+              {% set url = h.url_for('%s_resource.read' % pkg.type, id=pkg.name, resource_id=resource.id) %}
+              {% if active == resource.id %}
+                <li class="list-group-item active">
+                  <a href="#" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                </li>
+              {% elif can_edit %}
+                <li class="list-group-item d-flex justify-content-between position-relative">
+                  <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                  <div class="dropdown position-absolute end-0 me-2">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
+                      <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='pencil' %}</li>
+                      {% block resources_list_edit_dropdown_inner scoped %}{% endblock %}
+                      <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='chart-bar' %}</li>
+                    </ul>
+                  </div>
+                </li>
+              {% else %}
+                <li class="list-group-item">
+                  <a href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% endblock %}
+        {% if can_edit and not is_activity_archive %}
+          <div class="module-content">
+            {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-secondary btn-sm', icon='plus' %}
           </div>
-        </div>
+        {% endif %}
       {% endblock %}
-        </div>
       </div>
     </section>
   {% endblock %}

@@ -95,8 +95,12 @@
             border-radius: 8px 8px 0 0;
             border-bottom: 1px solid $gray-200;
         }
-        .nav-item > a {
+        .nav-item > a, .list-group-item {
             border-radius: 0;
+        }
+        .list-group-item > a.flex-fill {
+            max-width: 80%;
+            overflow-wrap: break-word;
         }
     }
     .module-heading,
@@ -181,15 +185,11 @@
     z-index: 5; // Fixes overlapping .secondary on the Resource view page
     position: relative; // Fixes overlapping .secondary on the Resource view page
     background-color: $layoutTrimBackgroundColor;
-    border-bottom: 1px solid $genericBorderColor;
     margin-top: 0;
     margin-bottom: 0;
     @include border-radius(3px 3px 0 0);
     .actions {
         position: relative;
-        float: right;
-        top: -10px;
-        right: 0;
         li {
             margin-right: 0px;
         }
