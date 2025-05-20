@@ -1,16 +1,19 @@
 # encoding: utf-8
 
 """Additional middleware used by the Flask app stack."""
-from typing import Any
+from typing import Any, Optional
 
 from urllib.parse import urlparse
 
+from flask import Response
 from flask.sessions import SecureCookieSessionInterface
 from flask_session.redis import RedisSessionInterface
 
-from ckan.common import config
+from ckan.common import CacheType, config, session
 from ckan.types import CKANApp, Request
+from ckan.lib import helpers as h
 from ckan.lib.redis import connect_to_redis
+from ckan.views import set_cache_control_while_stale
 
 
 class RootPathMiddleware(object):
@@ -93,3 +96,28 @@ class CKANRedisSessionInterface(RedisSessionInterface):
             app.config["SESSION_USE_SIGNER"],
             app.config["SESSION_PERMANENT"]
         )
+
+
+def static_or_webasset_pre_configuration(max_age: Optional[int]):
+    h.set_cache_level(CacheType.OVERRIDDEN)
+    if max_age is not None:
+        cache_expire = max_age
+    else:
+        cache_expire = config.get(u'ckan.cache.expires', 0)
+    if cache_expire == 0:
+        # If set, ``Cache-Control`` will be ``public``, otherwise
+        #         it will be ``no-cache``
+        cache_expire = None
+        shared_cache_expire = 0
+    else:
+        shared_cache_expire = config.get(u'ckan.cache.shared.expires')
+    return cache_expire, shared_cache_expire
+
+
+def static_or_webasset_post_configuration(response: Response, shared_cache_expire: int):
+    if shared_cache_expire != 0:
+        response.cache_control.s_maxage = shared_cache_expire
+    set_cache_control_while_stale(response)
+    if not session.modified:
+        # Session must be set to not accessed to stop introduction of vary by Cookie
+        session.accessed = False
