@@ -7,6 +7,7 @@ permissions:
 jobs:
   towncrier:
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'no changelog') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,5 +20,4 @@ jobs:
         run: pip install -r requirements.txt -r dev-requirements.txt -e.
 
       - name: Check that changelog is updated
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'no changelog') }}
         run: towncrier check >> $GITHUB_STEP_SUMMARY
