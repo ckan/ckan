@@ -484,6 +484,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         // show loading indicator when first painting data into the table.
         // useful with very large resources that take long to load
         $('body.dt-view').css('visibility', 'visible');
+        $('#dtprv_processing').addClass('pre-init');
         $('#dtprv_processing').show();
       });
       datatable = $('#dtprv').DataTable({
@@ -606,6 +607,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           }
 
           // hide the pre-loading indicator background so the table is interactive when loading
+          $('#dtprv_processing').removeClass('pre-init');
           $('#dtprv_processing').hide();
 
           // restore selected rows from state
