@@ -86,7 +86,7 @@
 
     .module-content {
       padding: 1rem;
-      border-radius: 0 0 .5rem .5rem;
+      border-radius: 0 0 0.5rem 0.5rem;
     }
   }
 
@@ -113,7 +113,7 @@
   }
 
   .module-heading {
-    border-radius: .5rem;
+    border-radius: 0.5rem;
     font-weight: $font-weight-normal;
     display: flex;
     align-items: center;
@@ -121,11 +121,11 @@
   }
 
   nav {
-    padding: .5rem;
+    padding: 0.5rem;
   }
 
   .accordion-collapse.show {
     background-color: $gray-100;
-    border-radius: 0 0 .5rem .5rem;
+    border-radius: 0 0 0.5rem 0.5rem;
   }
 }

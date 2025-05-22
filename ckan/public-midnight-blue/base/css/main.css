@@ -11928,6 +11928,10 @@ a.tag:hover {
 .module > .page-header {
   margin-top: 0px;
 }
+.module > .module-content {
+  border-radius: 20px;
+  background-color: #f2f4f7;
+}
 .module > .module-content:nth-child(2n) {
   padding-top: 1.5rem;
 }
@@ -14059,7 +14063,6 @@ td.diff_header {
 
 .main .primary {
   border-radius: 20px;
-  background-color: #f2f4f7;
   position: relative;
   float: right;
   margin-left: 0;
@@ -14487,6 +14490,7 @@ td.diff_header {
 }
 .masthead .navbar .logo img {
   max-height: 60px;
+  min-height: 48px;
   vertical-align: unset;
 }
 .masthead .main-navbar ul {
@@ -15455,6 +15459,10 @@ td.diff_header {
 
 .list-group-item.active a {
   color: white !important;
+}
+
+.list-group-item a {
+  min-height: 24px !important;
 }
 
 .accordion-button {

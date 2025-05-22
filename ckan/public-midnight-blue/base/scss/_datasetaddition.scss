@@ -245,3 +245,7 @@
 .list-group-item.active a {
   color: white !important;
 }
+
+.list-group-item a {
+  min-height: 24px !important;
+}
