@@ -2,15 +2,19 @@
  * This script is used to add the CSRF token to the HTMX request headers
  * and initializes any ckan modules added to pages via HTMX.
  *
- * Needs to be loaded after htmx
+ * Load this after HTMX and the CSRF module.
  *
  */
-var csrf_field = $('meta[name=csrf_field_name]').attr('content');
-var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
+htmx.on('htmx:configRequest', function (event) {
+  const method = event.detail.verb;
 
-htmx.on('htmx:configRequest', (event) => {
-  if (csrf_token) {
-    event.detail.headers['x-csrftoken'] = csrf_token;
+  if (!ckan.csrfSafeMethod(method)) {
+    // deferredRequest is critically important to work in async mode
+    event.detail.deferredRequest = ckan.fetchCsrfToken().then(csrf => {
+      if (csrf) {
+        event.detail.headers[csrf.header] = csrf.token;
+      }
+    });
   }
 });
 
