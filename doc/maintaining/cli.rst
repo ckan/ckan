@@ -698,7 +698,7 @@ Usage
 
 .. note::
 
-    Since version 2.11 on production intalls the JavaScript translation
+    Since version 2.11 on production installs the JavaScript translation
     files from extensions must be combined and generated with the
     ``ckan translation js`` command after any new plugins are enabled or
     when new versions of ckan or its extensions are installed.
