@@ -9,19 +9,27 @@
 
   #}
 
-
-<div class="module module-narrow module-shallow">
-  <h2 class="module-heading">
-    <i class="fa fa-info-circle"></i>
-    {{ _('What are Organizations?') }}
-  </h2>
-  <div class="module-content">
-    <p>
-      {% trans %}
-        CKAN Organizations are used to create, manage and publish collections
-        of datasets. Users can have different roles within an Organization,
-        depending on their level of authorisation to create, edit and publish.
-      {% endtrans %}
-    </p>
+<div class="module module-narrow module-shallow accordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="module-heading accordion-button"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#organization-helper">
+        <i class="fa fa-info-circle"></i>
+        {{ _('What are Organizations?') }}
+      </button>
+    </h2>
+    <div id="organization-helper" class="accordion-collapse collapse show">
+      <div class="accordion-body">
+      <p>
+        {% trans %}
+          CKAN Organizations are used to create, manage and publish collections
+          of datasets. Users can have different roles within an Organization,
+          depending on their level of authorisation to create, edit and publish.
+        {% endtrans %}
+      </p>
+      </div>
+    </div>
   </div>
 </div>

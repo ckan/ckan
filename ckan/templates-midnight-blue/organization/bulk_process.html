@@ -4,26 +4,19 @@
 
 {% block subtitle %}{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
+{% block breadcrumb_content_inner %}
+  <li>{% link_for organization.display_name|truncate(35), named_route=group_type+'.read', id=organization.name, title=organization.display_name %}</li>
+  <li class="active">{% link_for _('Edit datasets'), named_route=group_type+'.bulk_process', id=organization.name %}</li>
+{% endblock %}
+
 {% block page_primary_action %}
   {% snippet 'snippets/add_dataset.html', group=group_dict.id %}
 {% endblock %}
 
 {% block primary_content_inner %}
   <div class="row">
-    <h1 class="hide-heading">{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }}</h1>
+    <h1>{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }}</h1>
     <div class="primary col-md-12">
-      <h3 class="page-heading">
-        {% block page_heading %}
-          {%- if page.item_count -%}
-            {{ page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=q) if q }}
-          {%- elif request.args -%}
-            {{ _('Sorry no datasets found for "{query}"').format(query=q) }}
-          {%- else -%}
-            {{ _('Datasets') }}
-          {%- endif -%}
-        {% endblock %}
-      </h3>
-
       {% block search_form %}
         {% set sorting = [
             (_('Name Ascending'), 'title_string asc'),
