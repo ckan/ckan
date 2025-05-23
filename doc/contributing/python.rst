@@ -392,7 +392,7 @@ conformance and general code quality. We recommend using them.
 
 * `ruff`_ An extremely fast Python linter and code formatter, written in Rust.
 
-.. _pep8: http://pypi.python.org/pypi/pep8
-.. _pylint: http://www.logilab.org/857
-.. _pyflakes: http://pypi.python.org/pypi/pyflakes
+.. _pep8: https://pypi.org/project/pep8/
+.. _pylint: https://pypi.org/project/pylint/
+.. _pyflakes: https://pypi.org/project/pyflakes/
 .. _ruff: https://docs.astral.sh/ruff/
