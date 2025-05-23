@@ -207,7 +207,7 @@ extend-exclude = [
 
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C901", "PLW0602"]
+select = ["E", "F", "W", "C901", "G", "PLW0602"]
 
 [tool.ruff.lint.per-file-ignores]
 # These should be fixed
