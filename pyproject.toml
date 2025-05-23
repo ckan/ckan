@@ -208,7 +208,11 @@ extend-exclude = [
 
 
 [tool.ruff.lint]
+<<<<<<< HEAD
 select = ["E", "F", "W", "C901", "PLW0602"]
+=======
+select = ["E", "F", "W", "C901", "G", "PLW0602"]
+>>>>>>> c974113089 (Add ruff workflow and configuration)
 
 [tool.ruff.lint.per-file-ignores]
 # These should be fixed
