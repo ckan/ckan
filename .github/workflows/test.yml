@@ -19,6 +19,11 @@ jobs:
     uses: ./.github/workflows/flake8.yml # Call the reusable workflow
     secrets: inherit
 
+  ruff:
+    name: Lint (Ruff)
+    uses: ./.github/workflows/ruff.yml # Call the reusable workflow
+    secrets: inherit
+
   pyright:
     name: Lint (PyRight)
     uses: ./.github/workflows/pyright.yml # Call the reusable workflow
