@@ -26,6 +26,7 @@
     {% block page_header %}{% endblock %}
     <div class="module-content">
       {% block primary_content_inner %}
+        <h1>{% block form_title %}{{ _('Create dataset') }}{% endblock %}</h1>
         {% block form %}
           {{- h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) -}}
         {% endblock %}

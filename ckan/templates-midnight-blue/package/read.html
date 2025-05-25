@@ -9,7 +9,7 @@
         {{ _('Private') }}
       </span>
     {% endif %}
-    <h1>
+    <h1 class="page-heading">
       {% block page_heading %}
         {{ h.dataset_display_name(pkg) }}
         {% if pkg.state.startswith('draft') %}

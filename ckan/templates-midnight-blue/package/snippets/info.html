@@ -11,11 +11,14 @@ Example:
 #}
 {% block package_info %}
   {% if pkg %}
-    <section class="module module-narrow module-shallow">
-      <div class="module-heading">
-        {% block heading %}
-          <span>{{ h.dataset_display_name(pkg) }}</span>
-        {% endblock %}
+  <section id="package-info" class="module module-narrow">
+    <div class="module context-info">
+      <div class="module-content">
+        <div class="module-heading">
+          {% block heading %}
+            <h2 class="heading">{{ h.dataset_display_name(pkg) }}</h2>
+          {% endblock %}
+        </div>
       </div>
       <div class="package-info">
         {% block package_info_inner %}
@@ -42,6 +45,7 @@ Example:
           {% endblock %}
         {% endblock %}
       </div>
-    </section>
+    </div>
+  </section>
   {% endif %}
 {% endblock %}
