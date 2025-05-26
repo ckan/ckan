@@ -1,8 +1,9 @@
 {% extends "organization/edit_base.html" %}
 {% set dataset_type = h.default_package_type() %}
+{% set default_collapsed = h.default_collapse_facets() %}
 
 
-{% block subtitle %}{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+{% block subtitle %}{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit Datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block breadcrumb_content_inner %}
   <li>{% link_for organization.display_name|truncate(35), named_route=group_type+'.read', id=organization.name, title=organization.display_name %}</li>
@@ -15,7 +16,7 @@
 
 {% block primary_content_inner %}
   <div class="row">
-    <h1>{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }}</h1>
+    <h1>{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit Datasets') }}</h1>
     <div class="primary col-md-12">
       {% block search_form %}
         {% set sorting = [
@@ -102,6 +103,6 @@
 {% block secondary_content %}
   {{ super() }}
   {% for facet in c.facet_titles %}
-    {% snippet 'snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets %}
+    {% snippet 'snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets, default_collapsed=default_collapsed %}
   {% endfor %}
 {% endblock %}
