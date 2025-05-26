@@ -2,9 +2,10 @@
 Displays a sidebar module with navigation containing the provided resources.
 If no resources are provided then the module will not be displayed.
 
-pkg       - The package dict that owns the resources.
-active    - The id of the currently displayed resource.
-action    - The resource action to use (default: 'read', meaning route 'resource.read').
+pkg         - The package dict that owns the resources.
+active      - The id of the currently displayed resource.
+action      - The resource action to use (default: 'read', meaning route 'resource.read').
+no_new_res  - Do not display add new resources button.
 
 Example:
 
@@ -51,7 +52,7 @@ Example:
             {% endfor %}
           </ul>
         {% endblock %}
-        {% if can_edit and not is_activity_archive %}
+        {% if can_edit and not is_activity_archive and not no_new_res %}
           <div class="module-content">
             {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-secondary btn-sm', icon='plus' %}
           </div>
