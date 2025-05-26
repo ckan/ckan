@@ -121,6 +121,7 @@ $notificationsBg: #C9403A;
             display: inline-block;
             img {
                 max-height: $logoMaxHeight;
+                min-height: $logoMinHeight;
                 vertical-align: unset;
             }
         }

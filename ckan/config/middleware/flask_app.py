@@ -14,7 +14,9 @@ from typing import Any, Optional, Union, cast
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
+from flask.json.tag import TaggedJSONSerializer
 from flask_session import Session
+from flask_session.base import Serializer as FlaskSessionSerializer
 
 from werkzeug.exceptions import (
     default_exceptions,
@@ -63,30 +65,47 @@ log = logging.getLogger(__name__)
 
 csrf = CSRFProtect()
 
-csrf_warn_extensions = (
-        "Extensions are excluded from CSRF protection! "
-        "We allow extensions to run without CSRF protection "
-        "but it will be forced future releases. "
-        "Read the documentation for more information on how to add "
-        "CSRF protection to your extension."
-    )
+
+class CKANJsonSessionSerializer(TaggedJSONSerializer, FlaskSessionSerializer):
+    """Adapter of flask's serializer for flask-session.
+
+    This serializer is used instead of MsgPackSerializer from flask-session,
+    because the latter cannot handle Markup and raises an exception when flash
+    message with HTML added to session.
+    """
+    def encode(self, session: CKANSession) -> bytes:
+        """Serialize the session data."""
+        return self.dumps(session).encode()
+
+    def decode(self, serialized_data: bytes) -> Any:
+        """Deserialize the session data."""
+        return self.loads(serialized_data.decode())
 
 
 class CKANSession(Session):
     def _get_interface(self, app: CKANApp):
         """Initialize session interface.
+
         We use our own classes for these interfaces:
             * cookie: to support persistent sessions
             * redis: to be able use the value of ckan.redis.url
 
+        In addition, all flask-session backends(any backend other from
+        `cookie`) have their MsgPack serializer replaced with flask's
+        TaggedJSONSerializer to support storing Markup(flash messages) and
+        datetime object inside session.
         """
         session_type = app.config["SESSION_TYPE"]
         if session_type == "cookie":
             return CKANSecureCookieSessionInterface(app)
-        elif session_type == "redis":
-            return CKANRedisSessionInterface(app)
 
-        return super()._get_interface(app)
+        if session_type == "redis":
+            interface = CKANRedisSessionInterface(app)
+        else:
+            interface = super()._get_interface(app)
+
+        interface.serializer = CKANJsonSessionSerializer()  # type: ignore
+        return interface
 
 
 class I18nMiddleware(object):
@@ -223,11 +242,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     if not app.config.get(wtf_key):
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
+    app.config["WTF_CSRF_ENABLED"] = config.get("WTF_CSRF_ENABLED")
+    app.config["WTF_CSRF_TIME_LIMIT"] = config.get("WTF_CSRF_TIME_LIMIT")
     csrf.init_app(app)
-
-    if config.get("ckan.csrf_protection.ignore_extensions"):
-        log.warning(csrf_warn_extensions)
-        _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
@@ -436,20 +453,6 @@ def _register_plugins_blueprints(app: CKANApp):
                 app.register_blueprint(blueprint)
         else:
             app.register_blueprint(plugin_blueprints)
-
-
-def _exempt_plugins_blueprints_from_csrf(csrf: CSRFProtect):
-    """Exempt plugins blueprints from CSRF protection.
-
-    This feature will be deprecated in future versions.
-    """
-    for plugin in PluginImplementations(IBlueprint):
-        plugin_blueprints = plugin.get_blueprint()
-        if isinstance(plugin_blueprints, list):
-            for blueprint in plugin_blueprints:
-                csrf.exempt(blueprint)
-        else:
-            csrf.exempt(plugin_blueprints)
 
 
 def _register_core_blueprints(app: CKANApp):
