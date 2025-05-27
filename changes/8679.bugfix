@@ -1,1 +1,0 @@
-`authz.has_user_permission_for_some_org` returns True for sysadmins.
