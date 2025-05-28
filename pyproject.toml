@@ -36,10 +36,6 @@ directory = 'removal'
 name = 'Removals and deprecations'
 showcontent = true
 
-[tool.black]
-line-length = 79
-preview = true
-
 [tool.pytest.ini_options]
 retries = 0
 retry_delay = 0.5
