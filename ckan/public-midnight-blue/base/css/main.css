@@ -13371,6 +13371,10 @@ select[data-module=autocomplete] {
   background-color: #475467;
 }
 
+.dataset-private {
+  font-size: 18px;
+  margin-bottom: 0.5rem;
+}
 .dataset-private.pull-right {
   margin-right: 0;
 }
@@ -14230,7 +14234,6 @@ td.diff_header {
   flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 10px;
-  border-top: 1px dotted #DDD;
 }
 .context-info .nums::after {
   display: block;

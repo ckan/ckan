@@ -11,41 +11,41 @@ Example:
 #}
 {% block package_info %}
   {% if pkg %}
-  <section id="package-info" class="module module-narrow">
-    <div class="module context-info">
-      <div class="module-content">
-        <div class="module-heading">
-          {% block heading %}
-            <h2 class="heading">{{ h.dataset_display_name(pkg) }}</h2>
+    <section id="package-info" class="module module-narrow">
+      <div class="module context-info">
+        <div class="module-content">
+          <div class="module-heading">
+            {% block heading %}
+              <h2 class="heading">{{ h.dataset_display_name(pkg) }}</h2>
+            {% endblock %}
+          </div>
+        </div>
+        <div class="package-info">
+          {% block package_info_inner %}
+            {% block nums %}
+              {% set num_followers = h.follow_count('dataset', pkg.id) %}
+              <div class="nums">
+                <dl>
+                  <dt>{{ _('Followers') }}</dt>
+                  <dd>{{ h.SI_number_span(num_followers) }}</dd>
+                </dl>
+              </div>
+            {% endblock %}
+            {% block follow_button %}
+              {% if current_user.is_authenticated %}
+              {% if error_message %}
+                  <div class="alert alert-danger">{{ error_message }}</div>
+                {% endif %}
+              {% if am_following %}
+                  <a class="btn btn-danger" hx-post="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
+                {% else %}
+                <a class="btn btn-success" hx-post="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
+                {% endif %}
+              {% endif %}
+            {% endblock %}
           {% endblock %}
         </div>
       </div>
-      <div class="package-info">
-        {% block package_info_inner %}
-          {% block nums %}
-            {% set num_followers = h.follow_count('dataset', pkg.id) %}
-            <div class="nums">
-              <dl>
-                <dt>{{ _('Followers') }}</dt>
-                <dd>{{ h.SI_number_span(num_followers) }}</dd>
-              </dl>
-            </div>
-          {% endblock %}
-          {% block follow_button %}
-            {% if current_user.is_authenticated %}
-            {% if error_message %}
-                <div class="alert alert-danger">{{ error_message }}</div>
-              {% endif %}
-            {% if am_following %}
-                <a class="btn btn-danger" hx-post="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
-              {% else %}
-              <a class="btn btn-success" hx-post="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
-              {% endif %}
-            {% endif %}
-          {% endblock %}
-        {% endblock %}
-      </div>
-    </div>
-  </section>
+    </section>
   {% endif %}
 {% endblock %}

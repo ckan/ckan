@@ -26,7 +26,9 @@
     {% block page_header %}{% endblock %}
     <div class="module-content">
       {% block primary_content_inner %}
-        <h1>{% block form_title %}{% endblock %}</h1>
+        {% if self.form_title() %}
+          <h1>{% block form_title %}{% endblock %}</h1>
+        {% endif %}
         {% block form %}
           {{- h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) -}}
         {% endblock %}
