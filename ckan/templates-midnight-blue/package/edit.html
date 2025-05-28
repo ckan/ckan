@@ -1,7 +1,7 @@
 {% extends 'package/edit_base.html' %}
 
 {% block primary_content_inner %}
-  <h1>{% block form_title %}{{ _('Edit Dataset') }}{% endblock %}</h1>
+  <h1>{% block form_title %}{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit Dataset') }}{% endblock %}</h1>
   {% block form %}
 	  {{- h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) -}}
   {% endblock %}

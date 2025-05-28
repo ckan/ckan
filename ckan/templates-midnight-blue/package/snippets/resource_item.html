@@ -18,10 +18,10 @@
 <li class="resource-item" data-id="{{ res.id }}">
   <div>
     {% block resource_item_title %}
-    {% set name_or_id = res.name or res.id %}
-    <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=name_or_id)}}">
-      {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
-    </a>
+      {% set name_or_id = res.name or res.id %}
+      <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=name_or_id)}}">
+        {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
+      </a>
     {% endblock %}
     {% block resource_item_description %}
       <p class="description">
