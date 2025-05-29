@@ -398,6 +398,9 @@ class DefaultDatasetForm(object):
     def search_template(self) -> str:
         return 'package/search.html'
 
+    def search_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
+
     def history_template(self) -> None:
         return None
 
@@ -451,6 +454,9 @@ class DefaultGroupForm(object):
         rendered for the read page
         """
         return 'group/read.html'
+
+    def read_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
 
     def about_template(self) -> str:
         """
@@ -593,6 +599,9 @@ class DefaultOrganizationForm(DefaultGroupForm):
 
     def read_template(self) -> str:
         return 'organization/read.html'
+
+    def read_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
 
     # don't override history_template - use group template for history
 

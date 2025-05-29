@@ -84,6 +84,12 @@ this.ckan.module('autocomplete', function (jQuery) {
          }
       }
 
+      // clean up rendered select2 from htmx back/forward navigation
+      this.el.removeClass('select2-hidden-accessible')
+      this.el.removeAttr('data-select2-id')
+      this.el.next('span.select2-container').remove()
+      this.el.find('option').removeAttr('data-select2-id')
+
       var select2 = this.el.select2(settings).data('select2');
 
       if (this.options.tags && select2 && select2.search) {

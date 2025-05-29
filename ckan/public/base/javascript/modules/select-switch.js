@@ -25,7 +25,11 @@ this.ckan.module('select-switch', {
     var _this = this;
 
     this.el.on('change', this.options.target, function () {
-      _this.el.submit();
+      if (_this.el.attr('hx-boost')) {
+        htmx.trigger(_this.el[0], 'submit')
+      } else {
+        _this.el.submit()
+      }
     });
   }
 });
