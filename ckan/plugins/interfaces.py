@@ -105,6 +105,22 @@ class IMiddleware(Interface):
         '''
         return app
 
+    def set_cors_headers_for_response(self, response: Response) -> Optional[Response]:
+        u'''Plugins can return an updated response object to prevent the default CKAN
+            ckan_after_request.set_cors_headers_for_response()
+        '''
+
+    def set_cache_control_headers_for_response(self, response: Response) \
+            -> Optional[Response]:
+        u'''Plugins can return an updated response object to prevent the default CKAN
+            ckan_after_request.set_cache_control_headers_for_response()
+        '''
+
+    def set_etag_for_response(self, response: Response) -> Optional[Response]:
+        u'''Plugins can return an updated response object to prevent the default CKAN
+            ckan_after_request.set_etag_for_response()
+        '''
+
 
 class IDomainObjectModification(Interface):
     u'''

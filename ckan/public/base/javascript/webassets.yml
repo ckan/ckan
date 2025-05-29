@@ -20,6 +20,7 @@ main:
     - sandbox.js
     - module.js
     - pubsub.js
+    - csrf-token.js
     - client.js
     - i18n.js
     - notify.js
