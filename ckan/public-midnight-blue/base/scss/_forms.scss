@@ -287,8 +287,7 @@ select[data-module="autocomplete"] {
 }
 
 .editor textarea {
-    @include border-radius($inputBorderRadius $inputBorderRadius 0 0);
-    border-bottom: none;
+    @include border-radius($inputBorderRadius $inputBorderRadius);
 }
 
 .editor .editor-info-block {
