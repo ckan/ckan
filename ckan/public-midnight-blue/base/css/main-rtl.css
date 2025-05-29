@@ -11861,6 +11861,25 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
   color: transparent;
 }
 
+a.open-data {
+  display: inline-flex;
+  align-items: flex-start;
+  border-radius: 6px;
+  text-decoration: none;
+  overflow: hidden;
+}
+a.open-data span {
+  padding: 0.25rem 0.5rem;
+}
+a.open-data span.prefix {
+  background-color: #e8eaf3;
+  color: #000;
+}
+a.open-data span.suffix {
+  background-color: #3395FF;
+  color: #fff;
+}
+
 .tag {
   display: inline-block;
   margin-bottom: 4px;
