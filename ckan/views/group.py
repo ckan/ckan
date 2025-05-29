@@ -353,6 +353,10 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
 def _update_facet_titles(
         facets: 'OrderedDict[str, str]',
         group_type: str) -> 'OrderedDict[str, str]':
+    if group_type == "group":
+        del facets['groups']
+    else:
+        del facets['organization']
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = (
             plugin.group_facets(facets, group_type, None)
