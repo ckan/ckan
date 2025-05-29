@@ -37,69 +37,69 @@ Dictionary with search facets
 
 #}
 {% block facet_list %}
-	{% set hide_empty = hide_empty or false %}
-	{% with items = items or h.get_facet_items_dict(name, search_facets, exclude_active=true) %}
-		{% if items or not hide_empty %}
-			{% block facet_list_item %}
-				<section class="module module-narrow module-shallow accordion">
-					<div class="accordion-item">
-						{% block facet_list_heading %}
-							{% with items = items or h.get_facet_items_dict(name, search_facets) %}
-								{% set active_facet = h.currently_active_facet(name) %}
-								{% set collapsed = "collapsed" if default_collapsed and not active_facet else "" %}
-								<h2 class="accordion-header">
-									<button class="module-heading accordion-button {% if not items -%} collapsed {%- else -%} {{ collapsed }} {%- endif %}"
-										type="button"
-										data-bs-toggle="collapse"
-										data-bs-target="#{{ title }}"
-										{% if not items %}disabled{% endif %}>
-										<i class="filter-svg fa-solid fa-filter"></i>
-										{{ title }}
-									</button>
-								</h2>
-							{% endwith %}
-						{% endblock %}
-						{% block facet_list_items %}
-							{% with items = items or h.get_facet_items_dict(name, search_facets) %}
-								{% set active_facet = h.currently_active_facet(name) %}
-								{% set collapse_show = "show" if active_facet or not default_collapsed else "collapse" %}
-								{% if items %}
-									<nav id="{{ title }}" class="accordion-collapse {{ collapse_show }}" aria-label="{{ _('Filter by: {title}').format(title=title) }}">
-										<ul class="list-unstyled nav nav-simple nav-facet">
-											{% for item in items %}
-												{% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
-												{% set label = label_function(item) if label_function else item.display_name %}
-												{% set label_truncated = label|truncate(22) if not label_function else label %}
-												{% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
-												<li class="nav-item {% if item.active %} active{% endif %}">
-												<a href="{{ href }}" aria-label="{{ _('Search datasets by {name}: {label}').format(name=name, label=label_truncated) }}" {% if label != label_truncated %} data-bs-title="{{ label }}" data-bs-toggle="tooltip" {% endif %}>
-													<span class="item-label">{{ label_truncated }}</span>
-													<span class="item-count-span">
-														<span class="item-count badge">{{ count }}</span>
-														<span class="item-state"></span>
-													</span>
-												</a>
-												</li>
-											{% endfor %}
-										</ul>
-										<p class="module-footer">
-											{% if h.get_param_int('_%s_limit' % name) %}
-												{% if h.has_more_facets(name, search_facets) %}
-													<a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
-												{% endif %}
-											{% else %}
-												<a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
-											{% endif %}
-										</p>
-									</nav>
-								{% else %}
-									<p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
-								{% endif %}
-							{% endwith %}
-						{% endblock %}
-					</div>
-				</section>
-			{% endblock %}
-		{% endif %}
-	{% endwith %}
+  {% set hide_empty = hide_empty or false %}
+  {% with items = items or h.get_facet_items_dict(name, search_facets, exclude_active=true) %}
+    {% if items or not hide_empty %}
+      {% block facet_list_item %}
+        <section class="module module-narrow module-shallow accordion">
+          <div class="accordion-item">
+            {% block facet_list_heading %}
+              {% with items = items or h.get_facet_items_dict(name, search_facets) %}
+                {% set active_facet = h.currently_active_facet(name) %}
+                {% set collapsed = "collapsed" if default_collapsed and not active_facet else "" %}
+                <h2 class="accordion-header">
+                  <button class="module-heading accordion-button {% if not items -%} collapsed {%- else -%} {{ collapsed }} {%- endif %}"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ title }}"
+                    {% if not items %}disabled{% endif %}>
+                    <i class="filter-svg fa-solid fa-filter"></i>
+                    {{ title }}
+                  </button>
+                </h2>
+              {% endwith %}
+            {% endblock %}
+            {% block facet_list_items %}
+              {% with items = items or h.get_facet_items_dict(name, search_facets) %}
+                {% set active_facet = h.currently_active_facet(name) %}
+                {% set collapse_show = "show" if active_facet or not default_collapsed else "collapse" %}
+                {% if items %}
+                  <nav id="{{ title }}" class="accordion-collapse {{ collapse_show }}" aria-label="{{ _('Filter by: {title}').format(title=title) }}">
+                    <ul class="list-unstyled nav nav-simple nav-facet">
+                      {% for item in items %}
+                        {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
+                        {% set label = label_function(item) if label_function else item.display_name %}
+                        {% set label_truncated = label|truncate(22) if not label_function else label %}
+                        {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
+                        <li class="nav-item {% if item.active %} active{% endif %}">
+                        <a hx-boost="true" href="{{ href }}" aria-label="{{ _('Search datasets by {name}: {label}').format(name=name, label=label_truncated) }}" {% if label != label_truncated %} data-bs-title="{{ label }}" data-bs-toggle="tooltip" {% endif %}>
+                          <span class="item-label">{{ label_truncated }}</span>
+                          <span class="item-count-span">
+                            <span class="item-count badge">{{ count }}</span>
+                            <span class="item-state"></span>
+                          </span>
+                        </a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                    <p class="module-footer">
+                      {% if h.get_param_int('_%s_limit' % name) %}
+                        {% if h.has_more_facets(name, search_facets) %}
+                          <a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
+                        {% endif %}
+                      {% else %}
+                        <a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
+                      {% endif %}
+                    </p>
+                  </nav>
+                {% else %}
+                  <p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
+                {% endif %}
+              {% endwith %}
+            {% endblock %}
+          </div>
+        </section>
+      {% endblock %}
+    {% endif %}
+  {% endwith %}
 {% endblock %}
