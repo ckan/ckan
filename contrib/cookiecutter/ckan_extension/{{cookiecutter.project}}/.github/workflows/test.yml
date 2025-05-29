@@ -46,3 +46,8 @@ jobs:
     - name: Run tests
       run: pytest --ckan-ini=test.ini --cov=ckanext.{{ cookiecutter.project_shortname }} --disable-warnings ckanext/{{ cookiecutter.project_shortname }}
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
