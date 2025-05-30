@@ -208,7 +208,7 @@ extend-exclude = [
 
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C901", "G", "PLW0602"]
+select = ["E", "F", "W", "C901", "PLW0602"]
 
 [tool.ruff.lint.per-file-ignores]
 # These should be fixed
@@ -245,3 +245,5 @@ select = ["E", "F", "W", "C901", "G", "PLW0602"]
 "ckan/config/declaration/load.py" = ["C901"]
 "ckan/cli/views.py" = ["C901"]
 "ckan/cli/plugin_info.py" = ["C901"]
+"ckan/migration/migrate_package_activity.py" = ["C901"]
+"ckan/migration/revision_legacy_code.py" = ["C901"]
