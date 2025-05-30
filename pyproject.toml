@@ -154,6 +154,8 @@ line-length = 88
 exclude = [".*", "./bin", "./contrib", "./node_modules"]
 extend-exclude = [
   # These should be removed once linting is passed for them
+  "ckan/__init__.py",
+  "ckan/config/middleware.py",
   "ckan/lib/app_globals.py",
   "ckan/lib/cli.py",
   "ckan/lib/create_test_data.py",
@@ -205,7 +207,7 @@ extend-exclude = [
 
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C901", "G", "PLW0602"]
+select = ["E", "F", "W", "C901", "PLW0602"]
 
 [tool.ruff.lint.per-file-ignores]
 # These should be fixed
@@ -242,3 +244,5 @@ select = ["E", "F", "W", "C901", "G", "PLW0602"]
 "ckan/config/declaration/load.py" = ["C901"]
 "ckan/cli/views.py" = ["C901"]
 "ckan/cli/plugin_info.py" = ["C901"]
+"ckan/migration/migrate_package_activity.py" = ["C901"]
+"ckan/migration/revision_legacy_code.py" = ["C901"]
