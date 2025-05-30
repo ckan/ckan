@@ -49,7 +49,6 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
@@ -2410,7 +2409,7 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
+    if config.get('ckan.uploads_enabled'):
         return True
     return False
 
