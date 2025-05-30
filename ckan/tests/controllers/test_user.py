@@ -306,7 +306,7 @@ class TestUser(object):
 
         response = app.get(url=url_for("dashboard.datasets"), extra_environ=env)
 
-        assert not (dataset_title in response)
+        assert dataset_title not in response
 
     def test_user_edit_no_user(self, app):
 
