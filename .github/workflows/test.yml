@@ -10,9 +10,9 @@ permissions:
 
 jobs:
 
-  flake8:
-    name: Lint (Flake8)
-    uses: ./.github/workflows/flake8.yml # Call the reusable workflow
+  ruff:
+    name: Lint (Ruff)
+    uses: ./.github/workflows/ruff.yml # Call the reusable workflow
     secrets: inherit
 
   pyright:
@@ -22,7 +22,6 @@ jobs:
 
   cypress:
     name: Test (Cypress)
-    #needs: [flake8]
     uses: ./.github/workflows/cypress.yml # Call the reusable workflow
     secrets: inherit
 
@@ -33,6 +32,5 @@ jobs:
 
   pytest:
     name: Test (Pytest)
-    #needs: [flake8]
     uses: ./.github/workflows/pytest.yml # Call the reusable workflow
     secrets: inherit
