@@ -1075,7 +1075,7 @@ groups:
 
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
-        example: /images/ckan_logo_fullname_long.png
+        example: /base/images/ckan-logo.png
         description: This sets the logo used in the title bar.
         editable: true
 
@@ -1185,7 +1185,7 @@ groups:
       - key: ckan.site_custom_css
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
-      
+
       - key: ckan.default_collapse_facets
         type: bool
         default: False
