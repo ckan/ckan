@@ -12,6 +12,7 @@
   {% endif %}
 {% endblock %}
 
+{% block form_title %}{{ _('Add New Resource') }}{% endblock %}
 {% block form %}{% snippet resource_form_snippet, data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, dataset_type=dataset_type %}{% endblock %}
 
 
