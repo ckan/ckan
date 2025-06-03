@@ -22,6 +22,11 @@ Migration notes
   the string ``*`` as value in both options (this is dangerous and
   **not** recommended).
 
+Minor changes
+-------------
+
+- Remove helper ``get_site_statistics()`` (#8705)
+
 v.2.11.2 2025-02-05
 ===================
 
@@ -722,7 +727,7 @@ Removals and deprecations
       class FirstPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(ISomething)
 
-      class SecondPlugin(p.SingletonPlugin, BasePlutin):
+      class SecondPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(IAnything)
 
 

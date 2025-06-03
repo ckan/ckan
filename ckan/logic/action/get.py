@@ -967,7 +967,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :type id: string
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
-    :type use_default_schema: bool
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
@@ -1053,10 +1052,11 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             package_dict, _errors = lib_plugins.plugin_validate(
                 package_plugin, context, package_dict, schema,
                 'package_show')
+        else:
+            # up to caller to apply after_dataset_show plugins
+            return package_dict
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_dataset_show(context, package_dict)
-
+    logic.apply_after_dataset_show_plugins(context, package_dict)
     return package_dict
 
 

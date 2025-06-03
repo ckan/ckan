@@ -904,7 +904,14 @@ def dashboard() -> str:
     # dashboard page.
     tk.get_action("dashboard_mark_activities_old")(context, {})
 
-    return tk.render("user/dashboard.html", extra_vars)
+    if ckan_request.htmx:
+        return tk.render(
+            "user/snippets/news_feed.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "user/dashboard.html", extra_vars
+        )
 
 
 def _get_dashboard_context(
@@ -965,3 +972,16 @@ def _get_dashboard_context(
         "selected_id": False,
         "dict": None,
     }
+
+
+@bp.route("/testing/dashboard")
+def dashboard_testing() -> str:
+    return tk.render(
+        'user/snippets/followee_dropdown.html', {
+            'context': {},
+            'followees': [
+                {"dict": {"id": 1}, "display_name": "Test followee"},
+                {"dict": {"id": 2}, "display_name": "Not valid"}
+            ]
+        }
+    )

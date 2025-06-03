@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  {{ super() }}
+  {{ h.build_nav_icon('activity.group_activity', _('Activity Stream'), id=group_dict.name, offset=0, icon='clock') }}
+{% endblock content_primary_nav %}

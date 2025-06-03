@@ -702,7 +702,8 @@ def user_name_validator(key: FlattenKey, data: FlattenDataDict,
             errors[key].append(_('The username is already associated with another account. Please use a different username.'))
     elif user_obj_from_context:
         requester = context.get('auth_user_obj', None)
-        if requester and authz.is_sysadmin(requester.name):
+        ignore_auth = context.get('ignore_auth', None)
+        if ignore_auth or (requester and authz.is_sysadmin(requester.name)):
             return
         old_user = model.User.get(user_obj_from_context.id)
         if old_user is not None and old_user.state != model.State.PENDING:
