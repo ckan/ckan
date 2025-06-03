@@ -300,6 +300,8 @@ class TestDatastoreRecordsDelete(object):
         for r in result['deleted_records']:
             assert '_id' in r
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_delete_records_text_int_filter(self):
         resource = factories.Resource()
         data = {

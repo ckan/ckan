@@ -430,9 +430,9 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
                    If missing delete whole table and all dependent views.
                    (optional)
     :type filters: dictionary
-    :param include_records: return the full values of deleted records
-                            (optional, default: False)
-    :type include_records: bool
+    :param include_deleted_records: return the full values of deleted records
+                                    (optional, default: False)
+    :type include_deleted_records: bool
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
         `total_estimation_threshold` parameter. If doing a series of requests
@@ -499,7 +499,7 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
 
     result.pop('id', None)
     result.pop('connection_url', None)
-    if not data_dict.pop('include_records', False):
+    if not data_dict.pop('include_deleted_records', False):
         result.pop('deleted_records', None)
     return result
 
@@ -516,9 +516,9 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
                    If {} delete all records.
                    (required)
     :type filters: dictionary
-    :param include_records: return the full values of deleted records
-                            (optional, default: False)
-    :type include_records: bool
+    :param include_deleted_records: return the full values of deleted records
+                                    (optional, default: False)
+    :type include_deleted_records: bool
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
         `total_estimation_threshold` parameter. If doing a series of requests
