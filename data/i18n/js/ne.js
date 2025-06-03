@@ -1,0 +1,1 @@
+{"":{"domain":"ckan","lang":"ne","plural-forms":"nplurals=2; plural=(n != 1);"},"An error occured during AJAX request. Could not load view.":[null,"AJAX अनुरोधको क्रममा त्रुटि देखा पर्‍यो। भ्यु लोड गर्न सकिएन।"],"Input is too short, must be at least one character":["Input is too short, must be at least %(num)d characters","",""]}

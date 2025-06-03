@@ -1,0 +1,1 @@
+{"":{"domain":"ckan","lang":"id","plural-forms":"nplurals=1; plural=0;"},"Cancel":[null,"Batal"],"Edit":[null,"Edit"],"Image":[null,"Gambar"],"Input is too short, must be at least one character":["Input is too short, must be at least %(num)d characters",""],"Loading...":[null,"Memuat..."],"URL":[null,"URL"],"Upload":[null,"Unggah"]}
