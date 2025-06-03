@@ -456,6 +456,10 @@ class DefaultGroupForm(object):
         return 'group/read.html'
 
     def read_template_htmx(self) -> str:
+        """
+        Returns a string representing the location of the template to be
+        rendered for htmx updates to the read page
+        """
         return 'package/snippets/search_htmx.html'
 
     def about_template(self) -> str:
