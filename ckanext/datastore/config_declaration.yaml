@@ -98,7 +98,7 @@ groups:
     example: 180_000
     description: >
       The default query timeout (in milliseconds) for the datastore queries.
-      This is usedwhen executing queries against the datastore.
+      This is used when executing queries against the datastore.
       "search"/"search_sql", "upsert", and "create" actions will use this
       timeout
 
