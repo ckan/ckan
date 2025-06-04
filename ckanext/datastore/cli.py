@@ -19,10 +19,12 @@ from ckanext.datastore.backend.postgres import (
     get_read_engine,
     get_write_engine,
     _get_raw_field_info,
-    _TIMEOUT,
+    _get_timeout,
 )
 from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 
+
+_TIMEOUT = _get_timeout()
 log = logging.getLogger(__name__)
 
 
