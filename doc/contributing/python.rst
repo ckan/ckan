@@ -402,12 +402,9 @@ conformance and general code quality. We recommend using them.
 
 * `pyflakes`_ also analyzes Python programs to detect errors.
 
-* `flake8`_ combines both pep8 and pyflakes into a single tool.
+* `ruff`_ An extremely fast Python linter and code formatter, written in Rust.
 
-* `Syntastic`_ is a Vim plugin with support for flake8, pyflakes and pylint.
-
-.. _pep8: http://pypi.python.org/pypi/pep8
-.. _pylint: http://www.logilab.org/857
-.. _pyflakes: http://pypi.python.org/pypi/pyflakes
-.. _flake8: http://pypi.python.org/pypi/flake8
-.. _Syntastic: https://github.com/scrooloose/syntastic
+.. _pep8: https://pypi.org/project/pep8/
+.. _pylint: https://pypi.org/project/pylint/
+.. _pyflakes: https://pypi.org/project/pyflakes/
+.. _ruff: https://docs.astral.sh/ruff/
