@@ -18,31 +18,39 @@ def jobs():
 @click.option(u"--max-idle-time", default=None, type=click.INT,
               help=u"Max seconds for worker to be idle. "
               "Defaults to None (never stops idling).")
+@click.option("--with-scheduler", is_flag=True,
+              help="Schedule jobs from this worker.")
 @click.argument(u"queues", nargs=-1)
-def worker(burst: bool, max_idle_time: int, queues: list[str]):
+def worker(burst: bool, max_idle_time: int, queues: list[str], with_scheduler: bool):
     """Start a worker that fetches jobs from queues and executes them. If
     no queue names are given then the worker listens to the default
     queue, this is equivalent to
 
-        paster jobs worker default
+        ckan jobs worker default
 
     If queue names are given then the worker listens to those queues
     and only those:
 
-        paster jobs worker my-custom-queue
+        ckan jobs worker my-custom-queue
 
     Hence, if you want the worker to listen to the default queue and
     some others then you must list the default queue explicitly:
 
-        paster jobs worker default my-custom-queue
+        ckan jobs worker default my-custom-queue
 
     If the `--burst` option is given then the worker will exit as soon
     as all its queues are empty.
 
     If the `--max-idle-time` option is given then the worker will exit
     after it has been idle for the number of seconds specified.
+
+    If the `--with-scheduler` option is given then this worker will
+    schedule as well as run jobs. Scheduled jobs need at least one
+    worker scheduling jobs or they will not be executed.
     """
-    bg_jobs.Worker(queues).work(burst=burst, max_idle_time=max_idle_time)
+    bg_jobs.Worker(queues).work(
+        burst=burst, max_idle_time=max_idle_time, with_scheduler=with_scheduler,
+    )
 
 
 @jobs.command(name=u"list", short_help=u"List jobs.")
