@@ -14,7 +14,6 @@ import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
-from ckan.lib.jobs import job_from_id, get_queue
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
 from ckanext.datastore.backend import DatastoreBackend
@@ -780,7 +779,7 @@ def _schedule_patch_resource_last_modified(resource_id: str):
     last_modified = datetime.now(timezone.utc)
     job_id = f'{resource_id} datastore patch last_modified'
     try:
-        existing_job = job_from_id(job_id)
+        existing_job = p.toolkit.job_from_id(job_id)
         try:
             existing_job.delete()
         except Exception:
@@ -788,7 +787,7 @@ def _schedule_patch_resource_last_modified(resource_id: str):
     except KeyError:
         pass
 
-    get_queue().enqueue_in(
+    p.toolkit.get_job_queue().enqueue_in(
         RESOURCE_LAST_MODIFIED_SETTLE_TIME,
         _patch_resource_last_modified,
         resource_id,
