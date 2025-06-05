@@ -25,7 +25,7 @@ from typing import Any, Union, Callable, Iterable, Optional, cast
 import rq
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
-from rq.utils import ensure_list
+from rq.utils import ensure_job_list
 
 from ckan.lib.redis import connect_to_redis
 from ckan.common import config
@@ -243,7 +243,7 @@ class Worker(rq.Worker):
             with the name of a single queue or a list of queue names.
             If not given then the default queue is used.
         '''
-        queue_names = cast(Iterable[str], ensure_list(
+        queue_names = cast(Iterable[str], ensure_job_list(
             queues or [DEFAULT_QUEUE_NAME]
         ))
 

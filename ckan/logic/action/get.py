@@ -3169,7 +3169,7 @@ def api_token_list(
 
     :param string user_id: The user ID or name
 
-    :returns: collection of all API Tokens
+    :returns: collection of all API Tokens from oldest to newest
     :rtype: list
 
     .. versionadded:: 2.9
@@ -3184,4 +3184,5 @@ def api_token_list(
     if user is None:
         raise NotFound("User not found")
     tokens = model.Session.query(model.ApiToken).filter_by(user_id=user.id)
+    tokens = tokens.order_by(model.ApiToken.created_at)
     return model_dictize.api_token_list_dictize(tokens, context)
