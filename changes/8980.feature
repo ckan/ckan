@@ -1,5 +1,7 @@
-New option `ckan jobs worker --with-scheduler` will schedule jobs
-as well as run jobs in the queue.
+`ckan jobs worker` CLI now runs a scheduler by default to enqueue
+scheduled jobs. Use `--no-scheduler` to disable the scheduler on this
+worker. Only one worker can run as a scheduler for each queue so this
+option may be used on secondary workers.
 
 `datastore_create`, `datastore_upsert` and `datastore_delete` now
 schedule a job to patch the corresponding resource's `last_modified`

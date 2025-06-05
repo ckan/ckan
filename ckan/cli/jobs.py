@@ -18,10 +18,10 @@ def jobs():
 @click.option(u"--max-idle-time", default=None, type=click.INT,
               help=u"Max seconds for worker to be idle. "
               "Defaults to None (never stops idling).")
-@click.option("--with-scheduler", is_flag=True,
-              help="Schedule jobs from this worker.")
+@click.option("--no-scheduler", is_flag=True,
+              help="Do not enqueue scheduled jobs from this worker.")
 @click.argument(u"queues", nargs=-1)
-def worker(burst: bool, max_idle_time: int, queues: list[str], with_scheduler: bool):
+def worker(burst: bool, max_idle_time: int, queues: list[str], no_scheduler: bool):
     """Start a worker that fetches jobs from queues and executes them. If
     no queue names are given then the worker listens to the default
     queue, this is equivalent to
@@ -44,12 +44,15 @@ def worker(burst: bool, max_idle_time: int, queues: list[str], with_scheduler: b
     If the `--max-idle-time` option is given then the worker will exit
     after it has been idle for the number of seconds specified.
 
-    If the `--with-scheduler` option is given then this worker will
-    schedule as well as run jobs. Scheduled jobs need at least one
-    worker scheduling jobs or they will not be executed.
+    If the `--no-scheduler` option is given then this worker will
+    not enqueue scheduled jobs. Only one worker will can run as a
+    scheduler for each queue so this option may be used on secondary
+    workers.
     """
     bg_jobs.Worker(queues).work(
-        burst=burst, max_idle_time=max_idle_time, with_scheduler=with_scheduler,
+        burst=burst,
+        max_idle_time=max_idle_time,
+        with_scheduler=not no_scheduler,
     )
 
 
