@@ -1700,12 +1700,12 @@ def parse_rfc_2822_date(date_str: str,
         offset = time_tuple[-1]
         if offset is None:
             offset = 0
-        tz_info = _RFC2282TzInfo(offset)
+        tz_info = _RFC2822TzInfo(offset)
     return datetime.datetime(
         *time_tuple[:6], microsecond=0, tzinfo=tz_info)
 
 
-class _RFC2282TzInfo(datetime.tzinfo):
+class _RFC2822TzInfo(datetime.tzinfo):
     '''
     A datetime.tzinfo implementation used by parse_rfc_2822_date() function.
 
