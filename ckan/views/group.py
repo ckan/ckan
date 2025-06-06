@@ -992,6 +992,7 @@ class CreateGroupView(MethodView):
         except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
+            data_dict['previous_upload'] = True
             return self.get(group_type, is_organization,
                             data_dict, errors, error_summary)
 
