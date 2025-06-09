@@ -14,12 +14,20 @@ htmx.on('htmx:configRequest', (event) => {
   }
 });
 
+function htmx_cleanup_before_swap(event) {
+  // Dispose any active tooltips before HTMX swaps the DOM
+  event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(
+      el => {
+    const tooltip = bootstrap.Tooltip.getInstance(el)
+    if (tooltip) {
+      tooltip.dispose()
+    }
+  })
+}
+document.body.addEventListener("htmx:beforeSwap", htmx_cleanup_before_swap);
+document.body.addEventListener("htmx:oobBeforeSwap", htmx_cleanup_before_swap);
 
 function htmx_initialize_ckan_modules(event) {
-  /* ignore swap=none and swap=delete events */
-  if (!event.detail.shouldSwap) {
-    return;
-  }
   var elements = event.detail.target.querySelectorAll("[data-module]");
 
   for (let node of elements) {
@@ -30,9 +38,25 @@ function htmx_initialize_ckan_modules(event) {
     ckan.module.initializeElement(node);
     node.setAttribute("dm-initialized", true)
   }
+
+  event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]'
+      ).forEach(node => {
+    bootstrap.Tooltip.getOrCreateInstance(node)
+  })
+  event.detail.target.querySelectorAll('.show-filters').forEach(node => {
+    node.onclick = function() {
+      $("body").addClass("filters-modal")
+    }
+  })
+  event.detail.target.querySelectorAll('.hide-filters').forEach(node => {
+    node.onclick = function() {
+      $("body").removeClass("filters-modal")
+    }
+  })
 }
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
+
 document.body.addEventListener("htmx:responseError", function(event) {
   const xhr = event.detail.xhr
   const error = $(xhr.response).find('#error-content')

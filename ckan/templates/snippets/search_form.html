@@ -6,7 +6,7 @@
 {% set no_bottom_border = no_bottom_border if no_bottom_border else false %}
 {% set form_id = form_id if form_id else false %}
 
-<form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" method="get" data-module="select-switch">
+<form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" hx-boost="true" hx-disinherit="hx-boost" method="get" hx-trigger="change, submit">
 
   {% block search_input %}
     <div class="input-group search-input-group">
@@ -66,7 +66,7 @@
               {%- else -%}
                 {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
               {%- endif %}
-              <a href="{{ facets.remove_field(field, value) }}" class="remove" aria-label="{{ _('Remove applied filter: {value}').format(value=value) }}" data-bs-title="{{ _('Remove') }}" data-bs-toggle="tooltip"><i class="fa fa-times"></i></a>
+              <a href="{{ facets.remove_field(field, value) }}" class="remove" aria-label="{{ _('Remove applied filter: {value}').format(value=value) }}" data-bs-title="{{ _('Remove') }}" data-bs-toggle="tooltip" hx-boost="true"><i class="fa fa-times"></i></a>
             </span>
           {% endfor %}
         {% endfor %}
