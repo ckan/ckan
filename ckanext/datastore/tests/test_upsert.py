@@ -131,7 +131,7 @@ class TestDatastoreUpsert(object):
 
         job.perform()
         res = helpers.call_action("resource_show", id=resource["id"])
-        assert res["last_modified"]
+        assert res["last_modified"] != last_modified_1
 
     def test_upsert_only_one_field(self):
         resource = factories.Resource()
