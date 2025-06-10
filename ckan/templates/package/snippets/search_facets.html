@@ -1,0 +1,8 @@
+<div class="filters" id="search-facets" hx-swap-oob="true" hx-swap="none">
+  <div>
+    {% for facet in facet_titles %}
+      {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets %}
+    {% endfor %}
+  </div>
+  <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
+</div>

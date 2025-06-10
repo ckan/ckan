@@ -27,6 +27,104 @@ Minor changes
 
 - Remove helper ``get_site_statistics()`` (#8705)
 
+v.2.11.3 2025-05-07
+===================
+
+Migration notes
+---------------
+- This releases includes a migration to fix existing activities created before a 2.11
+  migration not showing up in ``package_activity_list`` calls.
+  If you are using the ``activity`` plugin, apply it with (`#8784 <https://github.com/ckan/ckan/pull/8784>`_)::
+
+    ckan db upgrade -p activity
+
+- A new session serialization strategy is used to fix errors when the ``flash_success``
+  and ``flash_error`` helpers called with the ``html`` flag. Existing sessions stored
+  inside Redis cannot be deserialized with this new strategy and must be removed using the
+  command::
+
+    redis-cli keys "session:*" | xargs redis-cli del
+
+  Non-redis session backends are not affected by this change. (`#8704
+  <https://github.com/ckan/ckan/pull/8704>`_)
+
+Minor changes
+-------------
+- Re-add `get _site_statistics()` helper that was removed without mention in
+  the changelog (`#8522 <https://github.com/ckan/ckan/pull/8522>`_)
+- Register pytest plugins as entrypoints to make them available to all
+  extensions (`#8507 <https://github.com/ckan/ckan/pull/8507>`_)
+- Restore activity API documentation. (`#8780
+  <https://github.com/ckan/ckan/pull/8780>`_)
+- Switch 'datastore_info' to use 'resource_id' as input argument (`#8907
+  <https://github.com/ckan/ckan/pull/8907>`_)
+
+- Update release process docs (`#8586
+  <https://github.com/ckan/ckan/pull/8586>`_)
+- Migrate CI checks to GitHub Actions (`#8909
+  <https://github.com/ckan/ckan/pull/8909>`_)
+- Upgrade Jinja2 requirement to address CVE-2025-27516
+
+
+Bugfixes
+--------
+
+- Set license model ``od_conformance`` and ``osd_conformance`` attributes' default
+  values to `False` to prevent errors. (`#8268
+  <https://github.com/ckan/ckan/pull/8268>`_)
+- Restore usage of ``follow_button`` snippet so it can be overridden and
+  customised (`#8651 <https://github.com/ckan/ckan/pull/8651>`_)
+- Don't encode binary font files when building the frontend (`#8666
+  <https://github.com/ckan/ckan/pull/8666>`_)
+- Fix exception in ``recently_changed_packages_activity_list`` action (`#8677
+  <https://github.com/ckan/ckan/pull/8677>`_)
+- Fix error in datastore upgrade: don't process datastore column comments for
+  sqlalchemy bind parameters (`#8693
+  <https://github.com/ckan/ckan/pull/8693>`_)
+- Fix database revision 105 downgrade. Ensure ``resource.package_id -> package.id``
+  foreign key constraint is dropped. (`#8707
+  <https://github.com/ckan/ckan/pull/8707>`_)
+- You can now use non-string values in ``datastore_search`` and
+  ``datastore_delete`` filters for text datatype fields. (`#8729
+  <https://github.com/ckan/ckan/pull/8729>`_)
+- ``datastore_search``: return records as ``LazyJSONObject`` only when called from api
+  view. (`#8739 <https://github.com/ckan/ckan/pull/8739>`_)
+- Fixed an issue with using ``filters`` in ``datastore_search`` with CSV/TSV
+  records format. (`#8741 <https://github.com/ckan/ckan/pull/8741>`_)
+- Return ``resource_id`` from ``resource_view_delete`` so that the activity plugin
+  does not fail when recording the deleted view. (`#8760
+  <https://github.com/ckan/ckan/pull/8760>`_)
+- Fix tabledesigner integration with datatables and the way datatables work
+  with the i18n files (`#8782 <https://github.com/ckan/ckan/pull/8782>`_)
+- Default to a long CSRF token timeout to fix "The CSRF token is invalid."
+  errors (`#8803 <https://github.com/ckan/ckan/pull/8803>`_)
+- Fix search button styling by removing deprecated wrapper
+  (`#8737 <https://github.com/ckan/ckan/pull/8737>`_)
+- Catch an error in datastore to avoid 500 error in POSTs to
+  `datatables/ajax/<resource_view_id>`
+  (`#8149 <https://github.com/ckan/ckan/pull/8149>`_)
+- Invalidate cached pages and load fresh ones if cookies change (`#6955
+  <https://github.com/ckan/ckan/pull/6955>`_)
+- Remove unsupported legacy API keys from documentation (`#8195
+  <https://github.com/ckan/ckan/pull/8195>`_)
+- Ensure ``session["last_active"]`` is stored as an iso string instead of a
+  `datetime` so that it can be serialized to JSON (e.g. in cookies). (`#8379
+  <https://github.com/ckan/ckan/pull/8379>`_)
+- Fix ``check_access`` order for resource create view (`#8588
+  <https://github.com/ckan/ckan/pull/8588>`_)
+- Fix auth check for datastore data dictionary view (`#8639
+  <https://github.com/ckan/ckan/pull/8639>`_)
+- Add missing boolean_validator to sysadmin field in user schema (`#8674
+  <https://github.com/ckan/ckan/pull/8674>`_)
+- ``authz.has_user_permission_for_some_org`` returns True for sysadmins. (`#8680
+  <https://github.com/ckan/ckan/pull/8679>`_)
+- Apply ``humanize_entity_type`` helper consistently across the group listing
+  page (`#8682 <https://github.com/ckan/ckan/pull/8682>`_)
+- ``datastore_search``: fix for sort on array column types (`#8709
+  <https://github.com/ckan/ckan/pull/8709>`_)
+- Fix some ``.btn-default`` classes that were mistakenly changed to ``.btn-light``. (`#8828
+  <https://github.com/ckan/ckan/pull/8828>`_)
+
 v.2.11.2 2025-02-05
 ===================
 
@@ -730,6 +828,52 @@ Removals and deprecations
       class SecondPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(IAnything)
 
+
+v.2.10.8 2025-05-07
+===================
+
+Minor changes
+-------------
+
+- Register pytest plugins as entrypoints to make them available to all
+  extensions (`#8507 <https://github.com/ckan/ckan/pull/8507>`_)
+- Update release process docs (`#8586
+  <https://github.com/ckan/ckan/pull/8586>`_)
+- Migrate CI checks to GitHub Actions (`#8909
+  <https://github.com/ckan/ckan/pull/8909>`_)
+- Upgrade Jinja2 requirement to address CVE-2025-27516
+
+
+Bugfixes
+--------
+- Default to a long CSRF token timeout to fix "The CSRF token is invalid."
+  errors (`#8803 <https://github.com/ckan/ckan/pull/8803>`_)
+- Fix search button styling by removing deprecated wrapper
+  (`#8737 <https://github.com/ckan/ckan/pull/8737>`_)
+- Catch an error in datastore to avoid 500 error in POSTs to
+  `datatables/ajax/<resource_view_id>`
+  (`#8149 <https://github.com/ckan/ckan/pull/8149>`_)
+- Invalidate cached pages and load fresh ones if cookies change (`#6955
+  <https://github.com/ckan/ckan/pull/6955>`_)
+- Remove unsupported legacy API keys from documentation (`#8195
+  <https://github.com/ckan/ckan/pull/8195>`_)
+- Ensure ``session["last_active"]`` is stored as an iso string instead of a
+  `datetime` so that it can be serialized to JSON (e.g. in cookies). (`#8379
+  <https://github.com/ckan/ckan/pull/8379>`_)
+- Fix ``check_access`` order for resource create view (`#8588
+  <https://github.com/ckan/ckan/pull/8588>`_)
+- Fix auth check for datastore data dictionary view (`#8639
+  <https://github.com/ckan/ckan/pull/8639>`_)
+- Add missing boolean_validator to sysadmin field in user schema (`#8674
+  <https://github.com/ckan/ckan/pull/8674>`_)
+- ``authz.has_user_permission_for_some_org`` returns True for sysadmins. (`#8680
+  <https://github.com/ckan/ckan/pull/8679>`_)
+- Apply ``humanize_entity_type`` helper consistently across the group listing
+  page (`#8682 <https://github.com/ckan/ckan/pull/8682>`_)
+- ``datastore_search``: fix for sort on array column types (`#8709
+  <https://github.com/ckan/ckan/pull/8709>`_)
+- Fix some ``.btn-default`` classes that were mistakenly changed to ``.btn-light``. (`#8828
+  <https://github.com/ckan/ckan/pull/8828>`_)
 
 
 v.2.10.7 2025-02-05
