@@ -2,6 +2,7 @@
 
 import ckan.logic as logic
 import ckan.authz as authz
+from ckan import model
 from ckan.logic.auth import get_group_object
 from ckan.logic.auth import get_resource_object
 from ckan.common import _
@@ -25,7 +26,6 @@ def dataset_purge(context: Context, data_dict: DataDict) -> AuthResult:
 
 
 def resource_delete(context: Context, data_dict: DataDict) -> AuthResult:
-    model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
 
@@ -49,8 +49,6 @@ def resource_delete(context: Context, data_dict: DataDict) -> AuthResult:
 
 
 def resource_view_delete(context: Context, data_dict: DataDict) -> AuthResult:
-    model = context['model']
-
     resource_view = model.ResourceView.get(data_dict['id'])
     if not resource_view:
         raise logic.NotFound(_('Resource view not found, cannot check auth.'))
@@ -151,7 +149,6 @@ def package_collaborator_delete(context: Context,
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
     '''
     user = context['user']
-    model = context['model']
 
     pkg = model.Package.get(data_dict['id'])
     user_obj = model.User.get(user)
@@ -182,7 +179,6 @@ def api_token_revoke(context: Context, data_dict: DataDict) -> AuthResult:
     if authz.auth_is_anon_user(context):
         return {u'success': False}
 
-    model = context[u'model']
     token = model.ApiToken.get(data_dict[u'jti'])
     # Do not make distinction between absent keys and keys not owned
     # by user in order to prevent accidential key discovery.

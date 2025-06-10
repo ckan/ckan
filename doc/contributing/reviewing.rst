@@ -75,7 +75,7 @@ Before doing the ``git push``, it's a good idea to check that all the tests are
 passing on your master branch (if the latest commits from master have already
 been pulled into the feature branch on github, then it may be enough to check
 that all tests passed for the latest commit on this branch on
-`Circle CI <https://circleci.com/gh/ckan/ckan>`_).
+`Github Actions <https://github.com/ckan/ckan/actions/workflows/test.yml>`_).
 
 Also before doing the ``git push``, it's a good idea to use ``git log`` and/or
 ``git diff`` to check the difference between your local master branch and the

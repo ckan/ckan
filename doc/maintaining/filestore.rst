@@ -169,4 +169,4 @@ custom types get registered on startup::
 
 
 
-.. _mimetypes: http://docs.python.org/2/library/mimetypes.html
+.. _mimetypes: https://docs.python.org/3/library/mimetypes.html

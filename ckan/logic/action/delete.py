@@ -15,7 +15,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
-from ckan import authz
+from ckan import authz, model
 from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
 
@@ -45,7 +45,6 @@ def user_delete(context: Context, data_dict: DataDict) -> ActionResult.UserDelet
 
     _check_access('user_delete', context, data_dict)
 
-    model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
     user = model.User.get(user_id)
 
@@ -81,7 +80,6 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :type id: string
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     entity = model.Package.get(id)
@@ -131,7 +129,6 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     '''
     from sqlalchemy import or_
 
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     pkg = model.Package.get(id)
@@ -171,7 +168,6 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
     :type id: string
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     entity = model.Resource.get(id)
@@ -218,7 +214,6 @@ def resource_view_delete(context: Context, data_dict: DataDict) -> ActionResult.
     :type id: string
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     resource_view = model.ResourceView.get(id)
@@ -230,6 +225,10 @@ def resource_view_delete(context: Context, data_dict: DataDict) -> ActionResult.
     resource_view.delete()
     model.repo.commit()
 
+    # resource_view_changed in ckanext/activity/subscriptions.py
+    # needs the resource id
+    return {'resource_id': resource_view.resource_id}
+
 
 def resource_view_clear(context: Context, data_dict: DataDict) -> ActionResult.ResourceViewClear:
     '''Delete all resource views, or all of a particular type.
@@ -238,8 +237,6 @@ def resource_view_clear(context: Context, data_dict: DataDict) -> ActionResult.R
     :type view_types: list
 
     '''
-    model = context['model']
-
     _check_access('resource_view_clear', context, data_dict)
 
     view_types = data_dict.get('view_types', [])
@@ -263,7 +260,6 @@ def package_relationship_delete(context: Context, data_dict: DataDict) -> Action
     :type type: string
 
     '''
-    model = context['model']
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
     pkg1 = model.Package.get(id)
@@ -299,8 +295,6 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
     :type object_type: string
 
     '''
-    model = context['model']
-
     group_id, obj_id, obj_type = _get_or_bust(
         data_dict, ['id', 'object', 'object_type'])
 
@@ -340,9 +334,6 @@ def package_collaborator_delete(context: Context, data_dict: DataDict) -> Action
     :type user_id: string
 
     '''
-
-    model = context['model']
-
     package_id, user_id = _get_or_bust(
         data_dict,
         ['id', 'user_id']
@@ -388,7 +379,6 @@ def _group_or_org_delete(
     '''
     from sqlalchemy import or_
 
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
@@ -484,7 +474,6 @@ def _group_or_org_purge(
     :type is_org: bool
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
@@ -587,7 +576,6 @@ def task_status_delete(context: Context, data_dict: DataDict) -> None:
     :type id: string
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     entity = model.TaskStatus.get(id)
@@ -609,8 +597,6 @@ def vocabulary_delete(context: Context, data_dict: DataDict) -> None:
     :type id: string
 
     '''
-    model = context['model']
-
     vocab_id = data_dict.get('id')
     if not vocab_id:
         raise ValidationError({'id': _('id not in data')})
@@ -636,8 +622,6 @@ def tag_delete(context: Context, data_dict: DataDict) -> None:
     :type vocabulary_id: string
 
     '''
-    model = context['model']
-
     if 'id' not in data_dict or not data_dict['id']:
         raise ValidationError({'id': _('id not in data')})
     tag_id_or_name = _get_or_bust(data_dict, 'id')
@@ -660,8 +644,6 @@ def tag_delete(context: Context, data_dict: DataDict) -> None:
 def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
-
-    model = context['model']
 
     if not context.get('user'):
         raise ckan.logic.NotAuthorized(
@@ -696,7 +678,7 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
-    _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
+    _unfollow(context, data_dict, schema, model.UserFollowingUser)
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     '''Stop following a dataset.
@@ -708,12 +690,11 @@ def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
     _unfollow(context, data_dict, schema,
-            context['model'].UserFollowingDataset)
+            model.UserFollowingDataset)
 
 
 def _group_or_org_member_delete(context: Context,
                                 data_dict: DataDict) -> None:
-    model = context['model']
     user = context['user']
 
     group_id = data_dict.get('id')
@@ -771,7 +752,7 @@ def unfollow_group(context: Context, data_dict: DataDict) -> None:
     schema = context.get('schema',
             ckan.logic.schema.default_follow_group_schema())
     _unfollow(context, data_dict, schema,
-            context['model'].UserFollowingGroup)
+            model.UserFollowingGroup)
 
 
 @ckan.logic.validate(ckan.logic.schema.job_clear_schema)
@@ -843,5 +824,4 @@ def api_token_revoke(context: Context, data_dict: DataDict) -> ActionResult.ApiT
             jti = data.get(u'jti')
 
     _check_access(u'api_token_revoke', context, {u'jti': jti})
-    model = context[u'model']
     model.ApiToken.revoke(jti)

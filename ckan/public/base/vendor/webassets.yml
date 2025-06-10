@@ -48,7 +48,7 @@ vendor:
   contents:
     - jed.js
     - moment-with-locales.js
-    - select2/select2.js
+    - select2/select2.full.js
     - popperjs.js
     - purify.js
 

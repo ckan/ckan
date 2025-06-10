@@ -432,7 +432,7 @@ stages involved::
 
    This is an issue to track progress on the patch releases (2.X.Y and 2.Z.A)
 
-   [Full docs](http://docs.ckan.org/en/latest/contributing/release-process.html)
+   [Full docs](https://docs.ckan.org/en/latest/contributing/release-process.html)
 
    ### Create a new release branch (remove for patch releases)
 
