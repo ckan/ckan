@@ -106,6 +106,9 @@ class TestDatastoreUpsert(object):
         }
         helpers.call_action("datastore_create", **data)
 
+        res = helpers.call_action("resource_show", id=resource["id"])
+        last_modified_1 = res['last_modified']
+
         data = {
             "resource_id": resource["id"],
             "method": "upsert",
@@ -121,9 +124,14 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][1]["book"] == u"The boy"
 
         # job scheduled to update last_modified
-        assert not resource["last_modified"]
-        assert job_from_id(
-            f"{resource['id']} datastore patch last_modified")
+        res = helpers.call_action("resource_show", id=resource["id"])
+        assert res["last_modified"] == last_modified_1
+        job = job_from_id(f"{resource['id']} datastore patch last_modified")
+        assert job
+
+        job.perform()
+        res = helpers.call_action("resource_show", id=resource["id"])
+        assert res["last_modified"]
 
     def test_upsert_only_one_field(self):
         resource = factories.Resource()
