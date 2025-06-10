@@ -207,6 +207,7 @@ extend-exclude = [
 
 
 [tool.ruff.lint]
+## https://docs.astral.sh/ruff/rules/
 select = [
        # "ANN0", # type annotations for function arguments
        # "B",  # likely bugs and design problems
