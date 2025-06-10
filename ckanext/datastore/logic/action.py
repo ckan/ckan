@@ -174,13 +174,21 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
 
     # Set the datastore_active flag on the resource if necessary
     resobj = model.Resource.get(data_dict['resource_id'])
-    if resobj and resobj.extras.get('datastore_active') is not True:
+    if resobj and not resobj.extras.get('datastore_active'):
         log.debug(
             'Setting datastore_active=True on resource %s', resobj.id,
         )
-        set_datastore_active_flag(context, data_dict, True)
-
-    if 'resource' not in data_dict and res.get('url_type') in (
+        patch_kwargs = {
+            'id': data_dict['resource_id'], 'datastore_active': True,
+        }
+        if ('resource' not in data_dict and res.get('url_type')
+            in p.toolkit.h.datastore_rw_resource_url_types()
+        ):
+            patch_kwargs['last_modified'] = datetime.now(timezone.utc)
+        p.toolkit.get_action('resource_patch')(
+            p.toolkit.fresh_context(context), patch_kwargs
+        )
+    elif 'resource' not in data_dict and res.get('url_type') in (
         p.toolkit.h.datastore_rw_resource_url_types()
     ):
         _schedule_patch_resource_last_modified(res['id'])
@@ -505,9 +513,16 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
         log.debug(
             'Setting datastore_active=False on resource %s', resource_id,
         )
-        set_datastore_active_flag(context, data_dict, False)
-
-    if res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
+        patch_kwargs = {
+            'id': resource_id, 'datastore_active': False,
+        }
+        if res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
+            patch_kwargs['last_modified'] = datetime.now(timezone.utc)
+            _cancel_patch_resource_last_modified(resource_id)
+        p.toolkit.get_action('resource_patch')(
+            p.toolkit.fresh_context(context), patch_kwargs
+        )
+    elif res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
         _schedule_patch_resource_last_modified(resource_id)
 
     result.pop('id', None)
@@ -739,22 +754,6 @@ def datastore_search_sql(context: Context, data_dict: dict[str, Any]):
     return result
 
 
-def set_datastore_active_flag(
-        context: Context, data_dict: dict[str, Any], flag: bool):
-    '''
-    Set appropriate datastore_active flag on CKAN resource.
-
-    Called after creation or deletion of DataStore table.
-    '''
-    p.toolkit.get_action('resource_patch')(
-        p.toolkit.fresh_context(context),
-        {
-            'id': data_dict['resource_id'],
-            'datastore_active': flag,
-        }
-    )
-
-
 def _check_read_only(res: dict[str, Any]):
     ''' Raises exception if the resource is read-only.
     Make sure the resource id is in resource_id
@@ -770,13 +769,10 @@ def _check_read_only(res: dict[str, Any]):
         })
 
 
-def _schedule_patch_resource_last_modified(resource_id: str):
-    ''' Schedule a job to patch resource last_modified after a short
-    time, but first cancel any existing job to do the same. This way
-    metadata updates are minimized when there are sequential calls to
-    datastore_create, datastore_upsert and/or datastore_delete.
+def _cancel_patch_resource_last_modified(resource_id: str):
+    ''' Remove any existing scheduled job to patch resource
+    last_modified.
     '''
-    last_modified = datetime.now(timezone.utc)
     job_id = f'{resource_id} datastore patch last_modified'
     try:
         existing_job = p.toolkit.job_from_id(job_id)
@@ -787,6 +783,17 @@ def _schedule_patch_resource_last_modified(resource_id: str):
     except KeyError:
         pass
 
+
+def _schedule_patch_resource_last_modified(resource_id: str):
+    ''' Schedule a job to patch resource last_modified after a short
+    time, but first cancel any existing job to do the same. This way
+    metadata updates are minimized when there are sequential calls to
+    datastore_create, datastore_upsert and/or datastore_delete.
+    '''
+    last_modified = datetime.now(timezone.utc)
+    job_id = f'{resource_id} datastore patch last_modified'
+
+    _cancel_patch_resource_last_modified(resource_id)
     p.toolkit.get_job_queue().enqueue_in(
         RESOURCE_LAST_MODIFIED_SETTLE_TIME,
         _patch_resource_last_modified,

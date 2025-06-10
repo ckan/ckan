@@ -4,7 +4,7 @@ import pytest
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.plugins.toolkit import ValidationError, NotAuthorized
+from ckan.plugins.toolkit import ValidationError, NotAuthorized, job_from_id
 from ckanext.datastore.tests.helpers import when_was_last_analyze
 
 
@@ -93,10 +93,9 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["author"] == "F Torres"
 
     def test_basic_as_insert(self):
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
@@ -109,7 +108,6 @@ class TestDatastoreUpsert(object):
 
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "method": "upsert",
             "records": [
                 {"id": "2", "book": u"The boy", "author": u"F Torres"}
@@ -121,6 +119,11 @@ class TestDatastoreUpsert(object):
         assert search_result["total"] == 2
         assert search_result["records"][0]["book"] == u"El Niño"
         assert search_result["records"][1]["book"] == u"The boy"
+
+        # job scheduled to update last_modified
+        assert not resource["last_modified"]
+        assert job_from_id(
+            f"{resource['id']} datastore patch last_modified")
 
     def test_upsert_only_one_field(self):
         resource = factories.Resource()
@@ -151,6 +154,11 @@ class TestDatastoreUpsert(object):
         assert search_result["total"] == 1
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "Torres"
+
+        # no job for read-only tables
+        with pytest.raises(KeyError):
+            job_from_id(
+                f"{resource['id']} datastore patch last_modified")
 
     def test_field_types(self):
         resource = factories.Resource(url_type="datastore")
