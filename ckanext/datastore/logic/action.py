@@ -38,19 +38,16 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     multiple times to initially insert more data, add/remove fields, change the
     aliases or indexes as well as the primary keys.
 
-    To create an empty datastore resource and a CKAN resource at the same time,
+    To create a writable table and a CKAN resource at the same time,
     provide ``resource`` with a valid ``package_id`` and omit the
     ``resource_id``.
-
-    If you want to create a datastore resource from the content of a file,
-    provide ``resource`` with a valid ``url``.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     :param resource_id: resource id that the data is going to be stored
                         against.
     :type resource_id: string
-    :param force: set to True to edit a read-only resource
+    :param force: set to True to edit a read-only table
     :type force: bool (optional, default: False)
     :param resource: resource dictionary that is passed to
         :meth:`~ckan.logic.action.create.resource_create`.
@@ -86,7 +83,12 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the existing aliases or constraints. Setting ``records`` appends
     the provided records to the resource. Setting ``fields`` without including
-    all existing fields will remove the others and the data they contain.
+    all existing fields will remove the others and the data they contain
+    when delete_fields=True.
+
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
 
     **Results:**
 
@@ -299,7 +301,7 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
-    :param force: set to True to edit a read-only resource
+    :param force: set to True to edit a read-only table
     :type force: bool (optional, default: False)
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}]
                     (optional)
@@ -317,6 +319,10 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     :param dry_run: set to True to abort transaction instead of committing,
                     e.g. to check for validation or type errors.
     :type dry_run: bool (optional, default: False)
+
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
 
     **Results:**
 
@@ -461,6 +467,10 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
         request.
     :type calculate_record_count: bool (optional, default: False)
 
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
+
     **Results:**
 
     :returns: Original filters sent.
@@ -548,6 +558,10 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
         to change a resource, you only need to set this to True on the last
         request.
     :type calculate_record_count: bool (optional, default: False)
+
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
 
     **Results:**
 
@@ -776,12 +790,9 @@ def _cancel_patch_resource_last_modified(resource_id: str):
     job_id = f'{resource_id} datastore patch last_modified'
     try:
         existing_job = p.toolkit.job_from_id(job_id)
-        try:
-            existing_job.delete()
-        except Exception:
-            pass
     except KeyError:
-        pass
+        return
+    existing_job.delete()
 
 
 def _schedule_patch_resource_last_modified(resource_id: str):
