@@ -1,0 +1,2 @@
+Add a new config value for Datastore query
+timeout ckan.datastore.default_query_timeout
