@@ -39,7 +39,11 @@ from ckan.logic import (  # noqa: re-export
 
 import ckan.plugins.blanket as blanket
 import ckan.lib.signals as signals
-from ckan.lib.jobs import enqueue as enqueue_job
+from ckan.lib.jobs import (
+    enqueue as enqueue_job,
+    get_queue as get_job_queue,
+    job_from_id,
+)
 from ckan.logic.validators import Invalid
 from ckan.lib.navl.dictization_functions import (
     validate as navl_validate,
@@ -125,9 +129,11 @@ __all__ = [
     "get_action",
     "get_converter",
     "get_endpoint",
+    "get_job_queue",
     "get_or_bust",
     "get_validator",
     "h",
+    "job_from_id",
     "literal",
     "login_user",
     "logout_user",
