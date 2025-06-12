@@ -1,2 +1,4 @@
 {# Adds a csrf_token to the forms as a hidden input. #}
+{% if g.csrf_enabled %}
 <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/>
+{% endif %}

@@ -483,6 +483,15 @@ def i18n_js_translations(
     return _finish_ok(LazyJSONObject(translations))
 
 
+# API Blueprint wrapping
+
+@api.before_request
+def api_pre_hook():
+    # ensure response cache-control `Vary` includes api auth header
+    # (like cookie on template pages)
+    g.limit_cache_for_api = True
+
+
 # Routing
 
 # Root

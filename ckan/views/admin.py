@@ -15,8 +15,7 @@ import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
 import ckan.logic.schema
-from ckan.common import _, config, request, current_user
-from ckan.views.home import CACHE_PARAMETERS
+from ckan.common import _, config, request, current_user, CACHE_PARAMETERS
 
 from ckan.types import Context, Query
 
