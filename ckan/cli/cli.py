@@ -102,7 +102,8 @@ class ExtendableGroup(click.Group):
                 formatter.write_dl(commands)
 
         for section, group in ext_commands.items():
-            with formatter.section(self._section_titles.get(section, section)):
+            section_title = self._section_titles.get(section) or section
+            with formatter.section(section_title):
                 for rows in group.values():
                     formatter.write_dl(rows)
 
