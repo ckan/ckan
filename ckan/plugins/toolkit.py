@@ -23,7 +23,7 @@ from ckan.logic import (  # noqa: re-export
     get_validator,
     chained_auth_function,
     chained_action,
-    NotFound as ObjectNotFound,
+    NotFound,
     NotAuthorized,
     ValidationError,
     UnknownValidator,
@@ -87,6 +87,9 @@ from ckan.cli import error_shout
 from ckan.lib.mailer import mail_recipient, mail_user
 from ckan.model.base import BaseModel
 
+ObjectNotFound = NotFound
+
+
 __all__ = [
     "BaseModel",
     "CkanVersionException",
@@ -96,6 +99,7 @@ __all__ = [
     "HelperError",
     "Invalid",
     "NotAuthorized",
+    "NotFound",
     "ObjectNotFound",
     "StopOnError",
     "UnknownValidator",
