@@ -186,7 +186,7 @@ def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
 
     """
     registered_entries = {}
-    for entry in entry_points(group=entry_point):
+    for entry in entry_points(group=entry_point):   # type: ignore
         if entry.name in registered_entries:
             error_shout((
                 u'Attempt to override entry_point `{name}`.\n'
