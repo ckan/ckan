@@ -5,7 +5,6 @@ from typing import Any
 
 import ckan
 import ckan.lib.navl.dictization_functions
-import ckan.model
 
 import ckan.plugins as plugins
 
