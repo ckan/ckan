@@ -22,12 +22,12 @@
 -->
 
 <!-- We update the version when there is a backward-incompatible change to this
-schema. We used to use the `version` attribute for this but this is an internal
-attribute that should not be used so starting from CKAN 2.10 we use the `name`
-attribute with the form `ckan-X.Y` -->
+schema. We used to use the version attribute for this but this is an internal
+attribute that should not be used so starting from CKAN 2.10 we use the name
+attribute with the form ckan-X.Y -->
 <schema name="ckan-2.11" version="1.6">
 
-<types>
+  <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
     <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
     <fieldtype name="binary" class="solr.BinaryField"/>
@@ -52,7 +52,10 @@ attribute with the form `ckan-X.Y` -->
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"
+                    generateWordParts="1" generateNumberParts="1"
+                    catenateWords="1" catenateNumbers="1" catenateAll="0"
+                    splitOnCaseChange="1"/>
             <filter class="solr.FlattenGraphFilterFactory"/> <!-- required on index analyzers after graph filters -->
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
@@ -61,26 +64,34 @@ attribute with the form `ckan-X.Y` -->
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"
+                    generateWordParts="1" generateNumberParts="1"
+                    catenateWords="0" catenateNumbers="0" catenateAll="0"
+                    splitOnCaseChange="1"/>
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
             <filter class="solr.ASCIIFoldingFilterFactory"/>
         </analyzer>
     </fieldType>
 
-
     <!-- A general unstemmed text field - good if one does not know the language of the field -->
     <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="0"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"
+                    generateWordParts="1" generateNumberParts="1"
+                    catenateWords="1" catenateNumbers="1"
+                    catenateAll="0" splitOnCaseChange="0"/>
             <filter class="solr.FlattenGraphFilterFactory"/> <!-- required on index analyzers after graph filters -->
             <filter class="solr.LowerCaseFilterFactory"/>
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="0"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"
+                    generateWordParts="1" generateNumberParts="1"
+                    catenateWords="0" catenateNumbers="0"
+                    catenateAll="0" splitOnCaseChange="0"/>
             <filter class="solr.LowerCaseFilterFactory"/>
         </analyzer>
     </fieldType>
@@ -96,10 +107,10 @@ attribute with the form `ckan-X.Y` -->
       </analyzer>
     </fieldType>
 
-</types>
+  </types>
 
 
-<fields>
+  <fields>
     <field name="index_id" type="string" indexed="true" stored="true" required="true" />
     <field name="id" type="string" indexed="true" stored="true" required="true" />
     <field name="site_id" type="string" indexed="true" stored="true" required="true" />
@@ -135,8 +146,7 @@ attribute with the form `ckan-X.Y` -->
     <field name="res_url" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="res_type" type="string" indexed="true" stored="true" multiValued="true"/>
 
-    <!-- catchall field, containing all other searchable text fields (implemented
-         via copyField further on in this schema  -->
+    <!-- catchall field, containing all other searchable text fields -->
     <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
     <field name="urls" type="text" indexed="true" stored="false" multiValued="true"/>
 
@@ -146,8 +156,9 @@ attribute with the form `ckan-X.Y` -->
     <field name="has_derivation" type="text" indexed="true" stored="false" multiValued="true"/>
     <field name="links_to" type="text" indexed="true" stored="false" multiValued="true"/>
     <field name="linked_from" type="text" indexed="true" stored="false" multiValued="true"/>
-    <field name="child_of" type="text" indexed="true" stored="false" multiValued="true"/>
-    <field name="parent_of" type="text" indexed="true" stored="false" multiValued="true"/>
+    <field name="child_of" type="text" indexed="true" stored="false" multiValed="true"/>
+    <field name="parent_of" type="text" indexed="true" stored="false" multiValed="true"/>
+
     <field name="views_total" type="int" indexed="true" stored="false"/>
     <field name="views_recent" type="int" indexed="true" stored="false"/>
     <field name="resources_accessed_total" type="int" indexed="true" stored="false"/>
@@ -156,48 +167,46 @@ attribute with the form `ckan-X.Y` -->
     <field name="metadata_created" type="date" indexed="true" stored="true" multiValued="false"/>
     <field name="metadata_modified" type="date" indexed="true" stored="true" multiValued="false"/>
 
-    <field name="indexed_ts" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+    <field name="indexed_ts" type="date" indexed="true  stored="true" default="NOW" multiValued="false"/>
 
-    <!-- Copy the title field into titleString, and treat as a string
-         (rather than text type).  This allows us to sort on the titleString -->
-    <field name="title_string" type="string" indexed="true" stored="false" />
+    <!-- Tika-document search veld -->
+    <field name="resource_content" type="text" indexed="true" stored="false" multiValed="true"/>
 
-    <field name="data_dict" type="string" indexed="false" stored="true" />
-    <field name="validated_data_dict" type="string" indexed="false" stored="true" />
-
-    <field name="_version_" type="string" indexed="true" stored="true"/>
-
+    <!-- dynamicFields -->
     <dynamicField name="*_date" type="date" indexed="true" stored="true" multiValued="false"/>
-
     <dynamicField name="extras_*" type="text" indexed="true" stored="true" multiValued="false"/>
     <dynamicField name="res_extras_*" type="text" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="vocab_*" type="string" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="*" type="string" indexed="true"  stored="false"/>
-</fields>
+    <dynamicField name="vocab_*" type="string" indexed="true" stored="true" multiValied="true"/>
+    <dynamicField name="*" type="string" indexed="true" stored="false"/>
+  </fields>
 
-<uniqueKey>index_id</uniqueKey>
+  <uniqueKey>index_id</uniqueKey>
 
-<copyField source="url" dest="urls"/>
-<copyField source="title" dest="title_ngram"/>
-<copyField source="name" dest="name_ngram"/>
-<copyField source="ckan_url" dest="urls"/>
-<copyField source="download_url" dest="urls"/>
-<copyField source="res_url" dest="urls"/>
-<copyField source="extras_*" dest="text"/>
-<copyField source="res_extras_*" dest="text"/>
-<copyField source="vocab_*" dest="text"/>
-<copyField source="urls" dest="text"/>
-<copyField source="name" dest="text"/>
-<copyField source="title" dest="text"/>
-<copyField source="text" dest="text"/>
-<copyField source="license" dest="text"/>
-<copyField source="notes" dest="text"/>
-<copyField source="tags" dest="text"/>
-<copyField source="groups" dest="text"/>
-<copyField source="organization" dest="text"/>
-<copyField source="res_name" dest="text"/>
-<copyField source="res_description" dest="text"/>
-<copyField source="maintainer" dest="text"/>
-<copyField source="author" dest="text"/>
+  <!-- copyFields -->
+  <copyField source="url" dest="urls"/>
+  <copyField source="title" dest="title_ngram"/>
+  <copyField source="name" dest="name_ngram"/>
+  <copyField source="ckan_url" dest="urls"/>
+  <copyField source="download_url" dest="urls"/>
+  <copyField source="res_url" dest="urls"/>
+  <copyField source="extras_*" dest="text"/>
+  <copyField source="res_extras_*" dest="text"/>
+  <copyField source="vocab_*" dest="text"/>
+  <copyField source="urls" dest="text"/>
+  <copyField source="name" dest="text"/>
+  <copyField source="title" dest="text"/>
+  <copyField source="text" dest="text"/>
+  <copyField source="license" dest="text"/>
+  <copyField source="notes" dest="text"/>
+  <copyField source="tags" dest="text"/>
+  <copyField source="groups" dest="text"/>
+  <copyField source="organization" dest="text"/>
+  <copyField source="res_name" dest="text"/>
+  <copyField source="res_description" dest="text"/>
+  <copyField source="maintainer" dest="text"/>
+  <copyField source="author" dest="text"/>
+
+  <!-- Tika-document copyField -->
+  <copyField source="resource_content" dest="text"/>
 
 </schema>
