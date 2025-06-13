@@ -1185,7 +1185,7 @@ groups:
       - key: ckan.site_custom_css
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
-      
+
       - key: ckan.default_collapse_facets
         type: bool
         default: False
@@ -1304,10 +1304,22 @@ groups:
 
   - annotation: Storage Settings
     options:
+      - key: ckan.uploads_enabled
+        type: bool
+        default: false
+        example: false
+        description: |
+          Defines file uploads are enabled or not.
+
+          If enabled also set :ref:`ckan.storage_path` if you want to use internal storage.
+
       - key: ckan.storage_path
         placeholder: /var/lib/ckan/default
         example: /var/lib/ckan/default
-        description: This defines the location of where CKAN will store all uploaded data.
+        description: |
+          This defines the location of where CKAN will store all uploaded data.
+
+          If set to some directory, also set :ref:`ckan.uploads_enabled` to true to enable uploads in the UI.
 
       - key: ckan.max_resource_size
         type: int

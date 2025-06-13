@@ -1,0 +1,4 @@
+Added a new config option :ref:`ckan.uploads_enabled` to fix critical error logs about missing storage_path.
+
+You must set this to true, if you want to enable file uploads in the UI.
+
