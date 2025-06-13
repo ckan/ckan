@@ -1,0 +1,15 @@
+<!-- Enable Solr Cell (Tika) for binary/document extraction -->
+<requestHandler name="/update/extract"
+                class="solr.extraction.ExtractingRequestHandler"
+                startup="lazy">
+  <lst name="defaults">
+    <!-- map het geëxtraheerde document naar jouw veld -->
+    <str name="fmap.content">resource_content</str>
+    <!-- optioneel: prefix voor metadata velden -->
+    <str name="uprefix">attr_</str>
+    <!-- sla metadata-attributen op -->
+    <str name="captureAttr">true</str>
+    <!-- voorbeeld: map het bestands-naamveld -->
+    <str name="fmap.resource.name">res_name</str>
+  </lst>
+</requestHandler>
