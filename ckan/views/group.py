@@ -449,6 +449,12 @@ def read(group_type: str,
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
     extra_vars["am_following"] = am_following
+    extra_vars["dataset_type"] = h.default_package_type()
+
+    if request.htmx:
+        return base.render(
+            _get_group_template('read_template_htmx', g.group_dict['type']),
+            extra_vars)
 
     return base.render(
         _get_group_template(u'read_template', g.group_dict['type']),
