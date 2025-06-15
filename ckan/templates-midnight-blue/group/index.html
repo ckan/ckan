@@ -7,7 +7,11 @@
   <li class="active">{% link_for h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups'), named_route=group_type+'.index' %}</li>
 {% endblock %}
 
-{% block page_header %}{% endblock %}
+{% block page_header %}
+  <header class="module-content page-header">
+    <h1>{% block page_heading %}{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}</h1>
+  </header>
+{% endblock %}
 
 {% block page_primary_action %}
   {% if h.check_access('group_create') %}
@@ -16,7 +20,6 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h1 class="hide-heading">{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}</h1>
   {% block groups_search_form %}
     {% snippet 'snippets/search_form.html', form_id='group-search-form', type=group_type, query=q, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('group', group_type, 'search placeholder') or _('Search groups...'), show_empty=request.args, no_bottom_border=true if page.items, sorting = [(_('Name Ascending'), 'title asc'), (_('Name Descending'), 'title desc')] %}
   {% endblock %}

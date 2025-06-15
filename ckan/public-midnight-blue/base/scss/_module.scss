@@ -1,6 +1,9 @@
 .module {
     >.page-header {
         margin-top: 0px;
+        h1 {
+            margin-bottom: 0;
+        }
     }
 
     > .module-content{
@@ -29,7 +32,7 @@
     padding: $grid-gutter-width;
     .add-to-group{
       .btn-primary{
-        margin-bottom: $grid-gutter-width;
+        margin: $grid-gutter-width 0;
       }
     }
 
