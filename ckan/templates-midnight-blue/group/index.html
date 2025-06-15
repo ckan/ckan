@@ -7,18 +7,16 @@
   <li class="active">{% link_for h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups'), named_route=group_type+'.index' %}</li>
 {% endblock %}
 
-{% block page_header %}{% endblock %}
+{% block page_header %}
+  <header class="module-content page-header">
+    <h1>{% block page_heading %}{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}</h1>
+  </header>
+{% endblock %}
 
 {% block page_primary_action %}
   {% if h.check_access('group_create') %}
     {% link_for h.humanize_entity_type('group', group_type, 'add link') or _('Add Group'), named_route=group_type+'.new', class_='btn btn-primary', icon='plus-square' %}
   {% endif %}
-{% endblock %}
-
-{% block pre_primary %}
-  <div class="pre-primary page-heading">
-    <h1>{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}</h1>
-  </div>
 {% endblock %}
 
 {% block primary_content_inner %}

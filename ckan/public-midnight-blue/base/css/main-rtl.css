@@ -11957,6 +11957,9 @@ a.tag:hover {
 .module > .page-header {
   margin-top: 0px;
 }
+.module > .page-header h1, .module > .page-header .h1 {
+  margin-bottom: 0;
+}
 .module > .module-content:nth-child(2n) {
   padding-top: 1.5rem;
 }
@@ -11984,7 +11987,7 @@ a.tag:hover {
   padding: 1.5rem;
 }
 .module-content .add-to-group .btn-primary {
-  margin-bottom: 1.5rem;
+  margin: 1.5rem 0;
 }
 .module-content p a:link {
   text-decoration: underline;

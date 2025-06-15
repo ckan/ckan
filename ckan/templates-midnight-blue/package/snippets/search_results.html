@@ -1,5 +1,13 @@
 <section class="module" id="search-results" hx-swap-oob="true" hx-swap="none">
   <div class="module-content">
+    {% if heading %}
+      <h1 class="page-heading">
+        {{ heading }}
+        {% if state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
+      </h1>
+    {% endif %}
     {% block page_primary_action %}
       {% if h.check_access('package_create') %}
         <div class="page_primary_action">
