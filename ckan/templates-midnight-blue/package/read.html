@@ -4,12 +4,12 @@
   {{ super() }}
   {% block package_description %}
     {% if pkg.private %}
-      <span class="dataset-private badge badge-inverse pull-right">
+      <span class="dataset-private badge badge-inverse">
         <i class="fa fa-lock"></i>
         {{ _('Private') }}
       </span>
     {% endif %}
-    <h1>
+    <h1 class="page-heading">
       {% block page_heading %}
         {{ h.dataset_display_name(pkg) }}
         {% if pkg.state.startswith('draft') %}
