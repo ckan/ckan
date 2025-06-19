@@ -2483,7 +2483,14 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if config.get('ckan.uploads_enabled'):
+    upload_config = config.get('ckan.uploads_enabled')
+    if upload_config is not None:
+        return upload_config
+
+    if config['ckan.storage_path'] is not None:
+        return True
+
+    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
         return True
     return False
 
