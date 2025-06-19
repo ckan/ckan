@@ -37,7 +37,6 @@ import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
-from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
@@ -139,7 +138,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Register storage for accessing group images, site logo, etc.
     storage_folder = []
-    storage = uploader.get_storage_path()
+    storage = config.get('ckan.storage_path')
     if storage:
         storage_folder = [os.path.join(storage, 'storage')]
 
