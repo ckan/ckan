@@ -1369,8 +1369,7 @@ groups:
   - annotation: Storage Settings
     options:
       - key: ckan.uploads_enabled
-        type: bool
-        default: false
+        validators: ignore_missing boolean_validator
         example: false
         description: |
           Defines file uploads are enabled or not.
