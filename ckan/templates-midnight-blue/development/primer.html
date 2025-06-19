@@ -14,8 +14,10 @@
 {% snippet 'development/snippets/context.html' %}
 
 <div class="module module-narrow module-shallow">
-  <h2 class="module-heading"><i class="fa fa-info-circle"></i> Helper text</h2>
-  <div class="module-content">{{ lipsum(1) }}</div>
+  <div class="module-group">
+    <h2 class="module-heading"><i class="fa fa-info-circle"></i> Helper text</h2>
+    <div class="module-content">{{ lipsum(1) }}</div>
+  </div>
 </div>
 
 {% snippet 'development/snippets/nav.html', heading='Navigation' %}
@@ -63,7 +65,9 @@
   <hr>
   <h2>Form stages</h2>
 </div>
-{% snippet 'development/snippets/form_stages.html' %}
+<div class="form_stages">
+  {% snippet 'development/snippets/form_stages.html' %}
+</div>
 
 
 <div class="module-content m-bottom">

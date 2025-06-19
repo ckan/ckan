@@ -89,11 +89,14 @@
 // Secondary column specific
 .module-narrow {
     .module-group {
-        border: 1px solid $gray-100;
+        border: 1px solid $gray-300;
         border-radius: $border-radius;
         .module-heading {
             border-radius: 8px 8px 0 0;
             border-bottom: 1px solid $gray-200;
+        }
+        .nav-simple > li:not(:last-of-type), .nav-aside > li:not(:last-of-type) {
+            border-radius: 0;
         }
         .nav-item > a, .list-group-item {
             border-radius: 0;

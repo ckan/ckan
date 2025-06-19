@@ -48,21 +48,11 @@
         </h2>
         <div id="collapseOne" class="package-accordion accordion-collapse collapse show" aria-labelledby="headingOne" >
           <div class="accordion-body">
-            {% if s1 != 'complete' %}
-              {{ render_step(1, 'Create Dataset', s1) }}
-            {% else %}
-            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-dataset')">
-              {{ render_step(1, 'Create Dataset', s1) }}
-            </button>
-            {% endif %}
-
-            {% if s2 != 'complete' %}
-              {{ render_step(2, 'Add Data', s2) }}
-            {% else %}
-            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-resources')">
-              {{ render_step(2, 'Add Data', s2) }}
-            </button>
-            {% endif %}
+            {% block stages %}
+              {% if form_style != 'edit' %}
+                {% snippet 'package/snippets/stages.html', stages=stage, dataset_type=dataset_type %}
+              {% endif %}
+            {% endblock %}
           </div>
         </div>
       </div>

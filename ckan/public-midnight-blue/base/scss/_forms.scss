@@ -447,60 +447,50 @@ select[data-module="autocomplete"] {
 // anchor element which can also have an active class.
 .stages {
     @include list-unstyled;
-    @include clearfix;
     color: $stagesTextColor;
     counter-reset: stage;
     overflow: hidden;
     margin-bottom: $grid-gutter-width;
     padding: 0;
     li {
-        line-height: 27px;
         counter-increment: stage;
-        width: 50%;
-        background-color: $stagesBackground;
-        float: left;
-        padding: 10px 20px;
+        border-radius: 8px;
+        background-color: $gray-100;
         position: relative;
+        margin-bottom: 1rem;
         z-index: 0;
-        &::before{
-            @include border-radius(14px);
-            content: counter(stage);
-            display: inline-block;
-            width: 27px;
-            height: 27px;
-            margin-right: 5px;
-            font-weight: bold;
-            text-align: center;
-            color: $stagesCounterTextColor;
-            background-color: $stagesCounterBackground;
-            z-index: 1;
+        padding: 12px 4px;
+        .stage-nohighlight {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 14px;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+            border: none; 
+            background: none; 
         }
-        &::after {
-            left: 0;
-            border: solid $stagesTransparentBackground;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-            border-top-color: $stagesBackground;
-            border-bottom-color: $stagesBackground;
-            border-width: 29px; // Needs to be an odd number
-            top: 50%;
-            margin-top: -29px;
-            margin-left: -30px;
+        .step {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 18px;
+        }
+      
+        .step-name {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: -0.8px;
         }
     }
+}
+
+.form_stages {
+    background-color: $white;
 }
 
 .stages li.last {
     position: relative;
     right: -1px;
-}
-
-.stages li.last,
-.stages li.last .highlight {
-    @include border-radius(0 3px 0 0);
 }
 
 .stages li.first:after {
@@ -524,9 +514,13 @@ select[data-module="autocomplete"] {
     content: none;
 }
 
-.stages li.active,
-.stages li.complete {
-    background: none;
+.stages li.active .step,
+.stages li.complete .step {
+    color: $gray-500;
+}
+.stages li.active .step-name,
+.stages li.complete .step-name {
+    color: $gray-900;
 }
 
 .stages li.active:before {
