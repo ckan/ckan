@@ -4,20 +4,6 @@
 {% set s2 = stage[1] or 'uncomplete' %}
 {% set s3 = stage[2] or 'uncomplete' %}
 
-{% macro render_step(step_count, description, is_complete) %}
-<div class="col stage">
-  <div class="row">
-    <span class="step">Step {{ step_count }}</span>
-    <span class="step-name">{{ description }}</span>
-  </div>
-  {% if is_complete == 'complete' %}
-  <div class="icon-stage">
-    <i class="fa fa-check-circle" aria-hidden="true"></i>
-  </div>
-  {% endif %}
-</div>
-{% endmacro %}
-
 
 {% block content_action %}{% endblock %}
 
@@ -50,7 +36,7 @@
           <div class="accordion-body">
             {% block stages %}
               {% if form_style != 'edit' %}
-                {% snippet 'package/snippets/stages.html', stages=stage, dataset_type=dataset_type %}
+                {% snippet 'package/snippets/stages.html', stages=stage, dataset_type=dataset_type, form_id=form_id %}
               {% endif %}
             {% endblock %}
           </div>

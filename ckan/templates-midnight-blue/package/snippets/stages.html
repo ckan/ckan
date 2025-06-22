@@ -34,22 +34,22 @@ Example:
   <li class="first {{ s1 }}">
     {% if s1 != 'complete' %}
       <div class="stage-nohighlight">
-        {{ render_step(1, 'Create Dataset', s1) }}
+        {{ render_step(1, h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), s1) }}
       </div>
     {% else %}
-    <button class="stage-nohighlight" onclick="submitForm('go-dataset')">
-      {{ render_step(1, 'Create Dataset', s1) }}
+    <button class="stage-nohighlight" name="save" value="go-dataset" type="submit" {% if form_id %}form="{{ form_id }}"{% endif %}>
+      {{ render_step(1, h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), s1) }}
     </button>
     {% endif %}
   </li>
   <li class="last {{ s2 }}">
     {% if s2 != 'complete' %}
       <div class="stage-nohighlight">
-        {{ render_step(2, 'Add Data', s2) }}
+        {{ render_step(2, _('Add data'), s2) }}
       </div>
     {% else %}
-    <button class="stage-nohighlight" onclick="submitForm('go-resources')">
-      {{ render_step(2, 'Add Data', s2) }}
+    <button class="stage-nohighlight" name="save" value="go-resources" type="submit" {% if form_id %}form="{{ form_id }}"{% endif %}>
+      {{ render_step(2, _('Add data'), s2) }}
     </button>
     {% endif %}
   </li>
