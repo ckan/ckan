@@ -240,7 +240,7 @@ def _get_service(plugin_name: str) -> Plugin:
     >>> assert isinstance(plugin, ActivityPlugin)
     """
     for group in GROUPS:
-        iterator = iter_entry_points(group=group, name=plugin_name)
+        iterator = iter_entry_points(group=group,name=plugin_name)    # type: ignore
         plugin = next(iterator, None)
         if plugin:
             return plugin.load()(name=plugin_name)
