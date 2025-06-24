@@ -1,0 +1,1 @@
+Fix passing single double-quote as query param to organization route is not sanitized 
