@@ -16,6 +16,9 @@ organization.
    :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
    to give CKAN more control over the files and make access control possible.
 
+.. versionchanged:: 2.12
+   Add support of configurable storages.
+
 .. seealso::
 
    :doc:`datastore`
@@ -60,7 +63,6 @@ To setup CKAN's FileStore with local file storage:
 
     sudo supervisorctl restart ckan-uwsgi:*
 
-
 -------------
 FileStore API
 -------------
@@ -79,9 +81,10 @@ The extra key ``upload`` is used to actually post the binary data.
 For example, to create a new CKAN resource and upload a file to it using
 `curl <http://curl.haxx.se/>`_:
 
-.. parsed-literal::
+::
 
- curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_create' --form upload=@filetoupload --form package_id=my_dataset
+   curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_create' \
+       --form upload=@filetoupload --form package_id=my_dataset
 
 (Curl automatically sends a ``multipart-form-data`` heading with you use the
 ``--form`` option.)
@@ -104,12 +107,14 @@ To overwrite an uploaded file with a new version of the file, post to the
 :py:func:`~ckan.logic.action.update.resource_update` action and use the
 ``upload`` field::
 
-    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form upload=@newfiletoupload --form id=resourceid
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' \
+        --form upload=@newfiletoupload --form id=resourceid
 
 To replace an uploaded file with a link to a file at a remote URL, use the
 ``clear_upload`` field::
 
-    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form url=http://expample.com --form clear_upload=true --form id=resourceid
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' \
+        --form url=http://expample.com --form clear_upload=true --form id=resourceid
 
 
 .. _filestore_21_to_22_migration:
@@ -168,5 +173,181 @@ custom types get registered on startup::
             # ...
 
 
+.. _using-configured-storages:
+
+-------------------------
+Using configured storages
+-------------------------
+
+CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
+the file storages. It exposes classes that provide standard storage interface
+disregarding of the type of underlying system. As result, saving files into
+local filesystem, cloud or DB looks exactly the same from code perspective.
+
+Storages are initialized during application startup and must be configured in
+advance. The exact settings depend on the type of the storage, but general form
+is following::
+
+  ckan.files.storage.my_storage.type = ckan:fs
+  ckan.files.storage.my_storage.path = /tmp/my_storage
+  ckan.files.storage.my_storage.create_path = true
+
+Any option that starts with ``ckan.files.storage.`` is a storage
+configuration. After the prefix fillows the name of the storage,
+``my_storage``, and everything after the name is an option that will be
+consumed by the storage.
+
+In the example above, storage ``my_storage`` is detected with configuration
+``{"type": "ckan:fs", "path": "/tmp/my_storage", "create_path":
+true}``. Configuration for storages is grouped by the name, and that's how
+multiple storages can be configured::
+
+  ckan.files.storage.a.type = xxx
+  ckan.files.storage.b.type = yyy
+  ckan.files.storage.c.type = zzz
+
+It results in three storages:
+
+* ``a`` with configuration ``{"type": "xxx"}``
+* ``b`` with configuration ``{"type": "yyy"}``
+* ``c`` with configuration ``{"type": "zzz"}``
+
+To get the instance of the storage, use ``ckan.lib.files.get_storage``
+function::
+
+  storage = get_storage("my_storage")
+
+Create a new file in the storage using it's ``upload`` method and
+``ckan.lib.files.make_upload`` function that thansforms variety of objects into
+uploadable structure::
+
+  upload = make_upload(b"hello world")
+  info = storage.upload("file.txt", upload)
+
+When storage uploads the file, it returns an object with file details, namely
+its location, size, content type and content hash. This information is required
+to read file back from the storage::
+
+  content = storage.content(info)
+
+When the object with file details is not available, usually it can be created
+manually using location of the file and ``ckan.lib.files.FileData`` class::
+
+  path = "path/to/file/inside/the/storage.txt"
+  info = FileData(path)
+  content = storage.content(info)
+
+
+Additional information about storage functionality is available inside
+`file-keeper`_ documentation.
 
 .. _mimetypes: https://docs.python.org/3/library/mimetypes.html
+
+.. _file-keeper: https://pypi.org/project/file-keeper/
+
+-------------
+Storage types
+-------------
+
+Storage configuration requires ``type`` of the storage. Out of the box,
+following storage types are available:
+
+.. list-table::
+   :widths: 25 50 25
+   :header-rows: 1
+
+   * - Type
+     - Description
+     - Required options
+   * - `ckan:fs`
+     - Keeps files inside local filesystem
+     - * ``path``: root directory of the storage
+
+
+-----------------
+Storage utilities
+-----------------
+
+.. autofunction:: ckan.lib.files.get_storage
+.. autoattribute:: ckan.lib.files.make_upload(value: Any) -> Upload
+
+   Convert value into Upload object.
+
+   Use this function for simple and reliable initialization of Upload
+   object. Avoid creating Upload manually, unless you are 100% sure you can
+   provide correct MIMEtype, size and stream.
+
+   >>> upload = make_upload(b"hello world")
+   >>> file_data = storage.upload("file.txt", upload)
+
+   :param value: content of the file
+   :returns: upload object with specified content
+   :raises TypeError: content has unsupported type
+
+.. autoclass:: ckan.lib.files.Storage
+   :members:
+   :exclude-members: SettingsFactory, UploaderFactory, ReaderFactory, ManagerFactory, capabilities
+
+   .. autoattribute:: capabilities
+      :no-value:
+      :no-index:
+
+.. autoclass:: ckan.lib.files.Settings
+.. autoclass:: ckan.lib.files.Uploader
+.. autoclass:: ckan.lib.files.Reader
+.. autoclass:: ckan.lib.files.Manager
+
+.. autoattribute:: ckan.lib.files.Upload
+
+   Standard upload details produced by :py:func:`make_upload`.
+
+   .. autoattribute:: ckan.lib.files.Upload.stream
+   .. autoattribute:: ckan.lib.files.Upload.filename
+   .. autoattribute:: ckan.lib.files.Upload.size
+   .. autoattribute:: ckan.lib.files.Upload.content_type
+
+
+.. autoattribute:: ckan.lib.files.FileData
+
+   Information required by storage to operate the file.
+
+   >>> info = FileData("local/path.txt", 123, "text/plain", md5_of_content)
+
+   Location of the file usually requires sanitization and as a reminder about
+   this step, typechecker produces warning whenever plain string is passed to
+   the :py:class:`FileData`. The proper way of initializing file data is
+   using already sanitized path wrapped into :py:class:`Location`.
+
+   >>> safe_path = Location("sanitized/local/path.txt")
+   >>> info = FileData(location)
+
+   Logic of the process is not changed when :py:class:`Location` comes into a
+   play, because it's a mere alias for ``str`` class. This flow exists to help
+   detecting security issues. If any value can be safely used as a location(for
+   example, file is kept in DB and location will be sanitized during execution
+   of SQL statement), typechecker warnings can be ignored.
+
+   As sanitization rules depend on storage, the recommended option is to
+   configure :py:attr:`Settings.location_transformers` and apply them to
+   path.
+
+   >>> unsafe_path = "local/path.txt"
+   >>> safe_path = storage.prepare_location(unsafe_path)
+
+   :param location: filepath, filename or any other type of unique identifier
+   :param size: size of the file in bytes
+   :param content_type: MIMEtype of the file
+   :param hash: checksum of the file
+   :param storage_data: additional details set by storage adapter
+
+.. autoattribute:: ckan.lib.files.Capability
+
+   Enumeration of operations supported by the storage.
+
+   >>> read_and_write = Capability.STREAM | Capability.CREATE
+   >>> if storage.supports(read_and_write)
+   >>>     ...
+
+.. autoattribute:: ckan.lib.files.Location
+
+   Alias of ``str`` that represents sanitized location of the file
