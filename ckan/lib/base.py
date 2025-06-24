@@ -123,13 +123,21 @@ def _allow_caching(cache_force: Optional[bool] = None):
     else:
         h.set_cache_level(CacheType.PUBLIC)
 
-    # Do not allow caching of pages for logged in users/flash messages etc.
-    if ('user' in g and g.user) or _is_valid_session_cookie_data():
-        h.set_cache_level(CacheType.PRIVATE)
-    # Tests etc.
-    elif session.get("_user_id"):
+    _allow_caching_user_based()
+
+    _allow_caching_no_cache_overrides()
+
+    # Don't allow public cache if caching is not enabled in config
+    if not config.get('ckan.cache.public.enabled'):
         h.set_cache_level(CacheType.PRIVATE)
 
+    # Don't allow private cache if caching is not enabled in config
+    if (h.cache_level() == CacheType.PRIVATE
+       and not config.get('ckan.cache.private.enabled')):
+        h.set_cache_level(CacheType.NO_CACHE)
+
+
+def _allow_caching_no_cache_overrides():
     # Don't cache if based on a non-cachable template used in this.
     if request.environ.get('__no_cache__'):
         # deprecated, use h.set_cache_level(CacheType.NO_CACHE)
@@ -141,14 +149,14 @@ def _allow_caching(cache_force: Optional[bool] = None):
         # will go away soon, use header Cache-Control: no-cache
         h.set_cache_level(CacheType.NO_CACHE)
 
-    # Don't allow public cache if caching is not enabled in config
-    if not config.get('ckan.cache.public.enabled'):
-        h.set_cache_level(CacheType.PRIVATE)
 
-    # Don't allow private cache if caching is not enabled in config
-    if (h.cache_level() == CacheType.PRIVATE
-       and not config.get('ckan.cache.private.enabled')):
-        h.set_cache_level(CacheType.NO_CACHE)
+def _allow_caching_user_based():
+    # Do not allow caching of pages for logged in users/flash messages etc.
+    if ('user' in g and g.user) or _is_valid_session_cookie_data():
+        h.set_cache_level(CacheType.PRIVATE)
+    # Tests etc.
+    elif session.get("_user_id"):
+        h.set_cache_level(CacheType.PRIVATE)
 
 
 def _is_valid_session_cookie_data() -> bool:
