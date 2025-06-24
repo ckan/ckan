@@ -73,7 +73,7 @@ def set_etag_for_response(response: Response) -> Response:
     if response.is_streamed:
         return response
 
-    enable_etags = config['ckan.etags.enabled']
+    enable_etags = config.get(u'ckan.etags.enabled')
     if enable_etags and response.status_code in allowed_status_codes:
         if 'etag' not in response.headers:
             etag_replace = getattr(g, 'etag_replace', None)

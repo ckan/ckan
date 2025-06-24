@@ -136,11 +136,9 @@ def _allow_caching(cache_force: Optional[bool] = None):
         log.warning("request.environ['__no_cache__'] is deprecated, "
                     "use h.set_cache_level(CacheType.NO_CACHE)")
         h.set_cache_level(CacheType.NO_CACHE)
-    # Don't cache if we have set the __no_cache__ param in the query string.
+    # deprecated: Don't cache if we have set the __no_cache__ param in the query string.
     elif request.args.get('__no_cache__'):
-        # deprecated, use header Cache-Control: no-cache
-        log.warning("request.args['__no_cache__'] is deprecated, "
-                    "use h.set_cache_level(CacheType.NO_CACHE)")
+        # will go away soon, use header Cache-Control: no-cache
         h.set_cache_level(CacheType.NO_CACHE)
 
     # Don't allow public cache if caching is not enabled in config

@@ -1144,7 +1144,7 @@ groups:
 
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
-        example: /base/images/ckan-logo.png
+        example: /images/ckan_logo_fullname_long.png
         description: This sets the logo used in the title bar.
         editable: true
 

@@ -42,3 +42,15 @@ feature/performance: Improved caching and ETag handling
 
 **Summary:**
 These changes improve caching flexibility, allow for fine-grained ETag and Cache-Control behavior, and introduce new helpers and plugin interfaces for advanced cache/header control.
+
+
+**Migration notes**
+
+To use previous default functionality, please set the following config:
+# Disable public cache:
+  * ckan.cache.public.enabled = False
+# Use must-revalidate instead of cache controls stale-while-revalidates=, stale-if-error=:
+  * ckan.cache.stale_while_revalidates = 0
+  * ckan.cache.stale_if_error = 0
+# Etags not added:
+  * ckan.etags.enabled = False

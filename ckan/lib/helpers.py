@@ -2959,7 +2959,6 @@ def set_cache_level(cache_type: 'CacheType|str',
             g.cache_type = cache_type
     else:
         g.cache_type = cache_type
-    # log.debug('cacheType set to %r', cache_type)
     return g.cache_type
 
 
