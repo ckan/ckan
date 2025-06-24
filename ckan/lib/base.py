@@ -113,13 +113,12 @@ def _allow_caching(cache_force: Optional[bool] = None):
         log.error("cache_force is deprecated use "
                   "h.set_cache_level(CacheType.PUBLIC, True)")
 
-    # Any rendered template will have Very header added, unless OVERRIDDEN flag is found
+    # Any rendered template will have Vary header added, unless OVERRIDDEN flag is found
     if h.cache_level() != CacheType.OVERRIDDEN:
         if h.limit_cache_for_page() is None:
             g.limit_cache_for_page = True
 
     if h.cache_level():
-        # log.error("Cache Level found:%r, skipping cache config", h.cache_level)
         return
     else:
         h.set_cache_level(CacheType.PUBLIC)
