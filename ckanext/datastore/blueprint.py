@@ -24,12 +24,10 @@ from ckanext.datastore.logic.schema import (
     json_validator,
     unicode_or_json_validator,
 )
-from ckanext.datastore.writer import (
-    csv_writer,
-    tsv_writer,
-    json_writer,
-    xml_writer,
-)
+import ckan.plugins as p
+from ckanext.datastore import formats
+from ckanext.datastore.interfaces import IDatastoreDump
+
 
 int_validator = get_validator(u'int_validator')
 boolean_validator = get_validator(u'boolean_validator')
@@ -38,17 +36,28 @@ one_of = cast(ValidatorFactory, get_validator(u'one_of'))
 default = cast(ValidatorFactory, get_validator(u'default'))
 unicode_only = get_validator(u'unicode_only')
 
-DUMP_FORMATS = u'csv', u'tsv', u'json', u'xml'
 PAGINATE_BY = 32000
 
 datastore = Blueprint(u'datastore', __name__)
+
+
+def dump_formats():
+    dump_formats = [
+        formats.CSV(),
+        formats.TSV(),
+        formats.JSON(),
+        formats.XML(),
+    ]
+    for plugin in p.PluginImplementations(IDatastoreDump):
+        dump_formats.append(plugin())
+    return dump_formats
 
 
 def dump_schema() -> Schema:
     return {
         u'offset': [default(0), int_validator],
         u'limit': [ignore_missing, int_validator],
-        u'format': [default(u'csv'), one_of(DUMP_FORMATS)],
+        u'format': [default(u'csv'), one_of([d.get_format() for d in dump_formats()])],
         u'bom': [default(False), boolean_validator],
         u'filters': [ignore_missing, json_validator],
         u'q': [ignore_missing, unicode_or_json_validator],
@@ -94,24 +103,16 @@ def dump(resource_id: str):
     content_type = None
     content_disposition = None
 
-    if fmt == 'csv':
-        content_disposition = 'attachment; filename="{name}.csv"'.format(
-                                    name=resource_id)
-        content_type = b'text/csv; charset=utf-8'
-    elif fmt == 'tsv':
-        content_disposition = 'attachment; filename="{name}.tsv"'.format(
-                                    name=resource_id)
-        content_type = b'text/tab-separated-values; charset=utf-8'
-    elif fmt == 'json':
-        content_disposition = 'attachment; filename="{name}.json"'.format(
-                                    name=resource_id)
-        content_type = b'application/json; charset=utf-8'
-    elif fmt == 'xml':
-        content_disposition = 'attachment; filename="{name}.xml"'.format(
-                                    name=resource_id)
-        content_type = b'text/xml; charset=utf-8'
+    for d in dump_formats():
+        if fmt == d.get_format():
+            format_class = d
+            break
     else:
         abort(404, _('Unsupported format'))
+
+    content_disposition = 'attachment; filename="{name}.{extension}"'.format(
+        name=resource_id, extension=format_class.get_file_extension())
+    content_type = format_class.get_content_type()
 
     headers = {}
     if content_type:
@@ -121,7 +122,7 @@ def dump(resource_id: str):
 
     try:
         return Response(dump_to(resource_id,
-                                fmt=fmt,
+                                fmt_class=format_class,
                                 offset=offset,
                                 limit=limit,
                                 options=options,
@@ -235,23 +236,13 @@ class DictionaryView(MethodView):
 
 
 def dump_to(
-    resource_id: str, fmt: str, offset: int,
+    resource_id: str, fmt_class: IDatastoreDump, offset: int,
     limit: Optional[int], options: dict[str, Any], sort: str,
     search_params: dict[str, Any], user: str
 ):
-    if fmt == 'csv':
-        writer_factory = csv_writer
-        records_format = 'csv'
-    elif fmt == 'tsv':
-        writer_factory = tsv_writer
-        records_format = 'tsv'
-    elif fmt == 'json':
-        writer_factory = json_writer
-        records_format = 'lists'
-    elif fmt == 'xml':
-        writer_factory = xml_writer
-        records_format = 'objects'
-    else:
+    writer_factory = fmt_class.get_writer
+    records_format = fmt_class.get_records_format()
+    if not records_format:
         assert False, 'Unsupported format'
 
     bom = options.get('bom', False)
