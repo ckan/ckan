@@ -18,7 +18,6 @@ import ckan.model.domain_object as domain_object
 import ckan.model.vocabulary as vocabulary
 
 import ckan.logic
-import ckan.lib.dictization
 import ckan.lib.maintain as maintain
 from ckan.types import Query
 

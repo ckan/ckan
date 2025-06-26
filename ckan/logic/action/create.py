@@ -16,9 +16,6 @@ import six
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.plugins as plugins
-import ckan.lib.dictization
-import ckan.logic.validators
-import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
