@@ -242,7 +242,7 @@ def _get_service(plugin_name: str) -> Plugin:
     for group in GROUPS:
         eps = entry_points(group=group, name=plugin_name)   # type:ignore
         if len(eps.names):
-            plugin_ep = eps.pop()
+            plugin_ep = eps.pop(0)
             return plugin_ep.load()(name=plugin_name)
 
     raise PluginNotFoundException(plugin_name)
