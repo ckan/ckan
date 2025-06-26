@@ -429,12 +429,6 @@ groups:
 
           ``None`` will not store the mimetype for the resource.
 
-      - key: ckan.static_max_age
-        default: 3600
-        type: int
-        example: 2592000
-        description: Controls CKAN static files' cache max age, if we're serving and caching them.
-
       - key: ckan.tracking_enabled
         type: bool
         example: "true"
