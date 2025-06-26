@@ -151,6 +151,13 @@ groups:
     options:
       - key: use
         placeholder: egg:ckan
+        description: |
+          Allows to define chained configuration files. The base ini file should use the ``egg:ckan``
+          value. Files extending the base ini files must use the ``config:<path to parent ini file>`` form.
+          For instance, if you need to tweak the test settings in a ``test-core-custom.ini`` file, you
+          would use ``use=config:test-core.ini`` as value. Configuration options defined in the higher level
+          files (e.g. ``test-core-custom.ini``) will override the existing ones defined in the base on
+          (e.g. ``test-core.ini``).
 
       - key: SECRET_KEY
         legacy_key: beaker.session.secret
@@ -1179,7 +1186,7 @@ groups:
       - key: ckan.site_custom_css
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
-      
+
       - key: ckan.default_collapse_facets
         type: bool
         default: False

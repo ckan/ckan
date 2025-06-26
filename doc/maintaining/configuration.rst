@@ -408,13 +408,6 @@ file settings, for reference.
 
         [DEFAULT]
 
-        ...
-
-        [server:main]
-        use = egg:Paste#http
-        host = 0.0.0.0
-        port = 5000
-
         # This setting will not work, because it's outside of [app:main].
         ckan.site_logo = /images/masaq.png
 
@@ -425,6 +418,32 @@ file settings, for reference.
    If the same option is set more than once in your config file, exeption will
    be raised and CKAN application will not start
 
+.. _logging-settings:
+
+Logging settings
+----------------
+
+The logging settings control how CKAN outputs the log messages to the application logs, e.g.::
+
+  ckan run
+
+  2025-06-20 12:46:01,879 INFO  [ckan.cli] Using configuration file /home/adria/dev/projects/ckan-py310/ckan/ckan.ini
+  2025-06-20 12:46:01,880 INFO  [ckan.config.environment] Loading static files from public
+  2025-06-20 12:46:02,565 INFO  [ckan.config.environment] Loading templates from /home/adria/dev/projects/ckan-py310/ckan/ckan/templates
+  2025-06-20 12:46:02,874 INFO  [ckan.cli.server] Running CKAN on http://localhost:5310
+
+CKAN uses Python's standard `Configuration file format <https://docs.python.org/3/library/logging.config.html#configuration-file-format>`_ for the logging sections.
+You can refer to the Python documentation for all details but essentially there are
+three mandatory sections (``loggers``, ``handlers`` and ``formatters``) that contain the keys of
+the actual elements configured. Loggers allow you to define different debugging levels for
+different modules and libraries. By default CKAN only configures a console handler that
+outputs log message to *stderr* but you can configure any of the
+ones `included <https://docs.python.org/3/library/logging.handlers.html#module-logging.handlers>`_ in Python.
+
+If you are chaining configuration files using :ref:`use` you don't need to include the
+logging configuration in all the ini files contained in the chain. As with any regular
+configuration options base logging settings will take effect unless overriden by a higher
+level ini file.
 
 
 .. include:: ../_config_options.inc
