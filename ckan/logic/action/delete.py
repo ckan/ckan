@@ -11,7 +11,6 @@ import sqlalchemy as sqla
 
 import ckan.lib.jobs as jobs
 import ckan.logic
-import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
 import ckan.lib.api_token as api_token

@@ -244,6 +244,7 @@ def _get_service(plugin_name: str) -> Plugin:
         if len(eps.names):
             plugin_ep = eps.pop()
             return plugin_ep.load()(name=plugin_name)
+
     raise PluginNotFoundException(plugin_name)
 
 
