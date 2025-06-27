@@ -6,7 +6,7 @@ Create Date: 2025-04-10 12:55:05.336000
 
 """
 
-from alembic import op
+from alembic import op, context
 
 
 # revision identifiers, used by Alembic.
@@ -20,7 +20,12 @@ def upgrade():
     # Set up the default "public" permission_label for dataset related activity
     # records where the permission labels are null.
     # See https://github.com/ckan/ckan/issues/8775
-    op.execute(
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
+    execute(
         """
         UPDATE activity
         SET permission_labels = '{"public"}'
@@ -30,7 +35,7 @@ def upgrade():
         )
         """
     )
-    pass
+
 
 
 def downgrade():
