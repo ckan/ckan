@@ -6,7 +6,7 @@ Revises: f98d8fa2a7f7
 Create Date: 2018-09-04 18:49:17.957865
 
 """
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
@@ -23,8 +23,14 @@ def upgrade():
         'package_revision', sa.Column('metadata_created', sa.TIMESTAMP)
     )
     op.add_column('package', sa.Column('metadata_created', sa.TIMESTAMP))
-    conn = op.get_bind()
-    conn.execute(sa.text(
+
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        connection = op.get_bind()
+        execute = connection.execute
+
+    execute(sa.text(
         '''
         UPDATE package SET metadata_created=
             (SELECT revision_timestamp

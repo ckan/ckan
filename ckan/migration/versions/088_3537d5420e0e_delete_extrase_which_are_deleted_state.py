@@ -6,7 +6,7 @@ Revises: ff1b303cab77
 Create Date: 2019-05-09 13:38:22.072361
 
 """
-from alembic import op
+from alembic import op, context
 from sqlalchemy import text
 # revision identifiers, used by Alembic.
 revision = u'3537d5420e0e'
@@ -23,11 +23,16 @@ def upgrade():
         u'group_extra_revision_continuity_id_fkey', u'group_extra_revision'
     )
 
-    conn = op.get_bind()
-    conn.execute(text(
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        conn = op.get_bind()
+        execute = conn.execute
+
+    execute(text(
         '''DELETE FROM "package_extra" WHERE state='deleted';'''
     ))
-    conn.execute(text('''DELETE FROM "group_extra" WHERE state='deleted';'''))
+    execute(text('''DELETE FROM "group_extra" WHERE state='deleted';'''))
 
 
 def downgrade():
