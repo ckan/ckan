@@ -31,7 +31,7 @@ import dominate.tags as dom_tags
 from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import asbool, config, current_user
+from ckan.common import asbool, config, current_user, CacheType, session
 from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
@@ -2908,3 +2908,77 @@ def csrf_input():
     '''
     import ckan.lib.base as base
     return literal(base.render('snippets/csrf_input.html'))
+
+
+@core_helper
+def csrf_session_enabled() -> bool:
+    """ Returns true if the session is enabled for CSRF protection """
+    log.debug("WTF_CSRF_FIELD_NAME: %r", config.get('WTF_CSRF_FIELD_NAME'))
+    log.debug("session: %r", session)
+
+    session_accessed = session.accessed
+    is_enabled = config.get('WTF_CSRF_FIELD_NAME') in session
+    # Reset session accessed state, so we don't introduce vary cookie accidentally
+    session.accessed = session_accessed
+    return is_enabled
+
+
+@core_helper
+def cache_level():
+    return getattr(g, 'cache_type', None)
+
+
+@core_helper
+def limit_cache_for_page() -> Optional[bool]:
+    return getattr(g, 'limit_cache_for_page', None)
+
+
+@core_helper
+def set_limit_cache_for_page(limit: bool) -> None:
+    g.limit_cache_for_page = limit
+
+
+@core_helper
+def set_cache_level(cache_type: 'CacheType|str',
+                    force: bool = False) -> Optional[CacheType]:
+    """Allow setting the cache without downgrading cache unless forced
+    force: Use with caution for example, downgrading cache to public
+    when logged in can have major side effects"""
+    if isinstance(cache_type, str):
+        try:
+            cache_type = CacheType(cache_type)
+        except ValueError:
+            log.warning("Invalid Cache Type passed in, received %r. Ignoring",
+                        cache_type)
+            return None
+
+    currentCacheType = cache_level()
+
+    if currentCacheType and cache_type:
+        if CacheType.can_override(currentCacheType, cache_type) or force:
+            g.cache_type = cache_type
+    else:
+        g.cache_type = cache_type
+    return g.cache_type
+
+
+@core_helper
+def etag_append(append_value: str) -> None:
+    """ Adds additional etag uniqueness, can be called multiple times"""
+    current_value = getattr(g, 'etag_append', "")
+    g.etag_append = current_value + append_value
+
+
+@core_helper
+def set_etag_replace(etag_replace: str) -> None:
+    """ Replace etag with this value, disable etag generation
+    will not append set suffix's or prefix's"""
+    g.etag_replace = etag_replace
+
+
+@core_helper
+def set_etag_modified_time(etag_modified_time: str) -> None:
+    """ Set modified time value on etag instead of current datetime of request.
+    Very useful if you want to key a page to db last modified where
+    other plugins provide their uniqueness constraint via etag_append(str)"""
+    g.etag_modified_time = etag_modified_time

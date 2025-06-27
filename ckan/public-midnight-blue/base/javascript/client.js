@@ -38,29 +38,40 @@
      *
      */
     call: function(type, path, data, fn, error) {
-      var url = this.url('/api/action/' + path);
-      var error = ( error == 'undefined' ) ? function() {} : error;
-      var options = {
-        contentType: 'application/json',
-        url: url,
-        dataType: 'json',
-        processData: false,
-        success: fn,
-        error: error
-      };
-      if (type == 'POST') {
-        options.type = 'POST';
-        options.data = JSON.stringify(data);
-        var csrf_field = $('meta[name=csrf_field_name]').attr('content');
-        var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
-        options.headers = {
-          'X-CSRFToken': csrf_token
-        }
+      let url = this.url('/api/action/' + path);
+      error = error || function () {};
+
+      if (type === 'POST') {
+        return ckan.fetchCsrfToken().then(csrf => {
+          let headers = {};
+          headers[csrf.header] = csrf.token
+          return jQuery.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            url: url,
+            data: JSON.stringify(data),
+            dataType: 'json',
+            processData: false,
+            success: fn,
+            error: error,
+            headers: headers
+          });
+        }).catch((err) => {
+          console.error('CSRF token fetch failed:', err);
+          if (typeof error === 'function') error(err);
+          return Promise.reject(err);
+        });
       } else {
-        options.type = 'GET';
-        options.url += data;
+        return jQuery.ajax({
+          type: 'GET',
+          contentType: 'application/json',
+          url: url + data,
+          dataType: 'json',
+          processData: false,
+          success: fn,
+          error: error
+        });
       }
-      jQuery.ajax(options);
     },
 
     /* Fetches the current locale translation from the API.

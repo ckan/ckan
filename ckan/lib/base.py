@@ -20,7 +20,7 @@ from flask import (
 import ckan.lib.helpers as h
 import ckan.plugins as p
 
-from ckan.common import request, config, session, g
+from ckan.common import request, config, session, g, CacheType
 
 log = logging.getLogger(__name__)
 
@@ -105,33 +105,58 @@ def render(template_name: str,
 
 
 def _allow_caching(cache_force: Optional[bool] = None):
-    # Caching Logic
+    """Will configure cache type if not already set prior.
 
-    allow_cache = True
-    # Force cache or not if explicit.
+    cache_force is deprecated, use 'h.set_cache_level' function instead
+    """
     if cache_force is not None:
-        allow_cache = cache_force
+        log.error("cache_force is deprecated use "
+                  "h.set_cache_level(CacheType.PUBLIC, True)")
+
+    # Any rendered template will have Vary header added, unless OVERRIDDEN flag is found
+    if h.cache_level() != CacheType.OVERRIDDEN:
+        if h.limit_cache_for_page() is None:
+            g.limit_cache_for_page = True
+
+    if h.cache_level():
+        return
+    else:
+        h.set_cache_level(CacheType.PUBLIC)
+
+    _allow_caching_user_based()
+
+    _allow_caching_no_cache_overrides()
+
+    # Don't allow public cache if caching is not enabled in config
+    if not config.get('ckan.cache.public.enabled'):
+        h.set_cache_level(CacheType.PRIVATE)
+
+    # Don't allow private cache if caching is not enabled in config
+    if (h.cache_level() == CacheType.PRIVATE
+       and not config.get('ckan.cache.private.enabled')):
+        h.set_cache_level(CacheType.NO_CACHE)
+
+
+def _allow_caching_no_cache_overrides():
+    # Don't cache if based on a non-cachable template used in this.
+    if request.environ.get('__no_cache__'):
+        # deprecated, use h.set_cache_level(CacheType.NO_CACHE)
+        log.warning("request.environ['__no_cache__'] is deprecated, "
+                    "use h.set_cache_level(CacheType.NO_CACHE)")
+        h.set_cache_level(CacheType.NO_CACHE)
+    # deprecated: Don't cache if we have set the __no_cache__ param in the query string.
+    elif request.args.get('__no_cache__'):
+        # will go away soon, use header Cache-Control: no-cache
+        h.set_cache_level(CacheType.NO_CACHE)
+
+
+def _allow_caching_user_based():
     # Do not allow caching of pages for logged in users/flash messages etc.
-    elif ('user' in g and g.user) or _is_valid_session_cookie_data():
-        allow_cache = False
+    if ('user' in g and g.user) or _is_valid_session_cookie_data():
+        h.set_cache_level(CacheType.PRIVATE)
     # Tests etc.
     elif session.get("_user_id"):
-        allow_cache = False
-    # Don't cache if based on a non-cachable template used in this.
-    elif request.environ.get('__no_cache__'):
-        allow_cache = False
-    # Don't cache if we have set the __no_cache__ param in the query string.
-    elif request.args.get('__no_cache__'):
-        allow_cache = False
-    # Don't cache if caching is not enabled in config
-    elif not config.get('ckan.cache_enabled'):
-        allow_cache = False
-
-    # Any rendered template will have a login-sensitive header
-    request.environ['__limit_cache_by_cookie__'] = True
-    if not allow_cache:
-        # Prevent any further rendering from being cached.
-        request.environ['__no_cache__'] = True
+        h.set_cache_level(CacheType.PRIVATE)
 
 
 def _is_valid_session_cookie_data() -> bool:

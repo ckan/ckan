@@ -226,7 +226,14 @@ requirements of considerably newer or older extensions.
 Implementing CSRF protection
 ----------------------------
 
-CKAN 2.10 introduces CSRF protection for all the frontend forms. Extensions are currently excluded from the CSRF protection to give time to update them, but CSRF protection will be enforced in the future.
+CKAN 2.10 introduces CSRF protection for all the frontend forms. Extensions are currently excluded from the CSRF protection to give time to update them,
+but CSRF protection will be enforced in the future.
+
+If you are doing post requests for anonymous users, please use XHR/Fetch requests or GET 'side_effect_free' calls.
+This helps ensure that the non-logged in pages stay sessionless for as long as possible until user interaction where CSRF is actually required.
+
+When a CSRF token is created. A session is also made which converts the rest of the pages requests for said user from highly performant 'public' cached
+and available for everyone to 'private' and per user session (anonymous or logged-in).
 
 To add CSRF protection to your extensions add the following helper call to your form templates::
 
@@ -238,14 +245,39 @@ If your extension needs to support older CKAN versions, use the following::
     <form class="dataset-form form-horizontal" method="post" enctype="multipart/form-data">
       {{ h.csrf_input() if 'csrf_input' in h }}
 
+Forms that are submitted via JavaScript modules also need to submit the CSRF token.
+CSRF Meta token is only added when an active session with csrf token is available.
+Please use the util js function ``ckan.fetchCsrfToken()`` to collect XHR/Fetch token details.
+This calls the ``url_for("util.csrf_input")`` :: ``/csrf-input`` endpoint and returns a promise with the token details if not already in the head Meta tag.
 
-Forms that are submitted via JavaScript modules also need to submit the CSRF token, here’s an example of how to append it to an existing form::
+Here’s some example's of how to append it to an existing form or XHR request::
 
-  // Get the csrf value from the page meta tag
-  var csrf_value = $('meta[name=_csrf_token]').attr('content')
-  // Create the hidden input
-  var hidden_csrf_input = $('<input name="_csrf_token" type="hidden" value="'+csrf_value+'">')
-  // Insert the hidden input at the beginning of the form
-  hidden_csrf_input.prependTo(form)
+  (function (ckan, jQuery, ...other libraries...) {
 
-API calls performed from JavaScript modules from the UI (which use cookie-based authentication) should also include the token, in this case in the ``X-CSRFToken`` header. CKAN Modules using the builtin `client <https://docs.ckan.org/en/latest/contributing/frontend/index.html?#client>`_) to perform API calls will have the header added automatically. If you are performing API calls directly from a UI module you will need to add the header yourself.
+  ...
+
+  // ## XHR way for non GET requests ##
+  ckan.fetchCsrfToken().then(csrf => {
+          options.type = 'POST';
+          options.data = JSON.stringify(data);
+          options.headers = {
+            'X-CSRFToken': csrf.token
+          }
+  });
+
+  // ## manual form input way ##
+  ckan.fetchCsrfToken().then(csrf => {
+      // Create the hidden input
+      var hidden_csrf_input = $('<input name="'+csrf.name+'" type="hidden" value="'+csrf.token+'">')
+      // Insert the hidden input at the beginning of the form
+      hidden_csrf_input.prependTo(form)
+  });
+  ...
+
+  })(this.ckan, this.jQuery, ...other libraries...);
+
+API calls performed from JavaScript modules from the UI (which use cookie-based authentication) will also include the token,
+in this case in the ``X-CSRFToken`` header.
+
+CKAN Modules using the builtin `client <https://docs.ckan.org/en/latest/contributing/frontend/index.html?#client>`_) to perform API calls will have the header added automatically.
+If you are performing API calls directly from a UI module you will need to add the header yourself.
