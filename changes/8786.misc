@@ -1,0 +1,2 @@
+Register per-test plugin using ``provide_plugin`` fixture or ``ckan_plugin``
+mark.
