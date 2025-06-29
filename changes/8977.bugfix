@@ -1,0 +1,4 @@
+Added a new config option :ref:`ckan.uploads_enabled` to fix critical error logs about missing storage_path.
+
+If not enabled, you either must have IUploader plugin configured or have defined storage_path to have uploads in the UI.
+
