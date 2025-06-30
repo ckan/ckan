@@ -8,6 +8,7 @@
 
 {% block primary_content %}
   {% snippet "package/snippets/search_results.html",
+    heading=h.humanize_entity_type('dataset', dataset_type, 'page title') or _('Datasets'),
     dataset_type=dataset_type,
     fields_grouped=fields_grouped,
     search_facets=search_facets,
