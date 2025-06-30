@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from typing import Optional
-from pkg_resources import iter_entry_points
+from importlib.metadata import entry_points
 
 import click
 import sys
@@ -187,7 +187,7 @@ def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
 
     """
     registered_entries = {}
-    for entry in iter_entry_points(entry_point):    # type: ignore
+    for entry in entry_points(group=entry_point):
         if entry.name in registered_entries:
             error_shout((
                 u'Attempt to override entry_point `{name}`.\n'
