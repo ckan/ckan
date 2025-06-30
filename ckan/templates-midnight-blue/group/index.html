@@ -11,12 +11,12 @@
   <article class="module">
     <div class="module-content">
       <div class="row">
-        <div {% if h.check_access('organization_create') %}class="col-md-9"{% endif %}>
+        <div {% if h.check_access('group_create') %}class="col-md-9"{% endif %}>
           <h1>{% block page_heading %}{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}</h1>
         </div>
         <div class="page_primary_action col-md-3">
           {% block page_primary_action %}
-            {% if h.check_access('organization_create') %}
+            {% if h.check_access('group_create') %}
               {% link_for h.humanize_entity_type('group', group_type, 'add link') or _('Add Group'), named_route=group_type+'.new', class_='btn btn-primary float-md-end', icon='plus-square' %}
             {% endif %}
           {% endblock %}
@@ -34,9 +34,6 @@
           {% else %}
             <p class="empty">
               {{ h.humanize_entity_type('group', group_type, 'no any objects') or _('There are currently no groups for this site') }}.
-              {% if h.check_access('group_create') %}
-                {% link_for _('How about creating one?'), named_route=group_type+'.new' %}</a>.
-              {% endif %}
             </p>
           {% endif %}
         {% endblock %}
