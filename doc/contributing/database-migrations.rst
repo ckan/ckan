@@ -28,6 +28,18 @@ https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script
 Rename the file to include a prefix numbered one higher than the previous one,
 like the others in ``ckan/migration/versions/``.
 
+.. note:: Consider using following snippet when running arbitrary SQL during
+   migration to make it exportable via ``ckan db export-migration``::
+
+     from alembic import op, context
+     if context.is_offline_mode():
+         execute = context.execute
+     else:
+         execute = op.execute
+
+     # use it instead of `op.execute` which is ignored by export command
+     execute(...)
+
 Manual checking
 ---------------
 
