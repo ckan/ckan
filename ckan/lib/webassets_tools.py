@@ -163,7 +163,7 @@ def _to_tag(asset_info: Tuple[str, dict[str, str]], type_: AssetType) -> str:
 
     if type_ == "style" and "rel" not in attrs:
         attrs["rel"] = "stylesheet"
-    elif type_ == "script" and "type" not in attrs:
+    elif type_ == "script" and "type" not in attrs and not is_preload:
         attrs["type"] = "text/javascript"
 
     attr_items = []
