@@ -148,6 +148,8 @@ Defines list of assets in format ``asset_library/asset_name``, that
 must be included into HTML output *before* the current asset.
 
 
+.. _assets_attrs:
+
 **attrs**
 
 Defines attributes that should be added to the generated HTML tag (``<script>`` or ``<link>``).
