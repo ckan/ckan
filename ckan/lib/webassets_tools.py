@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any
+from typing import Any, Tuple
 from typing_extensions import Literal, TypedDict, assert_never
 
 from markupsafe import Markup
@@ -20,8 +20,8 @@ AssetType = Literal["style", "script"]
 
 
 class AssetCollection(TypedDict):
-    script: list[str]
-    style: list[str]
+    script: list[Tuple[str, dict[str, str]]]
+    style: list[Tuple[str, dict[str, str]]]
     included: set[str]
 
 
@@ -127,6 +127,7 @@ def include_asset(name: str) -> None:
 
     bundle: Any = env[name]
     deps: list[str] = bundle.extra.get("preload", [])
+    attrs: dict[str, str] = bundle.extra.get("attrs", {})
 
     # mark current asset as included in order to avoid recursion while loading
     # dependencies
@@ -135,9 +136,10 @@ def include_asset(name: str) -> None:
         include_asset(dep)
 
     # Add `site_root` if configured
-    urls = [url_for_static_or_external(url) for url in bundle.urls()]
+    urls_info = [(url_for_static_or_external(url), attrs) for url in bundle.urls()]
 
-    for url in urls:
+    for item in urls_info:
+        url = item[0]
         link = url.split("?")[0]
         if link.endswith(".css"):
             type_ = "style"
@@ -146,19 +148,37 @@ def include_asset(name: str) -> None:
             type_ = "script"
             break
     else:
-        log.warning("Undefined asset type: %s", urls)
+        log.warning("Undefined asset type: %s", urls_info)
         return
+    g._webassets[type_].extend(urls_info)
 
-    g._webassets[type_].extend(urls)
 
-
-def _to_tag(url: str, type_: AssetType) -> str:
+def _to_tag(asset_info: Tuple[str, dict[str, str]], type_: AssetType) -> str:
     """Turn asset URL into corresponding HTML tag.
     """
-    if type_ == "style":
-        return f'<link href="{url}" rel="stylesheet"/>'
+
+    url, attrs = asset_info
+
+    is_preload = attrs.get("rel") and attrs["rel"] == "preload" and attrs.get("as")
+
+    if type_ == "style" and "rel" not in attrs:
+        attrs["rel"] = "stylesheet"
+    elif type_ == "script" and "type" not in attrs:
+        attrs["type"] = "text/javascript"
+
+    attr_items = []
+    for key, value in attrs.items():
+        if not value:
+            attr_items.append(key)
+        else:
+            attr_items.append(f'{key}="{value}"')
+
+    attrs_str = " ".join(attr_items)
+
+    if type_ == "style" or is_preload:
+        return f'<link href="{url}" {attrs_str}/>'
     elif type_ == "script":
-        return f'<script src="{url}" type="text/javascript"></script>'
+        return f'<script src="{url}" {attrs_str}></script>'
     else:
         assert_never(type_)
 
@@ -195,7 +215,7 @@ def render_assets(type_: AssetType) -> Markup:
     except AttributeError:
         return Markup()
 
-    tags = "\n".join(_to_tag(asset, type_) for asset in assets[type_])
+    tags = "\n".join(_to_tag(asset_info, type_) for asset_info in assets[type_])
     assets[type_].clear()
 
     return Markup(tags)
