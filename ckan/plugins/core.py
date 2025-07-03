@@ -243,12 +243,12 @@ def find_system_plugins() -> list[str]:
 
     eps = []
     try:
-        for ep in entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP):
+        for ep in entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP):     # type: ignore
             ep.load()
             eps.append(ep.name)
     except TypeError:
         # Python 3.9
-        for ep in entry_points().get(SYSTEM_PLUGINS_ENTRY_POINT_GROUP):
+        for ep in entry_points().get(SYSTEM_PLUGINS_ENTRY_POINT_GROUP):     # type: ignore
             ep.load()
             eps.append(ep.name)
 
@@ -283,7 +283,7 @@ def _get_service(plugin_name: str) -> Plugin:
     """
     for group in GROUPS:
         try:
-            eps = list(entry_points(group=group, name=plugin_name))
+            eps = list(entry_points(group=group, name=plugin_name))     # type: ignore
             ep = eps[0] if eps else None
             if ep:
                 return ep[plugin_name].load()(name=plugin_name)

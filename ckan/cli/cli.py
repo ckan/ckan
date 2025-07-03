@@ -187,11 +187,11 @@ def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
     """
     registered_entries = {}
     try:
-        eps = entry_points(group=entry_point)
+        eps = entry_points(group=entry_point)   # type: ignore
     except TypeError:
         # Python 3.9
         eps = entry_points().get(entry_point)
-    for entry in eps:
+    for entry in eps:   # type: ignore
         if entry.name in registered_entries:
             error_shout((
                 u'Attempt to override entry_point `{name}`.\n'
@@ -202,7 +202,7 @@ def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
             ).format(
                 name=entry.name,
                 first=registered_entries[entry.name].dist,
-                second=entry.dist))
+                second=entry.dist))     # type: ignore
             raise click.Abort()
         registered_entries[entry.name] = entry
 
