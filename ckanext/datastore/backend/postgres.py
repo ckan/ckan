@@ -571,7 +571,7 @@ def _build_query_and_rank_statements(
 
 
 def _get_timeout() -> int:
-    return config.get('ckan.datastore.default_query_timeout', 60000)
+    return config.get('ckan.datastore.default_query_timeout')
 
 def _fts_lang(lang: Optional[str] = None) -> str:
     return lang or config.get('ckan.datastore.default_fts_lang')
