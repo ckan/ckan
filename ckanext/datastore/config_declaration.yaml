@@ -92,7 +92,7 @@ groups:
       them. It can be overwritten by the user by passing the "lang" parameter to
       "datastore_search" and "datastore_create".
 
-  - default: 60_000
+  - default: 1_000
     key: ckan.datastore.default_query_timeout
     type: int
     example: 180_000
