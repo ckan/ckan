@@ -6,7 +6,7 @@
  *
  */
 var csrf_field = $('meta[name=csrf_field_name]').attr('content');
-var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
+var csrf_token = $('meta[name=' + csrf_field + ']').attr('content');
 
 htmx.on('htmx:configRequest', (event) => {
   if (csrf_token) {
@@ -17,12 +17,12 @@ htmx.on('htmx:configRequest', (event) => {
 function htmx_cleanup_before_swap(event) {
   // Dispose any active tooltips before HTMX swaps the DOM
   event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(
-      el => {
-    const tooltip = bootstrap.Tooltip.getInstance(el)
-    if (tooltip) {
-      tooltip.dispose()
-    }
-  })
+    el => {
+      const tooltip = bootstrap.Tooltip.getInstance(el)
+      if (tooltip) {
+        tooltip.dispose()
+      }
+    })
 }
 document.body.addEventListener("htmx:beforeSwap", htmx_cleanup_before_swap);
 document.body.addEventListener("htmx:oobBeforeSwap", htmx_cleanup_before_swap);
@@ -40,16 +40,16 @@ function htmx_initialize_ckan_modules(event) {
   }
 
   event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]'
-      ).forEach(node => {
+  ).forEach(node => {
     bootstrap.Tooltip.getOrCreateInstance(node)
   })
   event.detail.target.querySelectorAll('.show-filters').forEach(node => {
-    node.onclick = function() {
+    node.onclick = function () {
       $("body").addClass("filters-modal")
     }
   })
   event.detail.target.querySelectorAll('.hide-filters').forEach(node => {
-    node.onclick = function() {
+    node.onclick = function () {
       $("body").removeClass("filters-modal")
     }
   })
@@ -57,24 +57,19 @@ function htmx_initialize_ckan_modules(event) {
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
 
-document.body.addEventListener("htmx:responseError", function(event) {
-  const xhr = event.detail.xhr
-  const error = $(xhr.response).find('#error-content')
-  const headerHTML = error.find('h1').remove().html() || `${xhr.status} ${xhr.statusText}`
-  const messageHTML = error.html() || event.detail.error
-  $('#responseErrorToast').remove()
-  $(`
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-      <div id="responseErrorToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-          <strong class="me-auto text-danger">${headerHTML}</strong>
-          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="${ckan.i18n._("Close")}"></button>
-        </div>
-        <div class="toast-body">
-          ${messageHTML}
-        </div>
-      </div>
-    </div>
-  `).appendTo('body')
-  $('#responseErrorToast').toast('show')
+document.body.addEventListener("htmx:responseError", function (event) {
+  const xhr = event.detail.xhr;
+
+  if (xhr.response.startsWith("<!doctype html>")) {
+    const error = $(xhr.response).find('#error-content');
+    var message = error.html() || event.detail.error;
+  } else {
+    var message = xhr.responseText;
+  }
+
+  ckan.toast({
+    message: message.trim().replace(/^"(.*)"$/, '$1'),
+    type: "danger",
+    title: `${xhr.status} ${xhr.statusText}`
+  });
 })
