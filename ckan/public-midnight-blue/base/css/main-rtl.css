@@ -13978,7 +13978,6 @@ td.diff_header {
   list-style: none;
   position: absolute;
   top: 10px;
-  right: 10px;
   z-index: 1;
 }
 
@@ -14020,8 +14019,11 @@ td.diff_header {
   border-bottom-color: transparent;
 }
 
+.content_action {
+  display: flex;
+  justify-content: flex-end;
+}
 .content_action .btn {
-  float: right;
   margin-bottom: 1rem;
 }
 

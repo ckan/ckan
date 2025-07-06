@@ -14,6 +14,7 @@
 
 {% block content_action %}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
+    {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-primary', icon='plus' %}
     {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-secondary', icon='wrench' %}
   {% endif %}
 {% endblock %}

@@ -67,7 +67,6 @@
     @include list-unstyled;
     position: absolute;
     top: 10px;
-    right: 10px;
     z-index: 1;
 }
 
@@ -114,8 +113,9 @@
 }
 
 .content_action {
+    display: flex;
+    justify-content: flex-end;
     .btn {
-        float: right;
         margin-bottom: 1rem;
     }
 }
