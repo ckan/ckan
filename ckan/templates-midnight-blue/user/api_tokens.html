@@ -8,9 +8,9 @@
 
 
 {% block primary_content_inner %}
-  <h2 class="hide-heading">
+  <h1>
     {% block page_heading %}{{ _('API Tokens') }}{% endblock %}
-  </h2>
+  </h1>
 
   {% block token_list %}
     {% snippet 'user/snippets/api_token_list.html', tokens=tokens, user=user %}
