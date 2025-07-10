@@ -14031,8 +14031,11 @@ td.diff_header {
   border-bottom-color: transparent;
 }
 
+.content_action {
+  display: flex;
+  justify-content: flex-end;
+}
 .content_action .btn {
-  float: right;
   margin-bottom: 1rem;
 }
 

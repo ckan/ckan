@@ -111,8 +111,9 @@
 }
 
 .content_action {
+    display: flex;
+    justify-content: flex-end;
     .btn {
-        float: right;
         margin-bottom: 1rem;
     }
 }

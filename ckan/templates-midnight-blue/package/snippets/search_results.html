@@ -9,13 +9,7 @@
         {% endif %}
       </h1>
     {% endif %}
-    {% block page_primary_action %}
-      {% if h.check_access('package_create') %}
-        <div class="page_primary_action col-md-3">
-          {% snippet 'snippets/add_dataset.html', dataset_type=dataset_type %}
-        </div>
-      {% endif %}
-    {% endblock %}
+    {% block page_primary_action %}{% endblock %}
     </div>
     {% block form %}
       {% set facets = {
