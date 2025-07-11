@@ -43,18 +43,76 @@ function htmx_initialize_ckan_modules(event) {
   ).forEach(node => {
     bootstrap.Tooltip.getOrCreateInstance(node)
   })
+
   event.detail.target.querySelectorAll('.show-filters').forEach(node => {
     node.onclick = function () {
       $("body").addClass("filters-modal")
     }
   })
+
   event.detail.target.querySelectorAll('.hide-filters').forEach(node => {
     node.onclick = function () {
       $("body").removeClass("filters-modal")
     }
   })
 }
-document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
+
+document.body.addEventListener("htmx:afterSwap", function (event) {
+  htmx_initialize_ckan_modules(event);
+
+  const element = event.detail.requestConfig?.elt;
+  if (!element) return;
+
+  const toastHandler = new ToastHandler(element);
+
+  if (event.detail.successful) {
+    toastHandler.showToast();
+  }
+});
+
+class ToastHandler {
+  constructor(element, options = {}) {
+    this.defaultToastOptions = {
+      type: "success",
+      title: ckan.i18n._("Notification"),
+    };
+    this.toastAttributePrefix = options.toastAttributePrefix || "hx-toast-";
+    this.options = this.buildToastOptions(element);
+  }
+
+  buildToastOptions(element) {
+    const options = {};
+
+    for (const attr of element.attributes) {
+      if (attr.name.startsWith(this.toastAttributePrefix)) {
+        const key = this.convertAttributeNameToKey(attr.name);
+        const value = this.parseAttributeValue(attr.value);
+        options[key] = value;
+      }
+    }
+
+    return { ...this.defaultToastOptions, ...options };
+  }
+
+  convertAttributeNameToKey(attributeName) {
+    return attributeName
+      .replace(this.toastAttributePrefix, "")
+      .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
+  parseAttributeValue(value) {
+    if (['true', 'yes', 't', 'y', '1'].includes(value.toLowerCase())) return true;
+    if (['false', 'no', 'f', 'n', '0'].includes(value.toLowerCase())) return false;
+    if (!isNaN(value) && value.trim() !== "") return Number(value);
+    return value;
+  }
+
+  showToast() {
+    if (!this.options.message) return;
+    ckan.toast(this.options);
+  }
+}
+
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
 
 document.body.addEventListener("htmx:responseError", function (event) {
