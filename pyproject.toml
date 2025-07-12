@@ -208,7 +208,40 @@ extend-exclude = [
 
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C901", "G", "PLW0602"]
+## https://docs.astral.sh/ruff/rules/
+select = [
+       # "ANN0", # type annotations for function arguments
+       # "B",  # likely bugs and design problems
+       # "BLE",  # do not catch blind exception
+       # "C4",  # better list/set/dict comprehensions
+       "C90",  # check McCabe complexity
+       # "DTZ", # enforce timezone in date objects
+       "E",  # pycodestyle error
+       "W",  # pycodestyle warning
+       "F",  # pyflakes
+       # "FA", # verify annotations from future
+       "G",  # format strings for logging statements
+       # "N",  # naming conventions
+       # "I",  # isort
+       # "ICN", # import conventions
+       # "D1",  # require doc
+       # "D2",  # doc formatting
+       # "D4",  # doc convention
+       # "PL",  # pylint
+       "PLW0602", # global-variable-not-assigned
+       # "PERF", # performance anti-patterns
+       # "PT",  # pytest style
+       # "PIE",  # misc lints
+       # "RET",  # improvements for return statements
+       # "RSE",  # improvements for rise statements
+       # "S",  # security testing
+       # "SIM",  # simplify code
+       # "T10",  # debugging statements
+       # "T20",  # print statements
+       # "TID",  # tidier imports
+       # "TRY",  # better exceptions
+       # "UP",  # upgrade syntax for newer versions of the language
+]
 
 [tool.ruff.lint.per-file-ignores]
 # These should be fixed
