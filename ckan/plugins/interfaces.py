@@ -1199,6 +1199,18 @@ class IDatasetForm(Interface):
         '''
         return ''
 
+    def search_template_htmx(self, package_type: str) -> str:
+        '''
+        Return the path to the template to use in the dataset search page
+        for htmx responses.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/search_htmx.html'``.
+
+        :rtype: string
+        '''
+        return ''
+
     def history_template(self, package_type: str) -> str:
         u'''
         .. warning:: This template is removed. The function exists for
@@ -1467,6 +1479,13 @@ class IGroupForm(Interface):
         u'''
         Returns a string representing the location of the template to be
         rendered for the read page
+        '''
+        return ''
+
+    def read_template_htmx(self, group_type: str) -> str:
+        u'''
+        Returns a string representing the location of the template to be
+        rendered for the read htmx page
         '''
         return ''
 

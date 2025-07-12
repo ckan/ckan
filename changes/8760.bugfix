@@ -1,2 +1,0 @@
-Return resource_id from resource_view_delete so that the activity plugin
-does not fail when recording the deleted view.

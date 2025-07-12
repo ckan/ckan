@@ -18,7 +18,6 @@ from sqlalchemy import text
 import ckan
 import ckan.lib.dictization
 import ckan.logic as logic
-import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs

@@ -102,9 +102,19 @@ const qs = () =>
   )
 
 const htmx = () =>
-src(__dirname + "/node_modules/htmx.org/dist/htmx.js").pipe(
-  dest(__dirname + "/ckan/public/base/vendor/")
-)
+  src(__dirname + "/node_modules/htmx.org/dist/htmx.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+  )
+
+const select2 = () =>
+  src([
+      __dirname + "/node_modules/select2/dist/js/**/*.js",
+      __dirname + "/node_modules/select2/dist/css/select2.css",
+      "!" + __dirname + "/node_modules/select2/dist/js/select2.js",
+      "!" + __dirname + "/node_modules/select2/dist/js/*.min.js",
+    ],
+    ).pipe(dest(__dirname + "/ckan/public/base/vendor/select2/")
+  )
 
 exports.build = build;
 exports.watch = watchSource;
@@ -122,5 +132,6 @@ exports.updateVendorLibs = parallel(
   qs,
   DOMPurify,
   popOver,
-  htmx
+  htmx,
+  select2
 );
