@@ -7,7 +7,7 @@ import logging
 from contextlib import contextmanager
 from typing import Generic, Iterator, TypeVar
 from typing_extensions import TypeGuard
-from pkg_resources import iter_entry_points
+from importlib.metadata import entry_points
 
 
 from ckan.common import config, aslist
@@ -240,13 +240,10 @@ def _get_service(plugin_name: str) -> Plugin:
     >>> assert isinstance(plugin, ActivityPlugin)
     """
     for group in GROUPS:
-        iterator = iter_entry_points(
-            group=group,
-            name=plugin_name
-        )
-        plugin = next(iterator, None)
-        if plugin:
-            return plugin.load()(name=plugin_name)
+        ep = entry_points(group=group, name=plugin_name)
+        if ep:
+            return ep[plugin_name].load()(name=plugin_name)
+
     raise PluginNotFoundException(plugin_name)
 
 

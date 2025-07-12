@@ -91,12 +91,6 @@
 
 // Package metadata field
 .package-metadata-field {
-  background-color: $gray-100;
-  padding: 48px;
-  margin-top: -1.5rem;
-  border-radius: 20px;
-  margin-bottom: 48px;
-
   @media screen and (max-width: 768px) {
     padding: 4px;
     padding-top: 24px;
@@ -233,10 +227,9 @@
   }
 }
 .icon-stage {
+  margin: auto 6px;
   .fa-check-circle {
     color: $green;
-    position: relative;
-    top: 4px;
   }
 }
 
