@@ -54,7 +54,8 @@ def adapters(
             item.declare_config_options(
                 decl, Key.from_string("ckan.files.storage.NAME")
             )
-            configuration = f"{click.style('Configuration:', bold=True)}\n{decl.into_ini(False, True)}"
+            label = click.style('Configuration:', bold=True)
+            configuration = f"{label}\n{decl.into_ini(False, True)}"
             wrapped = textwrap.indent(configuration, "\t")
             click.secho(wrapped)
             click.echo()

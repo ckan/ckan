@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlparse
 
-from file_keeper.core.exceptions import UnknownStorageError
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan.lib.munge as munge
@@ -234,7 +233,9 @@ class ResourceUpload(object):
 
     def __init__(self, resource: dict[str, Any]) -> None:
         try:
-            self.storage = files.get_storage(config["ckan.files.default_storages.resource"])
+            self.storage = files.get_storage(
+                config["ckan.files.default_storages.resource"]
+            )
         except files.exc.UnknownStorageError:
             log.debug("Resource storage is not configured")
             return

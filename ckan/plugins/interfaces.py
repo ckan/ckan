@@ -2300,8 +2300,11 @@ class IFiles(Interface):
         Example::
 
             def files_get_location_transformers(self):
+                def lower_transformer(location, upload, extras):
+                    returnlocation.lower()
+
                 return {
-                    "my_ext:lowercase": lambda location, upload, extras: location.lower(),
+                    "my_ext:lowercase": lower_transformer,
                 }
 
         :returns: location transformers provided by the implementation
