@@ -1322,6 +1322,43 @@ groups:
         example: 10
         description: The maximum in megabytes an image upload can be.
 
+      - key: ckan.files.inline_content_types
+        example: application/pdf image video
+        type: list
+        description: |
+            MIMEtypes that can be served without
+            ``content-disposition:attachment`` header.
+
+      - key: ckan.files.default_storages.default
+        default: default
+        description: |
+          Default storage used for uploads when no explicit storage specified.
+
+      - key: ckan.files.default_storages.admin
+        default: admin_uploads
+        description: |
+          Name of the storage for uploads from AdminUI, such as site logo. The
+          storage must support PERMANENT_LINK capability.
+
+      - key: ckan.files.default_storages.user
+        default: user_uploads
+        description: |
+          Name of the storage for public user uploads, such as user avatar. The
+          storage must support PERMANENT_LINK capability.
+
+      - key: ckan.files.default_storages.group
+        default: group_uploads
+        description: |
+          Name of the storage for public group uploads, such as group
+          image. The storage must support PERMANENT_LINK capability.
+
+      - key: ckan.files.default_storages.resource
+        default: resources
+        description: |
+          Name of the storage for resource uploads. The storage must support
+          STREAM and CREATE capabilities.
+
+
   - annotation: Uploader Settings
     options:
       - key: ckan.upload.user.types
@@ -1729,17 +1766,3 @@ groups:
         type: int
         default: 180
         description: The option defines the timeout in seconds until giving up on a job
-
-  - annotation: Files settings
-    options:
-      - key: ckan.files.default_storage
-        default: default
-        description: |
-          Default storage used for uploads when no explicit storage specified.
-
-      - key: ckan.files.inline_content_types
-        example: application/pdf image video
-        type: list
-        description: |
-            MIMEtypes that can be served without
-            ``content-disposition:attachment`` header.
