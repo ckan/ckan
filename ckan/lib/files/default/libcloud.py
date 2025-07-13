@@ -48,3 +48,13 @@ class LibCloudStorage(base.Storage, lc.LibCloudStorage):
         declaration.declare(key.path).set_description(
             "Path inside the container where uploaded data will be stored.",
         )
+
+        declaration.declare(key.public_prefix).set_description(
+            "URL prefix to use when builing public file's URL. Usually, this "
+            "requires a container with public URL. For example, if storage "
+            "uses cloud provider `example.cloud.com` and files are uploaded "
+            "into container `my_files`, the public prefix must be set to "
+            "`https://certain.cloud.com/my_files`, assuming container can be "
+            "anonymously accessed via this URL. File location will be appended"
+            " to public prefix, producing absolute public URL."
+        )
