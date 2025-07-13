@@ -1342,7 +1342,7 @@ def config_option_update(
         if key == 'ckan.site_logo' and value and not value.startswith('http')\
                 and not value.startswith('/'):
             try:
-                storage = files.get_storage("admin_uploads")
+                storage = files.get_storage(config["ckan.files.default_storages.admin"])
             except files.exc.UnknownStorageError:
                 pass
             else:

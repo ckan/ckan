@@ -460,7 +460,7 @@ def group_dictize(group: model.Group, context: Context,
     result_dict['image_display_url'] = image_url
     if image_url and not image_url.startswith('http'):
         try:
-            storage = files.get_storage("group_uploads")
+            storage = files.get_storage(config["ckan.files.default_storages.group"])
         except files.exc.UnknownStorageError:
             pass
         else:
@@ -616,9 +616,10 @@ def user_dictize(
 
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
+
     if image_url and not image_url.startswith('http'):
         try:
-            storage = files.get_storage("user_uploads")
+            storage = files.get_storage(config["ckan.files.default_storages.user"])
         except files.exc.UnknownStorageError:
             pass
         else:

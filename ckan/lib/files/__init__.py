@@ -95,7 +95,7 @@ def get_storage(name: str | None = None) -> Storage:
 
     """
     if name is None:
-        name = cast(str, config["ckan.files.default_storage"])
+        name = cast(str, config["ckan.files.default_storages.default"])
 
     storage = storages.get(name)
 
@@ -191,9 +191,11 @@ def collect_storages() -> dict[str, Storage]:
         result[name] = storage
 
     if path := config["ckan.storage_path"]:
-        if "resources" not in result:
-            result["resources"] = make_storage(
-                "resources",
+        name = config["ckan.files.default_storages.resource"]
+
+        if name not in result:
+            result[name] = make_storage(
+                name,
                 {
                     "type": "ckan:fs",
                     "path": os.path.join(path, "resources"),
@@ -204,9 +206,14 @@ def collect_storages() -> dict[str, Storage]:
                     "max_size": config["ckan.max_resource_size"] * 1024 * 1024,
                 },
             )
+        else:
+            if not result[name].supports(Capability.STREAM | Capability.CREATE):
+                msg = f"STREAM and CREATE capabilities are required for storage {name}"
+                raise CkanConfigurationException(msg)
 
         for object_type in ["user", "group", "admin"]:
-            name = f"{object_type}_uploads"
+            name = config[f"ckan.files.default_storages.{object_type}"]
+
             if name in result:
                 if not result[name].supports(Capability.PERMANENT_LINK):
                     msg = f"PERMANENT_LINK capability is required for storage {name}"

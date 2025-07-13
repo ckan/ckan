@@ -90,9 +90,10 @@ class Upload(object):
         self.object_type = object_type
         self.old_filename = old_filename
 
-        storage_name = f"{object_type}_uploads"
-        self.storage = files.storages.get(storage_name)
-        if not self.storage:
+        storage_name = config[f"ckan.files.default_storages.{object_type}"]
+        try:
+            self.storage = files.get_storage(storage_name)
+        except files.exc.UnknownStorageError:
             log.debug(
                 "Storage %s is not configured and upload of %s will be ignored",
                 storage_name,
@@ -228,11 +229,13 @@ class Upload(object):
 
 class ResourceUpload(object):
     mimetype: Optional[str]
+    storage: files.Storage | None = None
 
     def __init__(self, resource: dict[str, Any]) -> None:
-        self.storage = files.storages.get("resources")
-        if not self.storage:
-            log.debug("Storage resources is not configured")
+        try:
+            self.storage = files.get_storage(config["ckan.files.default_storages.resource"])
+        except files.exc.UnknownStorageError:
+            log.debug("Resource storage is not configured")
             return
 
         config_mimetype_guess = config.get('ckan.mimetype_guess')
