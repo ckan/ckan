@@ -4,10 +4,12 @@ import pydoc
 import textwrap
 import click
 
+
 from ckan.common import config
 from ckan.config.declaration import Declaration, Key
 
 import ckan.lib.files as lib_files
+from . import error_shout
 
 
 @click.group(short_help="Manage storages and files")
@@ -73,3 +75,73 @@ def storages_list(verbose: bool):
             storage = lib_files.get_storage(name)
             click.echo(f"\tSupports: {storage.capabilities}")
             click.echo(f"\tDoes not support: {~storage.capabilities}")
+
+
+@storage.command("scan")
+@click.option("-s", "--storage-name", help="Name of the configured storage")
+def storage_scan(storage_name: str | None):
+    """Iterate over all files available in storage."""
+    try:
+        storage = lib_files.get_storage(storage_name)
+    except lib_files.exc.UnknownStorageError as err:
+        error_shout(err)
+        raise click.Abort from err
+
+    try:
+        files = storage.scan()
+    except lib_files.exc.UnsupportedOperationError as err:
+        error_shout(err)
+        raise click.Abort from err
+
+    for name in files:
+        click.echo(f"* {name}")
+
+
+@storage.command("transfer")
+@click.argument("src")
+@click.argument("dest")
+@click.option(
+    "-l",
+    "--location",
+    help="Locations of files for transfer",
+    multiple=True,
+)
+@click.option(
+    "-r",
+    "--remove",
+    help="Remove file from the source after transfer",
+    is_flag=True,
+)
+def storage_transfer(src: str, dest: str, location: tuple[str, ...], remove: bool):
+    """Move files between storages."""
+    from_storage = lib_files.get_storage(src)
+    to_storage = lib_files.get_storage(dest)
+
+    is_supported = from_storage.supports_synthetic(
+        lib_files.Capability.MOVE if remove else lib_files.Capability.COPY, to_storage
+    )
+
+    if not is_supported:
+        error_shout("Operation is not supported")
+        raise click.Abort
+
+    if not location:
+        try:
+            location = tuple(from_storage.scan())
+        except lib_files.exc.UnsupportedOperationError as err:
+            error_shout(err)
+            raise click.Abort from err
+
+    op = from_storage.move_synthetic if remove else from_storage.copy_synthetic
+
+    with click.progressbar(location) as bar:
+        for item in bar:
+            data = lib_files.FileData(lib_files.Location(item))
+
+            try:
+                op(data.location, data, to_storage)
+            except (
+                lib_files.exc.MissingFileError,
+                lib_files.exc.ExistingFileError,
+            ) as err:
+                error_shout(err)
