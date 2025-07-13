@@ -8,7 +8,7 @@ certifi>=2025.01.31
 click==8.1.8
 dominate==2.9.1
 feedgen==1.0.0
-file-keeper==0.0.8
+file-keeper==0.0.9
 Flask==3.1.1
 Flask-Babel==4.0.0
 Flask-Login==0.6.3

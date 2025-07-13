@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlparse
 
+from file_keeper.core.exceptions import UnknownStorageError
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan.lib.munge as munge
@@ -74,7 +75,7 @@ def get_max_resource_size() -> int:
 
 
 class Upload(object):
-    storage: Optional[files.Storage]
+    storage: files.Storage | None = None
     filename: Optional[str]
     object_type: Optional[str]
     old_filename: Optional[str]
@@ -243,10 +244,6 @@ class ResourceUpload(object):
         self.filename = None
         self.mimetype = None
 
-        url = resource.get('url')
-        if url and config_mimetype_guess == 'file_ext' and urlparse(url).path:
-            self.mimetype = mimetypes.guess_type(url)[0]
-
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
 
@@ -269,6 +266,16 @@ class ResourceUpload(object):
 
         elif self.clear:
             resource['url_type'] = ''
+
+        url = resource.get('url')
+        if (
+                not self.mimetype
+                and url
+                and config_mimetype_guess == 'file_ext'
+                and urlparse(url).path
+        ):
+            self.mimetype = mimetypes.guess_type(url)[0]
+
 
     def get_directory(self, id: str) -> str:
         if not self.storage:

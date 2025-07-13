@@ -10,7 +10,6 @@ import time
 from copy import deepcopy
 from typing import Any, Union, TYPE_CHECKING, cast
 
-import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema as schema_
