@@ -199,17 +199,17 @@ class Storage(fk.Storage):
         )
 
         declaration.declare(key.name, key[-1]).set_description(
-            "Descriptive name of the storage used for debugging. When empty,"
+            "Descriptive name of the storage used for debugging.\nWhen empty,"
             + " name from the config option is used,"
             + " i.e: `ckanext.files.storage.DEFAULT_NAME...`",
         )
 
         declaration.declare_list(key.location_transformers, None).set_description(
             "List of transformations applied to the file location."
-            " Depending on the storage type, sanitizing the path or removing"
-            " special characters can be sensible. Empty value leaves location"
+            "\nDepending on the storage type, sanitizing the path or removing"
+            " special characters can be sensible.\nEmpty value leaves location"
             " unchanged, `uuid` transforms location into random UUID,"
-            "  `uuid_with_extension` transforms filename into UUID and appends original"
+            "\n`uuid_with_extension` transforms filename into UUID and appends original"
             " file's extension to it.",
         ).set_example("datetime_prefix")
 

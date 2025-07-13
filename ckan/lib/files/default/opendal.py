@@ -24,7 +24,7 @@ class OpenDalStorage(base.Storage, od.OpenDalStorage):
         super().declare_config_options(declaration, key)
         declaration.declare(key.scheme).required().set_description(
             "OpenDAL service type. Check available services at"
-            + "  https://docs.rs/opendal/latest/opendal/services/index.html",
+            + "\nhttps://docs.rs/opendal/latest/opendal/services/index.html",
         )
         declaration.declare(key.params).set_description(
             "JSON object with parameters passed directly to OpenDAL operator.",

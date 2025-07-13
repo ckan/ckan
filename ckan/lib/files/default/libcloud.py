@@ -29,9 +29,9 @@ class LibCloudStorage(base.Storage, lc.LibCloudStorage):
     def declare_config_options(cls, declaration: Declaration, key: Key):
         super().declare_config_options(declaration, key)
         declaration.declare(key.provider).required().set_description(
-            "apache-libcloud storage provider. List of providers available at "
+            "apache-libcloud storage provider. List of providers available at\n"
             + PROVIDERS_URL
-            + ". Use upper-cased value from Provider Constant column",
+            + ".\nUse upper-cased value from Provider Constant column",
         )
         declaration.declare(key.key).required().set_description(
             "API key or username",
@@ -50,11 +50,11 @@ class LibCloudStorage(base.Storage, lc.LibCloudStorage):
         )
 
         declaration.declare(key.public_prefix).set_description(
-            "URL prefix to use when builing public file's URL. Usually, this "
-            "requires a container with public URL. For example, if storage "
-            "uses cloud provider `example.cloud.com` and files are uploaded "
-            "into container `my_files`, the public prefix must be set to "
+            "URL prefix to use when builing public file's URL.\nUsually, this "
+            "requires a container with public URL.\nFor example, if storage "
+            "uses cloud provider `example.cloud.com`\nand files are uploaded "
+            "into container `my_files`, the public prefix must be set to\n"
             "`https://certain.cloud.com/my_files`, assuming container can be "
-            "anonymously accessed via this URL. File location will be appended"
+            "anonymously accessed via this URL.\nFile location will be appended"
             " to public prefix, producing absolute public URL."
         )
