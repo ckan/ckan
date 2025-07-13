@@ -129,6 +129,7 @@ class Settings(fk.Settings):
     >>>                 msg,
     >>>             )
     >>>         self.conn = create_engine(db_url)
+
     """
 
     supported_types: list[str] = dataclasses.field(default_factory=list)

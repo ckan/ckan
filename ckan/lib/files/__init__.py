@@ -7,6 +7,8 @@ from collections.abc import Mapping
 from typing import Any, cast
 
 from file_keeper import Registry, Upload, exc, make_upload
+from file_keeper.core.storage import location_transformers
+from file_keeper.core.types import LocationTransformer
 
 import ckan.plugins as p
 from ckan.common import config
@@ -226,6 +228,22 @@ def collect_storages() -> dict[str, Storage]:
                 },
             )
             result[name] = storage
+
+    return result
+
+
+def collect_location_transformers() -> dict[str, LocationTransformer]:
+    """Collect transformers IFiles implementations.
+
+    :returns: mapping with location transformers
+    """
+    result: dict[str, LocationTransformer] = {}
+
+    for plugin in p.PluginImplementations(p.IFiles):
+        result.update(plugin.files_get_location_transformers())
+
+    for name, func in result.items():
+        location_transformers.register(name, func)
 
     return result
 

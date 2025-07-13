@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
-    from ckan.lib.files import Storage
+    from ckan.lib.files import Storage, LocationTransformer
 
 
 __all__ = [
@@ -2291,5 +2291,19 @@ class IFiles(Interface):
                 }
 
         :returns: adapters provided by the implementation
+        """
+        return {}
+
+    def files_get_location_transformers(self) -> dict[str, LocationTransformer]:
+        """Return additional location transformers.
+
+        Example::
+
+            def files_get_location_transformers(self):
+                return {
+                    "my_ext:lowercase": lambda location, upload, extras: location.lower(),
+                }
+
+        :returns: location transformers provided by the implementation
         """
         return {}
