@@ -92,13 +92,13 @@ class Manager(fk.Manager):
 class Settings(fk.Settings):
     """Storage settings definition.
 
-    Any configurable parameter must be defined here, as this dataclass accepts
-    configuration collected from CKAN config file. Additionally, storage needs
-    to define declaration of all configurable parameters to guarantee correct
-    types.
+    Any configurable parameter must be defined here, as this dataclass accepts options
+    collected from CKAN config file and it will raise an exception whenever it sees an
+    unknown option.
 
-    Generally, Settings should not validate configuration. It just holds it and
-    initializes additional instances, like connections to external services.
+    Generally, Settings should not validate configuration, because validation is
+    provided by the config declarations. Settings object just holds static options and
+    initializes additional objects, like connections to external services.
 
     >>> @dataclasses.dataclass()
     >>> class MySettings(Settings)
@@ -111,7 +111,7 @@ class Settings(fk.Settings):
     >>>     # cannot set "default" connection. Instead we are using `None` and
     >>>     # type-ignore annotation to avoid attention from typechecker. If we
     >>>     # can guarantee that settings will not be initialized without a
-    >>>     # connection, that's remain safe.
+    >>>     # connection, that remains safe.
     >>>     conn: Engine = None # type: ignore
     >>>
     >>>     # db_url will be used to initialize connection and
@@ -190,7 +190,7 @@ class Storage(fk.Storage):
         ).set_example("10MB")
 
         declaration.declare_list(key.supported_types, None).set_description(
-            "Space-separated list of MIME types, or just type, or subtype part."
+            "Space-separated list of full MIME types, or just type/subtype part."
         ).set_example("text/csv pdf application video jpeg")
 
         declaration.declare_bool(key.override_existing).set_description(
@@ -207,9 +207,9 @@ class Storage(fk.Storage):
             "List of transformations applied to the file location."
             " Depending on the storage type, sanitizing the path or removing"
             " special characters can be sensible. Empty value leaves location"
-            " unchanged, `uuid` transforms location into UUID, `uuid_with_extension`"
-            " transforms filename into UUID and appends original file's extension"
-            " to it.",
+            " unchanged, `uuid` transforms location into random UUID,"
+            "  `uuid_with_extension` transforms filename into UUID and appends original"
+            " file's extension to it.",
         ).set_example("datetime_prefix")
 
     def as_response(
@@ -225,17 +225,13 @@ class Storage(fk.Storage):
         By default, files are served as attachments and are downloaded as
         result.
 
-        If rendering is safe and preferable enable ``send_inline`` flag.
+        If rendering is safe and preferable, enable ``send_inline`` flag.
 
-        Args:
-            data: file details
-            filename: expected name of the file used instead of the real name
+        :param data: file details
+        :param filename: expected name of the file used instead of the real name
+        :param send_inline: do not force download and try rendering file in browser
 
-        Keyword args:
-            send_inline: do not force download and try rendering file in browser
-
-        Returns:
-            Flask response with file's content
+        :returns: Flask response with file's content
         """
         resp = self._base_response(data, kwargs)
 

@@ -108,8 +108,7 @@ def get_storage(name: str | None = None) -> Storage:
 def collect_adapters() -> dict[str, type[Storage]]:
     """Collect adapters from core and IFiles implementations.
 
-    Returns:
-        mapping with storage adapters
+    :returns: mapping with storage adapters
     """
     result: dict[str, type[Storage]] = {
         "ckan:fs": default.FsStorage,
@@ -133,15 +132,11 @@ def collect_storage_configuration(
 ):
     """Return settings of every storage located in the config.
 
-    Args:
-        config: mapping with configuration
-        prefix: common prefix for storage options
+    :param config: mapping with configuration
+    :param prefix: common prefix for storage options
+    :param flat: do not transfrom nested keys into dictionaries
 
-    Keyword Args:
-        flat: do not transfrom nested keys into dictionaries
-
-    Returns:
-        dictionary with configuration of all storages
+    :returns: dictionary with configuration of all storages
 
     """
     storages = defaultdict(dict)  # type: dict[str, dict[str, Any]]
@@ -172,8 +167,7 @@ def collect_storage_configuration(
 def collect_storages() -> dict[str, Storage]:
     """Initialize configured storages.
 
-    Returns:
-        mapping with storages
+    :returns: mapping with storages
     """
     result = {}
 

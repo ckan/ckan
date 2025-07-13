@@ -114,12 +114,15 @@ def update_config() -> None:
             config[option] = from_env
 
     # adapters must be registered before declarations to properly extend
-    # declarations with adapter-specific configuration
+    # declarations with adapter-specific options
     files.adapters.reset()
     files.adapters.collect()
 
+    # collect config declarations
     config_declaration.setup()
+    # add default values for the missing config options
     config_declaration.make_safe(config)
+    # validate/convert config options
     config_declaration.normalize(config)
 
     # these are collections of all template/public paths registered by
@@ -154,6 +157,10 @@ def update_config() -> None:
 
     # storages rely only on valid configuration
     files.storages.reset()
+    # location transformers can be collected at any point. But in future
+    # storage may validate presence of transformers, so it's safer to collect
+    # them before storages are initialized
+    files.collect_location_transformers()
     files.storages.collect()
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

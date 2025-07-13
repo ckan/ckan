@@ -16,8 +16,9 @@ organization.
    :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
    to give CKAN more control over the files and make access control possible.
 
-.. versionchanged:: 2.12
-   Add support of configurable storages.
+.. versionchanged:: 2.12 Add support of configurable storages. Cloud uploads
+   are supported via correspoinding storage adapters, such as
+   ``ckan:libcloud``.
 
 .. seealso::
 
@@ -193,9 +194,8 @@ is following::
   ckan.files.storage.my_storage.create_path = true
 
 Any option that starts with ``ckan.files.storage.`` is a storage
-configuration. After the prefix fillows the name of the storage,
-``my_storage``, and everything after the name is an option that will be
-consumed by the storage.
+configuration. The next segment is the name of the storage, ``my_storage``, and
+everything after the name is an option that will be consumed by the storage.
 
 In the example above, storage ``my_storage`` is detected with configuration
 ``{"type": "ckan:fs", "path": "/tmp/my_storage", "create_path":
@@ -245,34 +245,68 @@ Additional information about storage functionality is available inside
 Storage types
 -------------
 
-Storage configuration requires ``type`` of the storage. Out of the box,
+Storage configuration requires ``type`` of the storage. Apart from the type,
+there is a number of common options that are supported by all storage types.
+
+* ``max_size``: The maximum size of a single upload
+* ``supported_types``: Space-separated list of allowed MIME types
+* ``override_existing``: If file already exists, replace it with new content
+* ``location_transformers``: List of transformations applied to the file
+  location. Transformations are not applied automatically - call
+  ``storage.prepare_location(filename)`` to get the transformed version of the
+  filename.
+
+The rest of options depends on the specific storage type. Out of the box,
 following storage types are available:
 
 
-.. list-table::
-   :widths: 25 50 25
-   :header-rows: 1
+ckan:fs
+^^^^^^^
 
-   * - Type
-     - Description
-     - Important options
-   * - `ckan:fs`
-     - Keeps files inside local filesystem
-     - * ``path``: root directory of the storage
+Keeps files inside the local filesystem. Files are uploaded into a directory
+specified by the required ``path`` option. The directory must exist and be
+writable by the CKAN process. If directory does not exist, it's created when
+``create_path`` option is enabled. If ``create_path`` is not enabled, exception
+is raised during initialization of the storage.
 
-   * - `ckan:public_fs`
-     - Keeps files inside directory that provides direct access to its content
-     - * ``path``: root directory of the storage
-       * ``public_prefix``: prefix for building a valid URL. If ``/var/x`` is
-         registered as a static folder, but files are uploaded into
-         ``/var/x/y/z/``, the ``public_prefix`` is ``y/z``.
+ckan:public_fs
+^^^^^^^^^^^^^^
 
-   * - `ckan:libcloud`
-     - Keeps files inside the cloud using `Apache Libcloud`_
-     - * ``provider``: one of `Apache Libcloud providers`_
-       * ``key``: API key or username
-       * ``secret``: Secret password
-       * ``params``: additional options for the provider specified as JSON
+Extended version of ``ckan:fs`` type. It assumes that ``path`` is registered as
+CKAN public folder and all files from it are accessible directly from the
+browser. Can be used for non-private uploads, such as user avatars or group
+images. If ``path`` points to the subfolder of the public directory, i.e, CKAN
+registers ``/data/storage`` as public directory, but storage's ``path`` is set
+to ``/data/storage/nested/path/inside``, use ``public_prefix`` option to
+specify static segment that must be added to file's location in order to build
+valid public URL. In the given example, ``public_prefix`` must be set to
+``nested/path/inside``.
+
+ckan:libcloud
+^^^^^^^^^^^^^
+
+Keeps files inside the cloud using `Apache Libcloud`_. Requires
+`apache-libcloud <https://pypi.org/project/apache-libcloud/>`_ library and is
+not available when this library is missing. Requires following options:
+
+* ``provider``: one of `Apache Libcloud providers`_
+* ``key``: API key or username
+* ``secret``: Secret password
+* ``container_name``: Name of the container/bucket
+
+Majority of providers do not support permanent links out of the box. But if the
+container supports public anonymous access and all files are available at URL
+``https://<PROVIDER>/<CONTAINER>/<FILENAME>``, this shared
+``https://<PROVIDER>/<CONTAINER>`` part can be specified as ``public_prefix``
+of the storage. In this case, CKAN will append file's location to the
+configured ``public_prefix`` whenever it needs a permanent public link for the
+file.
+
+Files are uploaded to the root of container. To specify nested location for all
+uploads, use ``path`` option.
+
+Any other provider specific option can be added inside ``params`` option which
+expects a valid JSON object
 
 .. _mimetypes: https://docs.python.org/3/library/mimetypes.html
 .. _file-keeper: https://pypi.org/project/file-keeper/
@@ -287,6 +321,9 @@ Storage utilities
 .. autoattribute:: ckan.lib.files.make_upload(value: Any) -> Upload
 
    Convert value into Upload object.
+
+   Works with binary objects, ``io.BytesIO``, file-objects, and file-fields
+   from submitted forms.
 
    Use this function for simple and reliable initialization of Upload
    object. Avoid creating Upload manually, unless you are 100% sure you can
@@ -306,6 +343,9 @@ Storage utilities
    .. autoattribute:: capabilities
       :no-value:
       :no-index:
+
+   .. automethod:: prepare_location
+
 
 .. autoclass:: ckan.lib.files.Settings
 .. autoclass:: ckan.lib.files.Uploader

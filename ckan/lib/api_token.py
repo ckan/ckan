@@ -91,11 +91,9 @@ def decode(encoded: str, **kwargs: Any) -> Optional[Mapping[str, Any]]:
 def decode_token(token: str, **kwargs: Any) -> dict[str, Any]:
     """Retrive data from JWT-token.
 
-    Args:
-        token: JWT-token with encoded data
+    :param token: JWT-token with encoded data
 
-    Returns:
-        decoded data
+    :returns: decoded data
     """
     return jwt.decode(
         token,
@@ -119,8 +117,7 @@ def encode(data: dict[str, Any], **kwargs: Any) -> str:
 def encode_token(data: dict[str, Any], **kwargs: Any) -> str:
     """Encode JSON-serializable data into JWT token.
 
-    Returns:
-        JWT-token
+    :returns: JWT-token
     """
     return jwt.encode(
         data,
