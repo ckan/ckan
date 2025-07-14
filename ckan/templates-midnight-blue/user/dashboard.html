@@ -18,7 +18,7 @@
   <ul class="nav nav-options">
     {% block dashboard_nav_links %}
       {{ nav.link(h.url_for('dashboard.datasets'), h.humanize_entity_type('package', dataset_type, 'my label') or _('My Datasets'), icon='sitemap') }}
-      {{ nav.link(h.url_for('dashboard.organizations'), h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations'), icon='briefcase') }}
+      {{ nav.link(h.url_for('dashboard.organizations'), h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations'), icon='building') }}
       {{ nav.link(h.url_for('dashboard.groups'), h.humanize_entity_type('group', group_type, 'my label') or _('My Groups'), icon='users') }}
     {% endblock dashboard_nav_links %}
   </ul>
