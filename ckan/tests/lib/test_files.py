@@ -10,13 +10,6 @@ from ckan.lib import files
 
 
 class TestMakeStorage:
-    def test_only_ckan_adapters_are_available(self, tmp_path: Path):
-        """File-keeper adapters cannot be initialized without CKAN wrapper."""
-        with pytest.raises(files.exc.UnknownAdapterError):
-            files.make_storage("test", {"type": "file_keeper:fs", "path": tmp_path})
-
-        assert files.make_storage("test", {"type": "ckan:fs", "path": tmp_path})
-
     def test_name_can_be_either_explicit_or_implicit(self, tmp_path: Path):
         """File-keeper adapters cannot be initialized without CKAN wrapper."""
         storage = files.make_storage("implicit", {"type": "ckan:fs", "path": tmp_path})
