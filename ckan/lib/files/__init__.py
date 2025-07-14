@@ -6,6 +6,7 @@ from collections import defaultdict
 from collections.abc import Mapping
 from typing import Any, cast
 
+import file_keeper as fk
 from file_keeper import Registry, Upload, exc, make_upload
 from file_keeper.core.storage import location_transformers
 from file_keeper.core.types import LocationTransformer
@@ -73,7 +74,7 @@ def make_storage(name: str, settings: dict[str, Any]):
     return adapter(settings)
 
 
-def get_storage(name: str | None = None) -> Storage:
+def get_storage(name: str | None = None) -> fk.Storage:
     """Return existing storage instance.
 
     If no name specified, default storage is returned.
@@ -107,15 +108,17 @@ def get_storage(name: str | None = None) -> Storage:
     return storage
 
 
-def collect_adapters() -> dict[str, type[Storage]]:
+def collect_adapters() -> dict[str, type[fk.Storage]]:
     """Collect adapters from core and IFiles implementations.
 
     :returns: mapping with storage adapters
     """
-    result: dict[str, type[Storage]] = {
-        "ckan:fs": default.FsStorage,
-        "ckan:public_fs": default.PublicFsStorage,
+    result: dict[str, type[fk.Storage]] = {
+        name: fk.adapters[name] for name in fk.adapters if not fk.adapters[name].hidden
     }
+
+    result["ckan:fs"] = default.FsStorage
+    result["ckan:public_fs"] = default.PublicFsStorage
 
     if adapter := getattr(default, "LibCloudStorage", None):
         result["ckan:libcloud"] = adapter
@@ -166,7 +169,7 @@ def collect_storage_configuration(
     return storages
 
 
-def collect_storages() -> dict[str, Storage]:
+def collect_storages() -> dict[str, fk.Storage]:
     """Initialize configured storages.
 
     :returns: mapping with storages
@@ -248,5 +251,5 @@ def collect_location_transformers() -> dict[str, LocationTransformer]:
     return result
 
 
-adapters = Registry[type[Storage]](collector=collect_adapters)
-storages = Registry[Storage](collector=collect_storages)
+adapters = Registry[type[fk.Storage]](collector=collect_adapters)
+storages = Registry[fk.Storage](collector=collect_storages)

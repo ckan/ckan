@@ -168,12 +168,16 @@ def load_files(declaration: "Declaration", /, config: Any = None):
     adapter.
     """
     from ckan.common import config as default_config
-    from ckan.lib.files import adapters, collect_storage_configuration, STORAGE_PREFIX
+    from ckan.lib import files
 
     if config is None:
         config = default_config
 
-    storages = collect_storage_configuration(config, STORAGE_PREFIX, flat=True)
+    storages = files.collect_storage_configuration(
+        config,
+        files.STORAGE_PREFIX,
+        flat=True,
+    )
 
     # add config declarations for configured storages. In this way user can
     # print all available options for every storage via `ckan config
@@ -182,9 +186,9 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         # make base key so that storage can declare options by extending. I.e.,
         # `storage_key.option_name`, instead of logner form
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
-        storage_key = Key().from_string(STORAGE_PREFIX + name)
+        storage_key = Key().from_string(files.STORAGE_PREFIX + name)
 
-        available_adapters = json.dumps(list(adapters), separators=(",", ":"))
+        available_adapters = json.dumps(list(files.adapters), separators=(",", ":"))
 
         # this option reports unrecognized type of the storage and shows all
         # available correct types
@@ -200,8 +204,8 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         # obviously, adapter must be specified. But at this point validation
         # hasn't happened yet, and settings can include anything. If `type` is
         # missing, it will be reported after the validation.
-        adapter = adapters.get(settings.get("type", ""))
-        if not adapter:
+        adapter = files.adapters.get(settings.get("type", ""))
+        if not adapter or not issubclass(adapter, files.Storage):
             continue
 
         adapter.declare_config_options(declaration, storage_key)

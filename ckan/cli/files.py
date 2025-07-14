@@ -21,12 +21,17 @@ def files(): ...
     "-c", "--with-configuration", is_flag=True, help="Show adapter's configuration"
 )
 @click.option("-d", "--with-docs", is_flag=True, help="Show adapter's documentation")
-@click.option("-H", "--include-hidden", is_flag=True, help="Show hidden adapters")
+@click.option(
+    "-a",
+    "--show-all",
+    is_flag=True,
+    help="Show adapters that may be incompatible with CKAN",
+)
 @click.argument("adapter", required=False)
 def adapters(
     adapter: str | None,
     with_docs: bool,
-    include_hidden: bool,
+    show_all: bool,
     with_configuration: bool,
 ):
     """Show all awailable storage adapters."""
@@ -36,7 +41,10 @@ def adapters(
             continue
 
         item = lib_files.adapters[name]
-        if item.hidden and not include_hidden:
+        if item.hidden:
+            continue
+
+        if not show_all and not issubclass(item, lib_files.Storage):
             continue
 
         click.secho(
@@ -49,12 +57,12 @@ def adapters(
             click.secho(wrapped)
             click.echo()
 
-        if with_configuration:
+        if with_configuration and issubclass(item, lib_files.Storage):
             decl = Declaration()
             item.declare_config_options(
                 decl, Key.from_string("ckan.files.storage.NAME")
             )
-            label = click.style('Configuration:', bold=True)
+            label = click.style("Configuration:", bold=True)
             configuration = f"{label}\n{decl.into_ini(False, True)}"
             wrapped = textwrap.indent(configuration, "\t")
             click.secho(wrapped)

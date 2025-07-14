@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlparse
 
+import file_keeper as fk
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan.lib.munge as munge
@@ -74,7 +75,7 @@ def get_max_resource_size() -> int:
 
 
 class Upload(object):
-    storage: files.Storage | None = None
+    storage: fk.Storage | None = None
     filename: Optional[str]
     object_type: Optional[str]
     old_filename: Optional[str]
@@ -148,14 +149,13 @@ class Upload(object):
             assert self.upload_file
 
             try:
-                self.storage.validate_size(self.upload_file.size)
-            except files.exc.LargeUploadError as err:
+                self.storage.upload(
+                    files.Location(self.filename),
+                    self.upload_file,
+                )
+            except (files.exc.LargeUploadError, files.exc.ExistingFileError) as err:
                 raise logic.ValidationError({"upload": [str(err)]})
 
-            self.storage.upload(
-                files.Location(self.filename),
-                self.upload_file,
-            )
             self.clear = True
 
         if (self.clear and self.old_filename
@@ -229,7 +229,7 @@ class Upload(object):
 
 class ResourceUpload(object):
     mimetype: Optional[str]
-    storage: files.Storage | None = None
+    storage: fk.Storage | None = None
 
     def __init__(self, resource: dict[str, Any]) -> None:
         try:
@@ -319,11 +319,10 @@ class ResourceUpload(object):
         # in the same location
         if self.filename:
             try:
-                self.storage.validate_size(self.upload_file.size)
-            except files.exc.LargeUploadError as err:
+                self.storage.upload(location, self.upload_file)
+            except (files.exc.LargeUploadError, files.exc.ExistingFileError) as err:
                 raise logic.ValidationError({'upload': [str(err)]})
 
-            self.storage.upload(location, self.upload_file)
             return
 
         # The resource form only sets self.clear (via the input clear_upload)

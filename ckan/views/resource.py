@@ -8,6 +8,7 @@ from typing import Any, Optional, Union, cast
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
 from flask.views import MethodView
+import file_keeper as fk
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
@@ -19,7 +20,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.lib import signals
-from ckan.common import _, config, g, request, current_user
+from ckan.common import _, config, g, request, current_user, streaming_response
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
@@ -168,11 +169,25 @@ def download(package_type: str,
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
         mimetype = rsc.get('mimetype')
+
+        storage: fk.Storage | None
         if storage := getattr(upload, "storage", None):
             file_data = files.FileData(files.Location(filepath))
             if mimetype:
                 file_data.content_type = mimetype
-            resp = storage.as_response(file_data, filename)
+            if isinstance(storage, files.Storage):
+                resp = storage.as_response(file_data, filename)
+            else:
+                resp = streaming_response(
+                    storage.stream(file_data),
+                    file_data.content_type,
+                )
+                resp.headers.set(
+                    "content-disposition",
+                    "attachment",
+                    filename=filename or file_data.location,
+                )
+
         else:
             resp = flask.send_file(filepath, download_name=filename)
             if mimetype:
