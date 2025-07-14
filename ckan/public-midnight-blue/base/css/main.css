@@ -225,11 +225,11 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
 }
 
 h1, .h1 {
-  font-size: calc(1.325rem + 0.9vw);
+  font-size: calc(1.425rem + 2.1vw);
 }
 @media (min-width: 1200px) {
   h1, .h1 {
-    font-size: 2rem;
+    font-size: 3rem;
   }
 }
 
@@ -4659,6 +4659,7 @@ textarea.form-control-lg {
   --bs-breadcrumb-padding-x: 0;
   --bs-breadcrumb-padding-y: 0;
   --bs-breadcrumb-margin-bottom: 1rem;
+  --bs-breadcrumb-font-size: 0.875rem;
   --bs-breadcrumb-bg: ;
   --bs-breadcrumb-border-radius: ;
   --bs-breadcrumb-divider-color: #475467;
@@ -8232,7 +8233,7 @@ textarea.form-control-lg {
 }
 
 .fs-1 {
-  font-size: calc(1.325rem + 0.9vw) !important;
+  font-size: calc(1.425rem + 2.1vw) !important;
 }
 
 .fs-2 {
@@ -11795,7 +11796,7 @@ textarea.form-control-lg {
 }
 @media (min-width: 1200px) {
   .fs-1 {
-    font-size: 2rem !important;
+    font-size: 3rem !important;
   }
   .fs-2 {
     font-size: 1.75rem !important;
@@ -11859,6 +11860,15 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
   font-size: 24px;
   -webkit-text-stroke: 2px #667085;
   color: transparent;
+}
+
+.all-members {
+  margin-bottom: 1rem;
+}
+@media (min-width: 992px) {
+  .all-members {
+    float: right;
+  }
 }
 
 a.open-data {
@@ -11947,6 +11957,9 @@ a.tag:hover {
 .module > .page-header {
   margin-top: 0px;
 }
+.module > .page-header h1, .module > .page-header .h1 {
+  margin-bottom: 0;
+}
 .module > .module-content:nth-child(2n) {
   padding-top: 1.5rem;
 }
@@ -11974,7 +11987,7 @@ a.tag:hover {
   padding: 1.5rem;
 }
 .module-content .add-to-group .btn-primary {
-  margin-bottom: 1.5rem;
+  margin: 1.5rem 0;
 }
 .module-content p a:link {
   text-decoration: underline;
@@ -13908,8 +13921,8 @@ td.diff_header {
 
 .toolbar {
   position: relative;
-  margin-top: 43px;
-  margin-bottom: 63px;
+  margin-bottom: 10px;
+  padding: 5px 0;
 }
 .toolbar::after {
   display: block;
@@ -13930,8 +13943,6 @@ td.diff_header {
   border: none;
   background: none;
   font-size: 14px;
-  line-height: 20px;
-  font-weight: 400;
 }
 .toolbar .breadcrumb::after {
   display: block;
@@ -13939,7 +13950,7 @@ td.diff_header {
   content: "";
 }
 
-.toolbar .breadcrumb li {
+.toolbar .breadcrumb li:not(:first-child) {
   padding-left: 0.5rem;
 }
 .toolbar .breadcrumb li:not(:first-child)::before {
@@ -13970,7 +13981,7 @@ td.diff_header {
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
   font-weight: bold;
-  color: #153084;
+  color: #0a1d5e;
 }
 
 .actions {
@@ -14020,8 +14031,11 @@ td.diff_header {
   border-bottom-color: transparent;
 }
 
+.content_action {
+  display: flex;
+  justify-content: flex-end;
+}
 .content_action .btn {
-  float: right;
   margin-bottom: 1rem;
 }
 
@@ -14201,7 +14215,17 @@ td.diff_header {
 }
 
 .context-info .module-content {
-  padding: 0;
+  padding: 1rem 0;
+}
+@media (max-width: 767.98px) {
+  .context-info .module-content {
+    padding: 1rem 1.5rem;
+  }
+  .context-info .image {
+    margin-right: 0.5rem;
+    width: 50%;
+    float: left;
+  }
 }
 .context-info .image {
   margin-bottom: 10px;
@@ -14215,8 +14239,7 @@ td.diff_header {
 }
 .context-info .description {
   word-wrap: break-word;
-  word-break: break-all;
-  overflow: auto;
+  overflow: visible;
 }
 .context-info code {
   display: block;
@@ -14225,10 +14248,11 @@ td.diff_header {
   margin: 0;
   overflow: auto;
 }
-.context-info .heading {
+.context-info h1.heading, .context-info .heading.h1, .context-info span.heading {
   margin: 0 0 5px 0;
   font-size: 18px;
   line-height: 1.3;
+  font-weight: 600;
   -ms-word-break: break-all;
   word-break: break-all;
   /* Non standard for webkit */
@@ -14241,7 +14265,6 @@ td.diff_header {
 .context-info .info {
   margin-top: 15px;
   padding-top: 10px;
-  border-top: 1px dotted #DDD;
   word-break: break-word;
 }
 .context-info .info dl dd {
@@ -14253,23 +14276,18 @@ td.diff_header {
   flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 10px;
-}
-.context-info .nums::after {
-  display: block;
+  column-gap: 5%;
   clear: both;
-  content: "";
 }
 .context-info .nums dl {
   color: #344054;
 }
 .context-info .nums dl dt {
-  font-size: 13px;
-  font-weight: 300;
+  font-weight: 400;
 }
 .context-info .nums dl dd {
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 36px;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 .context-info.editing .module-content {
   margin-top: 0;
@@ -15435,21 +15453,6 @@ td.diff_header {
 
 .stage > .row > .stage-nohiglight > .col-auto > .row {
   width: 164px;
-}
-
-.page-heading,
-.hide-heading {
-  font-size: 3rem;
-  line-height: 3rem;
-  font-weight: 600;
-  color: #153084;
-}
-@media screen and (max-width: 768px) {
-  .page-heading,
-  .hide-heading {
-    font-size: 1.875rem;
-    line-height: 1.875rem;
-  }
 }
 
 .col.stage {

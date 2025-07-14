@@ -20,6 +20,12 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
     color: transparent;
 }
 
+.all-members {
+    margin-bottom: 1rem;
+    @include media-breakpoint-up(lg) {
+        float: right;
+    }
+}
 a.open-data {
     display: inline-flex;
     align-items: flex-start;
