@@ -38,7 +38,6 @@ def init(
         ctx: click.Context, version: str, plugin: str,
         skip_core: bool, skip_plugins: bool
 ):
-
     """Initialize the database (alias of `ckan db upgrade`)
     """
     ctx.forward(upgrade)
@@ -75,6 +74,18 @@ def clean():
     """
     try:
         model.repo.clean_db()
+
+        # Clear search index to remove orphaned entries (issue #8347)
+        try:
+            from ckan.lib.search import clear_all
+            clear_all()
+            click.secho(u'Clearing search index: SUCCESS', fg=u'green')
+        except Exception as search_e:
+            click.secho(
+                u'Warning: Failed to clear search index: {}'.format(search_e),
+                fg=u'yellow'
+            )
+
     except Exception as e:
         error_shout(e)
     else:

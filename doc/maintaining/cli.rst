@@ -352,13 +352,19 @@ db: Manage databases
 
 .. parsed-literal::
 
- ckan db clean               - Clean the database
+ ckan db clean               - Clean the database and search index
  ckan db downgrade           - Downgrade the database
  ckan db duplicate_emails    - Check users email for duplicate
  ckan db init                - Initialize the database
  ckan db pending-migrations  - List all sources with unapplied migrations.
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
+
+.. note::
+
+   As of CKAN 2.12, the ``ckan db clean`` command automatically clears 
+   the search index to prevent orphaned entries. This ensures better 
+   performance and data consistency.
 
 See :doc:`database-management`.
 
@@ -639,11 +645,20 @@ computer to reindex faster
 
  ckan -c |ckan.ini| search-index rebuild-fast
 
-There is also an option to clear the whole index first and then rebuild it with all datasets:
+By default, ``search-index rebuild`` automatically removes orphaned packages 
+from the search index after rebuilding. If you want to preserve orphaned 
+packages (e.g., for debugging), use the ``--keep-orphans`` option:
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| search-index rebuild --clear
+ ckan -c |ckan.ini| search-index rebuild --keep-orphans
+
+.. note::
+
+   As of CKAN 2.12, the ``--clear`` option has been removed from 
+   ``search-index rebuild``. The command now automatically clears orphaned 
+   packages after rebuilding instead of clearing the entire index beforehand,
+   which is more efficient for production sites.
 
 There are other search related commands, mostly useful for debugging purposes
 
@@ -652,6 +667,7 @@ There are other search related commands, mostly useful for debugging purposes
  ckan search-index check                  - checks for datasets not indexed
  ckan search-index show DATASET_NAME      - shows index of a dataset
  ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
+ ckan search-index clear-orphans          - clears orphaned packages from the search index
 
 
 sysadmin: Give sysadmin rights
