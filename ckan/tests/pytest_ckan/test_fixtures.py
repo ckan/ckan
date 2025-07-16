@@ -61,20 +61,39 @@ class TestWithPlugins:
         with pytest.raises(plugins.PluginNotFoundException):
             plugins.load("fake_plugin")
 
-    @pytest.mark.ckan_plugin("fake_plugin", _FakePlugin)
+    @pytest.mark.provide_plugin("fake_plugin", _FakePlugin)
     @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")
     def test_provided_plugin_can_be_loaded_manually(self,):
         """Fake plugin can be loaded when provided via mark."""
         plugin = plugins.load("fake_plugin")
         assert isinstance(plugin, _FakePlugin)
 
-    @pytest.mark.ckan_plugin("fake_plugin", _FakePlugin)
+    @pytest.mark.provide_plugin("fake_plugin", _FakePlugin)
     @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")
     @pytest.mark.usefixtures("with_plugins")
     def test_provided_plugins(self):
         """Fake plugins are loaded by `with_plugins`."""
         plugin = plugins.get_plugin("fake_plugin")
         assert isinstance(plugin, _FakePlugin)
+
+    @pytest.mark.ckan_config("ckan.plugins", "stats")
+    @pytest.mark.with_plugins(
+        "text_view",
+        "image_view",
+        {"activity": list, "datapusher": dict},
+    )
+    @pytest.mark.with_plugins("audio_view")
+    @pytest.mark.with_plugins({"fake_plugin": _FakePlugin})
+    def test_mark_mode(self):
+        """`with_plugins` can load real plugins, register fake plugins and be
+        used multiple times."""
+        assert plugins.plugin_loaded("stats")
+        assert plugins.plugin_loaded("text_view")
+        assert plugins.plugin_loaded("image_view")
+        assert plugins.plugin_loaded("audio_view")
+        assert isinstance(plugins.get_plugin("activity"), list)
+        assert isinstance(plugins.get_plugin("datapusher"), dict)
+        assert isinstance(plugins.get_plugin("fake_plugin"), _FakePlugin)
 
 
 @pytest.mark.ckan_config("ckan.site_url", "https://example.org")

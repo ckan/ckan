@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import copy
 import smtplib
+import itertools
 
 from io import BytesIO
 from typing import Any, IO, cast
@@ -397,21 +398,30 @@ def provide_plugin(
             provide_plugin("list_plugin", list)
             assert plugins.load("list_plugin") == []
 
-    Alternatively, test plugins can be added with `ckan_plugin` mark, which
+    Alternatively, test plugins can be added with `provide_plugin` mark, which
     inernally relies on the current fixture::
 
-        @pytest.mark.ckan_plugin("list_plugin", list)
+        @pytest.mark.provide_plugin("list_plugin", list)
         @pytest.mark.ckan_config("ckan.plugins", "list_plugin")
         @pytest.mark.usefixtures("with_plugins")
-        def test_fake_plugin(provide_plugin):
+        def test_fake_plugin():
             plugin = plugins.get_plugin("list_plugin")
             assert  plugin == []
+
+    The last example can be rewritten using mark `with_plugins`, which applies
+    `provide_plugin` all its dict-arguments::
+
+        @pytest.mark.with_plugins({"list_plugin": list})
+        def test_fake_plugin():
+            plugin = plugins.get_plugin("list_plugin")
+            assert  plugin == []
+
     """
     from ckan.plugins.core import _get_service
 
     markers = cast(
         "list[pytest.Mark]",
-        request.node.iter_markers("ckan_plugin"),
+        request.node.iter_markers("provide_plugin"),
     )
     plugins: dict[str, type] = dict(mark.args for mark in markers)
 
@@ -424,7 +434,12 @@ def provide_plugin(
 
 
 @pytest.fixture
-def with_plugins(ckan_config, provide_plugin):
+def with_plugins(
+    ckan_config: dict[str, Any],
+    provide_plugin: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+):
     """Load all plugins specified by the ``ckan.plugins`` config option at the
     beginning of the test(and disable any plugin which is not listed inside
     ``ckan.plugins``). When the test ends (including fail), it will unload all
@@ -472,7 +487,41 @@ def with_plugins(ckan_config, provide_plugin):
     This will automatically enable ``with_plugins`` for every test, even if
     it's not required explicitely.
 
+    The fixture can be used as mark. It iterates over all arguments and appends
+    them to the list of ``ckan.plugins`` before loading. This can be used to
+    enable few plugins **in addition** to any plugins that are already
+    specified by the ``ckan.plugins`` option::
+
+        @pytest.mark.with_plugins("XXX", "YYY")
+        def test_action_and_helper():
+            assert plugins.plugin_loaded("XXX")
+            assert plugins.plugin_loaded("XXX")
+            # any other plugin from `ckan.plugins` is loaded as well
+
     """
+    markers = cast(
+        "list[pytest.Mark]",
+        request.node.iter_markers("with_plugins"),
+    )
+    plugins = itertools.chain.from_iterable(mark.args for mark in markers)
+
+    names = []
+    for plugin in plugins:
+        if isinstance(plugin, str):
+            names.append(plugin)
+        elif isinstance(plugin, dict):
+            for name, impl in plugin.items():
+                provide_plugin(name, impl)
+                names.append(name)
+        else:
+            assert False, f"Unexpectedd argument {plugin} for with_plugins mark"
+
+    current_plugins: str | list[str] = ckan_config["ckan.plugins"]
+    if isinstance(current_plugins, str):
+        current_plugins = [current_plugins]
+
+    monkeypatch.setitem(ckan_config, "ckan.plugins", " ".join(current_plugins + names))
+
     ckan.plugins.load_all()
     yield
     ckan.plugins.unload_all()

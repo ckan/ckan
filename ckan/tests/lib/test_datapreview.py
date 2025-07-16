@@ -55,7 +55,7 @@ class MockDatastoreBasedResourceView(p.SingletonPlugin):
         }
 
 
-@pytest.mark.ckan_plugin("test_datastore_view", MockDatastoreBasedResourceView)
+@pytest.mark.provide_plugin("test_datastore_view", MockDatastoreBasedResourceView)
 @pytest.mark.ckan_config(
     "ckan.plugins", "image_view datatables_view webpage_view test_datastore_view"
 )
@@ -133,7 +133,7 @@ class TestDatapreviewWithWebpageView(object):
         ) == ["test_datastore_view"]
 
 
-@pytest.mark.ckan_plugin("test_datastore_view", MockDatastoreBasedResourceView)
+@pytest.mark.provide_plugin("test_datastore_view", MockDatastoreBasedResourceView)
 @pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestDatapreview(object):
