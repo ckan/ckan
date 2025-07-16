@@ -11,7 +11,6 @@ import sqlalchemy as sqla
 
 import ckan.lib.jobs as jobs
 import ckan.logic
-import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
@@ -224,6 +223,10 @@ def resource_view_delete(context: Context, data_dict: DataDict) -> ActionResult.
 
     resource_view.delete()
     model.repo.commit()
+
+    # resource_view_changed in ckanext/activity/subscriptions.py
+    # needs the resource id
+    return {'resource_id': resource_view.resource_id}
 
 
 def resource_view_clear(context: Context, data_dict: DataDict) -> ActionResult.ResourceViewClear:

@@ -12,7 +12,7 @@ import copy
 import logging
 import sys
 from typing import (
-    Any, Callable, Container, Dict, Iterable, Optional, Set, Union,
+    Any, Container, Dict, Iterable, Optional, Set, Union,
     cast)
 import sqlalchemy as sa
 import os
@@ -37,7 +37,7 @@ from ckan.lib.lazyjson import LazyJSONObject
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 
-from psycopg2.extras import register_default_json, register_composite
+from psycopg2.extras import register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError, DatabaseError,
@@ -125,26 +125,25 @@ def get_write_engine():
 
 
 def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
-    '''Get either read or write engine.'''
+    """Get either read or write engine."""
     engine = _engines.get(connection_url)
-    if not engine:
-        extras = {'url': connection_url}
-        config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
-        for key, value in kwargs.items():
-            config.setdefault(key, value)
-        engine = sa.engine_from_config(dict(config),
-                                       'ckan.datastore.sqlalchemy.',
-                                       **extras)
-        _engines[connection_url] = engine
 
-    # don't automatically convert to python objects
-    # when using native json types in 9.2+
-    # http://initd.org/psycopg/docs/extras.html#adapt-json
-    _loads: Callable[[Any], Any] = lambda x: x
-    register_default_json(
-        conn_or_curs=engine.raw_connection().connection,  # type: ignore
-        globally=False,
-        loads=_loads)
+    if engine:
+        return engine
+
+    config.setdefault("ckan.datastore.sqlalchemy.pool_pre_ping", True)
+
+    for key, value in kwargs.items():
+        config.setdefault(key, value)
+
+    engine = sa.engine_from_config(
+        dict(config),
+        "ckan.datastore.sqlalchemy.",
+        json_deserializer=lambda x: x,  # do not convert to python objects
+        url=connection_url,
+    )
+
+    _engines[connection_url] = engine
 
     return engine
 
@@ -1911,7 +1910,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         ''' Returns True if the read engine is a Postgresql Database.
 
         According to
-        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        https://docs.sqlalchemy.org/en/20/core/engines.html#postgresql
         all Postgres driver names start with `postgres`.
         '''
         drivername = self._get_read_engine().engine.url.drivername
@@ -2258,15 +2257,17 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             plugin_data, _old = _get_raw_field_info(conn, id)
             return plugin_data
 
-    def resource_fields(self, id: str) -> dict[str, Any]:
+    def resource_fields(
+            self, id: str, include_meta: bool = True,
+            include_fields_schema: bool = True) -> dict[str, Any]:
 
-        info: dict[str, Any] = {'meta': {}, 'fields': []}
+        info: dict[str, Any] = {'fields': []}
+        engine = self._get_read_engine()
 
-        try:
-            engine = self._get_read_engine()
-
+        if include_meta:
             # resource id for deferencing aliases
-            info['meta']['id'] = id
+            meta: dict[str, Any] = {'id': id}
+            info['meta'] = meta
 
             # count of rows in table
             meta_sql = sa.text(
@@ -2323,19 +2324,23 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             ''')
             with engine.connect() as conn:
                 alias_results = conn.execute(alias_sql)
-            aliases = []
+            aliases: list[str] = []
             for alias in alias_results.fetchall():
                 aliases.append(alias[0])
             info['meta']['aliases'] = aliases
 
-            # get the data dictionary for the resource
-            with engine.connect() as conn:
-                data_dictionary = _result_fields(
-                    _get_fields_types(conn, id),
-                    _get_field_info(conn, id),
-                    None
-                )
+        # get the data dictionary for the resource
+        with engine.connect() as conn:
+            data_dictionary = _result_fields(
+                _get_fields_types(conn, id),
+                _get_field_info(conn, id),
+                None
+            )
+        info['fields'] = [
+            f for f in data_dictionary if not f['id'].startswith('_')
+        ]
 
+        if include_fields_schema:
             schema_sql = sa.text(f'''
                 SELECT
                 f.attname AS column_name,
@@ -2383,10 +2388,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 if field['id'].startswith('_'):
                     continue
                 field.update({'schema': schemainfo[field['id']]})
-                info['fields'].append(field)
 
-        except Exception:
-            pass
         return info
 
     def get_all_ids(self) -> list[str]:

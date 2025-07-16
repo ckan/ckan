@@ -89,15 +89,19 @@ this.ckan.module('confirm-action', function (jQuery) {
      * Returns nothing.
      */
     performAction: function () {
-      // create a form and submit it to confirm the deletion
-      var form = jQuery('<form/>', {
-        action: this.el.attr('href'),
-        method: 'POST'
-      });
+      var form = this.el.closest('form');
+      if (form.attr('hx-post') || form.attr('hx-get')) {
+        this.modal.modal('hide');
+        htmx.trigger(form[0], 'submit');
+        return;
+      }
 
-      // use parent to el form if data-module-with-data == true
-      if (this.options.withData) {
-        var form = this.el.closest('form');
+      if (!this.options.withData && !form.attr('hx-post')) {
+        // create a form and submit it to confirm the deletion
+        form = jQuery('<form/>', {
+          action: this.el.attr('href'),
+          method: 'POST'
+        });
       }
 
       // get the csrf value

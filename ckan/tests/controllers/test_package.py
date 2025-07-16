@@ -145,7 +145,7 @@ class TestPackageNew(object):
 
     def test_resource_required(self, app, user):
         url = url_for("dataset.new")
-        name = "one-resource-required"
+        name = "resource-data-required"
         headers = {"Authorization": user["token"]}
         response = app.post(url, headers=headers, data={
             "name": name,
@@ -156,9 +156,9 @@ class TestPackageNew(object):
         response = app.post(location, headers=headers, data={
             "id": "",
             "url": "",
-            "save": "go-metadata",
+            "save": "again",
         })
-        assert "You must add at least one data resource" in response
+        assert "No resource data entered" in response
 
     def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")

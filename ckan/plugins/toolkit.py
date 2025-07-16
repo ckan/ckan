@@ -23,7 +23,7 @@ from ckan.logic import (  # noqa: re-export
     get_validator,
     chained_auth_function,
     chained_action,
-    NotFound as ObjectNotFound,
+    NotFound,
     NotAuthorized,
     ValidationError,
     UnknownValidator,
@@ -39,7 +39,11 @@ from ckan.logic import (  # noqa: re-export
 
 import ckan.plugins.blanket as blanket
 import ckan.lib.signals as signals
-from ckan.lib.jobs import enqueue as enqueue_job
+from ckan.lib.jobs import (
+    enqueue as enqueue_job,
+    get_queue as get_job_queue,
+    job_from_id,
+)
 from ckan.logic.validators import Invalid
 from ckan.lib.navl.dictization_functions import (
     validate as navl_validate,
@@ -83,6 +87,9 @@ from ckan.cli import error_shout
 from ckan.lib.mailer import mail_recipient, mail_user
 from ckan.model.base import BaseModel
 
+ObjectNotFound = NotFound
+
+
 __all__ = [
     "BaseModel",
     "CkanVersionException",
@@ -92,6 +99,7 @@ __all__ = [
     "HelperError",
     "Invalid",
     "NotAuthorized",
+    "NotFound",
     "ObjectNotFound",
     "StopOnError",
     "UnknownValidator",
@@ -125,9 +133,11 @@ __all__ = [
     "get_action",
     "get_converter",
     "get_endpoint",
+    "get_job_queue",
     "get_or_bust",
     "get_validator",
     "h",
+    "job_from_id",
     "literal",
     "login_user",
     "logout_user",
