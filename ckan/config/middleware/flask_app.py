@@ -8,6 +8,7 @@ import importlib
 import inspect
 import pkgutil
 import logging
+import pprint
 
 from logging.handlers import SMTPHandler
 from typing import Any, Optional, Union, cast
@@ -29,7 +30,7 @@ from flask_babel import Babel
 
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, session, current_user
+from ckan.common import CKANConfig, asbool, session, current_user, _
 
 import ckan.model as model
 from ckan.lib import base
@@ -59,6 +60,8 @@ from ckan.views import (identify_user,
                         _get_user_for_apitoken,
                         )
 from ckan.types import CKANApp, Config, Response
+from ckan.logic import NotFound, NotAuthorized, ValidationError
+
 
 log = logging.getLogger(__name__)
 
@@ -518,8 +521,46 @@ def _register_error_handler(app: CKANApp):
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
+        app.register_error_handler(NotFound, _not_found_handler)
+        app.register_error_handler(NotAuthorized, _not_authorized_handler)
+        app.register_error_handler(ValidationError, _not_valid_handler)
+
         if config.get('email_to'):
             _setup_error_mail_handler(app)
+
+
+def _not_found_handler(error: NotFound) -> tuple[str, int]:
+    """Generic handler for NotFound exception."""
+    content = _("Object not found: {message}").format(message=error.message)
+    page = base.render(
+        "error_document_template.html",
+        {"code": 404, "content": content, "name": _("Not found")},
+    )
+    return (page, 404)
+
+
+def _not_valid_handler(error: ValidationError) -> tuple[str, int]:
+    """Generic handler for NotFound exception."""
+    message = _("Validation error:")
+    detail = h.clean_html(pprint.pformat(error.error_dict))
+    content = h.literal(f"{message} <pre><code>{detail}</code></pre>")
+
+    page = base.render(
+        "error_document_template.html",
+        {"code": 400, "content": content, "name": _("Bad request")},
+    )
+    return (page, 400)
+
+
+def _not_authorized_handler(error: NotAuthorized) -> tuple[str, int]:
+    """Generic handler for NotAuthorized exception."""
+    content = _(error.message) or _("Not authorized to view this page")
+
+    page = base.render(
+        "error_document_template.html",
+        {"code": 403, "content": content, "name": _("Not authorized")},
+    )
+    return (page, 403)
 
 
 def _setup_error_mail_handler(app: CKANApp):
