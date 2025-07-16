@@ -518,9 +518,9 @@ def with_plugins(
 
     current_plugins: str | list[str] = ckan_config["ckan.plugins"]
     if isinstance(current_plugins, str):
-        current_plugins = [current_plugins]
+        current_plugins = current_plugins.split()
 
-    monkeypatch.setitem(ckan_config, "ckan.plugins", " ".join(current_plugins + names))
+    monkeypatch.setitem(ckan_config, "ckan.plugins", current_plugins + names)
 
     ckan.plugins.load_all()
     yield
