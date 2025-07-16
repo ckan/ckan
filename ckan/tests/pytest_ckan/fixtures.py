@@ -119,7 +119,7 @@ register(OrganizationFactory, "organization")
 
 
 @pytest.fixture
-def ckan_config(request, monkeypatch):
+def ckan_config(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch):
     """Allows to override the configuration object used by tests
 
     Takes into account config patches introduced by the ``ckan_config``
@@ -158,7 +158,7 @@ def ckan_config(request, monkeypatch):
 
 
 @pytest.fixture
-def make_app(ckan_config):
+def make_app(ckan_config: types.FixtureCkanConfig):
     """Factory for client app instances.
 
     Unless you need to create app instances lazily for some reason,
@@ -174,7 +174,7 @@ def make_app(ckan_config):
 
 
 @pytest.fixture
-def app(make_app):
+def app(make_app: types.FixtureMakeApp):
     """Returns a client app instance to use in functional tests
 
     To use it, just add the ``app`` parameter to your test function signature::
@@ -191,7 +191,7 @@ def app(make_app):
 
 
 @pytest.fixture
-def cli(ckan_config):
+def cli(ckan_config: types.FixtureCkanConfig):
     """Provides object for invoking CLI commands from tests.
 
     This is subclass of `click.testing.CliRunner`, so all examples
@@ -282,14 +282,14 @@ def reset_redis():
         conn = redis.connect_to_redis()
         keys = conn.keys(pattern)
         if keys:
-            return conn.delete(*keys)
+            return conn.delete(*keys)  # type: ignore
         return 0
 
     return cleaner
 
 
 @pytest.fixture()
-def clean_redis(reset_redis):
+def clean_redis(reset_redis: types.FixtureResetRedis):
     """Remove all keys from Redis.
 
     This fixture removes all the records from Redis::
@@ -313,7 +313,7 @@ def clean_redis(reset_redis):
 
 
 @pytest.fixture
-def clean_db(reset_db):
+def clean_db(reset_db: types.FixtureResetDb):
     """Resets the database to the initial state.
 
     This can be used either for all tests in a class::
@@ -335,7 +335,7 @@ def clean_db(reset_db):
 
 
 @pytest.fixture
-def clean_queues(reset_queues):
+def clean_queues(reset_queues: types.FixtureResetQueues):
     """Empties and deleted all queues.
 
     This can be used either for all tests in a class::
@@ -372,7 +372,7 @@ def migrate_db_for():
     """
     from ckan.cli.db import _run_migrations
 
-    def runner(plugin, version="head", forward=True):
+    def runner(plugin: str, version: str = "head", forward: bool = True):
         assert plugin, "Cannot apply migrations of unknown plugin"
         _run_migrations(plugin, version, forward)
 
@@ -380,7 +380,7 @@ def migrate_db_for():
 
 
 @pytest.fixture
-def clean_index(reset_index):
+def clean_index(reset_index: types.FixtureResetIndex):
     """Clear search index before starting the test.
     """
     reset_index()
@@ -435,8 +435,8 @@ def provide_plugin(
 
 @pytest.fixture
 def with_plugins(
-    ckan_config: dict[str, Any],
-    provide_plugin: Any,
+    ckan_config: types.FixtureCkanConfig,
+    provide_plugin: types.FixtureProvidePlugin,
     monkeypatch: pytest.MonkeyPatch,
     request: pytest.FixtureRequest,
 ):
@@ -528,14 +528,14 @@ def with_plugins(
 
 
 @pytest.fixture
-def test_request_context(app):
+def test_request_context(app: types.FixtureApp) -> types.RequestContext:
     """Provide function for creating Flask request context.
     """
     return app.flask_app.test_request_context
 
 
 @pytest.fixture
-def with_request_context(test_request_context):
+def with_request_context(test_request_context: types.FixtureTestRequestContext):
     """Execute test inside requests context
     """
     with test_request_context():
@@ -543,7 +543,7 @@ def with_request_context(test_request_context):
 
 
 @pytest.fixture
-def mail_server(monkeypatch):
+def mail_server(monkeypatch: pytest.MonkeyPatch):
     """Catch all outcome mails.
     """
     bag = test_helpers.FakeSMTP()
@@ -552,7 +552,7 @@ def mail_server(monkeypatch):
 
 
 @pytest.fixture
-def with_test_worker(monkeypatch):
+def with_test_worker(monkeypatch: pytest.MonkeyPatch):
     """Worker that doesn't create forks.
     """
     monkeypatch.setattr(
@@ -565,7 +565,10 @@ def with_test_worker(monkeypatch):
 
 
 @pytest.fixture
-def with_extended_cli(ckan_config, monkeypatch):
+def with_extended_cli(
+        ckan_config: types.FixtureCkanConfig,
+        monkeypatch: pytest.MonkeyPatch,
+):
     """Enables effects of IClick.
 
     Without this fixture, only CLI command that came from plugins
@@ -582,14 +585,14 @@ def with_extended_cli(ckan_config, monkeypatch):
 
 
 @pytest.fixture(scope="session")
-def reset_db_once(reset_db):
+def reset_db_once(reset_db: types.FixtureResetDb):
     """Internal fixture that cleans DB only the first time it's used.
     """
     reset_db()
 
 
 @pytest.fixture
-def non_clean_db(reset_db_once):
+def non_clean_db(reset_db_once: types.FixtureResetDb):
     """Guarantees that DB is initialized.
 
     This fixture either initializes DB if it hasn't been done yet or does
@@ -613,7 +616,12 @@ class FakeFileStorage(FlaskFileStorage):
 
 
 @pytest.fixture
-def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
+def create_with_upload(
+        clean_db: None,
+        ckan_config: types.FixtureCkanConfig,
+        monkeypatch: pytest.MonkeyPatch,
+        tmpdir: Any,
+):
     """Shortcut for creating resource/user/org with upload.
 
     Requires content and name for newly created object. By default is
