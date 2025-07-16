@@ -12,10 +12,10 @@ from typing import (
 
 import ckan.lib.dictization as d
 import ckan.authz as authz
+from ckan import model
 from ckan.types import Context
 
 if TYPE_CHECKING:
-    import ckan.model as model
     import ckan.model.follower as follower_
 
 
@@ -31,7 +31,6 @@ def resource_dict_save(
     - 'update' if any core fields or extras were changed
     - None if no change for an existing resource object
     '''
-    model = context["model"]
     session = context["session"]
 
     id = res_dict.get("id")
@@ -89,7 +88,6 @@ def package_resource_list_save(
         return False
 
     session = context['session']
-    model = context['model']
     resource_list = package.resources_all
     # existing resources not marked as deleted - when removed these
     # need to be kept in the db marked as deleted so that extensions like
@@ -151,7 +149,6 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
     Returns True if any tags were changed
     '''
     changed = False
-    model = context["model"]
     session = context["session"]
 
     tag_package_tag = dict((package_tag.tag, package_tag)
@@ -210,7 +207,6 @@ def package_membership_list_save(
         return changed
 
     capacity = 'public'
-    model = context["model"]
     session = context["session"]
     user = context.get('user', '')
 
@@ -283,8 +279,6 @@ def relationship_list_save(
     if relationship_dicts is None:
         return
 
-    model = context["model"]
-
     relationship_list = getattr(package, attr)
     old_list = relationship_list[:]
 
@@ -312,7 +306,6 @@ def package_dict_save(
     - None if no change for an existing package object
     '''
 
-    model = context["model"]
     Package = model.Package
 
     if 'metadata_created' in pkg_dict:
@@ -357,7 +350,6 @@ def package_dict_save(
 
 def group_member_save(context: Context, group_dict: dict[str, Any],
                       member_table_name: str) -> dict[str, Any]:
-    model = context["model"]
     session = context["session"]
     group = context['group']
     assert group is not None
@@ -426,7 +418,6 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
                     prevent_packages_update: bool=False) -> 'model.Group':
     from ckan.lib.search import rebuild
 
-    model = context["model"]
     session = context["session"]
     group = context.get("group")
 
@@ -474,8 +465,6 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
 
 def user_dict_save(
         user_dict: dict[str, Any], context: Context) -> 'model.User':
-
-    model = context['model']
     user = context.get('user_obj')
 
     User = model.User
@@ -559,7 +548,6 @@ def group_api_to_dict(api1_dict: dict[str, Any],
 
 def task_status_dict_save(task_status_dict: dict[str, Any],
                           context: Context) -> 'model.TaskStatus':
-    model = context["model"]
     task_status = context.get("task_status")
     if task_status:
         task_status_dict["id"] = task_status.id
@@ -572,7 +560,6 @@ def task_status_dict_save(task_status_dict: dict[str, Any],
 def vocabulary_tag_list_save(
         new_tag_dicts: list[dict[str, Any]],
         vocabulary_obj: 'model.Vocabulary', context: Context) -> None:
-    model = context['model']
     session = context['session']
 
     # First delete any tags not in new_tag_dicts.
@@ -586,11 +573,10 @@ def vocabulary_tag_list_save(
             # Make sure the tag belongs to this vocab..
             tag_dict['vocabulary_id'] = vocabulary_obj.id
             # then add it.
-            tag_dict_save(tag_dict, {'model': model, 'session': session})
+            tag_dict_save(tag_dict, {'session': session})
 
 def vocabulary_dict_save(vocabulary_dict: dict[str, Any],
                          context: Context) -> 'model.Vocabulary':
-    model = context['model']
     session = context['session']
     vocabulary_name = vocabulary_dict['name']
 
@@ -605,9 +591,6 @@ def vocabulary_dict_save(vocabulary_dict: dict[str, Any],
 
 def vocabulary_dict_update(vocabulary_dict: dict[str, Any],
                            context: Context) -> 'model.Vocabulary':
-
-    model = context['model']
-
     vocabulary_obj = model.Vocabulary.get(vocabulary_dict['id'])
     assert vocabulary_obj
     if 'name' in vocabulary_dict:
@@ -620,7 +603,6 @@ def vocabulary_dict_update(vocabulary_dict: dict[str, Any],
     return vocabulary_obj
 
 def tag_dict_save(tag_dict: dict[str, Any], context: Context) -> 'model.Tag':
-    model = context['model']
     tag = context.get('tag')
     if tag:
         tag_dict['id'] = tag.id
@@ -655,7 +637,6 @@ def follower_dict_save(
     data_dict: dict[str, Any], context: Context,
     FollowerClass: Type['follower_.ModelFollowingModel[Any, Any]']
 ) -> 'follower_.ModelFollowingModel[Any, Any]':
-    model = context['model']
     session = context['session']
     user = model.User.get(context['user'])
     assert user
@@ -668,7 +649,6 @@ def follower_dict_save(
 
 def resource_view_dict_save(data_dict: dict[str, Any],
                             context: Context) -> 'model.ResourceView':
-    model = context['model']
     resource_view = context.get('resource_view')
     if resource_view:
         data_dict['id'] = resource_view.id
@@ -684,7 +664,6 @@ def resource_view_dict_save(data_dict: dict[str, Any],
 
 def api_token_save(data_dict: dict[str, Any],
                    context: Context) -> 'model.ApiToken':
-    model = context[u"model"]
     user = model.User.get(data_dict['user'])
     assert user
     token, _change = d.table_dict_save(
