@@ -1,6 +1,5 @@
 this.ckan.module('confirm-action', function (jQuery) {
   return {
-    /* An object of module options */
     options: {
       /* Content can be overriden by setting data-module-content to a
        * *translated* string inside the template, e.g.
@@ -32,127 +31,70 @@ this.ckan.module('confirm-action', function (jQuery) {
       i18n: {
         content: '',
       },
-
-      template: [
-        '<div class="modal fade">',
-        '<div class="modal-dialog">',
-        '<div class="modal-content">',
-        '<div class="modal-header">',
-        '<h3 class="modal-title"></h3>',
-        '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>',
-        '</div>',
-        '<div class="modal-body"></div>',
-        '<div class="modal-footer">',
-        '<button class="btn btn-secondary btn-cancel"></button>',
-        '<button class="btn btn-primary"></button>',
-        '</div>',
-        '</div>',
-        '</div>',
-        '</div>'
-      ].join('\n')
+      confirmText: null,
+      cancelText: null,
+      title: null,
+      type: null,
     },
-
-    /* Sets up the event listeners for the object. Called internally by
-     * module.createInstance().
-     *
-     * Returns nothing.
-     */
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
       this.el.on('click', this._onClick);
     },
 
-    /* Presents the user with a confirm dialogue to ensure that they wish to
-     * continue with the current action.
-     *
-     * Examples
-     *
-     *   jQuery('.delete').click(function () {
-     *     module.confirm();
-     *   });
-     *
-     * Returns nothing.
-     */
-    confirm: function () {
-      this.sandbox.body.append(this.createModal());
-      this.modal.modal('show');
+    _onClick: function (event) {
+      event.preventDefault();
 
-      // Center the modal in the middle of the screen.
-      this.modal.css({
-        'margin-top': this.modal.height() * -0.5,
-        'top': '50%'
+      const message =
+        this.options.content ||
+        this.options.i18n.content ||
+        this._('Are you sure you want to perform this action?');
+
+      // Presents the user with a confirm dialogue
+      ckan.confirm({
+        message: message,
+        title: this.options.title,
+        confirmText: this.options.confirmText,
+        cancelText: this.options.cancelText,
+        onConfirm: () => {
+          this.performAction();
+        },
       });
     },
 
-    /* Performs the action for the current item.
-     *
-     * Returns nothing.
-     */
     performAction: function () {
       var form = this.el.closest('form');
+
       if (form.attr('hx-post') || form.attr('hx-get')) {
-        this.modal.modal('hide');
-        htmx.trigger(form[0], 'submit');
-        return;
+        return htmx.trigger(form[0], 'submit');
       }
 
       if (!this.options.withData && !form.attr('hx-post')) {
         // create a form and submit it to confirm the deletion
         form = jQuery('<form/>', {
           action: this.el.attr('href'),
-          method: 'POST'
+          method: 'POST',
         });
       }
 
-      // get the csrf value
-      var csrf_field = $('meta[name=csrf_field_name]').attr('content');
-      var csrf_value = $('meta[name=' + csrf_field + ']').attr('content')
-      // set the hidden input
-      var hidden_csrf_input = $('<input name="'+csrf_field+'" type="hidden" value="'+csrf_value+'">')
-      // insert the hidden input at the beginning of the form
-      hidden_csrf_input.prependTo(form)
+      this._appendCSRFInputToForm(form);
 
       form.appendTo('body').submit();
     },
 
-    /* Creates the modal dialog, attaches event listeners and localised
-     * strings.
+    /**
+     * Creates a hidden input with the CSRF token and appends it to the form.
      *
-     * Returns the newly created element.
+     * @param {HTMLElement} form
      */
-    createModal: function () {
-      if (!this.modal) {
-        var element = this.modal = jQuery(this.options.template);
-        element.on('click', '.btn-primary', this._onConfirmSuccess);
-        element.on('click', '.btn-cancel', this._onConfirmCancel);
-        element.modal({show: false});
+    _appendCSRFInputToForm: function (form) {
+      var csrf_field = $('meta[name=csrf_field_name]').attr('content');
+      var csrf_value = $('meta[name=' + csrf_field + ']').attr('content');
 
-        element.find('.modal-title').text(this._('Please Confirm Action'));
-        var content = this.options.content ||
-                      this.options.i18n.content || /* Backwards-compatibility */
-                      this._('Are you sure you want to perform this action?');
-        element.find('.modal-body').text(content);
-        element.find('.btn-primary').text(this._('Confirm'));
-        element.find('.btn-cancel').text(this._('Cancel'));
-        element.find('.btn-close').attr("aria-label", this._('Close'));
-      }
-      return this.modal;
+      var hidden_csrf_input = $(
+        `<input name="${csrf_field}" type="hidden" value="${csrf_value}">`
+      );
+
+      hidden_csrf_input.prependTo(form);
     },
-
-    /* Event handler that displays the confirm dialog */
-    _onClick: function (event) {
-      event.preventDefault();
-      this.confirm();
-    },
-
-    /* Event handler for the success event */
-    _onConfirmSuccess: function (event) {
-      this.performAction();
-    },
-
-    /* Event handler for the cancel event */
-    _onConfirmCancel: function (event) {
-      this.modal.modal('hide');
-    }
   };
 });
