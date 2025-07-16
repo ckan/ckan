@@ -32,37 +32,38 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    u'Interface',
-    u'IMiddleware',
-    u'IAuthFunctions',
-    u'IDomainObjectModification',
-    u'IFeed',
-    u'IGroupController',
-    u'IOrganizationController',
-    u'IPackageController',
-    u'IPluginObserver',
-    u'IConfigurable',
-    u'IConfigDeclaration',
-    u'IConfigurer',
-    u'IActions',
-    u'IResourceUrlChange',
-    u'IDatasetForm',
-    u'IValidators',
-    u'IResourceView',
-    u'IResourceController',
-    u'IGroupForm',
-    u'ITagController',
-    u'ITemplateHelpers',
-    u'IFacets',
-    u'IAuthenticator',
-    u'ITranslation',
-    u'IUploader',
-    u'IBlueprint',
-    u'IPermissionLabels',
-    u'IForkObserver',
-    u'IApiToken',
-    u'IClick',
-    u'ISignal',
+    "Interface",
+    "IMiddleware",
+    "IAuthFunctions",
+    "IDomainObjectModification",
+    "IFeed",
+    "IGroupController",
+    "IOrganizationController",
+    "IPackageController",
+    "IPluginObserver",
+    "IConfigurable",
+    "IConfigDeclaration",
+    "IConfigurer",
+    "IActions",
+    "IResourceUrlChange",
+    "IDatasetForm",
+    "IValidators",
+    "IResourceView",
+    "IResourceController",
+    "IGroupForm",
+    "ITagController",
+    "ITemplateHelpers",
+    "IFacets",
+    "IAuthenticator",
+    "ITranslation",
+    "IUploader",
+    "IBlueprint",
+    "IPermissionLabels",
+    "IForkObserver",
+    "IApiToken",
+    "IClick",
+    "ISignal",
+    "IRender",
 ]
 
 
@@ -2265,3 +2266,33 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class IRender(Interface):
+    """Control template rendering."""
+
+    def prepare_render(
+        self, template: str, extra_vars: dict[str, Any]
+    ) -> tuple[str, dict[str, Any]]:
+        """Modify rendering parameters.
+
+        This method receives and returns the name of the rendered template and
+        all the variables passed to it. Replace the name of the template to
+        render a different page, and patch variables when page requires more
+        data than view provides by default.
+
+        Example::
+
+            def prepare_render(self, template, extra_vars):
+                if tk.get_endpoint() == ("home", "about"):
+                    template = "home/better_about.html"
+                    extra_vars["additional_content"] = ...
+
+                return template, extra_vars
+
+        :param template: name of the rendered template
+        :param extra_vars: variables used in the template
+        :returns: name of the template and its additional variables
+
+        """
+        return template, extra_vars
