@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'ckan/ckan'
     name: Build distribution
     runs-on: ubuntu-latest
     steps:
@@ -15,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.9"
+        python-version: "3.10"
     - name: Install pypa/build
       run: >-
         python3 -m
@@ -48,3 +49,10 @@ jobs:
         path: dist/
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+
+  publishSkipped:
+    if: github.repository != 'ckan/ckan'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "## Skipping PyPI publish on downstream repository" >> $GITHUB_STEP_SUMMARY

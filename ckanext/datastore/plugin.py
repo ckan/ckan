@@ -6,6 +6,7 @@ import os
 from typing import Any, Callable, Union
 
 import ckan.plugins as p
+from ckan import model
 from ckan.model.core import State
 
 from ckan.types import Action, AuthFunction, Context
@@ -143,7 +144,6 @@ class DatastorePlugin(p.SingletonPlugin):
         return resource_dict
 
     def after_resource_delete(self, context: Context, resources: Any):
-        model = context['model']
         pkg = context['package']
         res_query = model.Session.query(model.Resource)
         query = res_query.filter(

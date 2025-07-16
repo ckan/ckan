@@ -59,8 +59,9 @@
 @mixin simple-item {
     font-size: 12px;
     line-height: math.div(14em,12);
-    padding: 7px $gutterX;
+    background-color: $white;
     border-bottom: 1px dotted $genericBorderColor;
+    border-radius: 6px;
     &:last-of-type {
         border-bottom: 0;
     }
@@ -138,9 +139,3 @@ a.tag:hover {
     display: block;
 }
 
-.box {
-    background-color: $body-bg;
-    border: 1px solid $layoutTrimBorderColor;
-    @include border-radius(4px);
-    @include box-shadow(0 0 0 4px rgba(0, 0, 0, 0.05));
-}

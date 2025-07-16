@@ -29,14 +29,10 @@ Example:
             {% endblock %}
             {% block follow_button %}
               {% if current_user.is_authenticated %}
-               {% if error_message %}
+                {% if error_message %}
                   <div class="alert alert-danger">{{ error_message }}</div>
                 {% endif %}
-               {% if am_following %}
-                  <a class="btn btn-danger" hx-post="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
-                {% else %}
-                <a class="btn btn-success" hx-post="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
-                {% endif %}
+                {% snippet 'snippets/follow_button.html', am_following=am_following, obj_type='dataset', obj_id=pkg.id, anchor_type='package' %}
               {% endif %}
             {% endblock %}
           {% endblock %}

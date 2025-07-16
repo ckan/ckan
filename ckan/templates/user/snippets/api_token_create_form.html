@@ -1,0 +1,43 @@
+{% import 'macros/form.html' as form %}
+
+<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form"
+  autocomplete="off"
+  {% if created %}hx-on:htmx:after-settle="document.getElementById('token-{{ created.id }}').scrollIntoView(false)"{% endif %}>
+  {{ h.csrf_input() }}
+  {% block base_fields %}
+    <div class="form-group ">
+        {{ form.input('name', label='Name', is_required=True, value=data.name, error=errors.name) }}
+    </div>
+  {% endblock base_fields %}
+  {% block form_actions %}
+    <button class="btn btn-primary" type="submit" value="create">
+      {{ _('Create API Token') }}
+    </button>
+  {% endblock form_actions %}
+</form>
+
+{% if created %}
+  <template>
+    <tbody hx-swap-oob="afterbegin:#api-tokens-table tbody">
+      <tr id="token-{{ created.id }}">
+        <td colspan="3">
+          <div class="form-check">
+            <label class="form-check-label radio">
+              <input class="form-check-input" type="checkbox" value="{{ created.id }}" name="token"
+                onchange="$('#revoke-tokens-button').attr('disabled', !$('[name=token]:checked').length)">
+              <code>
+                {{ created.name }}
+              </code>
+            </label>
+          </div>
+          {% set copy_button %}<button class="btn btn-secondary btn-xs" data-module="copy-into-buffer" data-module-copy-value="{{ created.token }}" type="button"><i class="fa fa-copy"></i></button>{% endset %}
+          {{ _("API Token created: <code style=\"word-break:break-all;\">"
+               "{token}</code> {copy}<br>"
+               "Make sure to copy it now, "
+               "you won't be able to see it again!").format(
+               token=created.token, copy=copy_button) }}
+        </td>
+      </tr>
+    </tbody>
+  </template>
+{% endif %}

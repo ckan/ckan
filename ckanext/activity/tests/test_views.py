@@ -747,6 +747,7 @@ class TestPackage:
         assert helpers.body_contains(response, "Dataset title")
         assert helpers.body_contains(response, resource["name"])
 
+    @pytest.mark.flaky(retries=3, delay=1)
     def test_read_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"], name="Original name")

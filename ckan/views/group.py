@@ -8,7 +8,6 @@ from typing import Any, Optional, Union
 from urllib.parse import urlencode
 import csv
 from io import StringIO
-from codecs import BOM_UTF8
 
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
@@ -446,6 +445,12 @@ def read(group_type: str,
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
     extra_vars["am_following"] = am_following
+    extra_vars["dataset_type"] = h.default_package_type()
+
+    if request.htmx:
+        return base.render(
+            _get_group_template('read_template_htmx', g.group_dict['type']),
+            extra_vars)
 
     return base.render(
         _get_group_template(u'read_template', g.group_dict['type']),
@@ -604,7 +609,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         ])
 
     output_stream = StringIO()
-    output_stream.write(BOM_UTF8)  # type: ignore
+    output_stream.write('\N{BOM}')  # for Excel handling of non-ASCII
     csv.writer(output_stream).writerows(results)
 
     file_name = u'{org_id}-{members}'.format(

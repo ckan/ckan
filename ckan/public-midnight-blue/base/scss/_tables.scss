@@ -18,6 +18,12 @@
     }
 }
 
+.table-bordered > :not(caption) > * > * {
+    border-bottom-width: 1px;
+}
+.table-bordered thead {
+    border-bottom: 2px solid $black;
+}
 .table-header thead th {
     background-color: $moduleHeadingBackgroundColor;
 }
@@ -43,14 +49,6 @@
         .show-less {
             display: none;
         }
-        .toggle-seperator {
-            display: table-row;
-            td {
-                height: 11px;
-                padding: 0;
-                background-image: url("#{$imagePath}/table-seperator.png");
-            }
-        }
     }
     .table .toggle-show td {
         background: none;
@@ -61,9 +59,6 @@
             display: inline;
         }
         .show-more {
-            display: none;
-        }
-        .toggle-seperator {
             display: none;
         }
     }
