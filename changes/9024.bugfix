@@ -1,0 +1,2 @@
+Uncaught ``NotFound``, ``NotAuthorized`` and ``ValidationError`` cause Internal
+Server Error in production mode.
