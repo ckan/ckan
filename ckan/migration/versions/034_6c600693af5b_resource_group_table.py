@@ -6,7 +6,7 @@ Revises: 6da92ef2df15
 Create Date: 2018-09-04 18:49:00.683101
 
 """
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
@@ -60,8 +60,14 @@ def upgrade():
 
     op.rename_table('package_resource', 'resource')
     op.rename_table('package_resource_revision', 'resource_revision')
-    op.execute('ALTER INDEX package_resource_pkey RENAME TO resource_pkey')
-    op.execute(
+
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
+    execute('ALTER INDEX package_resource_pkey RENAME TO resource_pkey')
+    execute(
         'ALTER INDEX package_resource_revision_pkey '
         'RENAME TO resource_revision_pkey'
     )
@@ -115,8 +121,14 @@ def downgrade():
 
     op.rename_table('resource_revision', 'package_resource_revision')
     op.rename_table('resource', 'package_resource')
-    op.execute('ALTER INDEX resource_pkey RENAME TO package_resource_pkey')
-    op.execute(
+
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
+    execute('ALTER INDEX resource_pkey RENAME TO package_resource_pkey')
+    execute(
         'ALTER INDEX resource_revision_pkey '
         'RENAME TO package_resource_revision_pkey'
     )
