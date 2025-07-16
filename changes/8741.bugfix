@@ -1,1 +1,0 @@
-Fixed an issue with using `filters` in `datastore_search` with CSV/TSV records format.

@@ -1,7 +1,6 @@
 this.ckan.module('tabledesigner-fields', function($, _) {
   return {
     initialize: function() {
-      var container = this;
       var $this = $(this.el);
       var $templates = $this.children('div[name="tabledesigner-template"]');
       var templates = Object.fromEntries(

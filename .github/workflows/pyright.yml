@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 env:
   NODE_VERSION: '18'
-  PYTHON_VERSION: '3.9'
+  PYTHON_VERSION: '3.10'
 
 permissions:
   contents: read
@@ -14,12 +14,12 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -27,5 +27,7 @@ jobs:
         run: pip install -r requirements.txt -r dev-requirements.txt -e.
       - name: Install node deps
         run: npm ci
+      - name: Show pyright version
+        run: npm list pyright
       - name: Check types
         run: npx pyright
