@@ -1411,6 +1411,7 @@ def validate(context: Context, data_dict: dict[str, Any]):
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
+    data_dict_copy.pop('last_id', None)
 
     for key, values in data_dict_copy.items():
         if not values:
@@ -1455,6 +1456,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
+    last_id = data_dict.get('last_id')
 
     if query_dict.get('distinct'):
         distinct = 'DISTINCT'
@@ -1470,13 +1472,19 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort_clause = ''
 
     records_format = data_dict['records_format']
+    if last_id:
+        # Keyset Pagination
+        final_statement = 'WHERE _id > {last_id} {sort} LIMIT {limit}'
+    else:
+        final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
+
     if records_format == u'objects':
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) AS j'''
     elif records_format == u'lists':
@@ -1488,7 +1496,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) AS j'''
     elif records_format == u'csv':
@@ -1497,7 +1505,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 SELECT {distinct} {select}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
@@ -1506,20 +1514,24 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 SELECT {distinct} {select}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
+    final_statement = final_statement.format(
+        where=where_clause,
+        limit=limit,
+        offset=offset,
+        sort=sort_clause,
+        last_id=last_id,
+    )
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
         resource=identifier(resource_id),
         ts_query=ts_query,
-        where=where_clause,
-        sort=sort_clause,
-        limit=limit,
-        offset=offset)
+        final_statement=final_statement)
     if records_format == u'csv' or records_format == u'tsv':
         buf = StringIO()
         _execute_single_statement_copy_to(
@@ -1536,6 +1548,17 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             records = LazyJSONObject(v)
         else:
             records = msgspec.json.decode(v)
+
+    # Currently apply Keyset Pagination only to CSV format
+    if records_format == u'csv':
+        m_csv_string = records.rstrip('\n').rsplit('\n', 1)
+        if m_csv_string:
+            try:
+                last_id = m_csv_string[-1].split(',')[0]
+                data_dict['last_id'] = last_id
+            except IndexError:
+                pass
+
     data_dict['records'] = records
 
     data_dict['fields'] = _result_fields(
