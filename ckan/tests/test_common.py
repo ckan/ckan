@@ -92,6 +92,49 @@ def test_true_if_not_empty():
     assert my_conf
 
 
+class TestConfigSubtree:
+    def test_noop(self):
+        data = {"a.b.c": 1}
+        config = CKANConfig(data)
+        assert config.subtree() == data
+
+    def test_prefix_filter(self):
+        data = {"a.b.c": 1, "x.y.z": 2, "aaa": 3}
+        config = CKANConfig(data)
+
+        assert config.subtree(prefix="a") == {".b.c": 1, "aa": 3}
+        assert config.subtree(prefix="a.") == {"b.c": 1}
+        assert config.subtree(prefix="x.y.z") == {"": 2}
+
+    def test_depth(self):
+        data = {"a.b.c": 1, "x.y.z": 2, "aaa": 3}
+        config = CKANConfig(data)
+
+        assert config.subtree(depth=1) == {
+            "a": {"b.c": 1},
+            "x": {"y.z": 2},
+            "aaa": 3,
+        }
+
+        assert config.subtree(depth=2) == {
+            "a": {"b": {"c": 1}},
+            "x": {"y": {"z": 2}},
+            "aaa": 3,
+        }
+
+    def test_keep_prefix(self):
+        data = {"a.b.c": 1, "x.y.z": 2, "aaa": 3}
+        config = CKANConfig(data)
+
+        assert config.subtree(prefix="a.", keep_prefix=True) == {"a.b.c": 1}
+
+
+        assert config.subtree(prefix="a.", depth=-1) == {"b": {"c": 1}}
+        assert config.subtree(prefix="a.", depth=-1, keep_prefix=True) == {
+            "a": {"b": {"c": 1}}
+        }
+
+
 @pytest.mark.usefixtures("with_request_context")
 def test_setting_a_key_sets_it_on_flask_config_if_app_context(monkeypatch):
     monkeypatch.setitem(ckan_config, u"ckan.site_title", u"Example title")

@@ -26,6 +26,7 @@ Deeper explanation can be found in `official documentation
 """
 from __future__ import annotations
 
+import pathlib
 import smtplib
 
 from io import BytesIO
@@ -46,7 +47,7 @@ import ckan.cli
 import ckan.model as model
 from ckan import types
 from ckan.common import config
-from ckan.lib import redis, search
+from ckan.lib import redis, search, files
 
 
 @register
@@ -525,7 +526,13 @@ class FakeFileStorage(FlaskFileStorage):
 
 
 @pytest.fixture
-def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
+def create_with_upload(
+        clean_db: None,
+        ckan_config: dict[str, Any],
+        monkeypatch: pytest.MonkeyPatch,
+        tmpdir: pathlib.Path,
+        reset_storages: Any
+):
     """Shortcut for creating resource/user/org with upload.
 
     Requires content and name for newly created object. By default is
@@ -553,6 +560,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
 
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+    reset_storages()
 
     def factory(
             data: str | bytes,
@@ -577,3 +585,25 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
         params.update(kwargs)
         return test_helpers.call_action(action, context, **params)
     return factory
+
+
+@pytest.fixture
+def reset_storages():
+    """Reset file storages.
+
+    Call this fixture after changing `ckan.storage_path` or any other option
+    that affects storage behavior.
+
+    Example::
+
+        def test_upload(self, ckan_config, monkeypatch, tmpdir, reset_storages):
+            monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+            reset_storages()
+            # now storages that rely on storage_path are available
+
+    """
+    def cleaner():
+        files.storages.reset()
+        files.storages.collect()
+
+    return cleaner
