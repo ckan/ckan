@@ -96,19 +96,19 @@ def dump(resource_id: str):
 
     if fmt == 'csv':
         content_disposition = 'attachment; filename="{name}.csv"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'text/csv; charset=utf-8'
     elif fmt == 'tsv':
         content_disposition = 'attachment; filename="{name}.tsv"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'text/tab-separated-values; charset=utf-8'
     elif fmt == 'json':
         content_disposition = 'attachment; filename="{name}.json"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'application/json; charset=utf-8'
     elif fmt == 'xml':
         content_disposition = 'attachment; filename="{name}.xml"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'text/xml; charset=utf-8'
     else:
         abort(404, _('Unsupported format'))
@@ -140,7 +140,8 @@ class DictionaryView(MethodView):
         try:
             check_access(
                 "datastore_create",
-                context={"user": current_user.name, "auth_user_obj": current_user},
+                context={"user": current_user.name,
+                         "auth_user_obj": current_user},
                 data_dict={"resource_id": resource_id},
             )
 
@@ -259,7 +260,7 @@ def dump_to(
     def start_stream_writer(fields: list[dict[str, Any]]):
         return writer_factory(fields, bom=bom)
 
-    def stream_result_page(offs: int, lim: Union[None, int]):
+    def stream_result_page(offs: int, lim: Union[None, int], last_id: Union[None, int]):
         return get_action('datastore_search')(
             {'user': user},
             dict({
@@ -270,6 +271,7 @@ def dump_to(
                 'sort': sort,
                 'records_format': records_format,
                 'include_total': False,
+                'last_id': last_id,
             }, **search_params)
         )
 
@@ -296,11 +298,12 @@ def dump_to(
                     if limit <= 0:
                         break
 
-                result = stream_result_page(offset, limit)
+                result = stream_result_page(
+                    offset, limit, result.get('last_id'))
 
             yield writer.end_file()
 
-    result = stream_result_page(offset, limit)
+    result = stream_result_page(offset, limit, None)
 
     if result['limit'] != limit:
         # `limit` (from PAGINATE_BY) must have been more than
