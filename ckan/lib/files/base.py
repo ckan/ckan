@@ -258,6 +258,9 @@ class Storage(fk.Storage):
         return flask.Response(
             self.reader.stream(data, extras),
             mimetype=data.content_type or None,
+            headers={
+                "Content-length": str(data.size)
+            }
         )
 
     def validate_size(self, size: int):

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Iterable
-
 import pytest
+from faker import Faker
+from typing import Iterable, Any
 
 from ckan.lib import files
 from ckan.lib.files import base
@@ -54,3 +54,30 @@ class TestStorage:
 
         with pytest.raises(files.exc.WrongUploadTypeError):
             storage.validate_content_type("binary/csv")
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:null")
+    def test_as_response(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        ckan_config: dict[str, Any],
+        faker: Faker,
+        reset_storages: Any,
+    ):
+        reset_storages()
+
+        storage = files.get_storage("test")
+        assert isinstance(storage, base.Storage)
+
+        name = faker.file_name()
+        size = faker.pyint()
+        info = files.FileData(files.Location(name), content_type="image/png", size=size)
+
+        resp = storage.as_response(info)
+
+        assert resp.headers["Content-length"] == str(info.size)
+        assert resp.headers["Content-type"] == info.content_type
+        assert resp.headers["Content-disposition"] == f"attachment; filename={name}"
+
+        monkeypatch.setitem(ckan_config, "ckan.files.inline_content_types", ["image"])
+        resp = storage.as_response(info)
+        assert resp.headers["Content-disposition"] == f"inline; filename={name}"

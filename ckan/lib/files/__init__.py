@@ -119,6 +119,7 @@ def collect_adapters() -> dict[str, type[fk.Storage]]:
 
     result["ckan:fs"] = default.FsStorage
     result["ckan:public_fs"] = default.PublicFsStorage
+    result["ckan:null"] = default.NullStorage
 
     if adapter := getattr(default, "LibCloudStorage", None):
         result["ckan:libcloud"] = adapter
