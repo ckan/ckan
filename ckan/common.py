@@ -142,6 +142,60 @@ class CKANConfig(MutableMapping):
 
         return super().get(key, default)
 
+    def subtree(self, prefix: str = "", depth: int = 0, keep_prefix: bool = False):
+        """Extract subtree from configuration.
+
+        Select config options that match the prefix and split options by ``.``
+        character, transform result into nested dictionary. The maximum depth
+        of the result is controlled by ``depth`` argument. Option `a.b.c = 1`
+        transforms into ``{"a.b.c": 1}`` with depth 0, ``{"a": {"b.c": 1}}``
+        with depth 1, ``{"a": {"b": {"c": 1}}}`` with depth 2, etc.
+
+        Examples::
+
+            >>> cfg = CKANConfig({
+            >>>     "a.b.c": 1,
+            >>>     "a.b.d": 2,
+            >>>     "x.y.z": 3,
+            >>>     "x.x.x": 4,
+            >>> })
+            >>>
+            >>> assert cfg.tree("a.b.") == {"c": 1, "d": 2}
+            >>> assert cfg.tree("x.", depth=1) == {"x": {"y.z": 3, "x.x": 4}}
+            >>> assert cfg.tree("x.x", keep_prefix=True) == {"x.x.x": 4}
+
+        :param prefix: common prefix for selected options
+        :param depth: branch depth for extracted configuration
+
+        :returns: extracted configuration
+
+        """
+        result = CKANConfig()
+        strip_len = 0 if keep_prefix else len(prefix)
+
+        for k, v in self.items():
+            if not k.startswith(prefix):
+                continue
+
+            path = k[strip_len:].split(".", depth)
+            if not path:
+                continue
+
+            here = result
+            for segment in path[:-1]:
+                here = here.setdefault(segment, {})
+                if not isinstance(here, dict):
+                    log.warning(
+                        "Cannot build tree for %s at branch %s",
+                        path,
+                        segment,
+                    )
+                    break
+            else:
+                here[path[-1]] = v
+
+        return result
+
 
 def _get_request():
     return flask.request

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import os
-from collections import defaultdict
 from collections.abc import Mapping
 from typing import Any, cast
 
@@ -12,6 +11,7 @@ from file_keeper.core.storage import location_transformers
 from file_keeper.core.types import LocationTransformer
 
 import ckan.plugins as p
+from ckan import types
 from ckan.common import config
 from ckan.exceptions import CkanConfigurationException
 
@@ -134,8 +134,8 @@ def collect_adapters() -> dict[str, type[fk.Storage]]:
 
 
 def collect_storage_configuration(
-    config: Mapping[str, Any], prefix: str = STORAGE_PREFIX, /, flat: bool = False
-):
+    config: types.CKANConfig, prefix: str = STORAGE_PREFIX, /, flat: bool = False
+) -> Mapping[str, Any]:
     """Return settings of every storage located in the config.
 
     :param config: mapping with configuration
@@ -145,29 +145,7 @@ def collect_storage_configuration(
     :returns: dictionary with configuration of all storages
 
     """
-    storages = defaultdict(dict)  # type: dict[str, dict[str, Any]]
-    prefix_len = len(prefix)
-
-    # first, group config options by the storage name
-    for k, v in config.items():
-        if not k.startswith(prefix):
-            continue
-
-        # when `flat` flag is enabled, nested keys `a.b.c` kept as a string:
-        # `{"a.b.c": ...}`. When it's disabled, transform such keys into nested
-        # dictionaries `{"a": {"b": {"c": ...}}}`
-        name, *path = k[prefix_len:].split(".", 1 if flat else -1)
-        if not path:
-            log.warning("Unrecognized storage configuration: %s = %s", k, v)
-            continue
-
-        here = storages[name]
-        for segment in path[:-1]:
-            here = here.setdefault(segment, {})
-
-        here[path[-1]] = v
-
-    return storages
+    return config.subtree(prefix, depth=1 if flat else -1)
 
 
 def collect_storages() -> dict[str, fk.Storage]:
