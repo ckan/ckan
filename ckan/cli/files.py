@@ -76,7 +76,7 @@ def storage():
 
 @storage.command("list")
 @click.option("-v", "--verbose", is_flag=True, help="Show storage's details")
-def storages_list(verbose: bool):
+def storage_list(verbose: bool):
     """Show all configured storages."""
     for name, settings in lib_files.collect_storage_configuration(config).items():
         click.secho("{}: {}".format(click.style(name, bold=True), settings["type"]))
