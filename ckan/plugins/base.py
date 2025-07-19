@@ -36,7 +36,10 @@ class PluginNotFoundException(PluginException):
         self.name = name
 
     def __str__(self):
-        return f"Interface {self.name} does not exist"
+        return (
+            f"Plugin '{self.name}' not found.\n\n"
+            "Did you install the 'ckanext-*' Python package that contains the plugin?"
+        )
 
 
 class Interface:
