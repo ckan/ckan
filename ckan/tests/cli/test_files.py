@@ -60,8 +60,8 @@ class TestStorageScan:
         second = faker.file_name()
 
         storage = files.get_storage("resources")
-        storage.upload(files.Location(first), files.make_upload(b""))
-        storage.upload(files.Location(second), files.make_upload(b""))
+        storage.upload(storage.prepare_location(first), files.make_upload(b""))
+        storage.upload(storage.prepare_location(second), files.make_upload(b""))
 
         result = cli.invoke(ckan, ["files", "storage", "scan", "-s", "resources"])
         assert first in result.output
@@ -86,7 +86,7 @@ class TestStorageTransfer:
         group = files.get_storage("group_uploads")
         user = files.get_storage("user_uploads")
 
-        info = group.upload(files.Location(name), files.make_upload(b""))
+        info = group.upload(group.prepare_location(name), files.make_upload(b""))
 
         assert group.exists(info)
         assert not user.exists(info)
@@ -116,7 +116,7 @@ class TestStorageTransfer:
         group = files.get_storage("group_uploads")
         user = files.get_storage("user_uploads")
 
-        info = group.upload(files.Location(name), files.make_upload(b""))
+        info = group.upload(group.prepare_location(name), files.make_upload(b""))
 
         assert group.exists(info)
         assert not user.exists(info)

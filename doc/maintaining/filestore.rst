@@ -254,8 +254,8 @@ there is a number of common options that are supported by all storage types.
 * ``override_existing``: If file already exists, replace it with new content
 * ``location_transformers``: List of transformations applied to the file
   location. Transformations are not applied automatically - call
-  ``storage.prepare_location(filename)`` to get the transformed version of the
-  filename.
+  :py:meth:`~ckan.lib.files.Storage.prepare_location` to get the transformed version
+  of the filename.
 
 The rest of options depends on the specific storage type. Out of the box,
 following storage types are available:
@@ -383,9 +383,9 @@ Storage utilities
    example, file is kept in DB and location will be sanitized during execution
    of SQL statement), typechecker warnings can be ignored.
 
-   As sanitization rules depend on storage, the recommended option is to
-   configure :py:attr:`Settings.location_transformers` and apply them to
-   path.
+   As sanitization rules depend on storage, the recommended way to sanitize the
+   location is to configure :py:attr:`Settings.location_transformers` and apply
+   them to path by calling :py:meth:`~ckan.lib.files.Storage.prepare_location`.
 
    >>> unsafe_path = "local/path.txt"
    >>> safe_path = storage.prepare_location(unsafe_path)

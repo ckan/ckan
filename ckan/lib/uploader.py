@@ -150,7 +150,7 @@ class Upload(object):
 
             try:
                 self.storage.upload(
-                    files.Location(self.filename),
+                    self.storage.prepare_location(self.filename),
                     self.upload_file,
                 )
             except (files.exc.LargeUploadError, files.exc.ExistingFileError) as err:
