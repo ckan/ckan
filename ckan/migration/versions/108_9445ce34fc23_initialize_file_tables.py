@@ -43,10 +43,16 @@ def upgrade():
         sa.Column("mtime", postgresql.TIMESTAMP(timezone=True)),
         sa.Column("atime", postgresql.TIMESTAMP(timezone=True)),
         sa.Column(
-            "storage_data", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")
+            "storage_data",
+            postgresql.JSONB,
+            server_default=sa.text("'{}'::jsonb"),
+            nullable=False,
         ),
         sa.Column(
-            "plugin_data", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")
+            "plugin_data",
+            postgresql.JSONB,
+            server_default=sa.text("'{}'::jsonb"),
+            nullable=False,
         ),
     )
 
@@ -64,13 +70,22 @@ def upgrade():
         ),
         sa.Column("hash", sa.TEXT(), server_default=sa.text("''"), nullable=False),
         sa.Column(
-            "ctime", postgresql.TIMESTAMP(timezone=True), server_default=sa.func.now()
+            "ctime",
+            postgresql.TIMESTAMP(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
         ),
         sa.Column(
-            "storage_data", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")
+            "storage_data",
+            postgresql.JSONB,
+            server_default=sa.text("'{}'::jsonb"),
+            nullable=False,
         ),
         sa.Column(
-            "plugin_data", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")
+            "plugin_data",
+            postgresql.JSONB,
+            server_default=sa.text("'{}'::jsonb"),
+            nullable=False,
         ),
     )
 
