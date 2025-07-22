@@ -1,9 +1,9 @@
 # encoding: utf-8
 from __future__ import annotations
 from typing import Any
-
 from flask import Blueprint
 
+from ckan.common import _, config
 from ckan.plugins.toolkit import render, h
 import ckanext.stats.stats as stats_lib
 
@@ -14,16 +14,22 @@ stats = Blueprint(u'stats', __name__)
 @stats.route(u'/stats')
 def index():
     stats = stats_lib.Stats()
+    # Public stats
     extra_vars: dict[str, Any] = {
         'largest_groups': stats.largest_groups(),
         'top_tags': stats.top_tags(),
-        'top_package_creators': stats.top_package_creators(),
         'most_edited_packages': stats.most_edited_packages(),
         'new_packages_by_week': stats.get_by_week('new_packages'),
         'deleted_packages_by_week': stats.get_by_week('deleted_packages'),
         'num_packages_by_week': stats.get_num_packages_by_week(),
-        'package_revisions_by_week': stats.get_by_week('package_revisions')
+        'package_revisions_by_week': stats.get_by_week('package_revisions'),
+        # Stats with users info
+        'top_package_creators': None,
     }
+
+    if config.get('ckan.auth.public_user_details'):
+        # Stats including users
+        extra_vars['top_package_creators'] = stats.top_package_creators()
 
     extra_vars['raw_packages_by_week'] = []
     for week_date, num_packages, cumulative_num_packages\

@@ -118,12 +118,19 @@ class TestStatsPlugin(object):
         tags = [(tag.name, count) for tag, count in tags]
         assert tags == [("tag1", 1)]
 
-    def test_top_package_creators(self):
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", True)
+    def test_top_package_creators_public_user(self):
         creators = Stats.top_package_creators()
         creators = [(creator.name, count) for creator, count in creators]
         # Only 2 shown because one of them was deleted and the other one is
         # private
         assert creators == [("bob", 2)]
+
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
+    def test_top_package_creators_non_public_user(self):
+        creators = Stats.top_package_creators()
+        # The data is not available since ckan.auth.public_user_details is False
+        assert creators == []
 
     def test_new_packages_by_week(self):
         new_packages_by_week = Stats.get_by_week('new_packages')
