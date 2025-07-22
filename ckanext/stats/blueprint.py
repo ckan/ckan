@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 from flask import Blueprint
 
-from ckan.common import _, config
+from ckan.common import config
 from ckan.plugins.toolkit import render, h
 import ckanext.stats.stats as stats_lib
 
