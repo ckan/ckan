@@ -1,0 +1,2 @@
+Historical versions of a custom dataset type ignores base template specified by
+the ``IDatasetForm`` interface.
