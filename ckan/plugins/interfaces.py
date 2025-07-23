@@ -2308,7 +2308,10 @@ class IViewRender(Interface):
 
             def prepare_response(self, response):
                 # redirect to search page when dataset created
-                if tk.get_endpoint() == ("dataset", "new") and response.status_code == 302:
+                if (
+                    tk.get_endpoint() == ("dataset", "new")
+                    and response.status_code == 302
+                ):
                     # this is redirect after successful package creation
                     return tk.redirect_to("dataset.search")
 
