@@ -63,7 +63,7 @@ __all__ = [
     "IApiToken",
     "IClick",
     "ISignal",
-    "IRender",
+    "IViewRender",
 ]
 
 
@@ -2268,7 +2268,7 @@ class ISignal(Interface):
         return {}
 
 
-class IRender(Interface):
+class IViewRender(Interface):
     """Control the output of views."""
 
     def prepare_render(

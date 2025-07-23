@@ -99,7 +99,7 @@ def render(template_name: str, extra_vars: Optional[dict[str, Any]] = None) -> s
 
     _allow_caching()
 
-    for plugin in p.PluginImplementations(p.IRender):
+    for plugin in p.PluginImplementations(p.IViewRender):
         template_name, extra_vars = plugin.prepare_render(template_name, extra_vars)
 
     return flask_render_template(template_name, **extra_vars)
