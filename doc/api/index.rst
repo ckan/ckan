@@ -89,14 +89,12 @@ To install it, run::
 
 Then you can make the same API call with just a few lines of Python code::
 
-from ckanapi import RemoteCKAN
+    from ckanapi import RemoteCKAN
 
-ckan = RemoteCKAN('https://demo.ckan.org')
-result = ckan.action.group_list()
-print(result)
+    ckan = RemoteCKAN('https://demo.ckan.org')
+    result = ckan.action.group_list()
+    print(result)
 
-The ckanapi library automatically handles JSON encoding/decoding, error handling, and 
-provides convenient shortcuts for all CKAN API actions.
 
 The response from CKAN will look like this::
 
@@ -145,8 +143,7 @@ The response is a JSON dictionary with three keys:
 
 3. ``"help"``: the documentation string for the function you called.
 
-The same HTTP request can be made using Python with the ``ckanapi`` library,
-which provides a simpler and more robust way to interact with CKAN APIs::
+The same HTTP request can be made using Python with the ``ckanapi`` package::
 
     #!/usr/bin/env python
     from ckanapi import RemoteCKAN
@@ -185,11 +182,11 @@ datasets into CKAN.
     ckan = RemoteCKAN('http://www.my_ckan_site.com', apikey='your-api-token')
 
     # Put the details of the dataset we're going to create into a dict.
-dataset_dict = {
-    'name': 'my_dataset_name',
-    'notes': 'A long description of my dataset',
-    'owner_org': 'org_id_or_name'
-}
+    dataset_dict = {
+        'name': 'my_dataset_name',
+        'notes': 'A long description of my dataset',
+        'owner_org': 'org_id_or_name'
+    }
 
     # Use the ckanapi action shortcut to create a new dataset
     created_package = ckan.action.package_create(**dataset_dict)
