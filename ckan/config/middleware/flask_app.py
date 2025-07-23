@@ -49,7 +49,7 @@ import ckan.lib.plugins as lib_plugins
 from ckan.lib.webassets_tools import get_webassets_path
 
 from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
+from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation, IRender
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         set_controller_and_action,
@@ -417,6 +417,9 @@ def ckan_after_request(response: Response) -> Response:
 
     # Set Cache Control headers
     response = set_cache_control_headers_for_response(response)
+
+    for plugin in PluginImplementations(IRender):
+        response = plugin.prepare_response(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']

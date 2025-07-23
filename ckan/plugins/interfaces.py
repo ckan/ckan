@@ -2269,7 +2269,7 @@ class ISignal(Interface):
 
 
 class IRender(Interface):
-    """Control template rendering."""
+    """Control the output of views."""
 
     def prepare_render(
         self, template: str, extra_vars: dict[str, Any]
@@ -2296,3 +2296,26 @@ class IRender(Interface):
 
         """
         return template, extra_vars
+
+    def prepare_response(self, response: Response) -> Response:
+        """Modify or replace response from the view.
+
+        Called after view produced the response and just before it's sent to
+        client. Can be used to modify headers or even completely replace the
+        response object.
+
+        Example::
+
+            def prepare_response(self, response):
+                # redirect to search page when dataset created
+                if tk.get_endpoint() == ("dataset", "new") and response.status_code == 302:
+                    # this is redirect after successful package creation
+                    return tk.redirect_to("dataset.search")
+
+                return response
+
+        :param response: response produced by the view
+        :returns: new or original response object
+
+        """
+        return response
