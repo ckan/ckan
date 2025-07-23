@@ -8,10 +8,11 @@ import importlib
 import inspect
 import pkgutil
 import logging
-import pprint
 
 from logging.handlers import SMTPHandler
 from typing import Any, Optional, Union, cast
+
+from dominate import tags
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
@@ -489,78 +490,69 @@ def _register_core_blueprints(app: CKANApp):
 
 
 def _register_error_handler(app: CKANApp):
-    u'''Register error handler'''
+    """Register error handler"""
 
-    def error_handler(e: Exception) -> Union[
-        tuple[str, Optional[int]], Optional[Response]
-    ]:
-        debug = config.get('debug')
+    def error_handler(
+        e: Exception,
+    ) -> Union[tuple[str, Optional[int]], Optional[Response]]:
+        debug = config.get("debug")
+
         if isinstance(e, HTTPException):
             if debug:
                 log.debug(e, exc_info=sys.exc_info)  # type: ignore
             else:
                 log.info(e)
 
-            show_login_redirect_link = current_user.is_anonymous and type(
-                e
-            ) in (Unauthorized, Forbidden)
+            show_login_redirect_link = current_user.is_anonymous and type(e) in (
+                Unauthorized,
+                Forbidden,
+            )
             extra_vars = {
-                u'code': e.code,
-                u'content': e.description,
-                u'name': e.name,
-                u'show_login_redirect_link': show_login_redirect_link
+                "code": e.code,
+                "content": e.description,
+                "name": e.name,
+                "show_login_redirect_link": show_login_redirect_link,
             }
-            return base.render(
-                u'error_document_template.html', extra_vars), e.code
+            return base.render("error_document_template.html", extra_vars), e.code
 
-        log.error(e, exc_info=sys.exc_info)  # type: ignore
-        extra_vars = {u'code': [500], u'content': u'Internal server error'}
-        return base.render(u'error_document_template.html', extra_vars), 500
+        log.error(e, exc_info=sys.exc_info())
+
+        if isinstance(e, NotFound):
+            name = _("Not Found")
+            code = 404
+            content = _("Object not found: {message}").format(message=e.message)
+
+        elif isinstance(e, NotAuthorized):
+            name = _("Not Authorized")
+            code = 403
+            content = e.message or _("Not authorized to view this page")
+
+        elif isinstance(e, ValidationError):
+            name = _("Bad Request")
+            code = 400
+            message = _("Validation error:")
+
+            with tags.ul() as details:  # pyright: ignore[reportGeneralTypeIssues]
+                for field, text in e.error_summary.items():
+                    tags.li(f"{field}: {text}")
+
+            content = h.literal(f"{message}{details}")
+
+        else:
+            name = _("Server Error")
+            code = 500
+            content = _("Internal server error")
+
+        extra_vars = {"code": code, "content": content, "name": name}
+        return base.render("error_document_template.html", extra_vars), code
 
     for code in default_exceptions:
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
-        app.register_error_handler(NotFound, _not_found_handler)
-        app.register_error_handler(NotAuthorized, _not_authorized_handler)
-        app.register_error_handler(ValidationError, _not_valid_handler)
 
-        if config.get('email_to'):
+        if config.get("email_to"):
             _setup_error_mail_handler(app)
-
-
-def _not_found_handler(error: NotFound) -> tuple[str, int]:
-    """Generic handler for NotFound exception."""
-    content = _("Object not found: {message}").format(message=error.message)
-    page = base.render(
-        "error_document_template.html",
-        {"code": 404, "content": content, "name": _("Not found")},
-    )
-    return (page, 404)
-
-
-def _not_valid_handler(error: ValidationError) -> tuple[str, int]:
-    """Generic handler for NotFound exception."""
-    message = _("Validation error:")
-    detail = h.clean_html(pprint.pformat(error.error_dict))
-    content = h.literal(f"{message} <pre><code>{detail}</code></pre>")
-
-    page = base.render(
-        "error_document_template.html",
-        {"code": 400, "content": content, "name": _("Bad request")},
-    )
-    return (page, 400)
-
-
-def _not_authorized_handler(error: NotAuthorized) -> tuple[str, int]:
-    """Generic handler for NotAuthorized exception."""
-    content = _(error.message) or _("Not authorized to view this page")
-
-    page = base.render(
-        "error_document_template.html",
-        {"code": 403, "content": content, "name": _("Not authorized")},
-    )
-    return (page, 403)
 
 
 def _setup_error_mail_handler(app: CKANApp):
