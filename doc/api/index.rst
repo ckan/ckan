@@ -422,6 +422,18 @@ request, with curl you can do this using the ``@file.csv``::
 
     curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_patch
 
+The same operation can be done with ``ckanapi``::
+
+    from ckanapi import RemoteCKAN
+    
+    ckan = RemoteCKAN('https://demo.ckan.org', apikey='XXXX')
+    
+    with open('updated_file.csv', 'rb') as f:
+        result = ckan.action.resource_patch(
+            id='<resource_id>',
+            upload=('updated_file.csv', f)
+        )
+
 
 .. _api-reference:
 
