@@ -1,9 +1,16 @@
 Added support of file storages: :ref:`using-configured-storages`.
 
 :py:class:`~ckan.lib.uploader.Upload` and
-:py:class:`~ckan.lib.uploader.ResourceUpload` use filesystem storage by
-default. Some of its attributes were replaced by an optional ``storage``
-attribute:
+:py:class:`~ckan.lib.uploader.ResourceUpload` now replaced by
+:py:class:`~ckan.lib.uploader.FkUpload` and
+:py:class:`~ckan.lib.uploader.FkResourceUpload`. These new classes use
+configurable storages and serve the role of the bridge between classic file
+management system in CKAN and the new one. Old classes are still available and,
+if it's required by the custom plugin that extends uploader logic, can be
+enabled via config ``ckan.use_classic_uploader = true``
+
+New classes resemble original versions with certain attributes unified under a
+new ``storage`` attribute:
 
 * ``storage_path``: available as ``upload.storage.settings.path``
 * ``filepath``: can be build by joining ``path`` from storage's settings and ``upload.filename``
