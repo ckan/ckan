@@ -15,15 +15,18 @@ from typing import (
 
 from typing_extensions import Protocol, TypeAlias, TypedDict, TypeVar
 from blinker import Signal
+from flask.ctx import RequestContext
 from flask.wrappers import Response, Request
 from sqlalchemy.orm.scoping import ScopedSession
 from sqlalchemy.orm.query import Query
+
 
 from .logic import ActionResult
 
 if TYPE_CHECKING:
     from ckan.common import CKANConfig
     import ckan.model as model
+    from ckan.tests.helpers import CKANTestApp
     from ckanext.activity.model import Activity
 
 
@@ -270,3 +273,14 @@ class TestFactory(Protocol, Generic[TFactoryModel, TFactoryResult]):
 
     def stub(self, **kwargs: Any) -> object:
         ...
+
+
+FixtureProvidePlugin = Callable[[str, Callable[..., Any]], None]
+FixtureCkanConfig = dict[str, Any]
+FixtureMakeApp = Callable[[], "CKANTestApp"]
+FixtureApp: TypeAlias = "CKANTestApp"
+FixtureResetRedis = Callable[[], None]
+FixtureResetDb = Callable[[], None]
+FixtureResetQueues = Callable[[], None]
+FixtureResetIndex = Callable[[], None]
+FixtureTestRequestContext = Callable[..., RequestContext]
