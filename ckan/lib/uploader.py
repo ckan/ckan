@@ -61,7 +61,10 @@ def get_uploader(upload_to: str,
 
     # default uploader
     if upload is None:
-        upload = FkUpload(upload_to, old_filename)
+        if config["ckan.use_classic_uploader"]:
+            upload = Upload(upload_to, old_filename)
+        else:
+            upload = FkUpload(upload_to, old_filename)
 
     return upload
 
@@ -76,7 +79,10 @@ def get_resource_uploader(data_dict: dict[str, Any]) -> PResourceUploader:
 
     # default uploader
     if upload is None:
-        upload = FkResourceUpload(data_dict)
+        if config["ckan.use_classic_uploader"]:
+            upload = ResourceUpload(data_dict)
+        else:
+            upload = FkResourceUpload(data_dict)
 
     return upload
 

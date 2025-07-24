@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from _pytest.monkeypatch import MonkeyPatch
 from faker import Faker
-import pytest
 from ckan.lib import files
 
 from ckan.cli.cli import ckan

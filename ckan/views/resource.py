@@ -170,8 +170,8 @@ def download(package_type: str,
         filepath = upload.get_path(rsc[u'id'])
         mimetype = rsc.get('mimetype')
 
-        storage: fk.Storage | None
-        if storage := getattr(upload, "storage", None):
+        storage = getattr(upload, "storage", None)
+        if isinstance(storage, fk.Storage):
             file_data = files.FileData(files.Location(filepath))
             if mimetype:
                 file_data.content_type = mimetype

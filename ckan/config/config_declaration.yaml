@@ -1333,6 +1333,14 @@ groups:
         example: 10
         description: The maximum in megabytes an image upload can be.
 
+      - key: ckan.use_classic_uploader
+        type: bool
+        description: |
+            Do not use configurable storages for Uploader and ResourceUploader,
+            keeping previous implementation of these classes. Enable this
+            option to keep backward compatibility with extensions that extend
+            storage logic.
+
       - key: ckan.files.inline_content_types
         example: application/pdf image video
         type: list
