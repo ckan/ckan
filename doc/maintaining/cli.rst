@@ -360,12 +360,6 @@ db: Manage databases
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
 
-.. note::
-
-   As of CKAN 2.12, the ``ckan db clean`` command automatically clears 
-   the search index to prevent orphaned entries. This ensures better 
-   performance and data consistency.
-
 See :doc:`database-management`.
 
 
@@ -645,20 +639,11 @@ computer to reindex faster
 
  ckan -c |ckan.ini| search-index rebuild-fast
 
-By default, ``search-index rebuild`` automatically removes orphaned packages 
-from the search index after rebuilding. If you want to preserve orphaned 
-packages (e.g., for debugging), use the ``--keep-orphans`` option:
-
-.. parsed-literal::
-
- ckan -c |ckan.ini| search-index rebuild --keep-orphans
-
 .. note::
 
    As of CKAN 2.12, the ``--clear`` option has been removed from 
    ``search-index rebuild``. The command now automatically clears orphaned 
-   packages after rebuilding instead of clearing the entire index beforehand,
-   which is more efficient for production sites.
+   packages after rebuilding instead of clearing the entire index beforehand.
 
 There are other search related commands, mostly useful for debugging purposes
 

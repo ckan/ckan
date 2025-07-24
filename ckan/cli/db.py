@@ -58,7 +58,8 @@ def create_from_model():
             with _repo_for_plugin(plugin) as repo:
                 print(plugin, repo)
                 repo.stamp_alembic_head()
-    except Exception:
+    except Exception as e:
+        error_shout(f"Failed to create database from model: {e}")
         raise
     else:
         click.secho('Create DB from model: SUCCESS', fg='green', bold=True)
@@ -75,7 +76,6 @@ def clean():
     try:
         model.repo.clean_db()
 
-        # Clear search index to remove orphaned entries (issue #8347)
         try:
             from ckan.lib.search import clear_all
             clear_all()
@@ -104,13 +104,17 @@ def upgrade(
 ):
     """Upgrade or initialize the database.
     """
-    if not skip_core:
-        _run_migrations(plugin, version)
+    try:
+        if not skip_core:
+            _run_migrations(plugin, version)
 
-    if not skip_plugins and not plugin:
-        _migrate_plugins(apply=True)
+        if not skip_plugins and not plugin:
+            _migrate_plugins(apply=True)
 
-    click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
+        click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
+    except Exception as e:
+        error_shout(f"Database upgrade failed: {e}")
+        raise
 
 
 def _migrate_plugins(apply: bool):

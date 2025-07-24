@@ -162,7 +162,7 @@ class TestDuplicateEmails:
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
-class TestDbCleanSearchIndex:
+class TestDBCleanSearchIndex:
     """Tests for issue #8347: db clean should clear search index"""
 
     def test_db_clean_clears_search_index(self, cli):
