@@ -2411,7 +2411,7 @@ class TestDatastoreSearchRecordsFormat(object):
             },
         )
         assert (
-            r["records"] == "2020-01-02T00:00:00,9,aaab\n"
+            r["records"] == "2020-01-02T00:00:00.000,9,aaab\n"
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2520,9 +2520,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format="lists",
             sort="lst nulls first, num nulls last",
         )["records"] == [
-            [2, 9, "2020-01-02T00:00:00", "aaab", None],
+            [2, 9, "2020-01-02T00:00:00.000", "aaab", None],
             [4, None, None, None, None],
-            [1, 10, "2020-01-01T00:00:00", "aaab", ["one"]],
+            [1, 10, "2020-01-01T00:00:00.000", "aaab", ["one"]],
             [3, 9, None, "aaac", ["one", "two"]],
         ]
         assert helpers.call_action(
@@ -2544,7 +2544,7 @@ class TestDatastoreSearchRecordsFormat(object):
         )["records"] == [
             {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00.000", "txt": "aaab", "lst": None},
             {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
-            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00.000", "txt": "aaab", "lst": ["one"]},
             {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
         ]
 
