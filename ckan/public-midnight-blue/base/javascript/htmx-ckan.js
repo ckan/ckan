@@ -6,7 +6,7 @@
  *
  */
 var csrf_field = $('meta[name=csrf_field_name]').attr('content');
-var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
+var csrf_token = $('meta[name=' + csrf_field + ']').attr('content');
 
 htmx.on('htmx:configRequest', (event) => {
   if (csrf_token) {
@@ -17,12 +17,12 @@ htmx.on('htmx:configRequest', (event) => {
 function htmx_cleanup_before_swap(event) {
   // Dispose any active tooltips before HTMX swaps the DOM
   event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(
-      el => {
-    const tooltip = bootstrap.Tooltip.getInstance(el)
-    if (tooltip) {
-      tooltip.dispose()
-    }
-  })
+    el => {
+      const tooltip = bootstrap.Tooltip.getInstance(el)
+      if (tooltip) {
+        tooltip.dispose()
+      }
+    })
 }
 document.body.addEventListener("htmx:beforeSwap", htmx_cleanup_before_swap);
 document.body.addEventListener("htmx:oobBeforeSwap", htmx_cleanup_before_swap);
@@ -40,41 +40,94 @@ function htmx_initialize_ckan_modules(event) {
   }
 
   event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]'
-      ).forEach(node => {
+  ).forEach(node => {
     bootstrap.Tooltip.getOrCreateInstance(node)
   })
+
   event.detail.target.querySelectorAll('.show-filters').forEach(node => {
-    node.onclick = function() {
+    node.onclick = function () {
       $("body").addClass("filters-modal")
     }
   })
+
   event.detail.target.querySelectorAll('.hide-filters').forEach(node => {
-    node.onclick = function() {
+    node.onclick = function () {
       $("body").removeClass("filters-modal")
     }
   })
 }
-document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
+
+document.body.addEventListener("htmx:afterSwap", function (event) {
+  htmx_initialize_ckan_modules(event);
+
+  const element = event.detail.requestConfig?.elt;
+  if (!element) return;
+
+  const toastHandler = new ToastHandler(element);
+
+  if (event.detail.successful) {
+    toastHandler.showToast();
+  }
+});
+
+class ToastHandler {
+  constructor(element, options = {}) {
+    this.defaultToastOptions = {
+      type: "success",
+      title: ckan.i18n._("Notification"),
+    };
+    this.toastAttributePrefix = options.toastAttributePrefix || "hx-toast-";
+    this.options = this.buildToastOptions(element);
+  }
+
+  buildToastOptions(element) {
+    const options = {};
+
+    for (const attr of element.attributes) {
+      if (attr.name.startsWith(this.toastAttributePrefix)) {
+        const key = this.convertAttributeNameToKey(attr.name);
+        const value = this.parseAttributeValue(attr.value);
+        options[key] = value;
+      }
+    }
+
+    return { ...this.defaultToastOptions, ...options };
+  }
+
+  convertAttributeNameToKey(attributeName) {
+    return attributeName
+      .replace(this.toastAttributePrefix, "")
+      .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
+  parseAttributeValue(value) {
+    if (['true', 'yes', 't', 'y', '1'].includes(value.toLowerCase())) return true;
+    if (['false', 'no', 'f', 'n', '0'].includes(value.toLowerCase())) return false;
+    if (!isNaN(value) && value.trim() !== "") return Number(value);
+    return value;
+  }
+
+  showToast() {
+    if (!this.options.message) return;
+    ckan.toast(this.options);
+  }
+}
+
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
 
-document.body.addEventListener("htmx:responseError", function(event) {
-  const xhr = event.detail.xhr
-  const error = $(xhr.response).find('#error-content')
-  const headerHTML = error.find('h1').remove().html() || `${xhr.status} ${xhr.statusText}`
-  const messageHTML = error.html() || event.detail.error
-  $('#responseErrorToast').remove()
-  $(`
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-      <div id="responseErrorToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-          <strong class="me-auto text-danger">${headerHTML}</strong>
-          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="${ckan.i18n._("Close")}"></button>
-        </div>
-        <div class="toast-body">
-          ${messageHTML}
-        </div>
-      </div>
-    </div>
-  `).appendTo('body')
-  $('#responseErrorToast').toast('show')
+document.body.addEventListener("htmx:responseError", function (event) {
+  const xhr = event.detail.xhr;
+
+  if (xhr.response.startsWith("<!doctype html>")) {
+    const error = $(xhr.response).find('#error-content');
+    var message = error.html() || event.detail.error;
+  } else {
+    var message = xhr.responseText;
+  }
+
+  ckan.toast({
+    message: message.trim().replace(/^"(.*)"$/, '$1'),
+    type: "danger",
+    title: `${xhr.status} ${xhr.statusText}`
+  });
 })
