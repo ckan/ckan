@@ -225,7 +225,7 @@ class TestSearchIndex(object):
             search_result = helpers.call_action('package_search', q="Test")
             assert search_result['count'] == 1
 
-        except Exception as e:
+        except (ImportError, AttributeError, ConnectionError) as e:
             # If search backend not available, skip test
             pytest.skip(f"Search backend not available: {e}")
 
@@ -268,7 +268,7 @@ class TestSearchIndex(object):
             search_result = helpers.call_action('package_search', q="Test")
             assert search_result['count'] == 1
 
-        except Exception as e:
+        except (ImportError, AttributeError, ConnectionError) as e:
             # If search backend not available, skip test
             pytest.skip(f"Search backend not available: {e}")
 

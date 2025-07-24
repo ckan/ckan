@@ -52,7 +52,6 @@ def rebuild(
                 quiet=quiet and not verbose,
                 clear=False)  # Never clear before rebuild
 
-        # Clear orphans after rebuild unless --keep-orphans is specified (issue #8347)
         if not keep_orphans:
             try:
                 if verbose:
@@ -60,12 +59,12 @@ def rebuild(
                         "Clearing orphaned packages from search index...")
                 orphaned_package_ids = get_orphans()
                 if orphaned_package_ids:
-                    from ckan.lib.search import clear as clear_package
+                    from ckan.lib.search import clear
                     for orphaned_id in orphaned_package_ids:
                         if verbose:
                             click.echo(
                                 f"Clearing orphaned package: {orphaned_id}")
-                        clear_package(orphaned_id)
+                        clear(orphaned_id)
                     click.secho(f'Cleared {len(orphaned_package_ids)} orphaned package(s) from search index',
                                 fg='green')
                 elif verbose:
@@ -75,6 +74,7 @@ def rebuild(
                     f'Warning: Failed to clear orphaned packages: {orphan_e}',
                     fg='yellow'
                 )
+                # Don't fail the whole rebuild just because orphan clearing failed
 
     except logic.NotFound:
         error_shout("Couldn't find package %s" % package_id)
