@@ -1,18 +1,18 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from typing import (
-    Any, List, Optional, Tuple, Union
-)
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
+
 from typing_extensions import TypeAlias
 
-from ..model import Query, Model
+if TYPE_CHECKING:
+    import ckan.model as model
+    from ckan.types import Query
 
 AnyDict: TypeAlias = "dict[str, Any]"
 ###############################################################################
 #                                     get                                     #
 ###############################################################################
-PackageList = List[str]
+PackageList = Sequence[str]
 CurrentPackageListWithResources = List[AnyDict]
 MemberList = List[Tuple[Any, ...]]
 PackageCollaboratorList = List[AnyDict]
@@ -23,7 +23,7 @@ GroupListAuthz = List[AnyDict]
 OrganizationListForUser = List[AnyDict]
 LicenseList = List[AnyDict]
 TagList = Union[List[AnyDict], List[str]]
-UserList = Union[List[AnyDict], List[str], "Query[Model.User]"]
+UserList = Union[List[AnyDict], List[str], "Query[model.User]"]
 PackageRelationshipsList = List[AnyDict]
 PackageShow = AnyDict
 ResourceShow = AnyDict
@@ -75,7 +75,7 @@ MemberRolesList = List[AnyDict]
 HelpShow = Optional[str]
 ConfigOptionShow = Any
 ConfigOptionList = List[str]
-JobList = List[AnyDict]
+JobList = Union[List[AnyDict], List[str]]
 JobShow = AnyDict
 ApiTokenList = List[AnyDict]
 
@@ -111,7 +111,7 @@ UserDelete: TypeAlias = None
 PackageDelete: TypeAlias = None
 DatasetPurge: TypeAlias = None
 ResourceDelete: TypeAlias = None
-ResourceViewDelete: TypeAlias = None
+ResourceViewDelete: TypeAlias = AnyDict
 ResourceViewClear: TypeAlias = None
 PackageRelationshipDelete: TypeAlias = None
 MemberDelete: TypeAlias = None

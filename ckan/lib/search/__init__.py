@@ -16,7 +16,6 @@ from requests.auth import HTTPBasicAuth
 
 import ckan.model as model
 import ckan.model.domain_object as domain_object
-import ckan.plugins as p
 import ckan.logic as logic
 from ckan.types import Context
 
@@ -57,7 +56,7 @@ def text_traceback() -> str:
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -106,7 +105,7 @@ def index_for(_type: Any) -> SearchIndex:
         _type_n = _normalize_type(_type)
         return _INDICES[_type_n]()
     except KeyError:
-        log.warn("Unknown search type: %s" % _type)
+        log.warning("Unknown search type: %s", _type)
         return NoopSearchIndex()
 
 
@@ -135,48 +134,6 @@ def query_for(_type: Any) -> SearchQuery:
         raise SearchError("Unknown search type: %s" % _type)
 
 
-def dispatch_by_operation(entity_type: str, entity: dict[str, Any],
-                          operation: str) -> None:
-    """Call the appropriate index method for a given notification."""
-    try:
-        index = index_for(entity_type)
-        if operation == domain_object.DomainObjectOperation.new:
-            index.insert_dict(entity)
-        elif operation == domain_object.DomainObjectOperation.changed:
-            index.update_dict(entity)
-        elif operation == domain_object.DomainObjectOperation.deleted:
-            index.remove_dict(entity)
-        else:
-            log.warn("Unknown operation: %s" % operation)
-    except Exception as ex:
-        log.exception(ex)
-        # we really need to know about any exceptions, so reraise
-        # (see #1172)
-        raise
-
-
-class SynchronousSearchPlugin(p.SingletonPlugin):
-    """Update the search index automatically."""
-    p.implements(p.IDomainObjectModification, inherit=True)
-
-    def notify(self, entity: Any, operation: str) -> None:
-        if not isinstance(entity, model.Package):
-            return
-        if operation != domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(
-                entity.__class__.__name__,
-                logic.get_action('package_show')({
-                        'ignore_auth': True,
-                        'validate': False,
-                        'use_cache': False
-                    }, {'id': entity.id}), operation)
-        elif operation == domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(entity.__class__.__name__,
-                                  {'id': entity.id}, operation)
-        else:
-            log.warn("Discarded Sync. indexing for: %s" % entity)
-
-
 def rebuild(package_id: Optional[str] = None,
             only_missing: bool = False,
             force: bool = False,
@@ -198,23 +155,15 @@ def rebuild(package_id: Optional[str] = None,
     package_index = index_for(model.Package)
     context: Context = {
         'ignore_auth': True,
-        'validate': False,
-        'use_cache': False
     }
 
     if package_id:
-        pkg_dict = logic.get_action('package_show')(context, {
-            'id': package_id
-        })
-        log.info('Indexing just package %r...', pkg_dict['name'])
-        package_index.remove_dict(pkg_dict)
-        package_index.insert_dict(pkg_dict)
+        log.info('Indexing just package %r...', package_id)
+        logic.index_update_package(context, package_id)
     elif package_ids is not None:
         for package_id in package_ids:
-            pkg_dict = logic.get_action('package_show')(context,
-                {'id': package_id})
-            log.info('Indexing just package %r...', pkg_dict['name'])
-            package_index.update_dict(pkg_dict, True)
+            log.info('Indexing just package %r...', package_id)
+            logic.index_update_package(context, package_id, True)
     else:
         packages = model.Session.query(model.Package.id)
         if config.get('ckan.search.remove_deleted_packages'):
@@ -248,15 +197,10 @@ def rebuild(package_id: Optional[str] = None,
                 )
                 sys.stdout.flush()
             try:
-                package_index.update_dict(
-                    logic.get_action('package_show')(context,
-                        {'id': pkg_id}
-                    ),
-                    defer_commit
-                )
+                logic.index_update_package(context, pkg_id, defer_commit)
             except Exception as e:
-                log.error(u'Error while indexing dataset %s: %s' %
-                          (pkg_id, repr(e)))
+                log.error('Error while indexing dataset %s: %s',
+                    pkg_id, repr(e))
                 if force:
                     log.error(text_traceback())
                     continue
@@ -285,7 +229,7 @@ def check() -> None:
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
-        pkg = model.Session.query(model.Package).get(pkg_id)
+        pkg = model.Session.get(model.Package, pkg_id)
         assert pkg
         print((pkg.metadata_modified.strftime('%Y-%m-%d'), pkg.name))
 
@@ -297,7 +241,7 @@ def show(package_reference: str) -> dict[str, Any]:
 
 def clear(package_reference: str) -> None:
     package_index = index_for(model.Package)
-    log.debug("Clearing search index for dataset %s..." %
+    log.debug("Clearing search index for dataset %s...",
               package_reference)
     package_index.delete_package({'id': package_reference})
 
@@ -353,7 +297,7 @@ def check_solr_schema_version(schema_file: Optional[str]=None) -> bool:
 
     if not is_available():
         # Something is wrong with the SOLR server
-        log.warn('Problems were found while connecting to the SOLR server')
+        log.warning('Problems were found while connecting to the SOLR server')
         return False
 
     # Try to get the schema XML file to extract the version
@@ -375,11 +319,12 @@ def check_solr_schema_version(schema_file: Optional[str]=None) -> bool:
     # Up to CKAN 2.9 the schema version was stored in the `version` attribute.
     # Going forward, we are storing it in the `name` one in the form `ckan-X.Y`
     version = ''
-    name_attr = tree.documentElement.getAttribute('name')
-    if name_attr.startswith('ckan-'):
-        version = name_attr.split('-')[1]
-    else:
-        version = tree.documentElement.getAttribute('version')
+    if tree.documentElement is not None:
+        name_attr = tree.documentElement.getAttribute('name')
+        if name_attr.startswith('ckan-'):
+            version = name_attr.split('-')[1]
+        else:
+            version = tree.documentElement.getAttribute('version')
 
     if not len(version):
         msg = 'Could not extract version info from the SOLR schema'

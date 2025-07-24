@@ -82,7 +82,8 @@ def _strip(s: Any):
 
 
 def should_fts_index_field_type(field_type: str):
-    return field_type.lower() in ['tsvector', 'text', 'number']
+    return field_type in tk.config.get(
+        'ckan.datastore.default_fts_index_field_types', [])
 
 
 def get_table_and_function_names_from_sql(context: Context, sql: str):
@@ -216,8 +217,11 @@ def datastore_dictionary(
     """
     try:
         return [
-            f for f in tk.get_action('datastore_info')(
-                {}, {'id': resource_id})['fields']
+            f for f in tk.get_action('datastore_info')({}, {
+                'id': resource_id,
+                'include_meta': False,
+                'include_fields_schema': False,
+            })['fields']
             if not f['id'].startswith(u'_') and (
                 include_columns is None or f['id'] in include_columns)
             ]

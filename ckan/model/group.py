@@ -2,21 +2,19 @@
 from __future__ import annotations
 
 import datetime
-from typing import (
-    Any, Optional, Union, overload
-)
+from typing import Any, Optional, Union, overload
 from typing_extensions import Literal, Self
 
-from sqlalchemy import (column, orm, types, Column, Table, ForeignKey, or_,
-                        and_, text, Index)
-from sqlalchemy.ext.associationproxy import AssociationProxy
+from sqlalchemy import (Row, column, orm, types, Column, Table, ForeignKey, or_,
+                        and_, text, Index, CheckConstraint, false)
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 
 import ckan.model.meta as meta
 import ckan.model.core as core
 import ckan.model.package as _package
 import ckan.model.types as _types
 import ckan.model.domain_object as domain_object
-import ckan.model.package as _package
 
 from ckan.types import Context, Query
 
@@ -50,6 +48,13 @@ group_table = Table('group', meta.metadata,
     Column('is_organization', types.Boolean, default=False),
     Column('approval_status', types.UnicodeText, default=u"approved"),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+        """
+        jsonb_typeof(extras) = 'object' and
+        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+        """,
+        name='group_flat_extras',
+    )),
     Index('idx_group_id', 'id'),
     Index('idx_group_name', 'name'),
 )
@@ -98,7 +103,7 @@ class Member(core.StatefulObjectMixin,
         if not reference:
             return None
 
-        member = meta.Session.query(cls).get(reference)
+        member = meta.Session.get(cls, reference)
         if member is None:
             member = cls.by_name(reference)
         return member
@@ -133,10 +138,10 @@ class Member(core.StatefulObjectMixin,
     def __str__(self):
         # refer to objects by name, not ID, to help debugging
         if self.table_name == 'package':
-            pkg = meta.Session.query(_package.Package).get(self.table_id)
+            pkg = meta.Session.get(_package.Package, self.table_id)
             table_info = 'package=%s' % pkg.name if pkg else 'None'
         elif self.table_name == 'group':
-            group = meta.Session.query(Group).get(self.table_id)
+            group = meta.Session.get(Group, self.table_id)
             table_info = 'group=%s' % group.name if group else 'None'
         else:
             table_info = 'table_name=%s table_id=%s' % (self.table_name,
@@ -160,8 +165,6 @@ class Group(core.StatefulObjectMixin,
     approval_status: Mapped[str]
     state: Mapped[str]
 
-    _extras: Mapped[dict[str, Any]]
-    extras: AssociationProxy
     member_all: Mapped[list[Member]]
 
     def __init__(self, name: str = u'', title: str = u'',
@@ -236,7 +239,8 @@ class Group(core.StatefulObjectMixin,
         return result
 
     def get_children_group_hierarchy(
-            self, type: str='group') -> list[tuple[str, str, str, str]]:
+            self, type: str='group'
+    ) -> list[Row[tuple[str, str, str | None, str]]]:
         '''Returns the groups in all levels underneath this group in the
         hierarchy. The ordering is such that children always come after their
         parent.
@@ -249,9 +253,10 @@ class Group(core.StatefulObjectMixin,
         [(u'8ac0...', u'national-health-service', u'National Health Service', u'e041...'),
          (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
         '''
-        results: list[tuple[str, str, str, str]] = meta.Session.query(
+        stmt: Any = text(HIERARCHY_DOWNWARDS_CTE)
+        results = meta.Session.query(
             Group.id, Group.name, Group.title,  column('parent_id')
-        ).from_statement(text(HIERARCHY_DOWNWARDS_CTE)).params(
+        ).from_statement(stmt).params(
             id=self.id, type=type).all()
         return results
 
@@ -274,17 +279,18 @@ class Group(core.StatefulObjectMixin,
     def get_parent_group_hierarchy(self, type: str='group') -> list[Group]:
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
+        stmt: Any = text(HIERARCHY_UPWARDS_CTE)
         result: list[Group] =  meta.Session.query(Group).\
-            from_statement(text(HIERARCHY_UPWARDS_CTE)).\
+            from_statement(stmt).\
             params(id=self.id, type=type).all()
         return result
 
     @classmethod
-    def get_top_level_groups(cls, type: str='group') -> list[Group]:
+    def get_top_level_groups(cls, type: str='group') -> list[Self]:
         '''Returns a list of the groups (of the specified type) which have
         no parent groups. Groups are sorted by title.
         '''
-        result: list[Group] = meta.Session.query(cls).\
+        result = meta.Session.query(cls).\
             outerjoin(Member,
                       and_(Member.group_id == Group.id,
                            Member.table_name == 'group',
@@ -376,10 +382,10 @@ class Group(core.StatefulObjectMixin,
 
         # orgs do not show private datasets unless the user is a member
         if self.is_organization and not user_is_org_member:
-            query = query.filter(_package.Package.private == False)
+            query = query.filter(_package.Package.private == false())
         # groups (not orgs) never show private datasets
         if not self.is_organization:
-            query = query.filter(_package.Package.private == False)
+            query = query.filter(_package.Package.private == false())
 
         query: "Query[_package.Package]" = query.join(
             member_table, member_table.c["table_id"] == _package.Package.id)
@@ -418,7 +424,7 @@ class Group(core.StatefulObjectMixin,
             return
         package = _package.Package.by_name(package_name)
         assert package
-        if not package in self.packages():
+        if package not in self.packages():
             member = Member(group=self, table_id=package.id,
                             table_name='package')
             meta.Session.add(member)

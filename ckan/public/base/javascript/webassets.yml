@@ -14,7 +14,6 @@ main:
     - plugins/jquery.date-helpers.js
     - plugins/jquery.slug.js
     - plugins/jquery.slug-preview.js
-    - plugins/jquery.truncator.js
     - plugins/jquery.masonry.js
     - plugins/jquery.form-warning.js
     - plugins/jquery.images-loaded.js
@@ -25,7 +24,7 @@ main:
     - i18n.js
     - notify.js
     - main.js
-    - htmx-csrf.js
+    - htmx-ckan.js
 
 ckan:
   filters: rjsmin

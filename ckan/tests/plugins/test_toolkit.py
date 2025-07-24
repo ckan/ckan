@@ -3,6 +3,7 @@
 import pytest
 
 import ckan.plugins.toolkit as tk
+from ckan.logic import NotFound
 
 
 @pytest.mark.parametrize(
@@ -124,3 +125,12 @@ def test_get_endpoint_without_context():
 def test_get_endpoint_with_context():
     """with_request_context fixture mocks request to the homepage."""
     assert tk.get_endpoint() == ("home", "index")
+
+
+@pytest.mark.parametrize("exception_class", [tk.NotFound, tk.ObjectNotFound])
+def test_not_found_exception(exception_class: Exception):
+
+    with pytest.raises(exception_class) as e:
+        tk.get_action("package_show")({"ignore_auth": True}, {"id": "not_found"})
+
+    assert isinstance(e.value, NotFound)

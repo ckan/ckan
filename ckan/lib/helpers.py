@@ -15,6 +15,7 @@ import os
 import pytz
 import tzlocal
 import pprint
+import contextlib
 import copy
 import uuid
 import functools
@@ -25,11 +26,13 @@ from typing import (
     Any, Callable, Match, NoReturn, cast, Dict,
     Iterable, Optional, TypeVar, Union)
 
+
 import dominate.tags as dom_tags
+from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash, has_request_context
+from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import url_for as _flask_default_url_for
@@ -48,7 +51,6 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
@@ -467,6 +469,7 @@ def _url_for_flask(*args: Any, **kw: Any) -> str:
                                 quote(str(val))
                             )
                         )
+
                 if query_args:
                     my_url += '?'
                 my_url += '&'.join(query_args)
@@ -735,6 +738,42 @@ def get_flashed_messages(**kwargs: Any):
     return _flask_get_flashed_messages(**kwargs)
 
 
+@core_helper
+def endpoint_from_url(url: str) -> str:
+    try:
+        urls = current_app.url_map.bind("")
+        match = urls.match(url)
+        endpoint = match[0]
+    except RuntimeError:
+        endpoint = ""
+    return endpoint
+
+
+@core_helper
+def page_is_active(
+        menu_item: str, active_blueprints: Optional[list[str]] = None) -> bool:
+    '''
+        Returns whether the current link is the active page or not.
+
+        `menu_item`
+            Accepts a route (e.g. 'group.index') or a URL (e.g. '/group')
+        `active_blueprints`
+            contains a list of additional blueprints that should be considered
+            active besides the one in `menu_item`
+    '''
+    if menu_item.startswith("/"):
+        menu_item = endpoint_from_url(menu_item)
+
+    blueprint, endpoint = menu_item.split('.')
+
+    item = {
+        'controller': blueprint,
+        'action': endpoint,
+        'highlight_controllers': active_blueprints,
+    }
+    return _link_active(item)
+
+
 def _link_active(kwargs: Any) -> bool:
     ''' creates classes for the link_to calls '''
     blueprint, endpoint = p.toolkit.get_endpoint()
@@ -800,7 +839,7 @@ def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs['href'] = url
     if label == '' or label is None:
         label = url
-    return literal(str(dom_tags.a(label, **attrs)))
+    return literal(str(dom_tags.a(raw_dom_tags(label), **attrs)))
 
 
 @core_helper
@@ -907,9 +946,9 @@ def map_pylons_to_flask_route_name(menu_item: str):
             LEGACY_ROUTE_NAMES.update(mappings)
 
     if menu_item in LEGACY_ROUTE_NAMES:
-        log.info('Route name "{}" is deprecated and will be removed. '
-                 'Please update calls to use "{}" instead'
-                 .format(menu_item, LEGACY_ROUTE_NAMES[menu_item]))
+        log.info('Route name "%s" is deprecated and will be removed. '
+                 'Please update calls to use "%s" instead',
+                 menu_item, LEGACY_ROUTE_NAMES[menu_item])
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
@@ -997,7 +1036,8 @@ def humanize_entity_type(entity_type: str, object_type: str,
     Possible purposes(depends on `entity_type` and change over time)::
 
         `add link`: "Add [object]" button on search pages
-        `breadcrumb`: "Home / [object]s / New" section in breadcrums
+        `add association link`: "Add to [object]" button on dataset pages
+        `breadcrumb`: "Home / [object]s / New" section in breadcrumbs
         `content tab`: "[object]s | Groups | Activity" tab on details page
         `create label`: "Home / ... / Create [object]" part of breadcrumb
         `create title`: "Create [object] - CKAN" section of page title
@@ -1011,10 +1051,10 @@ def humanize_entity_type(entity_type: str, object_type: str,
         `my label`: "My [object]s" tab in dashboard
         `name placeholder`: "<[object]>" section of URL preview on object form
         `no any objects`: No objects created yet
-        `no associated label`: no gorups for dataset
+        `no associated label`: no groups for dataset
         `no description`: object has no description
         `no label`: package with no organization
-        `page title`: "Title - [objec]s - CKAN" section of page title
+        `page title`: "Title - [object]s - CKAN" section of page title
         `save label`: "Save [object]" button
         `search placeholder`: "Search [object]s..." placeholder
         `update label`: "Update [object]" button
@@ -1035,6 +1075,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
     templates = {
         u'add link': _(u"Add {object_type}"),
+        u'add association link': _(u"Add to {object_type}"),
         u'breadcrumb': _(u"{object_type}s"),
         u'content tab': _(u"{object_type}s"),
         u'create label': _(u"Create {object_type}"),
@@ -1061,6 +1102,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'save label': _(u"Save {object_type}"),
         u'search placeholder': _(u'Search {object_type}s...'),
         u'you not member': _(u'You are not a member of any {object_type}s.'),
+        u'user not member': _(u'User isn\'t a member of any {object_type}s.'),
         u'update label': _(u"Update {object_type}"),
     }
 
@@ -1156,6 +1198,26 @@ def has_more_facets(facet: str,
     if limit is not None and len(facets) > limit:
         return True
     return False
+
+
+@core_helper
+def currently_active_facet(facet: str) -> bool:
+    params_items = request.args.keys()
+    expanded_facet = "_" + facet + "_limit"
+    if facet in params_items or expanded_facet in params_items:
+        return True
+    else:
+        return False
+
+
+@core_helper
+def default_collapse_facets():
+    '''Returns config option for `ckan.default_collapse_facets`.
+    If true, the facets in the secondary will be collapsed by default.
+    If false, the facets will all be open, unless closed by the user.
+    Default is false
+    '''
+    return config['ckan.default_collapse_facets']
 
 
 @core_helper
@@ -1535,20 +1597,47 @@ def render_datetime(datetime_: Optional[datetime.datetime],
 
 @core_helper
 def date_str_to_datetime(date_str: str) -> datetime.datetime:
-    '''Convert ISO-like formatted datestring to datetime object.
+    """Convert ISO-like formatted datestring to datetime object.
 
-    This function converts ISO format date- and datetime-strings into
-    datetime objects.  Times may be specified down to the microsecond.  UTC
-    offset or timezone information may **not** be included in the string.
+    This function converts ISO format date- and datetime-strings into datetime
+    objects. Times may be specified down to the microsecond. Timezone
+    information may be included in the string.
 
-    Note - Although originally documented as parsing ISO date(-times), this
-           function doesn't fully adhere to the format.  This function will
-           throw a ValueError if the string contains UTC offset information.
-           So in that sense, it is less liberal than ISO format.  On the
-           other hand, it is more liberal of the accepted delimiters between
-           the values in the string.  Also, it allows microsecond precision,
-           despite that not being part of the ISO format.
-    '''
+    Values compatible with `datetime.isoformat` output may include timezone
+    offset. Internally, `datetime.fromisoformat` is used for parsing, so
+    additional details can be found in official python documentation and wider
+    range of dates can be processed in newer python versions.
+
+    Compatible values consist of date part and optional time part with optional
+    timezone part. Date is formatted as `%Y-%m-%d`. If time part is present,
+    it's separated from date part by any unicode character. Prefer using space
+    symbol or `T`. Time can be specified as `%H:%M:%S` or `%H:%M:%S.%f` if
+    higher precision is required. Note, that milliseconds/microseconds must
+    contain exactly 3 or 6 digits. Timezone must be specified as time offset -
+    `-01:30`, `+08:00`. Named timezones, as `UTC` are not currently supported.
+
+    If value cannot be parsed with `datetime.fromisoformat`, all numeric
+    fragments are extracted and passed to `datetime` constructor in the
+    original order. Everything after seconds(even text) passed as microsecond
+    parameter. It allows handling even unusual dates, like `2020/01/01
+    17.04.59.123`.
+
+    Prefer using ISO 8601 dates, as alternative formats can be disabled in
+    future.
+
+    Example:
+    >>> # ISO 8601
+    >>> date_str_to_datetime("2020-01-01")
+    >>> date_str_to_datetime("2020-01-01 20:00")
+    >>> date_str_to_datetime("2020-01-01T17:15:59.123+01:00")
+    >>>
+    >>> # alternative formats
+    >>> date_str_to_datetime("2020/01/01 15:14:55.1")
+
+    """
+
+    with contextlib.suppress(ValueError):
+        return datetime.datetime.fromisoformat(date_str)
 
     time_tuple: list[Any] = re.split(r'[^\d]+', date_str, maxsplit=5)
 
@@ -1762,7 +1851,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context: Context = {'model': model}
+    context: Context = {}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1954,9 +2043,14 @@ def groups_available(am_member: bool = False,
 
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
-    data_dict = {'available_only': True,
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
+    context: Context = {'user': current_user.name}
+    data_dict = {'id': user,
+                 'available_only': True,
                  'am_member': am_member,
                  'include_dataset_count': include_dataset_count,
                  'include_member_count': include_member_count}
@@ -1969,13 +2063,18 @@ def organizations_available(permission: str = 'manage_group',
                             include_member_count: bool = False,
                             user: Union[str, None] = None
                             ) -> list[dict[str, Any]]:
-    '''Return a list of organizations that the current user has the specified
-    permission for.
+    '''Return a list of organizations that a user has the specified permission
+    for. If no user is specified, the current user is used.
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
+    context: Context = {'user': current_user.name}
     data_dict = {
+        'id': user,
         'permission': permission,
         'include_dataset_count': include_dataset_count,
         'include_member_count': include_member_count}
@@ -1990,7 +2089,10 @@ def member_count(group: str) -> int:
         u'id': group,
         u'object_type': u'user'
     }
-    return len(logic.get_action(u'member_list')(context, data_dict))
+    try:
+        return len(logic.get_action(u'member_list')(context, data_dict))
+    except logic.NotAuthorized:
+        return 0
 
 
 @core_helper
@@ -2012,7 +2114,7 @@ def user_in_org_or_group(group_id: str) -> bool:
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)  # type: ignore
+        .filter(model.Member.table_id == current_user.id)
     return len(query.all()) != 0
 
 
@@ -2381,7 +2483,14 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
+    upload_config = config.get('ckan.uploads_enabled')
+    if upload_config is not None:
+        return upload_config
+
+    if config['ckan.storage_path'] is not None:
+        return True
+
+    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
         return True
     return False
 
@@ -2410,6 +2519,23 @@ def get_featured_groups(count: int = 1) -> list[dict[str, Any]]:
                                 count=count,
                                 items=config_groups)
     return groups
+
+
+@core_helper
+def get_recent_datasets(count: int = 1) -> list[dict[str, Any]]:
+    '''Returns a list of recently modified/created datasets
+    '''
+    context: Context = {'ignore_auth': True, 'for_view': True}
+    data_dict = {'rows': count, 'sort': 'metadata_modified desc'}
+    recently_updated_datasets = logic.get_action('package_search')(context, data_dict)
+    return recently_updated_datasets['results']
+
+
+@core_helper
+def get_dataset_count() -> dict[str, int]:
+    stats = logic.get_action('package_search')(
+        {}, {"rows": 0})['count']
+    return stats
 
 
 @core_helper
@@ -2783,4 +2909,8 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_input.html')
+    '''
+    Render a hidden CSRF input field.
+    '''
+    import ckan.lib.base as base
+    return literal(base.render('snippets/csrf_input.html'))

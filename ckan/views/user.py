@@ -7,8 +7,6 @@ from typing import Any, Optional, Union
 from flask import Blueprint
 from flask.views import MethodView
 from ckan.common import asbool
-from six import ensure_str
-import dominate.tags as dom_tags
 
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
@@ -58,6 +56,10 @@ def _edit_form_to_db_schema() -> Schema:
 
 def _new_form_to_db_schema() -> Schema:
     return schema.user_new_form_schema()
+
+
+def _perform_reset_form_to_db_schema() -> Schema:
+    return schema.user_perform_reset_form_schema()
 
 
 def _extra_template_variables(context: Context,
@@ -207,86 +209,69 @@ def read_groups(id: str) -> Union[Response, str]:
 
 
 class ApiTokenView(MethodView):
-    def get(self,
-            id: str,
-            data: Optional[dict[str, Any]] = None,
-            errors: Optional[dict[str, Any]] = None,
-            error_summary: Optional[dict[str, Any]] = None
-            ) -> Union[Response, str]:
-        context: Context = {
-            u'user': current_user.name,
-            u'auth_user_obj': current_user,
-            u'for_view': True,
-            u'include_plugin_extras': True
-        }
+    def get(self, id: str) -> Union[Response, str]:
         try:
-            tokens = logic.get_action(u'api_token_list')(
-                context, {u'user': id}
+            tokens = logic.get_action('api_token_list')(
+                {}, {'user': id}
             )
         except logic.NotAuthorized:
-            base.abort(403, _(u'Unauthorized to view API tokens.'))
+            base.abort(403, _('Unauthorized to view API tokens.'))
 
         data_dict: dict[str, Any] = {
-            u'id': id,
-            u'user_obj': current_user,
-            u'include_datasets': True,
-            u'include_num_followers': True
+            'id': id,
+            'user_obj': current_user,
         }
-
-        extra_vars = _extra_template_variables(context, data_dict)
-        extra_vars[u'tokens'] = tokens
-        extra_vars.update({
-            u'data': data,
-            u'errors': errors,
-            u'error_summary': error_summary
-        })
-        return base.render(u'user/api_tokens.html', extra_vars)
+        extra_vars = _extra_template_variables({}, data_dict)
+        extra_vars['tokens'] = reversed(tokens)
+        extra_vars['data'] = data_dict
+        extra_vars['errors'] = None
+        return base.render('user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
-
         data_dict = logic.clean_dict(
             dictization_functions.unflatten(
                 logic.tuplize_dict(logic.parse_params(request.form))))
 
-        data_dict[u'user'] = id
+        data_dict['user'] = id
+        token = None
+        errors = None
+
         try:
-            token = logic.get_action(u'api_token_create')(
-                {},
-                data_dict
-            )[u'token']
+            token = logic.get_action('api_token_create')({}, data_dict)
         except logic.NotAuthorized:
-            base.abort(403, _(u'Unauthorized to create API tokens.'))
+            base.abort(403, _('Unauthorized to create API tokens.'))
         except logic.ValidationError as e:
             errors = e.error_dict
-            error_summary = e.error_summary
-            return self.get(id, data_dict, errors, error_summary)
+        else:
+            token['name'] = data_dict['name']
+            data_dict = {}  # clear form
 
-        copy_btn = dom_tags.button(dom_tags.i(u'', {
-            u'class': u'fa fa-copy'
-        }), {
-            u'type': u'button',
-            u'class': u'btn btn-default btn-xs',
-            u'data-module': u'copy-into-buffer',
-            u'data-module-copy-value': ensure_str(token)
+        data_dict: dict[str, Any] = {
+            'id': id,
+            'user_obj': current_user,
+        }
+        extra_vars = _extra_template_variables({}, data_dict)
+        extra_vars.update({
+            'user': extra_vars['user_dict'],  # renamed in user/read_base.html
+            'data': data_dict,
+            'created': token,
+            'errors': errors,
         })
-        h.flash_success(
-            _(
-                u"API Token created: <code style=\"word-break:break-all;\">"
-                u"{token}</code> {copy}<br>"
-                u"Make sure to copy it now, "
-                u"you won't be able to see it again!"
-            ).format(token=ensure_str(token), copy=copy_btn),
-            True
-        )
-        return h.redirect_to(u'user.api_tokens', id=id)
+        return base.render('user/snippets/api_token_create_form.html', extra_vars)
 
 
-def api_token_revoke(id: str, jti: str) -> Response:
-    try:
-        logic.get_action(u'api_token_revoke')({}, {u'jti': jti})
-    except logic.NotAuthorized:
-        base.abort(403, _(u'Unauthorized to revoke API tokens.'))
-    return h.redirect_to(u'user.api_tokens', id=id)
+def api_tokens_revoke(id: str) -> Union[Response, str]:
+    tokens = request.form.getlist('token')
+    for jti in tokens:
+        try:
+            logic.get_action('api_token_revoke')({}, {'jti': jti})
+        except logic.NotAuthorized:
+            base.abort(403, _('Unauthorized to revoke API tokens.'))
+        except logic.NotFound:
+            pass  # ignore already-deleted tokens
+    return base.render('user/snippets/api_tokens_revoke.html', {
+        'tokens': tokens
+    })
 
 
 class EditView(MethodView):
@@ -299,7 +284,7 @@ class EditView(MethodView):
         }
         if id is None:
             if current_user.is_authenticated:
-                id = current_user.id  # type: ignore
+                id = current_user.id
             else:
                 base.abort(400, _(u'No user specified'))
         assert id
@@ -426,7 +411,6 @@ class EditView(MethodView):
         }
 
         extra_vars = _extra_template_variables({
-            u'model': model,
             u'session': model.Session,
             u'user': current_user.name
         }, data_dict)
@@ -587,7 +571,10 @@ def login() -> Union[Response, str]:
                 rotate_token()
                 return next_page_or_default(next)
         else:
-            err = _(u"Login failed. Bad username or password.")
+            if config.get('ckan.recaptcha.privatekey'):
+                err = _(u"Login failed. Bad username or password or CAPTCHA.")
+            else:
+                err = _(u"Login failed. Bad username or password.")
             h.flash_error(err)
             return base.render("user/login.html", extra_vars)
 
@@ -642,7 +629,7 @@ def delete(id: str) -> Union[Response, Any]:
         return base.abort(404, _(e.message))
 
     if request.method == 'POST' and current_user.is_authenticated:
-        if current_user.id == id:  # type: ignore
+        if current_user.id == id:
             return logout()
         else:
             user_index = h.url_for(u'user.index')
@@ -731,8 +718,7 @@ class RequestResetView(MethodView):
                      repr_untrusted(id))
 
         for user_obj in user_objs:
-            log.info(u'Emailing reset link to user: {}'
-                     .format(user_obj.name))
+            log.info('Emailing reset link to user: %s', user_obj.name)
             try:
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above
@@ -766,6 +752,7 @@ class PerformResetView(MethodView):
         # FIXME 403 error for invalid key is a non helpful page
         context: Context = {
             'user': id,
+            'schema': _perform_reset_form_to_db_schema(),
             'keep_email': True,
         }
 
@@ -786,29 +773,13 @@ class PerformResetView(MethodView):
             base.abort(403, msg)
         return context, user_dict
 
-    def _get_form_password(self):
-        password1 = request.form.get(u'password1')
-        password2 = request.form.get(u'password2')
-        if (password1 is not None and password1 != u''):
-            if len(password1) < 8:
-                raise ValueError(
-                    _(u'Your password must be 8 '
-                      u'characters or longer.'))
-            elif password1 != password2:
-                raise ValueError(
-                    _(u'The passwords you entered'
-                      u' do not match.'))
-            return password1
-        msg = _(u'You must provide a password')
-        raise ValueError(msg)
-
     def post(self, id: str) -> Union[Response, str]:
         context, user_dict = self._prepare(id)
         context[u'reset_password'] = True
         user_state = user_dict[u'state']
         try:
-            new_password = self._get_form_password()
-            user_dict[u'password'] = new_password
+            user_dict['password1'] = request.form.get('password1')
+            user_dict['password2'] = request.form.get('password2')
             username = request.form.get(u'name')
             if (username is not None and username != u''):
                 user_dict[u'name'] = username
@@ -839,7 +810,9 @@ class PerformResetView(MethodView):
         except dictization_functions.DataError:
             h.flash_error(_(u'Integrity Error'))
         except logic.ValidationError as e:
-            h.flash_error(u'%r' % e.error_dict)
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.get(id, errors, error_summary)
         except ValueError as e:
             h.flash_error(str(e))
         user_dict[u'state'] = user_state
@@ -847,10 +820,14 @@ class PerformResetView(MethodView):
             u'user_dict': user_dict
         })
 
-    def get(self, id: str) -> str:
+    def get(self, id: str,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None) -> str:
         user_dict = self._prepare(id)[1]
         return base.render(u'user/perform_reset.html', {
-            u'user_dict': user_dict
+            u'user_dict': user_dict,
+            'errors': errors or {},
+            'error_summary': error_summary or {},
         })
 
 
@@ -991,7 +968,7 @@ user.add_url_rule(
     u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
 )
 user.add_url_rule(
-    u'/<id>/api-tokens/<jti>/revoke', view_func=api_token_revoke,
+    u'/<id>/api-tokens/revoke', view_func=api_tokens_revoke,
     methods=(u'POST',)
 )
 user.add_url_rule(rule=u'/sysadmin', view_func=sysadmin, methods=['POST'])

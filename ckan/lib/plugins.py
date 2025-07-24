@@ -180,9 +180,8 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
             signals.register_blueprint.send(
                 u"resource", blueprint=resource_blueprint)
             app.register_blueprint(resource_blueprint)
-            log.debug(
-                'Registered blueprints for custom dataset type \'{}\''.format(
-                    package_type))
+            log.debug("Registered blueprints for custom dataset type '%s'"%
+                      package_type)
 
     if not registered_dataset:
         # core dataset blueprint not overridden
@@ -399,6 +398,9 @@ class DefaultDatasetForm(object):
     def search_template(self) -> str:
         return 'package/search.html'
 
+    def search_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
+
     def history_template(self) -> None:
         return None
 
@@ -406,7 +408,7 @@ class DefaultDatasetForm(object):
         return 'package/resource_read.html'
 
     def package_form(self) -> str:
-        return 'package/new_package_form.html'
+        return 'package/snippets/package_form.html'
 
     def resource_form(self) -> str:
         return 'package/snippets/resource_form.html'
@@ -452,6 +454,13 @@ class DefaultGroupForm(object):
         rendered for the read page
         """
         return 'group/read.html'
+
+    def read_template_htmx(self) -> str:
+        """
+        Returns a string representing the location of the template to be
+        rendered for htmx updates to the read page
+        """
+        return 'package/snippets/search_htmx.html'
 
     def about_template(self) -> str:
         """
@@ -594,6 +603,9 @@ class DefaultOrganizationForm(DefaultGroupForm):
 
     def read_template(self) -> str:
         return 'organization/read.html'
+
+    def read_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
 
     # don't override history_template - use group template for history
 

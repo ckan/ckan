@@ -2,12 +2,12 @@
 {% set orgs_available = h.organizations_available(permission='manage_group',
   include_dataset_count=True,
   include_member_count=True,
-  user=user['name'])
+  user=user['id'])
 %}
 {% set groups_available = h.groups_available(am_member=True,
   include_dataset_count=True,
   include_member_count=True,
-  user=user['name'])
+  user=user['id'])
 %}
 
 
@@ -60,11 +60,7 @@
           {% if error_message %}
              <div class="alert alert-danger">{{ error_message }}</div>
           {% endif %}
-          {% if am_following %}
-             <a class="btn btn-danger" hx-post="{{ h.url_for('user.unfollow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
-           {% else %}
-           <a class="btn btn-success" hx-post="{{ h.url_for('user.follow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
-           {% endif %}
+          {% snippet 'snippets/follow_button.html', am_following=am_following, obj_type='user', obj_id=user.id %}
          {% endif %}
           {% endblock %}
         {% endif %}
@@ -81,7 +77,7 @@
           </dl>
           {% if is_myself %}
             <dl>
-              <dt>{{ _('Email') }} <span class="label label-default" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+              <dt>{{ _('Email') }} <span class="badge bg-secondary" aria-label="{{ _('This information is visible to you and admins') }}" data-bs-title="{{ _('This information is visible to you and admins') }}" data-bs-toggle="tooltip">{{ _('Private') }}</span></dt>
               <dd>{{ user.email }}</dd>
             </dl>
           {% endif %}

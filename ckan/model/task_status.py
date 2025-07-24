@@ -28,7 +28,7 @@ task_status_table = Table('task_status', meta.metadata,
 class TaskStatus(domain_object.DomainObject):
     id: Mapped[str]
     entity_id: Mapped[str]
-    entuty_type: Mapped[str]
+    entity_type: Mapped[str]
     task_type: Mapped[str]
     key: Mapped[str]
     value: Mapped[str]
@@ -42,7 +42,7 @@ class TaskStatus(domain_object.DomainObject):
         if not reference:
             return None
 
-        task = meta.Session.query(cls).get(reference)
+        task = meta.Session.get(cls, reference)
         return task
 
 meta.registry.map_imperatively(TaskStatus, task_status_table)

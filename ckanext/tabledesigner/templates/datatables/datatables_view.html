@@ -1,4 +1,5 @@
 {% ckan_extends %}
+
 {% block page %}
   {{ super() }}
   {% if
@@ -8,19 +9,24 @@
     {% asset "ckanext-tabledesigner/datatables_buttons" %}
 
     <div
-      data-module="tabledesigner_datatables_delete"
-      data-edit-text="{{ _('Delete rows') }}"
-      data-edit-url="{{ h.url_for('tabledesigner.delete_rows', id=package.name, resource_id=resource.id) }}"
+      data-module="tabledesigner_datatables_buttons"
+      data-module-type="delete"
+      data-module-text="{{ _('Delete rows') }}"
+      data-module-url="{{ h.url_for('tabledesigner.delete_rows', id=package.name, resource_id=resource.id) }}"
     ></div>
+
     <div
-      data-module="tabledesigner_datatables_edit"
-      data-edit-text="{{ _('Edit row') }}"
-      data-edit-url="{{ h.url_for('tabledesigner.edit_row', id=package.name, resource_id=resource.id) }}"
+      data-module="tabledesigner_datatables_buttons"
+      data-module-type="edit"
+      data-module-text="{{ _('Edit row') }}"
+      data-module-url="{{ h.url_for('tabledesigner.edit_row', id=package.name, resource_id=resource.id) }}"
     ></div>
+
     <div
-      data-module="tabledesigner_datatables_add"
-      data-edit-text="{{ _('Add row') }}"
-      data-edit-url="{{ h.url_for('tabledesigner.add_row', id=package.name, resource_id=resource.id) }}"
+      data-module="tabledesigner_datatables_buttons"
+      data-module-type="add"
+      data-module-text="{{ _('Add row') }}"
+      data-module-url="{{ h.url_for('tabledesigner.add_row', id=package.name, resource_id=resource.id) }}"
     ></div>
   {% endif %}
 {% endblock %}

@@ -23,7 +23,7 @@ groups:
         ignored: true
         type: bool
 
-  # Options that are available inside CircleCI containers:
+  # Options that are available inside the Docker / CI containers:
   - annotation: ~
     options:
       - key: CKAN_POSTGRES_USER
@@ -76,15 +76,25 @@ groups:
         internal: true
       - key: MAX_COOKIE_SIZE
         internal: true
+      - key: MAX_FORM_MEMORY_SIZE
+        internal: true
+      - key: MAX_FORM_PARTS
+        internal: true
       - key: PREFERRED_URL_SCHEME
         internal: true
       - key: PRESERVE_CONTEXT_ON_EXCEPTION
         internal: true
+      - key: PROVIDE_AUTOMATIC_OPTIONS
+        internal: true
       - key: PROPAGATE_EXCEPTIONS
+        internal: true
+      - key: SECRET_KEY_FALLBACKS
         internal: true
       - key: SEND_FILE_MAX_AGE_DEFAULT
         internal: true
       - key: SERVER_NAME
+        internal: true
+      - key: SESSION_COOKIE_PARTITIONED
         internal: true
       - key: TEMPLATES_AUTO_RELOAD
         internal: true
@@ -93,6 +103,8 @@ groups:
       - key: TRAP_BAD_REQUEST_ERRORS
         internal: true
       - key: TRAP_HTTP_EXCEPTIONS
+        internal: true
+      - key: TRUSTED_HOSTS
         internal: true
       - key: USE_X_SENDFILE
         internal: true
@@ -139,8 +151,16 @@ groups:
     options:
       - key: use
         placeholder: egg:ckan
+        description: |
+          Allows to define chained configuration files. The base ini file should use the ``egg:ckan``
+          value. Files extending the base ini files must use the ``config:<path to parent ini file>`` form.
+          For instance, if you need to tweak the test settings in a ``test-core-custom.ini`` file, you
+          would use ``use=config:test-core.ini`` as value. Configuration options defined in the higher level
+          files (e.g. ``test-core-custom.ini``) will override the existing ones defined in the base on
+          (e.g. ``test-core.ini``).
 
       - key: SECRET_KEY
+        legacy_key: beaker.session.secret
         validators: not_empty
         required: true
         placeholder_callable: secrets:token_urlsafe
@@ -155,6 +175,9 @@ groups:
             python -c "import secrets; print(secrets.token_urlsafe(20))"
 
           When used in a cluster environment, the value must be the same on every machine.
+
+          If not provided, for backwards compatibility with earlier configurations the value of
+          ``beaker.session.secret`` will be used.
 
 
       - key: ckan.legacy_route_mappings
@@ -322,7 +345,7 @@ groups:
         default: 31_536_000 # 1 year
         description: |
           If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
-          set this number of seconds in the future. Note that you can not set a 
+          set this number of seconds in the future. Note that you can not set a
           session that never expires (only very far into the future).
 
       - key: SESSION_USE_SIGNER
@@ -361,7 +384,7 @@ groups:
 
           To get the list of all the available properties check the `SQLAlchemy documentation`_
 
-          .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+          .. _SQLAlchemy documentation: https://docs.sqlalchemy.org/en/20/core/engines.html#engine-creation-api
 
   - annotation: Site Settings
     options:
@@ -418,12 +441,6 @@ groups:
           ``file_contents`` will guess the mimetype by the file itself, this tends to be inaccurate.
 
           ``None`` will not store the mimetype for the resource.
-
-      - key: ckan.static_max_age
-        default: 3600
-        type: int
-        example: 2592000
-        description: Controls CKAN static files' cache max age, if we're serving and caching them.
 
       - key: ckan.valid_url_schemes
         type: list
@@ -681,7 +698,7 @@ groups:
 
       - key: WTF_CSRF_TIME_LIMIT
         type: int
-        default: 3600
+        default: 31536000
         description: |
           Max age in seconds for CSRF tokens.
           This value is capped by the lifetime of the session.
@@ -699,14 +716,6 @@ groups:
         description: |
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
-
-      - key: ckan.csrf_protection.ignore_extensions
-        type: bool
-        default: true
-        description: |
-          Exempt plugins blueprints from CSRF protection.
-
-          .. warning:: This feature will be deprecated in future versions.
 
   - annotation: Flask-Login Remember me cookie settings
     options:
@@ -1038,10 +1047,14 @@ groups:
               they're given in the config file, regardless of which Python modules
               they're implemented in.
 
-      - key: ckan.resource_proxy.timeout
-        type: int
-        default: 5
-        description: Timeout in seconds to use on Resource Proxy requests.
+      - key: ckan.download_proxy
+        example: http://proxy:3128
+        description: |
+          Specifies a HTTP proxy to be used by extensions such as Resource Proxy, XLoader or Archiver
+          when downloading remote files. This may be useful for enabling access to
+          restricted network locations, or restricting access to privileged ones, eg
+          preventing `Server Side Request Forgery <https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/>`_.
+          It will not be used by CKAN core.
 
   - annotation: Front-End Settings
     options:
@@ -1174,6 +1187,13 @@ groups:
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
 
+      - key: ckan.default_collapse_facets
+        type: bool
+        default: False
+        description: |
+          This controls the default view of the facet accordions, i.e. whether the accordions are expanded or collapsed
+          by default.
+
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
@@ -1285,10 +1305,21 @@ groups:
 
   - annotation: Storage Settings
     options:
+      - key: ckan.uploads_enabled
+        validators: ignore_missing boolean_validator
+        example: false
+        description: |
+          Defines file uploads are enabled or not.
+
+          If enabled also set :ref:`ckan.storage_path` if you want to use internal storage.
+
       - key: ckan.storage_path
         placeholder: /var/lib/ckan/default
         example: /var/lib/ckan/default
-        description: This defines the location of where CKAN will store all uploaded data.
+        description: |
+          This defines the location of where CKAN will store all uploaded data.
+
+          If set to some directory, also set :ref:`ckan.uploads_enabled` to true to enable uploads in the UI.
 
       - key: ckan.max_resource_size
         type: int
@@ -1308,25 +1339,36 @@ groups:
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as user's avatar. No restrictions applied when empty
+        description: File types allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.mimetypes`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended). Note also that ``text/svg`` can contain embedded
+          javascript code so it only should be used in trusted environments.
 
       - key: ckan.upload.user.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+        example: image/png
+        description: File MIMETypes allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.types`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.types
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as group image. No restrictions applied when empty
+        description: File types allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
+        example: image/png
+        description: File MIMEtypes allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.types` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
+          Note also that ``text/svg`` can contain embedded javascript code so it only should be used in
+          trusted environments.
 
   - annotation: Webassets Settings
     options:
@@ -1366,6 +1408,28 @@ groups:
         description: |
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
+
+      - key: ckan.user.unique_email_states
+        type: list
+        default: [active]
+        example: [pending, active]
+        description: |
+          When a new user created, uniqueness of its email is checked among
+          users with specified statuses.
+
+          Using `active` is appropriate if users are created on portal only
+          through original user registration form and always have active
+          status. When user is deleted, his email can be reused by a new
+          account.
+
+          Using `pending active` is suitable for workflows with user approval
+          or invitations. In such scenario, user is created with `pending`
+          status initially and activated at some point in future.
+
+          Adding `deleted` to this option makes sense if email of removed users
+          must not be reused. In other words, when user is deleted, he is not
+          able to create a new account with the same email and is virtually
+          blocked on the portal.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings
@@ -1563,11 +1627,6 @@ groups:
 
           .. seealso::
               The host of your CKAN installation can be set via :ref:`ckan.site_url`.
-
-          The CKAN repoze config file ``who.ini`` file will also need to be edited
-          by adding the path prefix to the options in the ``[plugin:friendlyform]``
-          section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
-          Do not change the login/logout_handler_path options.
 
       - key: ckan.resource_formats
         example: /path/to/resource_formats
