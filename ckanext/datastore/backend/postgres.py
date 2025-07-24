@@ -1474,13 +1474,15 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     records_format = data_dict['records_format']
 
     if last_id and (len(sort) == 1 and '_id' in sort[0].lower()):
-        conjunction = 'AND' if where_clause.strip().upper().startswith("WHERE") else 'WHERE'
+        conjunction = (
+            'AND' if where_clause.strip().upper().startswith("WHERE") else 'WHERE')
         operator = '<' if ' desc' in sort[0].lower() else '>'
 
         # Keyset Pagination
-        final_statement = '{where} {conjunction} _id {operator} {last_id} {sort} LIMIT {limit}'
+        final_statement = (
+            '{where} {conjunction} _id {operator} {last_id} {sort} LIMIT {limit}')
     else:
-        conjunction= ''
+        conjunction = ''
         operator = ''
         final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
 
@@ -1559,17 +1561,21 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
     # Currently apply Keyset Pagination only to CSV format
     if records_format == u'csv':
-        m_csv_string = records.rstrip('\n') # type: ignore
-        m_csv_string = m_csv_string.rsplit(
-            '\n', 1) if '\n' in m_csv_string else [m_csv_string]
+        # Make sure that _id is present an being first column in the results
+        if query_dict['select'] and query_dict['select'][0] == '"_id"':
+            m_csv_string = records.rstrip('\n')  # type: ignore
+            m_csv_string = m_csv_string.rsplit(
+                '\n', 1) if '\n' in m_csv_string else [m_csv_string]
 
-        if m_csv_string:
-            try:
-                m_csv_string = m_csv_string[-1]
-                last_id = m_csv_string.split(',')[0].strip()
-                data_dict['last_id'] = last_id
-            except (IndexError, AttributeError):
-                pass
+            if m_csv_string:
+                try:
+                    m_csv_string = m_csv_string[-1]
+
+                    # Turn to int to make sure no broken value
+                    last_id = int(m_csv_string.split(',')[0].strip())
+                    data_dict['last_id'] = last_id
+                except (ValueError, IndexError, AttributeError):
+                    pass
 
     data_dict['records'] = records
 
