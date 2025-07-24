@@ -377,6 +377,12 @@ def search(package_type: str) -> str:
     for key, value in extra_vars.items():
         setattr(g, key, value)
 
+    if request.htmx:
+        return base.render(
+            _get_pkg_template('search_template_htmx', package_type),
+            extra_vars
+        )
+
     return base.render(
         _get_pkg_template(u'search_template', package_type), extra_vars
     )
@@ -559,8 +565,11 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    if request.form[u'save'] == "go-resources":
+                    try:
                         last_added_resource = pkg_dict[u'resources'][-1]
+                    except IndexError:
+                        last_added_resource = None
+                    if last_added_resource and request.form[u'save'] == "go-resources":
                         url = h.url_for(
                             u'{}_resource.edit'.format(package_type),
                             id=pkg_dict.get('id'),

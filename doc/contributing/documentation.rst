@@ -2,7 +2,7 @@
 Writing documentation
 =====================
 
-.. _docs.ckan.org: http://docs.ckan.org
+.. _docs.ckan.org: https://docs.ckan.org
 
 This section gives some guidelines to help us to write consistent and good
 quality documentation for CKAN.
@@ -69,7 +69,7 @@ terminal:
 
 ::
 
-    virtualenv --no-site-packages pyenv
+    virtualenv pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/ckan/ckan.git#egg=ckan'
     cd pyenv/src/ckan/

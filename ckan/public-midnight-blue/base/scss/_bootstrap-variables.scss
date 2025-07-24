@@ -470,7 +470,7 @@ $line-height-base:            1.5 !default;
 $line-height-sm:              1.25 !default;
 $line-height-lg:              2 !default;
 
-$h1-font-size:                $font-size-base * 2 !default;
+$h1-font-size:                $font-size-base * 3 !default;
 $h2-font-size:                $font-size-base * 1.75 !default;
 $h3-font-size:                $font-size-base * 1.5 !default;
 $h4-font-size:                $font-size-base * 1.24 !default;
@@ -1249,11 +1249,11 @@ $toast-header-border-color:         rgba(0, 0, 0, .05) !default;
 
 // scss-docs-start badge-variables
 $badge-font-size:                   .75em !default;
-$badge-font-weight:                 $font-weight-bold !default;
+$badge-font-weight:                 $font-weight-semibold !default;
 $badge-color:                       $white !default;
-$badge-padding-y:                   .35em !default;
-$badge-padding-x:                   .65em !default;
-$badge-border-radius:               $border-radius !default;
+$badge-padding-y:                   .125em !default;
+$badge-padding-x:                   .5em !default;
+$badge-border-radius:               .1875em !default;
 // scss-docs-end badge-variables
 
 
@@ -1386,7 +1386,7 @@ $figure-caption-color:              $gray-600 !default;
 // Breadcrumbs
 
 // scss-docs-start breadcrumb-variables
-$breadcrumb-font-size:              null !default;
+$breadcrumb-font-size:              14px !default;
 $breadcrumb-padding-y:              0 !default;
 $breadcrumb-padding-x:              0 !default;
 $breadcrumb-item-padding-x:         .5rem !default;

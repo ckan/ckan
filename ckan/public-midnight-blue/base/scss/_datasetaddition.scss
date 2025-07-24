@@ -91,12 +91,6 @@
 
 // Package metadata field
 .package-metadata-field {
-  background-color: $gray-100;
-  padding: 48px;
-  margin-top: -1.5rem;
-  border-radius: 20px;
-  margin-bottom: 48px;
-
   @media screen and (max-width: 768px) {
     padding: 4px;
     padding-top: 24px;
@@ -188,19 +182,6 @@
   width: 164px;
 }
 
-.page-heading,
-.hide-heading {
-  font-size: 3rem;
-  line-height: 3rem;
-  font-weight: 600;
-  color: #153084;
-
-  @media screen and (max-width: 768px) {
-    font-size: 1.875rem;
-    line-height: 1.875rem;
-  }
-}
-
 
 // Accordion styles
 
@@ -233,10 +214,9 @@
   }
 }
 .icon-stage {
+  margin: auto 6px;
   .fa-check-circle {
     color: $green;
-    position: relative;
-    top: 4px;
   }
 }
 

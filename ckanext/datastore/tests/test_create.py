@@ -66,6 +66,9 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action("datastore_create", **data)
         assert result["resource_id"] is not None
 
+        res = helpers.call_action("resource_show", id=result["resource_id"])
+        assert res.get('last_modified')
+
     def test_create_works_with_empty_object_in_json_field(self):
         package = factories.Dataset()
         data = {
@@ -219,42 +222,46 @@ class TestDatastoreCreateNewTests(object):
             helpers.call_action("datastore_create", **data)
 
     def test_sets_datastore_active_on_resource_on_create(self):
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
 
-        assert not (resource["datastore_active"])
+        assert not resource["datastore_active"]
+        assert not resource["last_modified"]
 
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "records": [{"book": "annakarenina", "author": "tolstoy"}],
         }
 
         helpers.call_action("datastore_create", **data)
 
         resource = helpers.call_action("resource_show", id=resource["id"])
-
         assert resource["datastore_active"]
+        assert resource["last_modified"]
+
 
     def test_sets_datastore_active_on_resource_on_delete(self):
-        resource = factories.Resource(datastore_active=True)
-
-        assert resource["datastore_active"]
-
+        package = factories.Dataset()
         data = {
-            "resource_id": resource["id"],
-            "force": True,
-            "records": [{"book": "annakarenina", "author": "tolstoy"}],
+            "resource": {"package_id": package["id"]},
+            "fields": [
+                {"id": "movie", "type": "text"},
+            ],
+            "records": [{"movie": "sideways"}],
         }
-
-        helpers.call_action("datastore_create", **data)
+        result = helpers.call_action("datastore_create", **data)
+        resource = helpers.call_action("resource_show", id=result["resource_id"])
+        assert resource["last_modified"]
+        last_modified_1 = resource["last_modified"]
 
         helpers.call_action(
-            "datastore_delete", resource_id=resource["id"], force=True
+            "datastore_delete", resource_id=result["resource_id"]
         )
 
-        resource = helpers.call_action("resource_show", id=resource["id"])
+        resource = helpers.call_action("resource_show", id=result["resource_id"])
 
-        assert not (resource["datastore_active"])
+        assert not resource["datastore_active"]
+        assert resource["last_modified"]
+        assert resource["last_modified"] != last_modified_1
 
     def test_create_exceeds_column_name_limit(self):
         package = factories.Dataset()

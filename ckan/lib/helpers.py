@@ -51,7 +51,6 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
@@ -1202,6 +1201,26 @@ def has_more_facets(facet: str,
 
 
 @core_helper
+def currently_active_facet(facet: str) -> bool:
+    params_items = request.args.keys()
+    expanded_facet = "_" + facet + "_limit"
+    if facet in params_items or expanded_facet in params_items:
+        return True
+    else:
+        return False
+
+
+@core_helper
+def default_collapse_facets():
+    '''Returns config option for `ckan.default_collapse_facets`.
+    If true, the facets in the secondary will be collapsed by default.
+    If false, the facets will all be open, unless closed by the user.
+    Default is false
+    '''
+    return config['ckan.default_collapse_facets']
+
+
+@core_helper
 def get_param_int(name: str, default: int = 10) -> int:
     try:
         return int(request.args.get(name, default))
@@ -1832,7 +1851,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context: Context = {'model': model}
+    context: Context = {}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -2464,7 +2483,14 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
+    upload_config = config.get('ckan.uploads_enabled')
+    if upload_config is not None:
+        return upload_config
+
+    if config['ckan.storage_path'] is not None:
+        return True
+
+    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
         return True
     return False
 
@@ -2883,4 +2909,8 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_input.html')
+    '''
+    Render a hidden CSRF input field.
+    '''
+    import ckan.lib.base as base
+    return literal(base.render('snippets/csrf_input.html'))

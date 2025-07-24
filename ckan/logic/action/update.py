@@ -23,6 +23,7 @@ import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
 
+from ckan import model
 from ckan.common import _, config
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
@@ -62,7 +63,6 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     :rtype: string
 
     '''
-    model = context['model']
     rid: str = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
@@ -125,7 +125,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
+            {'user': context['user'],
              'ignore_auth': True},
             {'package': updated_pkg_dict,
              'resource': resource})
@@ -152,7 +152,6 @@ def resource_view_update(
     :rtype: string
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, "id")
 
     resource_view = model.ResourceView.get(id)
@@ -199,7 +198,6 @@ def resource_view_reorder(
     :returns: the updated order of the view
     :rtype: dictionary
     '''
-    model = context['model']
     id, order = _get_or_bust(data_dict, ["id", "order"])
     if not isinstance(order, list):
         raise ValidationError({"order": "Must supply order as a list"})
@@ -263,7 +261,6 @@ def package_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
@@ -560,8 +557,6 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     schema = schema_.package_revise_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -694,7 +689,6 @@ def package_resource_reorder(
 def _update_package_relationship(
         relationship: 'model_.PackageRelationship', comment: str,
         context: Context) -> dict[str, Any]:
-    model = context['model']
     api = context.get('api_version')
     ref_package_by = 'id' if api == 2 else 'name'
     is_changed = relationship.comment != comment
@@ -733,7 +727,6 @@ def package_relationship_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
     schema = context.get('schema') \
         or schema_.default_update_relationship_schema()
 
@@ -764,7 +757,6 @@ def package_relationship_update(
 
 def _group_or_org_update(
         context: Context, data_dict: DataDict, is_org: bool = False):
-    model = context['model']
     session = context['session']
     id = _get_or_bust(data_dict, 'id')
 
@@ -915,7 +907,6 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     :rtype: dictionary
 
     '''
-    model = context['model']
     user = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
@@ -986,7 +977,6 @@ def task_status_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
     session = context['session']
 
     id = data_dict.get("id")
@@ -1025,7 +1015,6 @@ def task_status_update_many(
 
     '''
     results = []
-    model = context['model']
     deferred = context.get('defer_commit')
     context['defer_commit'] = True
 
@@ -1056,8 +1045,6 @@ def term_translation_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     _check_access('term_translation_update', context, data_dict)
 
     schema = {'term': [validators.not_empty, validators.unicode_safe],
@@ -1103,8 +1090,6 @@ def term_translation_update_many(
     :rtype: string
 
     '''
-    model = context['model']
-
     if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
             {'error': 'term_translation_update_many needs to have a '
@@ -1138,8 +1123,6 @@ def vocabulary_update(context: Context, data_dict: DataDict) -> ActionResult.Voc
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     vocab_id = data_dict.get('id')
     if not vocab_id:
         raise ValidationError({'id': _('id not in data')})
@@ -1178,7 +1161,6 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
     :param organization_id: the name or id of the owning organization
     :type organization_id: string
     '''
-    model = context['model']
     name_or_id = data_dict.get('id', '')
     organization_id = data_dict.get('organization_id')
 
@@ -1231,7 +1213,6 @@ def _bulk_update_dataset(
     datasets = data_dict.get('datasets', [])
     org_id = data_dict.get('org_id')
 
-    model = context['model']
     dataset_ids = model.Session.query(model.Package.id) \
         .filter(
             model.Package.id.in_(datasets)
@@ -1330,8 +1311,6 @@ def config_option_update(
         own extension, or have reviewed the use of in core CKAN.
 
     '''
-    model = context['model']
-
     _check_access('config_option_update', context, data_dict)
 
     schema = schema_.update_configuration_schema()

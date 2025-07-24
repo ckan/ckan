@@ -1,1 +1,0 @@
-Fix db revision 105 downgrade. Ensure `resource.package_id -> package.id` foreign key constraint is dropped.

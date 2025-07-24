@@ -14216,6 +14216,7 @@ td.diff_header {
 }
 .masthead .navbar .logo img {
   max-height: 60px;
+  min-height: 55px;
 }
 .masthead .main-navbar ul {
   padding-right: 20px;
@@ -14580,8 +14581,7 @@ td.diff_header {
 .input-group .form-control {
   z-index: 0;
 }
-
-.input-group-btn:last-child > .btn {
+.input-group > .btn:last-child {
   z-index: 0;
 }
 

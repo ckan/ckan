@@ -64,7 +64,7 @@ def dump(resource_id: str):
     try:
         get_action('datastore_search')({}, {'resource_id': resource_id,
                                             'limit': 0})
-    except ObjectNotFound:
+    except (ObjectNotFound, NotAuthorized):
         abort(404, _('DataStore resource not found'))
 
     data, errors = dict_fns.validate(request.args.to_dict(), dump_schema())
@@ -147,7 +147,11 @@ class DictionaryView(MethodView):
             # resource_edit_base template uses these
             pkg_dict = get_action(u'package_show')({}, {'id': id})
             resource = get_action(u'resource_show')({}, {'id': resource_id})
-            rec = get_action(u'datastore_info')({}, {'id': resource_id})
+            rec = get_action(u'datastore_info')({}, {
+                'id': resource_id,
+                'include_meta': False,
+                'include_fields_schema': False,
+            })
             return {
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
