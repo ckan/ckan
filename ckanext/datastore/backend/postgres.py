@@ -1472,10 +1472,16 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort_clause = ''
 
     records_format = data_dict['records_format']
-    if last_id:
+
+    if last_id and (len(sort) == 1 and '_id' in sort[0].lower()):
+        conjunction = 'AND' if where_clause.strip().upper().startswith("WHERE") else 'WHERE'
+        operator = '<' if ' desc' in sort[0].lower() else '>'
+
         # Keyset Pagination
-        final_statement = 'WHERE _id > {last_id} {sort} LIMIT {limit}'
+        final_statement = '{where} {conjunction} _id {operator} {last_id} {sort} LIMIT {limit}'
     else:
+        conjunction= ''
+        operator = ''
         final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
 
     if records_format == u'objects':
@@ -1525,6 +1531,8 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         offset=offset,
         sort=sort_clause,
         last_id=last_id,
+        conjunction=conjunction,
+        operator=operator,
     )
     sql_string = sql_fmt.format(
         distinct=distinct,
@@ -1551,12 +1559,16 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
     # Currently apply Keyset Pagination only to CSV format
     if records_format == u'csv':
-        m_csv_string = records.rstrip('\n').rsplit('\n', 1)
+        m_csv_string = records.rstrip('\n') # type: ignore
+        m_csv_string = m_csv_string.rsplit(
+            '\n', 1) if '\n' in m_csv_string else [m_csv_string]
+
         if m_csv_string:
             try:
-                last_id = m_csv_string[-1].split(',')[0]
+                m_csv_string = m_csv_string[-1]
+                last_id = m_csv_string.split(',')[0].strip()
                 data_dict['last_id'] = last_id
-            except IndexError:
+            except (IndexError, AttributeError):
                 pass
 
     data_dict['records'] = records
