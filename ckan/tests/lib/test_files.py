@@ -6,7 +6,9 @@ from typing import Any
 import pytest
 from faker import Faker
 
+from ckan.common import CKANConfig
 from ckan.lib import files
+import ckan.plugins as p
 
 
 class TestMakeStorage:
@@ -68,7 +70,7 @@ class TestGetStorage:
 class TestCollectStorageConfiguration:
     def test_empty(self):
         """Application does not break without storage configuration."""
-        result = files.collect_storage_configuration({})
+        result = files.collect_storage_configuration(CKANConfig())
         assert result == {}
 
     def test_mixed(self, faker: Faker):
@@ -76,11 +78,13 @@ class TestCollectStorageConfiguration:
         prefix = faker.domain_name() + "."
         name = faker.word()
 
-        config = {
-            f"{prefix}{name}.a": 42,
-            f"{prefix}{name}.b": None,
-            f"{faker.domain_name()}.{name}.other": True,
-        }
+        config = CKANConfig(
+            **{
+                f"{prefix}{name}.a": 42,
+                f"{prefix}{name}.b": None,
+                f"{faker.domain_name()}.{name}.other": True,
+            }
+        )
         assert files.collect_storage_configuration(config) == {}
 
         result = files.collect_storage_configuration(config, prefix)
@@ -90,12 +94,14 @@ class TestCollectStorageConfiguration:
         """Storage configuration can be parsed as flat dictionary."""
         name = faker.word()
 
-        config = {
-            f"{name}.nested.a": 1,
-            f"{name}.nested.b": 2,
-            f"{name}.c": 3,
-            f"{name}.other.d": 4,
-        }
+        config = CKANConfig(
+            **{
+                f"{name}.nested.a": 1,
+                f"{name}.nested.b": 2,
+                f"{name}.c": 3,
+                f"{name}.other.d": 4,
+            }
+        )
 
         nested = files.collect_storage_configuration(config, "")
         assert nested == {name: {"nested": {"a": 1, "b": 2}, "c": 3, "other": {"d": 4}}}
@@ -109,3 +115,45 @@ class TestCollectStorageConfiguration:
                 "other.d": 4,
             }
         }
+
+
+class CustomAdapterPlugin(p.IFiles, p.SingletonPlugin):
+    def files_get_storage_adapters(self):
+        return {
+            "test:custom": files.Storage,
+        }
+
+
+class TestAdapters:
+    def test_native_adapters(self):
+        """Core and FK adapters are unconditionally available."""
+        assert "file_keeper:fs" in files.adapters
+        assert "ckan:fs" in files.adapters
+
+    @pytest.mark.with_plugins({"custom_adapter": CustomAdapterPlugin})
+    def test_custom_adapters(self):
+        """Custom adapters are available only when plugin enabled."""
+        assert "test:custom" in files.adapters
+
+        p.unload("custom_adapter")
+
+        assert "test:custom" not in files.adapters
+
+
+class CustomTransformersPlugin(p.IFiles, p.SingletonPlugin):
+    def files_get_location_transformers(self) -> dict[str, files.LocationTransformer]:
+        return {"test_upper": lambda location, upload, extras: location.upper()}
+
+
+class TestLocationTransformers:
+    @pytest.mark.with_plugins({"custom_transformers": CustomTransformersPlugin})
+    def test_transformers(self, faker: Faker):
+        """Location transformers are registered by extensions."""
+        storage = files.make_storage(
+            "test",
+            {"type": "ckan:null", "location_transformers": ["test_upper"]},
+        )
+
+        location = faker.file_path()
+
+        assert storage.prepare_location(location) == location.upper()
