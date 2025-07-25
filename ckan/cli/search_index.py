@@ -53,28 +53,21 @@ def rebuild(
                 clear=False)  # Never clear before rebuild
 
         if not keep_orphans:
-            try:
-                if verbose:
-                    click.echo(
-                        "Clearing orphaned packages from search index...")
-                orphaned_package_ids = get_orphans()
-                if orphaned_package_ids:
-                    from ckan.lib.search import clear
-                    for orphaned_id in orphaned_package_ids:
-                        if verbose:
-                            click.echo(
-                                f"Clearing orphaned package: {orphaned_id}")
-                        clear(orphaned_id)
-                    click.secho(f'Cleared {len(orphaned_package_ids)} orphaned package(s) from search index',
-                                fg='green')
-                elif verbose:
-                    click.echo("No orphaned packages found in search index")
-            except Exception as orphan_e:
-                click.secho(
-                    f'Warning: Failed to clear orphaned packages: {orphan_e}',
-                    fg='yellow'
-                )
-                # Don't fail the whole rebuild just because orphan clearing failed
+            if verbose:
+                click.echo(
+                    "Clearing orphaned packages from search index...")
+            orphaned_package_ids = get_orphans()
+            if orphaned_package_ids:
+                from ckan.lib.search import clear
+                for orphaned_id in orphaned_package_ids:
+                    if verbose:
+                        click.echo(
+                            f"Clearing orphaned package: {orphaned_id}")
+                    clear(orphaned_id)
+                click.secho(f'Cleared {len(orphaned_package_ids)} orphaned package(s) from search index',
+                            fg='green')
+            elif verbose:
+                click.echo("No orphaned packages found in search index")
 
     except logic.NotFound:
         error_shout("Couldn't find package %s" % package_id)
