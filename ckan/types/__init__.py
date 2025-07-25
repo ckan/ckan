@@ -24,6 +24,7 @@ from sqlalchemy.orm.query import Query
 from .logic import ActionResult
 
 if TYPE_CHECKING:
+    from ckan.common import CKANConfig
     import ckan.model as model
     from ckan.tests.helpers import CKANTestApp
     from ckanext.activity.model import Activity
@@ -34,6 +35,7 @@ __all__ = [
     "ActionResult",
     "AlchemySession", "Query",
     "Config", "CKANApp",
+    "CKANConfig",
     "DataDict", "ErrorDict",
     "FlattenKey", "FlattenErrorDict", "FlattenDataDict",
     "SignalMapping", "Context",
