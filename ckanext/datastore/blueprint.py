@@ -260,7 +260,16 @@ def dump_to(
     def start_stream_writer(fields: list[dict[str, Any]]):
         return writer_factory(fields, bom=bom)
 
-    def stream_result_page(offs: int, lim: Union[None, int], last_id: Union[None, int]):
+    def stream_result_page(offs: int, lim: Union[None, int], keyset_dict: dict[str, Any]):
+        if keyset_dict:
+            last_id = keyset_dict.get('last_id')
+            last_id_operator = keyset_dict.get('last_id_operator')
+            if last_id and last_id_operator:
+                if not 'filters' in search_params:
+                    search_params['filters'] = {}
+
+                search_params['filters']['_id'] = {last_id_operator: last_id}
+
         return get_action('datastore_search')(
             {'user': user},
             dict({
@@ -271,7 +280,6 @@ def dump_to(
                 'sort': sort,
                 'records_format': records_format,
                 'include_total': False,
-                'last_id': last_id,
             }, **search_params)
         )
 
@@ -298,12 +306,16 @@ def dump_to(
                     if limit <= 0:
                         break
 
+                keyset_dict = {
+                    "last_id": result.get('last_id'),
+                    "last_id_operator": result.get('last_id_operator'),            
+                }
                 result = stream_result_page(
-                    offset, limit, result.get('last_id'))
+                    offset, limit, keyset_dict)
 
             yield writer.end_file()
 
-    result = stream_result_page(offset, limit, None)
+    result = stream_result_page(offset, limit, {})
 
     if result['limit'] != limit:
         # `limit` (from PAGINATE_BY) must have been more than

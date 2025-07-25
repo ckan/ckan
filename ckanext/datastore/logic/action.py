@@ -590,7 +590,10 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
     :param filters: :ref:`filters` for matching conditions to select, e.g
-                    {"key1": "a", "key2": "b"} (optional)
+                    {"key1": "a", "key2": "b"} (optional). Filters also can
+                    be used for increase speed of datastore_serach results
+                    retrieval, for more information check
+                    :ref:`search_improvements` section.
     :type filters: dictionary
     :param q: full text query. If it's a string, it'll search on all fields on
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},

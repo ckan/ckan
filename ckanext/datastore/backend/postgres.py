@@ -85,6 +85,14 @@ _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
 
+_OPERATORS = {
+    'eq': '=',
+    'gt': '>',
+    'gte': '>=',
+    'lt': '<',
+    'lte': '<=',
+    'in': 'in',
+}
 
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError  # type: ignore
@@ -441,6 +449,9 @@ def _where_clauses(
                 value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
+            operator = '='
+            if isinstance(value, dict):
+                operator, value = _prepare_where_operator_and_value(value)
             if fields_types[field] == 'text':
                 # pSQL can do int_field = "10"
                 # but cannot do text_field = 10
@@ -448,7 +459,7 @@ def _where_clauses(
                 value = str(value)
             placeholder = f"value_{next(idx_gen)}"
             clause: tuple[Any, ...] = (
-                f'{sa.column(field)} = :{placeholder}',
+                f'{sa.column(field)} {operator} :{placeholder}',
                 {placeholder: value}
             )
         clauses.append(clause)
@@ -486,6 +497,16 @@ def _where_clauses(
         clauses.append((clause_str,))
 
     return clauses
+
+
+def _prepare_where_operator_and_value(value: dict[str, Any]) -> tuple[str, Any]:
+    try:
+        key = next(iter(value))
+        val = value[key]
+    except (StopIteration, KeyError):
+        return '=', value
+
+    return _OPERATORS[key], val
 
 
 def _textsearch_query(
@@ -1411,7 +1432,6 @@ def validate(context: Context, data_dict: dict[str, Any]):
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
-    data_dict_copy.pop('last_id', None)
 
     for key, values in data_dict_copy.items():
         if not values:
@@ -1456,7 +1476,6 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
-    last_id = data_dict.get('last_id')
 
     if query_dict.get('distinct'):
         distinct = 'DISTINCT'
@@ -1473,17 +1492,18 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
     records_format = data_dict['records_format']
 
-    if last_id and (len(sort) == 1 and '_id' in sort[0].lower()):
-        conjunction = (
-            'AND' if where_clause.strip().upper().startswith("WHERE") else 'WHERE')
-        operator = '<' if ' desc' in sort[0].lower() else '>'
+    is_keyset = False
+    # Prepare operator for response
+    if (len(sort) == 1 and '_id' in sort[0].lower()):
+        operator = 'lt' if ' desc' in sort[0].lower() else 'gt'
+        data_dict['last_id_operator'] = operator
+        is_keyset = True if [i for i in query_dict['where'] if i[0].startswith(
+            f'_id {_OPERATORS[operator]}')] else False
 
-        # Keyset Pagination
+    if is_keyset:
         final_statement = (
-            '{where} {conjunction} _id {operator} {last_id} {sort} LIMIT {limit}')
+            '{where} {sort} LIMIT {limit}')
     else:
-        conjunction = ''
-        operator = ''
         final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
 
     if records_format == u'objects':
@@ -1532,9 +1552,6 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         limit=limit,
         offset=offset,
         sort=sort_clause,
-        last_id=last_id,
-        conjunction=conjunction,
-        operator=operator,
     )
     sql_string = sql_fmt.format(
         distinct=distinct,
@@ -1558,24 +1575,6 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             records = LazyJSONObject(v)
         else:
             records = msgspec.json.decode(v)
-
-    # Currently apply Keyset Pagination only to CSV format
-    if records_format == u'csv':
-        # Make sure that _id is present an being first column in the results
-        if query_dict['select'] and query_dict['select'][0] == '"_id"':
-            m_csv_string = records.rstrip('\n')  # type: ignore
-            m_csv_string = m_csv_string.rsplit(
-                '\n', 1) if '\n' in m_csv_string else [m_csv_string]
-
-            if m_csv_string:
-                try:
-                    m_csv_string = m_csv_string[-1]
-
-                    # Turn to int to make sure no broken value
-                    last_id = int(m_csv_string.split(',')[0].strip())
-                    data_dict['last_id'] = last_id
-                except (ValueError, IndexError, AttributeError):
-                    pass
 
     data_dict['records'] = records
 
@@ -1638,6 +1637,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 context, count_sql_string, where_values)
             data_dict['total'] = count_result.fetchall()[0][0]
             data_dict['total_was_estimated'] = False
+
+    # Need for last_id extraction
+    opposite_sort = [s.replace(' desc', ' asc') if ' desc' in s else s.replace(
+        ' asc', ' desc') for s in sort]
+    if opposite_sort:
+        opposite_sort_clause = 'ORDER BY {}'.format(', '.join(opposite_sort))
+    else:
+        opposite_sort_clause = ''
+    # Get last_id query
+    li_query = '''
+        SELECT _id FROM (
+            SELECT * FROM  "{resource}" {ts_query}
+            {final_statement}
+        ) AS sub
+            {opposite_sort_clause}
+            LIMIT 1
+    '''.format(
+        resource=resource_id,
+        ts_query=ts_query,
+        final_statement=final_statement,
+        opposite_sort_clause=opposite_sort_clause,
+    )
+
+    li_result = _execute_single_statement(context, li_query, where_values)
+    li_result = li_result.fetchone()
+
+    if li_result:
+        data_dict['last_id'] = li_result._id
 
     return data_dict
 
