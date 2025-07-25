@@ -26,9 +26,6 @@ Minor changes
 -------------
 
 - Remove helper ``get_site_statistics()`` (#8705)
-- ``ckan db clean`` now automatically clears the search index to prevent orphaned entries (#8347)
-- ``ckan search-index rebuild`` now automatically clears orphaned packages after rebuilding (#8347)
-- Removed ``--clear`` option from ``ckan search-index rebuild`` command (#8347)
 
 v.2.11.3 2025-05-07
 ===================

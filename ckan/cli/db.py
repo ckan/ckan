@@ -73,23 +73,13 @@ PROMPT_MSG = u'This will delete all of your data!\nDo you want to continue?'
 def clean():
     """Clean the database.
     """
-    try:
-        model.repo.clean_db()
+    model.repo.clean_db()
 
-        try:
-            from ckan.lib.search import clear_all
-            clear_all()
-            click.secho(u'Clearing search index: SUCCESS', fg=u'green')
-        except Exception as search_e:
-            click.secho(
-                u'Warning: Failed to clear search index: {}'.format(search_e),
-                fg=u'yellow'
-            )
+    from ckan.lib.search import clear_all
+    clear_all()
 
-    except Exception as e:
-        error_shout(e)
-    else:
-        click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
+    click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
+    click.secho(u'Clearing search index: SUCCESS', fg=u'green')
 
 
 @db.command()
@@ -104,17 +94,13 @@ def upgrade(
 ):
     """Upgrade or initialize the database.
     """
-    try:
-        if not skip_core:
-            _run_migrations(plugin, version)
+    if not skip_core:
+        _run_migrations(plugin, version)
 
-        if not skip_plugins and not plugin:
-            _migrate_plugins(apply=True)
+    if not skip_plugins and not plugin:
+        _migrate_plugins(apply=True)
 
-        click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
-    except Exception as e:
-        error_shout(f"Database upgrade failed: {e}")
-        raise
+    click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
 
 
 def _migrate_plugins(apply: bool):
