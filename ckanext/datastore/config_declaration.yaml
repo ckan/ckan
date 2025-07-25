@@ -92,7 +92,7 @@ groups:
       them. It can be overwritten by the user by passing the "lang" parameter to
       "datastore_search" and "datastore_create".
 
-  - default: 1_000
+  - default: 5_000
     key: ckan.datastore.query_timeout_ms
     type: int
     example: 180_000
@@ -101,6 +101,16 @@ groups:
       This is used when executing queries against the datastore.
       "search"/"search_sql", "upsert", and "create" actions will use this
       timeout
+
+  - default: 60_000
+    key: ckan.datastore.upsert_timeout_ms
+    type: int
+    example: 30_000
+    description: >
+      The default timeout (in milliseconds) for datastore upsert and create
+      operations.
+      This timeout is applied to the "upsert" action and the "create" action
+      when the "force" parameter is set to true.
 
   - default: gist
     key: ckan.datastore.default_fts_index_method

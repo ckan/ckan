@@ -1,2 +1,5 @@
-Add a new config value for Datastore query
-timeout ckan.datastore.query_timeout_ms
+Add new config values for Datastore query timeout
+ - ckan.datastore.query_timeout_ms: for datastore search queries.
+   Default is 5 seconds.
+ - ckan.datastore.upsert_timeout_ms: for datastore upsert and create operations.
+   Default is 60 seconds.
