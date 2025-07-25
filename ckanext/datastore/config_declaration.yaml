@@ -93,7 +93,7 @@ groups:
       "datastore_search" and "datastore_create".
 
   - default: 1_000
-    key: ckan.datastore.default_query_timeout_ms
+    key: ckan.datastore.query_timeout_ms
     type: int
     example: 180_000
     description: >
