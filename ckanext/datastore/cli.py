@@ -19,12 +19,10 @@ from ckanext.datastore.backend.postgres import (
     get_read_engine,
     get_write_engine,
     _get_raw_field_info,
-    _get_timeout,
 )
 from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 
 
-_TIMEOUT: int = _get_timeout()
 log = logging.getLogger(__name__)
 
 
@@ -227,7 +225,7 @@ def upgrade():
 @click.option(
     '--timeout', metavar='SECONDS',
     type=click.FloatRange(0, 2147483.647),  # because postgres max int
-    default=_TIMEOUT / 1000, show_default=True,
+    default=60, show_default=True,
     help='maximum index creation time in seconds',
 )
 def fts_index(timeout: float):
