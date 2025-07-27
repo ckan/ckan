@@ -460,6 +460,7 @@ select[data-module="autocomplete"] {
         margin-bottom: 1rem;
         z-index: 0;
         padding: 12px 4px;
+        border: 1px solid $gray-300;
         .stage-nohighlight {
             display: flex;
             justify-content: space-between;
@@ -484,13 +485,8 @@ select[data-module="autocomplete"] {
     }
 }
 
-.form_stages {
-    background-color: $white;
-}
-
 .stages li.last {
     position: relative;
-    right: -1px;
 }
 
 .stages li.first:after {

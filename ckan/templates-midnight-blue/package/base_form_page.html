@@ -45,10 +45,6 @@
     </section>
     {% snippet "package/snippets/resources.html", pkg=pkg_dict or (form_vars.data if form_vars and form_vars.data else None), active=data.id if data else None, no_new_res = true %}
   {% endblock %}
-  {% block scripts %}
-  {{ super() }}
-  {% asset 'base/draft-package' %}
-  {% endblock %}
 
   {% block resources_module %}
     {# TODO: Pass in a list of previously created resources and the current package dict #}

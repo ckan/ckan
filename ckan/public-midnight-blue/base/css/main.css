@@ -12116,6 +12116,7 @@ a.tag:hover {
   border: 1px solid #f2f4f7;
   border-radius: 0.375rem;
   margin: 6px 0;
+  border: 1px solid #d0d5dd;
 }
 .package-info .nums dt {
   font-size: 16px;
@@ -12985,6 +12986,7 @@ select[data-module=autocomplete] {
   margin-bottom: 1rem;
   z-index: 0;
   padding: 12px 4px;
+  border: 1px solid #d0d5dd;
 }
 .stages li .stage-nohighlight {
   display: flex;
@@ -13007,13 +13009,8 @@ select[data-module=autocomplete] {
   letter-spacing: -0.8px;
 }
 
-.form_stages {
-  background-color: #fff;
-}
-
 .stages li.last {
   position: relative;
-  right: -1px;
 }
 
 .stages li.first:after {
