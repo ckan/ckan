@@ -6,8 +6,13 @@
 
 {% block subtitle %}{{ _('Edit Member') if user else _('Add Member') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
+{% block breadcrumb_content_inner %}
+  <li>{% link_for organization.display_name|truncate(35), named_route=group_type+'.read', id=organization.name, title=organization.display_name %}</li>
+  <li class="active">{% link_for _('Edit Member') if user else _('Add Member'), named_route=group_type+'.member_new', id=group_dict.id %}</li>
+{% endblock %}
+
 {% block primary_content_inner %}
-  {% link_for _('Back to all members'), named_route=group_type+'.manage_members', id=organization.name, class_='btn btn-secondary pull-right', icon='arrow-left' %}
+  {% link_for _('Back to all members'), named_route=group_type+'.manage_members', id=organization.name, class_='btn btn-secondary all-members', icon='arrow-left' %}
   <h1 class="page-heading">
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
@@ -88,19 +93,23 @@
 {% block secondary_content %}
 {{ super() }}
 <div class="module module-narrow module-shallow">
-  <h2 class="module-heading">
-    <i class="fa fa-lg fa-info-circle"></i>
-    {{ _('What are roles?') }}
-  </h2>
-  <div class="module-content">
-    {% trans %}
-      <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as
-        manage organization members.</p>
-      <p><strong>Editor:</strong> Can add and edit datasets, but not manage
-        organization members.</p>
-      <p><strong>Member:</strong> Can view the organization's private
-        datasets, but not add new datasets.</p>
-    {% endtrans %}
+  <div class="module-group">
+    <h2 class="module-heading">
+      <i class="fa fa-info-circle"></i>
+      {{ _('What are roles?') }}
+    </h2>
+    <div class="module-content">
+      <p>
+        {% trans %}
+          <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as
+            manage organization members.</p>
+          <p><strong>Editor:</strong> Can add and edit datasets, but not manage
+            organization members.</p>
+          <p><strong>Member:</strong> Can view the organization's private
+            datasets, but not add new datasets.</p>
+        {% endtrans %}
+      </p>
+    </div>
   </div>
 </div>
 {% endblock %}
