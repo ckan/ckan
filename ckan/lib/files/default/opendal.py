@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+from typing_extensions import override
 
 from file_keeper.default.adapters import opendal as od
 
@@ -17,8 +18,9 @@ class OpenDalStorage(base.Storage, od.OpenDalStorage):
     """Multi-provider cloud storage."""
 
     settings: Settings
-    SettingsFactory = Settings
+    SettingsFactory: type[base.Settings] = Settings
 
+    @override
     @classmethod
     def declare_config_options(cls, declaration: Declaration, key: Key):
         super().declare_config_options(declaration, key)

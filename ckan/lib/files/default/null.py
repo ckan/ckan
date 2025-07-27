@@ -17,4 +17,4 @@ class NullStorage(base.Storage, null.NullStorage):
     """No-op storage."""
 
     settings: Settings
-    SettingsFactory = Settings
+    SettingsFactory: type[base.Settings] = Settings

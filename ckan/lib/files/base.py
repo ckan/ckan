@@ -112,7 +112,7 @@ class Settings(fk.Settings):
     >>>     # type-ignore annotation to avoid attention from typechecker. If we
     >>>     # can guarantee that settings will not be initialized without a
     >>>     # connection, that remains safe.
-    >>>     conn: Engine = None # type: ignore
+    >>>     conn: Engine = None # pyright: ignore[reportAssignmentType]
     >>>
     >>>     # db_url will be used to initialize connection and
     >>>     # there is no need to keep it after initialization
@@ -122,13 +122,14 @@ class Settings(fk.Settings):
     >>>         # always call original implementation
     >>>         super().__post_init__(**kwargs)
     >>>
-    >>>         if not db_url:
-    >>>             msg = "db_url is not valid"
-    >>>             raise files.exc.InvalidStorageConfigurationError(
-    >>>                 self.name,
-    >>>                 msg,
-    >>>             )
-    >>>         self.conn = create_engine(db_url)
+    >>>         if self.conn is None:  # pyright: ignore[reportUnnecessaryComparison]
+    >>>             if not db_url:
+    >>>                 msg = "db_url is not valid"
+    >>>                 raise files.exc.InvalidStorageConfigurationError(
+    >>>                     self.name,
+    >>>                     msg,
+    >>>                 )
+    >>>             self.conn = create_engine(db_url)
 
     """
 
@@ -165,8 +166,9 @@ class Storage(fk.Storage):
     settings: Settings
     SettingsFactory = Settings
 
-    #: Factory for the uploader service
     UploaderFactory: type[Uploader]
+    ReaderFactory: type[Reader]
+    ManagerFactory: type[Manager]
 
     @classmethod
     def declare_config_options(cls, declaration: Declaration, key: Key):

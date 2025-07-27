@@ -172,9 +172,11 @@ def download(package_type: str,
 
         storage = getattr(upload, "storage", None)
         if isinstance(storage, fk.Storage):
-            file_data = files.FileData(files.Location(filepath))
+            overrides = {}
             if mimetype:
-                file_data.content_type = mimetype
+                overrides["content_type"] = mimetype
+
+            file_data = files.FileData(files.Location(filepath), **overrides)
             if isinstance(storage, files.Storage):
                 resp = storage.as_response(file_data, filename)
             else:

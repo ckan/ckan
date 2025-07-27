@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import dataclasses
 from typing import Any
+from typing_extensions import override
 
 import flask
 from file_keeper.default.adapters import fs
@@ -21,8 +22,9 @@ class FsStorage(base.Storage, fs.FsStorage):
     """Store files in local filesystem."""
 
     settings: Settings
-    SettingsFactory = Settings
+    SettingsFactory: type[base.Settings] = Settings
 
+    @override
     @classmethod
     def declare_config_options(cls, declaration: Declaration, key: Key):
         super().declare_config_options(declaration, key)
@@ -39,6 +41,7 @@ class FsStorage(base.Storage, fs.FsStorage):
             + " of the main storage path.",
         )
 
+    @override
     def _base_response(
         self, data: base.FileData, extras: dict[str, Any]
     ) -> types.Response:
@@ -55,10 +58,13 @@ class PublicSettings(Settings):
     public_prefix: str = ""
 
 
-class PublicReader(fs.Reader):
-    capabilities = fs.Reader.capabilities | base.Capability.PERMANENT_LINK
+class PublicReader(base.Reader, fs.Reader):
+    capabilities: base.Capability = (
+        fs.Reader.capabilities | base.Capability.PERMANENT_LINK
+    )
     storage: PublicFsStorage
 
+    @override
     def permanent_link(self, data: base.FileData, extras: dict[str, Any]) -> str:
         from ckan.lib.helpers import url_for_static
 
@@ -99,9 +105,10 @@ class PublicFsStorage(FsStorage):
     """
 
     settings: PublicSettings
-    SettingsFactory = PublicSettings
-    ReaderFactory = PublicReader
+    SettingsFactory: type[base.Settings] = PublicSettings
+    ReaderFactory: type[base.Reader] = PublicReader
 
+    @override
     @classmethod
     def declare_config_options(cls, declaration: Declaration, key: Key):
         super().declare_config_options(declaration, key)
