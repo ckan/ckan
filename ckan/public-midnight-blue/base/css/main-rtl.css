@@ -11890,6 +11890,10 @@ a.open-data span.suffix {
   color: #fff;
 }
 
+#organization-info {
+  float: left;
+}
+
 .tag {
   display: inline-block;
   margin-bottom: 4px;
@@ -12038,6 +12042,7 @@ a.tag:hover {
 
 .module-shallow {
   margin-bottom: 1rem;
+  clear: both;
 }
 
 .module-narrow .module-group {
@@ -13930,10 +13935,6 @@ td.diff_header {
   content: "";
 }
 
-.page_primary_action {
-  margin-bottom: 20px;
-}
-
 .toolbar .breadcrumb {
   box-shadow: none;
   position: relative;
@@ -14276,7 +14277,6 @@ td.diff_header {
   flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 10px;
-  column-gap: 5%;
   clear: both;
 }
 .context-info .nums dl {

@@ -29,11 +29,11 @@
   <article class="module">
     <div class="module-content">
       <div class="dashboard-container row">
-        <div class="col-md-6">
+        <div class="col-md-8">
           {% block page_heading %}{% endblock %}
         </div>
         {% if self.page_primary_action() | trim %}
-          <div class="page_primary_action col-md-6">
+          <div class="page_primary_action col-md-4">
             {% block page_primary_action %}{% endblock %}
           </div>
         {% endif %}

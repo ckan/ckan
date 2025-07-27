@@ -1,17 +1,10 @@
 {% extends "user/read_base.html" %}
 
-{% block page_primary_action %}
+{% block primary_content_inner %}
+  <h1>{% block page_heading %}{{ _('API Tokens') }}{% endblock %}</h1>
   {% if h.check_access('api_token_create', {'user': user['name']}) %}
     {% snippet 'user/snippets/api_token_create_form.html', data=data, errors=errors, user=user %}
   {% endif %}
-{% endblock page_primary_action %}
-
-
-{% block primary_content_inner %}
-  <h1>
-    {% block page_heading %}{{ _('API Tokens') }}{% endblock %}
-  </h1>
-
   {% block token_list %}
     {% snippet 'user/snippets/api_token_list.html', tokens=tokens, user=user %}
   {% endblock token_list %}
