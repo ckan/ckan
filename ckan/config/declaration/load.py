@@ -188,7 +188,10 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
         storage_key = Key().from_string(files.STORAGE_PREFIX + name)
 
-        available_adapters = json.dumps(list(files.adapters), separators=(",", ":"))
+        available_adapters = json.dumps(
+            [item for item in files.adapters if not files.adapters[item].hidden],
+            separators=(",", ":"),
+        )
 
         # this option reports unrecognized type of the storage and shows all
         # available correct types

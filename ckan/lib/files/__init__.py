@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 from collections.abc import Mapping
 from typing import Any, cast
 
 import file_keeper as fk
-from file_keeper import Registry, Upload, exc, make_upload
-from file_keeper.core.storage import location_transformers
+from file_keeper import Registry, Upload, exc, make_upload, adapters, ext, make_storage
 from file_keeper.core.types import LocationTransformer
 
 import ckan.plugins as p
@@ -51,27 +51,53 @@ STORAGE_PREFIX = "ckan.files.storage."
 log = logging.getLogger(__name__)
 
 
-def make_storage(name: str, settings: dict[str, Any]):
-    """Initialize storage instance with specified settings.
+@ext.hookimpl
+def register_adapters(registry: Registry[type[Storage]]):
+    """Collect adapters from core and IFiles implementations.
 
-    Storage adapter is defined by `type` key of the settings. The rest of
-    settings depends on the specific adapter.
+    This hook is called by file_keeper inside
+    ``file_keeper.ext.register(reset=True)``.
 
-    >>> storage = make_storage("memo", {"type": "files:redis"})
-
-    :param name: name of the storage
-    :param settings: configuration for the storage
-    :returns: storage instance
-    :raises UnknownAdapterError: storage adapter is not registered
     """
-    adapter_type = settings.pop("type", None)
-    adapter = adapters.get(adapter_type)
-    if not adapter:
-        raise exc.UnknownAdapterError(adapter_type)
+    registry.register("ckan:fs", default.FsStorage)
+    registry.register("ckan:public_fs", default.PublicFsStorage)
+    registry.register("ckan:null", default.NullStorage)
 
-    settings.setdefault("name", name)
+    if adapter := getattr(default, "LibCloudStorage", None):
+        registry.register("ckan:libcloud", adapter)
 
-    return adapter(settings)
+    if adapter := getattr(default, "OpenDalStorage", None):
+        registry.register("ckan:opendal", adapter)
+
+    for plugin in p.PluginImplementations(p.IFiles):
+        for k, v in plugin.files_get_storage_adapters().items():
+            registry.register(k, v)
+
+
+@ext.hookimpl
+def register_location_transformers(registry: Registry[LocationTransformer]):
+    """Collect location transformers from IFiles implementations.
+
+    This hook is called by file_keeper inside
+    ``file_keeper.ext.register(reset=True)``.
+    """
+    for plugin in p.PluginImplementations(p.IFiles):
+        for k, v in plugin.files_get_location_transformers().items():
+            registry.register(k, v)
+
+
+def reset():
+    """Reset and collect file_keeper extensions.
+
+    This function expects that file_keeper hooks(``file_keeper.ext.hookimpl``)
+    will be created in the current module.
+    """
+    fk_plugin = sys.modules[__name__]
+    if not ext.plugin.is_registered(fk_plugin):
+        # register CKAN as file_keeper extension on first call
+        ext.plugin.register(fk_plugin)
+
+    ext.register(reset=True)
 
 
 def get_storage(name: str | None = None) -> fk.Storage:
@@ -106,31 +132,6 @@ def get_storage(name: str | None = None) -> fk.Storage:
         raise exc.UnknownStorageError(name)
 
     return storage
-
-
-def collect_adapters() -> dict[str, type[fk.Storage]]:
-    """Collect adapters from core and IFiles implementations.
-
-    :returns: mapping with storage adapters
-    """
-    result: dict[str, type[fk.Storage]] = {
-        name: fk.adapters[name] for name in fk.adapters if not fk.adapters[name].hidden
-    }
-
-    result["ckan:fs"] = default.FsStorage
-    result["ckan:public_fs"] = default.PublicFsStorage
-    result["ckan:null"] = default.NullStorage
-
-    if adapter := getattr(default, "LibCloudStorage", None):
-        result["ckan:libcloud"] = adapter
-
-    if adapter := getattr(default, "OpenDalStorage", None):
-        result["ckan:opendal"] = adapter
-
-    for plugin in p.PluginImplementations(p.IFiles):
-        result.update(plugin.files_get_storage_adapters())
-
-    return result
 
 
 def collect_storage_configuration(
@@ -214,21 +215,4 @@ def collect_storages() -> dict[str, fk.Storage]:
     return result
 
 
-def collect_location_transformers() -> dict[str, LocationTransformer]:
-    """Collect transformers IFiles implementations.
-
-    :returns: mapping with location transformers
-    """
-    result: dict[str, LocationTransformer] = {}
-
-    for plugin in p.PluginImplementations(p.IFiles):
-        result.update(plugin.files_get_location_transformers())
-
-    for name, func in result.items():
-        location_transformers.register(name, func)
-
-    return result
-
-
-adapters = Registry[type[fk.Storage]](collector=collect_adapters)
 storages = Registry[fk.Storage](collector=collect_storages)
