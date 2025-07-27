@@ -46,13 +46,15 @@ filterwarnings = [
 ]
 markers = [
     "ckan_config: patch configuration used by other fixtures via (key, value) pair.",
+    "provide_plugin: register class as a plugin",
+    "with_plugins: enable specified plugins",
 ]
 
 testpaths = ["ckan", "ckanext"]
 addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
 
 [tool.pyright]
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 include = ["ckan", "ckanext"]
 exclude = [
     "**/test*",

@@ -3,20 +3,20 @@
 
 beautifulsoup4==4.13.4
 cookiecutter==2.6.0
-coverage==7.8.0
+coverage==7.9.0
 factory-boy==3.3.3
-Faker==37.1.0
+Faker==37.4.0
 flask-debugtoolbar==0.16.0
-freezegun==1.5.1
+freezegun==1.5.2
 ipdb==0.13.13
 junit2html==31.0.2
 junitparser==3.2.0
 Pillow==11.2.1
 pip-tools==7.4.1
-pytest-cov==6.1.1
+pytest-cov==6.2.1
 pytest-factoryboy==2.7.0
 pytest-freezegun==0.4.2
-pytest-rerunfailures==15.0
+pytest-rerunfailures==15.1
 pytest-retry==1.7.0
 pytest-split==0.10.0
 pytest==8.3.5
