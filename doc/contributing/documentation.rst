@@ -69,7 +69,7 @@ terminal:
 
 ::
 
-    virtualenv --no-site-packages pyenv
+    virtualenv pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/ckan/ckan.git#egg=ckan'
     cd pyenv/src/ckan/
