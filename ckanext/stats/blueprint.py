@@ -23,13 +23,8 @@ def index():
         'deleted_packages_by_week': stats.get_by_week('deleted_packages'),
         'num_packages_by_week': stats.get_num_packages_by_week(),
         'package_revisions_by_week': stats.get_by_week('package_revisions'),
-        # Stats with users info
-        'top_package_creators': None,
+        'top_package_creators': stats.top_package_creators(),
     }
-
-    if config.get('ckan.auth.public_user_details'):
-        # Stats including users
-        extra_vars['top_package_creators'] = stats.top_package_creators()
 
     extra_vars['raw_packages_by_week'] = []
     for week_date, num_packages, cumulative_num_packages\
