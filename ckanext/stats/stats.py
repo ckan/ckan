@@ -118,7 +118,7 @@ class Stats(object):
     @classmethod
     def top_package_creators(cls, limit: int = 10) -> list[tuple[Optional[model.User], int]]:
         if not config.get('ckan.auth.public_user_details'):
-            log.warning(
+            log.debug(
                 "Top package creators stats are not available because "
                 "ckan.auth.public_user_details is not set to True."
             )
