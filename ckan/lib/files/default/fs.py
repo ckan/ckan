@@ -18,11 +18,27 @@ class Settings(base.Settings, fs.Settings):
     pass
 
 
+class Reader(base.Reader, fs.Reader):
+    @override
+    def response(self, data: base.FileData, extras: dict[str, Any]) -> types.Response:
+        filepath = os.path.join(self.storage.settings.path, data.location)
+        return flask.send_file(
+            filepath,
+            download_name=data.location,
+            mimetype=data.content_type,
+        )
+
+
 class FsStorage(base.Storage, fs.FsStorage):
     """Store files in local filesystem."""
 
     settings: Settings
     SettingsFactory: type[base.Settings] = Settings
+    UploaderFactory: type[base.Uploader] = type(
+        "Uploader", (base.Uploader, fs.Uploader), {}
+    )
+    ReaderFactory: type[base.Reader] = Reader
+    ManagerFactory: type[base.Manager] = type("Manager", (base.Manager, fs.Manager), {})
 
     @override
     @classmethod
@@ -41,24 +57,13 @@ class FsStorage(base.Storage, fs.FsStorage):
             + " of the main storage path.",
         )
 
-    @override
-    def _base_response(
-        self, data: base.FileData, extras: dict[str, Any]
-    ) -> types.Response:
-        filepath = os.path.join(self.settings.path, data.location)
-        return flask.send_file(
-            filepath,
-            download_name=data.location,
-            mimetype=data.content_type,
-        )
-
 
 @dataclasses.dataclass
 class PublicSettings(Settings):
     public_prefix: str = ""
 
 
-class PublicReader(base.Reader, fs.Reader):
+class PublicReader(Reader):
     capabilities: base.Capability = (
         fs.Reader.capabilities | base.Capability.PERMANENT_LINK
     )

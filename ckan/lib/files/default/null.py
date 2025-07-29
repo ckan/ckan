@@ -18,3 +18,10 @@ class NullStorage(base.Storage, null.NullStorage):
 
     settings: Settings
     SettingsFactory: type[base.Settings] = Settings
+    UploaderFactory: type[base.Uploader] = type(
+        "Uploader", (base.Uploader, null.Uploader), {}
+    )
+    ReaderFactory: type[base.Reader] = type("Reader", (base.Reader, null.Reader), {})
+    ManagerFactory: type[base.Manager] = type(
+        "Manager", (base.Manager, null.Manager), {}
+    )

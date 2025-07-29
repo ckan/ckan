@@ -25,6 +25,11 @@ class LibCloudStorage(base.Storage, lc.LibCloudStorage):
 
     settings: Settings
     SettingsFactory: type[base.Settings] = Settings
+    UploaderFactory: type[base.Uploader] = type(
+        "Uploader", (base.Uploader, lc.Uploader), {}
+    )
+    ReaderFactory: type[base.Reader] = type("Reader", (base.Reader, lc.Reader), {})
+    ManagerFactory: type[base.Manager] = type("Manager", (base.Manager, lc.Manager), {})
 
     @override
     @classmethod

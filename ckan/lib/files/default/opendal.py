@@ -19,6 +19,11 @@ class OpenDalStorage(base.Storage, od.OpenDalStorage):
 
     settings: Settings
     SettingsFactory: type[base.Settings] = Settings
+    UploaderFactory: type[base.Uploader] = type(
+        "Uploader", (base.Uploader, od.Uploader), {}
+    )
+    ReaderFactory: type[base.Reader] = type("Reader", (base.Reader, od.Reader), {})
+    ManagerFactory: type[base.Manager] = type("Manager", (base.Manager, od.Manager), {})
 
     @override
     @classmethod

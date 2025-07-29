@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import dataclasses
@@ -8,7 +7,7 @@ from typing import Any
 import flask
 import file_keeper as fk
 
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, override
 from ckan import types
 from ckan.common import config
 from ckan.config.declaration import Declaration
@@ -69,6 +68,16 @@ class Reader(fk.Reader):
     >>>         return open(data.location, "rb")
 
     """
+
+    def response(self, data: FileData, extras: dict[str, Any]) -> types.Response:
+        if not self.storage.supports(Capability.STREAM):
+            raise fk.exc.UnsupportedOperationError("stream", self)
+
+        return flask.Response(
+            self.stream(data, extras),
+            mimetype=data.content_type or None,
+            headers={"Content-length": str(data.size)},
+        )
 
 
 class Manager(fk.Manager):
@@ -164,11 +173,14 @@ class Storage(fk.Storage):
     """
 
     settings: Settings
-    SettingsFactory = Settings
+    reader: Reader
+    uploader: Uploader
+    manager: Manager
+    SettingsFactory: type[Settings] = Settings
 
-    UploaderFactory: type[Uploader]
-    ReaderFactory: type[Reader]
-    ManagerFactory: type[Manager]
+    UploaderFactory: type[Uploader] = Uploader
+    ReaderFactory: type[Reader] = Reader
+    ManagerFactory: type[Manager] = Manager
 
     @classmethod
     def declare_config_options(cls, declaration: Declaration, key: Key):
@@ -236,7 +248,7 @@ class Storage(fk.Storage):
 
         :returns: Flask response with file's content
         """
-        resp = self._base_response(data, kwargs)
+        resp = self.reader.response(data, kwargs)
 
         inline_types = config["ckan.files.inline_content_types"]
         disposition = (
@@ -252,18 +264,6 @@ class Storage(fk.Storage):
         )
 
         return resp
-
-    def _base_response(self, data: FileData, extras: dict[str, Any]) -> types.Response:
-        if not self.supports(Capability.STREAM):
-            raise fk.exc.UnsupportedOperationError("stream", self)
-
-        return flask.Response(
-            self.reader.stream(data, extras),
-            mimetype=data.content_type or None,
-            headers={
-                "Content-length": str(data.size)
-            }
-        )
 
     def validate_size(self, size: int):
         """Verify that size of upload does not go over the configured limit.
@@ -288,6 +288,7 @@ class Storage(fk.Storage):
         ):
             raise fk.exc.WrongUploadTypeError(content_type)
 
+    @override
     def upload(
         self, location: Location, upload: fk.Upload, /, **kwargs: Any
     ) -> FileData:
@@ -306,6 +307,7 @@ class Storage(fk.Storage):
 
         return super().upload(location, upload, **kwargs)
 
+    @override
     def multipart_start(
         self, location: Location, data: MultipartData, /, **kwargs: Any
     ) -> MultipartData:
