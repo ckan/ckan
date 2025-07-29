@@ -7,6 +7,7 @@ from typing import Any, ClassVar, Optional, Union
 
 from sqlalchemy import Table, select, join, func, and_
 
+from ckan.common import config
 import ckan.model as model
 
 log = logging.getLogger(__name__)
@@ -104,6 +105,13 @@ class Stats(object):
 
     @classmethod
     def top_package_creators(cls, limit: int = 10) -> list[tuple[Optional[model.User], int]]:
+        if not config.get('ckan.auth.public_user_details'):
+            log.debug(
+                "Top package creators stats are not available because "
+                "ckan.auth.public_user_details is not set to True."
+            )
+            return []
+
         userid_count = (
             model.Session.query(
                 model.Package.creator_user_id,

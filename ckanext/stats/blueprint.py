@@ -1,7 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
 from typing import Any
-
 from flask import Blueprint
 
 from ckan.plugins.toolkit import render, h
@@ -14,15 +13,16 @@ stats = Blueprint(u'stats', __name__)
 @stats.route(u'/stats')
 def index():
     stats = stats_lib.Stats()
+    # Public stats
     extra_vars: dict[str, Any] = {
         'largest_groups': stats.largest_groups(),
         'top_tags': stats.top_tags(),
-        'top_package_creators': stats.top_package_creators(),
         'most_edited_packages': stats.most_edited_packages(),
         'new_packages_by_week': stats.get_by_week('new_packages'),
         'deleted_packages_by_week': stats.get_by_week('deleted_packages'),
         'num_packages_by_week': stats.get_num_packages_by_week(),
-        'package_revisions_by_week': stats.get_by_week('package_revisions')
+        'package_revisions_by_week': stats.get_by_week('package_revisions'),
+        'top_package_creators': stats.top_package_creators(),
     }
 
     extra_vars['raw_packages_by_week'] = []
