@@ -10,6 +10,7 @@ from ckan.config.middleware.flask_app import CKANJsonSessionSerializer
 from ckan.lib.redis import connect_to_redis
 from ckan import common as c
 from ckan.tests.helpers import body_contains, CKANTestApp
+from ckan.views.user import rotate_token
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
@@ -164,3 +165,19 @@ class TestCKANJsonSessionSerializer:
             result = serializer.decode(bad_data)
 
             assert result is None
+
+
+def test_csrf_token_session_cleared_on_logout(app: CKANTestApp, user_factory):
+
+    with app.flask_app.test_request_context():
+        c.login_user(user_factory.model())
+
+        # Set up CSRF token
+        rotate_token()
+
+        field_name = c.config.get("WTF_CSRF_FIELD_NAME")
+        assert field_name in c.session
+
+        c.logout_user()
+
+        assert field_name not in c.session

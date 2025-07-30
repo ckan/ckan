@@ -43,7 +43,15 @@ log = logging.getLogger(__name__)
 TCurrentUser = Union["model_.User", "model_.AnonymousUser"]
 current_user = cast(TCurrentUser, _cu)
 login_user = _login_user
-logout_user = _logout_user
+
+
+def logout_user():
+
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
+    if session.get(field_name):
+        session.pop(field_name)
+
+    return _logout_user()
 
 
 @maintain.deprecated('All web requests are served by Flask', since="2.10.0")
