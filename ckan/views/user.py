@@ -533,7 +533,8 @@ def rotate_token():
     field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
-        generate_csrf()
+
+    generate_csrf()
 
 
 def login() -> Union[Response, str]:
@@ -590,13 +591,9 @@ def logout() -> Response:
     if not user:
         return h.redirect_to('user.login')
 
-    came_from = request.args.get('came_from', '')
     logout_user()
 
-    field_name = config.get("WTF_CSRF_FIELD_NAME")
-    if session.get(field_name):
-        session.pop(field_name)
-
+    came_from = request.args.get('came_from', '')
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
 
