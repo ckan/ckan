@@ -18,12 +18,12 @@ class OpenDalStorage(base.Storage, od.OpenDalStorage):
     """Multi-provider cloud storage."""
 
     settings: Settings
-    SettingsFactory: type[base.Settings] = Settings
-    UploaderFactory: type[base.Uploader] = type(
+    SettingsFactory = Settings
+    UploaderFactory = type(
         "Uploader", (base.Uploader, od.Uploader), {}
     )
-    ReaderFactory: type[base.Reader] = type("Reader", (base.Reader, od.Reader), {})
-    ManagerFactory: type[base.Manager] = type("Manager", (base.Manager, od.Manager), {})
+    ReaderFactory = type("Reader", (base.Reader, od.Reader), {})
+    ManagerFactory = type("Manager", (base.Manager, od.Manager), {})
 
     @override
     @classmethod

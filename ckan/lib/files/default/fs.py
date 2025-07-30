@@ -33,12 +33,12 @@ class FsStorage(base.Storage, fs.FsStorage):
     """Store files in local filesystem."""
 
     settings: Settings
-    SettingsFactory: type[base.Settings] = Settings
-    UploaderFactory: type[base.Uploader] = type(
+    SettingsFactory = Settings
+    UploaderFactory = type(
         "Uploader", (base.Uploader, fs.Uploader), {}
     )
-    ReaderFactory: type[base.Reader] = Reader
-    ManagerFactory: type[base.Manager] = type("Manager", (base.Manager, fs.Manager), {})
+    ReaderFactory = Reader
+    ManagerFactory = type("Manager", (base.Manager, fs.Manager), {})
 
     @override
     @classmethod

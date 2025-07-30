@@ -57,7 +57,7 @@ def upgrade():
     )
 
     op.create_table(
-        "file_part",
+        "multipart",
         sa.Column("id", sa.TEXT(), nullable=False, primary_key=True),
         sa.Column("name", sa.TEXT(), nullable=False),
         sa.Column("storage", sa.TEXT(), nullable=False),
@@ -91,13 +91,14 @@ def upgrade():
 
     op.create_table(
         "owner",
-        sa.Column("item_id", sa.TEXT(), nullable=False, primary_key=True),
         sa.Column("item_type", sa.TEXT(), nullable=False, primary_key=True),
-        sa.Column("owner_id", sa.TEXT(), nullable=False),
+        sa.Column("item_id", sa.TEXT(), nullable=False, primary_key=True),
         sa.Column("owner_type", sa.TEXT(), nullable=False),
+        sa.Column("owner_id", sa.TEXT(), nullable=False),
         sa.Column(
             "pinned", sa.BOOLEAN(), server_default=sa.text("false"), nullable=False
         ),
+        sa.Index("idx_owner_owner", "owner_type", "owner_id"),
     )
 
     op.create_table(
@@ -108,13 +109,14 @@ def upgrade():
         sa.Column("owner_id", sa.TEXT(), nullable=False),
         sa.Column("owner_type", sa.TEXT(), nullable=False),
         sa.Column(
-            "leave_date",
+            "at",
             postgresql.TIMESTAMP(timezone=True),
             server_default=sa.text("now()"),
             nullable=False,
         ),
         sa.Column("actor", sa.TEXT(), nullable=False),
-        sa.Index("idx_file_transfer_item", "item_id", "item_type"),
+        sa.Column("action", sa.TEXT(), nullable=False, server_default="transfer"),
+        sa.Index("idx_owner_transfer_item", "item_id", "item_type"),
         sa.ForeignKeyConstraint(
             ["item_id", "item_type"],
             ["owner.item_id", "owner.item_type"],
@@ -126,5 +128,5 @@ def upgrade():
 def downgrade():
     op.drop_table("owner_transfer_history")
     op.drop_table("owner")
-    op.drop_table("file_part")
+    op.drop_table("multipart")
     op.drop_table("file")

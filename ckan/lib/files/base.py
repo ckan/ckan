@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, ClassVar
 
 import flask
 import file_keeper as fk
@@ -176,11 +176,11 @@ class Storage(fk.Storage):
     reader: Reader
     uploader: Uploader
     manager: Manager
-    SettingsFactory: type[Settings] = Settings
+    SettingsFactory: ClassVar[type[Settings]] = Settings
 
-    UploaderFactory: type[Uploader] = Uploader
-    ReaderFactory: type[Reader] = Reader
-    ManagerFactory: type[Manager] = Manager
+    UploaderFactory: ClassVar[type[Uploader]] = Uploader
+    ReaderFactory: ClassVar[type[Reader]] = Reader
+    ManagerFactory: ClassVar[type[Manager]] = Manager
 
     @classmethod
     def declare_config_options(cls, declaration: Declaration, key: Key):

@@ -17,11 +17,11 @@ class NullStorage(base.Storage, null.NullStorage):
     """No-op storage."""
 
     settings: Settings
-    SettingsFactory: type[base.Settings] = Settings
-    UploaderFactory: type[base.Uploader] = type(
+    SettingsFactory = Settings
+    UploaderFactory = type(
         "Uploader", (base.Uploader, null.Uploader), {}
     )
-    ReaderFactory: type[base.Reader] = type("Reader", (base.Reader, null.Reader), {})
-    ManagerFactory: type[base.Manager] = type(
+    ReaderFactory = type("Reader", (base.Reader, null.Reader), {})
+    ManagerFactory = type(
         "Manager", (base.Manager, null.Manager), {}
     )
