@@ -1,0 +1,1 @@
+The following deprecated functions and properties have been removed: the `truncate()` template helper (use the builtin jinja2 filter instead), `is_flask_request()`, `Request.args`, `set_repoze_user()`, `Tag.search_by_name()`, `PackageTag.by_name()`, `Package.is_private`
