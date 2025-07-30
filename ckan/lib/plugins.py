@@ -509,67 +509,6 @@ class DefaultGroupForm(object):
     def show_group_schema(self) -> Schema:
         return schema.default_show_group_schema()
 
-    # Deprecated schema methods, to be removed in CKAN 2.12
-
-    @deprecated(
-        "Use either `create_group_schema()` or `update_group_schema()`",
-        since="2.11.0"
-    )
-    def form_to_db_schema_options(self,
-                                  options: dict[str, Any]) -> dict[str, Any]:
-        ''' [Deprecated] This allows us to select different schemas for
-        different purpose eg via the web interface or via the api or creation vs
-        updating. It is optional and if not available form_to_db_schema
-        should be used.
-        If a context is provided, and it contains a schema, it will be
-        returned.
-        '''
-        schema = options.get('context', {}).get('schema', None)
-        if schema:
-            return schema
-
-        if options.get('api'):
-            if options.get('type') == 'create':
-                return self.form_to_db_schema_api_create()
-            else:
-                return self.form_to_db_schema_api_update()
-        else:
-            return self.form_to_db_schema()
-
-    @deprecated("Use `create_group_schema()`", since="2.11.0")
-    def form_to_db_schema_api_create(self) -> dict[str, Any]:
-        """ Deprecated """
-        return schema.default_create_group_schema()
-
-    @deprecated("Use `update_group_schema()`", since="2.11.0")
-    def form_to_db_schema_api_update(self) -> dict[str, Any]:
-        """ Deprecated """
-        return schema.default_update_group_schema()
-
-    @deprecated("Use `create_group_schema()`", since="2.11.0")
-    def form_to_db_schema(self) -> dict[str, Any]:
-        """ Deprecated """
-        return schema.default_create_group_schema()
-
-    @deprecated("Use `show_group_schema()`", since="2.11.0")
-    def db_to_form_schema(self) -> dict[str, Any]:
-        """ Deprecated """
-        return {}
-
-    @deprecated("Use `show_group_schema()`", since="2.11.0")
-    def db_to_form_schema_options(self,
-                                  options: dict[str, Any]) -> dict[str, Any]:
-        ''' [Deprecated] This allows the selection of different schemas
-        for different purposes.  It is optional and if not available,
-        ``db_to_form_schema`` should be used.
-        If a context is provided, and it contains a schema, it will be
-        returned.
-        '''
-        schema = options.get('context', {}).get('schema', None)
-        if schema:
-            return schema
-        return self.db_to_form_schema()
-
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
         pass
