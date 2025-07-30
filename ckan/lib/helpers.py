@@ -48,7 +48,6 @@ import ckan.config
 import ckan.exceptions
 import ckan.model as model
 import ckan.lib.formatters as formatters
-import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.authz as authz
@@ -1326,54 +1325,6 @@ def group_name_to_title(name: str) -> str:
     if group is not None:
         return group.display_name
     return name
-
-
-@core_helper
-@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "builtin jinja filter instead.",
-                     since="2.10.0")
-def truncate(text: str,
-             length: int = 30,
-             indicator: str = '...',
-             whole_word: bool = False) -> str:
-    """Truncate ``text`` with replacement characters.
-
-    ``length``
-        The maximum length of ``text`` before replacement
-    ``indicator``
-        If ``text`` exceeds the ``length``, this string will replace
-        the end of the string
-    ``whole_word``
-        If true, shorten the string further to avoid breaking a word in the
-        middle.  A word is defined as any string not containing whitespace.
-        If the entire text before the break is a single word, it will have to
-        be broken.
-
-    Example::
-
-        >>> truncate('Once upon a time in a world far far away', 14)
-        'Once upon a...'
-
-    Deprecated: please use jinja filter `truncate` instead
-    """
-    if not text:
-        return ""
-    if len(text) <= length:
-        return text
-    short_length = length - len(indicator)
-    if not whole_word:
-        return text[:short_length] + indicator
-    # Go back to end of previous word.
-    i = short_length
-    while i >= 0 and not text[i].isspace():
-        i -= 1
-    while i >= 0 and text[i].isspace():
-        i -= 1
-    if i <= 0:
-        # Entire text before break is one word, or we miscalculated.
-        return text[:short_length] + indicator
-    return text[:i + 1] + indicator
 
 
 @core_helper
