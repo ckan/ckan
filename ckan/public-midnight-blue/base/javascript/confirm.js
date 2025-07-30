@@ -24,8 +24,8 @@
    * - message     (string)  [required] Message shown in modal body.
    * - title       (string)  Optional.  Title in modal header.
    * - icon        (string)  Optional.  HTML for icon before title.
-   * - confirmText (string)  Optional.  Confirm button label. Default: "Yes".
-   * - cancelText  (string)  Optional.  Cancel button label. Default: "No".
+   * - confirmText (string)  Optional.  Confirm button label. Default: "Confirm".
+   * - cancelText  (string)  Optional.  Cancel button label. Default: "Cancel".
    * - type        (string)  Optional.  Style type ("primary", "danger", etc.).
    * - onConfirm   (func)    Optional.  Called if confirmed.
    * - onCancel    (func)    Optional.  Called if cancelled/closed.
@@ -64,7 +64,7 @@
       return console.error("Confirm: Modal already exists.");
     }
 
-    const modalHtml = `
+    const modalHTML = `
       <div class="modal fade" id="${select.modal.slice(1)}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog ${opts.centered ? 'modal-dialog-centered' : ''} ${opts.scrollable ? 'modal-dialog-scrollable' : ''} ${opts.fullscreen ? 'modal-fullscreen' : ''}">
           <div class="modal-content">
@@ -76,14 +76,14 @@
             <div class="modal-body">${opts.message}</div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary btn-cancel" id="${select.cancelBtn.slice(1)}">${opts.cancelText}</button>
-              <button type="button" class="btn ${style.confirm}" id="${select.yesBtn.slice(1)}">${opts.confirmText}</button>
+              <button type="button" class="btn ${style.confirm}" id="${select.confirmBtn.slice(1)}">${opts.confirmText}</button>
             </div>
           </div>
         </div>
       </div>
     `;
 
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
 
     const modalEl = document.getElementById(select.modal.slice(1));
     const modal = new bootstrap.Modal(modalEl, {
@@ -93,7 +93,7 @@
     modal.show();
 
     // Confirm button click
-    document.querySelector(select.yesBtn)?.addEventListener("click", () => {
+    document.querySelector(select.confirmBtn)?.addEventListener("click", () => {
       modal.hide();
       opts.onConfirm();
     });
@@ -128,7 +128,7 @@
 
   confirm.selectors = {
     modal: "#ckan-confirm-modal",
-    yesBtn: "#ckan-confirm-yes",
+    confirmBtn: "#ckan-confirm-yes",
     cancelBtn: "#ckan-confirm-cancel",
     closeBtn: ".btn-close",
   };
