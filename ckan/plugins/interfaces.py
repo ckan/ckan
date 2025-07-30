@@ -120,18 +120,6 @@ class IDomainObjectModification(Interface):
         '''
         pass
 
-    def notify_after_commit(self, entity: Any, operation: Any) -> None:
-        u'''
-        ** DEPRECATED **
-
-        Supposed to send a notification after entity modification, but it
-        doesn't work.
-
-        :param entity: instance of module.Package.
-        :param operation: 'new', 'changed' or 'deleted'.
-        '''
-        pass
-
 
 class IFeed(Interface):
     """

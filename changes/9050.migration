@@ -1,7 +1,9 @@
 * The following deprecated functions and properties have been removed:
   ``truncate()`` template helper (use the builtin jinja2 filter instead),
   ``is_flask_request()``, ``Request.args``, ``set_repoze_user()``,
-  ``Tag.search_by_name()``, ``PackageTag.by_name()``, ``Package.is_private``
+  ``Tag.search_by_name()``, ``PackageTag.by_name()``, ``Package.is_private``,
+  ``IDomainObjectModification.notify_after_commit()``
+
 * The ``form_to_db_*`` and ``db_to_form_*`` methods of the ``IGroupForm`` have
   been removed and they need to be replaced by ``create_group_schema()``,
   ``update_group_schema()`` and  ``show_group_schema()``.
