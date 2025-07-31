@@ -1,6 +1,7 @@
 {% extends "package/base_form_page.html" %}
 
 {% set logged_in = true if c.userobj else false %}
+{% set form_id = 'resource-edit' %}
 
 {% block subtitle %}{{ _('Add data to the dataset') }}{% endblock %}
 
@@ -13,7 +14,7 @@
 {% endblock %}
 
 {% block form_title %}{{ _('Add New Resource') }}{% endblock %}
-{% block form %}{% snippet resource_form_snippet, data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, dataset_type=dataset_type %}{% endblock %}
+{% block form %}{% snippet resource_form_snippet, data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, dataset_type=dataset_type, form_id=form_id %}{% endblock %}
 
 
 

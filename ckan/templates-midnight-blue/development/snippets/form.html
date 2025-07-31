@@ -5,7 +5,7 @@
     {{ form.input('standard', label=_('Standard'), placeholder=_('Standard Input'), value='', error=error, classes=[]) }}
     {{ form.input('standard', label=_('Medium'), placeholder=_('Medium Width Input'), value='', error=error, classes=['control-medium']) }}
     {{ form.input('standard', label=_('Full'), placeholder=_('Full Width Input'), value='', error=error, classes=['control-full']) }}
-    {{ form.input('standard', label=_('Large'), placeholder=_('Large Input'), value='', error=error, classes=['control-full', 'control-large']) }}
+    {{ form.input('standard', label=_('Large'), placeholder=_('Large Input'), value='', error=error, classes=['control-full'], attrs={'class': 'form-control form-control-lg'}) }}
     {{ form.prepend('slug', label=_('Prepend'), prepend='prefix', placeholder=_('Prepend Input'), value='', error=error, classes=[]) }}
     {{ form.custom(
       names=('custom_key', 'custom_value', 'custom_deleted'),
