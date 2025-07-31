@@ -9,7 +9,6 @@ from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast
 from flask import Blueprint
 
 import ckan.logic.schema as schema
-from ckan.lib.maintain import deprecated
 from ckan.common import g
 from ckan import logic, model, plugins
 import ckan.authz
