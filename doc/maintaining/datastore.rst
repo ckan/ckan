@@ -468,6 +468,42 @@ The DataStore supports querying with two API endpoints. They are similar but sup
 ==============================  ========================================================  ============================================================
 
 
+.. _search_improvements:
+
+Search Improvements
+-------------------
+
+``datastore_search`` by default is using ``offset`` based pagination while retrieving data from DB. This works normally with table that has around 500k records, but becomes less efficient with more records due to ``offset`` usage as still processes this data and only then skip it, which leads to longer query time. For example, if your offset is 500k, it still process this 500k and only then skip it. In other words, the bigger offset number you have, the more time it requires for the query to be processed.
+
+There is an alternative (``keyset`` pagination) that can be used in order to increase query time speed and as an result, process much more data. It has one major advantage over ``offset``, that the queries are taking almost similar amount of time as if it used ``offset 0`` (which means no data skip).
+
+In order to use ``keyset`` approach, you'll need to add/update your ``filters`` in ``datastore_search`` and have ``sort`` to match the the filter logic. Example::
+
+    For rule like this:
+    WHERE _id > 123 ORDER BY _id asc
+    {
+        "filters": {
+            "_id": {
+                "gt": 123, # gt - >, 123 - last row ID that was returned in previous call
+            }
+        },
+        "sort": "_id asc"
+	}
+
+    Reverse example:
+    WHERE _id < 123 ORDER BY _id desc
+    {
+        "filters": {
+            "_id": {
+                "lt": 123, # lt - <, 123 - last row ID that was returned in previous call
+            }
+        },
+        "sort": "_id desc"
+	}
+
+If the sort order (e.g. asc/desc) or the filter operator (e.g. gt/lt) will be different, it can lead to inconsistent results, as ``keyset`` pagination is build in combination of ``WHERE`` condition and ``ORDER BY``, which should help each other.
+
+
 .. _db_internals:
 
 Internal structure of the database
