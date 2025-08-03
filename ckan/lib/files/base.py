@@ -227,6 +227,11 @@ class Storage(fk.Storage):
             " file's extension to it.",
         ).set_example("datetime_prefix")
 
+        declaration.declare_list(key.disabled_capabilities, None).set_description(
+            "Capabilities that are not supported even if implemented."
+            " Can be used to transform fully-featured storage into a read-only/write-only storage."
+        )
+
     def as_response(
         self,
         data: FileData,

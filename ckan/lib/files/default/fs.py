@@ -52,11 +52,6 @@ class FsStorage(base.Storage, fs.FsStorage):
             "Create storage folder if it does not exist.",
         )
 
-        declaration.declare_bool(key.recursive).set_description(
-            "Use this flag if files can be stored inside subfolders"
-            + " of the main storage path.",
-        )
-
 
 @dataclasses.dataclass
 class PublicSettings(Settings):

@@ -129,6 +129,7 @@ reportUnnecessaryTypeIgnoreComment = true
 reportMatchNotExhaustive = true
 reportAny = false
 reportExplicitAny = false
+reportUnannotatedClassAttribute = false
 
 [tool.mypy]
 files = "ckan"
