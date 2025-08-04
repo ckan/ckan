@@ -5,6 +5,7 @@
 
 {% else %}
   {% extends "package/base_form_page.html" %}
+  {% set form_id = 'dataset-edit' %}
   {% block subtitle %}{{ h.humanize_entity_type('package', dataset_type, 'create title') or _('Create Dataset') }}{% endblock %}
   {% block form_title %}{{ h.humanize_entity_type('package', dataset_type, 'create title') or _('Create Dataset') }}{% endblock %}
 {% endif  %}
