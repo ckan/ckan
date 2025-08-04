@@ -13878,7 +13878,7 @@ td.diff_header {
   cursor: pointer;
 }
 
-.group-list {
+.groups-list {
   display: grid;
   grid-auto-flow: row;
   grid-auto-columns: minmax(0, 1fr);
@@ -13892,7 +13892,7 @@ td.diff_header {
 }
 
 @media (max-width: 767.98px) {
-  .group-list {
+  .groups-list {
     margin-bottom: 2rem;
     grid-template-columns: none;
   }

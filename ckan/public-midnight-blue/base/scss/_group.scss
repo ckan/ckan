@@ -1,4 +1,4 @@
-.group-list  {
+.groups-list  {
     display: grid;
     grid-auto-flow: row;
     grid-auto-columns: minmax(0, 1fr);
@@ -11,7 +11,7 @@
     width: 100%;
 }
 @include media-breakpoint-down(md){
-    .group-list {
+    .groups-list {
         margin-bottom: $spacer-4;
         grid-template-columns: none;
     }
