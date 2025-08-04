@@ -25,6 +25,7 @@
    * - subtitle  (string)  Optional.  Text shown in the header's small subtitle area.
    * - delay     (number)  Optional.  Time in milliseconds before auto-hide. Default: 3000.
    * - position  (string)  Optional.  Position key controlling toast placement. Default: "bottom-right".
+   * - showProgress  (boolean) Optional.  Whether to show a progress bar. Default: false.
    * - stacking  (boolean) Optional.  Whether to stack toasts on top of each other. Default: true.
   */
   var toast = function (options) {
