@@ -56,10 +56,10 @@ def _get_group_template(template_type: str,
         return method()
 
 
-def _db_to_form_schema(group_type: Optional[str] = None) -> Schema:
+def _show_group_schema(group_type: Optional[str] = None) -> Schema:
     u'''This is an interface to manipulate data from the database
      into a format suitable for the form (optional)'''
-    return lookup_group_plugin(group_type).db_to_form_schema()
+    return lookup_group_plugin(group_type).show_group_schema()
 
 
 def _setup_template_variables(context: Context,
@@ -198,7 +198,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     extra_vars: dict[str, Any] = {}
     context: Context = {
         u'user': current_user.name,
-        u'schema': _db_to_form_schema(group_type=group_type),
+        u'schema': _show_group_schema(group_type=group_type),
         u'for_view': True,
         u'extras_as_string': True
     }
@@ -353,6 +353,10 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
 def _update_facet_titles(
         facets: 'OrderedDict[str, str]',
         group_type: str) -> 'OrderedDict[str, str]':
+    if g.group_dict.get(u'is_organization'):
+        del facets['organization']
+    else:
+        del facets['groups']
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = (
             plugin.group_facets(facets, group_type, None)
@@ -391,7 +395,7 @@ def read(group_type: str,
     extra_vars = {}
     context: Context = {
         u'user': current_user.name,
-        u'schema': _db_to_form_schema(group_type=group_type),
+        u'schema': _show_group_schema(group_type=group_type),
         u'for_view': True
     }
     data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
@@ -822,7 +826,7 @@ class BulkProcessView(MethodView):
 
         context: Context = {
             u'user': current_user.name,
-            u'schema': _db_to_form_schema(group_type=group_type),
+            u'schema': _show_group_schema(group_type=group_type),
             u'for_view': True,
             u'extras_as_string': True
         }

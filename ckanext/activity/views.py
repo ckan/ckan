@@ -14,6 +14,7 @@ from ckan.views.group import (
     # TODO: don't use hidden funcitons
     _get_group_template,
 )
+from ckan.views.dataset import _get_pkg_template
 
 from ckan.common import request as ckan_request
 
@@ -185,6 +186,7 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     tk.g.pkg_dict = package
 
     extra_vars: dict[str, Any] = {
+        "base_template": _get_pkg_template("resource_template", dataset_type),
         "resource_views": resource_views,
         "current_resource_view": current_resource_view,
         "dataset_type": dataset_type,
@@ -287,6 +289,7 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
     return tk.render(
         "package/history.html",
         {
+            "base_template": _get_pkg_template("read_template", package_type),
             "dataset_type": package_type,
             "pkg_dict": pkg_dict,
             "pkg": pkg,
