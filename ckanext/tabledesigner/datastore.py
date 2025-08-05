@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, List
 
 from ckan.plugins.toolkit import get_action, h
+from ckan.types import Context
 
 
 VALIDATE_DEFINITION_SQL = '''
@@ -19,7 +20,7 @@ END;
 '''
 
 
-def create_table(resource_id: str, fields: List[dict[str, Any]]):
+def create_table(context: Context, resource_id: str, fields: List[dict[str, Any]]):
     '''
     Set up datastore table + validation
     '''
@@ -50,9 +51,7 @@ def create_table(resource_id: str, fields: List[dict[str, Any]]):
             validate_rules=''.join(validate_rules),
         )
         get_action('datastore_function_create')(
-            {
-                'ignore_auth': True,
-            },
+            context,
             {
                 'name': f'{resource_id}_tabledesigner_validate',
                 'or_replace': True,
@@ -62,7 +61,7 @@ def create_table(resource_id: str, fields: List[dict[str, Any]]):
         )
 
     get_action('datastore_create')(
-        {},
+        context,
         {
             'resource_id': resource_id,
             'force': True,
