@@ -24,6 +24,7 @@ main:
     - i18n.js
     - notify.js
     - toast.js
+    - confirm.js
     - main.js
     - htmx-ckan.js
 

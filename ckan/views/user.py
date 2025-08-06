@@ -15,7 +15,6 @@ from ckan.lib.helpers import helper_functions as h
 from ckan.lib.helpers import Page
 from ckan.lib.dictization import model_dictize
 import ckan.lib.mailer as mailer
-import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.logic as logic
 import ckan.logic.schema as schema
@@ -36,18 +35,6 @@ new_user_form = u'user/new_user_form.html'
 edit_user_form = u'user/edit_user_form.html'
 
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
-
-
-@maintain.deprecated('''set_repoze_user() is deprecated and will be removed.
-                        Use login_user() instead''', since="2.10.0")
-def set_repoze_user(user_id: str, resp: Optional[Response] = None) -> None:
-    """
-    This function is deprecated and will be removed.
-    It exists only to maintain backward compatibility
-    to extensions like saml2auth.
-    """
-    user_obj = model.User.get(user_id)
-    login_user(user_obj)
 
 
 def _edit_form_to_db_schema() -> Schema:
