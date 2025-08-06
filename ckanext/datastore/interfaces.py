@@ -232,3 +232,43 @@ class IDataDictionaryForm(interfaces.Interface):
         in the data dictionary page.
         """
         return field
+
+
+class IDatastoreDump(interfaces.Interface):
+    """
+    Allow plugins to register custom dump formats and writers for datastore
+    exports
+    """
+
+    def register_dump_formats(self) -> dict[str, dict[str, Any]]:
+        """
+        Register custom dump formats for datastore exports.
+
+        Each plugin can register one or more dump formats by returning a
+        dictionary where keys are format names and values are format
+        configuration dictionaries.
+
+        Format configuration must include:
+        - 'writer_factory': A context manager function that creates a writer
+        - 'records_format': The format for records ('csv', 'tsv', 'lists',
+          'objects')
+        - 'content_type': The MIME type for the response (bytes)
+        - 'file_extension': The file extension for downloads
+
+        Example:
+        {
+            'xlsx': {
+                'writer_factory': xlsx_writer,
+                'records_format': 'objects',
+                'content_type': (
+                    b'application/vnd.openxmlformats-'
+                    b'officedocument.spreadsheetml.sheet'
+                    ),
+                'file_extension': 'xlsx'
+            }
+        }
+
+        :returns: Dictionary mapping format names to format configurations
+        :rtype: dict
+        """
+        return {}
