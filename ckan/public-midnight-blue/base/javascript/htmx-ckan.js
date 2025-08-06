@@ -70,41 +70,54 @@ document.body.addEventListener("htmx:afterSwap", function (event) {
   }
 });
 
+/**
+ * ToastHandler parses a single JSON-like attribute from an HTML element
+ * and triggers a CKAN toast notification.
+ *
+ * It expects a `data-hx-toast` attribute to be present on the element,
+ * which should contain a JSON string with the toast configuration:
+ *
+ *   <div hx-target='..' hx-get='...' data-hx-toast='{"message": "Something happened", "type": "info"}'></div>
+ *
+ * Use it together with HTMX to show notifications after actions.
+ *
+ * @class
+ * @param {HTMLElement} element - The element containing the toast config.
+ */
 class ToastHandler {
-  constructor(element, options = {}) {
+  constructor(element) {
+    this.attrKey = "data-hx-toast";
     this.defaultToastOptions = {
       type: "success",
       title: ckan.i18n._("Notification"),
     };
-    this.toastAttributePrefix = options.toastAttributePrefix || "hx-toast-";
     this.options = this.buildToastOptions(element);
   }
 
+  /**
+   * Parses the JSON string from the toast attribute and merges with defaults.
+   *
+   * @param {HTMLElement} element
+   *
+   * @returns {Object}
+   */
   buildToastOptions(element) {
-    const options = {};
+    const attrValue = element.getAttribute(this.attrKey);
+    if (!attrValue) return this.defaultToastOptions;
 
-    for (const attr of element.attributes) {
-      if (attr.name.startsWith(this.toastAttributePrefix)) {
-        const key = this.convertAttributeNameToKey(attr.name);
-        const value = this.parseAttributeValue(attr.value);
-        options[key] = value;
-      }
+    try {
+      const parsed = JSON.parse(attrValue);
+      console.log(parsed);
+
+      return { ...this.defaultToastOptions, ...parsed };
+    } catch (e) {
+      console.error(`Invalid JSON in ${this.attrKey}:`, attrValue);
+      return {
+        ...this.defaultToastOptions,
+        message: `Invalid toast config: ${e.message}`,
+        type: "danger"
+      };
     }
-
-    return { ...this.defaultToastOptions, ...options };
-  }
-
-  convertAttributeNameToKey(attributeName) {
-    return attributeName
-      .replace(this.toastAttributePrefix, "")
-      .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-  }
-
-  parseAttributeValue(value) {
-    if (['true', 'yes', 't', 'y', '1'].includes(value.toLowerCase())) return true;
-    if (['false', 'no', 'f', 'n', '0'].includes(value.toLowerCase())) return false;
-    if (!isNaN(value) && value.trim() !== "") return Number(value);
-    return value;
   }
 
   showToast() {
@@ -129,5 +142,26 @@ document.body.addEventListener("htmx:responseError", function (event) {
     message: message.trim().replace(/^"(.*)"$/, '$1'),
     type: "danger",
     title: `${xhr.status} ${xhr.statusText}`
+  });
+})
+
+document.addEventListener("htmx:confirm", function (e) {
+  // The event is triggered on every trigger for a request, so we need to check if the element
+  // that triggered the request has a confirm question set via the hx-confirm attribute,
+  // if not we can return early and let the default behavior happen
+  if (!e.detail.question) return
+
+  // This will prevent the request from being issued to later manually issue it
+  e.preventDefault()
+
+  ckan.confirm({
+    message: e.detail.question,
+    type: "primary",
+    centered: true,
+    onConfirm: () => {
+      // If the user confirms, we manually issue the request
+      // true to skip the built-in window.confirm()
+      e.detail.issueRequest(true);
+    }
   });
 })
