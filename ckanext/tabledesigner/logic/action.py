@@ -4,7 +4,12 @@ from __future__ import annotations
 from typing import Any, Callable
 
 from ckan.types import Context
-from ckan.plugins.toolkit import get_action, chained_action, ValidationError
+from ckan.plugins.toolkit import (
+    get_action,
+    chained_action,
+    ValidationError,
+    fresh_context,
+)
 
 from ckanext.tabledesigner.datastore import create_table
 
@@ -36,7 +41,7 @@ def _create_table_and_view(context: Context, res: dict[str, Any]) -> None:
     if not res.get('datastore_active'):
         create_table(context, res['id'], [])
 
-    views = get_action('resource_view_list')(context, {
+    views = get_action('resource_view_list')(fresh_context(context), {
         'id': res['id']
     })
 
@@ -44,7 +49,7 @@ def _create_table_and_view(context: Context, res: dict[str, Any]) -> None:
         return
 
     try:
-        get_action('resource_view_create')(context, {
+        get_action('resource_view_create')(fresh_context(context), {
             'resource_id': res['id'],
             'view_type': 'datatables_view',
             'title': 'Table',

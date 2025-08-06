@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, List
 
-from ckan.plugins.toolkit import get_action, h
+from ckan.plugins.toolkit import get_action, h, fresh_context
 from ckan.types import Context
 
 
@@ -51,7 +51,7 @@ def create_table(context: Context, resource_id: str, fields: List[dict[str, Any]
             validate_rules=''.join(validate_rules),
         )
         get_action('datastore_function_create')(
-            context,
+            {"ignore_auth": True},
             {
                 'name': f'{resource_id}_tabledesigner_validate',
                 'or_replace': True,
@@ -61,7 +61,7 @@ def create_table(context: Context, resource_id: str, fields: List[dict[str, Any]
         )
 
     get_action('datastore_create')(
-        context,
+        fresh_context(context),
         {
             'resource_id': resource_id,
             'force': True,
