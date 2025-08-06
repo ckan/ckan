@@ -47,6 +47,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IForkObserver, inherit=True)
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
+    p.implements(interfaces.IDatastoreDump, inherit=True)
     p.implements(p.IBlueprint)
 
     resource_show_action = None
@@ -71,6 +72,12 @@ class DatastorePlugin(p.SingletonPlugin):
             'postgresql': DatastorePostgresqlBackend,
             'postgres': DatastorePostgresqlBackend,
         }
+
+    # IDatastoreDump
+
+    def register_dump_formats(self) -> dict[str, dict[str, Any]]:
+        """Register default dump formats - can be overridden by plugins"""
+        return {}
 
     # IConfigurer
 
