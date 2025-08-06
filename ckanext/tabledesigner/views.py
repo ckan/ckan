@@ -63,7 +63,7 @@ class _TableDesignerDictionary(MethodView):
             new_fields.append(dict(c, type=datastore_type, info=fi))
 
         try:
-            create_table({}, resource_id, new_fields)
+            create_table(resource_id, new_fields, {})
         except ValidationError as e:
             fields = {f['id']: f for f in data_dict['fields']}
             data_dict['fields'] = [

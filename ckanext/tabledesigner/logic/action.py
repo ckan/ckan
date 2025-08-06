@@ -39,7 +39,7 @@ def _create_table_and_view(context: Context, res: dict[str, Any]) -> None:
         return
 
     if not res.get('datastore_active'):
-        create_table(context, res['id'], [])
+        create_table(res['id'], [], context)
 
     views = get_action('resource_view_list')(fresh_context(context), {
         'id': res['id']
