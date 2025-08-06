@@ -20,7 +20,7 @@ END;
 '''
 
 
-def create_table(context: Context, resource_id: str, fields: List[dict[str, Any]]):
+def create_table(resource_id: str, fields: List[dict[str, Any]], context: Context | None = None) -> None:
     '''
     Set up datastore table + validation
     '''
@@ -61,7 +61,7 @@ def create_table(context: Context, resource_id: str, fields: List[dict[str, Any]
         )
 
     get_action('datastore_create')(
-        fresh_context(context),
+        fresh_context(context or {}),
         {
             'resource_id': resource_id,
             'force': True,
