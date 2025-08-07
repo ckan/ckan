@@ -209,7 +209,18 @@ class Storage(fk.Storage):
         ).set_example("text/csv pdf application video jpeg")
 
         declaration.declare_bool(key.override_existing).set_description(
-            "If file already exists, replace it with new content.",
+            "If file already exists, replace it with new content."
+            + "\nThis option can be ignored by certain adapters.",
+        )
+
+        declaration.declare_bool(key.initialize).set_description(
+            "Prepare storage backend for uploads(create path, bucket, DB). This op",
+        )
+
+        declaration.declare(key.path).set_description(
+            "Prefix for the file's location. The actual meaning of this option"
+            + " depends on the adapter. FS adapter uses the path as a root folder for uploads."
+            + " Cloud adapters, usually, use path as a prefix for the name of uploaded objects.",
         )
 
         declaration.declare(key.name, key[-1]).set_description(

@@ -56,7 +56,7 @@ class TestFilesLoader:
                 prefix.name,
                 prefix.location_transformers,
                 prefix.path,
-                prefix.create_path,
+                prefix.initialize,
             ]
         )
 

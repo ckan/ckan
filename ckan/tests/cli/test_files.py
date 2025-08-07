@@ -38,7 +38,7 @@ class TestFilesAdapters(object):
     def test_adapters_with_conf(self, cli: CKANCliRunner):
         """Adapters be listed with configuration."""
         result = cli.invoke(ckan, ["files", "adapters", "-c"])
-        assert "ckan.files.storage.NAME.create_path" in result.output
+        assert "ckan.files.storage.NAME.initialize" in result.output
 
 
 class TestStorageScan:

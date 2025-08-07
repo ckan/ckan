@@ -40,18 +40,6 @@ class FsStorage(base.Storage, fs.FsStorage):
     ReaderFactory = Reader
     ManagerFactory = type("Manager", (base.Manager, fs.Manager), {})
 
-    @override
-    @classmethod
-    def declare_config_options(cls, declaration: Declaration, key: Key):
-        super().declare_config_options(declaration, key)
-        declaration.declare(key.path).required().set_description(
-            "Path to the folder where uploaded data will be stored.",
-        )
-
-        declaration.declare_bool(key.create_path).set_description(
-            "Create storage folder if it does not exist.",
-        )
-
 
 @dataclasses.dataclass
 class PublicSettings(Settings):

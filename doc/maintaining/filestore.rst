@@ -192,14 +192,14 @@ is following::
 
   ckan.files.storage.my_storage.type = ckan:fs
   ckan.files.storage.my_storage.path = /tmp/my_storage
-  ckan.files.storage.my_storage.create_path = true
+  ckan.files.storage.my_storage.initialize = true
 
 Any option that starts with ``ckan.files.storage.`` is a storage
 configuration. The next segment is the name of the storage, ``my_storage``, and
 everything after the name is an option that will be consumed by the storage.
 
 In the example above, storage ``my_storage`` is detected with configuration
-``{"type": "ckan:fs", "path": "/tmp/my_storage", "create_path":
+``{"type": "ckan:fs", "path": "/tmp/my_storage", "initialize":
 true}``. Configuration for storages is grouped by the name, and that's how
 multiple storages can be configured::
 
@@ -267,7 +267,7 @@ ckan:fs
 Keeps files inside the local filesystem. Files are uploaded into a directory
 specified by the required ``path`` option. The directory must exist and be
 writable by the CKAN process. If directory does not exist, it's created when
-``create_path`` option is enabled. If ``create_path`` is not enabled, exception
+``initialize`` option is enabled. If ``initialize`` is not enabled, exception
 is raised during initialization of the storage.
 
 ckan:public_fs
