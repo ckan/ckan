@@ -17,7 +17,6 @@ Location: TypeAlias = fk.Location
 Capability: TypeAlias = fk.Capability
 
 FileData: TypeAlias = fk.FileData
-MultipartData: TypeAlias = fk.MultipartData
 
 
 def is_supported_type(content_type: str, supported: Iterable[str]) -> bool:
@@ -89,7 +88,7 @@ class Manager(fk.Manager):
 
     >>> class MyManager(Manager):
     >>>     def remove(
-    >>>         self, data: FileData|MultipartData, extras: dict[str, Any]
+    >>>         self, data: FileData, extras: dict[str, Any]
     >>>     ) -> bool:
     >>>         os.remove(data.location)
     >>>         return True
@@ -325,8 +324,8 @@ class Storage(fk.Storage):
 
     @override
     def multipart_start(
-        self, location: Location, data: MultipartData, /, **kwargs: Any
-    ) -> MultipartData:
+        self, location: Location, data: FileData, /, **kwargs: Any
+    ) -> FileData:
         """Prepare data for multipart upload.
 
         Before upload starts, data is validated according to storage settings.

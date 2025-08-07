@@ -57,39 +57,6 @@ def upgrade():
     )
 
     op.create_table(
-        "multipart",
-        sa.Column("id", sa.TEXT(), nullable=False, primary_key=True),
-        sa.Column("name", sa.TEXT(), nullable=False),
-        sa.Column("storage", sa.TEXT(), nullable=False),
-        sa.Column("location", sa.TEXT(), server_default=sa.text("''"), nullable=False),
-        sa.Column(
-            "size", sa.BIGINT(), server_default=sa.text("'0'::bigint"), nullable=False
-        ),
-        sa.Column(
-            "content_type", sa.TEXT(), server_default=sa.text("''"), nullable=False
-        ),
-        sa.Column("hash", sa.TEXT(), server_default=sa.text("''"), nullable=False),
-        sa.Column(
-            "ctime",
-            postgresql.TIMESTAMP(timezone=True),
-            server_default=sa.func.now(),
-            nullable=False,
-        ),
-        sa.Column(
-            "storage_data",
-            postgresql.JSONB,
-            server_default=sa.text("'{}'::jsonb"),
-            nullable=False,
-        ),
-        sa.Column(
-            "plugin_data",
-            postgresql.JSONB,
-            server_default=sa.text("'{}'::jsonb"),
-            nullable=False,
-        ),
-    )
-
-    op.create_table(
         "owner",
         sa.Column("item_type", sa.TEXT(), nullable=False, primary_key=True),
         sa.Column("item_id", sa.TEXT(), nullable=False, primary_key=True),
@@ -128,5 +95,4 @@ def upgrade():
 def downgrade():
     op.drop_table("owner_transfer_history")
     op.drop_table("owner")
-    op.drop_table("multipart")
     op.drop_table("file")
