@@ -107,8 +107,6 @@ class ToastHandler {
 
     try {
       const parsed = JSON.parse(attrValue);
-      console.log(parsed);
-
       return { ...this.defaultToastOptions, ...parsed };
     } catch (e) {
       console.error(`Invalid JSON in ${this.attrKey}:`, attrValue);
