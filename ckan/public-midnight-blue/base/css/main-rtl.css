@@ -14026,9 +14026,6 @@ td.diff_header {
   display: flex;
   justify-content: flex-end;
 }
-.content_action .btn {
-  margin-bottom: 1rem;
-}
 
 .no-nav .page-header {
   border-radius: 3px 3px 0 0;
@@ -14254,7 +14251,6 @@ td.diff_header {
   hyphens: auto;
 }
 .context-info .info {
-  margin-top: 15px;
   padding-top: 10px;
   word-break: break-word;
 }
@@ -14268,6 +14264,7 @@ td.diff_header {
   justify-content: space-between;
   padding-top: 10px;
   clear: both;
+  gap: 1%;
 }
 .context-info .nums dl {
   color: #344054;
