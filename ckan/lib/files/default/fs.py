@@ -48,7 +48,7 @@ class PublicSettings(Settings):
 
 class PublicReader(Reader):
     capabilities: base.Capability = (
-        fs.Reader.capabilities | base.Capability.PERMANENT_LINK
+        fs.Reader.capabilities | base.Capability.LINK_PERMANENT
     )
     storage: PublicFsStorage
 

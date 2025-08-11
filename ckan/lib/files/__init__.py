@@ -191,8 +191,8 @@ def collect_storages() -> dict[str, fk.Storage]:
             name = config[f"ckan.files.default_storages.{object_type}"]
 
             if name in result:
-                if not result[name].supports(Capability.PERMANENT_LINK):
-                    msg = f"PERMANENT_LINK capability is required for storage {name}"
+                if not result[name].supports(Capability.LINK_PERMANENT):
+                    msg = f"LINK_PERMANENT capability is required for storage {name}"
                     raise CkanConfigurationException(msg)
                 continue
 

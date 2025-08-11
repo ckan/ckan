@@ -1357,19 +1357,19 @@ groups:
         default: admin_uploads
         description: |
           Name of the storage for uploads from AdminUI, such as site logo. The
-          storage must support PERMANENT_LINK capability.
+          storage must support LINK_PERMANENT capability.
 
       - key: ckan.files.default_storages.user
         default: user_uploads
         description: |
           Name of the storage for public user uploads, such as user avatar. The
-          storage must support PERMANENT_LINK capability.
+          storage must support LINK_PERMANENT capability.
 
       - key: ckan.files.default_storages.group
         default: group_uploads
         description: |
           Name of the storage for public group uploads, such as group
-          image. The storage must support PERMANENT_LINK capability.
+          image. The storage must support LINK_PERMANENT capability.
 
       - key: ckan.files.default_storages.resource
         default: resources
