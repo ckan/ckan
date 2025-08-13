@@ -86,9 +86,9 @@ virtual environment is activated, and then run this command::
     sphinx-build doc build/sphinx
 
 Now you can open the built HTML files in
-``build/sphinx/html``, e.g.::
+``build/sphinx``, e.g.::
 
-    firefox build/sphinx/html/index.html
+    firefox build/sphinx/index.html
 
 
 Edit the reStructuredText files
