@@ -10,14 +10,6 @@
             <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
               <ul class="list-unstyled">
                 {% block header_account_logged %}
-                  {% if c.userobj.sysadmin %}
-                    <li>
-                      <a href="{{ h.url_for('admin.index') }}" aria-label="{{ _('Sysadmin settings') }}" data-bs-title="{{ _('Sysadmin settings') }}" data-bs-toggle="tooltip">
-                        <i class="fa fa-gavel" aria-hidden="true"></i>
-                        <span class="text">{{ _('Admin') }}</span>
-                      </a>
-                    </li>
-                  {% endif %}
                   {% block header_account_profile %}
                     <li>
                       <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image" aria-label="{{ _('View profile') }}" data-bs-title="{{ _('View profile') }}" data-bs-toggle="tooltip">
@@ -26,9 +18,17 @@
                       </a>
                     </li>
                   {% endblock %}
+                  {% if c.userobj.sysadmin %}
+                    <li>
+                      <a class="btn btn-primary" href="{{ h.url_for('admin.index') }}" aria-label="{{ _('Sysadmin settings') }}" data-bs-title="{{ _('Sysadmin settings') }}" data-bs-toggle="tooltip">
+                        <i class="fa fa-gavel" aria-hidden="true"></i>
+                        <span class="text">{{ _('Admin') }}</span>
+                      </a>
+                    </li>
+                  {% endif %}
                   {% block header_dashboard %}
                     <li>
-                      <a href="{{ h.url_for('dashboard.datasets') }}" aria-label="{{ _('View dashboard') }}" data-bs-title="{{ _('View dashboard') }}" data-bs-toggle="tooltip">
+                      <a class="btn btn-primary" href="{{ h.url_for('dashboard.datasets') }}" aria-label="{{ _('View dashboard') }}" data-bs-title="{{ _('View dashboard') }}" data-bs-toggle="tooltip">
                         <i class="fa fa-tachometer" aria-hidden="true"></i>
                         <span class="text">{{ _('Dashboard') }}</span>
                       </a>
@@ -36,7 +36,7 @@
                   {% endblock %}
                   {% block header_account_settings_link %}
                     <li>
-                      <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}" aria-label="{{ _('Profile settings') }}" data-bs-title="{{ _('Profile settings') }}" data-bs-toggle="tooltip">
+                      <a class="btn btn-primary" href="{{ h.url_for('user.edit', id=c.userobj.name) }}" aria-label="{{ _('Profile settings') }}" data-bs-title="{{ _('Profile settings') }}" data-bs-toggle="tooltip">
                         <i class="fa fa-cog" aria-hidden="true"></i>
                         <span class="text">{{ _('Profile settings') }}</span>
                       </a>
@@ -46,7 +46,7 @@
                     <li>
                       <form action="{{ h.url_for('user.logout') }}" method="post">
                         {{ h.csrf_input() }}
-                        <button class="btn btn-link" type="submit" aria-label="{{ _('Log out') }}" data-bs-title="{{ _('Log out') }}" data-bs-toggle="tooltip">
+                        <button class="btn btn-primary" type="submit" aria-label="{{ _('Log out') }}" data-bs-title="{{ _('Log out') }}" data-bs-toggle="tooltip">
                           <i class="fa fa-sign-out" aria-hidden="true"></i>
                         </button>
                       </form>
