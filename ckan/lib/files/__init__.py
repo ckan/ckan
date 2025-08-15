@@ -2,20 +2,19 @@ from __future__ import annotations
 
 import logging
 import os
-import sys
 from collections.abc import Mapping
 from typing import Any, cast
 
 import file_keeper as fk
 from file_keeper import Registry, Upload, exc, make_upload, adapters, ext, make_storage
-from file_keeper.core.types import LocationTransformer
 
-import ckan.plugins as p
+from file_keeper.core.utils import ensure_setup
+
+
 from ckan import types
 from ckan.common import config
 from ckan.exceptions import CkanConfigurationException
 
-from . import default
 from .base import (
     Storage,
     Settings,
@@ -49,52 +48,13 @@ STORAGE_PREFIX = "ckan.files.storage."
 log = logging.getLogger(__name__)
 
 
-@ext.hookimpl
-def register_adapters(registry: Registry[type[Storage]]):
-    """Collect adapters from core and IFiles implementations.
-
-    This hook is called by file_keeper inside
-    ``file_keeper.ext.register(reset=True)``.
-
-    """
-    registry.register("ckan:fs", default.FsStorage)
-    registry.register("ckan:public_fs", default.PublicFsStorage)
-    registry.register("ckan:null", default.NullStorage)
-
-    if adapter := getattr(default, "LibCloudStorage", None):
-        registry.register("ckan:libcloud", adapter)
-
-    if adapter := getattr(default, "OpenDalStorage", None):
-        registry.register("ckan:opendal", adapter)
-
-    for plugin in p.PluginImplementations(p.IFiles):
-        for k, v in plugin.files_get_storage_adapters().items():
-            registry.register(k, v)
-
-
-@ext.hookimpl
-def register_location_transformers(registry: Registry[LocationTransformer]):
-    """Collect location transformers from IFiles implementations.
-
-    This hook is called by file_keeper inside
-    ``file_keeper.ext.register(reset=True)``.
-    """
-    for plugin in p.PluginImplementations(p.IFiles):
-        for k, v in plugin.files_get_location_transformers().items():
-            registry.register(k, v)
-
-
+@ensure_setup
 def reset():
     """Reset and collect file_keeper extensions.
 
-    This function expects that file_keeper hooks(``file_keeper.ext.hookimpl``)
-    will be created in the current module.
+    Because CKAN extends file-keeper as well, this call collects all adapters
+    and location transformers registered throught IFiles interface.
     """
-    fk_plugin = sys.modules[__name__]
-    if not ext.plugin.is_registered(fk_plugin):
-        # register CKAN as file_keeper extension on first call
-        ext.plugin.register(fk_plugin)
-
     ext.register(reset=True)
 
 

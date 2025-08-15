@@ -338,4 +338,4 @@ class Storage(fk.Storage):
         self.validate_size(data.size)
         self.validate_content_type(data.content_type)
 
-        return super().multipart_start(location, data, **kwargs)
+        return super().multipart_start(data, **kwargs)
