@@ -65,7 +65,7 @@ def upgrade():
         sa.Column(
             "pinned", sa.BOOLEAN(), server_default=sa.text("false"), nullable=False
         ),
-        sa.Index("idx_owner_owner", "owner_type", "owner_id"),
+        sa.Index("idx_owner_owner", "owner_type", "owner_id", unique=False),
     )
 
     op.create_table(
@@ -84,11 +84,13 @@ def upgrade():
         sa.Column("actor", sa.TEXT(), nullable=False),
         sa.Column("action", sa.TEXT(), nullable=False, server_default="transfer"),
         sa.Index("idx_owner_transfer_item", "item_id", "item_type"),
-        sa.ForeignKeyConstraint(
-            ["item_id", "item_type"],
-            ["owner.item_id", "owner.item_type"],
-            ondelete="CASCADE",
-        ),
+    )
+    op.create_foreign_key(
+        "owner_transfer_history_item_id_item_type_fkey",
+        "owner_transfer_history",
+        "owner",
+        ["item_id", "item_type"],
+        ["item_id", "item_type"],
     )
 
 

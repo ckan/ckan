@@ -216,10 +216,11 @@ class Storage(fk.Storage):
             "Prepare storage backend for uploads(create path, bucket, DB). This op",
         )
 
-        declaration.declare(key.path).set_description(
+        declaration.declare(key.path, "").set_description(
             "Prefix for the file's location. The actual meaning of this option"
-            + " depends on the adapter. FS adapter uses the path as a root folder for uploads."
-            + " Cloud adapters, usually, use path as a prefix for the name of uploaded objects.",
+            + " depends on the adapter. FS adapter uses the path as a root folder for"
+            + " uploads. Cloud adapters, usually, use path as a prefix for the name of"
+            + " uploaded objects.",
         )
 
         declaration.declare(key.name, key[-1]).set_description(
