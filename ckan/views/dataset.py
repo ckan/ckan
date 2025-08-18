@@ -1097,7 +1097,13 @@ class GroupView(MethodView):
         )
 
 
+def _collaborators_enabled_or_404():
+    if not authz.check_config_permission("allow_dataset_collaborators"):
+        return base.abort(404)
+
+
 def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # noqa
+    _collaborators_enabled_or_404()
     context: Context = {'user': current_user.name}
     data_dict = {u'id': id}
 
@@ -1117,6 +1123,8 @@ def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # n
 
 def collaborator_delete(package_type: str,
                         id: str, user_id: str) -> Union[Response, str]:  # noqa
+    _collaborators_enabled_or_404()
+
     context: Context = {'user': current_user.name}
 
     if u'cancel' in request.form:
@@ -1161,6 +1169,7 @@ def collaborator_delete(package_type: str,
 class CollaboratorEditView(MethodView):
 
     def post(self, package_type: str, id: str) -> Response:  # noqa
+        _collaborators_enabled_or_404()
         context: Context = {'user': current_user.name}
 
         try:
@@ -1199,6 +1208,8 @@ class CollaboratorEditView(MethodView):
         return h.redirect_to(u'dataset.collaborators_read', id=id)
 
     def get(self, package_type: str, id: str) -> Union[Response, str]:  # noqa
+        _collaborators_enabled_or_404()
+
         context: Context = {'user': current_user.name}
         data_dict = {u'id': id}
 
@@ -1264,23 +1275,22 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
         u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
     )
 
-    if authz.check_config_permission(u'allow_dataset_collaborators'):
-        blueprint.add_url_rule(
-            rule=u'/collaborators/<id>',
-            view_func=collaborators_read,
-            methods=['GET', ]
-        )
+    blueprint.add_url_rule(
+        rule=u'/collaborators/<id>',
+        view_func=collaborators_read,
+        methods=['GET', ]
+    )
 
-        blueprint.add_url_rule(
-            rule=u'/collaborators/<id>/new',
-            view_func=CollaboratorEditView.as_view(str(u'new_collaborator')),
-            methods=[u'GET', u'POST', ]
-        )
+    blueprint.add_url_rule(
+        rule=u'/collaborators/<id>/new',
+        view_func=CollaboratorEditView.as_view(str(u'new_collaborator')),
+        methods=[u'GET', u'POST', ]
+    )
 
-        blueprint.add_url_rule(
-            rule=u'/collaborators/<id>/delete/<user_id>',
-            view_func=collaborator_delete, methods=['POST', 'GET']
-        )
+    blueprint.add_url_rule(
+        rule=u'/collaborators/<id>/delete/<user_id>',
+        view_func=collaborator_delete, methods=['POST', 'GET']
+    )
 
 
 register_dataset_plugin_rules(dataset)
