@@ -91,6 +91,7 @@ def upgrade():
         "owner",
         ["item_id", "item_type"],
         ["item_id", "item_type"],
+        ondelete="CASCADE",
     )
 
 

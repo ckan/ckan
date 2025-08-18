@@ -25,7 +25,7 @@ text = Annotated[str, mapped_column(sa.TEXT)]
 class Owner:
     """Model with details about current owner of an item.
 
-    Keyword Args:
+    Args:
         item_id (str): ID of the owned object
         item_type (str): type of the owned object
         owner_id (str): ID of the owner
@@ -33,10 +33,10 @@ class Owner:
         pinned (bool): is ownership protected from transfer
 
     Example:
-        ```python
+        ```py
         owner = Owner(
-            item_id=file.id,
-            item_type="file",
+            item_id=smth.id,
+            item_type=smth_type,
             owner_id=user.id,
             owner_type="user,
         )
@@ -56,9 +56,16 @@ class Owner:
 
     pinned: Mapped[bool] = mapped_column(default=False)
 
-    history: Mapped[list[OwnerTransferHistory]] = relationship(
-        cascade="delete, delete-orphan", init=False
-    )
+    def select_history(self):
+        """Returns a select statement to fetch ownership history."""
+        return (
+            sa.select(OwnerTransferHistory)
+            .join(Owner)
+            .where(
+                OwnerTransferHistory.item_id == self.item_id,
+                OwnerTransferHistory.item_type == self.item_type,
+            )
+        )
 
     def dictize(self, context: Context):
         return table_dictize(self, context)
@@ -68,21 +75,19 @@ class Owner:
 class OwnerTransferHistory:
     """Model for tracking ownership history of the file.
 
-    Keyword Args:
+    Args:
         item_id (str): ID of the owned object
         item_type (str): type of the owned object
-        owner_id (str): ID of the owner
-        owner_type (str): Type of the owner
+        owner_id (str): ID of the previous owner
+        owner_type (str): Type of the previous owner
         leave_date (datetime): date of ownership transfer to a different owner
-        actor (str | None): user who initiated ownership transfer
+        actor (str): user who initiated ownership transfer
 
     Example:
-        ```python
+        ```py
         record = TransferHistory(
-            item_id=file.id,
-            item_type="file",
-            owner_id=prev_owner.owner_id,
-            owner_type=prev_owner.owner_type,
+            prev_owner.item_id, prev_owner.item_type,
+            prev_owner.owner_id, prev_owner.owner_type,
         )
         ```
     """
@@ -104,7 +109,7 @@ class OwnerTransferHistory:
 
     actor: Mapped[text]
 
-    current_owner: Mapped[Owner] = relationship(back_populates="history", init=False)
+    current_owner: Mapped[Owner] = relationship(init=False)
 
     id: Mapped[text] = mapped_column(primary_key=True, default_factory=make_uuid)
     at: Mapped[datetime_tz] = mapped_column(default=None, insert_default=sa.func.now())

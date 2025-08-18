@@ -33,13 +33,13 @@ bigint = Annotated[int, mapped_column(sa.BigInteger)]
 class File:
     """Model with file details.
 
-    Keyword Args:
+    Args:
         name (str): name shown to users
         location (str): location of the file inside storage
+        storage (str): storage that contains the file
         content_type (str): MIMEtype
         size (int): size in bytes
         hash (str): checksum
-        storage (str): storage that contains the file
         ctime (datetime): date of creation
         mtime (datetime | None): date of the last update
         atime (datetime | None): date of last access(unstable)
@@ -47,7 +47,7 @@ class File:
         plugin_data (dict[str, Any]): additional data set by plugins
 
     Example:
-        ```python
+        ```py
         file = File(
             name="file.txt",
             location="relative/path/safe-name.txt",
@@ -89,6 +89,7 @@ class File:
         cascade="delete, delete-orphan",
         lazy="joined",
         init=False,
+        compare=False,
     )
 
     def dictize(self, context: Any) -> dict[str, Any]:
