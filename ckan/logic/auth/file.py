@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, cast
 
 import ckan.plugins as p
 from ckan import authz, model, logic, types
-from ckan.common import config
-from ckan.types import AuthResult, Context
+from ckan.common import config, current_user
+from ckan.types import Context
 
 
 def _owner_allows(
@@ -29,11 +28,7 @@ def _owner_allows(
         func_name = f"{owner_type}_{operation}"
 
     try:
-        authz.is_authorized(
-            func_name,
-            logic.fresh_context(context),
-            {"id": owner_id},
-        )
+        authz.is_authorized(func_name, logic.fresh_context(context), {"id": owner_id})
 
     except (logic.NotAuthorized, ValueError):
         return False
@@ -52,7 +47,7 @@ def _file_allows(
         if result is not None:
             return result
 
-    owner = file.owner if file else None
+    owner = file.owner
 
     if not owner:
         return False
@@ -77,3 +72,22 @@ def _file_allows(
         return False
 
     return True
+
+
+def _get_user(context: Context) -> model.User | None:
+    if "auth_user_obj" in context:
+        return context["auth_user_obj"]
+
+    user = current_user if current_user.is_authenticated else None
+    username = context["user"]
+
+    if user and username == user.name:
+        return user
+
+    cache = utils.ContextCache(context)
+    return cache.get("user", username, lambda: model.User.get(username))
+
+
+def _get_file(context: Context, file_id: str) -> model.File | None:
+    cache = utils.ContextCache(context)
+    return cache.get_model("file", file_id, model.File)
