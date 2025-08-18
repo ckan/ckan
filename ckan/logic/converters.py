@@ -268,3 +268,22 @@ def parse_filesize(value: str | int):
     except ValueError as err:
         msg = f"Wrong filesize string: {value}"
         raise df.Invalid(msg) from err
+
+
+def files_cascade_options(value: Any) -> dict[str, set[str]]:
+    """Parse cascade rules for files."""
+    if isinstance(value, str):
+        value = value.split()
+
+    if isinstance(value, list):
+        cascade: dict[str, set[str]] = {}
+        for item in value:
+            type, *rest = item.split(":", 1)
+            cascade.setdefault(type, set()).update(rest)
+        value = cascade
+
+    if isinstance(value, dict):
+        return value
+
+    msg = f"Wrong cascade rules: {value}"
+    raise df.Invalid(msg)

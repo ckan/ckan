@@ -11,6 +11,7 @@ from typing import (
     Optional,
     Union,
     Generic,
+    Literal,
 )
 
 from typing_extensions import Protocol, TypeAlias, TypedDict, TypeVar
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
     import ckan.model as model
     from ckan.tests.helpers import CKANTestApp
     from ckanext.activity.model import Activity
-
+    from file_keeper.core.types import LocationTransformer
 
 __all__ = [
     "Response", "Request",
@@ -45,6 +46,7 @@ __all__ = [
     "AuthResult",
     "Action", "ChainedAction", "AuthFunction", "ChainedAuthFunction",
     "PFeed", "PFeedFactory", "PResourceUploader", "PUploader",
+    "LocationTransformer", "FileOperation", "FileOwnerOperation",
 ]
 
 AlchemySession = ScopedSession[Any]
@@ -284,3 +286,9 @@ FixtureResetDb = Callable[[], None]
 FixtureResetQueues = Callable[[], None]
 FixtureResetIndex = Callable[[], None]
 FixtureTestRequestContext = Callable[..., RequestContext]
+
+FileOperation = Literal["show", "update", "delete"]
+"""Operation performed on file."""
+
+FileOwnerOperation = Literal["show", "update", "delete", "file_transfer", "file_scan"]
+"""Operation performed on file owner."""
