@@ -4,19 +4,25 @@ from datetime import datetime, timezone
 from ckan.model.types import make_uuid
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from ckan.lib.dictization import table_dictize
 from ckan.types import Context
+from typing_extensions import Annotated
 
-from .base import BaseModel
+from .meta import registry
 
 
 def now():
     return datetime.now(timezone.utc)
 
 
-class Owner(BaseModel):
+datetime_tz = Annotated[datetime, mapped_column(sa.DateTime(timezone=True))]
+text = Annotated[str, mapped_column(sa.TEXT)]
+
+
+@registry.mapped_as_dataclass
+class Owner:
     """Model with details about current owner of an item.
 
     Keyword Args:
@@ -37,32 +43,29 @@ class Owner(BaseModel):
         ```
     """
 
-    __table__ = sa.Table(
-        "owner",
-        BaseModel.metadata,
-        sa.Column("item_id", sa.Text, primary_key=True),
-        sa.Column("item_type", sa.Text, primary_key=True),
-        sa.Column("owner_id", sa.Text, nullable=False),
-        sa.Column("owner_type", sa.Text, nullable=False),
-        sa.Column("pinned", sa.Boolean, default=False, nullable=False),
+    __tablename__ = "owner"
+
+    __table_args__ = (
         sa.Index("idx_owner_owner", "owner_type", "owner_id", unique=False),
     )
 
-    item_id: Mapped[str]
-    item_type: Mapped[str]
-    owner_id: Mapped[str]
-    owner_type: Mapped[str]
-    pinned: Mapped[bool]
+    item_id: Mapped[text] = mapped_column(primary_key=True)
+    item_type: Mapped[text] = mapped_column(primary_key=True)
+    owner_id: Mapped[text]
+    owner_type: Mapped[text]
 
-    history: Mapped[OwnerTransferHistory] = relationship(
-        cascade="delete, delete-orphan",
+    pinned: Mapped[bool] = mapped_column(default=False)
+
+    history: Mapped[list[OwnerTransferHistory]] = relationship(
+        cascade="delete, delete-orphan", init=False
     )
 
     def dictize(self, context: Context):
         return table_dictize(self, context)
 
 
-class OwnerTransferHistory(BaseModel):
+@registry.mapped_as_dataclass
+class OwnerTransferHistory:
     """Model for tracking ownership history of the file.
 
     Keyword Args:
@@ -84,22 +87,9 @@ class OwnerTransferHistory(BaseModel):
         ```
     """
 
-    __table__ = sa.Table(
-        "owner_transfer_history",
-        BaseModel.metadata,
-        sa.Column("id", sa.Text, primary_key=True, default=make_uuid),
-        sa.Column("item_id", sa.Text, nullable=False),
-        sa.Column("item_type", sa.Text, nullable=False),
-        sa.Column("owner_id", sa.Text, nullable=False),
-        sa.Column("owner_type", sa.Text, nullable=False),
-        sa.Column(
-            "at",
-            sa.DateTime(timezone=True),
-            default=now,
-            nullable=False,
-        ),
-        sa.Column("action", sa.Text, nullable=False, default="transfer"),
-        sa.Column("actor", sa.Text, nullable=False),
+    __tablename__ = "owner_transfer_history"
+
+    __table_args__ = (
         sa.Index("idx_owner_transfer_item", "item_id", "item_type", unique=False),
         sa.ForeignKeyConstraint(
             ["item_id", "item_type"],
@@ -107,28 +97,28 @@ class OwnerTransferHistory(BaseModel):
         ),
     )
 
-    id: Mapped[str]
-    item_id: Mapped[str]
-    item_type: Mapped[str]
-    owner_id: Mapped[str]
-    owner_type: Mapped[str]
-    at: Mapped[datetime]
-    action: Mapped[str]
-    actor: Mapped[str]
+    item_id: Mapped[text]
+    item_type: Mapped[text]
+    owner_id: Mapped[text]
+    owner_type: Mapped[text]
 
-    current_owner: Mapped[Owner] = relationship(
-        back_populates="history",
-        foreign_keys=[__table__.c.item_id, __table__.c.item_type],
-    )
+    actor: Mapped[text]
+
+    current_owner: Mapped[Owner] = relationship(back_populates="history", init=False)
+
+    id: Mapped[text] = mapped_column(primary_key=True, default_factory=make_uuid)
+    at: Mapped[datetime_tz] = mapped_column(default=None, insert_default=sa.func.now())
+    action: Mapped[text] = mapped_column(default="transfer")
 
     def dictize(self, context: Context):
         return table_dictize(self, context)
 
     @classmethod
-    def from_owner(cls, owner: Owner):
+    def from_owner(cls, owner: Owner, actor: str = ""):
         return cls(
             item_id=owner.item_id,
             item_type=owner.item_type,
             owner_id=owner.owner_id,
             owner_type=owner.owner_type,
+            actor=actor,
         )

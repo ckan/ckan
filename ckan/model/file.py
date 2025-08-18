@@ -3,25 +3,34 @@ from __future__ import annotations
 import copy
 from datetime import datetime, timezone
 from typing import Any, Literal
-
+from typing_extensions import Annotated
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, foreign, relationship
+from sqlalchemy.orm import (
+    Mapped,
+    foreign,
+    relationship,
+    mapped_column,
+)
 
 from ckan.lib.dictization import table_dictize
 from ckan.model.types import make_uuid
 
-from .base import BaseModel
+from .meta import registry
 from .owner import Owner
-
-foreign: Any
 
 
 def now():
     return datetime.now(timezone.utc)
 
 
-class File(BaseModel):
+datetime_tz = Annotated[datetime, mapped_column(sa.DateTime(timezone=True))]
+text = Annotated[str, mapped_column(sa.TEXT)]
+bigint = Annotated[int, mapped_column(sa.BigInteger)]
+
+
+@registry.mapped_as_dataclass
+class File:
     """Model with file details.
 
     Keyword Args:
@@ -50,96 +59,46 @@ class File(BaseModel):
         ```
     """
 
-    __table__ = sa.Table(
-        "file",
-        BaseModel.metadata,
-        sa.Column("id", sa.UnicodeText, primary_key=True, default=make_uuid),
-        sa.Column("name", sa.UnicodeText, nullable=False),
-        sa.Column("location", sa.Text, nullable=False),
-        sa.Column(
-            "content_type",
-            sa.Text,
-            nullable=False,
-            default="application/octet-stream",
-        ),
-        sa.Column("size", sa.BigInteger, nullable=False, default=0),
-        sa.Column("hash", sa.Text, nullable=False, default=""),
-        sa.Column("storage", sa.Text, nullable=False),
-        sa.Column(
-            "ctime",
-            sa.DateTime(timezone=True),
-            nullable=False,
-            default=now,
-            server_default=sa.func.now(),
-        ),
-        sa.Column("mtime", sa.DateTime(timezone=True)),
-        sa.Column("atime", sa.DateTime(timezone=True)),
-        sa.Column(
-            "storage_data",
-            JSONB,
-            default=dict,
-            nullable=False,
-            server_default="{}",
-        ),
-        sa.Column(
-            "plugin_data",
-            JSONB,
-            default=dict,
-            nullable=False,
-            server_default="{}",
-        ),
+    __tablename__ = "file"
+
+    name: Mapped[text]
+    location: Mapped[text]
+    storage: Mapped[text]
+
+    content_type: Mapped[text] = mapped_column(default="application/octet-stream")
+    size: Mapped[bigint] = mapped_column(default=0)
+    hash: Mapped[text] = mapped_column(default="")
+
+    ctime: Mapped[datetime_tz] = mapped_column(
+        default=None, insert_default=sa.func.now()
     )
+    mtime: Mapped[datetime_tz | None] = mapped_column(default=None)
+    atime: Mapped[datetime_tz | None] = mapped_column(default=None)
 
-    id: Mapped[str]
+    storage_data: Mapped[dict[str, Any]] = mapped_column(JSONB, default_factory=dict)
+    plugin_data: Mapped[dict[str, Any]] = mapped_column(JSONB, default_factory=dict)
 
-    name: Mapped[str]
-    location: Mapped[str]
-    content_type: Mapped[str]
-    size: Mapped[int]
-    hash: Mapped[str]
+    id: Mapped[text] = mapped_column(primary_key=True, default_factory=make_uuid)
 
-    storage: Mapped[str]
-
-    ctime: Mapped[datetime]
-    mtime: Mapped[datetime | None]
-    atime: Mapped[datetime | None]
-
-    storage_data: Mapped[dict[str, Any]]
-    plugin_data: Mapped[dict[str, Any]]
-
-    owner_info: Mapped[Owner | None] = relationship(
+    owner: Mapped[Owner | None] = relationship(
         primaryjoin=sa.and_(
-            Owner.item_id == foreign(__table__.c.id),
+            Owner.item_id == foreign(id),
             Owner.item_type == "file",
         ),
         single_parent=True,
-        uselist=False,
         cascade="delete, delete-orphan",
         lazy="joined",
+        init=False,
     )
-
-    @property
-    def owner(self) -> Any | None:
-        owner = self.owner_info
-        if not owner:
-            return None
-
-        raise NotImplementedError
-        # return utils.get_owner(owner.owner_type, owner.owner_id)
-
-    def __init__(self, **kwargs: Any):
-        super().__init__(**kwargs)
-        if not self.id:
-            self.id = make_uuid()
 
     def dictize(self, context: Any) -> dict[str, Any]:
         result = table_dictize(self, context)
         result["storage_data"] = copy.deepcopy(result["storage_data"])
 
-        if self.owner_info:
-            result["owner_type"] = self.owner_info.owner_type
-            result["owner_id"] = self.owner_info.owner_id
-            result["pinned"] = self.owner_info.pinned
+        if self.owner:
+            result["owner_type"] = self.owner.owner_type
+            result["owner_id"] = self.owner.owner_id
+            result["pinned"] = self.owner.pinned
 
         else:
             result["owner_type"] = None

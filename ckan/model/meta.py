@@ -29,6 +29,11 @@ create_local_session = orm.sessionmaker(
 )
 
 
+def _is_domain_object(v: Any):
+    from ckan.model.domain_object import DomainObject
+    return isinstance(v, DomainObject)
+
+
 @event.listens_for(create_local_session, 'before_flush')
 @event.listens_for(Session, 'before_flush')
 def ckan_before_flush(session: Any, flush_context: Any, instances: Any):
@@ -42,11 +47,16 @@ def ckan_before_flush(session: Any, flush_context: Any, instances: Any):
                                 'deleted': set(),
                                 'changed': set()}
 
-    changed = [obj for obj in session.dirty if
-        session.is_modified(obj, include_collections=False)]
+    changed = [
+        obj for obj in session.dirty
+        if _is_domain_object(obj)
+        and session.is_modified(obj, include_collections=False)
+    ]
 
-    session._object_cache['new'].update(session.new)
-    session._object_cache['deleted'].update(session.deleted)
+    session._object_cache['new'].update(filter(_is_domain_object, session.new))
+    session._object_cache['deleted'].update(
+        filter(_is_domain_object, session.deleted)
+    )
     session._object_cache['changed'].update(changed)
 
 

@@ -16,6 +16,7 @@ class TestFile:
             storage="default",
             location=faker.file_name(),
         )
+
         owner = model.Owner(
             item_id=file.id,
             item_type="file",
@@ -25,8 +26,8 @@ class TestFile:
 
         model.Session.add_all([file, owner])
         model.Session.commit()
-        assert file.owner_info is owner
-        assert isinstance(file.owner, model.User)
+
+        assert file.owner is owner
 
         model.Session.delete(owner)
         model.Session.commit()
@@ -43,7 +44,7 @@ class TestFile:
         model.Session.commit()
         model.Session.refresh(file)
 
-        assert file.owner_info is owner
+        assert file.owner is owner
 
         model.Session.delete(file)
         model.Session.commit()
