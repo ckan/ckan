@@ -301,6 +301,9 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
 
     extra_vars["facet_titles"] = facets
 
+    # Sanitize the query by removing double quotes (if any) to avoid solr issues
+    q = q.replace('"', '') if '"' in q else q
+
     data_dict: dict[str, Any] = {
         u'q': q,
         u'fq': fq,
