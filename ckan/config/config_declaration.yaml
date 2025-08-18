@@ -1426,16 +1426,16 @@ groups:
             listing all files of the owner. When this flag is disabled
             ``<OWNER_TYPE>_file_scan`` auth function is used.
 
-      # - key: ckan.files.authenticated_uploads.allow
-      #   type: bool
-      #   description: |
-      #       Any authenticated user can upload files.
+      - key: ckan.files.authenticated_uploads.allow
+        type: bool
+        description: |
+            Any authenticated user can upload files.
 
-      # - key: ckan.files.authenticated_uploads.storages
-      #   type: list
-      #   description: |
-      #       Names of storages that can by used by non-sysadmin users when
-      #       authenticated uploads enabled
+      - key: ckan.files.authenticated_uploads.storages
+        type: list
+        description: |
+            Names of storages that can by used by any authenticated user when
+            authenticated uploads are enabled.
 
 
   - annotation: Uploader Settings

@@ -290,5 +290,5 @@ FixtureTestRequestContext = Callable[..., RequestContext]
 FileOperation = Literal["show", "update", "delete"]
 """Operation performed on file."""
 
-FileOwnerOperation = Literal["show", "update", "delete", "file_transfer", "file_scan"]
+FileOwnerOperation = Literal["file_transfer", "file_scan"]
 """Operation performed on file owner."""
