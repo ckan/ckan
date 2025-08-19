@@ -311,7 +311,7 @@ Solr requests and errors are logged in the web server log files.
 
 * For Tomcat servers, they're::
 
-    /var/log/tomcat6/catalina.<date>.log
+    /var/lib/tomcat9/logs/catalina.<date>.log
 
 AttributeError: 'module' object has no attribute 'css/main.debug.css'
 ---------------------------------------------------------------------
