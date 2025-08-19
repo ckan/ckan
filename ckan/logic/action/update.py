@@ -56,7 +56,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     For further parameters see
     :py:func:`~ckan.logic.action.create.resource_create`.
 
-    :param id: the id of the resource to update
+    :param id: the id or name of the resource to update
     :type id: string
 
     :returns: the updated resource
@@ -145,7 +145,7 @@ def resource_view_update(
 
     For further parameters see ``resource_view_create()``.
 
-    :param id: the id of the resource_view to update
+    :param id: the id or name of the resource_view to update
     :type id: string
 
     :returns: the updated resource_view
@@ -190,7 +190,7 @@ def resource_view_reorder(
         context: Context, data_dict: DataDict) -> ActionResult.ResourceViewReorder:
     '''Reorder resource views.
 
-    :param id: the id of the resource
+    :param id: the id or name of the resource
     :type id: string
     :param order: the list of id of the resource to update the order of the views
     :type order: list of strings
