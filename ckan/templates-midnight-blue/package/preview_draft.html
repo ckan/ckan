@@ -1,0 +1,97 @@
+{% extends "package/base_form_page.html" %}
+{% import 'macros/form.html' as form %}
+{% set logged_in = true if c.userobj else false %}
+
+{% block subtitle %}{{ _('Add data to the dataset') }}{% endblock %}
+
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+{% set action = form_action or h.url_for(dataset_type ~ '.preview', id=pkg_name) %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+{% block breadcrumb_content %}
+  {{ super() }}
+  {% if pkg %}
+    <li class="active"><a href="#">{{ _('Preview') }}</a></li>
+  {% endif %}
+{% endblock %}
+
+{% block form %}
+<form id="resource-edit" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
+    {{ h.csrf_input() }}
+   
+
+    <div class="package-metadata-field rounded-10 container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10">
+
+              {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+
+              <input name="id" value="{{ data.id }}" type="hidden"/>
+              <div class="preview-text">
+                <span class="label">Name</span>
+                <h2 class="value">{{pkg_dict.title}}</h2>
+              </div>
+
+              {% if pkg_dict.description %}
+              <div class="preview-text">
+                <span class="label">Description</span>
+                <h2 class="value">{{pkg_dict.description}}</h2>
+              </div>
+              {% endif %}
+
+              {% if pkg_dict.get("resources") %}
+
+              <h1>Resources:</h1>
+                {% for resource in pkg_dict.resources %}
+                  <div class="preview-text">
+                    <span class="label">Resource</span>
+                    <h2 class="value">{{resource.get("name")}}</h2>
+                  </div>
+                  
+                  {% if resource.get("format") %}
+                    <div class="preview-text">
+                      <span class="label">Format</span>
+                      <h2 class="value">{{resource.get("format")}}</h2>
+                    </div>
+                  {% endif %}
+
+                  {% if resource.get("url") %}
+                    <div class="preview-text">
+                      <span class="label">Url</span>
+                      <h2 class="value">{{resource.get("url")}}</h2>
+                    </div>
+                  {% endif %}
+
+                {% endfor %}
+              {% endif %}
+
+        
+
+
+              
+
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        
+        {% if stage %}
+          {% block previous_button %}
+            <button class="btn btn-secondary" name="save" value="go-resources" type="submit">{{ _('Previous') }}</button>
+          {% endblock %}
+        {% endif %}
+        {% block again_button %}
+          <button class="btn btn-secondary" name="save" value="save-draft" type="submit">{{ _('Save to drafts') }}</button>
+        {% endblock %}
+        {% if stage %}
+          {% block save_button %}
+            <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{% block save_button_text %}{{ _('Submit Data') }}{% endblock %}</button>
+          {% endblock %}
+        {% endif %}
+    </div>
+</form>
+{% endblock %}
+
+

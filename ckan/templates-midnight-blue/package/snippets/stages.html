@@ -1,0 +1,57 @@
+{#
+Inserts a stepped progress indicator for the new package form. Each stage can
+have one of three states, "uncomplete", "complete" and "active".
+
+stages - A list of states for each of the three stages. Missing stages default
+         to "uncomplete".
+
+Example:
+
+    {% snippet 'package/snippets/stages.html', stages=['active'] %}
+    {% snippet 'package/snippets/stages.html', stages=['complete', 'active'] %}
+    {% snippet 'package/snippets/stages.html', stages=['active', 'complete'] %}
+
+#}
+{% set s1 = stages[0] or 'active' %}
+{% set s2 = stages[1] or 'uncomplete' %}
+{% set dataset_type = dataset_type or h.default_package_type() %}
+
+{% macro render_step(step_count, description, is_complete) %}
+  <div class="row">
+    <span class="step">Step {{ step_count }}</span>
+    <span class="step-name">{{ description }}</span>
+  </div>
+  {% if is_complete == 'complete' %}
+  <div class="icon-stage">
+    <i class="fa fa-check-circle" aria-hidden="true"></i>
+  </div>
+  {% endif %}
+{% endmacro %}
+
+{% if s1 != 'uncomplete' %}{% set class = 'stage-1' %}{% endif %}
+{% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
+<ol class="stages">
+  <li class="first {{ s1 }}">
+    {% if s1 != 'complete' %}
+      <div class="stage-nohighlight">
+        {{ render_step(1, h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), s1) }}
+      </div>
+    {% else %}
+    <button class="stage-nohighlight" name="save" value="go-dataset" type="submit" {% if form_id %}form="{{ form_id }}"{% endif %}>
+      {{ render_step(1, h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), s1) }}
+    </button>
+    {% endif %}
+  </li>
+  <li class="last {{ s2 }}">
+    {% if s2 != 'complete' %}
+      <div class="stage-nohighlight">
+        {{ render_step(2, _('Add data'), s2) }}
+      </div>
+    {% else %}
+    <button class="stage-nohighlight" name="save" value="go-resources" type="submit" {% if form_id %}form="{{ form_id }}"{% endif %}>
+      {{ render_step(2, _('Add data'), s2) }}
+    </button>
+    {% endif %}
+  </li>
+</ol>
+

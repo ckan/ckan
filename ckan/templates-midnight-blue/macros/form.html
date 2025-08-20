@@ -1,0 +1,36 @@
+{#
+All macros were split into their own template file in `templates/macros/form/`)
+and here, we are importing them all to maintain backward compatibility.
+#}
+
+{% from 'macros/form/input.html' import input %}
+{% from "macros/form/input_block.html" import input_block %}
+{% from 'macros/form/checkbox.html' import checkbox %}
+{% from 'macros/form/select.html' import select %}
+{% from "macros/form/attributes.html" import attributes %}
+{% from "macros/form/markdown.html" import markdown %}
+{% from "macros/form/textarea.html" import textarea %}s
+{% from "macros/form/prepend.html" import prepend %}
+{% from "macros/form/custom.html" import custom %}
+{% from "macros/form/errors.html" import errors %}
+{% from "macros/form/info.html" import info %}
+{% from "macros/form/hidden.html" import hidden %}
+{% from "macros/form/hidden_from_list.html" import hidden_from_list %}
+{% from "macros/form/required_message.html" import required_message %}
+{% from "macros/form/image_upload.html" import image_upload %}
+
+{% set input = input %}
+{% set input_block = input_block %}
+{% set checkbox = checkbox %}
+{% set select = select %}
+{% set attributes = attributes %}
+{% set markdown = markdown %}
+{% set textarea = textarea %}
+{% set prepend = prepend %}
+{% set custom = custom %}
+{% set errors = errors %}
+{% set info = info %}
+{% set hidden = hidden %}
+{% set hidden_from_list = hidden_from_list %}
+{% set required_message = required_message %}
+{% set image_upload = image_upload %}

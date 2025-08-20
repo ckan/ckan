@@ -82,7 +82,7 @@ groups:
 
       To get the list of all the available properties check the `SQLAlchemy documentation`_
 
-      .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+      .. _SQLAlchemy documentation: https://docs.sqlalchemy.org/en/20/core/engines.html#engine-creation-api
 
   - default: english
     key: ckan.datastore.default_fts_lang
@@ -99,3 +99,21 @@ groups:
       The default method used when creating full-text search indexes. Currently it
       can be "gin" or "gist". Refer to PostgreSQL's documentation to understand the
       characteristics of each one and pick the best for your instance.
+
+  - default: 'true'
+    key: ckan.datastore.ms_in_timestamp
+    type: bool
+    description: |
+      The default return milliseconds to column with timestamp type's. To use old behavior set to 'false'
+
+  - key: ckan.datastore.default_fts_index_field_types
+    type: list
+    default: ''
+    example: text tsvector
+    description: >
+      A separate full-text search index will be created by default for fields
+      with these types, and used when searching on fields by passing a
+      dictionary to the datastore_search q parameter.
+
+      Indexes increase the time and disk space required to load data
+      into the DataStore.

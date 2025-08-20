@@ -1,1 +1,0 @@
-Add ``--quiet`` option to ``ckan user token add`` command to mak easier to integrate with automated scripts

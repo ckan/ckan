@@ -17,6 +17,12 @@ class ExampleIDatasetFormPlugin(tk.DefaultDatasetForm, p.SingletonPlugin):
             u'custom_text': [tk.get_validator(u'ignore_missing'),
                              tk.get_converter(u'convert_to_extras')]
         })
+        schema.update({
+            u'custom_number': [tk.get_validator(u'ignore_missing'),
+                               tk.get_converter(u'convert_to_extras'),
+                               tk.get_validator('int_validator')]
+        })
+
         return schema
 
     def update_package_schema(self) -> Schema:
@@ -27,6 +33,11 @@ class ExampleIDatasetFormPlugin(tk.DefaultDatasetForm, p.SingletonPlugin):
             u'custom_text': [tk.get_validator(u'ignore_missing'),
                              tk.get_converter(u'convert_to_extras')]
         })
+        schema.update({
+            u'custom_number': [tk.get_validator(u'ignore_missing'),
+                               tk.get_converter(u'convert_to_extras')]
+        })
+
         return schema
 
     def show_package_schema(self) -> Schema:
@@ -37,6 +48,10 @@ class ExampleIDatasetFormPlugin(tk.DefaultDatasetForm, p.SingletonPlugin):
                              tk.get_validator(u'ignore_missing')],
             u'custom_text_2': [tk.get_converter(u'convert_from_extras'),
                                tk.get_validator(u'ignore_missing')],
+            u'custom_number': [tk.get_converter(u'convert_from_extras'),
+                               tk.get_validator(u'ignore_missing'),
+                               tk.get_validator('int_validator')],
+
         })
         return schema
 

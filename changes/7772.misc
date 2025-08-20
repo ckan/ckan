@@ -1,7 +1,0 @@
-Tracking feature has been moved to its own core extension. Therefore, `ckan.tracking_enabled`
-configuration option should be changed to adding `tracking` to CKAN's plugins list.
-
-`g.tracking_enabled` attribute no longer exist.
-
-`tracking_summary` info will be returned if the extension is enabled. `include_tracking`
-parameter is no longer required.

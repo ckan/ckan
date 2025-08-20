@@ -1,1 +1,0 @@
-Aligned `member_create` with `group_member_save` to prevent possible member duplication.

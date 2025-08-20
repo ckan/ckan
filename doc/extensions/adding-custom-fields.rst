@@ -14,15 +14,22 @@ restrict the possible values to a defined list. By using CKAN's IDatasetForm
 plugin interface, a CKAN plugin can add custom, first-class metadata fields to
 CKAN datasets, and can do custom validation of these fields.
 
+.. warning::
+
+   In most cases users should use `ckanext-scheming <https://github.com/ckan/ckanext-scheming>`_
+   rather than the low level interfaces described in this tutorial. The ckanext-scheming
+   extension allows:
+
+      * Metadata schema configuration using a YAML or JSON schema description
+      * Automatic conversion of custom fields to the internal representation used by CKAN
+      * Automatic use of relevant template snippets according to the field type for editing and display
+      * Use of may pre-configured presets for multiple choice fields, dates, repeating subfields, etc.
+
 .. seealso::
 
    In this tutorial we are assuming that you have read the
    :doc:`/extensions/tutorial`.
 
-   You may also want to check the [ckanext-scheming](https://github.com/ckan/ckanext-scheming) 
-   extension, as it will allow metadata schema configuration using a YAML or JSON 
-   schema description, replete with custom validation and template snippets for 
-   editing and display.
 
 CKAN schemas and validation
 ---------------------------

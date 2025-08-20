@@ -1,0 +1,13 @@
+{% extends "group/edit_base.html" %}
+
+
+{% block primary_content_inner %}
+  <h1 class="{% block page_heading_class %}page-heading{% endblock %}">
+    {% block page_heading %}
+      {{ h.humanize_entity_type('group', group_type, 'form label') or _('Group Form'), }}
+    {% endblock %}
+  </h1>
+  {% block form %}
+    {{ form | safe }}
+  {% endblock %}
+{% endblock %}

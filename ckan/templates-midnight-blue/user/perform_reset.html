@@ -1,0 +1,36 @@
+{% extends "user/login.html" %}
+{% import "macros/form.html" as form %}
+
+{% block subtitle %}{{ _('Reset Your Password') }}{% endblock %}
+{% block page_heading %}{{ _('Reset Your Password') }}{% endblock %}
+{% block breadcrumb_content %}
+  <li class="active">{{ _('Password Reset') }}</li>
+{% endblock %}
+
+{% block form %}
+  <form action="" method="post">
+    {{ h.csrf_input() }} 
+    {{ form.errors(error_summary) }}
+    {% if user_dict['state'] == 'pending' %}
+      <p>{{ _('You can also change username. It can not be modified later.') }}</p>
+      {{ form.input("name", id="field-name", icon='user', label=_("Username"), type="text", value=user_dict["name"],
+          error='', attrs={'autocomplete': 'no', 'class': 'form-control control-medium'}, classes=["form-group"]) }}
+    {% endif %}
+    {{ form.input("password1", id="field-password", label=_("Password"), icon='fingerprint', type="password", value='', error='', attrs={'autocomplete': 'no', 'class': 'form-control control-medium'}, classes=["form-group"]) }}
+    {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), icon='fingerprint', type="password", value='', error='', attrs={'autocomplete': 'no', 'class': 'form-control control-medium'}, classes=["form-group"]) }}
+    <div class="form-actions">
+      {% block form_button %}
+        <button class="btn btn-primary" type="submit" name="save">{{ _("Update Password") }}</button>
+      {% endblock form_button %}
+    </div>
+  </form>
+{% endblock form %}
+
+{% block primary_content_inner %}
+  {% block help %}
+    {% block help_inner %}
+      <h2 class="h5">{{ _('How does this work?') }}</h2>
+      <p>{% trans %}Simply enter a new password and we'll update your account{% endtrans %}</p>
+    {% endblock help_inner %}
+  {% endblock help %}
+{% endblock primary_content_inner %}

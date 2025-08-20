@@ -1,0 +1,33 @@
+name: Create GitHub release
+
+# Create a GitHub release when a tag is pushed
+on:
+  push:
+    tags:
+      - 'ckan-**'
+
+jobs:
+  build:
+    name: Create GitHub release
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build Changelog URL and create release
+      run: |
+        TAG_NAME=${{ github.ref_name }}
+        CKAN_VERSION=$(echo $TAG_NAME | sed -s 's/ckan-//')
+        MAJOR=$(echo $CKAN_VERSION | cut -d'.' -f1)
+        MINOR=$(echo $CKAN_VERSION | cut -d'.' -f2)
+        PATCH=$(echo $CKAN_VERSION | cut -d'.' -f3)
+
+        DATE=$(git log -1 --format=%ad --date=format:'%Y-%m-%d' $TAG_NAME)
+
+        URL="https://docs.ckan.org/en/$MAJOR.$MINOR/changelog.html#v-$MAJOR-$MINOR-$PATCH-$DATE"
+
+        NOTES="Full changelog here: $URL"
+
+        gh release create "$TAG_NAME" --verify-tag --title "$TAG_NAME" --notes "$NOTES"

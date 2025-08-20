@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import sys
 import time
+import importlib
 import inspect
 import pkgutil
 import logging
@@ -13,7 +14,9 @@ from typing import Any, Optional, Union, cast
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
+from flask.json.tag import TaggedJSONSerializer
 from flask_session import Session
+from flask_session.base import Serializer as FlaskSessionSerializer
 
 from werkzeug.exceptions import (
     default_exceptions,
@@ -32,7 +35,6 @@ import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
-from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
@@ -62,30 +64,55 @@ log = logging.getLogger(__name__)
 
 csrf = CSRFProtect()
 
-csrf_warn_extensions = (
-        "Extensions are excluded from CSRF protection! "
-        "We allow extensions to run without CSRF protection "
-        "but it will be forced future releases. "
-        "Read the documentation for more information on how to add "
-        "CSRF protection to your extension."
-    )
+
+class CKANJsonSessionSerializer(TaggedJSONSerializer, FlaskSessionSerializer):
+    """Adapter of flask's serializer for flask-session.
+
+    This serializer is used instead of MsgPackSerializer from flask-session,
+    because the latter cannot handle Markup and raises an exception when flash
+    message with HTML added to session.
+    """
+    def encode(self, session: CKANSession) -> bytes:
+        """Serialize the session data."""
+        return self.dumps(session).encode()
+
+    def decode(self, serialized_data: bytes) -> Any:
+        """Deserialize the session data."""
+        try:
+            return self.loads(serialized_data.decode())
+        except UnicodeDecodeError:
+            log.info(
+                "Unable to decode session data, X-Forward-For/remote_addr: %s, "
+                "dropping: %s ",
+                request.headers.get('X-Forwarded-For',
+                                    request.remote_addr),
+                serialized_data)
 
 
 class CKANSession(Session):
     def _get_interface(self, app: CKANApp):
         """Initialize session interface.
+
         We use our own classes for these interfaces:
             * cookie: to support persistent sessions
             * redis: to be able use the value of ckan.redis.url
 
+        In addition, all flask-session backends(any backend other from
+        `cookie`) have their MsgPack serializer replaced with flask's
+        TaggedJSONSerializer to support storing Markup(flash messages) and
+        datetime object inside session.
         """
         session_type = app.config["SESSION_TYPE"]
         if session_type == "cookie":
             return CKANSecureCookieSessionInterface(app)
-        elif session_type == "redis":
-            return CKANRedisSessionInterface(app)
 
-        return super()._get_interface(app)
+        if session_type == "redis":
+            interface = CKANRedisSessionInterface(app)
+        else:
+            interface = super()._get_interface(app)
+
+        interface.serializer = CKANJsonSessionSerializer()  # type: ignore
+        return interface
 
 
 class I18nMiddleware(object):
@@ -111,7 +138,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Register storage for accessing group images, site logo, etc.
     storage_folder = []
-    storage = uploader.get_storage_path()
+    storage = config.get('ckan.storage_path')
     if storage:
         storage_folder = [os.path.join(storage, 'storage')]
 
@@ -222,11 +249,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     if not app.config.get(wtf_key):
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
+    app.config["WTF_CSRF_ENABLED"] = config.get("WTF_CSRF_ENABLED")
+    app.config["WTF_CSRF_TIME_LIMIT"] = config.get("WTF_CSRF_TIME_LIMIT")
     csrf.init_app(app)
-
-    if config.get("ckan.csrf_protection.ignore_extensions"):
-        log.warn(csrf_warn_extensions)
-        _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
@@ -239,9 +264,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         try:
             app = plugin.make_error_log_middleware(app, config)
         except AttributeError:
-            log.critical('Middleware class {0} is missing the method'
-                         'make_error_log_middleware.'
-                         .format(plugin.__class__.__name__))
+            log.critical('Middleware class %s is missing the method'
+                         'make_error_log_middleware.',
+                         plugin.__class__.__name__)
 
     # Initialize flask-login
     login_manager = LoginManager()
@@ -397,7 +422,7 @@ def ckan_after_request(response: Response) -> Response:
     url = request.environ['PATH_INFO']
     status_code = response.status_code
 
-    log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
+    log.info(' %s %s render time %.3f seconds', status_code, url, r_time)
 
     return response
 
@@ -437,20 +462,6 @@ def _register_plugins_blueprints(app: CKANApp):
             app.register_blueprint(plugin_blueprints)
 
 
-def _exempt_plugins_blueprints_from_csrf(csrf: CSRFProtect):
-    """Exempt plugins blueprints from CSRF protection.
-
-    This feature will be deprecated in future versions.
-    """
-    for plugin in PluginImplementations(IBlueprint):
-        plugin_blueprints = plugin.get_blueprint()
-        if isinstance(plugin_blueprints, list):
-            for blueprint in plugin_blueprints:
-                csrf.exempt(blueprint)
-        else:
-            csrf.exempt(plugin_blueprints)
-
-
 def _register_core_blueprints(app: CKANApp):
     u'''Register all blueprints defined in the `views` folder
     '''
@@ -461,10 +472,17 @@ def _register_core_blueprints(app: CKANApp):
 
     for loader, name, __ in pkgutil.iter_modules([path], 'ckan.views.'):
         # type_ignore_reason: incorrect external type declarations
-        module = loader.find_module(name).load_module(name)  # type: ignore
-        for blueprint in inspect.getmembers(module, is_blueprint):
-            app.register_blueprint(blueprint[1])
-            log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+        spec = loader.find_spec(name)   # type: ignore
+        if spec is not None:
+            module = importlib.util.module_from_spec(spec)  # type: ignore
+            sys.modules[name] = module
+            if spec.loader is not None:
+                spec.loader.exec_module(module)
+                for blueprint in inspect.getmembers(module, is_blueprint):
+                    app.register_blueprint(blueprint[1])
+                    log.debug(
+                        'Registered core blueprint: %r', blueprint[0]
+                    )
 
 
 def _register_error_handler(app: CKANApp):

@@ -1,0 +1,16 @@
+{% extends "group/read_base.html" %}
+
+{% block subtitle %}{{ _('About') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+  <h1>{% block page_heading %}{{ group_dict.display_name }}{% endblock %}</h1>
+  {% block group_description %}
+    {% if group_dict.description %}
+      {{ h.render_markdown(group_dict.description) }}
+  	{% endif %}
+  {% endblock %}
+
+  {% block group_extras %}
+    {% snippet 'snippets/additional_info.html', extras = h.sorted_extras(group_dict.extras) %}
+  {% endblock %}
+{% endblock %}

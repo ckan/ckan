@@ -11,11 +11,10 @@ from ckanext.activity.tests.conftest import ActivityFactory
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'stats activity')
-@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.freeze_time
 class TestStatsPlugin(object):
     @pytest.fixture(autouse=True)
-    def initial_data(self, clean_db, with_request_context, freezer):
+    def initial_data(self, with_plugins, clean_db, with_request_context, freezer):
         # week 1
         freezer.move_to('2011-1-5')
         user = factories.User(name="bob")
@@ -117,12 +116,19 @@ class TestStatsPlugin(object):
         tags = [(tag.name, count) for tag, count in tags]
         assert tags == [("tag1", 1)]
 
-    def test_top_package_creators(self):
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", True)
+    def test_top_package_creators_public_user(self):
         creators = Stats.top_package_creators()
         creators = [(creator.name, count) for creator, count in creators]
         # Only 2 shown because one of them was deleted and the other one is
         # private
         assert creators == [("bob", 2)]
+
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
+    def test_top_package_creators_non_public_user(self):
+        creators = Stats.top_package_creators()
+        # The data is not available since ckan.auth.public_user_details is False
+        assert creators == []
 
     def test_new_packages_by_week(self):
         new_packages_by_week = Stats.get_by_week('new_packages')
@@ -135,7 +141,7 @@ class TestStatsPlugin(object):
 
         def get_results(week_number):
             date, ids, num, cumulative = new_packages_by_week[week_number]
-            return (date, set([model.Session.query(model.Package).get(id).name
+            return (date, set([model.Session.get(model.Package, id).name
                                for id in ids]), num, cumulative)
 
         assert len(get_results(0)) == len(data1)
@@ -156,7 +162,7 @@ class TestStatsPlugin(object):
 
         def get_results(week_number):
             date, ids, num, cumulative = deleted_packages_by_week[week_number]
-            return (date, [model.Session.query(model.Package).get(id).name for
+            return (date, [model.Session.get(model.Package, id).name for
                            id in ids], num, cumulative)
         assert len(get_results(0)) == len(data1)
         assert all([a == b for a, b in zip(get_results(0), data1)])

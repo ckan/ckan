@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import (
     Any, Callable, IO, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Tuple, Union
+    TYPE_CHECKING, Tuple, Union, List
 )
 
 from flask.blueprints import Blueprint
@@ -123,18 +123,6 @@ class IDomainObjectModification(Interface):
     def notify(self, entity: Any, operation: str) -> None:
         u'''
         Send a notification on entity modification.
-
-        :param entity: instance of module.Package.
-        :param operation: 'new', 'changed' or 'deleted'.
-        '''
-        pass
-
-    def notify_after_commit(self, entity: Any, operation: Any) -> None:
-        u'''
-        ** DEPRECATED **
-
-        Supposed to send a notification after entity modification, but it
-        doesn't work.
 
         :param entity: instance of module.Package.
         :param operation: 'new', 'changed' or 'deleted'.
@@ -1206,6 +1194,18 @@ class IDatasetForm(Interface):
         '''
         return ''
 
+    def search_template_htmx(self, package_type: str) -> str:
+        '''
+        Return the path to the template to use in the dataset search page
+        for htmx responses.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/search_htmx.html'``.
+
+        :rtype: string
+        '''
+        return ''
+
     def history_template(self, package_type: str) -> str:
         u'''
         .. warning:: This template is removed. The function exists for
@@ -1317,16 +1317,29 @@ class IDatasetForm(Interface):
         '''
         return blueprint
 
+    def resource_validation_dependencies(
+            self, package_type: str) -> List[str]:
+        '''
+        Return a list of dataset field names that affect validation of
+        resource fields.
+
+        package_update and related actions skip re-validating unchanged
+        resources unless one of the resource validation dependencies
+        fields returned here has changed.
+        '''
+        return []
+
 
 class IGroupForm(Interface):
     u'''
     Allows customisation of the group form and its underlying schema.
 
-    The behaviour of the plugin is determined by 5 method hooks:
+    The behaviour of the plugin is determined by these method hooks:
 
      - group_form(self)
-     - form_to_db_schema(self)
-     - db_to_form_schema(self)
+     - create_group_schema(self)
+     - update_group_schema(self)
+     - show_group_schema(self)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -1465,6 +1478,13 @@ class IGroupForm(Interface):
         '''
         return ''
 
+    def read_template_htmx(self, group_type: str) -> str:
+        u'''
+        Returns a string representing the location of the template to be
+        rendered for the read htmx page
+        '''
+        return ''
+
     def history_template(self, group_type: str) -> str:
         u'''
         Returns a string representing the location of the template to be
@@ -1486,20 +1506,6 @@ class IGroupForm(Interface):
         '''
         return ''
 
-    def form_to_db_schema(self) -> Schema:
-        u'''
-        Returns the schema for mapping group data from a form to a format
-        suitable for the database.
-        '''
-        return {}
-
-    def db_to_form_schema(self) -> Schema:
-        u'''
-        Returns the schema for mapping group data from the database into a
-        format suitable for the form (optional)
-        '''
-        return {}
-
     def setup_template_variables(self, context: Context,
                                  data_dict: DataDict) -> None:
         u'''
@@ -1517,7 +1523,8 @@ class IGroupForm(Interface):
 
         This is an adavanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
-        ``form_to_db_schema()`` and ``db_to_form_schema()``
+        ``create_group_schema()``, ``update_group_schema()`` or
+        ``show_group_schema()``.
         If you need to have a different
         schema depending on the user or value of any field stored in the
         group, or if you wish to use a different method for validation, then
@@ -1527,8 +1534,8 @@ class IGroupForm(Interface):
         :type context: dictionary
         :param data_dict: the group to be validated
         :type data_dict: dictionary
-        :param schema: a schema, typically from ``form_to_db_schema()``,
-          or ``db_to_form_schema()``
+        :param schema: a schema, typically from ``create_group_schema()``,
+          ``update_group_schema()`` or ``show_group_schema()``
         :type schema: dictionary
         :param action: ``'group_show'``, ``'group_create'``,
           ``'group_update'``, ``'organization_show'``,
@@ -1759,13 +1766,16 @@ class IAuthenticator(Interface):
         return (status_code, detail, headers, comment)
 
     def authenticate(
-        self, identity: 'Mapping[str, Any]'
-    ) -> model.User | None:
+        self, identity: dict[str, Any]
+    ) -> model.User | model.AnonymousUser | None:
         """Called before the authentication starts
         (that is after clicking the login button)
 
-        Plugins should return a user object if the authentication was
-        successful, or ``None``` otherwise.
+        Plugins should return:
+
+        * `model.User` object if the authentication was successful
+        * `model.AnonymousUser` object if the authentication failed
+        * `None` to try authentication with different implementations.
         """
 
 

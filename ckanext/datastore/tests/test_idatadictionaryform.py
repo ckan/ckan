@@ -228,8 +228,7 @@ def test_validators_access_current_values():
 
 
 def _create_datastore_resource(fields):
-    dataset = factories.Dataset()
-    resource = factories.Resource(package=dataset)
+    resource = factories.Resource()
 
     data = {"resource_id": resource["id"], "force": True, "fields": fields}
 

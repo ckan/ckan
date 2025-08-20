@@ -222,6 +222,8 @@ def datastore_function_create_schema() -> Schema:
         'arguments': {
             'argname': [unicode_only, not_empty],
             'argtype': [unicode_only, not_empty],
+            'argmode': [ignore_missing, unicode_only, one_of([
+                'in', 'out', 'inout'])],
         },
         'rettype': [default(u'void'), unicode_only],
         'definition': [unicode_only],
@@ -238,4 +240,14 @@ def datastore_function_delete_schema() -> Schema:
 def datastore_analyze_schema() -> Schema:
     return {
         'resource_id': [unicode_safe, resource_id_exists],
+    }
+
+
+def datastore_info_schema() -> Schema:
+    return {
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'id': [ignore_missing],
+        'include_meta': [default(True), boolean_validator],
+        'include_fields_schema': [default(True), boolean_validator],
+        '__before': [rename('id', 'resource_id')]
     }

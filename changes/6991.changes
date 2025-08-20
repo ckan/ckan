@@ -1,2 +1,0 @@
-anonymous users are no longer redirected to the login page when 403/401 happens, instead, 
-we are showing the error page with a link to the login page.

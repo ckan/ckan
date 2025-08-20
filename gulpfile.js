@@ -33,6 +33,24 @@ const watchSource = () =>
     build
   );
 
+const buildMidnightBlue = () =>
+  src([
+    __dirname + "/ckan/public-midnight-blue/base/scss/main.scss",
+    __dirname + "/ckan/public-midnight-blue/base/scss/main-rtl.scss",
+    ])
+    .pipe(if_(with_sourcemaps(), sourcemaps.init()))
+    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
+    .pipe(if_(with_sourcemaps(), sourcemaps.write()))
+    .pipe(rename(renamer))
+    .pipe(dest(__dirname + "/ckan/public-midnight-blue/base/css/"));
+
+const watchMidnightBlue = () =>
+  watch(
+    __dirname + "/ckan/public-midnight-blue/base/scss/**/*.scss",
+    { ignoreInitial: false },
+    buildMidnightBlue
+  );
+
 const jquery = () =>
   src(__dirname + "/node_modules/jquery/dist/jquery.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor")
@@ -69,7 +87,7 @@ const fontAwesomeCss = () =>
   );
 
 const fontAwesomeFonts = () =>
-  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/webfonts/*").pipe(
+  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/webfonts/*", {"encoding": false}).pipe(
     dest(__dirname + "/ckan/public/base/vendor/fontawesome-free/webfonts")
   );
 
@@ -84,12 +102,25 @@ const qs = () =>
   )
 
 const htmx = () =>
-src(__dirname + "/node_modules/htmx.org/dist/htmx.js").pipe(
-  dest(__dirname + "/ckan/public/base/vendor/")
-)
+  src(__dirname + "/node_modules/htmx.org/dist/htmx.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+  )
+
+const select2 = () =>
+  src([
+      __dirname + "/node_modules/select2/dist/js/**/*.js",
+      __dirname + "/node_modules/select2/dist/css/select2.css",
+      "!" + __dirname + "/node_modules/select2/dist/js/select2.js",
+      "!" + __dirname + "/node_modules/select2/dist/js/*.min.js",
+    ],
+    ).pipe(dest(__dirname + "/ckan/public/base/vendor/select2/")
+  )
 
 exports.build = build;
 exports.watch = watchSource;
+
+exports.buildMidnightBlue = buildMidnightBlue;
+exports.watchMidnightBlue = watchMidnightBlue;
 exports.updateVendorLibs = parallel(
   jquery,
   bootstrapScss,
@@ -101,5 +132,6 @@ exports.updateVendorLibs = parallel(
   qs,
   DOMPurify,
   popOver,
-  htmx
+  htmx,
+  select2
 );

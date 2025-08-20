@@ -3,7 +3,6 @@
 import pytest
 
 from pprint import pformat
-from difflib import unified_diff
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
@@ -16,7 +15,6 @@ from ckan.lib.dictization.model_dictize import (
 from ckan.lib.dictization.model_save import (
     package_dict_save,
     resource_dict_save,
-    package_api_to_dict,
     group_api_to_dict,
     package_tag_list_save,
 )
@@ -46,7 +44,7 @@ class TestBasicDictize:
         name = u"testpkg18"
         context = {"model": model, "session": model.Session}
         pkg_dict = {"name": name}
-        package = table_dict_save(pkg_dict, model.Package, context)
+        package, _change = table_dict_save(pkg_dict, model.Package, context)
 
         tag_dicts = [{"name": "tag1"}, {"name": "tag2"}]
         package_tag_list_save(tag_dicts, package, context)
@@ -62,7 +60,7 @@ class TestBasicDictize:
         context = {"model": model, "session": model.Session}
         pkg_dict = {"name": name}
 
-        package = table_dict_save(pkg_dict, model.Package, context)
+        package, _change = table_dict_save(pkg_dict, model.Package, context)
 
         tag_dicts = [{"name": "tag1"}, {"name": "tag1"}]  # duplicate
         package_tag_list_save(tag_dicts, package, context)
@@ -229,14 +227,7 @@ class TestDictizeWithRemoveColumns:
             package_dictize(pkg, context)
         )
 
-        anna_original = pformat(anna_dictized)
-        anna_after_save = pformat(package_dictized)
-
-        assert package_dictized == anna_dictized, "\n".join(
-            unified_diff(
-                anna_original.split("\n"), anna_after_save.split("\n")
-            )
-        )
+        assert package_dictized == anna_dictized
 
     def test_resource_no_id(self):
         CreateTestData.create()
@@ -268,75 +259,8 @@ class TestDictizeWithRemoveColumns:
         with pytest.raises(IntegrityError):
             model.Session.commit()
 
-    def test_15_api_to_dictize(self):
-        context = {"model": model, "api_version": 1, "session": model.Session}
+        model.Session.rollback()
 
-        api_data = {
-            "name": u"testpkg",
-            "title": u"Some Title",
-            "url": u"http://blahblahblah.mydomain",
-            "resources": [
-                {
-                    u"url": u"http://blah.com/file2.xml",
-                    u"format": u"xml",
-                    u"description": u"Second file",
-                    u"hash": u"def123",
-                    u"alt_url": u"alt_url",
-                    u"size": u"200",
-                },
-                {
-                    u"url": u"http://blah.com/file.xml",
-                    u"format": u"xml",
-                    u"description": u"Main file",
-                    u"hash": u"abc123",
-                    u"alt_url": u"alt_url",
-                    u"size": u"200",
-                },
-            ],
-            "tags": u"russion novel",
-            "license_id": u"gpl-3.0",
-            "extras": {"genre": u"horror", "media": u"dvd"},
-        }
-
-        dictized = package_api_to_dict(api_data, context)
-
-        assert dictized == {
-            "extras": [
-                {"key": "genre", "value": u"horror"},
-                {"key": "media", "value": u"dvd"},
-            ],
-            "license_id": u"gpl-3.0",
-            "name": u"testpkg",
-            "resources": [
-                {
-                    u"alt_url": u"alt_url",
-                    u"description": u"Second file",
-                    u"size": u"200",
-                    u"format": u"xml",
-                    u"hash": u"def123",
-                    u"url": u"http://blah.com/file2.xml",
-                },
-                {
-                    u"alt_url": u"alt_url",
-                    u"description": u"Main file",
-                    u"size": u"200",
-                    u"format": u"xml",
-                    u"hash": u"abc123",
-                    u"url": u"http://blah.com/file.xml",
-                },
-            ],
-            "tags": [{"name": u"russion"}, {"name": u"novel"}],
-            "title": u"Some Title",
-            "url": u"http://blahblahblah.mydomain",
-        }
-
-        package_dict_save(dictized, context)
-        model.Session.commit()
-        model.Session.remove()
-
-        pkg = model.Package.get("testpkg")
-
-        self.remove_changable_columns(package_dictize(pkg, context))
 
     def test_package_dictization_with_deleted_group(self):
         """

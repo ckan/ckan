@@ -41,11 +41,12 @@ class TestUpdate(object):
 
         # 1. Setup.
         user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
         user["name"] = "updated"
 
         # 2. Make assertions about the return value and/or side-effects.
         with pytest.raises(logic.ValidationError):
-            helpers.call_action("user_update", **user)
+            helpers.call_action("user_update", context=context, **user)
 
     # END-BEFORE
 
@@ -265,22 +266,6 @@ class TestUpdate(object):
         updated_user = helpers.call_action("user_update", **params)
         assert "password" not in updated_user
 
-    def test_user_update_does_not_return_apikey(self):
-        """The user dict that user_update returns should not include the user's
-        API key."""
-
-        user = factories.User()
-        params = {
-            "id": user["id"],
-            "fullname": "updated full name",
-            "about": "updated about",
-            "email": user["email"],
-            "password": factories.User.stub().password,
-        }
-
-        updated_user = helpers.call_action("user_update", **params)
-        assert "apikey" not in updated_user
-
     def test_user_update_does_not_return_reset_key(self):
         """The user dict that user_update returns should not include the user's
         reset key."""
@@ -322,7 +307,13 @@ class TestUpdate(object):
         # This should put c.html at the front
         reorder = {"id": dataset["id"], "order": [mapping["http://c.html"]]}
 
-        helpers.call_action("package_resource_reorder", **reorder)
+        from ckan.lib.dictization import model_save
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("package_resource_reorder", **reorder)
+            assert m.call_args.args[3] == {0: 2, 1: 0, 2: 1}, 'move existing'
 
         dataset = helpers.call_action("package_show", id=dataset["id"])
         reordered_resource_urls = [
@@ -399,6 +390,9 @@ class TestUpdate(object):
             == "dataset"
         )
 
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestOrganizationUpdate(object):
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
@@ -412,6 +406,62 @@ class TestUpdate(object):
                 name=org["name"],
                 type="ragtagband",
             )
+
+    def test_extras_removed_if_missing(self):
+        org = factories.Organization(extras=[{'key': 'e', 'value': 'v'}])
+        assert org['extras'] == [{'key': 'e', 'value': 'v'}]
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+        )
+
+        assert updated_org['extras'] == []
+
+    def test_groups_unchanged_if_missing(self):
+        group = factories.Group()
+        org = factories.Organization(groups=[{'name': group['name']}])
+        assert org['groups'][0]['name'] == group['name']
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+        )
+
+        assert updated_org['groups'][0]['name'] == group['name']
+
+    def test_groups_removed_if_empty_list(self):
+        group = factories.Group()
+        org = factories.Organization(groups=[{'name': group['name']}])
+        assert org['groups'][0]['name'] == group['name']
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+            groups=[],
+        )
+
+        assert updated_org['groups'] == []
+
+    def test_users_unchanged_if_missing(self):
+        user = factories.User()
+        org = factories.Organization(users=[user])
+        assert user['name'] in (g['name'] for g in org['users'])
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+        )
+
+        assert user['name'] in (g['name'] for g in updated_org['users'])
+
+    def test_users_removed_if_empty_list(self):
+        user = factories.User()
+        org = factories.Organization(users=[user])
+        assert user['name'] in (g['name'] for g in org['users'])
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+            users=[]
+        )
+
+        assert updated_org['users'] == []
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -428,132 +478,131 @@ class TestDatasetUpdate(object):
         dataset = factories.Dataset(user=user)
 
         stub = factories.Dataset.stub()
-        dataset_ = helpers.call_action(
-            "package_update", id=dataset["id"], name=stub.name
-        )
-
-        assert dataset_["name"] == stub.name
-        assert (
-            helpers.call_action("package_show", id=dataset["id"])["name"]
-            == stub.name
-        )
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update", id=dataset["id"], name=stub.name
+            )
+        assert updated["name"] == stub.name
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated == helpers.call_action("package_show", id=dataset["id"])
 
     def test_title(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action(
-            "package_update", id=dataset["id"], title="New Title"
-        )
-
-        assert dataset_["title"] == "New Title"
-        assert (
-            helpers.call_action("package_show", id=dataset["id"])["title"]
-            == "New Title"
-        )
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update", id=dataset["id"], title="New Title"
+            )
+        assert updated["title"] == "New Title"
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated == helpers.call_action("package_show", id=dataset["id"])
 
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action(
-            "package_update",
-            id=dataset["id"],
-            extras=[{"key": "original media", "value": '"book"'}],
-        )
-
-        assert dataset_["extras"][0]["key"] == "original media"
-        assert dataset_["extras"][0]["value"] == '"book"'
-        dataset_ = helpers.call_action("package_show", id=dataset["id"])
-        assert dataset_["extras"][0]["key"] == "original media"
-        assert dataset_["extras"][0]["value"] == '"book"'
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update",
+                id=dataset["id"],
+                extras=[{"key": "original media", "value": '"book"'}],
+            )
+        assert updated["extras"][0]["key"] == "original media"
+        assert updated["extras"][0]["value"] == '"book"'
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated == helpers.call_action("package_show", id=dataset["id"])
 
     def test_extra_can_be_restored_after_deletion(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action(
-            "package_update",
-            id=dataset["id"],
-            extras=[
-                {"key": "old attribute", "value": "value"},
-                {"key": "original media", "value": '"book"'},
-            ],
-        )
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update",
+                id=dataset["id"],
+                extras=[
+                    {"key": "old attribute", "value": "value"},
+                    {"key": "original media", "value": '"book"'},
+                ],
+            )
+        assert len(updated["extras"]) == 2
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
 
-        assert len(dataset_["extras"]) == 2
+        with freeze_time("2023-03-23 13:00:00"):
+            updated2 = helpers.call_action(
+                "package_update",
+                id=dataset["id"],
+                extras=[],
+            )
+        assert updated2["extras"] == []
+        assert updated2["metadata_modified"] == "2023-03-23T13:00:00"
 
-        dataset_ = helpers.call_action(
-            "package_update",
-            id=dataset["id"],
-            extras=[],
-        )
-
-        assert dataset_["extras"] == []
-
-        dataset_ = helpers.call_action(
-            "package_update",
-            id=dataset["id"],
-            extras=[
-                {"key": "original media", "value": '"book"'},
-                {"key": "new attribute", "value": "value"},
-            ],
-        )
-
-        assert len(dataset_["extras"]) == 2
+        with freeze_time("2024-04-24 14:00:00"):
+            updated3 = helpers.call_action(
+                "package_update",
+                id=dataset["id"],
+                extras=[
+                    {"key": "original media", "value": '"book"'},
+                    {"key": "new attribute", "value": "value"},
+                ],
+            )
+        assert len(updated3["extras"]) == 2
+        assert updated3["metadata_modified"] == "2024-04-24T14:00:00"
 
     def test_license(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action(
-            "package_update", id=dataset["id"], license_id="other-open"
-        )
-
-        assert dataset_["license_id"] == "other-open"
-        dataset_ = helpers.call_action("package_show", id=dataset["id"])
-        assert dataset_["license_id"] == "other-open"
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update", id=dataset["id"], license_id="other-open"
+            )
+        assert updated["license_id"] == "other-open"
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated == helpers.call_action("package_show", id=dataset["id"])
 
     def test_notes(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action(
-            "package_update", id=dataset["id"], notes="some notes"
-        )
-
-        assert dataset_["notes"] == "some notes"
-        dataset_ = helpers.call_action("package_show", id=dataset["id"])
-        assert dataset_["notes"] == "some notes"
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update", id=dataset["id"], notes="some notes"
+            )
+        assert updated["notes"] == "some notes"
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated == helpers.call_action("package_show", id=dataset["id"])
 
     def test_resources(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        dataset_ = helpers.call_action(
-            "package_update",
-            id=dataset["id"],
-            resources=[
-                {
-                    "alt_url": "alt123",
-                    "description": "Full text.",
-                    "somekey": "somevalue",  # this is how to do resource extras
-                    "extras": {"someotherkey": "alt234"},  # this isn't
-                    "format": "plain text",
-                    "hash": "abc123",
-                    "position": 0,
-                    "url": "http://datahub.io/download/",
-                },
-                {
-                    "description": "Index of the novel",
-                    "format": "JSON",
-                    "position": 1,
-                    "url": "http://datahub.io/index.json",
-                },
-            ],
-        )
-
-        resources_ = dataset_["resources"]
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update",
+                id=dataset["id"],
+                resources=[
+                    {
+                        "alt_url": "alt123",
+                        "description": "Full text.",
+                        "somekey": "somevalue",  # correct resource extras
+                        "extras": {"someotherkey": "alt234"},  # this isn't
+                        "format": "plain text",
+                        "hash": "abc123",
+                        "position": 0,
+                        "url": "http://datahub.io/download/",
+                    },
+                    {
+                        "description": "Index of the novel",
+                        "format": "JSON",
+                        "position": 1,
+                        "url": "http://datahub.io/index.json",
+                    },
+                ],
+            )
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
+        resources_ = updated["resources"]
         assert resources_[0]["alt_url"] == "alt123"
         assert resources_[0]["description"] == "Full text."
         assert resources_[0]["somekey"] == "somevalue"
@@ -563,26 +612,14 @@ class TestDatasetUpdate(object):
         assert resources_[0]["hash"] == "abc123"
         assert resources_[0]["position"] == 0
         assert resources_[0]["url"] == "http://datahub.io/download/"
+        assert resources_[0]["metadata_modified"] == "2020-02-25T12:00:00"
         assert resources_[1]["description"] == "Index of the novel"
         assert resources_[1]["format"] == "JSON"
         assert resources_[1]["url"] == "http://datahub.io/index.json"
         assert resources_[1]["position"] == 1
-        resources_ = helpers.call_action("package_show", id=dataset["id"])[
-            "resources"
-        ]
-        assert resources_[0]["alt_url"] == "alt123"
-        assert resources_[0]["description"] == "Full text."
-        assert resources_[0]["somekey"] == "somevalue"
-        assert "extras" not in resources_[0]
-        assert "someotherkey" not in resources_[0]
-        assert resources_[0]["format"] == "plain text"
-        assert resources_[0]["hash"] == "abc123"
-        assert resources_[0]["position"] == 0
-        assert resources_[0]["url"] == "http://datahub.io/download/"
-        assert resources_[1]["description"] == "Index of the novel"
-        assert resources_[1]["format"] == "JSON"
-        assert resources_[1]["url"] == "http://datahub.io/index.json"
-        assert resources_[1]["position"] == 1
+        assert resources_[1]["metadata_modified"] == "2020-02-25T12:00:00"
+        assert helpers.call_action("package_show", id=dataset["id"])[
+            "resources"] == resources_
 
     def test_invalid_characters_in_resource_id(self):
         user = factories.User()
@@ -606,17 +643,16 @@ class TestDatasetUpdate(object):
         dataset = factories.Dataset(user=user)
         tag1 = factories.Tag.stub().name
         tag2 = factories.Tag.stub().name
-        dataset_ = helpers.call_action(
-            "package_update",
-            id=dataset["id"],
-            tags=[{"name": tag1}, {"name": tag2}],
-        )
-
-        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
+        with freeze_time("2020-02-25 12:00:00"):
+            updated = helpers.call_action(
+                "package_update",
+                id=dataset["id"],
+                tags=[{"name": tag1}, {"name": tag2}],
+            )
+        assert updated["metadata_modified"] == "2020-02-25T12:00:00"
+        tag_names = sorted(tag_dict["name"] for tag_dict in updated["tags"])
         assert tag_names == sorted([tag1, tag2])
-        dataset_ = helpers.call_action("package_show", id=dataset["id"])
-        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
-        assert tag_names == sorted([tag1, tag2])
+        assert updated == helpers.call_action("package_show", id=dataset["id"])
 
     def test_return_id_only(self):
         user = factories.User()
@@ -630,6 +666,104 @@ class TestDatasetUpdate(object):
         )
 
         assert updated_dataset == dataset["id"]
+
+    def test_resources_unchanged_if_missing(self):
+        res = factories.Resource()
+
+        with freeze_time("2020-02-25 12:00:00"):
+            updated_dataset = helpers.call_action(
+                'package_update',
+                id=res['package_id'],
+                notes='hi',
+            )
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated_dataset['resources'] == [res]
+
+    def test_resources_removed_if_empty_list(self):
+        res = factories.Resource()
+
+        with freeze_time("2020-02-25 12:00:00"):
+            updated_dataset = helpers.call_action(
+                'package_update',
+                id=res['package_id'],
+                notes='hi',
+                resources=[],
+            )
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated_dataset['resources'] == []
+
+    def test_tags_removed_if_missing(self):
+        dataset = factories.Dataset(tag_string='tagone,tagtwo')
+        assert dataset['tags']
+
+        with freeze_time("2020-02-25 12:00:00"):
+            updated_dataset = helpers.call_action(
+                'package_update',
+                id=dataset['id'],
+            )
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated_dataset['tags'] == []
+
+    def test_groups_unchanged_if_missing(self):
+        group = factories.Group()
+        del group['users']  # avoid validation error
+        dataset = factories.Dataset(groups=[group])
+        assert dataset['groups']
+
+        with freeze_time("2020-02-25 12:00:00"):
+            updated_dataset = helpers.call_action(
+                'package_update',
+                id=dataset['id'],
+            )
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated_dataset['groups'] == dataset['groups']
+
+    def test_groups_removed_if_empty_list(self):
+        group = factories.Group()
+        del group['users']  # avoid validation error
+        dataset = factories.Dataset(groups=[group])
+        assert dataset['groups']
+
+        with freeze_time("2020-02-25 12:00:00"):
+            updated_dataset = helpers.call_action(
+                'package_update',
+                id=dataset['id'],
+                groups=[],
+            )
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+        assert updated_dataset['groups'] == []
+
+    def test_metadata_modified_unchanged_on_no_changes(self):
+        with freeze_time("2020-02-25 12:00:00"):
+            dataset = factories.Dataset()
+
+        # allow metadata_modified update
+        dataset.pop('metadata_modified')
+        updated_dataset = helpers.call_action('package_update', **dataset)
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+
+        # unchanged even if the json differs but results in the same
+        # values in the db
+        assert dataset.pop('owner_org') is None
+        assert dataset.pop('tags') == []
+        assert dataset.pop('resources') == []
+        updated_dataset = helpers.call_action('package_update', **dataset)
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+
+    def test_metadata_modified_can_be_updated(self):
+        dataset = factories.Dataset()
+        updated_dataset = helpers.call_action('package_update', **dict(
+            dataset, metadata_modified="2020-02-25T12:00:00"
+        ))
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+
+        # but not for normal users
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        unchanged = helpers.call_action('package_update', context, **dict(
+            dataset, metadata_modified="2021-01-01T11:01:00"
+        ))
+        assert unchanged["metadata_modified"] == "2020-02-25T12:00:00"
 
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
@@ -757,8 +891,7 @@ class TestResourceViewUpdate(object):
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset, url="http://first")
+        resource = factories.Resource(url="http://first")
 
         res_returned = helpers.call_action(
             "resource_update", id=resource["id"], url="http://second"
@@ -769,8 +902,7 @@ class TestResourceUpdate(object):
         assert resource["url"] == "http://second"
 
     def test_extra_only(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset, newfield="first")
+        resource = factories.Resource(newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -784,10 +916,7 @@ class TestResourceUpdate(object):
         assert resource["newfield"] == "second"
 
     def test_both_extra_and_url(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://first", newfield="first"
-        )
+        resource = factories.Resource(url="http://first", newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -804,10 +933,7 @@ class TestResourceUpdate(object):
         assert resource["newfield"] == "second"
 
     def test_extra_gets_deleted_on_both_core_and_extra_update(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://first", newfield="first"
-        )
+        resource = factories.Resource(url="http://first", newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -826,10 +952,7 @@ class TestResourceUpdate(object):
         assert "newfield" not in res_returned
 
     def test_extra_gets_deleted_on_extra_only_update(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://first", newfield="first"
-        )
+        resource = factories.Resource(url="http://first", newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -848,10 +971,8 @@ class TestResourceUpdate(object):
         assert "newfield" not in res_returned
 
     def test_datastore_active_is_persisted_if_true_and_not_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=True
-        )
+            url="http://example.com", datastore_active=True)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -863,10 +984,8 @@ class TestResourceUpdate(object):
         assert res_returned["datastore_active"]
 
     def test_datastore_active_is_persisted_if_false_and_not_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=False
-        )
+            url="http://example.com", datastore_active=False)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -878,10 +997,8 @@ class TestResourceUpdate(object):
         assert not res_returned["datastore_active"]
 
     def test_datastore_active_is_updated_if_false_and_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=False
-        )
+            url="http://example.com", datastore_active=False)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -894,10 +1011,8 @@ class TestResourceUpdate(object):
         assert res_returned["datastore_active"]
 
     def test_datastore_active_is_updated_if_true_and_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=True
-        )
+            url="http://example.com", datastore_active=True)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -914,10 +1029,7 @@ class TestResourceUpdate(object):
     ):
         assert not p.plugin_loaded("datastore")
 
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://example.com"
-        )
+        resource = factories.Resource(url="http://example.com")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -935,10 +1047,9 @@ class TestResourceUpdate(object):
         the mimetype would be guessed, based on the url
 
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://localhost/data.csv", name="Test"
-        )
+            url="http://localhost/data.csv", name="Test")
+
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         res_update = helpers.call_action(
             "resource_update",
@@ -959,10 +1070,8 @@ class TestResourceUpdate(object):
         Real world usage would be using the FileStore API or web UI form to create a resource
         and the user wanted to specify the mimetype themselves
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://localhost/data.csv", name="Test"
-        )
+            url="http://localhost/data.csv", name="Test")
 
         res_update = helpers.call_action(
             "resource_update",
@@ -987,10 +1096,8 @@ class TestResourceUpdate(object):
         guessed by the contents inside the file
 
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://localhost/data.csv", name="Test"
-        )
+            url="http://localhost/data.csv", name="Test")
 
         content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1005,7 +1112,7 @@ class TestResourceUpdate(object):
             action="resource_update",
             id=resource["id"],
             url="http://localhost",
-            package_id=dataset["id"],
+            package_id=resource["package_id"],
         )
 
         org_mimetype = resource.pop("mimetype")
@@ -1076,9 +1183,7 @@ class TestResourceUpdate(object):
 
         Real world usage would be using the FileStore API and the user provides a size for the resource
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset,
             url="http://localhost/data.csv",
             name="Test",
             size=500,
@@ -1175,12 +1280,9 @@ class TestResourceUpdate(object):
         "ckan.views.default_views", "image_view text_view"
     )
     def test_resource_format_update(self):
-        dataset = factories.Dataset()
-
         # Create resource without format
         resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test", format=""
-        )
+            url="http://localhost", name="Test", format="")
         res_views = helpers.call_action(
             "resource_view_list", id=resource["id"]
         )
@@ -1203,8 +1305,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
         second_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2", format="TXT"
-        )
+            url="http://localhost", name="Test2", format="TXT")
 
         res_views = helpers.call_action(
             "resource_view_list", id=second_resource["id"]
@@ -1226,8 +1327,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 2
 
         third_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test3", format=""
-        )
+            url="http://localhost", name="Test3", format="")
 
         res_views = helpers.call_action(
             "resource_view_list", id=third_resource["id"]
@@ -1264,8 +1364,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
     def test_edit_metadata_updates_metadata_modified_field(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset["id"])
+        resource = factories.Resource()
 
         with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
@@ -1274,13 +1373,12 @@ class TestResourceUpdate(object):
                 description="New Description",
             )
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
+        package = helpers.call_action('package_show', id=resource['package_id'])
+        assert package['metadata_modified'] == '2020-02-25T12:00:00'
 
     def test_same_values_dont_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset["id"],
                 description="Test",
                 some_custom_field="test",
                 url="http://link.to.some.data",
@@ -1289,6 +1387,10 @@ class TestResourceUpdate(object):
                 resource["metadata_modified"]
                 == datetime.datetime.utcnow().isoformat()
             )
+            package = helpers.call_action(
+                'package_show', id=resource['package_id'])
+            assert package['metadata_modified'] == datetime.datetime.utcnow(
+                ).isoformat()
 
         with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
@@ -1296,25 +1398,27 @@ class TestResourceUpdate(object):
                 id=resource["id"],
                 description="Test",
                 some_custom_field="test",
-                url="http://link.to.some.data",  # Default Value from Factory
+                url="http://link.to.some.data",
             )
             assert (
                 resource["metadata_modified"]
                 != datetime.datetime.utcnow().isoformat()
             )
             assert resource["metadata_modified"] == "1987-03-04T23:30:00"
+        package = helpers.call_action('package_show', id=resource['package_id'])
+        assert package['metadata_modified'] == '1987-03-04T23:30:00'
 
     def test_new_keys_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
-            resource = factories.Resource(
-                package_id=dataset["id"], description="test"
-            )
+            resource = factories.Resource(description="test")
             assert (
                 resource["metadata_modified"]
                 == datetime.datetime.utcnow().isoformat()
             )
+            package = helpers.call_action(
+                'package_show', id=resource['package_id'])
+            assert package['metadata_modified'] == datetime.datetime.utcnow(
+                ).isoformat()
 
         with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
@@ -1322,20 +1426,17 @@ class TestResourceUpdate(object):
                 id=resource["id"],
                 description="test",
                 some_custom_field="test",
-                url="http://link.to.some.data",  # default value from factory
+                url="http://link.to.some.data",
             )
-            assert (
-                resource["metadata_modified"]
-                == datetime.datetime.utcnow().isoformat()
-            )
-            assert resource["metadata_modified"] == "2020-02-25T12:00:00"
+            now = datetime.datetime.utcnow().isoformat()
+            assert resource["metadata_modified"] == now
+            package = helpers.call_action(
+                'package_show', id=resource['package_id'])
+            assert package['metadata_modified'] == now
 
     def test_remove_keys_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset["id"],
                 description="test",
                 some_custom_field="test",
             )
@@ -1343,6 +1444,10 @@ class TestResourceUpdate(object):
                 resource["metadata_modified"]
                 == datetime.datetime.utcnow().isoformat()
             )
+            package = helpers.call_action(
+                'package_show', id=resource['package_id'])
+            assert package['metadata_modified'] == datetime.datetime.utcnow(
+                ).isoformat()
 
         with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
@@ -1351,18 +1456,15 @@ class TestResourceUpdate(object):
                 description="test",
                 url="http://link.to.some.data",  # default value from factory
             )
-            assert (
-                resource["metadata_modified"]
-                == datetime.datetime.utcnow().isoformat()
-            )
-            assert resource["metadata_modified"] == "2020-02-25T12:00:00"
+            now = datetime.datetime.utcnow().isoformat()
+            assert resource["metadata_modified"] == now
+            package = helpers.call_action(
+                'package_show', id=resource['package_id'])
+            assert package['metadata_modified'] == now
 
     def test_update_keys_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset["id"],
                 description="test",
                 some_custom_field="test",
             )
@@ -1370,6 +1472,10 @@ class TestResourceUpdate(object):
                 resource["metadata_modified"]
                 == datetime.datetime.utcnow().isoformat()
             )
+            package = helpers.call_action(
+                'package_show', id=resource['package_id'])
+            assert package['metadata_modified'] == datetime.datetime.utcnow(
+                ).isoformat()
 
         with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
@@ -1379,16 +1485,14 @@ class TestResourceUpdate(object):
                 some_custom_field="test2",
                 url="http://link.to.some.data",  # default value from factory
             )
-            assert (
-                resource["metadata_modified"]
-                == datetime.datetime.utcnow().isoformat()
-            )
-            assert resource["metadata_modified"] == "2020-02-25T12:00:00"
+            now = datetime.datetime.utcnow().isoformat()
+            assert resource["metadata_modified"] == now
+            package = helpers.call_action(
+                'package_show', id=resource['package_id'])
+            assert package['metadata_modified'] == now
 
     def test_resource_update_for_update(self):
-
-        dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset['id'])
+        resource = factories.Resource()
 
         mock_package_show = mock.MagicMock()
         mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
@@ -1411,6 +1515,25 @@ class TestResourceUpdate(object):
                 'package_resource_reorder',
                 id=dataset['id'], order=[resource2['id'], resource1['id']])
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_update_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        res1 = factories.Resource()
+        res2 = factories.Resource(
+            package_id=res1['package_id'],
+            url="http://data"
+        )
+        factories.Resource(package_id=res1['package_id'])
+        params = {
+            "id": res2['id'],
+            "url": "http://data2",
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_update", **params)
+            assert m.call_args.args[3] == {0: 0, 2: 2}, 'unchanged res 0, 2'
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -1504,6 +1627,18 @@ class TestGroupUpdate(object):
 
         assert group["image_url"] == "new_image_url.jpg"
 
+    def test_group_update_locates_group_by_name(self, group, faker):
+        description = faker.sentence()
+        original_id = group["id"]
+        group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+            description=description
+        )
+
+        assert group["id"] == original_id
+        assert group["description"] == description
+
     def test_group_update_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
@@ -1517,6 +1652,62 @@ class TestGroupUpdate(object):
                 id=group["id"],
                 type="favouritecolour",
             )
+
+    def test_extras_removed_if_missing(self):
+        group = factories.Group(extras=[{'key': 'e', 'value': 'v'}])
+        assert group['extras'] == [{'key': 'e', 'value': 'v'}]
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+        )
+
+        assert updated_group['extras'] == []
+
+    def test_groups_unchanged_if_missing(self):
+        group1 = factories.Group()
+        group2 = factories.Group(groups=[{'name': group1['name']}])
+        assert group2['groups'][0]['name'] == group1['name']
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group2["name"],
+        )
+
+        assert updated_group['groups'][0]['name'] == group1['name']
+
+    def test_groups_removed_if_empty_list(self):
+        group1 = factories.Group()
+        group2 = factories.Group(groups=[{'name': group1['name']}])
+        assert group2['groups'][0]['name'] == group1['name']
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group2["name"],
+            groups=[],
+        )
+
+        assert updated_group['groups'] == []
+
+    def test_users_unchanged_if_missing(self):
+        user = factories.User()
+        group = factories.Group(users=[user])
+        assert user['name'] in (g['name'] for g in group['users'])
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+        )
+
+        assert user['name'] in (g['name'] for g in updated_group['users'])
+
+    def test_users_removed_if_empty_list(self):
+        user = factories.User()
+        group = factories.Group(users=[user])
+        assert user['name'] in (g['name'] for g in group['users'])
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+            users=[]
+        )
+
+        assert updated_group['users'] == []
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -1948,6 +2139,24 @@ class TestDatasetRevise(object):
             context=context,
         )
         assert response["package"]["notes"] == "new notes"
+
+    def test_package_revise_resource_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        res1 = factories.Resource()
+        factories.Resource(
+            package_id=res1['package_id'],
+            url="http://data",
+        )
+        params = {
+            "match": {"id": res1["package_id"]},
+            "update__resources__1": {"url": "http://data2"},
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("package_revise", **params)
+            assert m.call_args.args[3] == {0: 0}, 'res 0 unmodified'
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -2430,15 +2639,9 @@ class TestPackagePluginData(object):
                 }
             }
         }
-        updated_pkg = helpers.call_action(
+        helpers.call_action(
             "package_update", context=context, **pkg_dict
         )
-        assert updated_pkg["plugin_data"] == {
-            "plugin1": {
-                "key1": "updated_value",
-                "key2": "value2"
-            }
-        }
 
         pkg_dict = helpers.call_action(
             "package_show",

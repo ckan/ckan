@@ -36,33 +36,33 @@ class TrackingPlugin(p.SingletonPlugin):
 
     # IPackageController
     def after_dataset_show(
-            self,
-            context: Context,
-            pkg_dict: "dict[str, Any]"
-            ) -> "dict[str, Any]":
+        self, context: Context, pkg_dict: "dict[str, Any]"
+    ) -> "dict[str, Any]":
         """Appends tracking summary data to the package dict.
 
         Tracking data is not stored in Solr so we need to retrieve it
         from the database.
         """
-        tracking_summary = TrackingSummary.get_for_package(
-            pkg_dict["id"]
-            )
-        pkg_dict["tracking_summary"] = tracking_summary
+        if "id" not in pkg_dict:
+            return pkg_dict
 
-        for resource_dict in pkg_dict['resources']:
-            summary = TrackingSummary.get_for_resource(
-                resource_dict['url']
-                )
-            resource_dict['tracking_summary'] = summary
+        pkg_dict["tracking_summary"] = TrackingSummary.get_for_package(
+            pkg_dict["id"]
+        )
+
+        for resource_dict in pkg_dict.get("resources", []):
+            if "url" not in resource_dict:
+                continue
+
+            resource_dict["tracking_summary"] = (
+                TrackingSummary.get_for_resource(resource_dict["url"])
+            )
 
         return pkg_dict
 
     def after_dataset_search(
-            self,
-            search_results: "dict[str, Any]",
-            search_params: "dict[str, Any]"
-            ) -> "dict[str, Any]":
+        self, search_results: "dict[str, Any]", search_params: "dict[str, Any]"
+    ) -> "dict[str, Any]":
         """Add tracking summary to search results.
 
         Tracking data is indexed but not stored in Solr so we need to
@@ -71,21 +71,27 @@ class TrackingPlugin(p.SingletonPlugin):
         when this code is run.
         """
         for package_dict in search_results["results"]:
-            tracking_summary = TrackingSummary.get_for_package(
+            if "id" not in package_dict:
+                continue
+
+            package_dict["tracking_summary"] = TrackingSummary.get_for_package(
                 package_dict["id"]
+            )
+
+            for resource_dict in package_dict.get("resources", []):
+                if "url" not in resource_dict:
+                    continue
+
+                resource_dict["tracking_summary"] = (
+                    TrackingSummary.get_for_resource(resource_dict["url"])
                 )
-            package_dict["tracking_summary"] = tracking_summary
-            for resource_dict in package_dict['resources']:
-                summary = TrackingSummary.get_for_resource(
-                    resource_dict['url']
-                    )
-                resource_dict['tracking_summary'] = summary
+
         return search_results
 
     def before_dataset_index(
-            self, pkg_dict: "dict[str, Any]"
-            ) -> "dict[str, Any]":
-        """ Index tracking information.
+        self, pkg_dict: "dict[str, Any]"
+    ) -> "dict[str, Any]":
+        """Index tracking information.
 
         This method will index (but not store) the tracking information of
         the dataset. This will only allow us to sort Solr's queries by views.
@@ -95,14 +101,12 @@ class TrackingPlugin(p.SingletonPlugin):
         since it is not a valid Solr field.
         """
         pkg_dict.pop("tracking_summary", None)
-        for r in pkg_dict.get('resources', []):
-            r.pop('tracking_summary', None)
+        for r in pkg_dict.get("resources", []):
+            r.pop("tracking_summary", None)
 
-        tracking_summary = TrackingSummary.get_for_package(
-            pkg_dict["id"]
-            )
-        pkg_dict['views_total'] = tracking_summary['total']
-        pkg_dict['views_recent'] = tracking_summary['recent']
+        tracking_summary = TrackingSummary.get_for_package(pkg_dict["id"])
+        pkg_dict["views_total"] = tracking_summary["total"]
+        pkg_dict["views_recent"] = tracking_summary["recent"]
         return pkg_dict
 
     # ITemplateHelpers
