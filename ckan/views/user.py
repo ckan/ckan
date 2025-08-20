@@ -672,6 +672,17 @@ class RequestResetView(MethodView):
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to request reset password.'))
 
+    def _send_notification(user_obj: dict[str, Any]):
+        notification_sent = False
+        for plugin in plugins.PluginImplementations(plugins.INotifier):
+            notification_sent = plugin.notify_about_topic(
+                notification_sent,
+                'request_password_reset',
+                {'user': user_obj}
+            )
+        if not notification_sent:
+            mailer.send_reset_link(user_obj)
+
     def post(self) -> Response:
         self._prepare()
 
@@ -734,15 +745,7 @@ class RequestResetView(MethodView):
             log.info(u'Emailing reset link to user: {}'
                      .format(user_obj.name))
             try:
-                notification_sent = False
-                for plugin in plugins.PluginImplementations(plugins.INotifier):
-                    notification_sent = plugin.notify_about_topic(
-                        notification_sent,
-                        'request_password_reset',
-                        {'user': user_obj}
-                    )
-                if not notification_sent:
-                    mailer.send_reset_link(user_obj)
+                self._send_notification(user_obj)
                 signals.request_password_reset.send(
                     user_obj.name, user=user_obj)
             except mailer.MailerException as e:
