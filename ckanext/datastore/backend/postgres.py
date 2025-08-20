@@ -1425,6 +1425,7 @@ def validate(context: Context, data_dict: dict[str, Any]):
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('include_records', None)
+    data_dict_copy.pop('include_deleted_records', None)
     data_dict_copy.pop('calculate_record_count', None)
 
     for key, values in data_dict_copy.items():
