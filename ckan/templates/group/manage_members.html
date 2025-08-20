@@ -26,10 +26,10 @@
         <td>{{ role }}</td>
         <td>
           <div class="btn-group pull-right">
-            <a class="btn btn-default btn-sm" href="{{ h.url_for(group_type + '.member_new', id=group_dict.id, user=user_id) }}" title="{{ _('Edit') }}">
+            <a class="btn btn-secondary btn-sm" href="{{ h.url_for(group_type + '.member_new', id=group_dict.id, user=user_id) }}" aria-label="{{ _('Edit role') }}" aria-description="{{ _('Edit the role of the user within the group') }}" data-bs-title="{{ _('Edit role') }}" data-bs-toggle="tooltip">
               <i class="fa fa-wrench"></i>
             </a>
-            <a class="btn btn-danger btn-sm" href="{{ h.url_for(group_type + '.member_delete', id=group_dict.id, user=user_id) }}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this member?') }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="fa fa-times"></i>{% endblock %}</a>
+            <a class="btn btn-danger btn-sm" href="{{ h.url_for(group_type + '.member_delete', id=group_dict.id, user=user_id) }}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this member?') }}" aria-label="{{ _('Delete member') }}" aria-description="{{ _('Delete this member from the group') }}" data-bs-title="{{ _('Delete member') }}" data-bs-toggle="tooltip">{% block delete_button_text %}<i class="fa fa-times"></i>{% endblock %}</a>
           </div>
         </td>
       </tr>

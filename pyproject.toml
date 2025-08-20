@@ -1,3 +1,8 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
 [tool.towncrier]
 directory = "changes"
 package = "ckan"
@@ -31,26 +36,25 @@ directory = 'removal'
 name = 'Removals and deprecations'
 showcontent = true
 
-[tool.black]
-line-length = 79
-preview = true
-
 [tool.pytest.ini_options]
+retries = 0
+retry_delay = 0.5
+cumulative_timing = true
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::bs4.GuessedAtParserWarning",  # using lxml as default parser
-    "error::sqlalchemy.exc.RemovedIn20Warning",
 ]
 markers = [
     "ckan_config: patch configuration used by other fixtures via (key, value) pair.",
-    "ckan_pytest: test case that is explicitely was rewriten from `nose` style"
+    "provide_plugin: register class as a plugin",
+    "with_plugins: enable specified plugins",
 ]
 
 testpaths = ["ckan", "ckanext"]
-addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb -p no:ckan --ckan-ini=test-core.ini"
+addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
 
 [tool.pyright]
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 include = ["ckan", "ckanext"]
 exclude = [
     "**/test*",
@@ -125,7 +129,6 @@ reportUnnecessaryTypeIgnoreComment = true
 reportMatchNotExhaustive = true
 
 [tool.mypy]
-plugins = "sqlalchemy.ext.mypy.plugin"
 files = "ckan"
 exclude = "ckan/(pastertemplates|tests|migration)"
 
@@ -147,3 +150,98 @@ module = [
     "webassets.*",
     "zope.*",
 ]
+
+[tool.ruff]
+line-length = 88
+
+exclude = [".*", "./bin", "./contrib", "./node_modules"]
+extend-exclude = [
+  # These should be removed once linting is passed for them
+  "ckan/lib/app_globals.py",
+  "ckan/lib/cli.py",
+  "ckan/lib/create_test_data.py",
+  "ckan/lib/dictization/model_dictize.py",
+  "ckan/lib/dictization/model_save.py",
+  "ckan/lib/jinja_extensions.py",
+  "ckan/lib/maintain.py",
+  "ckan/lib/navl/validators.py",
+  "ckan/lib/plugins.py",
+  "ckan/lib/search/__init__.py",
+  "ckan/lib/search/index.py",
+  "ckan/lib/search/query.py",
+  "ckan/logic/action/delete.py",
+  "ckan/logic/action/get.py",
+  "ckan/logic/action/update.py",
+  "ckan/logic/auth/create.py",
+  "ckan/logic/auth/delete.py",
+  "ckan/logic/auth/get.py",
+  "ckan/logic/auth/update.py",
+  "ckan/logic/converters.py",
+  "ckan/logic/validators.py",
+  "ckan/model/__init__.py",
+  "ckan/model/dashboard.py",
+  "ckan/model/domain_object.py",
+  "ckan/model/follower.py",
+  "ckan/model/group.py",
+  "ckan/model/group_extra.py",
+  "ckan/model/license.py",
+  "ckan/model/meta.py",
+  "ckan/model/misc.py",
+  "ckan/model/modification.py",
+  "ckan/model/package.py",
+  "ckan/model/package_extra.py",
+  "ckan/model/package_relationship.py",
+  "ckan/model/resource.py",
+  "ckan/model/system_info.py",
+  "ckan/model/tag.py",
+  "ckan/model/task_status.py",
+  "ckan/model/user.py",
+  "ckan/model/vocabulary.py",
+  "ckan/authz.py",
+  "ckanext/datastore/logic/action.py",
+  "ckanext/datastore/tests/test_create.py",
+  "ckanext/example_idatasetform/plugin.py",
+  "ckanext/multilingual/plugin.py",
+  "ckanext/stats/stats.py",
+  "doc/conf.py",
+]
+
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C901", "G", "PLW0602"]
+
+[tool.ruff.lint.per-file-ignores]
+# These should be fixed
+# E731 is lambda assignment
+# PLW0602 is global variable without assignment, F824 in flake8
+"test_*.py" = ["E501"]
+"ckan/lib/helpers.py" = ["PLW0602", "E731", "C901"]
+"ckan/lib/jobs.py" = ["PLW0602"]
+"ckan/lib/dictization/__init__.py" = ["E731"]
+
+# Files that are too complex
+"ckanext/tabledesigner/views.py" = ["C901"]
+"ckanext/resourceproxy/blueprint.py" = ["C901"]
+"ckanext/datatablesview/blueprint.py" = ["C901"]
+"ckanext/datastore/plugin.py" = ["C901"]
+"ckanext/datastore/blueprint.py" = ["C901"]
+"ckanext/datastore/backend/postgres.py" = ["C901", "E731"]
+"ckanext/datapusher/logic/action.py" = ["C901"]
+"ckanext/activity/views.py" = ["C901"]
+"ckanext/activity/changes.py" = ["C901"]
+"ckan/views/resource.py" = ["C901"]
+"ckan/views/dataset.py" = ["C901"]
+"ckan/views/api.py" = ["C901"]
+"ckan/views/__init__.py" = ["C901"]
+"ckan/model/base.py" = ["C901", "E731"]
+"ckan/logic/action/create.py" = ["C901"]
+"ckan/logic/__init__.py" = ["C901"]
+"ckan/lib/navl/dictization_functions.py" = ["C901"]
+"ckan/lib/mailer.py" = ["C901"]
+"ckan/lib/config_tool.py" = ["C901"]
+"ckan/config/middleware/flask_app.py" = ["C901"]
+"ckan/config/environment.py" = ["C901"]
+"ckan/config/declaration/serialize.py" = ["C901"]
+"ckan/config/declaration/load.py" = ["C901"]
+"ckan/cli/views.py" = ["C901"]
+"ckan/cli/plugin_info.py" = ["C901"]

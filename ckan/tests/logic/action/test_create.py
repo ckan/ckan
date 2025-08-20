@@ -762,6 +762,44 @@ class TestResourceCreate:
             helpers.call_action('resource_create', package_id=dataset['id'], url='http://example.com', description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
+    def test_resource_create_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        existing = factories.Resource()
+        params = {
+            "package_id": existing['package_id'],
+            "url": "http://data",
+            "name": "A second resource",
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_create", **params)
+            assert m.call_args.args[3] == {0: 0}, 'copy existing resource 0'
+
+    def test_upload_file_paths(self, create_with_upload):
+        from ckan.common import config
+        import os
+
+        storage_path = config["ckan.storage_path"]
+
+        dataset = factories.Dataset()
+        resource1 = create_with_upload(
+            "hello world", "file1.txt", url="http://data1",
+            package_id=dataset["id"])
+
+        assert os.path.exists(
+            os.path.join(storage_path, "resources", resource1["id"][:3])
+        )
+
+        resource2 = create_with_upload(
+            "bye bye world", "file2.txt", url="http://data2",
+            package_id=dataset["id"])
+
+        assert os.path.exists(
+            os.path.join(storage_path, "resources", resource2["id"][:3])
+        )
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate(object):
@@ -1127,6 +1165,19 @@ class TestDatasetCreate(object):
         )
 
         assert isinstance(dataset, str)
+
+    def test_non_string_extras(self):
+        data_dict = {
+            "name": "test-non-string-extras",
+            "extras": [
+                {
+                    "key": "some_number",
+                    "value": 1.5
+                }
+            ]
+        }
+
+        helpers.call_action("package_create", **data_dict)
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -1495,6 +1546,18 @@ class TestUserCreate(object):
             "api_token_list", context=context, **user_dict
         )
         assert not token
+
+    def test_user_create_fails_with_duplicate_email_case_insensitive(self):
+        factories.User(email="some_email@example.org")
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "user_create",
+                context={},
+                email="Some_Email@example.org",
+                name="test",
+                password="required",
+            )
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -2052,6 +2115,21 @@ class TestUserPluginExtras(object):
 
         assert user["plugin_extras"] is None
 
+    def test_extensions_can_provide_custom_id(self):
+
+        stub = factories.User.stub()
+        context = {"user": None, "ignore_auth": True}
+        _id = str(uuid.uuid4())
+        user_dict = {
+            "id": _id,
+            "name": stub.name,
+            "email": stub.email,
+            "password": "12345678",
+        }
+        created_user = helpers.call_action("user_create", context=context, **user_dict)
+
+        assert created_user["id"] == _id
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestUserImageUrl(object):
@@ -2148,6 +2226,47 @@ class TestUserImageUrl(object):
                 logic.ValidationError, match="Unsupported upload type"):
             create_with_upload("hello world", "file.png", **params)
 
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "")
+    def test_uploads_not_allowed_when_empty_mimetypes_and_types(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="No uploads allowed for object type"):
+            create_with_upload("hello world", "file.png", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_all_types_allowed_needs_both_options(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            assert create_with_upload(faker.json(), "file.json", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "*")
+    def test_upload_all_types_allowed(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        assert create_with_upload(faker.json(), "file.json", **params)
+
     @pytest.mark.ckan_config("ckan.upload.user.types", "image")
     def test_upload_picture(self, create_with_upload, faker):
         params = {
@@ -2158,6 +2277,20 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         assert create_with_upload(faker.image(), "file.png", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_picture_extension_enforced(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        user = create_with_upload(faker.image(image_format="jpeg"), "file.png", **params)
+
+        assert user["image_url"].endswith(".jpg")
+        assert user["image_display_url"].endswith(".jpg")
 
 
 class TestVocabularyCreate(object):
@@ -2398,11 +2531,6 @@ class TestPackagePluginData(object):
         created_pkg = helpers.call_action(
             "package_create", context=context, **pkg_dict
         )
-        assert created_pkg["plugin_data"] == {
-            "plugin1": {
-                "key1": "value1"
-            }
-        }
         plugin_data_from_db = model.Session.execute(
             sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
             {'id': created_pkg["id"]}

@@ -2,8 +2,8 @@
 
 {% block url_type_select %}
   {{ super() }}
-  <button type="button" class="btn btn-default" id="resource-table-designer-button"
-    title="{{ _('Create a custom table for your data') }}"
+  <button type="button" class="btn btn-secondary" id="resource-table-designer-button"
+    aria-label="{{ _('Create a custom table for your data') }}"
       onclick="
         document.getElementById('resource-url-table-designer').checked = true;
       "><i class="fa fa-paint-brush"></i>{{ _('Table Designer') }}</button>

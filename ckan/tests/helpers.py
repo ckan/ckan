@@ -34,6 +34,7 @@ from click.testing import CliRunner
 import pytest
 import unittest.mock as mock
 import rq
+from sqlalchemy.orm import close_all_sessions
 
 from ckan.common import config
 import ckan.lib.jobs as jobs
@@ -77,7 +78,7 @@ def reset_db():
     """
     # Close any database connections that have been left open.
     # This prevents CKAN from hanging waiting for some unclosed connection.
-    model.Session.close_all()
+    close_all_sessions()
 
     model.repo.rebuild_db()
 

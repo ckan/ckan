@@ -1,2 +1,0 @@
-serve i18n js faster with LazyJSONObject
-generate compact json instead of pretty-printed json to send less data

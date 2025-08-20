@@ -1,2 +1,0 @@
-Updated the ckan.plugins.toolkit.check_ckan_version() to use packaging.version for version comparison/testing,
-Remove ckan.plugins.toolkit._version_str_2_list() method because of no use.

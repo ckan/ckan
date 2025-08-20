@@ -1,0 +1,1 @@
+Fix EXPLAIN JSON output sometimes being auto-decoded in multithreaded environments by setting json_deserializer at engine level.

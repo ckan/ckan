@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 from ckan.common import CKANConfig
-from typing import Any, cast
-from ckan.types import Context, Schema, Validator, ValidatorFactory
+from typing import Any, cast, List
+from ckan.types import (
+    Context, Schema, Validator, ValidatorFactory, FlattenKey, FlattenErrorDict,
+    FlattenDataDict,
+)
 import logging
 
 import ckan.plugins as plugins
@@ -29,8 +32,7 @@ def create_country_codes():
         data = {'name': 'country_codes'}
         vocab = tk.get_action('vocabulary_create')(context, data)
         for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
-            logging.info(
-                    "Adding tag {0} to vocab 'country_codes'".format(tag))
+            logging.info("Adding tag %s to vocab 'country_codes'", tag)
             data: dict[str, str] = {'name': tag, 'vocabulary_id': vocab['id']}
             tk.get_action('tag_create')(context, data)
 
@@ -44,6 +46,14 @@ def country_codes_helper():
         return country_codes
     except tk.ObjectNotFound:
         return None
+
+
+def draft_todo_validator(
+        key: FlattenKey, data: FlattenDataDict,
+        errors: FlattenErrorDict, context: Context) -> None:
+    '''Error if the dataset state is not set to draft'''
+    if not data.get(('state',), '').startswith('draft'):
+        errors[key].append('must be blank when published')
 
 
 class ExampleIDatasetFormPlugin(
@@ -105,7 +115,9 @@ class ExampleIDatasetFormPlugin(
                 })
         # Add our custom_resource_text metadata field to the schema
         cast(Schema, schema['resources']).update({
-                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ],
+                'draft_only_todo': [
+                    tk.get_validator('ignore_empty'), draft_todo_validator],
                 })
         return schema
 
@@ -150,6 +162,9 @@ class ExampleIDatasetFormPlugin(
                 'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
             })
         return schema
+
+    def resource_validation_dependencies(self, package_type: str) -> List[str]:
+        return ['state']
 
     # These methods just record how many times they're called, for testing
     # purposes.

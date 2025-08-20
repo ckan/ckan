@@ -14,11 +14,13 @@ from ckan.tests.factories import Dataset, Organization
 @pytest.mark.ckan_config("ckan.plugins", "activity")
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestChanges(object):
-    def test_title(self):
+    def test_title(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
-            "package_patch", id=original["id"], title="New title"
+            "package_patch",
+            {"user": user["name"]},
+            id=original["id"], title="New title"
         )
 
         check_metadata_changes(changes, original, new)
@@ -28,11 +30,12 @@ class TestChanges(object):
         assert changes[0]["old_title"] == original["title"]
         assert changes[0]["new_title"] == new["title"]
 
-    def test_name(self):
+    def test_name(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
-            "package_patch", id=original["id"], name="new-name"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], name="new-name"
         )
 
         check_metadata_changes(changes, original, new)
@@ -42,11 +45,12 @@ class TestChanges(object):
         assert changes[0]["old_name"] == original["name"]
         assert changes[0]["new_name"] == "new-name"
 
-    def test_add_extra(self):
+    def test_add_extra(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             extras=[{"key": "subject", "value": "science"}],
         )
@@ -61,11 +65,12 @@ class TestChanges(object):
 
     # TODO how to test 'add_one_no_value'?
 
-    def test_add_multiple_extras(self):
+    def test_add_multiple_extras(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             extras=[
                 {"key": "subject", "value": "science"},
@@ -80,7 +85,7 @@ class TestChanges(object):
         assert changes[0]["method"] == "add_multiple"
         assert set(changes[0]["key_list"]) == set(["subject", "topic"])
 
-    def test_change_extra(self):
+    def test_change_extra(self, user):
         changes = []
         original = Dataset(
             extras=[
@@ -90,6 +95,7 @@ class TestChanges(object):
         )
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             extras=[
                 {"key": "subject", "value": "scientific"},
@@ -106,7 +112,7 @@ class TestChanges(object):
         assert changes[0]["old_value"] == "science"
         assert changes[0]["new_value"] == "scientific"
 
-    def test_change_multiple_extras(self):
+    def test_change_multiple_extras(self, user):
         changes = []
         original = Dataset(
             extras=[
@@ -116,6 +122,7 @@ class TestChanges(object):
         )
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             extras=[
                 {"key": "subject", "value": "scientific"},
@@ -137,7 +144,7 @@ class TestChanges(object):
 
     # TODO how to test change2?
 
-    def test_delete_extra(self):
+    def test_delete_extra(self, user):
         changes = []
         original = Dataset(
             extras=[
@@ -147,6 +154,7 @@ class TestChanges(object):
         )
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             extras=[{"key": "topic", "value": "wind"}],
         )
@@ -158,7 +166,7 @@ class TestChanges(object):
         assert changes[0]["method"] == "remove_one"
         assert changes[0]["key"] == "subject"
 
-    def test_delete_multiple_extras(self):
+    def test_delete_multiple_extras(self, user):
         changes = []
         original = Dataset(
             extras=[
@@ -169,6 +177,7 @@ class TestChanges(object):
         )
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             extras=[{"key": "topic", "value": "wind"}],
         )
@@ -180,11 +189,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "remove_multiple"
         assert set(changes[0]["key_list"]) == set(("subject", "geography"))
 
-    def test_add_maintainer(self):
+    def test_add_maintainer(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
-            "package_patch", id=original["id"], maintainer="new maintainer"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], maintainer="new maintainer"
         )
 
         check_metadata_changes(changes, original, new)
@@ -193,11 +203,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "add"
         assert changes[0]["new_maintainer"] == "new maintainer"
 
-    def test_change_maintainer(self):
+    def test_change_maintainer(self, user):
         changes = []
         original = Dataset(maintainer="first maintainer")
         new = helpers.call_action(
-            "package_patch", id=original["id"], maintainer="new maintainer"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], maintainer="new maintainer"
         )
 
         check_metadata_changes(changes, original, new)
@@ -207,11 +218,12 @@ class TestChanges(object):
         assert changes[0]["old_maintainer"] == "first maintainer"
         assert changes[0]["new_maintainer"] == "new maintainer"
 
-    def test_remove_maintainer(self):
+    def test_remove_maintainer(self, user):
         changes = []
         original = Dataset(maintainer="first maintainer")
         new = helpers.call_action(
-            "package_patch", id=original["id"], maintainer=""
+            "package_patch", {"user": user["name"]},
+            id=original["id"], maintainer=""
         )
 
         check_metadata_changes(changes, original, new)
@@ -219,11 +231,12 @@ class TestChanges(object):
         assert changes[0]["type"] == "maintainer"
         assert changes[0]["method"] == "remove"
 
-    def test_add_notes(self):
+    def test_add_notes(self, user):
         changes = []
         original = Dataset(notes="")
         new = helpers.call_action(
-            "package_patch", id=original["id"], notes="new notes"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], notes="new notes"
         )
 
         check_metadata_changes(changes, original, new)
@@ -232,11 +245,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "add"
         assert changes[0]["new_notes"] == "new notes"
 
-    def test_change_notes(self):
+    def test_change_notes(self, user):
         changes = []
         original = Dataset(notes="first notes")
         new = helpers.call_action(
-            "package_patch", id=original["id"], notes="new notes"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], notes="new notes"
         )
 
         check_metadata_changes(changes, original, new)
@@ -246,10 +260,13 @@ class TestChanges(object):
         assert changes[0]["old_notes"] == "first notes"
         assert changes[0]["new_notes"] == "new notes"
 
-    def test_remove_notes(self):
+    def test_remove_notes(self, user):
         changes = []
         original = Dataset(notes="first notes")
-        new = helpers.call_action("package_patch", id=original["id"], notes="")
+        new = helpers.call_action(
+            "package_patch", {"user": user["name"]},
+            id=original["id"], notes=""
+        )
 
         check_metadata_changes(changes, original, new)
 
@@ -257,12 +274,13 @@ class TestChanges(object):
         assert changes[0]["method"] == "remove"
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", True)
-    def test_add_org(self):
+    def test_add_org(self, user):
         changes = []
         original = Dataset(owner_org=None)
         new_org = Organization()
         new = helpers.call_action(
-            "package_patch", id=original["id"], owner_org=new_org["id"]
+            "package_patch", {"user": user["name"]},
+            id=original["id"], owner_org=new_org["id"]
         )
 
         check_metadata_changes(changes, original, new)
@@ -271,13 +289,14 @@ class TestChanges(object):
         assert changes[0]["method"] == "add"
         assert changes[0]["new_org_id"] == new_org["id"]
 
-    def test_change_org(self):
+    def test_change_org(self, user):
         changes = []
         old_org = Organization()
         original = Dataset(owner_org=old_org["id"])
         new_org = Organization()
         new = helpers.call_action(
-            "package_patch", id=original["id"], owner_org=new_org["id"]
+            "package_patch", {"user": user["name"]},
+            id=original["id"], owner_org=new_org["id"]
         )
 
         check_metadata_changes(changes, original, new)
@@ -288,30 +307,36 @@ class TestChanges(object):
         assert changes[0]["new_org_id"] == new_org["id"]
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", True)
-    def test_remove_org(self):
+    def test_remove_org(self, user):
         changes = []
         old_org = Organization()
         original = Dataset(owner_org=old_org["id"])
 
-        import ckan.model as model
+        helpers.call_action(
+            "package_patch",
+            {"user": user["name"]},
+            id=original["id"],
+            owner_org='',
+        )
 
-        pkg = model.Package.get(original["id"])
-        pkg.owner_org = None
-        pkg.save()
-
-        new = helpers.call_action("package_show", id=original["id"])
+        new = helpers.call_action(
+            "package_show",
+            {"user": user["name"]},
+            id=original["id"],
+        )
 
         check_metadata_changes(changes, original, new)
 
         assert changes[0]["type"] == "org"
         assert changes[0]["method"] == "remove"
 
-    def test_make_private(self):
+    def test_make_private(self, user):
         changes = []
         old_org = Organization()
         original = Dataset(owner_org=old_org["id"], private=False)
         new = helpers.call_action(
-            "package_patch", id=original["id"], private=True
+            "package_patch", {"user": user["name"]},
+            id=original["id"], private=True
         )
 
         check_metadata_changes(changes, original, new)
@@ -320,12 +345,13 @@ class TestChanges(object):
         assert changes[0]["type"] == "private"
         assert changes[0]["new"] == "Private"
 
-    def test_make_public(self):
+    def test_make_public(self, user):
         changes = []
         old_org = Organization()
         original = Dataset(owner_org=old_org["id"], private=True)
         new = helpers.call_action(
-            "package_patch", id=original["id"], private=False
+            "package_patch", {"user": user["name"]},
+            id=original["id"], private=False
         )
 
         check_metadata_changes(changes, original, new)
@@ -334,11 +360,12 @@ class TestChanges(object):
         assert changes[0]["type"] == "private"
         assert changes[0]["new"] == "Public"
 
-    def test_add_tag(self):
+    def test_add_tag(self, user):
         changes = []
         original = Dataset(tags=[{"name": "rivers"}])
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             tags=[{"name": "rivers"}, {"name": "oceans"}],
         )
@@ -350,11 +377,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "add_one"
         assert changes[0]["tag"] == "oceans"
 
-    def test_add_multiple_tags(self):
+    def test_add_multiple_tags(self, user):
         changes = []
         original = Dataset(tags=[{"name": "rivers"}])
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             tags=[
                 {"name": "rivers"},
@@ -370,11 +398,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "add_multiple"
         assert set(changes[0]["tags"]) == set(("oceans", "streams"))
 
-    def test_delete_tag(self):
+    def test_delete_tag(self, user):
         changes = []
         original = Dataset(tags=[{"name": "rivers"}, {"name": "oceans"}])
         new = helpers.call_action(
-            "package_patch", id=original["id"], tags=[{"name": "rivers"}]
+            "package_patch", {"user": user["name"]},
+            id=original["id"], tags=[{"name": "rivers"}]
         )
 
         check_metadata_changes(changes, original, new)
@@ -384,7 +413,7 @@ class TestChanges(object):
         assert changes[0]["method"] == "remove_one"
         assert changes[0]["tag"] == "oceans"
 
-    def test_remove_multiple_tags(self):
+    def test_remove_multiple_tags(self, user):
         changes = []
         original = Dataset(
             tags=[
@@ -394,7 +423,8 @@ class TestChanges(object):
             ]
         )
         new = helpers.call_action(
-            "package_patch", id=original["id"], tags=[{"name": "rivers"}]
+            "package_patch", {"user": user["name"]},
+            id=original["id"], tags=[{"name": "rivers"}]
         )
 
         check_metadata_changes(changes, original, new)
@@ -404,11 +434,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "remove_multiple"
         assert set(changes[0]["tags"]) == set(("oceans", "streams"))
 
-    def test_add_url(self):
+    def test_add_url(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
-            "package_patch", id=original["id"], url="new url"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], url="new url"
         )
 
         check_metadata_changes(changes, original, new)
@@ -417,11 +448,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "add"
         assert changes[0]["new_url"] == "new url"
 
-    def test_change_url(self):
+    def test_change_url(self, user):
         changes = []
         original = Dataset(url="first url")
         new = helpers.call_action(
-            "package_patch", id=original["id"], url="new url"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], url="new url"
         )
 
         check_metadata_changes(changes, original, new)
@@ -431,21 +463,25 @@ class TestChanges(object):
         assert changes[0]["old_url"] == "first url"
         assert changes[0]["new_url"] == "new url"
 
-    def test_remove_url(self):
+    def test_remove_url(self, user):
         changes = []
         original = Dataset(url="first url")
-        new = helpers.call_action("package_patch", id=original["id"], url="")
+        new = helpers.call_action(
+            "package_patch", {"user": user["name"]},
+            id=original["id"], url=""
+        )
 
         check_metadata_changes(changes, original, new)
 
         assert changes[0]["type"] == "url"
         assert changes[0]["method"] == "remove"
 
-    def test_add_version(self):
+    def test_add_version(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
-            "package_patch", id=original["id"], version="new version"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], version="new version"
         )
 
         check_metadata_changes(changes, original, new)
@@ -454,11 +490,12 @@ class TestChanges(object):
         assert changes[0]["method"] == "add"
         assert changes[0]["new_version"] == "new version"
 
-    def test_change_version(self):
+    def test_change_version(self, user):
         changes = []
         original = Dataset(version="first version")
         new = helpers.call_action(
-            "package_patch", id=original["id"], version="new version"
+            "package_patch", {"user": user["name"]},
+            id=original["id"], version="new version"
         )
 
         check_metadata_changes(changes, original, new)
@@ -468,11 +505,12 @@ class TestChanges(object):
         assert changes[0]["old_version"] == "first version"
         assert changes[0]["new_version"] == "new version"
 
-    def test_remove_version(self):
+    def test_remove_version(self, user):
         changes = []
         original = Dataset(version="first version")
         new = helpers.call_action(
-            "package_patch", id=original["id"], version=""
+            "package_patch", {"user": user["name"]},
+            id=original["id"], version=""
         )
 
         check_metadata_changes(changes, original, new)
@@ -480,11 +518,12 @@ class TestChanges(object):
         assert changes[0]["type"] == "version"
         assert changes[0]["method"] == "remove"
 
-    def test_add_resource(self):
+    def test_add_resource(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             resources=[
                 {
@@ -501,11 +540,12 @@ class TestChanges(object):
         assert changes[0]["type"] == "new_resource"
         assert changes[0]["resource_name"] == "Image 1"
 
-    def test_add_multiple_resources(self):
+    def test_add_multiple_resources(self, user):
         changes = []
         original = Dataset()
         new = helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
             resources=[
                 {
@@ -532,7 +572,7 @@ class TestChanges(object):
             assert changes[1]["resource_name"] == "Image 1"
             assert changes[0]["resource_name"] == "Image 2"
 
-    def test_change_resource_url(self):
+    def test_change_resource_url(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -550,7 +590,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         new["resources"][1]["url"] = "http://example.com/image_changed.png"
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -558,7 +602,7 @@ class TestChanges(object):
         assert changes[0]["type"] == "new_file"
         assert changes[0]["resource_name"] == "Image 2"
 
-    def test_change_resource_format(self):
+    def test_change_resource_format(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -576,7 +620,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         new["resources"][1]["format"] = "jpg"
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -584,7 +632,7 @@ class TestChanges(object):
         assert changes[0]["type"] == "resource_format"
         assert changes[0]["resource_name"] == "Image 2"
 
-    def test_change_resource_name(self):
+    def test_change_resource_name(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -602,7 +650,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         new["resources"][1]["name"] = "Image changed"
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -611,7 +663,7 @@ class TestChanges(object):
         assert changes[0]["old_resource_name"] == "Image 2"
         assert changes[0]["new_resource_name"] == "Image changed"
 
-    def test_change_resource_description(self):
+    def test_change_resource_description(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -631,7 +683,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         new["resources"][1]["description"] = "changed"
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -640,7 +696,7 @@ class TestChanges(object):
         assert changes[0]["method"] == "change"
         assert changes[0]["resource_name"] == "Image 2"
 
-    def test_add_resource_extra(self):
+    def test_add_resource_extra(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -653,7 +709,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         new["resources"][0]["new key"] = "new value"
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -663,7 +723,7 @@ class TestChanges(object):
         assert changes[0]["key"] == "new key"
         assert changes[0]["value"] == "new value"
 
-    def test_change_resource_extra(self):
+    def test_change_resource_extra(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -677,7 +737,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         new["resources"][0]["key1"] = "new value"
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -688,7 +752,7 @@ class TestChanges(object):
         assert changes[0]["old_value"] == "value1"
         assert changes[0]["new_value"] == "new value"
 
-    def test_remove_resource_extra(self):
+    def test_remove_resource_extra(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -702,7 +766,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         del new["resources"][0]["key1"]
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -711,7 +779,7 @@ class TestChanges(object):
         assert changes[0]["method"] == "remove_one"
         assert changes[0]["key"] == "key1"
 
-    def test_change_multiple_resources(self):
+    def test_change_multiple_resources(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -735,7 +803,11 @@ class TestChanges(object):
         new = copy.deepcopy(original)
         new["resources"][0]["name"] = "changed-1"
         new["resources"][1]["name"] = "changed-2"
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -748,7 +820,7 @@ class TestChanges(object):
             assert changes[0]["old_resource_name"] == "Image 2"
             assert changes[0]["new_resource_name"] == "changed-2"
 
-    def test_delete_resource(self):
+    def test_delete_resource(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -766,7 +838,11 @@ class TestChanges(object):
         )
         new = copy.deepcopy(original)
         del new["resources"][0]
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 
@@ -774,7 +850,7 @@ class TestChanges(object):
         assert changes[0]["type"] == "delete_resource"
         assert changes[0]["resource_name"] == "Image 1"
 
-    def test_delete_multiple_resources(self):
+    def test_delete_multiple_resources(self, user):
         changes = []
         original = Dataset(
             resources=[
@@ -798,7 +874,11 @@ class TestChanges(object):
         new = copy.deepcopy(original)
         del new["resources"][1]
         del new["resources"][0]
-        new = helpers.call_action("package_update", **new)
+        new = helpers.call_action(
+            "package_update",
+            {"user": user["name"]},
+            **new,
+        )
 
         check_resource_changes(changes, original, new, "fake")
 

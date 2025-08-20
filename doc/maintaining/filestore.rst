@@ -37,11 +37,12 @@ To setup CKAN's FileStore with local file storage:
 
      sudo mkdir -p |storage_path|
 
-2. Add the following line to your CKAN config file, after the ``[app:main]``
+2. Add the following lines to your CKAN config file, after the ``[app:main]``
    line:
 
    .. parsed-literal::
 
+      ckan.uploads_enabled = true
       ckan.storage_path = |storage_path|
 
 3. Set the permissions of your :ref:`ckan.storage_path` directory.
@@ -169,4 +170,4 @@ custom types get registered on startup::
 
 
 
-.. _mimetypes: http://docs.python.org/2/library/mimetypes.html
+.. _mimetypes: https://docs.python.org/3/library/mimetypes.html

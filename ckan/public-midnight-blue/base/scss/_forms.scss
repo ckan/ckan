@@ -1,0 +1,861 @@
+.js .js-hide {
+    display: none;
+}
+
+.js .js-hide.active {
+    display: block;
+}
+
+.btn,
+label {
+    font-weight: bold;
+}
+
+.btn-rounded {
+    @include border-radius(100px);
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+label {
+    cursor: pointer;
+    font-size: 14px;
+}
+
+label:after {
+    content: ":";
+}
+
+label.radio:after,
+label.checkbox:after {
+    content: "";
+}
+
+.cr-controls-reset {
+    position: relative;
+    margin-left: initial;
+    margin-right: math.div($grid-gutter-width, 6);
+    top: 2px;
+}
+
+.checkbox {
+    input[type=checkbox] {
+        @extend .cr-controls-reset;
+    }
+}
+
+.radio {
+    input[type=radio] {
+        @extend .cr-controls-reset;
+    }
+}
+
+select {
+    padding: 4px;
+}
+
+textarea {
+    max-width: 100%;
+}
+
+.form-group {
+    margin-bottom: 30px;
+}
+.form-group .btn {
+    position: relative;
+    top: -2px;
+}
+
+.unselectable {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox,
+.radio {
+    @extend .unselectable;
+}
+
+.control-full input,
+.control-full select,
+.control-full textarea {
+    height: auto;
+    width: 100%;
+}
+
+.control-required {
+    color: $errorBorder;
+}
+
+.form-actions {
+    overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+    justify-content: end;
+    text-align: right;
+
+    .action-info {
+        line-height: 1rem;
+        text-align: left;
+        color: $formInfoText;
+        margin: 0 auto 1rem 0;
+        flex-basis: 100%;
+
+        .small {
+            font-size: 11px;
+            line-height: 1.2;
+        }
+    }
+
+    .btn {
+        flex-basis: 100%;
+        height: fit-content;
+        margin-bottom: 0.5rem;
+    }
+
+    @include media-breakpoint-up(sm) {
+        flex-direction: row;
+
+        .btn {
+            margin-bottom: 0;
+            margin-inline-start: 0.5rem;
+            flex-basis: auto;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        .action-info {
+            line-height: 1.25rem;
+            flex-basis: 50%;
+            margin: 0 auto 0 0;
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+
+        .action-info {
+            flex-basis: 60%;
+        }
+    }
+}
+
+.form-group .info-block {
+    position: relative;
+    display: block;
+    font-size: 11px;
+    color: $emptyTextColor;
+    line-height: 1.3;
+    margin-top: 6px;
+}
+
+.form-group .info-help {
+    padding: 6px 0;
+    &:before {
+        display: none;
+    }
+}
+
+.form-group .info-help-tight {
+    margin-top: -10px;
+}
+
+@include media-breakpoint-up(md)  {
+    .form-group .info-block {
+        padding: ($grid-gutter-width, 6) 0 ($grid-gutter-width, 6) (math.div($grid-gutter-width, 3));
+    }
+    .form-group .info-inline {
+        margin-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+form .control-medium .info-block.info-inline {
+    width: 165px;
+}
+
+.form-group .info-block:before {
+    font-size: 2.2em;
+    position: absolute;
+    left: 0;
+    top: 2px;
+}
+
+.form-group .info-inline:before {
+    top: 8px;
+}
+
+.info-block,
+.info-inline {
+    .icon-large {
+        float: left;
+        font-size: 22px;
+        margin-right: $gutterSmallX;
+    }
+}
+
+.form-group .info-block a {
+    color: $emptyTextColor;
+    text-decoration: underline;
+}
+
+.form-inline input {
+    padding-bottom: 9px;
+}
+
+.form-inline select {
+    margin-top: 0;
+}
+
+.form-inline .btn {
+    margin-left: 5px;
+}
+
+// Form icons
+.form-group .controls .icon {
+    padding: 14px;
+    position: absolute;
+}
+
+.form-group .controls .icon + .form-control {
+    width: 100%;
+    padding-left: 2.5rem;
+}
+
+// Form Narrow
+.form-narrow label {
+    margin-bottom: 0;
+}
+
+.form-narrow select {
+    width: 100%;
+}
+
+.form-narrow .form-actions {
+    margin-left: -$gutterSmallX;
+    margin-right: -$gutterSmallX;
+    padding: 10px $gutterSmallX 0;
+}
+
+input[data-module="autocomplete"],
+select[data-module="autocomplete"] {
+    width: 100%;
+}
+
+// Inline Select Forms
+.form-select label {
+    margin-right: 5px;
+}
+
+// Single Field Inputs
+.simple-input label,
+.simple-input button {
+  display: none;
+}
+
+.simple-input .field {
+    position: relative;
+}
+
+.simple-input .field-bordered {
+    border-bottom: 1px dotted $genericBorderColor;
+}
+
+.simple-input .field input {
+    width: 100%;
+    height: auto; // margin: 0 -7px; // Pull input out into gutter
+}
+
+.simple-input .field .btn-search {
+    position: absolute;
+    display: block;
+    height: 17px;
+    width: 17px;
+    padding: 0;
+    top: 50%;
+    right: math.div($grid-gutter-width, 3);
+    margin-top: -10px;
+    background-color: transparent;
+    border: none;
+    color: #999;
+    @include transition(color 0.2s ease-in);
+    &:hover {
+        color: #000;
+    }
+}
+
+.editor textarea {
+    @include border-radius($inputBorderRadius $inputBorderRadius);
+}
+
+.editor .editor-info-block {
+    margin-top: 8px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    width: 245px;
+    height: auto;
+    border-top: none;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    color: #344054;
+    background-color: #F9FAFB;
+    gap: 7px;
+    letter-spacing: -0.6px;
+}
+
+.editor .editor-info-block a {
+    color: #004999;
+    text-decoration: none;
+}
+
+// Custom Key/Value input
+.control-custom {
+    font-size: 0; // Remove whitespace between fields.
+    .input-group {
+        margin-bottom: math.div($grid-gutter-width, 3);
+    }
+}
+
+.control-custom .checkbox {
+    display: inline-block;
+    margin: 2px 0 2px math.div($grid-gutter-width, 3);
+}
+
+.control-custom .checkbox input {
+    width: auto;
+}
+
+.control-custom.disabled label,
+.control-custom.disabled input {
+    color: $disabledCustomInputTextColor;
+    text-decoration: line-through;
+    text-shadow: none;
+}
+
+.control-custom.disabled input {
+    @include box-shadow(none);
+    background-color: $disabledCustomInputBackground;
+}
+
+.control-custom.disabled .checkbox {
+    color: $layoutTextColor;
+    text-decoration: none;
+}
+
+// JavaScript Enabled Remove Button
+.control-custom .checkbox.btn {
+    @include border-radius(15px);
+    position: relative;
+    top: 0;
+    left: 5px;
+    height: 1px;
+    width: 9px;
+    padding: 3px 8px;
+    line-height: 18px;
+}
+
+.control-custom .checkbox.btn span {
+    display: none;
+    width: 30px;
+}
+
+.control-custom .checkbox.btn:before {
+    position: relative;
+    top: 1px;
+    left: -1px;
+    color: #fff;
+}
+
+.control-custom .checkbox input {
+    display: none;
+}
+
+.control-custom.disabled .checkbox.btn {
+    @extend .btn-danger;
+}
+
+// Errors
+.alert-danger a {
+    color: $errorText;
+    text-decoration: underline;
+}
+
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea,
+.form-group.has-error .input-group .input-group-addon,
+.form-group.has-error .input-group .input-group-addon {
+    border-color: $errorBorder;
+}
+
+.form-group {
+    select,
+    .select2-container {
+        max-width: 100%;
+    }
+}
+
+.error-inline {
+    color: $errorText;
+    margin: math.div($grid-gutter-width, 3);
+}
+
+.error-block,
+.error-inline {
+    font-size: $font-size-sm;
+}
+
+.error-block {
+    @include border-radius(0 0 $inputBorderRadius $inputBorderRadius);
+    display: block;
+    padding: 6px 8px 3px;
+    background: $errorBorder;
+    color: $inputBackground;
+    width: auto;
+}
+
+.control-medium .error-block {
+    width: auto;
+}
+
+.control-full .error-block {
+    width: auto;
+}
+
+.form-group.has-error .input-group .error-block,
+.control-custom.error .error-block {
+    width: auto;
+}
+
+.control-custom.error .error-block {
+    width: auto;
+    @include border-radius($border-radius-sm);
+}
+
+.control-select.error .error-block {
+    width: auto;
+}
+
+// Stages
+// Builds form stages out of an ordered list. The following CSS uses tag
+// selectors on the .active class to prevent the styles bleeding into the
+// anchor element which can also have an active class.
+.stages {
+    @include list-unstyled;
+    color: $stagesTextColor;
+    counter-reset: stage;
+    overflow: hidden;
+    margin-bottom: $grid-gutter-width;
+    padding: 0;
+    li {
+        counter-increment: stage;
+        border-radius: 8px;
+        background-color: $gray-100;
+        position: relative;
+        margin-bottom: 1rem;
+        z-index: 0;
+        padding: 12px 4px;
+        border: 1px solid $gray-300;
+        .stage-nohighlight {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 14px;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+            border: none; 
+            background: none; 
+        }
+        .step {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 18px;
+        }
+      
+        .step-name {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: -0.8px;
+        }
+    }
+}
+
+.stages li.last {
+    position: relative;
+}
+
+.stages li.first:after {
+    content: none;
+    border: none;
+}
+
+.stages li.active:after {
+    border-color: $stagesActiveTransparentBackground;
+    border-top-color: $stagesActiveBackground;
+    border-bottom-color: $stagesActiveBackground;
+}
+
+.stages li.complete:after {
+    border-color: $stagesCompleteTransparentBackground;
+    border-top-color: $stagesCompleteBackground;
+    border-bottom-color: $stagesCompleteBackground;
+}
+
+.stages.stage-3 li.complete:first-child:after {
+    content: none;
+}
+
+.stages li.active .step,
+.stages li.complete .step {
+    color: $gray-500;
+}
+.stages li.active .step-name,
+.stages li.complete .step-name {
+    color: $gray-900;
+}
+
+.stages li.active:before {
+    color: $stagesCounterActiveTextColor;
+    background: $stagesCounterActiveBackground;
+}
+
+.stages li.complete:before {
+    color: $stagesCounterCompleteTextColor;
+    background: $stagesCounterCompleteBackground;
+}
+
+// Needs to style spa, button and a elements.
+.stages li .highlight {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 10px 52px;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    line-height: 27px;
+    z-index: -1;
+}
+
+.stages li.active .highlight {
+    color: $stagesActiveTextColor;
+    background: $stagesActiveBackground;
+}
+
+.stages li.complete .highlight {
+    color: $stagesCompleteTextColor;
+    background: $stagesCompleteBackground;
+}
+
+// Errors
+.alert> :last-child {
+    margin-bottom: 0;
+}
+
+// Slug Preview Field
+.slug-preview {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.slug-preview-value {
+    background-color: #faedcf;
+    margin-right: 3px;
+}
+
+// Select2
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+    font-size: 14px;
+}
+
+.select2-container-multi .select2-choices .select2-search-field input {
+    padding: 0px !important;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: -0.8px;
+    color: #667085;
+    font-family: $baseFontFamily;
+    line-height: 100%;
+}
+
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+    // Only apply if there are no other tags (ie. is the first child)
+    padding-left: 10px;
+}
+
+.select2-container {
+    margin-top: 1px;
+    margin-bottom: math.div($grid-gutter-width,4);
+}
+
+.select2-container-multi {
+    margin-top: 0;
+}
+
+.select2-container-multi .select2-choices .select2-search-choice {
+    padding: 5px 8px 5px 22px;
+}
+
+.select2-container-multi.select2-container .select2-choices {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border: 0.125rem solid #D0D5DD ;
+}
+
+.select2-search-choice-close,
+.select2-container-multi .select2-search-choice-close {
+    top: 6px;
+    left: 5px;
+}
+
+.select2-container-multi .select2-choices {
+    @include border-radius(3px);
+    @include box-shadow(inset 0 1px 1px rgba(0, 0, 0, .075));
+    $transition: border linear .2s,
+    box-shadow linear .2s;
+    @include transition($transition);
+    background-color: $inputBackground;
+    border: 1px solid $inputBorder;
+}
+
+.select2-container-active .select2-choices,
+.select2-container-multi.select2-container-active .select2-choices {
+    border-color: rgba(82, 168, 236, .8);
+    outline: 0;
+    outline: thin dotted \9;
+    /* IE6-9 */
+}
+
+.select2-container-multi .select2-drop {
+    margin-top: -2px;
+}
+
+.select2-container .select2-results li {
+    line-height: 18px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.control-full .select2-container {
+    max-width: 100%;
+}
+
+.form-group.has-error .select2-container {
+    input:focus,
+    select:focus,
+    textarea:focus {
+        @include box-shadow(none);
+    }
+}
+
+.js .image-upload {
+    #field-image-url {
+        padding-right: 90px;
+    }
+    #field-image-upload {
+        cursor: pointer;
+        position: absolute;
+        z-index: 1;
+        opacity: 0;
+    }
+    .controls {
+        position: relative;
+    }
+    .btn {
+        position: relative;
+        top: 0;
+        margin-right: 10px;
+        &.hover {
+            color: $gray-700;
+            text-decoration: none;
+            background-position: 0 -15px;
+            @include transition(background-position .1s linear);
+        }
+    }
+    .btn-remove-url {
+        position: absolute;
+        margin-right: 0;
+        top: math.div($grid-gutter-width,5);
+        right: math.div($grid-gutter-width,6);
+        padding: 0 12px;
+        @include border-radius(100px);
+        .icon-remove {
+            margin-right: 0;
+        }
+    }
+
+    .error-inline {
+      margin-top: 5px;
+      margin-left: 2px;
+      font-weight: bold;
+    }
+}
+
+.add-member-or {
+    text-align: center;
+    text-transform: uppercase;
+    color: $gray-600;
+    font-weight: bold;
+    margin-bottom: 30px;
+
+    @include media-breakpoint-up(md) {
+        margin-bottom: 0;
+    }
+}
+
+#recaptcha_table {
+    table-layout: inherit;
+    line-height: 1;
+}
+
+.resource-upload-field {
+    > input[type="radio"] {
+        // hide the radio buttons we're using to show/hide select-type divs
+        display: none;
+    }
+
+    > div.select-type {
+        // "Remove" buttons should be positioned relative to this element
+        position: relative;
+        // defaut select-type divs to hidden...
+        display: none;
+    }
+
+    > input[type="radio"]:checked + div.select-type {
+        // ...unless the radio button above is checked
+        display: block;
+    }
+
+    label.btn::after {
+        // button labels don't need a ":" at the end of the content
+        content: "";
+    }
+
+    .btn-remove-url {
+        position: absolute;
+        margin-right: 0;
+        margin-top: 11px;
+        top: $grid-gutter-width;
+        right: math.div($grid-gutter-width, 6);
+        padding: 0 12px;
+        border-radius: 100px;
+        .icon-remove {
+            margin-right: 0;
+        }
+    }
+
+    input#field-clear-upload {
+        // checkbox shows/hides existing upload display and new upload input
+        display: none;
+
+        + div.upload-type {
+          display: block;
+        }
+
+        ~ .upload-type {
+          display: none;
+        }
+    }
+
+    input#field-clear-upload:checked {
+        + div.upload-type {
+          display: none;
+        }
+
+        ~ .upload-type {
+          display: block;
+        }
+    }
+}
+
+.select2-container {
+    .select2-choice {
+        display: block;
+        height: 40px !important;
+        padding: 0.75rem !important;
+        overflow: hidden;
+        position: relative;
+        border: none !important;
+        white-space: none !important;
+        line-height: 1.5 !important;
+        font-weight: 400;
+        font-size: 14px;
+        color: #667085 !important;
+        text-decoration: none;
+        border-radius: 6px !important;
+        background-clip: padding-box;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-color: #fff;
+        filter: none !important;
+        background-image: none !important;
+        border-color: #D0D5DD !important;
+
+        .select2-arrow {
+            display: inline-block;
+            width: 18px;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
+            border-left: none !important;
+            border-radius: 0 4px 4px 0;
+            background-clip: padding-box;
+            background: white !important;
+            background-image: none !important;
+            padding-right: 8px;
+
+            b {
+                background-image: none !important;
+                background: none !important;
+                display: block;
+                width: 100%;
+                height: 100%;
+                background: none !important;
+                position: relative; 
+
+                &::before {
+                    content: "\f078"; 
+                    font-family: 'Font Awesome 5 Free'; 
+                    font-weight: 900; 
+                    font-size: 8px; 
+                    color: #667085; 
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+                
+            }
+        }
+    }
+
+    .select2-default {
+        color: white !important;
+    }
+
+    .select2-choice.select2-default {
+        background-color: #ffffff !important;
+    }
+}
+
+
+.select2-dropdown-open .select2-choice {
+    background-color: white !important;
+}

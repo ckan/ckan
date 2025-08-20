@@ -125,7 +125,7 @@ def _mail_recipient(
             smtp_connection.login(smtp_user, smtp_password)
 
         smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
-        log.info("Sent email to {0}".format(recipient_email))
+        log.info("Sent email to %s", recipient_email)
 
     except smtplib.SMTPException as e:
         msg = '%r' % e

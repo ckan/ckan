@@ -101,10 +101,28 @@ class CKANConfigLoader(object):
                 )
 
     def _create_config_object(self):
+
+        logging_sections = ["loggers", "handlers", "formatters"]
+        logging_prefixes = tuple(f"{s[:-1]}_" for s in logging_sections)
+
         chain = self._unwrap_config_chain(self.config_file)
         for filename in reversed(chain):
             self._read_config_file(filename)
             self._update_config()
+
+            if all([self.parser.has_section(s) for s in logging_sections]):
+                loggingFileConfig(filename)
+
+                # We use the same parser instance for all chained files, so we
+                # can interpolate variables in the lower level config files, but
+                # we need to reset the logging sections otherwise they will come up
+                # when parsing the next files even if they are not present
+                for section in self.parser.sections():
+                    if section in logging_sections or section.startswith(
+                        logging_prefixes
+                    ):
+                        self.parser.remove_section(section)
+
         log.debug(
             u'Loaded configuration from the following files: %s',
             chain
@@ -155,7 +173,7 @@ or have one of {} in the current directory.'''
         raise CkanConfigurationException(msg)
 
     config_loader = CKANConfigLoader(filename)
-    loggingFileConfig(filename)
-    log.info(u'Using configuration file {}'.format(filename))
+
+    log.info('Using configuration file %s', filename)
 
     return config_loader.get_config()

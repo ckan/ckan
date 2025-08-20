@@ -84,6 +84,21 @@ class TestDeleteResource(object):
         pkg = helpers.call_action("package_show", id=res["package_id"])
         assert len(pkg["resources"]) == 0
 
+    def test_resource_delete_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        res1 = factories.Resource()
+        res2 = factories.Resource(package_id=res1['package_id'])
+        factories.Resource(package_id=res1['package_id'])
+        params = {
+            "id": res2['id'],
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_delete", **params)
+            assert m.call_args.args[3] == {0: 0, 1: 2}, 'unchanged res 0, 2'
+
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
@@ -278,14 +293,7 @@ class TestGroupPurge(object):
 
         helpers.call_action("group_purge", id=group1["name"])
 
-        # the Group and related objects are gone
         assert not model.Group.get(group1["name"])
-        assert (
-            model.Session.query(model.GroupExtra)
-            .filter_by(group_id=group1["id"])
-            .all()
-            == []
-        )
         # the only members left are the users for the parent and child
         assert sorted(
             (m.table_name, m.group.name)
@@ -379,14 +387,7 @@ class TestOrganizationPurge(object):
 
         helpers.call_action("organization_purge", id=org1["name"])
 
-        # the Organization and related objects are gone
         assert not model.Group.get(org1["id"])
-        assert (
-            model.Session.query(model.GroupExtra)
-            .filter_by(group_id=org1["id"])
-            .all()
-            == []
-        )
         # the only members left are the users for the parent and child
         assert sorted(
             (m.table_name, m.group.name)
@@ -499,12 +500,6 @@ class TestDatasetPurge(object):
         # there is no clean-up of the tag object itself, just the PackageTag.
         assert model.Session.query(model.Tag).filter_by(name=tag).one()
 
-        assert (
-            model.Session.query(model.PackageExtra)
-            .filter_by(package_id=dataset["id"])
-            .all()
-            == []
-        )
         # the only member left is for the user created in factories.Group() and
         # factories.Organization()
         assert sorted(

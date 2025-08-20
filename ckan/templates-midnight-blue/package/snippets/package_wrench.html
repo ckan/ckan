@@ -1,0 +1,26 @@
+
+{% if pkg %}
+{% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
+{% set pkg_url =  h.url_for(pkg.type ~ '.read', id=pkg.name) %}
+<section class="module module-narrow module-shallow">
+  <div class="module-group">
+    <h2 class="module-heading" id="headingPackagewrench">
+          {{ _("Dataset") }}
+    </h2>
+    <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between position-relative">
+        <a {% if can_edit %}class="flex-fill"{% endif %} href="{{ pkg_url }}" aria-label="{{ _('Navigate to package: {name}').format(name=pkg.title or pkg.name) }}">{{ pkg.title | truncate(25)  }}</a>
+        {% if can_edit %}
+        <div class="dropdown position-absolute end-0 me-2">
+          <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownRes{{ pkg.id }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ pkg.id }}">
+            <li>{% link_for h.humanize_entity_type('package', pkg.type, 'edit label') or _('Edit Dataset'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='dropdown-item', icon='pencil' %}</li>            
+          </ul>
+        </div>
+        {% endif %}
+      </li>
+    </ul>
+  </div>
+</section>
+
+{% endif %}

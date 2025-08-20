@@ -377,6 +377,12 @@ def search(package_type: str) -> str:
     for key, value in extra_vars.items():
         setattr(g, key, value)
 
+    if request.htmx:
+        return base.render(
+            _get_pkg_template('search_template_htmx', package_type),
+            extra_vars
+        )
+
     return base.render(
         _get_pkg_template(u'search_template', package_type), extra_vars
     )
@@ -541,8 +547,6 @@ class CreateView(MethodView):
             return base.abort(400, _(u'Integrity Error'))
         try:
             if ckan_phase:
-                # prevent clearing of groups etc
-                context[u'allow_partial_update'] = True
                 # sort the tags
                 if u'tag_string' in data_dict:
                     data_dict[u'tags'] = _tag_string_to_list(
@@ -561,10 +565,25 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    url = h.url_for(
-                        u'{}_resource.new'.format(package_type),
-                        id=pkg_dict[u'name']
-                    )
+                    try:
+                        last_added_resource = pkg_dict[u'resources'][-1]
+                    except IndexError:
+                        last_added_resource = None
+                    if last_added_resource and request.form[u'save'] == "go-resources":
+                        url = h.url_for(
+                            u'{}_resource.edit'.format(package_type),
+                            id=pkg_dict.get('id'),
+                            resource_id=last_added_resource.get('id'))
+                    elif request.form[u'save'] == "go-metadata-preview":
+                        url = h.url_for(
+                            u'{}.read'.format(package_type),
+                            id=pkg_dict.get('id')
+                        )
+                    else:
+                        url = h.url_for(
+                            u'{}_resource.new'.format(package_type),
+                            id=pkg_dict[u'name']
+                        )
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.form[u'save'] not in [
@@ -724,8 +743,6 @@ class EditView(MethodView):
             return base.abort(400, _(u'Integrity Error'))
         try:
             if u'_ckan_phase' in data_dict:
-                # we allow partial updates to not destroy existing resources
-                context[u'allow_partial_update'] = True
                 if u'tag_string' in data_dict:
                     data_dict[u'tags'] = _tag_string_to_list(
                         data_dict[u'tag_string']
@@ -733,6 +750,9 @@ class EditView(MethodView):
                 del data_dict[u'_ckan_phase']
                 del data_dict[u'save']
             data_dict['id'] = id
+            if request.form.get(u'save', None) == u'go-metadata-unpublish':
+                data_dict[u'state'] = u'draft'
+
             pkg_dict = get_action(u'package_update')(context, data_dict)
 
             return _form_save_redirect(
@@ -926,7 +946,7 @@ def follow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 
@@ -953,7 +973,7 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
         'am_following': am_following,
         'current_user': current_user,
         'error_message': error_message
-        }
+    }
 
     return base.render('package/snippets/info.html', extra_vars)
 

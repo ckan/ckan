@@ -45,11 +45,11 @@
                   <th></th>
                   <th class="table-actions">
                     <div class="btn-group">
-                      <button name="bulk_action.public" value="public" class="btn btn-default" type="submit">
+                      <button name="bulk_action.public" value="public" class="btn btn-secondary" type="submit">
                         <i class="fa fa-eye"></i>
                         {{ _('Make public') }}
                       </button>
-                      <button name="bulk_action.private" value="private" class="btn btn-default" type="submit">
+                      <button name="bulk_action.private" value="private" class="btn btn-secondary" type="submit">
                         <i class="fa fa-eye-slash"></i>
                         {{ _('Make private') }}
                       </button>
@@ -76,16 +76,16 @@
                         {{ _('Edit') }}
                       </a>
                       <h3 class="dataset-heading">
-                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" title="{{ title }}">
+                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" aria-label="{{ _('Open details page for dataset - {title}').format(title=title|truncate(80)) }}">
                           {{ title|truncate(80) }}
                         </a>
                         {% if package.get('state', '').startswith('draft') %}
-                          <span class="label label-info">{{ _('Draft') }}</span>
+                          <span class="badge bg-info text-dark">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}
-                          <span class="label label-danger">{{ _('Deleted') }}</span>
+                          <span class="badge bg-danger">{{ _('Deleted') }}</span>
                         {% endif %}
                         {% if package.private %}
-                          <span class="label label-danger">{{ _('Private') }}</span>
+                          <span class="badge bg-danger">{{ _('Private') }}</span>
                         {% endif %}
                       </h3>
                       {% if notes %}

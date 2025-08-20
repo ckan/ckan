@@ -36,7 +36,7 @@ class _TableDesignerDictionary(MethodView):
 
         if data_dict['resource']['url_type'] != 'tabledesigner':
             # avoid second _prepare call
-            _datastore_view._prepare = lambda _i, _r: data_dict
+            _datastore_view._prepare = lambda id, resource_id: data_dict
             return _datastore_view.post(id, resource_id)
 
         fields = data_dict['fields']
@@ -135,7 +135,11 @@ class _TableDesignerAddRow(MethodView):
         except ValidationError as err:
             rec_err = cast(List[str], err.error_dict.get('records', ['']))[0]
             if rec_err.startswith('duplicate key'):
-                info = get_action('datastore_info')({}, {'id': resource_id})
+                info = get_action('datastore_info')({}, {
+                    'id': resource_id,
+                    'include_meta': False,
+                    'include_fields_schema': False,
+                })
                 pk_fields = [
                     f['id'] for f in info['fields']
                     if f.get('tdpkreq') == 'pk'
@@ -217,7 +221,11 @@ class _TableDesignerEditRow(MethodView):
         except ValidationError as err:
             rec_err = cast(List[str], err.error_dict.get('records', ['']))[0]
             if rec_err.startswith('duplicate key'):
-                info = get_action('datastore_info')({}, {'id': resource_id})
+                info = get_action('datastore_info')({}, {
+                    'id': resource_id,
+                    'include_meta': False,
+                    'include_fields_schema': False,
+                })
                 pk_fields = [
                     f['id'] for f in info['fields']
                     if f.get('tdpkreq') == 'pk'

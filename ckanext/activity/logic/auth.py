@@ -145,7 +145,7 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
     activity = _get_activity_object(context, data_dict)
     # NB it would be better to have recorded an activity_type against the
     # activity
-    if "package" in activity.activity_type:
+    if activity.activity_type and "package" in activity.activity_type:
         object_type = "package"
 
         # Check permission labels
@@ -196,3 +196,13 @@ def dashboard_mark_activities_old(
     context: Context, data_dict: DataDict
 ) -> AuthResult:
     return authz.is_authorized("dashboard_activity_list", context, data_dict)
+
+
+@tk.auth_allow_anonymous_access
+def recently_changed_packages_activity_list(
+    context: Context, data_dict: DataDict
+) -> AuthResult:
+    """Check if the activity stream of all recently added or changed packages is
+    visible. Visible to all by default.
+    Note that the actual datasets shown will be filtered by permission labels"""
+    return {"success": True}

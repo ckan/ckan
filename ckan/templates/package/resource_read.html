@@ -15,7 +15,7 @@
 
 {% block breadcrumb_content %}
   {{ super() }}
-  <li class="active"><a href="" title="{{ h.resource_display_name(res) }}">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
+  <li class="active"><a href="" aria-current="page" aria-label="{{ _('Current resource: {name}').format(name=h.resource_display_name(res)) }}">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
 {% endblock %}
 
 {% block pre_primary %}
@@ -29,9 +29,9 @@
               {% block resource_actions_inner %}
                 {% block action_manage %}
                   {% if h.check_access('package_update', {'id':pkg.id }) %}
-                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='pencil' %}</li>
+                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='pencil' %}</li>
                     {% block action_manage_inner %}{% endblock %}
-                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='chart-bar' %}</li>
+                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='chart-bar' %}</li>
                   {% endif %}
                 {% endblock action_manage %}
             {% if res.url and h.is_url(res.url) %}
@@ -57,10 +57,10 @@
           {% endblock %}
         </div>
         {% block resource_content %}
-          {% block resource_read_title %}<h1 class="page-heading" title="{{ h.resource_display_name(res) }}">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
-              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" aria-label="{{ _('Resource URL: {url}').format(url=res.url) }}">{{ res.url }}</a></p>
             {% elif res.url %}
               <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
@@ -187,7 +187,7 @@
     {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read' %}
   {% endblock %}
 
-  {% block resource_license %}
+  {% block resource_social %}
     {% snippet "snippets/social.html" %}
   {% endblock %}
 {% endblock %}

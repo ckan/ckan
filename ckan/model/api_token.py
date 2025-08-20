@@ -57,7 +57,7 @@ class ApiToken(DomainObject):
         if not id:
             return None
 
-        return meta.Session.query(cls).get(id)
+        return meta.Session.get(cls, id)
 
     @classmethod
     def revoke(cls, id: Optional[str]) -> bool:
