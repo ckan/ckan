@@ -161,7 +161,7 @@ class TestDatastoreDelete(object):
         data = {
             "resource_id": resource["id"],
             "filters": {"director": "Tom Hooper"},
-            "include_records": True
+            "include_deleted_records": True
         }
         result = helpers.call_action("datastore_delete", **data)
         assert 'deleted_records' in result
