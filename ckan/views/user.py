@@ -646,7 +646,7 @@ class RequestResetView(MethodView):
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to request reset password.'))
 
-    def _send_notification(self, user_obj: dict[str, Any]):
+    def _send_notification(self, user_obj: 'model.User'):
         notification_sent = False
         for plugin in plugins.PluginImplementations(plugins.INotifier):
             notification_sent = plugin.notify_about_topic(
