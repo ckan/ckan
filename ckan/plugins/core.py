@@ -241,18 +241,18 @@ def find_system_plugins() -> list[str]:
     enabled/disabled through the configuration file.
     '''
 
-    eps = []
     try:
-        for ep in entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP):     # type: ignore
-            ep.load()
-            eps.append(ep.name)
+        eps = [ep for ep in entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP)]   # type: ignore
     except TypeError:
         # Python 3.9
-        for ep in entry_points().get(SYSTEM_PLUGINS_ENTRY_POINT_GROUP):     # type: ignore
-            ep.load()
-            eps.append(ep.name)
+        eps = [ep for ep in entry_points().get(SYSTEM_PLUGINS_ENTRY_POINT_GROUP)]    # type: ignore
 
-    return eps
+    ep_names = []
+    for ep in eps:
+        ep.load()
+        ep_names.append(ep.name)
+
+    return ep_names
 
 
 def unload_non_system_plugins():
@@ -284,10 +284,8 @@ def _get_service(plugin_name: str) -> Plugin:
     for group in GROUPS:
         try:
             eps = list(entry_points(group=group, name=plugin_name))     # type: ignore
-            ep = eps[0] if eps else None
-            if ep:
-                return ep[plugin_name].load()(name=plugin_name)
 
+            ep = eps[0][plugin_name] if eps else None
         except TypeError:
             # Python 3.9
             eps = entry_points().get(group, [])
@@ -296,9 +294,9 @@ def _get_service(plugin_name: str) -> Plugin:
                 if item.name == plugin_name:
                     ep = item
                     break
-            if ep:
-                return ep.load()(name=plugin_name)
 
+        if ep:
+            return ep.load()(name=plugin_name)
 
     raise PluginNotFoundException(plugin_name)
 
