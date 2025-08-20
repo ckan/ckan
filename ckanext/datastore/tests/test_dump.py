@@ -5,6 +5,7 @@ import json
 import pytest
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import xml.etree.ElementTree as ET
 
 
 class TestDatastoreDump(object):
@@ -492,6 +493,64 @@ class TestDatastoreDump(object):
             resource['id'])
 
         assert attachment_filename == expected_attch_filename
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_xml_col_name_conformity(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "278bad_name", "type": "text"},
+                {"id": "xmlbad_name", "type": "text"},
+                {"id": "bad name", "type": "text"},
+                {"id": "bad_(name)", "type": "text"},
+                {"id": ".bad_name", "type": "text"},
+                {"id": "-bad_name", "type": "text"},
+            ],
+            "records": [
+                {
+                    "278bad_name": "example",  # cannot start with numbers
+                    "xmlbad_name": "example 0",  # cannot start with "xml"
+                    "bad name": "example 1",  # cannot have spaces
+                    "bad_(name)": "example 2",  # cannot have special chars
+                    ".bad_name": "example 3",  # cannot start with period
+                    "-bad_name": "example 4",  # cannot start with hyphen
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(f"/datastore/dump/{resource['id']}?format=xml")
+        body = res.get_data(as_text=True)
+
+        # bad names should not exist in the xml content
+        assert '278bad_name' not in body
+        assert 'xmlbad_name' not in body
+        assert 'bad name' not in body
+        assert 'bad_(name)' not in body
+        assert '.bad_name' not in body
+        assert '-bad_name' not in body
+
+        xml = ET.fromstring(body)
+
+        # same keys will be appended with incrementing number
+        expected_obj = {
+            'bad_name': 'example',
+            'bad_name_0': 'example 0',
+            'bad_name_1': 'example 1',
+            'bad_name_2': 'example 2',
+            'bad_name_3': 'example 3',
+            'bad_name_4': 'example 4',
+        }
+
+        row = xml.find('row')
+
+        for tag, value in expected_obj.items():
+            obj = row.find(tag)
+            assert obj is not None
+            assert obj.text == value
 
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "3")
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
