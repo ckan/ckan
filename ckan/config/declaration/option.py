@@ -80,6 +80,10 @@ class Flag(enum.Flag):
     `commented` are virtually ignored, having absolutely no impact on the value
     of the config option.
 
+    flask: this option is used by Flask application or extension. Every option
+    with this flag will be copied into Flask's config object during
+    initialization of the application.
+
     reserved_*(01-10): these flags are added for extension developers. CKAN
     doesn't treat them specially, neither includes them in groups, like
     `not_safe`/`not_iterable`. These flags are completely ignored by CKAN. If
@@ -107,6 +111,7 @@ class Flag(enum.Flag):
     required = enum.auto()
     editable = enum.auto()
     commented = enum.auto()
+    flask = enum.auto()
 
     reserved_01 = enum.auto()
     reserved_02 = enum.auto()
