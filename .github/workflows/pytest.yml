@@ -203,7 +203,7 @@ jobs:
 
           echo "::group::pytest"
           #we ignore test 'test_building_the_docs' as its looked after by the docs.yml workflow which provides the sphinx documentation build artifact and it also takes 50 seconds to run
-          coverage run -m pytest $PYTEST_COMMON_OPTIONS --splits $SPLIT_COUNT --group ${{ matrix.split }} --splitting-algorithm least_duration --store-durations --clean-durations  -k 'not test_building_the_docs'
+          pytest $PYTEST_COMMON_OPTIONS --splits $SPLIT_COUNT --group ${{ matrix.split }} --splitting-algorithm least_duration --store-durations --clean-durations  -k 'not test_building_the_docs'
           echo "::endgroup::"
 
       - name: Upload coverage reports to Codecov
