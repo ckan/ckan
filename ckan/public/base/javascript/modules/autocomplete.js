@@ -43,7 +43,7 @@ this.ckan.module('autocomplete', function (jQuery) {
       this.setupAutoComplete();
     },
 
-    /* Sets up the auto complete plugin. 
+    /* Sets up the auto complete plugin.
      *
      * Returns nothing.
      */
@@ -72,10 +72,38 @@ this.ckan.module('autocomplete', function (jQuery) {
             }
           }
         } else {
-          settings.query = this._onQuery;
-          settings.createSearchChoice = this.formatTerm;
+          // Create custom data adapter for Select2 4.0
+          // See https://select2.org/upgrading/migrating-from-35#custom-data-adapters-instead-of-query
+          var module = this;
+          var ArrayData = $.fn.select2.amd.require('select2/data/array');
+          var Utils = $.fn.select2.amd.require('select2/utils');
+
+          function CKANDataAdapter ($element, options) {
+            CKANDataAdapter.__super__.constructor.call(this, $element, options);
+          }
+
+          Utils.Extend(CKANDataAdapter, ArrayData);
+
+          CKANDataAdapter.prototype.query = function (params, callback) {
+            module._onQuery({
+              term: params.term,
+              callback: callback
+            });
+          };
+
+          CKANDataAdapter.prototype.current = function (callback) {
+            module.formatInitialValue(this.$element, function(formatted) {
+              // Ensure we always return an array for Select2 4.0
+              if (formatted && !Array.isArray(formatted)) {
+                formatted = [formatted];
+              }
+              callback(formatted || []);
+            });
+          };
+
+          settings.dataAdapter = CKANDataAdapter;
+          settings.createTag = this.formatTerm;
         }
-        settings.initSelection = this.formatInitialValue;
       }
       else {
         if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)) {
