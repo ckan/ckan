@@ -13,7 +13,7 @@ def _owner_allows(
     owner_id: str,
     operation: types.FileOwnerOperation,
 ) -> bool:
-    """Decide if user is allowed to perform operation on owner."""
+    """Decide if user is allowed to perform operation on the owner."""
     for plugin in p.PluginImplementations(p.IFiles):
         result = plugin.files_owner_allows(context, owner_type, owner_id, operation)
         if result is not None:
@@ -21,19 +21,16 @@ def _owner_allows(
 
     if (
         operation == "file_transfer" and config["ckan.files.owner.transfer_as_update"]
-    ) or (operation == "file_scan" and config["ckan.files.owner.transfer_as_update"]):
+    ) or (operation == "file_scan" and config["ckan.files.owner.scan_as_update"]):
         func_name = f"{owner_type}_update"
 
     else:
         func_name = f"{owner_type}_{operation}"
 
-    try:
-        authz.is_authorized(func_name, logic.fresh_context(context), {"id": owner_id})
-
-    except (logic.NotAuthorized, ValueError):
-        return False
-
-    return True
+    result = authz.is_authorized(
+        func_name, logic.fresh_context(context), {"id": owner_id}
+    )
+    return result["success"]
 
 
 def _file_allows(
@@ -41,7 +38,7 @@ def _file_allows(
     file: model.File,
     operation: types.FileOperation,
 ) -> bool:
-    """Decide if user is allowed to perform operation on file."""
+    """Decide if user is allowed to perform operation on the file."""
     for plugin in p.PluginImplementations(p.IFiles):
         result = plugin.files_file_allows(context, file, operation)
         if result is not None:
@@ -56,22 +53,20 @@ def _file_allows(
     if owner.owner_type not in cascade:
         return False
 
+    # `cascade` contains either empty list(aka "allow any storage") or list
+    # with storage names that support cascade access.
     if cascade[owner.owner_type] and file.storage not in cascade[owner.owner_type]:
         return False
 
     func_name = f"{owner.owner_type}_{operation}"
 
-    try:
-        authz.is_authorized(
-            func_name,
-            logic.fresh_context(context),
-            {"id": owner.owner_id},
-        )
+    result = authz.is_authorized(
+        func_name,
+        logic.fresh_context(context),
+        {"id": owner.owner_id},
+    )
 
-    except (logic.NotAuthorized, ValueError):
-        return False
-
-    return True
+    return result["success"]
 
 
 def _get_user(context: types.Context) -> model.User | None:
