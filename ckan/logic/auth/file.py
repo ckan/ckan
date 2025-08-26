@@ -175,6 +175,18 @@ def permission_read_file(context: Context, data_dict: dict[str, Any]) -> AuthRes
     return {"success": result, "msg": "Not allowed to read file"}
 
 
+@logic.auth_allow_anonymous_access
+def permission_download_file(context: Context, data_dict: dict[str, Any]) -> AuthResult:
+    """Check if user is allowed to download a file.
+
+    Owners and global managers can download files. Additionally plugins can extend
+    this permission via ``IFiles.files_file_allows`` hook.
+
+    """
+    result = authz.is_authorized_boolean("permission_read_file", context, data_dict)
+    return {"success": result, "msg": "Not allowed to read file"}
+
+
 # API #########################################################################
 
 
@@ -219,12 +231,6 @@ def file_delete(context: Context, data_dict: dict[str, Any]) -> AuthResult:
 @logic.auth_allow_anonymous_access
 def file_show(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if file metadata can be viewed."""
-    return authz.is_authorized("permission_read_file", context, data_dict)
-
-
-@logic.auth_allow_anonymous_access
-def file_download(context: Context, data_dict: dict[str, Any]) -> AuthResult:
-    """Check if file can be downloaded."""
     return authz.is_authorized("permission_read_file", context, data_dict)
 
 

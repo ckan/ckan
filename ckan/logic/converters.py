@@ -9,6 +9,7 @@ import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 from ckan.lib.navl.validators import unicode_safe
+from ckan.lib.files import make_upload
 
 from ckan.common import _, aslist
 from ckan.types import (
@@ -270,7 +271,7 @@ def parse_filesize(value: str | int):
         raise df.Invalid(msg) from err
 
 
-def files_cascade_options(value: Any) -> dict[str, set[str]]:
+def cascade_storage_access(value: Any) -> dict[str, set[str]]:
     """Parse cascade rules for files."""
     if isinstance(value, str):
         value = value.split()
@@ -287,3 +288,24 @@ def files_cascade_options(value: Any) -> dict[str, set[str]]:
 
     msg = f"Wrong cascade rules: {value}"
     raise df.Invalid(msg)
+
+
+def into_upload(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+):
+    """Convert value into :py:class:`ckan.lib.files.Upload` object."""
+    try:
+        data[key] = make_upload(data[key])
+
+    except TypeError as err:
+        msg = f"Unsupported source type: {err}"
+        errors[key].append(msg)
+        raise df.StopOnError from err
+
+    except ValueError as err:
+        msg = f"Wrong file: {err}"
+        errors[key].append(msg)
+        raise df.StopOnError from err

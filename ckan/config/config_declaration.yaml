@@ -1378,7 +1378,7 @@ groups:
           STREAM and CREATE capabilities.
 
       - key: ckan.files.owner.cascade_access
-        validators: default({}) files_cascade_options
+        validators: default({}) cascade_storage_access
         default:
             - package
             - resource
