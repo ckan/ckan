@@ -96,8 +96,12 @@ def ownership_transfer(
 
 
 @validator_args
-def owner_scan(default: ValidatorFactory, unicode_only: Validator) -> Schema:
+def owner_scan(
+    default: ValidatorFactory, unicode_only: Validator, ignore_missing: Validator
+) -> Schema:
     return {
         "owner_id": [default(""), unicode_only],
         "owner_type": [default("user"), unicode_only],
+        "start": [ignore_missing],
+        "rows": [ignore_missing],
     }

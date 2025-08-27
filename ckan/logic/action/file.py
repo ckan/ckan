@@ -2,6 +2,7 @@
 
 This module contains actions specific to the file domain.
 """
+
 from __future__ import annotations
 
 from typing import cast
@@ -17,7 +18,8 @@ from werkzeug.utils import secure_filename
 
 def _set_user_owner(context: Context, item_type: str, item_id: str):
     """Add user from context as file owner."""
-    user = model.User.get(context.get("user", ""))
+    cache = logic.ContextCache(context)
+    user = cache.get("user", context["user"], lambda: model.User.get(context["user"]))
     if user:
         owner = model.Owner(
             item_id=item_id,
@@ -44,8 +46,6 @@ def _flat_mask(data: dict[str, Any]) -> dict[tuple[Any, ...], Any]:
 def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileCreate:
     """Create a new file.
 
-    .. note: Requires storage with `CREATE` capability.
-
     The action passes uploaded file to the storage without strict
     validation. File is converted into standard upload object and everything
     else is controlled by storage. The same file may be accepted by one storage
@@ -56,7 +56,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     call the current action internally::
 
         def avatar_upload(context, data_dict):
-            tk.check_access("avatar_upload", context, data_dict)
+            logic.check_access("avatar_upload", context, data_dict)
             storage = "avatars"
             name = context["user"] + ".jpeg"
             upload = data_dict["upload"]
@@ -75,6 +75,8 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     mandatory::
 
         ckanapi action file_create upload@<(echo -n "hello world") name=file.txt
+
+    .. note: Requires storage with `CREATE` capability.
 
     :param name: human-readable name of the file.
         Defaults to filename of upload
@@ -110,26 +112,34 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
     filename = secure_filename(data_dict["name"])
 
+    sess = context["session"]
+    location = storage.prepare_location(filename, data_dict["upload"])
+    stmt = model.File.by_location(location, data_dict["storage"])
+    if fileobj := sess.scalar(stmt):
+        raise logic.ValidationError({"upload": ["File already exists"]})
+
     try:
         storage_data = storage.upload(
-            storage.prepare_location(filename, data_dict["upload"]),
+            location,
             data_dict["upload"],
-            **extras,
+            ckan_api=extras,
         )
     except (files.exc.UploadError, files.exc.ExistingFileError) as err:
         raise logic.ValidationError({"upload": [str(err)]}) from err
 
     fileobj = model.File(
         name=filename,
-        location="",
         storage=data_dict["storage"],
+        **storage_data.as_dict(),
     )
-    storage_data.into_object(fileobj)
-    sess = context["session"]
     sess.add(fileobj)
 
     _set_user_owner(context, "file", fileobj.id)
-    sess.commit()
+
+    # TODO: add hook to set plugin_data using extras
+
+    if not context.get("defer_commit"):
+        sess.commit()
 
     logic.ContextCache(context).set("file", fileobj.id, fileobj)
 
@@ -185,8 +195,11 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     Fillowing operators are accepted: `=`, `<`, `>`, `!=`, `like`
 
     :param start: index of first row in result/number of rows to skip. Default: `0`
+    :type start: int, optional
     :param rows: number of rows to return. Default: `10`
+    :type rows: int, optional
     :param sort: name of File column used for sorting. Default: `name`
+    :type sort: str, optional
     :param reverse: sort results in descending order. Default: `False`
     :param storage_data: mask for `storage_data` column. Default: `{}`
     :param plugin_data: mask for `plugin_data` column. Default: `{}`
@@ -283,31 +296,270 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     return {"count": total, "results": [f.dictize(context) for f in results]}
 
 
+@logic.validate(schema.file_delete)
 def file_delete(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileDelete:
-    return {}
+    """Remove file from storage.
+
+    Unlike packages, file has no ``state`` field. Removal usually means that
+    file details removed from DB and file itself removed from the storage.
+
+    Some storage adapters can implement revisions of the file and keep archived
+    versions or backups. Check storage adapter's documentation if you need to
+    know whether there are chances that file is not completely removed with
+    this operation.
+
+    Example::
+
+        ckanapi action file_delete id=226056e2-6f83-47c5-8bd2-102e2b82ab9a
+
+    .. note: Requires storage with `REMOVE` capability.
+
+    :param id: ID of the file
+    :type id: str
+
+    :returns: details of the removed file.
+
+    """
+    logic.check_access("file_delete", context, data_dict)
+
+    cache = logic.ContextCache(context)
+
+    fileobj = cache.get_model("file", data_dict["id"], model.File)
+
+    if not fileobj:
+        raise logic.NotFound("file")
+
+    storage = files.get_storage(fileobj.storage)
+    if not storage.supports(files.Capability.REMOVE):
+        raise logic.ValidationError({"storage": ["Operation is not supported"]})
+
+    try:
+        storage.remove(files.FileData.from_object(fileobj))
+    except files.exc.PermissionError as err:
+        raise logic.ValidationError({"storage": [str(err)]}) from err
+
+    sess = context["session"]
+    sess.delete(fileobj)
+
+    if not context.get("defer_commit"):
+        sess.commit()
+
+    logic.ContextCache(context).invalidate("file", fileobj.id)
+
+    return fileobj.dictize(context)
 
 
-def file_show(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileShow: ...
+@logic.side_effect_free
+@logic.validate(schema.file_show)
+def file_show(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileShow:
+    """Show file details.
+
+    This action only displays information from DB record. There is no way to
+    get the content of the file using this action(or any other API action).
+
+    Example::
+
+        ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a
+
+    :param id: ID of the file
+    :type id: str
+
+    :returns: file details
+    """
+    logic.check_access("file_show", context, data_dict)
+
+    cache = logic.ContextCache(context)
+    fileobj = cache.get_model("file", data_dict["id"], model.File)
+    if not fileobj:
+        raise logic.NotFound("file")
+
+    return fileobj.dictize(context)
 
 
-def file_rename(
-    context: Context, data_dict: dict[str, Any]
-) -> ActionResult.FileRename: ...
+@logic.validate(schema.file_rename)
+def file_rename(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileRename:
+    """Rename the file.
+
+    This action changes human-readable name of the file, which is stored in
+    DB. Real location of the file in the storage is not modified.
+
+    Example::
+
+        ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a \\
+            name=new-name.txt
+
+    :param id: ID of the file
+    :type id: str
+    :param name: new name of the file
+    :type name: str
+
+    :returns: file details
+    """
+    logic.check_access("file_rename", context, data_dict)
+
+    cache = logic.ContextCache(context)
+    fileobj = cache.get_model("file", data_dict["id"], model.File)
+    if not fileobj:
+        raise logic.NotFound("file")
+
+    fileobj.name = secure_filename(data_dict["name"])
+
+    if not context.get("defer_commit"):
+        context["session"].commit()
+
+    return fileobj.dictize(context)
 
 
-def file_pin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FilePin: ...
+@logic.validate(schema.file_pin)
+def file_pin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FilePin:
+    """Pin file to the current owner.
+
+    Pinned file cannot be transfered to a different owner. Use it to guarantee
+    that file referred by entity is not accidentally transferred to a different
+    owner.
+
+    :param id: ID of the file
+    :type id: str
+
+    :returns: details of the pinned file
+    """
+    logic.check_access("file_pin", context, data_dict)
+
+    cache = logic.ContextCache(context)
+    fileobj = cache.get_model("file", data_dict["id"], model.File)
+    if not fileobj:
+        raise logic.NotFound("file")
+
+    owner = fileobj.owner
+    if not owner:
+        raise logic.ValidationError({"id": ["File has no owner"]})
+
+    owner.pinned = True
+
+    if not context.get("defer_commit"):
+        context["session"].commit()
+
+    return fileobj.dictize(context)
 
 
-def file_unpin(
-    context: Context, data_dict: dict[str, Any]
-) -> ActionResult.FileUnpin: ...
+@logic.validate(schema.file_unpin)
+def file_unpin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileUnpin:
+    """Unpin file from the current owner.
+
+    Unpinned file can be transfered to a different owner.
+
+    :param id: ID of the file
+    :type id: str
+
+    :returns: details of the unpinned file
+    """
+    logic.check_access("file_unpin", context, data_dict)
+
+    cache = logic.ContextCache(context)
+    fileobj = cache.get_model("file", data_dict["id"], model.File)
+    if not fileobj:
+        raise logic.NotFound("file")
+
+    if owner := fileobj.owner:
+        owner.pinned = False
+
+    if not context.get("defer_commit"):
+        context["session"].commit()
+
+    return fileobj.dictize(context)
 
 
+@logic.validate(schema.ownership_transfer)
 def file_ownership_transfer(
     context: Context, data_dict: dict[str, Any]
-) -> ActionResult.FileOwnershipTransfer: ...
+) -> ActionResult.FileOwnershipTransfer:
+    """Transfer file ownership.
+
+    :param id: ID of the file upload
+    :type id: str
+    :param owner_id: ID of the new owner
+    :type owner_id: str
+    :param owner_type: type of the new owner
+    :type owner_type: str
+    :param force: move file even if it's pinned. Default: `False`
+    :type force: bool
+    :param pin: pin file after transfer to stop future transfers. Default: `False`
+    :type pin: bool
+
+    :returns: details of tranfered file
+    """
+    logic.check_access("file_ownership_transfer", context, data_dict)
+    sess = context["session"]
+
+    cache = logic.ContextCache(context)
+
+    fileobj = cache.get_model("file", data_dict["id"], model.File)
+    if not fileobj:
+        raise logic.NotFound("file")
+
+    if owner := fileobj.owner:
+        if owner.pinned and not data_dict["force"]:
+            raise logic.ValidationError(
+                {
+                    "force": ["Must be enabled to transfer pinned files"],
+                },
+            )
+        elif (owner.owner_type, owner.owner_id) != (
+            data_dict["owner_type"],
+            data_dict["owner_id"],
+        ):
+            archive = model.OwnerTransferHistory.from_owner(owner, context["user"])
+            sess.add(archive)
+
+        owner.owner_id = data_dict["owner_id"]
+        owner.owner_type = data_dict["owner_type"]
+        owner.pinned = data_dict["pin"]
+
+    else:
+        owner = model.Owner(
+            item_id=fileobj.id,
+            item_type="file",
+            owner_id=data_dict["owner_id"],
+            owner_type=data_dict["owner_type"],
+        )
+        sess.add(owner)
+
+    owner.pinned = data_dict["pin"]
+
+    sess.expire(fileobj)
+
+    if not context.get("defer_commit"):
+        sess.commit()
+
+    return fileobj.dictize(context)
 
 
+@logic.side_effect_free
+@logic.validate(schema.owner_scan)
 def file_owner_scan(
     context: Context, data_dict: dict[str, Any]
-) -> ActionResult.FileOwnerScan: ...
+) -> ActionResult.FileOwnerScan:
+    """List files of the owner.
+
+    :param owner_id: ID of the owner
+    :type owner_id: str
+    :param owner_type: type of the owner
+    :type owner_type: str
+    :param start: index of first row in result/number of rows to skip.
+    :type start: int, optional
+    :param rows: number of rows to return.
+    :type rows: int, optional
+    :param sort: name of File column used for sorting. Default: `name`
+    :type sort: str, optional
+
+    :returns: dictionary with `count` and `results`
+    """
+    if not data_dict["owner_id"] and data_dict["owner_type"] == "user":
+        user = context.get("auth_user_obj")
+
+        if isinstance(user, model.User) or (user := model.User.get(context["user"])):
+            data_dict["owner_id"] = user.id
+
+    logic.check_access("file_owner_scan", context, data_dict)
+
+    return logic.get_action("file_search")({"ignore_auth": True}, data_dict)

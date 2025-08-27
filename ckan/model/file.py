@@ -51,10 +51,10 @@ class File:
         file = File(
             name="file.txt",
             location="relative/path/safe-name.txt",
+            storage="default",
             content_type="text/plain",
             size=100,
             hash="abc123",
-            storage="default",
         )
         ```
     """
