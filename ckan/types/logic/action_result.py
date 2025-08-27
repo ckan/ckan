@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
 
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, TypedDict
 
 if TYPE_CHECKING:
     import ckan.model as model
@@ -155,3 +155,19 @@ PackageOwnerOrgUpdate: TypeAlias = None
 BulkUpdatePrivate: TypeAlias = None
 BulkUpdatePublic: TypeAlias = None
 BulkUpdateDelete: TypeAlias = None
+
+###############################################################################
+#                                     File                                    #
+###############################################################################
+FileCreate = dict[str, Any]
+FileDelete = dict[str, Any]
+FileShow = dict[str, Any]
+FileRename = dict[str, Any]
+FilePin = dict[str, Any]
+FileUnpin = dict[str, Any]
+FileOwnershipTransfer = dict[str, Any]
+FileOwnerScan = dict[str, Any]
+
+class FileSearch(TypedDict):
+    count: int
+    results: list[FileShow]

@@ -504,7 +504,10 @@ def get_action(action: str) -> Action:
     # than writing them out in full will use importlib.import_module
     # to load anything from ckan.logic.action that looks like it might
     # be an action
-    for action_module_name in ['get', 'create', 'update', 'delete', 'patch']:
+    for action_module_name in [
+            'get', 'create', 'update', 'delete', 'patch',
+            'file',
+    ]:
         module = importlib.import_module(
             '.' + action_module_name, 'ckan.logic.action')
         for k, v in authz.get_local_functions(module):

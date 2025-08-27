@@ -99,6 +99,8 @@ class OwnerTransferHistory:
         sa.ForeignKeyConstraint(
             ["item_id", "item_type"],
             ["owner.item_id", "owner.item_type"],
+            "owner_transfer_history_item_id_item_type_fkey",
+            ondelete="CASCADE",
         ),
     )
 

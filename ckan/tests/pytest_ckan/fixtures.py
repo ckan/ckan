@@ -96,30 +96,37 @@ class APITokenFactory(factories.APIToken):
     pass
 
 
+@register(_name="sysadmin")
 class SysadminFactory(factories.Sysadmin):
     pass
 
 
+@register(_name="sysadmin_with_token")
 class SysadminWithTokenFactory(factories.SysadminWithToken):
     pass
 
 
+@register(_name="user_with_token")
 class UserWithTokenFactory(factories.UserWithToken):
     pass
 
 
+@register(_name="organization")
 class OrganizationFactory(factories.Organization):
     pass
 
 
-register(SysadminFactory, "sysadmin")
-register(SysadminWithTokenFactory, "sysadmin_with_token")
-register(UserWithTokenFactory, "user_with_token")
-register(OrganizationFactory, "organization")
+@register
+class FileFactory(factories.File):
+    pass
 
 
 @pytest.fixture
-def ckan_config(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch):
+def ckan_config(
+        request: pytest.FixtureRequest,
+        monkeypatch: pytest.MonkeyPatch,
+        reset_storages: types.FixtureResetStorages,
+):
     """Allows to override the configuration object used by tests
 
     Takes into account config patches introduced by the ``ckan_config``
@@ -149,12 +156,27 @@ def ckan_config(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch)
 
     """
     _original = copy.deepcopy(config)
+
+    # storages are chached upon first access. When storage-level configuration
+    # patch detected, storage cache is dropped before the test to apply changes
+    # and after the test to restore original state of the storage.
+    storage_changed = False
+
     for mark in request.node.iter_markers(u"ckan_config"):
-        monkeypatch.setitem(config, *mark.args)
+        key, value = mark.args
+        if key.startswith(files.STORAGE_PREFIX):
+            storage_changed = True
+        monkeypatch.setitem(config, key, value)
+
+    if storage_changed:
+        reset_storages()
 
     yield config
     config.clear()
     config.update(_original)
+
+    if storage_changed:
+        reset_storages()
 
 
 @pytest.fixture
@@ -677,9 +699,9 @@ def create_with_upload(
     return factory
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def reset_storages():
-    """Reset file storages.
+    """Callable for resetting file storages.
 
     Call this fixture after changing `ckan.storage_path` or any other option
     that affects storage behavior.

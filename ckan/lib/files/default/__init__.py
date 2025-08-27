@@ -8,11 +8,13 @@ with contextlib.suppress(ImportError):
     from .opendal import OpenDalStorage
 
 from .null import NullStorage
+from .memory import MemoryStorage
 
 __all__ = [
-    "NullStorage",
     "FsStorage",
-    "PublicFsStorage",
     "LibCloudStorage",
+    "MemoryStorage",
+    "NullStorage",
     "OpenDalStorage",
+    "PublicFsStorage",
 ]

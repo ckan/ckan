@@ -285,6 +285,7 @@ FixtureResetRedis = Callable[[], None]
 FixtureResetDb = Callable[[], None]
 FixtureResetQueues = Callable[[], None]
 FixtureResetIndex = Callable[[], None]
+FixtureResetStorages = Callable[[], None]
 FixtureTestRequestContext = Callable[..., RequestContext]
 
 FileOperation = Literal["show", "update", "delete"]

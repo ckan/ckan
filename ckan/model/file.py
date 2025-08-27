@@ -61,6 +61,10 @@ class File:
 
     __tablename__ = "file"
 
+    __table_args__ = (
+        sa.Index("idx_file_location_in_storage", "storage", "location", unique=True),
+    )
+
     name: Mapped[text]
     location: Mapped[text]
     storage: Mapped[text]

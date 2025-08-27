@@ -191,19 +191,6 @@ def permission_download_file(context: Context, data_dict: dict[str, Any]) -> Aut
 
 
 @logic.auth_allow_anonymous_access
-def file_search(context: Context, data_dict: dict[str, Any]) -> AuthResult:
-    """Check if user can use global file search.
-
-    Only file manager can search files. Publicly available files are exposed
-    via combination of ownership and cascade access. There are no reasons to
-    search through all the files for common visitor and this action should
-    remain restricted.
-
-    """
-    return authz.is_authorized("permission_manage_files", context, data_dict)
-
-
-@logic.auth_allow_anonymous_access
 def file_create(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if user can upload a file.
 
@@ -219,6 +206,19 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     ):
         return {"success": True}
 
+    return authz.is_authorized("permission_manage_files", context, data_dict)
+
+
+@logic.auth_allow_anonymous_access
+def file_search(context: Context, data_dict: dict[str, Any]) -> AuthResult:
+    """Check if user can use global file search.
+
+    Only file manager can search files. Publicly available files are exposed
+    via combination of ownership and cascade access. There are no reasons to
+    search through all the files for common visitor and this action should
+    remain restricted.
+
+    """
     return authz.is_authorized("permission_manage_files", context, data_dict)
 
 

@@ -6,6 +6,25 @@ from ckan.common import config
 
 
 @validator_args
+def file_create(  # noqa: PLR0913
+    ignore_empty: Validator,
+    unicode_only: Validator,
+    default: ValidatorFactory,
+    into_upload: Validator,
+    not_missing: Validator,
+) -> Schema:
+    # name is checked inside action, using "upload" as source if empty
+    return {
+        "name": [ignore_empty, unicode_only],
+        "storage": [
+            default(config["ckan.files.default_storages.default"]),
+            unicode_only,
+        ],
+        "upload": [not_missing, into_upload],
+    }
+
+
+@validator_args
 def file_search(
     unicode_only: Validator,
     default: ValidatorFactory,
@@ -29,28 +48,9 @@ def file_search(
             convert_to_json_if_string,
             dict_only,
         ],
-        "owner_type": [ignore_empty],
-        "owner_id": [ignore_empty],
+        "owner_type": [ignore_empty, unicode_only],
+        "owner_id": [ignore_empty, unicode_only],
         "pinned": [ignore_missing, boolean_validator],
-    }
-
-
-@validator_args
-def file_create(  # noqa: PLR0913
-    ignore_empty: Validator,
-    unicode_only: Validator,
-    default: ValidatorFactory,
-    into_upload: Validator,
-    not_missing: Validator,
-) -> Schema:
-    # name is checked inside action, using "upload" as source if empty
-    return {
-        "name": [ignore_empty, unicode_only],
-        "storage": [
-            default(config["ckan.files.default_storages.default"]),
-            unicode_only,
-        ],
-        "upload": [not_missing, into_upload],
     }
 
 

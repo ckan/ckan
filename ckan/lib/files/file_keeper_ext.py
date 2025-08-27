@@ -28,6 +28,7 @@ def register_adapters(registry: fk.Registry[type[fk.Storage]]):
     registry.register("ckan:fs", default.FsStorage)
     registry.register("ckan:public_fs", default.PublicFsStorage)
     registry.register("ckan:null", default.NullStorage)
+    registry.register("ckan:memory", default.MemoryStorage)
 
     if adapter := getattr(default, "LibCloudStorage", None):
         registry.register("ckan:libcloud", adapter)

@@ -54,6 +54,7 @@ def upgrade():
             server_default=sa.text("'{}'::jsonb"),
             nullable=False,
         ),
+        sa.Index("idx_file_location_in_storage", "storage", "location", unique=True),
     )
 
     op.create_table(

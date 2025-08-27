@@ -444,6 +444,13 @@ ckan.logic.action.delete
    :members:
 
 
+ckan.logic.action.file
+========================
+
+.. automodule:: ckan.logic.action.file
+   :members:
+
+
 ckanext.activity.logic.action
 =============================
 
