@@ -15,13 +15,13 @@ class TestFilesAdapters(object):
         result = cli.invoke(ckan, ["files", "adapters"])
 
         assert "ckan:fs" in result.output
-        assert "ckan:public_fs" in result.output
+        assert "ckan:fs:public" in result.output
 
     def test_individual_adapter(self, cli: CKANCliRunner):
         """Can show information for a single adapter."""
-        result = cli.invoke(ckan, ["files", "adapters", "ckan:public_fs"])
+        result = cli.invoke(ckan, ["files", "adapters", "ckan:fs:public"])
         assert "ckan:fs" not in result.output
-        assert "ckan:public_fs" in result.output
+        assert "ckan:fs:public" in result.output
 
     def test_non_compatible(self, cli: CKANCliRunner):
         """Can show information about external adapters."""

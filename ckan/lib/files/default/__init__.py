@@ -7,14 +7,27 @@ with contextlib.suppress(ImportError):
 with contextlib.suppress(ImportError):
     from .opendal import OpenDalStorage
 
+with contextlib.suppress(ImportError):
+    from .azure_blob import AzureBlobStorage
+
+with contextlib.suppress(ImportError):
+    from .gcs import GoogleCloudStorage
+
+with contextlib.suppress(ImportError):
+    from .s3 import S3Storage
+
+
 from .null import NullStorage
 from .memory import MemoryStorage
 
 __all__ = [
+    "AzureBlobStorage",
     "FsStorage",
+    "GoogleCloudStorage",
     "LibCloudStorage",
     "MemoryStorage",
     "NullStorage",
     "OpenDalStorage",
     "PublicFsStorage",
+    "S3Storage",
 ]

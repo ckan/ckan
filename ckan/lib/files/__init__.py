@@ -160,7 +160,7 @@ def collect_storages() -> dict[str, fk.Storage]:
             storage = make_storage(
                 name,
                 {
-                    "type": "ckan:public_fs",
+                    "type": "ckan:fs:public",
                     "path": os.path.join(path, "storage", prefix),
                     "public_prefix": prefix,
                     "initialize": True,

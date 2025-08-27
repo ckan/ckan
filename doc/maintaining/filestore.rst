@@ -270,7 +270,7 @@ writable by the CKAN process. If directory does not exist, it's created when
 ``initialize`` option is enabled. If ``initialize`` is not enabled, exception
 is raised during initialization of the storage.
 
-ckan:public_fs
+ckan:fs:public
 ^^^^^^^^^^^^^^
 
 Extended version of ``ckan:fs`` type. It assumes that ``path`` is registered as
@@ -308,6 +308,45 @@ uploads, use ``path`` option.
 
 Any other provider specific option can be added inside ``params`` option which
 expects a valid JSON object
+
+ckan:s3
+^^^^^^^
+
+Keeps files inside AWS S3 bucket.
+
+Only ``bucket`` option is required as all other parameters can be read from
+environment variables. But it's recommended to set all the options through CKAN
+config file:
+
+* ``bucket``: name of the storage bucket
+* ``key``: the AWS Access Key
+* ``secret``: the AWS Secret Key
+* ``region``:  the AWS Region of the bucket
+
+
+ckan:azure_blob
+^^^^^^^^^^^^^^^
+
+Keeps files inside Microsoft Azure Blob Storage.
+
+Recommended options:
+
+* ``container_name``: name of the storage container
+* ``account_name``: name of the Azure account
+* ``account_name``: key for the Azure account
+
+
+ckan:gcs
+^^^^^^^^
+
+Keeps files inside Microsoft Google Cloud Storage.
+
+Recommended options:
+
+* ``bucket_name``: name of the storage bucket
+* ``credentials_files``: path to the JSON with cloud credentials
+* ``project_id``: the project which the client acts on behalf of
+
 
 .. _mimetypes: https://docs.python.org/3/library/mimetypes.html
 .. _file-keeper: https://pypi.org/project/file-keeper/
