@@ -98,7 +98,99 @@ class TestFileCreate:
         assert file["owner_type"] == "user"
 
 
-class TestFileSearch: ...
+@pytest.mark.usefixtures("clean_db")
+class TestFileSearch:
+    def test_minimal_search(self, file_factory: types.TestFactory):
+        """Search without filters returns all files."""
+        first, second = file_factory.create_batch(2)
+        result = call_action("file_search")
+        assert result["count"] == 2
+        assert first in result["results"]
+        assert second in result["results"]
+
+    def test_sort(self, file_factory: types.TestFactory, faker: Faker):
+        """Results can be sorted by multiple fields with different directions."""
+        first = file_factory(name="a.txt", upload=faker.binary(10))
+        second = file_factory(name="b.txt", upload=faker.binary(5))
+
+        result = call_action("file_search", sort="name")
+        assert [f["id"] for f in result["results"]] == [first["id"], second["id"]]
+
+        result = call_action("file_search", sort="size")
+        assert [f["id"] for f in result["results"]] == [second["id"], first["id"]]
+
+        result = call_action("file_search", sort=[["size", "desc"]])
+        assert [f["id"] for f in result["results"]] == [first["id"], second["id"]]
+
+        result = call_action("file_search", sort=[["size", "asc"]])
+        assert [f["id"] for f in result["results"]] == [second["id"], first["id"]]
+
+        result = call_action("file_search", sort=[["owner_id", "desc"], "size"])
+        assert [f["id"] for f in result["results"]] == [second["id"], first["id"]]
+
+        result = call_action("file_search", sort=[["owner_id", "asc"], "size"])
+        assert [f["id"] for f in result["results"]] == [second["id"], first["id"]]
+
+        result = call_action("file_search", sort=["owner_id", ["size", "desc"]])
+        assert [f["id"] for f in result["results"]] == [first["id"], second["id"]]
+
+    def test_filter_by_value(self, faker: Faker, file_factory: types.TestFactory):
+        """File can be found by model fields."""
+        big = file_factory(upload=faker.binary(100))
+        small = file_factory(upload=faker.binary(10))
+
+        result = call_action("file_search", filters={})
+        assert result["count"] == 2
+
+        result = call_action("file_search", filters={"size": 10})
+        assert result["results"] == [small]
+
+        result = call_action("file_search", filters={"size": {"$gte": 50}})
+        assert result["results"] == [big]
+
+        result = call_action("file_search", filters={"owner_type": {"$eq": "user"}})
+        assert big in result["results"]
+        assert small in result["results"]
+
+        result = call_action(
+            "file_search", filters={"location": {"$ne": small["name"]}}
+        )
+        assert result["results"] == [big]
+
+    def test_filter_by_data(self, faker: Faker, file_factory: types.TestFactory):
+        """File can be found by storage/plugin data."""
+        big_obj = file_factory.model()
+        small_obj = file_factory.model()
+
+        big_obj.storage_data = {"big": True, "size": 100, "name": "big"}
+        small_obj.storage_data = {"big": False, "size": 10}
+        model.Session.commit()
+
+        big = call_action("file_show", id=big_obj.id)
+        small = call_action("file_show", id=small_obj.id)
+
+        result = call_action("file_search", filters={"storage_data": {"size": 10}})
+        assert result["results"] == [small]
+
+        result = call_action(
+            "file_search", filters={"storage_data": {"size": {"$gte": 50}}}
+        )
+        assert result["results"] == [big]
+
+        result = call_action(
+            "file_search", filters={"storage_data": {"big": {"$ne": None}}}
+        )
+        assert big in result["results"]
+        assert small in result["results"]
+
+        result = call_action("file_search", filters={"storage_data": {"big": True}})
+        assert result["results"] == [big]
+
+        result = call_action("file_search", filters={"storage_data": {"name": None}})
+        assert result["results"] == [small]
+
+        result = call_action("file_search", filters={"storage_data": {"name": "big"}})
+        assert result["results"] == [big]
 
 
 class TestFileDelete:

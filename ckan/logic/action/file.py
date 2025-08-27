@@ -6,8 +6,9 @@ This module contains actions specific to the file domain.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-
+import logging
 import sqlalchemy as sa
+from sqlalchemy.exc import ProgrammingError
 from collections.abc import Iterable, Mapping
 from typing import Any
 
@@ -21,6 +22,8 @@ from werkzeug.utils import secure_filename
 if TYPE_CHECKING:
     from sqlalchemy.sql.schema import Column
     from sqlalchemy.sql.elements import ColumnElement
+
+log = logging.getLogger(__name__)
 
 
 def _set_user_owner(context: Context, item_type: str, item_id: str):
@@ -40,50 +43,32 @@ def _set_user_owner(context: Context, item_type: str, item_id: str):
 def _process_filters(  # noqa: C901
     filters: dict[str, Any], columns: Mapping[str, Column[Any]]
 ) -> Iterable[ColumnElement[bool]]:
+    """Transform `{"$and":[{"field":{"$eq":"value"}}]}` filters into SQL filters."""
     for k, v in filters.items():
-        if k == "$and":
+        if k in ["$and", "$or"]:
             if not isinstance(v, list):
                 raise logic.ValidationError(
-                    {"filters": ["Only lists are allowed inside $and"]}
+                    {"filters": [f"Only lists are allowed inside {k}"]}
                 )
-            clauses = [
-                element
-                for sub_filters in v
-                if isinstance(sub_filters, dict)
-                for element in _process_filters(sub_filters, columns)
-            ]
-            if clauses:
-                yield sa.and_(*clauses)
+            wrapper = sa.and_ if k == "$and" else sa.or_
 
-        elif k == "$or":
-            if not isinstance(v, list):
-                raise logic.ValidationError(
-                    {"filters": ["Only lists are allowed inside $or"]}
-                )
-
-            clauses = [
-                element
-                for sub_filters in v
-                if isinstance(sub_filters, dict)
-                for element in _process_filters(sub_filters, columns)
-            ]
-            if clauses:
-                yield sa.or_(*clauses)
+            yield wrapper(
+                *[
+                    element
+                    for sub_filters in v
+                    if isinstance(sub_filters, dict)
+                    for element in _process_filters(sub_filters, columns)
+                ]
+            )
 
         elif k in ["storage_data", "plugin_data"]:
-            clauses = list(_process_data(columns[k], v))
-            if clauses:
-                yield sa.and_(*clauses)
+            yield sa.and_(*_process_data(columns[k], v))
 
         elif k in columns:
-            clauses = list(
-                _process_field(
-                    columns[k],
-                    v,
-                )
-            )
-            if clauses:
-                yield sa.and_(*clauses)
+            yield sa.and_(*_process_field(columns[k], v))
+
+        else:
+            raise logic.ValidationError({"filters": [f"Unknown filter: {k}"]})
 
 
 _op_map = {
@@ -98,6 +83,7 @@ _op_map = {
 
 
 def _process_field(col: Column[Any], value: Any):
+    """Transform `{"field":{"$eq":"value"}}` into SQL filters."""
     if isinstance(value, list):
         value = {"$in": value}
 
@@ -120,7 +106,7 @@ def _process_field(col: Column[Any], value: Any):
             elif op == "!=":
                 op = "IS NOT"
 
-        elif not isinstance(value, col.type.python_type):
+        elif not isinstance(filter, col.type.python_type):
             filter = str(filter)
             column = sa.func.cast(column, sa.Text)
 
@@ -128,10 +114,9 @@ def _process_field(col: Column[Any], value: Any):
 
 
 def _process_data(col: ColumnElement[Any], value: Any):  # pyright: ignore[reportUnknownParameterType]
+    """Transform file/plugin data filters into SQL JSONB filters."""
     if not isinstance(value, dict):
-        raise logic.ValidationError(
-            {"filters": ["Only dictionaries can be used to filter data fields"]}
-        )
+        value = {"$eq": value}
 
     for k, v in value.items():
         if k in _op_map:
@@ -148,12 +133,46 @@ def _process_data(col: ColumnElement[Any], value: Any):  # pyright: ignore[repor
             elif isinstance(v, int):
                 col = sa.cast(col, sa.Integer)
 
+            elif isinstance(v, float):
+                col = sa.cast(col, sa.Float)
+
             else:
                 col = col.astext
 
             yield col.bool_op(op)(v)
+
         else:
             yield from _process_data(col[k], v)
+
+
+def _process_sort(
+    sort: str | list[str] | list[list[str]] | Any,
+    columns: Mapping[str, Column[Any]],
+):
+    """Transform sort field into SQL ordering statements."""
+    if isinstance(sort, str):
+        sort = [sort]
+
+    for part in sort:
+        if isinstance(part, str):
+            field: str = part
+            direction = "asc"
+
+        elif isinstance(part, list) and len(part) == 2:
+            field, direction = part
+
+        else:
+            raise logic.ValidationError({"sort": [f"Invalid sort value: {part}"]})
+
+        if direction not in ["asc", "desc"]:
+            raise logic.ValidationError(
+                {"sort": [f"Invalid sort direction: {direction}"]}
+            )
+
+        if field not in columns:
+            raise logic.ValidationError({"sort": [f"Invalid sort field: {field}"]})
+
+        yield getattr(columns[field], direction)()
 
 
 @logic.validate(schema.file_create)
@@ -268,7 +287,7 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
 ) -> ActionResult.FileSearch:
     """Search files.
 
-    .. note:: This action is not stabilized yet and will change in future.
+    .. warning:: This action is not stabilized yet and will change in future.
 
     Provides an ability to search files according to [the future CKAN's search
     spec](https://github.com/ckan/ckan/discussions/8444).
@@ -318,35 +337,16 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     for clause in _process_filters({"$and": [data_dict["filters"]]}, columns):
         stmt = stmt.where(clause)
 
-    total: int = sess.scalar(stmt.with_only_columns(sa.func.count()))  # pyright: ignore[reportAssignmentType]
+    try:
+        total: int = sess.scalar(stmt.with_only_columns(sa.func.count()))  # pyright: ignore[reportAssignmentType]
+    except ProgrammingError:
+        sess.rollback()
+        msg = "Invalid file search request"
+        log.exception(msg)
+        raise logic.ValidationError({"filters": [msg]})
 
-    sort_clauses = []
-    sort = data_dict["sort"]
-    if isinstance(sort, str):
-        sort = [sort]
-
-    for part in sort:
-        if isinstance(part, str):
-            field = part
-            direction = "asc"
-
-        elif isinstance(part, list) and len(part) == 2:
-            field, direction = part
-
-        else:
-            raise logic.ValidationError({"sort": [f"Invalid sort value: {part}"]})
-
-        if direction not in ["asc", "desc"]:
-            raise logic.ValidationError(
-                {"sort": [f"Invalid sort direction: {direction}"]}
-            )
-
-        if field not in columns:
-            raise logic.ValidationError({"sort": [f"Invalid sort field: {field}"]})
-        sort_clauses.append(getattr(columns[field], direction)())
-
-    if sort_clauses:
-        stmt = stmt.order_by(*sort_clauses)
+    for clause in _process_sort(data_dict["sort"], columns):
+        stmt = stmt.order_by(clause)
 
     stmt = stmt.limit(data_dict["rows"]).offset(data_dict["start"])
 
