@@ -279,6 +279,60 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     return fileobj.dictize(context)
 
 
+@logic.validate(schema.file_register)
+def file_register(
+    context: Context, data_dict: dict[str, Any]
+) -> ActionResult.FileRegister:
+    """Register untracked file from storage in DB.
+
+    .. note:: Requires storage with `ANALYZE` capability.
+
+    :param location: location of the file in the storage
+    :type location: str, optional
+    :param storage: name of the storage that will handle the upload.
+        Defaults to the configured ``default`` storage.
+    :type storage: str, optional
+
+    :returns: file details.
+
+    """
+    logic.check_access("file_register", context, data_dict)
+
+    try:
+        storage = files.get_storage(data_dict["storage"])
+    except files.exc.UnknownStorageError as err:
+        raise logic.ValidationError({"storage": [str(err)]}) from err
+
+    if not storage.supports(files.Capability.ANALYZE):
+        raise logic.ValidationError({"storage": ["Operation is not supported"]})
+
+    sess = context["session"]
+    stmt = model.File.by_location(data_dict["location"], data_dict["storage"])
+    if fileobj := sess.scalar(stmt):
+        raise logic.ValidationError({"location": ["File is already registered"]})
+
+    try:
+        storage_data = storage.analyze(data_dict["location"])
+    except files.exc.MissingFileError:
+        raise logic.NotFound("file")
+
+    fileobj = model.File(
+        name=secure_filename(storage_data.location),
+        storage=data_dict["storage"],
+        **storage_data.as_dict(),
+    )
+    sess.add(fileobj)
+
+    _set_user_owner(context, "file", fileobj.id)
+
+    if not context.get("defer_commit"):
+        sess.commit()
+
+    logic.ContextCache(context).set("file", fileobj.id, fileobj)
+
+    return fileobj.dictize(context)
+
+
 @logic.side_effect_free
 @logic.validate(schema.file_search)
 def file_search(  # noqa: C901, PLR0912, PLR0915

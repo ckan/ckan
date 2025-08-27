@@ -159,15 +159,16 @@ BulkUpdateDelete: TypeAlias = None
 ###############################################################################
 #                                     File                                    #
 ###############################################################################
+class FileSearch(TypedDict):
+    count: int
+    results: list[FileShow]
+
 FileCreate = dict[str, Any]
+FileRegister = dict[str, Any]
 FileDelete = dict[str, Any]
 FileShow = dict[str, Any]
 FileRename = dict[str, Any]
 FilePin = dict[str, Any]
 FileUnpin = dict[str, Any]
 FileOwnershipTransfer = dict[str, Any]
-FileOwnerScan = dict[str, Any]
-
-class FileSearch(TypedDict):
-    count: int
-    results: list[FileShow]
+FileOwnerScan = FileSearch

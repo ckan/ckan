@@ -211,6 +211,15 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> AuthResult:
 
 
 @logic.auth_allow_anonymous_access
+def file_register(context: Context, data_dict: dict[str, Any]) -> AuthResult:
+    """Check if user can register files from storage in DB.
+
+    Only file manager can register files.
+    """
+    return authz.is_authorized("permission_manage_files", context, data_dict)
+
+
+@logic.auth_allow_anonymous_access
 def file_search(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if user can use global file search.
 

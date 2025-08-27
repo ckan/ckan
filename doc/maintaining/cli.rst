@@ -764,7 +764,7 @@ Usage
 
 .. parsed-literal::
 
- ckan files adapters [--with-docs] [--with-configuration]         - show all awailable storage adapters
- ckan files storage list [-v]                                     - show all configured storages
- ckan files storage scan                                          - iterate over all files available in storage
- ckan files storage transfer SRC DEST [--location ...] [--remove] - move files between storages
+ ckan file adapters [--with-docs] [--with-configuration]         - show all awailable storage adapters
+ ckan file storage list [-v]                                     - show all configured storages
+ ckan file storage scan                                          - iterate over all files available in storage
+ ckan file storage transfer SRC DEST [--location ...] [--remove] - move files between storages

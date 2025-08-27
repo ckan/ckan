@@ -148,6 +148,21 @@ class TestFileCreate:
 
 
 @pytest.mark.usefixtures("non_clean_db")
+class TestFileTrack:
+    def test_anonymous_are_not_allowed(self):
+        """Anonymous users are not allowed to register files."""
+        with pytest.raises(tk.NotAuthorized):
+            tk.check_access("file_register", {"user": ""}, {"storage": "test"})
+
+    def test_authenticated_are_not_allowed(
+        self, user: dict[str, Any]
+    ):
+        """Authenticated users are not allowed to register files."""
+        with pytest.raises(tk.NotAuthorized):
+            tk.check_access("file_register", {"user": user["name"]}, {"storage": "test"})
+
+
+@pytest.mark.usefixtures("non_clean_db")
 class TestFileSearch:
     def test_anonymous_search_is_not_allowed(self):
         """Anonymous users are not allowed to search files."""

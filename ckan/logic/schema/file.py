@@ -25,15 +25,25 @@ def file_create(  # noqa: PLR0913
 
 
 @validator_args
-def file_search(
+def file_register(
+    default: ValidatorFactory,
     unicode_only: Validator,
+    not_missing: Validator,
+) -> Schema:
+    return {
+        "location": [not_missing, unicode_only],
+        "storage": [
+            default(config["ckan.files.default_storages.default"]),
+            unicode_only,
+        ],
+    }
+
+
+@validator_args
+def file_search(
     default: ValidatorFactory,
     int_validator: Validator,
-    boolean_validator: Validator,
-    ignore_empty: Validator,
     dict_only: Validator,
-    ignore_missing: Validator,
-    ignore_not_sysadmin: Validator,
     convert_to_json_if_string: Validator,
 ) -> Schema:
     return {

@@ -32,7 +32,7 @@ from . import (
     config_tool,
     error_shout,
     shell,
-    files,
+    file,
 )
 
 META_ATTR = u'_ckan_meta'
@@ -235,4 +235,4 @@ ckan.add_command(user.user)
 ckan.add_command(views.views)
 ckan.add_command(shell.shell)
 ckan.add_command(clean.clean)
-ckan.add_command(files.files)
+ckan.add_command(file.file)

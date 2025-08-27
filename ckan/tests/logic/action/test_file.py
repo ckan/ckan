@@ -12,6 +12,7 @@ from werkzeug.datastructures import FileStorage
 import ckan.model as model
 import ckan.plugins.toolkit as tk
 from ckan import types
+from ckan.lib import files
 from ckan.tests.factories import fake
 from ckan.tests.helpers import call_action
 
@@ -97,6 +98,40 @@ class TestFileCreate:
         file = file_factory(user=user)
         assert file["owner_id"] == user["id"]
         assert file["owner_type"] == "user"
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestFileRegister:
+    def test_unknown_storage(self, faker: Faker):
+        """Unknown storage produces an error."""
+        with pytest.raises(tk.ValidationError):
+            call_action("file_register", storage=faker.file_name())
+
+    @pytest.mark.ckan_config(
+        "ckan.files.storage.test.disabled_capabilities", ["ANALYZE"]
+    )
+    def test_missing_analyze_capability(self, faker: Faker):
+        """Missing ANALYZE capability is reported via validation error."""
+        with pytest.raises(tk.ValidationError):
+            call_action("file_register", location=faker.file_name())
+
+    def test_already_registered(self, file: dict[str, Any]):
+        """If file is registered in the system it causes an error."""
+        with pytest.raises(tk.ValidationError):
+            call_action("file_register", location=file["location"])
+
+    def test_normal_file(self, faker: Faker):
+        """Existing file reported via validation error."""
+        storage = files.get_storage()
+        info = storage.upload(
+            storage.prepare_location(faker.file_name()),
+            files.make_upload(faker.binary(100)),
+        )
+
+        result = call_action("file_register", location=info.location)
+        assert result["location"] == info.location
+        assert result["size"] == info.size
+        assert result["hash"] == info.hash
 
 
 @pytest.mark.usefixtures("clean_db")
