@@ -5,15 +5,22 @@ This module contains actions specific to the file domain.
 
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING
+
 import sqlalchemy as sa
+from collections.abc import Iterable, Mapping
 from typing import Any
+
 from ckan.types import Context, ActionResult
 from ckan import logic, model
 from ckan.logic.schema import file as schema
 
 from ckan.lib import files
 from werkzeug.utils import secure_filename
+
+if TYPE_CHECKING:
+    from sqlalchemy.sql.schema import Column
+    from sqlalchemy.sql.elements import ColumnElement
 
 
 def _set_user_owner(context: Context, item_type: str, item_id: str):
@@ -30,16 +37,123 @@ def _set_user_owner(context: Context, item_type: str, item_id: str):
         context["session"].add(owner)
 
 
-def _flat_mask(data: dict[str, Any]) -> dict[tuple[Any, ...], Any]:
-    result: dict[tuple[Any, ...], Any] = {}
+def _process_filters(  # noqa: C901
+    filters: dict[str, Any], columns: Mapping[str, Column[Any]]
+) -> Iterable[ColumnElement[bool]]:
+    for k, v in filters.items():
+        if k == "$and":
+            if not isinstance(v, list):
+                raise logic.ValidationError(
+                    {"filters": ["Only lists are allowed inside $and"]}
+                )
+            clauses = [
+                element
+                for sub_filters in v
+                if isinstance(sub_filters, dict)
+                for element in _process_filters(sub_filters, columns)
+            ]
+            if clauses:
+                yield sa.and_(*clauses)
 
-    for k, v in data.items():
-        if isinstance(v, dict):
-            result.update({(k,) + sk: sv for sk, sv in _flat_mask(v).items()})
+        elif k == "$or":
+            if not isinstance(v, list):
+                raise logic.ValidationError(
+                    {"filters": ["Only lists are allowed inside $or"]}
+                )
+
+            clauses = [
+                element
+                for sub_filters in v
+                if isinstance(sub_filters, dict)
+                for element in _process_filters(sub_filters, columns)
+            ]
+            if clauses:
+                yield sa.or_(*clauses)
+
+        elif k in ["storage_data", "plugin_data"]:
+            clauses = list(_process_data(columns[k], v))
+            if clauses:
+                yield sa.and_(*clauses)
+
+        elif k in columns:
+            clauses = list(
+                _process_field(
+                    columns[k],
+                    v,
+                )
+            )
+            if clauses:
+                yield sa.and_(*clauses)
+
+
+_op_map = {
+    "$eq": "=",
+    "$ne": "!=",
+    "$lt": "<",
+    "$lte": "<=",
+    "$gt": ">",
+    "$gte": ">=",
+    "$in": "IN",
+}
+
+
+def _process_field(col: Column[Any], value: Any):
+    if isinstance(value, list):
+        value = {"$in": value}
+
+    elif value is None:
+        value = {"$eq": None}
+
+    elif not isinstance(value, dict):
+        value = {"$eq": value}
+
+    for operator, filter in value.items():
+        column = col
+        if operator not in _op_map:
+            raise logic.ValidationError(
+                {"filters": [f"Operator {operator} is not supported"]}
+            )
+        op = _op_map[operator]
+        if filter is None:
+            if op == "=":
+                op = "is"
+            elif op == "!=":
+                op = "IS NOT"
+
+        elif not isinstance(value, col.type.python_type):
+            filter = str(filter)
+            column = sa.func.cast(column, sa.Text)
+
+        yield column.bool_op(op)(filter)
+
+
+def _process_data(col: ColumnElement[Any], value: Any):  # pyright: ignore[reportUnknownParameterType]
+    if not isinstance(value, dict):
+        raise logic.ValidationError(
+            {"filters": ["Only dictionaries can be used to filter data fields"]}
+        )
+
+    for k, v in value.items():
+        if k in _op_map:
+            op = _op_map[k]
+            if v is None:
+                if op == "=":
+                    op = "is"
+                elif op == "!=":
+                    op = "IS NOT"
+
+            if isinstance(v, bool):
+                col = sa.cast(col, sa.Boolean)
+
+            elif isinstance(v, int):
+                col = sa.cast(col, sa.Integer)
+
+            else:
+                col = col.astext
+
+            yield col.bool_op(op)(v)
         else:
-            result[(k,)] = v
-
-    return result
+            yield from _process_data(col[k], v)
 
 
 @logic.validate(schema.file_create)
@@ -76,7 +190,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
         ckanapi action file_create upload@<(echo -n "hello world") name=file.txt
 
-    .. note: Requires storage with `CREATE` capability.
+    .. note:: Requires storage with `CREATE` capability.
 
     :param name: human-readable name of the file.
         Defaults to filename of upload
@@ -154,45 +268,29 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
 ) -> ActionResult.FileSearch:
     """Search files.
 
-    .. note: This action is not stabilized yet and will change in future.
+    .. note:: This action is not stabilized yet and will change in future.
 
-    Provides an ability to search files using exact filter by name,
-    content_type, size, owner, etc. Results are paginated and returned in
-    package_search manner, as dict with `count` and `results` items.
+    Provides an ability to search files according to [the future CKAN's search
+    spec](https://github.com/ckan/ckan/discussions/8444).
 
     All columns of File model can be used as filters. Before the search, type
     of column and type of filter value are compared. If they are the same,
     original values are used in search. If type different, column value and
     filter value are casted to string.
 
-    This request produces `size = 10` SQL expression:
+    This request produces ``size = 10`` SQL expression::
 
-        ckanapi action file_search size:10
+        ckanapi action file_search filters:'{"size": 10}'
 
-    This request produces `size::text = '10'` SQL expression:
+    This request produces ``size::text = '10'`` SQL expression::
 
-        ckanapi action file_search size=10
+        ckanapi action file_search filters:'{"size": "10"}'
 
     Even though results are usually not changed, using correct types leads to
     more efficient search.
 
     Apart from File columns, the following Owner properties can be used for
-    searching: `owner_id`, `owner_type`, `pinned`.
-
-    `storage_data` and `plugin_data` are dictionaries. Filter's value for these
-    fields used as a mask. For example, `storage_data={"a": {"b": 1}}` matches
-    any File with `storage_data` *containing* item `a` with value that contains
-    `b=1`. This works only with data represented by nested dictionaries,
-    without other structures, like list or sets.
-
-    Experimental feature: File columns can be passed as a pair of operator and
-    value. This feature will be replaced by strictly defined query language at
-    some point:
-
-        ckanapi action file_search
-            size:'["<", 100]' content_type:'["like", "text/%"]'
-
-    Fillowing operators are accepted: `=`, `<`, `>`, `!=`, `like`
+    searching: ``owner_id``, ``owner_type``, ``pinned``.
 
     :param start: index of first row in result/number of rows to skip. Default: `0`
     :type start: int, optional
@@ -200,17 +298,12 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     :type rows: int, optional
     :param sort: name of File column used for sorting. Default: `name`
     :type sort: str, optional
-    :param reverse: sort results in descending order. Default: `False`
-    :param storage_data: mask for `storage_data` column. Default: `{}`
-    :param plugin_data: mask for `plugin_data` column. Default: `{}`
-    :param owner_id: show only specific owner id if present. Default: `None`
-    :param owner_type: show only specific owner type if present. Default: `None`
-    :param pinned: show only pinned/unpinned items if present. Default: `None`
-    :param completed: use `False` to search incomplete uploads. Default: `True`
+    :param filters: search filters
+    :param filters: dict
 
     :returns: dictionary with `count` and `results`
-    """
 
+    """
     logic.check_access("file_search", context, data_dict)
 
     sess = context["session"]
@@ -220,74 +313,40 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
         sa.and_(model.File.id == model.Owner.item_id, model.Owner.item_type == "file"),
     )
 
-    inspector = sa.inspect(model.File)
+    columns = dict(**model.File.__table__.c, **model.Owner.__table__.c)
 
-    for field in ["owner_type", "owner_id", "pinned"]:
-        if field in data_dict:
-            value = data_dict[field]
-            if value is not None and not (
-                field == "pinned" and isinstance(value, bool)
-            ):
-                value = str(value)
-            stmt = stmt.where(getattr(model.Owner, field) == value)
+    for clause in _process_filters({"$and": [data_dict["filters"]]}, columns):
+        stmt = stmt.where(clause)
 
-    columns = inspector.columns  # pyright: ignore[reportOptionalMemberAccess]
+    total: int = sess.scalar(stmt.with_only_columns(sa.func.count()))  # pyright: ignore[reportAssignmentType]
 
-    for mask in ["storage_data", "plugin_data"]:
-        if mask in data_dict:
-            for k, v in _flat_mask(data_dict[mask]).items():
-                field = columns[mask]
-                for segment in k:
-                    field = field[segment]
+    sort_clauses = []
+    sort = data_dict["sort"]
+    if isinstance(sort, str):
+        sort = [sort]
 
-                stmt = stmt.where(field.astext == v)
+    for part in sort:
+        if isinstance(part, str):
+            field = part
+            direction = "asc"
 
-    for k, v in data_dict.get("__extras", {}).items():
-        if k not in columns:
-            continue
+        elif isinstance(part, list) and len(part) == 2:
+            field, direction = part
 
-        if (
-            isinstance(v, list)
-            and len(v) == 2  # noqa: PLR2004
-            and v[0] in ["=", "<", ">", "!=", "like"]
-        ):
-            op, v = cast("list[Any]", v)  # noqa: PLW2901
         else:
-            op = "="
+            raise logic.ValidationError({"sort": [f"Invalid sort value: {part}"]})
 
-        col = columns[k]
-        column_type = col.type.python_type
-        if not isinstance(v, column_type) and v is not None:
-            v = str(v)  # noqa: PLW2901
-            col = sa.func.cast(col, sa.Text)
+        if direction not in ["asc", "desc"]:
+            raise logic.ValidationError(
+                {"sort": [f"Invalid sort direction: {direction}"]}
+            )
 
-        if v is None:
-            if op == "=":
-                op = "is"
-            elif op == "!=":
-                op = "is not"
+        if field not in columns:
+            raise logic.ValidationError({"sort": [f"Invalid sort field: {field}"]})
+        sort_clauses.append(getattr(columns[field], direction)())
 
-        stmt = stmt.where(col.bool_op(op)(v))
-
-    total = sess.scalar(stmt.with_only_columns(sa.func.count()))
-
-    parts = data_dict["sort"].split(".")
-    sort = parts[0]
-    sort_path = parts[1:]
-
-    if sort not in columns:
-        raise logic.ValidationError({"sort": ["Unknown sort column"]})
-
-    column = columns[sort]
-
-    if sort_path and sort == "storage_data":
-        for part in sort_path:
-            column = column[part]
-
-    if data_dict["reverse"]:
-        column = column.desc()
-
-    stmt = stmt.order_by(column)
+    if sort_clauses:
+        stmt = stmt.order_by(*sort_clauses)
 
     stmt = stmt.limit(data_dict["rows"]).offset(data_dict["start"])
 
@@ -312,7 +371,7 @@ def file_delete(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
         ckanapi action file_delete id=226056e2-6f83-47c5-8bd2-102e2b82ab9a
 
-    .. note: Requires storage with `REMOVE` capability.
+    .. note:: Requires storage with `REMOVE` capability.
 
     :param id: ID of the file
     :type id: str
@@ -562,4 +621,8 @@ def file_owner_scan(
 
     logic.check_access("file_owner_scan", context, data_dict)
 
+    data_dict["filters"] = {
+        "owner_id": data_dict.pop("owner_id"),
+        "owner_type": data_dict.pop("owner_type"),
+    }
     return logic.get_action("file_search")({"ignore_auth": True}, data_dict)

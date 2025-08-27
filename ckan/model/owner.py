@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from ckan.lib.dictization import table_dictize
 from ckan.types import Context
-from typing_extensions import Annotated
+from typing_extensions import Annotated, ClassVar
 
 from .meta import registry
 
@@ -42,6 +42,7 @@ class Owner:
         )
         ```
     """
+    __table__: ClassVar[sa.Table]
 
     __tablename__ = "owner"
 

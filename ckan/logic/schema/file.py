@@ -39,18 +39,8 @@ def file_search(
     return {
         "start": [default(0), int_validator],
         "rows": [default(10), int_validator],
-        "sort": [default("name"), unicode_only],
-        "reverse": [boolean_validator],
-        "storage_data": [ignore_empty, convert_to_json_if_string, dict_only],
-        "plugin_data": [
-            ignore_empty,
-            ignore_not_sysadmin,
-            convert_to_json_if_string,
-            dict_only,
-        ],
-        "owner_type": [ignore_empty, unicode_only],
-        "owner_id": [ignore_empty, unicode_only],
-        "pinned": [ignore_missing, boolean_validator],
+        "sort": [default("name")],
+        "filters": [default("{}"), convert_to_json_if_string, dict_only],
     }
 
 
@@ -104,4 +94,5 @@ def owner_scan(
         "owner_type": [default("user"), unicode_only],
         "start": [ignore_missing],
         "rows": [ignore_missing],
+        "sort": [ignore_missing],
     }

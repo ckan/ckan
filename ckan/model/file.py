@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 from datetime import datetime, timezone
 from typing import Any, Literal
-from typing_extensions import Annotated
+from typing_extensions import Annotated, ClassVar
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import (
@@ -58,6 +58,8 @@ class File:
         )
         ```
     """
+
+    __table__: ClassVar[sa.Table]
 
     __tablename__ = "file"
 
