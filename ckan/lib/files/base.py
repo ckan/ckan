@@ -322,21 +322,3 @@ class Storage(fk.Storage):
         self.validate_content_type(upload.content_type)
 
         return super().upload(location, upload, **kwargs)
-
-    @override
-    def multipart_start(
-        self, location: Location, data: FileData, /, **kwargs: Any
-    ) -> FileData:
-        """Prepare data for multipart upload.
-
-        Before upload starts, data is validated according to storage settings.
-
-        :param location: sanitized location of the file in the storage
-        :param data: details required for upload initialization
-        :param \\**kwargs: other parameters that may be used by the storage
-        :returns: details of the initiated multipart upload
-        """
-        self.validate_size(data.size)
-        self.validate_content_type(data.content_type)
-
-        return super().multipart_start(data, **kwargs)

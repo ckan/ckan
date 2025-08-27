@@ -75,7 +75,7 @@ def _get_user(context: types.Context) -> model.User | None:
     if isinstance(user, model.User):
         return user
 
-    if current_user.name == context["user"]:
+    if current_user and current_user.name == context["user"]:
         return cast(model.User, current_user)
 
     cache = logic.ContextCache(context)
@@ -136,6 +136,7 @@ def permission_edit_file(context: Context, data_dict: dict[str, Any]) -> AuthRes
 
     """
     result = authz.is_authorized_boolean("permission_owns_file", context, data_dict)
+
     if not result:
         file = _get_file(context, data_dict["id"])
         result = bool(file and _file_allows(context, file, "update"))

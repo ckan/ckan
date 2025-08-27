@@ -339,7 +339,7 @@ Recommended options:
 ckan:gcs
 ^^^^^^^^
 
-Keeps files inside Microsoft Google Cloud Storage.
+Keeps files inside Google Cloud Storage.
 
 Recommended options:
 

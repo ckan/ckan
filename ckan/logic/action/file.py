@@ -495,8 +495,10 @@ def file_pin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FilePi
 
     owner.pinned = True
 
+    sess = context["session"]
+    sess.expire(fileobj, ["owner"])
     if not context.get("defer_commit"):
-        context["session"].commit()
+        sess.commit()
 
     return fileobj.dictize(context)
 
@@ -522,8 +524,10 @@ def file_unpin(context: Context, data_dict: dict[str, Any]) -> ActionResult.File
     if owner := fileobj.owner:
         owner.pinned = False
 
+    sess = context["session"]
+    sess.expire(fileobj, ["owner"])
     if not context.get("defer_commit"):
-        context["session"].commit()
+        sess.commit()
 
     return fileobj.dictize(context)
 
@@ -585,7 +589,7 @@ def file_ownership_transfer(
 
     owner.pinned = data_dict["pin"]
 
-    sess.expire(fileobj)
+    sess.expire(fileobj, ["owner"])
 
     if not context.get("defer_commit"):
         sess.commit()
