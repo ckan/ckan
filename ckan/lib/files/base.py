@@ -218,9 +218,9 @@ class Storage(fk.Storage):
 
         declaration.declare(key.path, "").set_description(
             "Prefix for the file's location. The actual meaning of this option"
-            + " depends on the adapter. FS adapter uses the path as a root folder for"
-            + " uploads. Cloud adapters, usually, use path as a prefix for the name of"
-            + " uploaded objects.",
+            + " depends on the adapter. \nFS adapter uses the path as a root folder for"
+            + " uploads. \nCloud adapters, usually, use path as a prefix for the name"
+            + " of uploaded objects.",
         )
 
         declaration.declare(key.name, key[-1]).set_description(
@@ -240,7 +240,7 @@ class Storage(fk.Storage):
 
         declaration.declare_list(key.disabled_capabilities, None).set_description(
             "Capabilities that are not supported even if implemented."
-            " Can be used to transform fully-featured storage into a read-only/write-only storage."
+            "\nCan be used to transform fully-featured storage into a read-only/write-only storage."
         )
 
     def as_response(

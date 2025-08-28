@@ -91,6 +91,8 @@ class Context(TypedDict, total=False):
     connection: Any
     check_access: Callable[..., Any]
 
+    context_cache: dict[str, Any]
+
     id: str | None
     user_id: str
     user_is_admin: bool

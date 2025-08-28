@@ -1,7 +1,28 @@
-"""File managemeng API.
+"""File management API.
 
 This module contains actions specific to the file domain.
+
+The API defined here provides only a minimal, predictable set of operations
+that are common to all supported storage backends. These operations are
+deliberately limited to generic functionality (such as creating, reading,
+updating, and deleting files) which can be implemented consistently across
+different adapters without relying on storage-specific features.
+
+It is important to note that modern storage systems often provide a rich set
+of advanced capabilities — for example multipart and resumable uploads,
+pre-signed URLs for controlled access, or native copy and move operations.
+These are not exposed directly by this module, since their availability and
+behavior vary significantly between storage providers.
+
+Developers who require such advanced functionality are encouraged to build
+custom APIs on top of this foundation, leveraging the underlying
+`file-keeper <http://pypi.org/project/file-keeper>`_ library. That library
+offers direct access to adapter-specific features while still keeping a
+consistent abstraction layer. By combining the generic operations here with
+the richer primitives provided by *file-keeper*, projects can tailor their
+file management workflows to best match their storage backend.
 """
+
 
 from __future__ import annotations
 
@@ -186,7 +207,9 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
     The action is way too powerful to use it directly. The recommended approach
     is to register a different action for handling specific type of uploads and
-    call the current action internally::
+    call the current action internally:
+
+    .. code-block:: python
 
         def avatar_upload(context, data_dict):
             logic.check_access("avatar_upload", context, data_dict)
@@ -200,14 +223,18 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
     When uploading a real file(or using ``werkqeug.datastructures.FileStorage``),
     name parameter can be omited. In this case, the name of uploaded file is
-    used::
+    used:
 
-        ckanapi action file_create upload@path/to/file.txt
+    .. code-block:: sh
+
+        $ ckanapi action file_create upload@path/to/file.txt
 
     When uploading a raw content of the file using bytes object, name is
-    mandatory::
+    mandatory:
 
-        ckanapi action file_create upload@<(echo -n "hello world") name=file.txt
+    .. code-block:: sh
+
+        $ ckanapi action file_create upload@<(echo -n "hello world") name=file.txt
 
     .. note:: Requires storage with `CREATE` capability.
 
@@ -351,13 +378,17 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     original values are used in search. If type different, column value and
     filter value are casted to string.
 
-    This request produces ``size = 10`` SQL expression::
+    This request produces ``size = 10`` SQL expression:
 
-        ckanapi action file_search filters:'{"size": 10}'
+    .. code-block:: sh
 
-    This request produces ``size::text = '10'`` SQL expression::
+        $ ckanapi action file_search filters:'{"size": 10}'
 
-        ckanapi action file_search filters:'{"size": "10"}'
+    This request produces ``size::text = '10'`` SQL expression:
+
+    .. code-block:: sh
+
+        $ ckanapi action file_search filters:'{"size": "10"}'
 
     Even though results are usually not changed, using correct types leads to
     more efficient search.
@@ -421,9 +452,9 @@ def file_delete(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     know whether there are chances that file is not completely removed with
     this operation.
 
-    Example::
+    .. code-block:: sh
 
-        ckanapi action file_delete id=226056e2-6f83-47c5-8bd2-102e2b82ab9a
+        $ ckanapi action file_delete id=226056e2-6f83-47c5-8bd2-102e2b82ab9a
 
     .. note:: Requires storage with `REMOVE` capability.
 
@@ -470,9 +501,9 @@ def file_show(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileS
     This action only displays information from DB record. There is no way to
     get the content of the file using this action(or any other API action).
 
-    Example::
+    .. code-block:: sh
 
-        ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a
+        $ ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a
 
     :param id: ID of the file
     :type id: str
@@ -496,9 +527,9 @@ def file_rename(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     This action changes human-readable name of the file, which is stored in
     DB. Real location of the file in the storage is not modified.
 
-    Example::
+    .. code-block:: sh
 
-        ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a \\
+        $ ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a \\
             name=new-name.txt
 
     :param id: ID of the file
@@ -550,7 +581,6 @@ def file_pin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FilePi
     owner.pinned = True
 
     sess = context["session"]
-    sess.expire(fileobj, ["owner"])
     if not context.get("defer_commit"):
         sess.commit()
 
@@ -579,7 +609,6 @@ def file_unpin(context: Context, data_dict: dict[str, Any]) -> ActionResult.File
         owner.pinned = False
 
     sess = context["session"]
-    sess.expire(fileobj, ["owner"])
     if not context.get("defer_commit"):
         sess.commit()
 
@@ -591,6 +620,41 @@ def file_ownership_transfer(
     context: Context, data_dict: dict[str, Any]
 ) -> ActionResult.FileOwnershipTransfer:
     """Transfer file ownership.
+
+    Ownership determines required permissions to manage file. If file owned by
+    a user, that user can see/modify/delete the file. If file owned by any
+    other entity that supports :ref:`cascade access
+    <ckan.files.owner.cascade_access>`, permissions regarding this entity
+    determine file permissions.
+
+    For example, if file owned by a package because its ``owner_type`` set to
+    ``package`` and ``owner_id`` set to package's ID, whenever user performs an
+    operation on the file, system checks if user can perform the same operation
+    on the package. When user tries to read the file, system checks whether
+    user can read the package; when user tries to delete the file, system
+    checks whether user can delete the package. And result of this cascade
+    checks determines success of the operation.
+
+    ``owner_type`` is not restricted by existing entities. Anything that has
+    corresponding auth functions(``<smth>_show``, ``<smth>_update``,
+    ``<smth>_delete``) can be used as an owner. These functions will be called
+    with ``id`` set to ``owner_id`` when cascade permission is checked.
+
+    For example, to grant read access on the file to any user with the specific
+    email domain, set the ``owner_type`` to ``email_domain`` and ``owner_id``
+    to ``@specific.domain.com``. Then add ``email_domain`` to
+    :ref:`ckan.files.owner.cascade_access` config option to enable cascade
+    check for this owner type. Finally, register ``email_domain_show`` auth
+    function that checks permissions:
+
+    .. code-block:: python
+
+        def email_domain_show(context, data_dict):
+            email = context["auth_user_obj"]["email"]
+            domain = data_dict["id"]
+            return {
+                "success": email.endswith(domain),
+            }
 
     :param id: ID of the file upload
     :type id: str
@@ -604,6 +668,7 @@ def file_ownership_transfer(
     :type pin: bool
 
     :returns: details of tranfered file
+
     """
     logic.check_access("file_ownership_transfer", context, data_dict)
     sess = context["session"]
@@ -643,8 +708,9 @@ def file_ownership_transfer(
 
     owner.pinned = data_dict["pin"]
 
+    # without expiration SQLAlchemy fails to synchronize owner value during
+    # transfer of unowned files
     sess.expire(fileobj, ["owner"])
-
     if not context.get("defer_commit"):
         sess.commit()
 
@@ -658,6 +724,13 @@ def file_owner_scan(
 ) -> ActionResult.FileOwnerScan:
     """List files of the owner.
 
+    .. warning:: This action has hight probability to be changed or removed in
+        future.
+
+    This action requires ``<owner_type>_update`` permission when
+    :ref:`ckan.files.owner.scan_as_update` is enabled and
+    ``<owner_type>_file_scan`` otherwise.
+
     :param owner_id: ID of the owner
     :type owner_id: str
     :param owner_type: type of the owner
@@ -666,7 +739,8 @@ def file_owner_scan(
     :type start: int, optional
     :param rows: number of rows to return.
     :type rows: int, optional
-    :param sort: name of File column used for sorting. Default: `name`
+    :param sort: name of :py:class:`~ckan.model.File` column used for
+        sorting. Default: ``name``
     :type sort: str, optional
 
     :returns: dictionary with `count` and `results`

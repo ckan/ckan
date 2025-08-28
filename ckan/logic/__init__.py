@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 _validate = df.validate
 
 _PG_ERR_CODE = {'unique_violation': '23505'}
+DEFAULT_CACHE_KEY = "context_cache"
 
 
 class NameConflict(Exception):
@@ -919,7 +920,7 @@ def fresh_context(
     new_context = {
         k: context[k] for k in (
             'session', 'user', 'auth_user_obj',
-            'ignore_auth', 'defer_commit',
+            'ignore_auth', 'defer_commit', DEFAULT_CACHE_KEY
         ) if k in context
     }
     new_context.update(kwargs)
@@ -1012,7 +1013,7 @@ class ContextCache:
 
     cache: dict[str, Any]
 
-    def __init__(self, context: types.Context, key: str = "context_cache"):
+    def __init__(self, context: types.Context, key: str = DEFAULT_CACHE_KEY):
         self.session = context.get("session", model.Session)
         self.cache = context.setdefault(key, {})  # pyright: ignore[reportArgumentType, reportCallIssue]
 

@@ -434,6 +434,21 @@ class TestFileOwnershipTransfer:
         )
         assert result["pinned"]
 
+    def test_transfer_expires_owner(
+        self, faker: Faker, file_factory: types.TestFactory
+    ):
+        """Owner attribute of the file is refreshed during transfer."""
+        file = file_factory.model(user="")
+        assert not file.owner
+
+        call_action(
+            "file_ownership_transfer",
+            id=file.id,
+            owner_id=faker.uuid4(),
+            owner_type="user",
+        )
+        assert file.owner
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFileOwnerScan:
