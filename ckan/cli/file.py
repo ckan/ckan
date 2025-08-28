@@ -466,3 +466,101 @@ def stats_owner(storage_name: str | None, verbose: bool):
         click.secho(
             f"\t{clean_owner}: {click.style(count, bold=True)}",
         )
+
+
+@file.group()
+def maintain():
+    """Storage maintenance."""
+
+
+@maintain.command()
+@storage_option
+@click.option("--remove", is_flag=True, help="Remove files")
+def empty_owner(storage_name: str | None, remove: bool):
+    """Manage files that have no owner."""
+    storage_name = storage_name or config["ckan.files.default_storages.default"]
+    try:
+        storage = files.get_storage(storage_name)
+    except files.exc.UnknownStorageError as err:
+        error_shout(err)
+        raise click.Abort from err
+
+    if remove and not storage.supports(files.Capability.REMOVE):
+        error_shout(f"Storage {storage_name} does not support file removal")
+        raise click.Abort
+
+    stmt = (
+        sa.select(model.File)
+        .outerjoin(model.File.owner)
+        .where(model.File.storage == storage_name, model.Owner.owner_id.is_(None))
+    )
+
+    total = model.Session.scalar(stmt.with_only_columns(sa.func.count()))
+    if not total:
+        click.echo(f"Every file in storage {storage_name} has owner reference")
+        return
+
+    click.echo("Following files do not have owner reference:")
+
+    for file in model.Session.scalars(stmt):
+        size = fk.humanize_filesize(file.size)
+        click.echo(f"\t{file.id}: {file.name} [{file.content_type}, {size}]")
+
+    if remove and click.confirm("Do you want to delete these files?"):
+        action = logic.get_action("file_delete")
+
+        with click.progressbar(model.Session.scalars(stmt), length=total) as bar:
+            for file in bar:
+                action({"ignore_auth": True}, {"id": file.id})
+
+
+@maintain.command()
+@storage_option
+@click.option("--remove", is_flag=True, help="Remove files")
+def missing_files(storage_name: str | None, remove: bool):
+    """Manage files that do not exist in storage."""
+    storage_name = storage_name or config["ckan.files.default_storages.default"]
+    try:
+        storage = files.get_storage(storage_name)
+    except files.exc.UnknownStorageError as err:
+        error_shout(err)
+        raise click.Abort from err
+
+    if not storage.supports(files.Capability.EXISTS):
+        error_shout(
+            f"Storage {storage_name} does not support file availability checks",
+        )
+        raise click.Abort
+
+    if remove and not storage.supports(files.Capability.REMOVE):
+        error_shout(f"Storage {storage_name} does not support file removal")
+        raise click.Abort
+
+    stmt = sa.select(model.File).where(model.File.storage == storage_name)
+    total = model.Session.scalar(stmt.with_only_columns(sa.func.count()))
+    missing: list[model.File] = []
+    with click.progressbar(model.Session.scalars(stmt), length=total) as bar:
+        for file in bar:
+            data = files.FileData.from_object(file)
+            if not storage.exists(data):
+                missing.append(file)
+
+    if not missing:
+        click.echo(
+            f"No missing files located in storage {storage_name}",
+        )
+        return
+
+    click.echo(f"Following files are not found in the storage {storage_name}")
+    for file in missing:
+        size = fk.humanize_filesize(file.size)
+        click.echo(
+            f"\t{file.id}: {file.name} [{file.content_type}, {size}]",
+        )
+
+    if remove and click.confirm("Do you want to delete these files from registry?"):
+        action = logic.get_action("file_delete")
+
+        with click.progressbar(missing) as bar:
+            for file in bar:
+                action({"ignore_auth": True}, {"id": file.id})

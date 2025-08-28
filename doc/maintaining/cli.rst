@@ -772,3 +772,6 @@ Usage
  ckan file stats overview                                        - general information about storage usage
  ckan file stats types                                           - files distribution by MIME type
  ckan file stats owner                                           - files distribution by owner
+ ckan file stream FILE_ID -o OUTPUT                              - stream content of the file
+ ckan file maintain empty-owner                                  - manage files that have no owner
+ ckan file maintain missing-files                                - manage files that do not exist in storage
