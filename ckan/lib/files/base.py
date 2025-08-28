@@ -4,10 +4,10 @@ import dataclasses
 from collections.abc import Iterable
 from typing import Any, ClassVar
 
-import flask
 import file_keeper as fk
-
+import flask
 from typing_extensions import TypeAlias, override
+
 from ckan import types
 from ckan.common import config
 from ckan.config.declaration import Declaration
@@ -240,7 +240,8 @@ class Storage(fk.Storage):
 
         declaration.declare_list(key.disabled_capabilities, None).set_description(
             "Capabilities that are not supported even if implemented."
-            "\nCan be used to transform fully-featured storage into a read-only/write-only storage."
+            "\nCan be used to transform fully-featured storage into a"
+            " read-only/write-only storage."
         )
 
     def as_response(

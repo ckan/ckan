@@ -6,9 +6,9 @@ from typing import Any
 import pytest
 from faker import Faker
 
+import ckan.plugins as p
 from ckan.common import CKANConfig
 from ckan.lib import files
-import ckan.plugins as p
 
 
 class TestMakeStorage:

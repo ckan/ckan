@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import cast, Any
+from typing import Any, cast
+
 import ckan.plugins as p
-from ckan import authz, model, logic, types
+from ckan import authz, logic, model, types
 from ckan.common import config, current_user
-from ckan.types import Context, AuthResult
+from ckan.types import AuthResult, Context
 
 
 def _owner_allows(

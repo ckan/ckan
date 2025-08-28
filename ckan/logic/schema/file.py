@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from . import validator_args
-from ckan.types import Validator, ValidatorFactory, Schema
 from ckan.common import config
+from ckan.types import Schema, Validator, ValidatorFactory
+
+from . import validator_args
 
 
 @validator_args

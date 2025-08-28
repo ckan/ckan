@@ -4,7 +4,6 @@ import dataclasses
 
 from file_keeper.default.adapters import memory
 
-
 from ckan.lib.files import base
 
 

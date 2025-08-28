@@ -3,15 +3,16 @@ from __future__ import annotations
 import copy
 from datetime import datetime, timezone
 from typing import Any, Literal
-from typing_extensions import Annotated, ClassVar
+
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import (
     Mapped,
     foreign,
-    relationship,
     mapped_column,
+    relationship,
 )
+from typing_extensions import Annotated, ClassVar
 
 from ckan.lib.dictization import table_dictize
 from ckan.model.types import make_uuid

@@ -22,27 +22,24 @@ consistent abstraction layer. By combining the generic operations here with
 the richer primitives provided by *file-keeper*, projects can tailor their
 file management workflows to best match their storage backend.
 """
-
-
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 import logging
+from collections.abc import Iterable, Mapping
+from typing import TYPE_CHECKING, Any
+
 import sqlalchemy as sa
 from sqlalchemy.exc import ProgrammingError
-from collections.abc import Iterable, Mapping
-from typing import Any
-
-from ckan.types import Context, ActionResult
-from ckan import logic, model
-from ckan.logic.schema import file as schema
-
-from ckan.lib import files
 from werkzeug.utils import secure_filename
 
+from ckan import logic, model
+from ckan.lib import files
+from ckan.logic.schema import file as schema
+from ckan.types import ActionResult, Context
+
 if TYPE_CHECKING:
-    from sqlalchemy.sql.schema import Column
     from sqlalchemy.sql.elements import ColumnElement
+    from sqlalchemy.sql.schema import Column
 
 log = logging.getLogger(__name__)
 

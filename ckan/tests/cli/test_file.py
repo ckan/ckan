@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import pytest
-
-from faker import Faker
 from typing import Any
-from ckan import types
-from ckan.lib import files
 
+import pytest
+from faker import Faker
+
+from ckan import logic, types
 from ckan.cli.cli import ckan
+from ckan.lib import files
 from ckan.tests.helpers import CKANCliRunner, call_action
 
 
@@ -131,6 +131,7 @@ class TestStorageScan:
         assert "Size: 42B" in result.output
 
 
+@pytest.mark.usefixtures("with_temporal_storage")
 class TestStorageTransfer:
     def test_copy_between_storages(
         self,
@@ -179,6 +180,7 @@ class TestStorageTransfer:
         assert not group.exists(info)
         assert user.exists(info)
 
+    @pytest.mark.usefixtures("non_clean_db")
     def test_move_registered_file(
         self,
         cli: CKANCliRunner,
@@ -231,3 +233,35 @@ class TestStorageTransfer:
         assert not user.exists(info)
         moved_result = call_action("file_show", id=result["id"])
         assert moved_result["storage"] == "group_uploads"
+
+
+@pytest.mark.usefixtures("with_temporal_storage")
+class TestStorageClean:
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_clean_registered(
+        self,
+        file_factory: types.TestFactory,
+        cli: CKANCliRunner,
+    ):
+        """Registered files removed from storage and DB."""
+        file = file_factory(storage="resources")
+
+        storage = files.get_storage("resources")
+        assert list(storage.scan())
+
+        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--yes"])
+        assert not list(storage.scan())
+
+        with pytest.raises(logic.NotFound):
+            call_action("file_show", id=file["id"])
+
+    def test_clean_unregistered(self, cli: CKANCliRunner, faker: Faker):
+        """Unknown files removed from storage."""
+        storage = files.get_storage("resources")
+        storage.upload(
+            storage.prepare_location(faker.file_name()),
+            files.make_upload(faker.binary(100)),
+        )
+
+        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--yes"])
+        assert not list(storage.scan())

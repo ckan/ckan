@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from ckan.model.types import make_uuid
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing_extensions import Annotated, ClassVar
 
 from ckan.lib.dictization import table_dictize
+from ckan.model.types import make_uuid
 from ckan.types import Context
-from typing_extensions import Annotated, ClassVar
 
 from .meta import registry
 

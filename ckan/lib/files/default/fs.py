@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import os
 import dataclasses
+import os
 from typing import Any
-from typing_extensions import override
 
 import flask
 from file_keeper.default.adapters import fs
+from typing_extensions import override
 
 from ckan import types
 from ckan.config.declaration import Declaration, Key

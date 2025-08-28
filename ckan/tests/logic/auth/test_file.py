@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+
 import pytest
 
 import ckan.plugins.toolkit as tk

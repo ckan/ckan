@@ -1,16 +1,31 @@
 from __future__ import annotations
 
+import os
 import pydoc
+import sys
 import textwrap
+from datetime import datetime, timezone
+from typing import IO
+
 import click
 import file_keeper as fk
 import sqlalchemy as sa
-from ckan import model, logic
+from babel.dates import format_datetime, format_timedelta
+
+from ckan import logic, model
 from ckan.common import config
 from ckan.config.declaration import Declaration, Key
+from ckan.lib import files
 
-import ckan.lib.files as lib_files
 from . import error_shout
+
+storage_option = click.option(
+    "-s", "--storage-name", help="Name of the configured storage"
+)
+
+
+def _now():
+    return datetime.now(timezone.utc)
 
 
 @click.group(short_help="Manage storages and files")
@@ -37,15 +52,15 @@ def adapters(
 ):
     """Show all awailable storage adapters."""
 
-    for name in sorted(lib_files.adapters):
+    for name in sorted(files.adapters):
         if adapter and name != adapter:
             continue
 
-        item = lib_files.adapters[name]
+        item = files.adapters[name]
         if item.hidden:
             continue
 
-        if not show_all and not issubclass(item, lib_files.Storage):
+        if not show_all and not issubclass(item, files.Storage):
             continue
 
         click.secho(
@@ -58,7 +73,7 @@ def adapters(
             click.secho(wrapped)
             click.echo()
 
-        if with_configuration and issubclass(item, lib_files.Storage):
+        if with_configuration and issubclass(item, files.Storage):
             decl = Declaration()
             item.declare_config_options(
                 decl, Key.from_string("ckan.files.storage.NAME")
@@ -70,6 +85,51 @@ def adapters(
             click.echo()
 
 
+@file.command("stream")
+@click.argument("file_id")
+@click.option("--start", type=int, default=0, help="Start streaming from position")
+@click.option("--end", type=int, help="End streaming at position")
+@click.option("-o", "--output", help="Stream into specified file or directory")
+def file_stream(file_id: str, output: str | None, start: int, end: int | None):
+    """Stream content of the file."""
+    file = model.Session.get(model.File, file_id)
+    if not file:
+        error_shout("File not found")
+        raise click.Abort
+
+    try:
+        storage = files.get_storage(file.storage)
+    except files.exc.UnknownStorageError as err:
+        error_shout(err)
+        raise click.Abort from err
+
+    if not start and end is None and storage.supports(files.Capability.STREAM):
+        content_stream = storage.stream(files.FileData.from_object(file))
+
+    elif storage.supports(files.Capability.RANGE):
+        content_stream = storage.range(files.FileData.from_object(file), start, end)
+
+    elif storage.supports_synthetic(files.Capability.RANGE, storage):
+        content_stream = storage.range_synthetic(
+            files.FileData.from_object(file), start, end
+        )
+
+    else:
+        error_shout("File streaming is not supported")
+        raise click.Abort
+
+    if output is None:
+        dest: IO[bytes] = sys.stdout.buffer
+
+    else:
+        if os.path.isdir(output):
+            output = os.path.join(output, file.name)
+        dest = open(output, "wb")  # noqa: SIM115
+
+    for chunk in content_stream:
+        click.echo(chunk, nl=False, file=dest)
+
+
 @file.group()
 def storage():
     """Storage-level operations."""
@@ -79,10 +139,10 @@ def storage():
 @click.option("-v", "--verbose", is_flag=True, help="Show storage's details")
 def storage_list(verbose: bool):
     """Show all configured storages."""
-    for name, settings in lib_files.collect_storage_configuration(config).items():
+    for name, settings in files.collect_storage_configuration(config).items():
         click.secho("{}: {}".format(click.style(name, bold=True), settings["type"]))
         if verbose:
-            storage = lib_files.get_storage(name)
+            storage = files.get_storage(name)
 
             label = click.style("Supports", fg="green", bold=True)
             click.secho(f"\t{label}: {storage.capabilities}")
@@ -92,7 +152,7 @@ def storage_list(verbose: bool):
 
 
 @storage.command("scan")
-@click.option("-s", "--storage-name", help="Name of the configured storage")
+@storage_option
 @click.option(
     "--unknown-mark",
     help="Mark unknown files with specified symbol",
@@ -123,20 +183,22 @@ def storage_scan(
     unknown_only: bool,
 ):
     """Iterate over all files available in storage."""
+    storage_name: str = storage_name or config["ckan.files.default_storages.default"]
+
     try:
-        storage = lib_files.get_storage(storage_name)
-    except lib_files.exc.UnknownStorageError as err:
+        storage = files.get_storage(storage_name)
+    except files.exc.UnknownStorageError as err:
         error_shout(err)
         raise click.Abort from err
 
     try:
-        files = storage.scan()
-    except lib_files.exc.UnsupportedOperationError as err:
+        names = storage.scan()
+    except files.exc.UnsupportedOperationError as err:
         error_shout(err)
         raise click.Abort from err
 
-    for name in files:
-        file = model.Session.scalar(model.File.by_location(name, storage.settings.name))
+    for name in names:
+        file = model.Session.scalar(model.File.by_location(name, storage_name))
         if unknown_only and file:
             continue
 
@@ -146,8 +208,8 @@ def storage_scan(
             if file:
                 info = file
 
-            elif verbose > 1 and storage.supports(lib_files.Capability.ANALYZE):
-                info = storage.analyze(lib_files.Location(name))
+            elif verbose > 1 and storage.supports(files.Capability.ANALYZE):
+                info = storage.analyze(files.Location(name))
 
             else:
                 info = None
@@ -189,16 +251,14 @@ def storage_transfer(
     fields, including ``storage``, updated as if file was directly uploaded
     into the target storage.
     """
-    from_storage = lib_files.get_storage(src)
-    to_storage = lib_files.get_storage(dest)
+    from_storage = files.get_storage(src)
+    to_storage = files.get_storage(dest)
 
-    if remove and from_storage.supports_synthetic(
-        lib_files.Capability.MOVE, to_storage
-    ):
+    if remove and from_storage.supports_synthetic(files.Capability.MOVE, to_storage):
         op = from_storage.move_synthetic
 
     elif not remove and from_storage.supports_synthetic(
-        lib_files.Capability.COPY, to_storage
+        files.Capability.COPY, to_storage
     ):
         op = from_storage.copy_synthetic
 
@@ -220,20 +280,20 @@ def storage_transfer(
     if not targets:
         try:
             targets = tuple(from_storage.scan())
-        except lib_files.exc.UnsupportedOperationError as err:
+        except files.exc.UnsupportedOperationError as err:
             error_shout(err)
             raise click.Abort from err
 
     with click.progressbar(targets) as bar:
         for item in bar:
-            data = lib_files.FileData(lib_files.Location(item))
+            data = files.FileData(files.Location(item))
 
             try:
                 info = op(data.location, data, to_storage)
 
             except (
-                lib_files.exc.MissingFileError,
-                lib_files.exc.ExistingFileError,
+                files.exc.MissingFileError,
+                files.exc.ExistingFileError,
             ) as err:
                 error_shout(err)
 
@@ -242,3 +302,167 @@ def storage_transfer(
                     info.into_object(file)
                     file.storage = dest
                     model.Session.commit()
+
+
+@storage.command("clean")
+@storage_option
+@click.option("-y", "--yes", help="Do not ask for confirmation", is_flag=True)
+def storage_clean(storage_name: str | None, yes: bool):
+    """Remove all files from the storage."""
+    user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
+    storage_name: str = storage_name or config["ckan.files.default_storages.default"]
+    try:
+        storage = files.get_storage(storage_name)
+    except files.exc.UnknownStorageError as err:
+        error_shout(err)
+        raise click.Abort from err
+
+    stmt = sa.select(model.File.id).where(model.File.storage == storage_name)
+
+    total = model.Session.scalar(stmt.with_only_columns(sa.func.count()))
+
+    if total:
+        click.echo(f"Storage {storage_name} contains {total} registered files.")
+
+        if not yes and not click.confirm("Proceed with removal?"):
+            raise click.Abort
+
+        bar = click.progressbar(model.Session.scalars(stmt), length=total)
+        with bar:
+            for id in bar:
+                bar.label = f"Removing {id}"
+                logic.get_action("file_delete")({"user": user["name"]}, {"id": id})
+
+    if storage.supports(files.Capability.SCAN) and (names := list(storage.scan())):
+        click.echo(f"Storage {storage_name} contains {len(names)} unknown files.")
+
+        if not yes and not click.confirm("Proceed with removal?"):
+            raise click.Abort
+
+        bar = click.progressbar(names)
+        with bar:
+            for name in bar:
+                bar.label = f"Removing {name}"
+                storage.remove(files.FileData(files.Location(name)))
+
+
+@file.group()
+def stats():
+    """Storage statistics."""
+
+
+@stats.command("overview")
+@storage_option
+def stats_overview(storage_name: str | None):
+    """General information about storage usage.
+
+    Computed using registered files. If storage contains files without
+    corresponding DB record, they won't be added to these numbers.
+    """
+    storage_name = storage_name or config["ckan.files.default_storages.default"]
+    try:
+        files.get_storage(storage_name)
+    except files.exc.UnknownStorageError as err:
+        error_shout(f"Storage {storage_name} is not configured")
+        raise click.Abort from err
+
+    stmt = sa.select(
+        sa.func.sum(model.File.size),
+        sa.func.count(model.File.id),
+        sa.func.max(model.File.ctime),
+        sa.func.min(model.File.ctime),
+    ).where(model.File.storage == storage_name)
+    row = model.Session.execute(stmt).fetchone()
+    size, count, newest, oldest = row if row else (0, 0, _now(), _now())
+
+    if not count:
+        error_shout(f"Storage {storage_name} is empty")
+        raise click.Abort
+
+    click.secho(f"Number of files: {click.style(count, bold=True)}")
+    click.secho(
+        f"Used space: {click.style(fk.humanize_filesize(size), bold=True)}",
+    )
+    click.secho(
+        "Newest file created at: "
+        + f"{click.style(format_datetime(newest), bold=True)} "
+        + f"({format_timedelta(newest - _now(), add_direction=True)})",
+    )
+    click.secho(
+        "Oldest file created at: "
+        + f"{click.style(format_datetime(oldest), bold=True)} "
+        + f"({format_timedelta(oldest - _now(), add_direction=True)})",
+    )
+
+
+@stats.command("types")
+@storage_option
+def stats_types(storage_name: str | None):
+    """Files distribution by MIME type."""
+    storage_name = storage_name or config["ckan.files.default_storages.default"]
+    stmt = (
+        sa.select(
+            model.File.content_type,
+            sa.func.count(model.File.content_type).label("count"),
+        )
+        .where(model.File.storage == storage_name)
+        .group_by(model.File.content_type)
+        .order_by(model.File.content_type)
+    )
+
+    total = model.Session.scalar(sa.select(sa.func.sum(stmt.c.count)))
+    click.secho(
+        f"Storage {click.style(storage_name, bold=True)} contains "
+        + f"{click.style(total, bold=True)} files",
+    )
+    for content_type, count in model.Session.execute(stmt):
+        click.secho(f"\t{content_type}: {click.style(count, bold=True)}")
+
+
+@stats.command("owner")
+@storage_option
+@click.option(
+    "-v",
+    "--verbose",
+    is_flag=True,
+    help="Show distribution for every owner ID",
+)
+def stats_owner(storage_name: str | None, verbose: bool):
+    """Files distribution by owner."""
+    storage_name = storage_name or config["ckan.files.default_storages.default"]
+    owner_col = (
+        sa.func.concat(model.Owner.owner_type, " ", model.Owner.owner_id)
+        if verbose
+        else sa.func.concat(model.Owner.owner_type, "")
+    )
+
+    stmt = (
+        sa.select(
+            owner_col.label("owner"),
+            sa.func.count(model.File.id),
+        )
+        .where(model.File.storage == storage_name)
+        .outerjoin(
+            model.Owner,
+            sa.and_(
+                model.Owner.item_id == model.File.id,
+                model.Owner.item_type == "file",
+            ),
+        )
+        .group_by(owner_col)
+    ).order_by(owner_col)
+
+    total = model.Session.scalar(sa.select(sa.func.sum(stmt.c.count)))
+    click.secho(
+        f"Storage {click.style(storage_name, bold=True)} contains "
+        + f"{click.style(total, bold=True)} files",
+    )
+    for owner, count in model.Session.execute(stmt):
+        clean_owner = owner.strip() or click.style(
+            "has no owner",
+            underline=True,
+            bold=True,
+        )
+        click.secho(
+            f"\t{clean_owner}: {click.style(count, bold=True)}",
+        )

@@ -6,24 +6,22 @@ from collections.abc import Mapping
 from typing import Any, cast
 
 import file_keeper as fk
-from file_keeper import Registry, Upload, exc, make_upload, adapters, ext, make_storage
-
+from file_keeper import Registry, Upload, adapters, exc, ext, make_storage, make_upload
 from file_keeper.core.utils import ensure_setup
-
 
 from ckan import types
 from ckan.common import config
 from ckan.exceptions import CkanConfigurationException
 
 from .base import (
-    Storage,
-    Settings,
-    Uploader,
-    Reader,
-    Manager,
     Capability,
     FileData,
     Location,
+    Manager,
+    Reader,
+    Settings,
+    Storage,
+    Uploader,
 )
 
 __all__ = [
