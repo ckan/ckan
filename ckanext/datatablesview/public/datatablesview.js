@@ -884,7 +884,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           return
         }
         gsortInfo = '<b> ' + that._('Sort') + '</b> <i id="sortinfoicon" class="fa fa-info-circle" title="' +
-            that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"</i> : '
+            that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"></i> : '
         sortOrder.forEach((sortcol, idx) => {
           const colText = datatable.column(sortcol[0]).name()
           gsortInfo = gsortInfo + colText +
