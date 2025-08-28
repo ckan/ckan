@@ -1,10 +1,10 @@
-<div class="accordion" id="accordion-{{ ent_type }}">
+<div class="accordion mb-3" id="accordion-{{ ent_type }}">
   <div class="accordion-item">
     <h2 class="accordion-header" id="heading-{{ ent_type }}">
       <button class="accordion-button p-2" type="button" data-bs-toggle="collapse" data-bs-target="#{{ ent_type }}"
         aria-expanded="true" aria-controls="{{ ent_type }}">
         {% if ent_type == "package" %} <i class='fa fa-sitemap p-2'></i>
-          {% elif ent_type == 'group' %} <i class='fa fa-group p-2'></i>
+          {% elif ent_type == 'group' %} <i class='fa fa-users p-2'></i>
           {% else %} <i class="fa fa-building p-2"></i>
         {% endif %}
         {% if ent_type == 'package' %}

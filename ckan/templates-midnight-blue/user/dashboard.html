@@ -18,7 +18,7 @@
   <ul class="nav nav-options">
     {% block dashboard_nav_links %}
       {{ nav.link(h.url_for('dashboard.datasets'), h.humanize_entity_type('package', dataset_type, 'my label') or _('My Datasets'), icon='sitemap') }}
-      {{ nav.link(h.url_for('dashboard.organizations'), h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations'), icon='briefcase') }}
+      {{ nav.link(h.url_for('dashboard.organizations'), h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations'), icon='building') }}
       {{ nav.link(h.url_for('dashboard.groups'), h.humanize_entity_type('group', group_type, 'my label') or _('My Groups'), icon='users') }}
     {% endblock dashboard_nav_links %}
   </ul>
@@ -29,11 +29,11 @@
   <article class="module">
     <div class="module-content">
       <div class="dashboard-container row">
-        <div class="col-md-6">
+        <div class="col-md-8">
           {% block page_heading %}{% endblock %}
         </div>
         {% if self.page_primary_action() | trim %}
-          <div class="page_primary_action col-md-6">
+          <div class="page_primary_action col-md-4">
             {% block page_primary_action %}{% endblock %}
           </div>
         {% endif %}

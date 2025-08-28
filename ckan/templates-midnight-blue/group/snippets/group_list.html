@@ -9,7 +9,7 @@ Example:
 
 #}
 {% block group_list %}
-  <ul class="group-list">
+  <ul class="groups-list">
     {% block group_list_inner %}
       {% for group in groups %}
         {% snippet "group/snippets/group_item.html", group=group, show_capacity=show_capacity %}

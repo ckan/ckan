@@ -835,7 +835,14 @@ def user_activity(id: str) -> str:
         "older_activities_url": older_activities_url
     })
 
-    return tk.render("user/activity_stream.html", extra_vars)
+    if ckan_request.htmx:
+        return tk.render(
+            "snippets/activity_stream.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "user/activity_stream.html", extra_vars
+        )
 
 
 @bp.route("/dashboard/", strict_slashes=False)
