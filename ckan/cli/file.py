@@ -3,8 +3,9 @@ from __future__ import annotations
 import pydoc
 import textwrap
 import click
-
-
+import file_keeper as fk
+import sqlalchemy as sa
+from ckan import model, logic
 from ckan.common import config
 from ckan.config.declaration import Declaration, Key
 
@@ -82,13 +83,45 @@ def storage_list(verbose: bool):
         click.secho("{}: {}".format(click.style(name, bold=True), settings["type"]))
         if verbose:
             storage = lib_files.get_storage(name)
-            click.echo(f"\tSupports: {storage.capabilities}")
-            click.echo(f"\tDoes not support: {~storage.capabilities}")
+
+            label = click.style("Supports", fg="green", bold=True)
+            click.secho(f"\t{label}: {storage.capabilities}")
+
+            label = click.style("Does not support", fg="red", bold=True)
+            click.secho(f"\t{label}: {~storage.capabilities}")
 
 
 @storage.command("scan")
 @click.option("-s", "--storage-name", help="Name of the configured storage")
-def storage_scan(storage_name: str | None):
+@click.option(
+    "--unknown-mark",
+    help="Mark unknown files with specified symbol",
+    default="❓",
+)
+@click.option(
+    "--known-mark",
+    help="Mark known files with specified symbol",
+    default="✅",
+)
+@click.option(
+    "-v",
+    "--verbose",
+    count=True,
+    help="Show file details. Repeat to include details of unknown files",
+)
+@click.option(
+    "-u",
+    "--unknown-only",
+    is_flag=True,
+    help="Show only unknown files, that are not registered in DB",
+)
+def storage_scan(
+    storage_name: str | None,
+    known_mark: str,
+    unknown_mark: str,
+    verbose: int,
+    unknown_only: bool,
+):
     """Iterate over all files available in storage."""
     try:
         storage = lib_files.get_storage(storage_name)
@@ -103,12 +136,37 @@ def storage_scan(storage_name: str | None):
         raise click.Abort from err
 
     for name in files:
-        click.echo(f"* {name}")
+        file = model.Session.scalar(model.File.by_location(name, storage.settings.name))
+        if unknown_only and file:
+            continue
+
+        mark = known_mark if file else unknown_mark
+        click.echo(f"{mark} {name}")
+        if verbose:
+            if file:
+                info = file
+
+            elif verbose > 1 and storage.supports(lib_files.Capability.ANALYZE):
+                info = storage.analyze(lib_files.Location(name))
+
+            else:
+                info = None
+
+            if info:
+                click.echo(f"\tSize: {fk.humanize_filesize(info.size)}")
+                click.echo(f"\tMIME Type: {info.content_type}")
+                click.echo(f"\tContent hash: {info.hash}")
 
 
 @storage.command("transfer")
 @click.argument("src")
 @click.argument("dest")
+@click.option(
+    "-i",
+    "--id",
+    help="IDs of files for transfer",
+    multiple=True,
+)
 @click.option(
     "-l",
     "--location",
@@ -121,36 +179,66 @@ def storage_scan(storage_name: str | None):
     help="Remove file from the source after transfer",
     is_flag=True,
 )
-def storage_transfer(src: str, dest: str, location: tuple[str, ...], remove: bool):
-    """Move files between storages."""
+def storage_transfer(
+    src: str, dest: str, location: tuple[str, ...], id: tuple[str, ...], remove: bool
+):
+    """Move files between storages.
+
+    Files that are not registered in DB are simply moved between
+    storages. Files that has correspoinding record in database got their
+    fields, including ``storage``, updated as if file was directly uploaded
+    into the target storage.
+    """
     from_storage = lib_files.get_storage(src)
     to_storage = lib_files.get_storage(dest)
 
-    is_supported = from_storage.supports_synthetic(
-        lib_files.Capability.MOVE if remove else lib_files.Capability.COPY, to_storage
-    )
+    if remove and from_storage.supports_synthetic(
+        lib_files.Capability.MOVE, to_storage
+    ):
+        op = from_storage.move_synthetic
 
-    if not is_supported:
+    elif not remove and from_storage.supports_synthetic(
+        lib_files.Capability.COPY, to_storage
+    ):
+        op = from_storage.copy_synthetic
+
+    else:
         error_shout("Operation is not supported")
         raise click.Abort
 
-    if not location:
+    # normalize IDs to locations to process all files in the same way instead
+    # of writing two separate routes for IDs and locations
+    extra_locations = model.Session.scalars(
+        sa.select(model.File.location).where(
+            model.File.storage == src, model.File.id.in_(id)
+        )
+    )
+    targets = set()
+    targets.update(location)
+    targets.update(extra_locations.all())
+
+    if not targets:
         try:
-            location = tuple(from_storage.scan())
+            targets = tuple(from_storage.scan())
         except lib_files.exc.UnsupportedOperationError as err:
             error_shout(err)
             raise click.Abort from err
 
-    op = from_storage.move_synthetic if remove else from_storage.copy_synthetic
-
-    with click.progressbar(location) as bar:
+    with click.progressbar(targets) as bar:
         for item in bar:
             data = lib_files.FileData(lib_files.Location(item))
 
             try:
-                op(data.location, data, to_storage)
+                info = op(data.location, data, to_storage)
+
             except (
                 lib_files.exc.MissingFileError,
                 lib_files.exc.ExistingFileError,
             ) as err:
                 error_shout(err)
+
+            else:
+                if file := model.Session.scalar(model.File.by_location(item, src)):
+                    info.into_object(file)
+                    file.storage = dest
+                    model.Session.commit()

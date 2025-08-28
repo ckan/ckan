@@ -1,12 +1,25 @@
 from __future__ import annotations
 
-from _pytest.monkeypatch import MonkeyPatch
+import pytest
+
 from faker import Faker
+from typing import Any
+from ckan import types
 from ckan.lib import files
 
 from ckan.cli.cli import ckan
-from ckan.tests.factories import Any
-from ckan.tests.helpers import CKANCliRunner
+from ckan.tests.helpers import CKANCliRunner, call_action
+
+
+@pytest.fixture
+def with_temporal_storage(
+    reset_storages: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    tmpdir: Any,
+    ckan_config: dict[str, Any],
+):
+    monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+    reset_storages()
 
 
 class TestFilesAdapters(object):
@@ -41,20 +54,14 @@ class TestFilesAdapters(object):
         assert "ckan.files.storage.NAME.initialize" in result.output
 
 
+@pytest.mark.usefixtures("with_temporal_storage")
 class TestStorageScan:
     def test_resources_scan(
         self,
         cli: CKANCliRunner,
-        reset_storages: Any,
-        monkeypatch: MonkeyPatch,
-        tmpdir: Any,
-        ckan_config: dict[str, Any],
         faker: Faker,
     ):
         """Storage can be scanned."""
-        monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
-        reset_storages()
-
         first = faker.file_name()
         second = faker.file_name()
 
@@ -66,20 +73,71 @@ class TestStorageScan:
         assert first in result.output
         assert second in result.output
 
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_known_and_unknown(
+        self,
+        cli: CKANCliRunner,
+        faker: Faker,
+        file_factory: types.TestFactory,
+    ):
+        """Known and unknown files can be identified."""
+        known = file_factory(storage="resources", upload=faker.binary(10))["name"]
+
+        unknown = faker.file_name()
+        storage = files.get_storage("resources")
+        storage.upload(files.Location(unknown), files.make_upload(faker.binary(42)))
+
+        result = cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "scan",
+                "-s",
+                "resources",
+                "--known-mark=+",
+                "--unknown-mark=-",
+            ],
+        )
+        assert f"+ {known}" in result.output
+        assert f"- {unknown}" in result.output
+
+        result = cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "scan",
+                "-s",
+                "resources",
+                "-v",
+            ],
+        )
+        assert "Size: 10B" in result.output
+        assert "Size: 42B" not in result.output
+
+        result = cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "scan",
+                "-s",
+                "resources",
+                "-vv",
+            ],
+        )
+        assert "Size: 10B" in result.output
+        assert "Size: 42B" in result.output
+
 
 class TestStorageTransfer:
     def test_copy_between_storages(
         self,
         cli: CKANCliRunner,
-        reset_storages: Any,
-        monkeypatch: MonkeyPatch,
-        tmpdir: Any,
-        ckan_config: dict[str, Any],
         faker: Faker,
     ):
         """Files can be copied between storages."""
-        monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
-        reset_storages()
         name = faker.file_name()
 
         group = files.get_storage("group_uploads")
@@ -100,16 +158,9 @@ class TestStorageTransfer:
     def test_move_between_storages(
         self,
         cli: CKANCliRunner,
-        reset_storages: Any,
-        monkeypatch: MonkeyPatch,
-        tmpdir: Any,
-        ckan_config: dict[str, Any],
         faker: Faker,
     ):
         """Files can be moved between storages."""
-        monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
-        reset_storages()
-
         name = faker.file_name()
 
         group = files.get_storage("group_uploads")
@@ -127,3 +178,56 @@ class TestStorageTransfer:
 
         assert not group.exists(info)
         assert user.exists(info)
+
+    def test_move_registered_file(
+        self,
+        cli: CKANCliRunner,
+        file_factory: types.TestFactory,
+        faker: Faker,
+    ):
+        """Storage details updated for registered files."""
+        group = files.get_storage("group_uploads")
+        user = files.get_storage("user_uploads")
+
+        result = file_factory(storage="group_uploads")
+        info = files.FileData.from_dict(result)
+
+        # file moved using location
+        cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "transfer",
+                "group_uploads",
+                "user_uploads",
+                "-r",
+                "-l",
+                result["location"],
+            ],
+        )
+
+        assert not group.exists(info)
+        assert user.exists(info)
+        moved_result = call_action("file_show", id=result["id"])
+        assert moved_result["storage"] == "user_uploads"
+
+        # file moved back using ID
+        cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "transfer",
+                "user_uploads",
+                "group_uploads",
+                "-r",
+                "-i",
+                result["id"],
+            ],
+        )
+
+        assert group.exists(info)
+        assert not user.exists(info)
+        moved_result = call_action("file_show", id=result["id"])
+        assert moved_result["storage"] == "group_uploads"

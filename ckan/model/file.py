@@ -154,12 +154,10 @@ class File:
         return data
 
     @classmethod
-    def by_location(cls, location: str, storage: str | None = None):
+    def by_location(cls, location: str, storage: str):
         stmt = sa.select(cls).where(
             cls.location == location,
+            cls.storage == storage,
         )
-
-        if storage:
-            stmt = stmt.where(cls.storage == storage)
 
         return stmt
