@@ -126,8 +126,13 @@ class I18nMiddleware(object):
 
 
 def make_flask_stack() -> CKANApp:
-    """ This has to pass the flask app through all the same middleware that
-    Pylons used """
+    """Create the Flask application and wrap it with all the middlewares.
+
+    This is the main function that builds the Flask app, registers blueprints
+    and error handlers, and does all the work that must be done once (unlike
+    ``ckan.config.environment.update_config``, which updates application state
+    whenever active plugins change).
+    """
 
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -161,9 +166,9 @@ def make_flask_stack() -> CKANApp:
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     app.config.update({
-        k: config[k]
+        str(key): config[str(key)]
         for key in config_declaration.iter_options()
-        if config_declaration[key].has_flag(Flag.flask) and (k := str(key))
+        if config_declaration[key].has_flag(Flag.flask)
     })
 
     # Do all the Flask-specific stuff before adding other middlewares

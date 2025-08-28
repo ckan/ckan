@@ -19,6 +19,8 @@ groups:
         ignored: true
       - key: ckan.host
         ignored: true
+      - key: CKAN_INI
+        internal: true
 
   # Options that are available inside the Docker / CI containers:
   - annotation: ~
@@ -58,9 +60,6 @@ groups:
       - key: BABEL_TRANSLATION_DIRECTORIES
         flask: true
         ignored: true
-      - key: CKAN_INI
-        flask: true
-        internal: true
       - key: DEBUG
         flask: true
         internal: true
