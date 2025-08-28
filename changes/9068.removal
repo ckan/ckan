@@ -1,2 +1,2 @@
-Tests do not support authentication by ``REMOTE_USER`` environment
-variable. Use ``Authorization`` header with user's API Token instead.
+Tests no longer support authentication by ``REMOTE_USER`` environment
+variable. Use an ``Authorization`` header with user's API Token instead.
