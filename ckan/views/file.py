@@ -11,7 +11,7 @@ from ckan.types import Response
 
 
 log = logging.getLogger(__name__)
-blueprint = Blueprint("files", __name__)
+blueprint = Blueprint("file", __name__)
 
 
 @blueprint.route("/file/download/<id>")
