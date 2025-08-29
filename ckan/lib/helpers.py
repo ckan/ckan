@@ -760,7 +760,11 @@ def page_is_active(
             contains a list of additional blueprints that should be considered
             active besides the one in `menu_item`
     '''
+    locale = request.environ.get('CKAN_LANG')
     if menu_item.startswith("/"):
+        if menu_item.startswith("/" + locale):
+            strip_locale = menu_item.strip('/').split('/')
+            menu_item = '/' + '/'.join(strip_locale[1:])
         menu_item = endpoint_from_url(menu_item)
 
     blueprint, endpoint = menu_item.split('.')
