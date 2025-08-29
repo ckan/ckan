@@ -91,7 +91,6 @@ _OPERATORS = {
     'gte': '>=',
     'lt': '<',
     'lte': '<=',
-    'in': 'in',
 }
 
 if not os.environ.get('DATASTORE_LOAD'):
@@ -501,9 +500,8 @@ def _where_clauses(
 
 def _prepare_where_operator_and_value(value: dict[str, Any]) -> tuple[str, Any]:
     try:
-        key = next(iter(value))
-        val = value[key]
-    except (StopIteration, KeyError):
+        [(key, val)] = value.items()
+    except ValueError:
         return '=', value
 
     return _OPERATORS[key], val
