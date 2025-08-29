@@ -25,8 +25,19 @@ class TestMakeStorage:
 
 
 class TestGetStorage:
-    def test_default_storage_missing(self, reset_storages: Any):
-        """Default storage is not configured by default."""
+    def test_default_storage_missing(
+        self,
+        reset_storages: Any,
+        monkeypatch: pytest.MonkeyPatch,
+        ckan_config: dict[str, Any],
+    ):
+        """Default storage causes an error if not configured is not configured."""
+        storage = ckan_config["ckan.files.default_storages.default"]
+        prefix = f"ckan.files.storage.{storage}."
+        for key in list(ckan_config):
+            if key.startswith(prefix):
+                monkeypatch.delitem(ckan_config, key)
+
         reset_storages()
         with pytest.raises(files.exc.UnknownStorageError):
             files.get_storage()
@@ -39,7 +50,7 @@ class TestGetStorage:
         tmp_path: Path,
     ):
         """Default storage can be configured and initialized."""
-        prefix = "ckan.files.storage.default"
+        prefix = "ckan.files.storage." + ckan_config["ckan.files.default_storages.default"]
         monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
         monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path)
 

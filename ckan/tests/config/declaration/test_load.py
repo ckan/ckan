@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ckan.common import CKANConfig
 from ckan.config.declaration import Key, Declaration
 from ckan.config.declaration.load import loader
 
@@ -8,14 +9,14 @@ class TestFilesLoader:
     def test_no_file_declarations_by_default(self):
         """If storages are not configred, new declarations do not appear."""
         decl = Declaration()
-        loader(decl, "files", config={})
+        loader(decl, "files", config=CKANConfig())
         assert not decl
 
     def test_unknown_storage_type(self):
         """Unknown adapter type registers only declaration of type itself."""
         decl = Declaration()
         opt = "ckan.files.storage.test.type"
-        loader(decl, "files", config={opt: "hehe"})
+        loader(decl, "files", config=CKANConfig({opt: "hehe"}))
 
         assert list(decl.iter_options()) == [opt]
 
@@ -23,7 +24,7 @@ class TestFilesLoader:
         """Unknown options only add declaration of the adapter type for the storage."""
         decl = Declaration()
         prefix = "ckan.files.storage.test"
-        loader(decl, "files", config={f"{prefix}.name": "test"})
+        loader(decl, "files", config=CKANConfig({f"{prefix}.name": "test"}))
 
         assert list(decl.iter_options()) == [f"{prefix}.type"]
 
@@ -34,7 +35,7 @@ class TestFilesLoader:
         loader(
             decl,
             "files",
-            config={f"{prefix}.test.name": "test", f"{prefix}.42.name": "42"},
+            config=CKANConfig({f"{prefix}.test.name": "test", f"{prefix}.42.name": "42"}),
         )
 
         assert sorted(decl.iter_options()) == sorted(
@@ -45,7 +46,7 @@ class TestFilesLoader:
         """Using a real adapter as a type produces more declarations"""
         decl = Declaration()
         prefix = Key.from_string("ckan.files.storage.test")
-        loader(decl, "files", config={f"{prefix}.type": "ckan:fs"})
+        loader(decl, "files", config=CKANConfig({f"{prefix}.type": "ckan:fs"}))
 
         expected = sorted(
             [
@@ -57,6 +58,7 @@ class TestFilesLoader:
                 prefix.location_transformers,
                 prefix.path,
                 prefix.initialize,
+                prefix.disabled_capabilities,
             ]
         )
 

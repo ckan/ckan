@@ -5,7 +5,7 @@ import pydoc
 import sys
 import textwrap
 from datetime import datetime, timezone
-from typing import IO
+from typing import IO, cast
 
 import click
 import file_keeper as fk
@@ -103,16 +103,15 @@ def file_stream(file_id: str, output: str | None, start: int, end: int | None):
         error_shout(err)
         raise click.Abort from err
 
+    file_data = files.FileData.from_object(file)
     if not start and end is None and storage.supports(files.Capability.STREAM):
-        content_stream = storage.stream(files.FileData.from_object(file))
+        content_stream = storage.stream(file_data)
 
     elif storage.supports(files.Capability.RANGE):
-        content_stream = storage.range(files.FileData.from_object(file), start, end)
+        content_stream = storage.range(file_data, start, end)
 
     elif storage.supports_synthetic(files.Capability.RANGE, storage):
-        content_stream = storage.range_synthetic(
-            files.FileData.from_object(file), start, end
-        )
+        content_stream = storage.range_synthetic(file_data, start, end)
 
     else:
         error_shout("File streaming is not supported")
@@ -183,7 +182,9 @@ def storage_scan(
     unknown_only: bool,
 ):
     """Iterate over all files available in storage."""
-    storage_name: str = storage_name or config["ckan.files.default_storages.default"]
+    storage_name = cast(
+        str, storage_name or config["ckan.files.default_storages.default"]
+    )
 
     try:
         storage = files.get_storage(storage_name)
@@ -310,7 +311,7 @@ def storage_transfer(
 def storage_clean(storage_name: str | None, yes: bool):
     """Remove all files from the storage."""
     user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
-    storage_name: str = storage_name or config["ckan.files.default_storages.default"]
+    storage_name = storage_name or config["ckan.files.default_storages.default"]
     try:
         storage = files.get_storage(storage_name)
     except files.exc.UnknownStorageError as err:
