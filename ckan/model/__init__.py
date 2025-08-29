@@ -105,6 +105,9 @@ from ckan.model.api_token import (
     ApiToken,
 )
 
+from ckan.model.file import File
+from ckan.model.owner import Owner, OwnerTransferHistory
+
 import ckan.migration
 from ckan.common import config
 from sqlalchemy.engine import Engine
@@ -127,7 +130,8 @@ __all__ = [
     "get_system_info", "set_system_info", "delete_system_info",
     "DomainObjectOperation", "DomainObject", "Dashboard", "ApiToken",
     "init_model", "Repository",
-    "repo", "is_id", "parse_db_config"
+    "repo", "is_id", "parse_db_config",
+    "File", "Owner", "OwnerTransferHistory",
 ]
 
 log = logging.getLogger(__name__)
