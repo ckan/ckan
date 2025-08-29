@@ -265,7 +265,10 @@ class Storage(fk.Storage):
 
         :returns: Flask response with file's content
         """
-        resp = self.reader.response(data, kwargs)
+        try:
+            resp = self.reader.response(data, kwargs)
+        except fk.exc.MissingFileError:
+            return flask.Response(status=404)
 
         inline_types = config["ckan.files.inline_content_types"]
         disposition = (
