@@ -1,7 +1,9 @@
-# encoding: utf-8
+from __future__ import annotations
 
 import json
 from typing import Any
+
+import file_keeper as fk
 
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
@@ -254,3 +256,15 @@ def remove_whitespace(value: Any, context: Context) -> Any:
     if isinstance(value, str):
         return value.strip()
     return value
+
+
+def parse_filesize(value: str | int):
+    """Convert human-readable filesize into an integer."""
+    if isinstance(value, int):
+        return value
+
+    try:
+        return fk.parse_filesize(value)
+    except ValueError as err:
+        msg = f"Wrong filesize string: {value}"
+        raise df.Invalid(msg) from err

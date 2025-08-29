@@ -1092,7 +1092,7 @@ class TestResourceDownload(object):
 
         response = app.get(url)
 
-        assert response.headers[u"Content-Type"] == u"text/csv"
+        assert response.headers[u"Content-Type"] == u"text/csv; charset=utf-8"
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
