@@ -20,7 +20,9 @@ END;
 '''
 
 
-def create_table(resource_id: str, fields: List[dict[str, Any]], context: Context | None = None) -> None:
+def create_table(
+    resource_id: str, fields: List[dict[str, Any]], context: Context | None = None
+) -> None:
     '''
     Set up datastore table + validation
     '''
