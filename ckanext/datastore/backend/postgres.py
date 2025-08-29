@@ -85,6 +85,13 @@ _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
 
+_OPERATORS = {
+    'eq': '=',
+    'gt': '>',
+    'gte': '>=',
+    'lt': '<',
+    'lte': '<=',
+}
 
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError  # type: ignore
@@ -441,6 +448,9 @@ def _where_clauses(
                 value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
+            operator = '='
+            if isinstance(value, dict):
+                operator, value = _prepare_where_operator_and_value(value)
             if fields_types[field] == 'text':
                 # pSQL can do int_field = "10"
                 # but cannot do text_field = 10
@@ -448,7 +458,7 @@ def _where_clauses(
                 value = str(value)
             placeholder = f"value_{next(idx_gen)}"
             clause: tuple[Any, ...] = (
-                f'{sa.column(field)} = :{placeholder}',
+                f'{sa.column(field)} {operator} :{placeholder}',
                 {placeholder: value}
             )
         clauses.append(clause)
@@ -486,6 +496,15 @@ def _where_clauses(
         clauses.append((clause_str,))
 
     return clauses
+
+
+def _prepare_where_operator_and_value(value: dict[str, Any]) -> tuple[str, Any]:
+    try:
+        [(key, val)] = value.items()
+    except ValueError:
+        return '=', value
+
+    return _OPERATORS[key], val
 
 
 def _textsearch_query(
@@ -1470,13 +1489,28 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort_clause = ''
 
     records_format = data_dict['records_format']
+
+    is_keyset = False
+    # Prepare operator for response
+    if (len(sort) == 1 and '_id' in sort[0].lower()):
+        operator = 'lt' if ' desc' in sort[0].lower() else 'gt'
+        data_dict['last_id_operator'] = operator
+        is_keyset = True if [i for i in query_dict['where'] if i[0].startswith(
+            f'_id {_OPERATORS[operator]}')] else False
+
+    if is_keyset:
+        final_statement = (
+            '{where} {sort} LIMIT {limit}')
+    else:
+        final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
+
     if records_format == u'objects':
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) AS j'''
     elif records_format == u'lists':
@@ -1488,7 +1522,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) AS j'''
     elif records_format == u'csv':
@@ -1497,7 +1531,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 SELECT {distinct} {select}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
@@ -1506,20 +1540,23 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 SELECT {distinct} {select}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                    {final_statement}
                 ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
+    final_statement = final_statement.format(
+        where=where_clause,
+        limit=limit,
+        offset=offset,
+        sort=sort_clause,
+    )
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
         resource=identifier(resource_id),
         ts_query=ts_query,
-        where=where_clause,
-        sort=sort_clause,
-        limit=limit,
-        offset=offset)
+        final_statement=final_statement)
     if records_format == u'csv' or records_format == u'tsv':
         buf = StringIO()
         _execute_single_statement_copy_to(
@@ -1536,6 +1573,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             records = LazyJSONObject(v)
         else:
             records = msgspec.json.decode(v)
+
     data_dict['records'] = records
 
     data_dict['fields'] = _result_fields(
@@ -1597,6 +1635,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 context, count_sql_string, where_values)
             data_dict['total'] = count_result.fetchall()[0][0]
             data_dict['total_was_estimated'] = False
+
+    # Need for last_id extraction
+    opposite_sort = [s.replace(' desc', ' asc') if ' desc' in s else s.replace(
+        ' asc', ' desc') for s in sort]
+    if opposite_sort:
+        opposite_sort_clause = 'ORDER BY {}'.format(', '.join(opposite_sort))
+    else:
+        opposite_sort_clause = ''
+    # Get last_id query
+    li_query = '''
+        SELECT _id FROM (
+            SELECT * FROM  "{resource}" {ts_query}
+            {final_statement}
+        ) AS sub
+            {opposite_sort_clause}
+            LIMIT 1
+    '''.format(
+        resource=resource_id,
+        ts_query=ts_query,
+        final_statement=final_statement,
+        opposite_sort_clause=opposite_sort_clause,
+    )
+
+    li_result = _execute_single_statement(context, li_query, where_values)
+    li_result = li_result.fetchone()
+
+    if li_result:
+        data_dict['last_id'] = li_result._id
 
     return data_dict
 
