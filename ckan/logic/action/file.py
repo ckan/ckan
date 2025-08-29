@@ -22,10 +22,11 @@ consistent abstraction layer. By combining the generic operations here with
 the richer primitives provided by *file-keeper*, projects can tailor their
 file management workflows to best match their storage backend.
 """
+
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 import sqlalchemy as sa
@@ -60,33 +61,41 @@ def _set_user_owner(context: Context, item_type: str, item_id: str):
 
 def _process_filters(  # noqa: C901
     filters: dict[str, Any], columns: Mapping[str, Column[Any]]
-) -> Iterable[ColumnElement[bool]]:
+) -> ColumnElement[bool]:
     """Transform `{"$and":[{"field":{"$eq":"value"}}]}` filters into SQL filters."""
+
+    items = []
+
     for k, v in filters.items():
         if k in ["$and", "$or"]:
             if not isinstance(v, list):
                 raise logic.ValidationError(
                     {"filters": [f"Only lists are allowed inside {k}"]}
                 )
-            wrapper = sa.and_ if k == "$and" else sa.or_
-
-            yield wrapper(
-                *[
-                    element
-                    for sub_filters in v
-                    if isinstance(sub_filters, dict)
-                    for element in _process_filters(sub_filters, columns)
-                ]
-            )
+            nested_items = [
+                _process_filters(sub_filters, columns)
+                for sub_filters in v
+                if isinstance(sub_filters, dict)
+            ]
+            if len(nested_items) > 1:
+                wrapper = sa.and_ if k == "$and" else sa.or_
+                items.append(wrapper(*nested_items).self_group())
+            else:
+                items.extend(nested_items)
 
         elif k in ["storage_data", "plugin_data"]:
-            yield sa.and_(*_process_data(columns[k], v))
+            items.extend(_process_data(columns[k], v))
 
         elif k in columns:
-            yield sa.and_(*_process_field(columns[k], v))
+            items.extend(_process_field(columns[k], v))
 
         else:
             raise logic.ValidationError({"filters": [f"Unknown filter: {k}"]})
+
+    if len(items) == 1:
+        return items[0]
+
+    return sa.and_(*items).self_group()
 
 
 _op_map = {
@@ -97,10 +106,14 @@ _op_map = {
     "$gt": ">",
     "$gte": ">=",
     "$in": "IN",
+    "$is": "IS",
+    "$isnot": "IS NOT",
+    "$like": "LIKE",
+    "$ilike": "ILIKE",
 }
 
 
-def _process_field(col: Column[Any], value: Any):
+def _process_field(col: Column[Any], value: Any):  # noqa: C901
     """Transform `{"field":{"$eq":"value"}}` into SQL filters."""
     if isinstance(value, list):
         value = {"$in": value}
@@ -124,11 +137,14 @@ def _process_field(col: Column[Any], value: Any):
             elif op == "!=":
                 op = "IS NOT"
 
+        elif operator == "$in" and isinstance(filter, list):
+            filter = tuple(filter)
         elif not isinstance(filter, col.type.python_type):
             filter = str(filter)
             column = sa.func.cast(column, sa.Text)
 
-        yield column.bool_op(op)(filter)
+        func = column.bool_op(op)
+        yield func(filter)
 
 
 def _process_data(col: ColumnElement[Any], value: Any):  # pyright: ignore[reportUnknownParameterType]
@@ -408,16 +424,18 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     logic.check_access("file_search", context, data_dict)
 
     sess = context["session"]
-
-    stmt = sa.select(model.File).outerjoin(
-        model.Owner,
-        sa.and_(model.File.id == model.Owner.item_id, model.Owner.item_type == "file"),
-    )
-
     columns = dict(**model.File.__table__.c, **model.Owner.__table__.c)
 
-    for clause in _process_filters({"$and": [data_dict["filters"]]}, columns):
-        stmt = stmt.where(clause)
+    stmt = (
+        sa.select(model.File)
+        .outerjoin(
+            model.Owner,
+            sa.and_(
+                model.File.id == model.Owner.item_id, model.Owner.item_type == "file"
+            ),
+        )
+        .where(_process_filters(data_dict["filters"], columns))
+    )
 
     try:
         total: int = sess.scalar(stmt.with_only_columns(sa.func.count()))  # pyright: ignore[reportAssignmentType]
