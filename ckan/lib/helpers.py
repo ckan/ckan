@@ -762,9 +762,9 @@ def page_is_active(
     '''
     locale = request.environ.get('CKAN_LANG')
     if menu_item.startswith("/"):
-        if menu_item.startswith("/" + locale):
-            strip_locale = menu_item.strip('/').split('/')
-            menu_item = '/' + '/'.join(strip_locale[1:])
+        locale_path = f"/{locale}/"
+        if menu_item.startswith(locale_path):
+            menu_item = '/' + '/'.join(menu_item[len(locale_path):].split('/'))
         menu_item = endpoint_from_url(menu_item)
 
     blueprint, endpoint = menu_item.split('.')
