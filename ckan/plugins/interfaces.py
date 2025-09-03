@@ -29,40 +29,42 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
+    from ckan.lib.files import Storage
 
 
 __all__ = [
-    u'Interface',
-    u'IMiddleware',
-    u'IAuthFunctions',
-    u'IDomainObjectModification',
-    u'IFeed',
-    u'IGroupController',
-    u'IOrganizationController',
-    u'IPackageController',
-    u'IPluginObserver',
-    u'IConfigurable',
-    u'IConfigDeclaration',
-    u'IConfigurer',
-    u'IActions',
-    u'IResourceUrlChange',
-    u'IDatasetForm',
-    u'IValidators',
-    u'IResourceView',
-    u'IResourceController',
-    u'IGroupForm',
-    u'ITagController',
-    u'ITemplateHelpers',
-    u'IFacets',
-    u'IAuthenticator',
-    u'ITranslation',
-    u'IUploader',
-    u'IBlueprint',
-    u'IPermissionLabels',
-    u'IForkObserver',
-    u'IApiToken',
-    u'IClick',
-    u'ISignal',
+    "Interface",
+    "IMiddleware",
+    "IAuthFunctions",
+    "IDomainObjectModification",
+    "IFeed",
+    "IGroupController",
+    "IOrganizationController",
+    "IPackageController",
+    "IPluginObserver",
+    "IConfigurable",
+    "IConfigDeclaration",
+    "IConfigurer",
+    "IActions",
+    "IResourceUrlChange",
+    "IDatasetForm",
+    "IValidators",
+    "IResourceView",
+    "IResourceController",
+    "IGroupForm",
+    "ITagController",
+    "ITemplateHelpers",
+    "IFacets",
+    "IAuthenticator",
+    "ITranslation",
+    "IUploader",
+    "IBlueprint",
+    "IPermissionLabels",
+    "IForkObserver",
+    "IApiToken",
+    "IClick",
+    "ISignal",
+    "IFiles",
 ]
 
 
@@ -2239,5 +2241,31 @@ class ISignal(Interface):
         :returns: mapping of subscriptions to signals
         :rtype: dict
 
+        """
+        return {}
+
+
+class IFiles(Interface):
+    """Extension point for files.
+
+    This interface is not stabilized. Implement it with `inherit=True`.
+
+    Example::
+
+        class MyPlugin(p.SingletonPlugin):
+            p.implements(p.IFiles, inherit=True)
+    """
+
+    def files_get_storage_adapters(self) -> dict[str, type[Storage]]:
+        """Return mapping of storage type to adapter class.
+
+        Example::
+
+            def files_get_storage_adapters(self):
+                return {
+                    "my_ext:dropbox": DropboxStorage,
+                }
+
+        :returns: adapters provided by the implementation
         """
         return {}
