@@ -167,7 +167,6 @@
         @include break-word();
     }
     .info {
-        margin-top: 15px;
         padding-top: 10px;
         word-break: break-word;
         dl dd {
@@ -180,8 +179,8 @@
         flex-wrap: wrap;
         justify-content: space-between;
         padding-top: 10px;
-        column-gap: 5%;
         clear: both;
+        gap: 1%;
         dl {
             color: $layoutTextColor;
             dt {

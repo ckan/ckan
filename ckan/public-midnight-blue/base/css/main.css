@@ -11890,6 +11890,10 @@ a.open-data span.suffix {
   color: #fff;
 }
 
+#organization-info {
+  float: left;
+}
+
 .tag {
   display: inline-block;
   margin-bottom: 4px;
@@ -12038,6 +12042,7 @@ a.tag:hover {
 
 .module-shallow {
   margin-bottom: 1rem;
+  clear: both;
 }
 
 .module-narrow .module-group {
@@ -13873,7 +13878,7 @@ td.diff_header {
   cursor: pointer;
 }
 
-.group-list {
+.groups-list {
   display: grid;
   grid-auto-flow: row;
   grid-auto-columns: minmax(0, 1fr);
@@ -13887,7 +13892,7 @@ td.diff_header {
 }
 
 @media (max-width: 767.98px) {
-  .group-list {
+  .groups-list {
     margin-bottom: 2rem;
     grid-template-columns: none;
   }
@@ -13918,10 +13923,6 @@ td.diff_header {
   display: block;
   clear: both;
   content: "";
-}
-
-.page_primary_action {
-  margin-bottom: 20px;
 }
 
 .toolbar .breadcrumb {
@@ -14024,9 +14025,6 @@ td.diff_header {
 .content_action {
   display: flex;
   justify-content: flex-end;
-}
-.content_action .btn {
-  margin-bottom: 1rem;
 }
 
 .no-nav .page-header {
@@ -14253,7 +14251,6 @@ td.diff_header {
   hyphens: auto;
 }
 .context-info .info {
-  margin-top: 15px;
   padding-top: 10px;
   word-break: break-word;
 }
@@ -14266,8 +14263,8 @@ td.diff_header {
   flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 10px;
-  column-gap: 5%;
   clear: both;
+  gap: 1%;
 }
 .context-info .nums dl {
   color: #344054;
