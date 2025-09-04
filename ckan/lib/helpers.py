@@ -2660,7 +2660,7 @@ def load_plugin_helpers() -> None:
     helper_functions.update(_builtin_functions)
     chained_helpers = defaultdict(list)
 
-    for plugin in p.PluginImplementations(p.ITemplateHelpers):
+    for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
         for name, func in plugin.get_helpers().items():
             if _is_chained_helper(func):
                 chained_helpers[name].append(func)
