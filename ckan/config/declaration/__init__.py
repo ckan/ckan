@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
 
 
-__all__ = ["Declaration", "Key"]
+__all__ = ["Declaration", "Key", "Flag"]
 
 _non_iterable = Flag.non_iterable()
 

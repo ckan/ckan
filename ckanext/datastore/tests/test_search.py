@@ -580,7 +580,7 @@ class TestDatastoreSearchLegacyTests(object):
 
         self.expected_records = [
             {
-                u"published": u"2005-03-01T00:00:00",
+                u"published": u"2005-03-01T00:00:00.000",
                 u"_id": 1,
                 u"nested": [u"b", {u"moo": u"moo"}],
                 u"b\xfck": u"annakarenina",
@@ -1897,8 +1897,95 @@ class TestDatastoreSQLFunctional(object):
 
 class TestDatastoreSearchRecordsFormat(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_sort_results_objects(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[
+                {u"id": u"num", u"type": u"numeric"},
+                {u"id": u"dt", u"type": u"timestamp"},
+                {u"id": u"txt", u"type": u"text"},
+            ],
+            records=[
+                {u"num": 10, u"dt": u"2020-01-01", u"txt": "aaab"},
+                {u"num": 9, u"dt": u"2020-01-02", u"txt": "aaab"},
+                {u"num": 9, u"dt": u"2020-01-01", u"txt": "aaac"},
+            ],
+        )
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], sort=u"num, dt"
+        )["records"] == [
+            {
+                u"_id": 3,
+                u"num": 9,
+                u"dt": u"2020-01-01T00:00:00.000",
+                u"txt": u"aaac",
+            },
+            {
+                u"_id": 2,
+                u"num": 9,
+                u"dt": u"2020-01-02T00:00:00.000",
+                u"txt": u"aaab",
+            },
+            {
+                u"_id": 1,
+                u"num": 10,
+                u"dt": u"2020-01-01T00:00:00.000",
+                u"txt": u"aaab",
+            },
+        ]
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], sort=u"dt, txt"
+        )["records"] == [
+            {
+                u"_id": 1,
+                u"num": 10,
+                u"dt": u"2020-01-01T00:00:00.000",
+                u"txt": u"aaab",
+            },
+            {
+                u"_id": 3,
+                u"num": 9,
+                u"dt": u"2020-01-01T00:00:00.000",
+                u"txt": u"aaac",
+            },
+            {
+                u"_id": 2,
+                u"num": 9,
+                u"dt": u"2020-01-02T00:00:00.000",
+                u"txt": u"aaab",
+            },
+        ]
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], sort=u"txt, num"
+        )["records"] == [
+            {
+                u"_id": 2,
+                u"num": 9,
+                u"dt": u"2020-01-02T00:00:00.000",
+                u"txt": u"aaab",
+            },
+            {
+                u"_id": 1,
+                u"num": 10,
+                u"dt": u"2020-01-01T00:00:00.000",
+                u"txt": u"aaab",
+            },
+            {
+                u"_id": 3,
+                u"num": 9,
+                u"dt": u"2020-01-01T00:00:00.000",
+                u"txt": u"aaac",
+            },
+        ]
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_sort_results_objects_without_ms(self):
         ds = factories.Dataset()
         r = helpers.call_action(
             u"datastore_create",
@@ -1982,8 +2069,59 @@ class TestDatastoreSearchRecordsFormat(object):
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_sort_results_lists(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[
+                {u"id": u"num", u"type": u"numeric"},
+                {u"id": u"dt", u"type": u"timestamp"},
+                {u"id": u"txt", u"type": u"text"},
+            ],
+            records=[
+                {u"num": 10, u"dt": u"2020-01-01", u"txt": u"aaab"},
+                {u"num": 9, u"dt": u"2020-01-02", u"txt": u"aaab"},
+                {u"num": 9, u"dt": u"2020-01-01", u"txt": u"aaac"},
+            ],
+        )
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"lists",
+            sort=u"num, dt",
+        )["records"] == [
+            [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
+            [2, 9, u"2020-01-02T00:00:00.000", u"aaab"],
+            [1, 10, u"2020-01-01T00:00:00.000", u"aaab"],
+        ]
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"lists",
+            sort=u"dt, txt",
+        )["records"] == [
+            [1, 10, u"2020-01-01T00:00:00.000", u"aaab"],
+            [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
+            [2, 9, u"2020-01-02T00:00:00.000", u"aaab"],
+        ]
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"lists",
+            sort=u"txt, num",
+        )["records"] == [
+            [2, 9, u"2020-01-02T00:00:00.000", u"aaab"],
+            [1, 10, u"2020-01-01T00:00:00.000", u"aaab"],
+            [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
+        ]
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_sort_results_lists_without_ms(self):
         ds = factories.Dataset()
         r = helpers.call_action(
             u"datastore_create",
@@ -2031,8 +2169,62 @@ class TestDatastoreSearchRecordsFormat(object):
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_sort_results_csv(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[
+                {u"id": u"num", u"type": u"numeric"},
+                {u"id": u"dt", u"type": u"timestamp"},
+                {u"id": u"txt", u"type": u"text"},
+            ],
+            records=[
+                {u"num": 10, u"dt": u"2020-01-01", u"txt": u"aaab"},
+                {u"num": 9, u"dt": u"2020-01-02", u"txt": u"aaab"},
+                {u"num": 9, u"dt": u"2020-01-01", u"txt": u"aaac"},
+            ],
+        )
+        assert (
+            helpers.call_action(
+                "datastore_search",
+                resource_id=r["resource_id"],
+                records_format=u"csv",
+                sort=u"num, dt",
+            )["records"]
+            == u"3,9,2020-01-01T00:00:00.000,aaac\n"
+            u"2,9,2020-01-02T00:00:00.000,aaab\n"
+            u"1,10,2020-01-01T00:00:00.000,aaab\n"
+        )
+        assert (
+            helpers.call_action(
+                "datastore_search",
+                resource_id=r["resource_id"],
+                records_format=u"csv",
+                sort=u"dt, txt",
+            )["records"]
+            == u"1,10,2020-01-01T00:00:00.000,aaab\n"
+            u"3,9,2020-01-01T00:00:00.000,aaac\n"
+            u"2,9,2020-01-02T00:00:00.000,aaab\n"
+        )
+        assert (
+            helpers.call_action(
+                "datastore_search",
+                resource_id=r["resource_id"],
+                records_format=u"csv",
+                sort=u"txt, num",
+            )["records"]
+            == u"2,9,2020-01-02T00:00:00.000,aaab\n"
+            u"1,10,2020-01-01T00:00:00.000,aaab\n"
+            u"3,9,2020-01-01T00:00:00.000,aaac\n"
+        )
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_sort_results_csv_without_ms(self):
         ds = factories.Dataset()
         r = helpers.call_action(
             u"datastore_create",
@@ -2083,8 +2275,64 @@ class TestDatastoreSearchRecordsFormat(object):
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_fields_results_csv(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u"datastore_create",
+            resource={u"package_id": ds["id"]},
+            fields=[
+                {u"id": u"num", u"type": u"numeric"},
+                {u"id": u"dt", u"type": u"timestamp"},
+                {u"id": u"txt", u"type": u"text"},
+            ],
+            records=[
+                {u"num": 9, u"dt": u"2020-01-02", u"txt": u"aaab"},
+                {u"num": 9, u"dt": u"2020-01-01", u"txt": u"aaac"},
+            ],
+        )
+        r = helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"csv",
+            fields=u"dt, num, txt",
+        )
+        assert r["fields"] == [
+            {u"id": u"dt", u"type": u"timestamp"},
+            {u"id": u"num", u"type": u"numeric"},
+            {u"id": u"txt", u"type": u"text"},
+        ]
+        assert (
+            r["records"] == u"2020-01-02T00:00:00.000,9,aaab\n"
+            u"2020-01-01T00:00:00.000,9,aaac\n"
+        )
+        r = helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"csv",
+            fields=u"dt",
+            q=u"aaac",
+        )
+        assert r["fields"] == [{u"id": u"dt", u"type": u"timestamp"}]
+        assert r["records"] == u"2020-01-01T00:00:00.000\n"
+        r = helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"csv",
+            fields=u"txt, rank txt",
+            q={u"txt": u"aaac"},
+        )
+        assert r["fields"] == [
+            {u"id": u"txt", u"type": u"text"},
+            {u"id": u"rank txt", u"type": u"float"},
+        ]
+        assert r["records"][:7] == u"aaac,0."
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_fields_results_csv_without_ms(self):
         ds = factories.Dataset()
         r = helpers.call_action(
             u"datastore_create",
@@ -2163,7 +2411,7 @@ class TestDatastoreSearchRecordsFormat(object):
             },
         )
         assert (
-            r["records"] == "2020-01-02T00:00:00,9,aaab\n"
+            r["records"] == "2020-01-02T00:00:00.000,9,aaab\n"
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2261,9 +2509,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"lists",
             sort=u"num nulls last, dt nulls last",
         )["records"] == [
-            [2, 9, "2020-01-02T00:00:00", "aaab", None],
+            [2, 9, "2020-01-02T00:00:00.000", "aaab", None],
             [3, 9, None, "aaac", ["one", "two"]],
-            [1, 10, "2020-01-01T00:00:00", "aaab", ["one"]],
+            [1, 10, "2020-01-01T00:00:00.000", "aaab", ["one"]],
             [4, None, None, None, None],
         ]
         assert helpers.call_action(
@@ -2272,9 +2520,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format="lists",
             sort="lst nulls first, num nulls last",
         )["records"] == [
-            [2, 9, "2020-01-02T00:00:00", "aaab", None],
+            [2, 9, "2020-01-02T00:00:00.000", "aaab", None],
             [4, None, None, None, None],
-            [1, 10, "2020-01-01T00:00:00", "aaab", ["one"]],
+            [1, 10, "2020-01-01T00:00:00.000", "aaab", ["one"]],
             [3, 9, None, "aaac", ["one", "two"]],
         ]
         assert helpers.call_action(
@@ -2283,9 +2531,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"objects",
             sort=u"num nulls last, dt nulls last",
         )["records"] == [
-            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
+            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00.000", "txt": "aaab", "lst": None},
             {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
-            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00.000", "txt": "aaab", "lst": ["one"]},
             {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
         ]
         assert helpers.call_action(
@@ -2294,9 +2542,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format="objects",
             sort="lst nulls first, num nulls last",
         )["records"] == [
-            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
+            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00.000", "txt": "aaab", "lst": None},
             {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
-            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one"]},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00.000", "txt": "aaab", "lst": ["one"]},
             {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
         ]
 

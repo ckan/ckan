@@ -4,20 +4,6 @@
 {% set s2 = stage[1] or 'uncomplete' %}
 {% set s3 = stage[2] or 'uncomplete' %}
 
-{% macro render_step(step_count, description, is_complete) %}
-<div class="col stage">
-  <div class="row">
-    <span class="step">Step {{ step_count }}</span>
-    <span class="step-name">{{ description }}</span>
-  </div>
-  {% if is_complete == 'complete' %}
-  <div class="icon-stage">
-    <i class="fa fa-check-circle" aria-hidden="true"></i>
-  </div>
-  {% endif %}
-</div>
-{% endmacro %}
-
 
 {% block content_action %}{% endblock %}
 
@@ -48,30 +34,16 @@
         </h2>
         <div id="collapseOne" class="package-accordion accordion-collapse collapse show" aria-labelledby="headingOne" >
           <div class="accordion-body">
-            {% if s1 != 'complete' %}
-              {{ render_step(1, 'Create Dataset', s1) }}
-            {% else %}
-            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-dataset')">
-              {{ render_step(1, 'Create Dataset', s1) }}
-            </button>
-            {% endif %}
-
-            {% if s2 != 'complete' %}
-              {{ render_step(2, 'Add Data', s2) }}
-            {% else %}
-            <button class="stage-nohiglight" type="button"  onclick="submitForm('go-resources')">
-              {{ render_step(2, 'Add Data', s2) }}
-            </button>
-            {% endif %}
+            {% block stages %}
+              {% if form_style != 'edit' %}
+                {% snippet 'package/snippets/stages.html', stages=stage, dataset_type=dataset_type, form_id=form_id %}
+              {% endif %}
+            {% endblock %}
           </div>
         </div>
       </div>
     </section>
     {% snippet "package/snippets/resources.html", pkg=pkg_dict or (form_vars.data if form_vars and form_vars.data else None), active=data.id if data else None, no_new_res = true %}
-  {% endblock %}
-  {% block scripts %}
-  {{ super() }}
-  {% asset 'base/draft-package' %}
   {% endblock %}
 
   {% block resources_module %}
