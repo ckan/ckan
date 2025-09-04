@@ -32,12 +32,13 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
-@click.option('-c', '--clear', help='Clear the index before reindexing',
-              is_flag=True)
+@click.option('--keep-orphans', is_flag=True,
+              help='Keep orphaned packages in search index after rebuild. '
+                   'By default, orphaned packages are automatically cleared.')
 @click.argument(u'package_id', required=False)
 def rebuild(
         verbose: bool, force: bool, only_missing: bool, quiet: bool,
-        commit_each: bool, package_id: str, clear: bool
+        commit_each: bool, keep_orphans: bool, package_id: str
 ):
     u''' Rebuild search index '''
     errors = 0
@@ -49,7 +50,25 @@ def rebuild(
                 force=force,
                 defer_commit=(not commit_each),
                 quiet=quiet and not verbose,
-                clear=clear)
+                clear=False)  # Never clear before rebuild
+
+        if not keep_orphans:
+            if verbose:
+                click.echo(
+                    "Clearing orphaned packages from search index...")
+            orphaned_package_ids = get_orphans()
+            if orphaned_package_ids:
+                from ckan.lib.search import clear
+                for orphaned_id in orphaned_package_ids:
+                    if verbose:
+                        click.echo(
+                            f"Clearing orphaned package: {orphaned_id}")
+                    clear(orphaned_id)
+                click.secho(f'Cleared {len(orphaned_package_ids)} orphaned package(s) from search index',
+                            fg='green')
+            elif verbose:
+                click.echo("No orphaned packages found in search index")
+
     except logic.NotFound:
         error_shout("Couldn't find package %s" % package_id)
         errors = 1
@@ -93,10 +112,10 @@ def get_orphans() -> list[str]:
     indexed_package_ids = []
     while search is None or len(indexed_package_ids) < search['count']:
         search = logic.get_action('package_search')({}, {
-                'q': '*:*',
-                'fl': 'id',
-                'start': len(indexed_package_ids),
-                'rows': 1000})
+            'q': '*:*',
+            'fl': 'id',
+            'start': len(indexed_package_ids),
+            'rows': 1000})
         indexed_package_ids += search['results']
 
     package_ids = {r[0] for r in model.Session.query(model.Package.id)}
