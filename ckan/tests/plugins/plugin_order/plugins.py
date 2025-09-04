@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import ckan.plugins as p
 
 class FirstPlugin(p.SingletonPlugin):
