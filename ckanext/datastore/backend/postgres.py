@@ -504,7 +504,10 @@ def _prepare_where_operator_and_value(value: dict[str, Any]) -> tuple[str, Any]:
     except ValueError:
         return '=', value
 
-    return _OPERATORS[key], val
+    try:
+        return _OPERATORS[key], val
+    except KeyError:
+        return '=', value
 
 
 def _textsearch_query(
@@ -1481,7 +1484,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         distinct = ''
 
     if not sort and not distinct:
-        sort = ['_id']
+        sort = ['"_id" asc']
 
     if sort:
         sort_clause = 'ORDER BY {}'.format(', '.join(sort))
@@ -1491,12 +1494,20 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     records_format = data_dict['records_format']
 
     is_keyset = False
+    last_id = None
+    last_id_select = ''
+    last_id_name = ''
     # Prepare operator for response
-    if (len(sort) == 1 and '_id' in sort[0].lower()):
-        operator = 'lt' if ' desc' in sort[0].lower() else 'gt'
-        data_dict['last_id_operator'] = operator
-        is_keyset = True if [i for i in query_dict['where'] if i[0].startswith(
-            f'_id {_OPERATORS[operator]}')] else False
+    if (len(sort) == 1 and sort[0].startswith('"_id"')):
+        if sort[0].endswith(' desc'):
+            operator = 'lt'
+            last_id_select = ', min(_id)'
+        else:
+            operator = 'gt'
+            last_id_select = ', max(_id)'
+        last_id_name = ', _id'
+        is_keyset = any(i[0].startswith(
+            f'_id {_OPERATORS[operator]} ') for i in query_dict['where'])
 
     if is_keyset:
         final_statement = (
@@ -1506,7 +1517,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
     if records_format == u'objects':
         sql_fmt = u'''
-            SELECT array_to_json(array_agg(j))::text FROM (
+            SELECT array_to_json(array_agg(j))::text {last_id_select} FROM (
                 SELECT {distinct} {select}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
@@ -1518,8 +1529,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             s for s in query_dict['select']
         )
         sql_fmt = u'''
-            SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
+            SELECT '[' || array_to_string(array_agg(j.v), ',') || ']'
+                    {last_id_select} FROM (
                 SELECT {distinct} '[' || {select} || ']' v
+                    {last_id_name}
                 FROM (
                     SELECT * FROM {resource} {ts_query}
                     {final_statement}
@@ -1556,15 +1569,40 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         select=select_columns,
         resource=identifier(resource_id),
         ts_query=ts_query,
+        last_id_select=last_id_select,
+        last_id_name=last_id_name,
         final_statement=final_statement)
     if records_format == u'csv' or records_format == u'tsv':
         buf = StringIO()
         _execute_single_statement_copy_to(
             context, sql_string, where_values, buf)
         records = buf.getvalue()
+
+        # can't easily add another parameter to a "copy to"
+        # so use a separate query for the last id
+        if last_id_select:
+            last_id = _execute_single_statement(
+                context,
+                '''
+                    SELECT {last_id_select} FROM (
+                        SELECT "_id" FROM {resource} {ts_query}
+                        {final_statement}
+                    ) as z
+                '''.format(
+                    resource=identifier(resource_id),
+                    ts_query=ts_query,
+                    last_id_select=last_id_select.lstrip(','),
+                    final_statement=final_statement,
+                ),
+                [],
+            ).fetchone()[0]
     else:
-        v = list(_execute_single_statement(
-            context, sql_string, where_values))[0][0]
+        rval = list(_execute_single_statement(
+            context, sql_string, where_values))[0]
+        if last_id_select:
+            v, last_id = rval
+        else:
+            v = rval[0]
         if v is None or v == '[]':
             records = []
         elif 'api_version' in context:
@@ -1636,33 +1674,8 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             data_dict['total'] = count_result.fetchall()[0][0]
             data_dict['total_was_estimated'] = False
 
-    # Need for last_id extraction
-    opposite_sort = [s.replace(' desc', ' asc') if ' desc' in s else s.replace(
-        ' asc', ' desc') for s in sort]
-    if opposite_sort:
-        opposite_sort_clause = 'ORDER BY {}'.format(', '.join(opposite_sort))
-    else:
-        opposite_sort_clause = ''
-    # Get last_id query
-    li_query = '''
-        SELECT _id FROM (
-            SELECT * FROM  "{resource}" {ts_query}
-            {final_statement}
-        ) AS sub
-            {opposite_sort_clause}
-            LIMIT 1
-    '''.format(
-        resource=resource_id,
-        ts_query=ts_query,
-        final_statement=final_statement,
-        opposite_sort_clause=opposite_sort_clause,
-    )
-
-    li_result = _execute_single_statement(context, li_query, where_values)
-    li_result = li_result.fetchone()
-
-    if li_result:
-        data_dict['last_id'] = li_result._id
+    if last_id is not None:
+        data_dict['next_page'] = {'_id': {operator: last_id}}
 
     return data_dict
 
