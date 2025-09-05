@@ -26,31 +26,30 @@
           {% block resource_actions %}
             <ul class="d-flex flex-wrap gap-1 justify-content-end">
               {% block resource_actions_inner %}
+                {% if res.url and h.is_url(res.url) %}
+                  <li>
+                    <div class="btn-group">
+                    <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
+                      {% if res.resource_type in ('listing', 'service') %}
+                        <i class="fa fa-eye"></i> {{ _('View') }}
+                      {% elif  res.resource_type == 'api' %}
+                        <i class="fa fa-key"></i> {{ _('API Endpoint') }}
+                      {% elif not res.has_views and not res.url_type == 'upload' %}
+                        <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
+                      {% else %}
+                        <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
+                      {% endif %}
+                    </a>
+                    {% block download_resource_button %}{% endblock download_resource_button %}
+                    </div>
+                  </li>
+                {% endif %}
                 {% block action_manage %}
                   {% if h.check_access('package_update', {'id':pkg.id }) %}
-                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='pencil' %}</li>
+                    <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='wrench' %}</li>
                     {% block action_manage_inner %}{% endblock %}
-                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='chart-bar' %}</li>
                   {% endif %}
                 {% endblock action_manage %}
-            {% if res.url and h.is_url(res.url) %}
-              <li>
-                <div class="btn-group">
-                <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
-                  {% if res.resource_type in ('listing', 'service') %}
-                    <i class="fa fa-eye"></i> {{ _('View') }}
-                  {% elif  res.resource_type == 'api' %}
-                    <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.has_views and not res.url_type == 'upload' %}
-                    <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
-                  {% else %}
-                    <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
-                  {% endif %}
-                </a>
-                {% block download_resource_button %}{% endblock download_resource_button %}
-                </div>
-              </li>
-            {% endif %}
             {% endblock %}
           </ul>
           {% endblock %}
