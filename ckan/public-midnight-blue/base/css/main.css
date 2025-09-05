@@ -11880,14 +11880,13 @@ a.open-data {
 }
 a.open-data span {
   padding: 0.25rem 0.5rem;
+  color: #000;
 }
 a.open-data span.prefix {
   background-color: #e8eaf3;
-  color: #000;
 }
 a.open-data span.suffix {
   background-color: #3395FF;
-  color: #fff;
 }
 
 #organization-info {
@@ -14602,16 +14601,16 @@ td.diff_header {
   }
 }
 .site-footer {
-  background: #030d38;
+  background: #0a1d5e;
   padding: 20px 0;
 }
 .site-footer label,
 .site-footer small,
 .site-footer .small {
-  color: #CCDEE3;
+  color: #fff;
 }
 .site-footer a {
-  color: #CCDEE3;
+  color: #fff;
 }
 .site-footer .footer-links ul {
   margin: 0;
@@ -14619,25 +14618,74 @@ td.diff_header {
 .site-footer .footer-links ul li {
   margin-bottom: 5px;
 }
-.site-footer .attribution p {
-  color: #CCDEE3;
+
+.attribution p {
+  color: #fff;
   font-size: 1rem;
+  margin: auto;
+  padding: 1rem 0;
 }
-.site-footer .attribution .ckan-footer-logo {
-  display: block;
-  width: 68px;
-  height: 21px;
-  margin-top: 2px;
-  background: url("../../../base/images/ckan-logo-footer.png") no-repeat top left;
-  text-indent: -900em;
+
+.lang-select {
+  color: #fff;
 }
-.site-footer .lang-select .form-group {
-  width: 100%;
+.lang-select .form-group {
+  margin-bottom: 0;
   display: flex;
-  flex-direction: column;
+  padding: 1rem 0;
 }
-.site-footer .lang-select .form-group label {
+.lang-select .form-group label {
   font-size: 1rem;
+  margin-right: 5px;
+}
+.lang-select .form-group label::after {
+  content: "";
+}
+.lang-select .form-group label i {
+  vertical-align: middle;
+}
+.lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #fff;
+  background-color: #000;
+  border: none;
+  border-radius: 0;
+}
+.lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__rendered {
+  border: 1px solid #fff;
+  background-color: #fff;
+  color: #000;
+  border-radius: 4px;
+}
+.lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  background-color: #000;
+  transform: rotate(180deg);
+}
+.lang-select .form-group .select2-container--default .select2-selection--single {
+  background-color: #fff;
+  border: none;
+  border-radius: 0;
+}
+.lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__arrow b {
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23101828'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23101828'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  border: none;
+  margin: 3px -5px;
+  top: auto;
+  left: auto;
+}
+
+.ckan-footer-logo {
+  max-width: 100px;
+  vertical-align: bottom;
 }
 
 .table-selected td {
