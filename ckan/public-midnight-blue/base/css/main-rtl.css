@@ -14600,72 +14600,66 @@ td.diff_header {
     justify-content: flex-start;
   }
 }
-.site-footer {
+footer a {
+  color: #fff;
+}
+footer .site-footer {
   background: #0a1d5e;
-  padding: 20px 0;
-}
-.site-footer label,
-.site-footer small,
-.site-footer .small {
   color: #fff;
+  padding: 2rem 0;
 }
-.site-footer a {
-  color: #fff;
-}
-.site-footer .footer-links ul {
+footer .site-footer .footer-links ul {
   margin: 0;
 }
-.site-footer .footer-links ul li {
+footer .site-footer .footer-links ul li {
   margin-bottom: 5px;
 }
-
-.attribution p {
+footer .attribution p {
   color: #fff;
   font-size: 1rem;
   margin: auto;
   padding: 1rem 0;
 }
-
-.lang-select {
+footer .lang-select {
   color: #fff;
 }
-.lang-select .form-group {
+footer .lang-select .form-group {
   margin-bottom: 0;
   display: flex;
   padding: 1rem 0;
 }
-.lang-select .form-group label {
+footer .lang-select .form-group label {
   font-size: 1rem;
   margin-right: 5px;
 }
-.lang-select .form-group label::after {
+footer .lang-select .form-group label::after {
   content: "";
 }
-.lang-select .form-group label i {
+footer .lang-select .form-group label i {
   vertical-align: middle;
 }
-.lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+footer .lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__rendered {
   color: #fff;
   background-color: #000;
   border: none;
   border-radius: 0;
 }
-.lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__rendered {
+footer .lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__rendered {
   border: 1px solid #fff;
   background-color: #fff;
   color: #000;
   border-radius: 4px;
 }
-.lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__arrow b {
+footer .lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__arrow b {
   background-color: #000;
   transform: rotate(180deg);
 }
-.lang-select .form-group .select2-container--default .select2-selection--single {
+footer .lang-select .form-group .select2-container--default .select2-selection--single {
   background-color: #fff;
   border: none;
   border-radius: 0;
 }
-.lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__arrow b {
+footer .lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__arrow b {
   width: 20px;
   height: 20px;
   background-color: #fff;
@@ -14682,10 +14676,9 @@ td.diff_header {
   top: auto;
   left: auto;
 }
-
-.ckan-footer-logo {
-  max-width: 100px;
-  vertical-align: bottom;
+footer .ckan-footer-logo {
+  display: block;
+  margin-bottom: 1rem;
 }
 
 .table-selected td {

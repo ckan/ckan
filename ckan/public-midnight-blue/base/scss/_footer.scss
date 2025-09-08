@@ -1,92 +1,93 @@
-.site-footer {
-    background: $footerBackgroundColor;
-    padding: 20px 0;
-    & label,
-    small {
-        color: $footerTextColor;
-    }
+
+footer {
     a {
         color: $footerLinkColor;
     }
-    .footer-links {
-        ul {
-            margin: 0;
-            li {
-                margin-bottom: 5px;
-            }
-        }
-    }
-}
-.attribution {
-    p  {
+    .site-footer {
+        background: $footerBackgroundColor;
         color: $footerTextColor;
-        font-size: $h5-font-size;
-        margin: auto;
-        padding: 1rem 0;
-    }
-}
-
-.lang-select {
-    color: $footerTextColor;
-    .form-group {
-        margin-bottom: 0;
-        label {
-            font-size: $h5-font-size;
-            margin-right: 5px;
-            &::after {
-                content: "";
-            }
-            i {
-                vertical-align: middle;
+        padding: 2rem 0;
+        
+        .footer-links {
+            ul {
+                margin: 0;
+                li {
+                    margin-bottom: 5px;
+                }
             }
         }
-        display: flex;
-        padding: 1rem 0;
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
+    }
+    .attribution {
+        p {
             color: $footerTextColor;
-            background-color: $black;
-            border: none;
-            border-radius: 0;
-        }
-        .select2-container--open.select2-container--default {
-            .select2-selection--single .select2-selection__rendered {
-                border: 1px solid $footerTextColor;
-                background-color: $footerTextColor;
-                color: $black;
-                border-radius: 4px;
-            }
-            .select2-selection--single .select2-selection__arrow b {
-                background-color: $black;
-                transform: rotate(180deg);
-            }
-
-        }
-        .select2-container--default .select2-selection--single {
-            background-color: #fff;
-            border: none;
-            border-radius: 0;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow b {
-            width: 20px;
-            height: 20px;
-            background-color: $white;
-            mask-image: escape-svg($accordion-button-icon);
-            mask-repeat: no-repeat;
-            mask-position: center;
-            mask-size: contain;
-            -webkit-mask-image: escape-svg($accordion-button-icon);
-            -webkit-mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            -webkit-mask-size: contain;
-            border: none;
-            margin: 3px -5px;
-            top: auto;
-            left: auto;
+            font-size: $h5-font-size;
+            margin: auto;
+            padding: 1rem 0;
         }
     }
+    .lang-select {
+        color: $footerTextColor;
+        .form-group {
+            margin-bottom: 0;
+            label {
+                font-size: $h5-font-size;
+                margin-right: 5px;
+                &::after {
+                    content: "";
+                }
+                i {
+                    vertical-align: middle;
+                }
+            }
+            display: flex;
+            padding: 1rem 0;
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: $footerTextColor;
+                background-color: $black;
+                border: none;
+                border-radius: 0;
+            }
+            .select2-container--open.select2-container--default {
+                .select2-selection--single .select2-selection__rendered {
+                    border: 1px solid $footerTextColor;
+                    background-color: $footerTextColor;
+                    color: $black;
+                    border-radius: 4px;
+                }
+                .select2-selection--single .select2-selection__arrow b {
+                    background-color: $black;
+                    transform: rotate(180deg);
+                }
     
+            }
+            .select2-container--default .select2-selection--single {
+                background-color: #fff;
+                border: none;
+                border-radius: 0;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow b {
+                width: 20px;
+                height: 20px;
+                background-color: $white;
+                mask-image: escape-svg($accordion-button-icon);
+                mask-repeat: no-repeat;
+                mask-position: center;
+                mask-size: contain;
+                -webkit-mask-image: escape-svg($accordion-button-icon);
+                -webkit-mask-repeat: no-repeat;
+                -webkit-mask-position: center;
+                -webkit-mask-size: contain;
+                border: none;
+                margin: 3px -5px;
+                top: auto;
+                left: auto;
+            }
+        }
+        
+    }
+    .ckan-footer-logo {
+        display: block;
+        margin-bottom: 1rem;
+    }
 }
-.ckan-footer-logo {
-    max-width: 100px;
-    vertical-align: bottom;
-}
+
