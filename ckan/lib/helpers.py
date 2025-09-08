@@ -739,6 +739,10 @@ def get_flashed_messages(**kwargs: Any):
 
 @core_helper
 def endpoint_from_url(url: str) -> str:
+
+    url = remove_locale_from_url(url)
+    url = remove_root_path_from_url(url)
+
     try:
         urls = current_app.url_map.bind("")
         match = urls.match(url)
@@ -746,6 +750,65 @@ def endpoint_from_url(url: str) -> str:
     except RuntimeError:
         endpoint = ""
     return endpoint
+
+
+@core_helper
+def remove_root_path_from_url(url: str) -> str:
+    """
+    Remove the root path (i.e. config["ckan.root_path"]) from a url.
+
+    Note: the
+
+    """
+    root_path = config["ckan.root_path"]
+    if not url or not root_path:
+        return url
+
+    # Try to match with current locale first
+    current_locale = request.environ.get("CKAN_LANG")
+    if current_locale:
+        locale_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(locale_root_path):
+            remaining_url = url[len(locale_root_path):]
+            return remaining_url if remaining_url else "/"
+
+    # Try to match without locale (fallback)
+    base_root_path = re.sub(r"/?\{\{LANG\}\}/?", "/", root_path)
+    if base_root_path and url.startswith(base_root_path):
+        remaining_url = url[len(base_root_path):]
+        return remaining_url if remaining_url else "/"
+
+    return url
+
+
+@core_helper
+def remove_locale_from_url(url: str) -> str:
+    """Remove the locale part from a URL based on current locale and root_path config.
+    """
+    current_locale = request.environ.get("CKAN_LANG")
+    if not url or not current_locale:
+        return url
+
+    root_path = config["ckan.root_path"]
+
+    if root_path and "{{LANG}}" in root_path:
+        # Root path defined
+        current_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(current_root_path):
+            # Remove current root path
+            url = url[len(current_root_path):]
+            # Remove lang bit from base root path
+            base_root_path = re.sub(r"/?\{\{LANG\}\}/?", "/", root_path).rstrip("/") + "/"
+            url = base_root_path + url.lstrip("/")
+    else:
+        # Default, no root path: locale is added as /<lang>/ at the beginning of the url
+        locale_prefix = f"/{current_locale}/"
+        if url.startswith(locale_prefix):
+            url = url[len(locale_prefix) - 1:]  # To preserve the slash
+        elif url == f"/{current_locale}":
+            url = "/"
+
+    return url
 
 
 @core_helper
