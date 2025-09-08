@@ -798,7 +798,9 @@ def remove_locale_from_url(url: str) -> str:
             # Remove current root path
             url = url[len(current_root_path):]
             # Remove lang bit from base root path
-            base_root_path = re.sub(r"/?\{\{LANG\}\}/?", "/", root_path).rstrip("/") + "/"
+            base_root_path = (
+                re.sub(r"/?\{\{LANG\}\}/?", "/", root_path).rstrip("/") + "/"
+            )
             url = base_root_path + url.lstrip("/")
     else:
         # Default, no root path: locale is added as /<lang>/ at the beginning of the url
