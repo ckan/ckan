@@ -194,12 +194,9 @@ def add_public_directory(config_: CKANConfig, relative_path: str):
     public urls.
 
     """
-    from ckan.lib.helpers import _local_url
     from ckan.lib.webassets_tools import add_public_path
-
     path = _add_served_directory(config_, relative_path, "plugin_public_paths")
-    url = _local_url("/", locale="default")
-    add_public_path(path, url)
+    add_public_path(path, "/")
 
 
 def _add_served_directory(

@@ -10,6 +10,7 @@ import logging
 
 from logging.handlers import SMTPHandler
 from typing import Any, Optional, Union, cast
+from urllib.parse import urlparse
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
@@ -163,6 +164,13 @@ def make_flask_stack() -> CKANApp:
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
+    application_root = config["ckan.root_path"] or "/"
+    if not application_root.endswith("/"):
+        application_root += "/"
+    application_root = application_root.replace("/{{LANG}}", "")
+    config["APPLICATION_ROOT"] = application_root
+    config["SERVER_NAME"] = urlparse(config["ckan.site_url"]).netloc
+
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     app.config.update({
@@ -172,8 +180,6 @@ def make_flask_stack() -> CKANApp:
     })
 
     # Do all the Flask-specific stuff before adding other middlewares
-
-    root_path = config.get('ckan.root_path')
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -183,17 +189,6 @@ def make_flask_stack() -> CKANApp:
         # initializing debug app. In such a way, our route receives
         # higher precedence.
 
-        # TODO: After removal of Pylons code, switch to
-        # `APPLICATION_ROOT` config value for flask application. Right
-        # now it's a bad option because we are handling both pylons
-        # and flask urls inside helpers and splitting this logic will
-        # bring us tons of headache.
-        if root_path:
-            app.add_url_rule(
-                root_path.replace('{{LANG}}', '').rstrip('/') +
-                '/_debug_toolbar/static/<path:filename>',
-                '_debug_toolbar.static', debug_ext.send_static_file
-            )
         debug_ext.init_app(app)
 
         from werkzeug.debug import DebuggedApplication

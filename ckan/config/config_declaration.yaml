@@ -47,7 +47,7 @@ groups:
     options:
       - key: APPLICATION_ROOT
         flask: true
-        internal: true
+        ignored: true
       - key: BABEL_DEFAULT_LOCALE
         flask: true
         internal: true
@@ -113,7 +113,7 @@ groups:
         internal: true
       - key: SERVER_NAME
         flask: true
-        internal: true
+        ignored: true
       - key: SESSION_COOKIE_PARTITIONED
         flask: true
         internal: true
@@ -210,18 +210,6 @@ groups:
 
           If not provided, for backwards compatibility with earlier configurations the value of
           ``beaker.session.secret`` will be used.
-
-
-      - key: ckan.legacy_route_mappings
-        default: {}
-        example: '{"home": "home.index", "about": "home.about", "search": "dataset.search"}'
-        description: |
-          This can be used when using an extension that is still using old
-          (Pylons-based) route names to maintain compatibility.
-
-          .. warning:: This configuration will be removed when the migration to
-            Flask is completed. Please update the extension code to use the new
-            Flask-based route names.
 
       - key: config.mode
         default: strict

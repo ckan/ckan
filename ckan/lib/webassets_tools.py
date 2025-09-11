@@ -134,18 +134,26 @@ def include_asset(name: str) -> None:
     for dep in deps:
         include_asset(dep)
 
-    # Add `site_root` if configured
-    urls = [url_for_static_or_external(url) for url in bundle.urls()]
+    urls: list[str] = []
+    type_ = None
 
-    for url in urls:
-        link = url.split("?")[0]
-        if link.endswith(".css"):
-            type_ = "style"
-            break
-        elif link.endswith(".js"):
-            type_ = "script"
-            break
-    else:
+    for url in bundle.urls():
+        # extract query string and return it after calling
+        # `url_for_static_or_external` to prevent URLencoding of `?` and other
+        # special characters
+        link, *rest = url.split("?", 1)
+        link = url_for_static_or_external(link)
+
+        if not type_:
+            if link.endswith(".css"):
+                type_ = "style"
+            elif link.endswith(".js"):
+                type_ = "script"
+
+        link = "?".join([link] + rest)
+        urls.append(link)
+
+    if not type_:
         log.warning("Undefined asset type: %s", urls)
         return
 

@@ -32,11 +32,11 @@ from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash, has_request_context, current_app
+import flask
+from flask import flash, has_app_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
-from flask import url_for as _flask_default_url_for
-from werkzeug.routing import BuildError as FlaskRouteBuildError
+
 from ckan.lib import i18n
 from ckan.plugins.core import plugin_loaded
 
@@ -76,37 +76,6 @@ MARKDOWN_TAGS = set([
 
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
 MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
-
-LEGACY_ROUTE_NAMES = {
-    'home': 'home.index',
-    'about': 'home.about',
-    'search': 'dataset.search',
-    'dataset_read': 'dataset.read',
-    'dataset_groups': 'dataset.groups',
-    'group_index': 'group.index',
-    'group_about': 'group.about',
-    'group_read': 'group.read',
-    'organizations_index': 'organization.index',
-    'organization_read': 'organization.read',
-    'organization_about': 'organization.about',
-
-    # Deprecated since v2.10
-    'dataset_activity': 'activity.package_activity',
-    'dataset.activity': 'activity.package_activity',
-    'group_activity': 'activity.group_activity',
-    'group.activity': 'activity.group_activity',
-    'organization_activity': 'activity.organization_activity',
-    'organization.activity': 'activity.organization_activity',
-    "user.activity": "activity.user_activity",
-    "dashboard.index": "activity.dashboard",
-    "dataset.changes_multiple": "activity.package_changes_multiple",
-    "dataset.changes": "activity.package_changes",
-    "group.changes_multiple": "activity.group_changes_multiple",
-    "group.changes": "activity.group_changes",
-    "organization.changes_multiple": "activity.organization_changes_multiple",
-    "organization.changes": "activity.organization_changes",
-
-}
 
 
 class HelperAttributeDict(Dict[str, Callable[..., Any]]):
@@ -307,32 +276,29 @@ def _get_auto_flask_context():
     Provides a Flask test request context if we are outside the context
     of a web request (tests or CLI)
     '''
-
-    from ckan.config.middleware import _internal_test_request_context
-
     # This is a normal web request, there is a request context present
-    if has_request_context():
+    if has_app_context():
         return None
 
     # We are outside a web request. A test web application was created
     # (and with it a test request context with the relevant configuration)
-    if _internal_test_request_context:
-        return _internal_test_request_context
+    from ckan.config.middleware import _internal_app_context
+    if _internal_app_context:
+        return _internal_app_context
 
-    from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
-    if _tests_test_request_context:
-        return _tests_test_request_context
+    from ckan.tests.pytest_ckan.ckan_setup import _tests_app_context
+    if _tests_app_context:
+        return _tests_app_context
 
 
 @core_helper
 def url_for(*args: Any, **kw: Any) -> str:
     '''Return the URL for an endpoint given some parameters.
 
-    This is a wrapper for :py:func:`flask.url_for`
-    and :py:func:`routes.url_for` that adds some extra features that CKAN
-    needs.
+    This is a wrapper for :py:func:`flask.url_for` that adds some extra
+    features that CKAN needs.
 
-    To build a URL for a Flask view, pass the name of the blueprint and the
+    To build a URL for a view, pass the name of the blueprint and the
     view function separated by a period ``.``, plus any URL parameters::
 
         url_for('api.action', ver=3, logic_function='status_show')
@@ -344,193 +310,91 @@ def url_for(*args: Any, **kw: Any) -> str:
         url_for('api.action', ver=3, logic_function='status_show',
                 _external=True)
         # Returns http://example.com/api/3/action/status_show
-
-    URLs built by Pylons use the Routes syntax::
-
-        url_for(controller='my_ctrl', action='my_action', id='my_dataset')
-        # Returns '/dataset/my_dataset'
-
-    Or, using a named route::
-
-        url_for('dataset.read', id='changed')
-        # Returns '/dataset/changed'
-
-    Use ``qualified=True`` for a fully qualified URL when targeting a Pylons
-    endpoint.
-
-    For backwards compatibility, an effort is made to support the Pylons syntax
-    when building a Flask URL, but this support might be dropped in the future,
-    so calls should be updated.
     '''
-    # Get the actual string code for the locale
-    locale = kw.pop('locale', None)
-    if locale and isinstance(locale, i18n.Locale):
-        locale = i18n.get_identifier_from_locale_class(locale)
 
-    # remove __ckan_no_root and add after to not pollute url
-    no_root = kw.pop('__ckan_no_root', False)
+    # these variables set by `nav_link` helper and they must be removed or else
+    # you'll see them in query string. It's better to modify `nav_link` so that
+    # it doesn't adds unnecesarry arguments and doesn't lock us out of using
+    # actual query parameters with these names.
+    blueprint = kw.pop("controller", None)
+    view = kw.pop("action", None)
+    if not args:
+        args = (f"{blueprint}.{view}",)
 
-    _auto_flask_context = _get_auto_flask_context()
-    try:
-        if _auto_flask_context:
-            _auto_flask_context.push()
+    # pylons-style absolute URLs. It should be removed after explicit
+    # deprecation.
+    if kw.pop("qualified", False):
+        kw.setdefault("_external", True)
+    if not request:
+        kw.setdefault("_external", False)
 
-        # First try to build the URL with the Flask router
-        # Temporary mapping for pylons to flask route names
-        if len(args):
-            args = (map_pylons_to_flask_route_name(args[0]),)
-        my_url = _url_for_flask(*args, **kw)
+    locale: str | i18n.Locale | None = kw.pop('locale', None)
 
-    except FlaskRouteBuildError:
-        raise
-    finally:
-        if _auto_flask_context:
-            _auto_flask_context.pop()
+    _safe_context = _get_auto_flask_context() or contextlib.nullcontext()
+    with _safe_context:
+        url = flask.url_for(*args, **kw)
 
-    # Add back internal params
-    kw['__ckan_no_root'] = no_root
+    if locale != 'default':
+        is_default = False
+        if isinstance(locale, i18n.Locale):
+            locale = i18n.get_identifier_from_locale_class(locale)
 
-    # Rewrite the URL to take the locale and root_path into account
-    return _local_url(my_url, locale=locale, **kw)
+        allowed_locales = i18n.get_locales()
+        if request and locale not in allowed_locales:
+            locale = cast("str | None", request.environ.get('CKAN_LANG'))
+            is_default = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
 
+        if locale and not is_default:
+            url = _inject_locale(locale, url)
 
-def _url_for_flask(*args: Any, **kw: Any) -> str:
-    '''Build a URL using the Flask router
-
-    This function should not be called directly, use ``url_for`` instead
-
-    This function tries to support the Pylons syntax for ``url_for`` and adapt
-    it to the Flask one, eg::
-
-        # Pylons
-        url_for(controller='api', action='action', ver=3, qualified=True)
-
-        # Flask
-        url_for('api.action', ver=3, _external=True)
+    return url
 
 
-    Raises :py:exception:`werkzeug.routing.BuildError` if it couldn't
-    generate a URL.
-    '''
-    if (len(args) and '_' in args[0]
-            and '.' not in args[0]
-            and not args[0].startswith('/')):
-        # Try to translate Python named routes to Flask endpoints
-        # eg `dataset_new` -> `dataset.new`
-        args = (args[0].replace('_', '.', 1), )
-    elif kw.get('controller') and kw.get('action'):
-        # If `controller` and `action` are passed, build a Flask endpoint
-        # from them
-        # eg controller='user', action='login' -> 'user.login'
-        args = ('{0}.{1}'.format(kw.pop('controller'), kw.pop('action')),)
+def _inject_locale(locale: str, url: str) -> str:
+    """Replace `{{LANG}}` part of `ckan.root_path` with specified locale.
 
-    # Support Pylons' way of asking for full URLs
+    Flask doesn't know about `{{LANG}}` part, thanks to RootPathMiddleware, so
+    we need to find the expected position of `{{LANG}}` and insert locale into
+    this position.
+    """
+    idx = 0
+    if root_path := config["ckan.root_path"]:
+        # if `{{LANG}}` is missing from root path, or root path is
+        # empty, insert locale in the beginning of the path.
+        idx = max(root_path.find("/{{LANG}}"), 0)
 
-    external = kw.pop('_external', False) or kw.pop('qualified', False)
-
-    # The API routes used to require a slash on the version number, make sure
-    # we remove it
-    if (args and args[0].startswith('api.') and
-            isinstance(kw.get('ver'), str) and
-            kw['ver'].startswith('/')):
-        kw['ver'] = kw['ver'].replace('/', '')
-
-    # Try to build the URL with flask.url_for
-    try:
-        my_url = _flask_default_url_for(*args, **kw)
-    except FlaskRouteBuildError:
-        # Check if this a relative path
-        if len(args) and args[0].startswith('/'):
-            my_url = args[0]
-            if request.environ.get('SCRIPT_NAME'):
-                my_url = request.environ['SCRIPT_NAME'] + my_url
-            kw.pop('host', None)
-            kw.pop('protocol', None)
-            if kw:
-                query_args = []
-                for key, val in kw.items():
-                    if isinstance(val, (list, tuple)):
-                        for value in val:
-                            if value is None:
-                                continue
-                            query_args.append(
-                                u'{}={}'.format(
-                                    quote(str(key)),
-                                    quote(str(value))
-                                )
-                            )
-                    else:
-                        if val is None:
-                            continue
-                        query_args.append(
-                            u'{}={}'.format(
-                                quote(str(key)),
-                                quote(str(val))
-                            )
-                        )
-
-                if query_args:
-                    my_url += '?'
-                my_url += '&'.join(query_args)
-        else:
-            raise
-
-    if external:
-        # Don't rely on the host generated by Flask, as SERVER_NAME might not
-        # be set or might be not be up to date (as in tests changing
-        # `ckan.site_url`). Contrary to the Routes mapper, there is no way in
-        # Flask to pass the host explicitly, so we rebuild the URL manually
-        # based on `ckan.site_url`, which is essentially what we did on Pylons
-        protocol, host = get_site_protocol_and_host()
-        # these items cannot be empty because CKAN won't start otherwise
-        assert (protocol, host) != (None, None)
-        parts = urlparse(my_url)
-        my_url = urlunparse((protocol, host, parts.path, parts.params,
-                             parts.query, parts.fragment))
-
-    return my_url
+    parsed = urlparse(url)
+    localised_path = f"{parsed.path[:idx]}/{locale}{parsed.path[idx:]}"
+    parsed = parsed._replace(path=localised_path)
+    return urlunparse(parsed)
 
 
 @core_helper
-def url_for_static(*args: Any, **kw: Any) -> str:
+def url_for_static(filename: str, **kw: Any) -> str:
     '''Returns the URL for static content that doesn't get translated (eg CSS)
-
-    It'll raise CkanUrlException if called with an external URL
-
-    This is a wrapper for :py:func:`routes.url_for`
     '''
-    if args:
-        url = urlparse(args[0])
-        url_is_external = (url.scheme != '' or url.netloc != '')
-        if url_is_external:
-            raise ckan.exceptions.CkanUrlException(
-                'External URL passed to url_for_static()')
-    return url_for_static_or_external(*args, **kw)
+    url = urlparse(filename)
+    url_is_external = (url.scheme != '' or url.netloc != '')
+    if url_is_external:
+        raise ckan.exceptions.CkanUrlException(
+            'External URL passed to url_for_static()')
+
+    return helper_functions["url_for_static_or_external"](filename, **kw)
 
 
 @core_helper
-def url_for_static_or_external(*args: Any, **kw: Any) -> str:
+def url_for_static_or_external(url: str, **kw: Any) -> str:
     '''Returns the URL for static content that doesn't get translated (eg CSS),
     or external URLs
     '''
-    def fix_arg(arg: Any):
-        url = urlparse(str(arg))
-        url_is_relative = (url.scheme == '' and url.netloc == '' and
-                           not url.path.startswith('/'))
-        if url_is_relative:
-            return False, '/' + url.geturl()
+    parsed = urlparse(url)
+    if parsed.scheme or parsed.netloc:
+        return url
 
-        return bool(url.scheme), url.geturl()
-
-    if args:
-        is_external, fixed_url = fix_arg(args[0])
-        if is_external:
-            return fixed_url
-        args = (fixed_url, ) + args[1:]
-    if kw.get('qualified', False):
-        kw['protocol'], kw['host'] = get_site_protocol_and_host()
+    kw["filename"] = url
     kw['locale'] = 'default'
-    return url_for(*args, **kw)
+
+    return url_for("static", **kw)
 
 
 @core_helper
@@ -550,87 +414,6 @@ def is_url(*args: Any, **kw: Any) -> bool:
     return url.scheme in (valid_schemes)
 
 
-def _local_url(url_to_amend: str, **kw: Any):
-    # If the locale keyword param is provided then the url is rewritten
-    # using that locale .If return_to is provided this is used as the url
-    # (as part of the language changing feature).
-    # A locale of default will not add locale info to the url.
-
-    default_locale = False
-    locale = kw.pop('locale', None)
-    no_root = kw.pop('__ckan_no_root', False)
-    allowed_locales = ['default'] + i18n.get_locales()
-    if locale and locale not in allowed_locales:
-        locale = None
-
-    _auto_flask_context = _get_auto_flask_context()
-
-    if _auto_flask_context:
-        _auto_flask_context.push()
-
-    if locale:
-        if locale == 'default':
-            default_locale = True
-    else:
-        try:
-            locale = request.environ.get('CKAN_LANG')
-            default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
-        except TypeError:
-            default_locale = True
-
-    root = ''
-    if kw.get('qualified', False) or kw.get('_external', False):
-        # if qualified is given we want the full url ie http://...
-        protocol, host = get_site_protocol_and_host()
-
-        parts = urlparse(
-            _flask_default_url_for('home.index', _external=True)
-        )
-
-        path = parts.path.rstrip('/')
-        root = urlunparse(
-            (protocol, host, path,
-                parts.params, parts.query, parts.fragment))
-
-    if _auto_flask_context:
-        _auto_flask_context.pop()
-
-    # ckan.root_path is defined when we have none standard language
-    # position in the url
-    root_path = config.get('ckan.root_path')
-    if root_path:
-        # FIXME this can be written better once the merge
-        # into the ecportal core is done - Toby
-        # we have a special root specified so use that
-        if default_locale:
-            root_path = re.sub('/{{LANG}}', '', root_path)
-        else:
-            root_path = re.sub('{{LANG}}', str(locale), root_path)
-        # make sure we don't have a trailing / on the root
-        if root_path[-1] == '/':
-            root_path = root_path[:-1]
-    else:
-        if default_locale:
-            root_path = ''
-        else:
-            root_path = '/' + str(locale)
-
-    url_path = url_to_amend[len(root):]
-    url = '%s%s%s' % (root, root_path, url_path)
-
-    # stop the root being added twice in redirects
-    if no_root and url_to_amend.startswith(root):
-        url = url_to_amend[len(root):]
-        if not default_locale:
-            url = '/%s%s' % (locale, url)
-
-    if url == '/packages':
-        error = 'There is a broken url being created %s' % kw
-        raise ckan.exceptions.CkanUrlException(error)
-
-    return url
-
-
 @core_helper
 def url_is_local(url: str) -> bool:
     '''Returns True if url is local'''
@@ -638,9 +421,9 @@ def url_is_local(url: str) -> bool:
         return False
     parsed = urlparse(url)
     if parsed.scheme:
-        domain = urlparse(url_for('/', qualified=True)).netloc
-        if domain != parsed.netloc:
-            return False
+        netloc = helper_functions["get_site_protocol_and_host"]()[1]
+        return netloc == parsed.netloc
+
     return True
 
 
@@ -648,13 +431,13 @@ def url_is_local(url: str) -> bool:
 def full_current_url() -> str:
     ''' Returns the fully qualified current url (eg http://...) useful
     for sharing etc '''
-    return (url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
+    return request.url
 
 
 @core_helper
 def current_url() -> str:
     ''' Returns current url unquoted'''
-    return request.environ['CKAN_CURRENT_URL']
+    return request.full_path
 
 
 @core_helper
@@ -932,23 +715,6 @@ def build_nav(menu_item: str, title: str, **kw: Any) -> Markup:
 
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
-
-
-def map_pylons_to_flask_route_name(menu_item: str):
-    '''returns flask routes for old fashioned route names'''
-    # Pylons to Flask legacy route names mappings
-    mappings = config.get('ckan.legacy_route_mappings')
-    if mappings:
-        if isinstance(mappings, str):
-            LEGACY_ROUTE_NAMES.update(json.loads(mappings))
-        elif isinstance(mappings, dict):
-            LEGACY_ROUTE_NAMES.update(mappings)
-
-    if menu_item in LEGACY_ROUTE_NAMES:
-        log.info('Route name "%s" is deprecated and will be removed. '
-                 'Please update calls to use "%s" instead',
-                 menu_item, LEGACY_ROUTE_NAMES[menu_item])
-    return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
 def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
@@ -1871,12 +1637,15 @@ def _create_url_with_params(params: Optional[Iterable[tuple[str, Any]]] = None,
                             extras: Optional[dict[str, Any]] = None):
     """internal function for building urls with parameters."""
     if not extras:
-        if not controller and not action:
-            # it's an url for the current page. Let's keep all interlal params,
-            # like <package_type>
-            extras = dict(request.view_args or {})
-        else:
-            extras = {}
+        extras = {}
+
+    if not controller and not action and request.view_args:
+        # it's an url for the current page. Let's keep all interlal params,
+        # like <package_type> if thes are not overriden in extras
+        extras.update({
+            k: v for k, v in request.view_args.items()
+            if k not in extras
+        })
 
     blueprint, view = p.toolkit.get_endpoint()
     if not controller:
