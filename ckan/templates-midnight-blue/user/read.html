@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h2 class="hide-heading">
+  <h1>
     {% block page_heading %}{{ _('Datasets') }}{% endblock %}
-  </h2>
+  </h1>
   {% block package_list %}
   {% if user.datasets %}
     {% snippet 'snippets/package_list.html', packages=user.datasets %}
