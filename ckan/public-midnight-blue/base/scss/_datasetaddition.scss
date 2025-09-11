@@ -1,0 +1,104 @@
+// Line styles
+.dataset-line {
+  width: 144px;
+  height: 2px;
+  background-color: $primary;
+  margin-top: 11px;
+  display: block;
+}
+
+
+// Package metadata field
+.package-metadata-field {
+  @media screen and (max-width: 768px) {
+    padding: 4px;
+    padding-top: 24px;
+  }
+}
+
+// Button styles
+.custom-btn {
+  width: 36px;
+  height: 36px;
+  background-color: $gray-400;
+  color: white;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+
+  .fa {
+    color: white;
+    font-size: 18px;
+
+    &.fa-pencil-square-o::before {
+      content: '\f044';
+      color: white;
+    }
+  }
+
+  &:hover {
+    background-color: darken($gray-400, 10%);
+  }
+}
+
+// Preview text styles
+.preview-text {
+  margin-bottom: 24px;
+
+  > .value {
+    color: #101828;
+    font-family: $baseFontFamily;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+    letter-spacing: -1.2px;
+  }
+
+  > .label {
+    color: #667085;
+    font-family: $baseFontFamily;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 120%;
+  }
+}
+
+// Slug preview
+.slug-preview-inner {
+  padding: 4px 8px;
+  background-color: white;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  margin-right: 8px;
+
+  @media screen and (max-width: 768px) {
+    letter-spacing: -0.6px;
+    font-size: 0.6rem;
+  }
+}
+
+
+
+
+// Accordion styles
+
+
+// Additional styles
+.icon-stage {
+  margin: auto 6px;
+  .fa-check-circle {
+    color: $green;
+  }
+}
+
+
+
+.list-group-item.active a {
+  color: white !important;
+}

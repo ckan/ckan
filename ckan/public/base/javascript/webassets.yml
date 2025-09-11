@@ -23,8 +23,9 @@ main:
     - client.js
     - i18n.js
     - notify.js
+    - confirm.js
     - main.js
-    - htmx-csrf.js
+    - htmx-ckan.js
 
 ckan:
   filters: rjsmin

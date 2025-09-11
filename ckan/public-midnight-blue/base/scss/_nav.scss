@@ -12,75 +12,106 @@
 }
 
 
-.module-narrow  {
+.module-narrow {
+
     .nav-item>a,
     .nav-aside li a {
-    text-decoration: none;;
-    display: block;
-    color: $navLinkColor;
-    font-size: $font-size-base;
-    line-height: $line-height-base;
-    margin: -7px (-$gutterX);
-    padding: 10px ($gutterX);
-    &:hover {
         text-decoration: none;
-        background-color: #eeeeee;
+        display: block;
+        color: $navLinkColor;
+        font-size: $font-size-base;
+        line-height: $line-height-base;
+        padding: 10px ($gutterX);
+        border-radius: .5rem;
+        position: relative;
+        &:hover {
+            text-decoration: none;
+            background-color: #f8f9fa;
+        }
+
+        &:focus {
+            background-color: $gray-300;
+        }
+
+        .badge {
+            background-color: $emptyTextColor;
+            border-radius: 6px;
+            padding: 5px 6px;
+            color: $white;
+            border: 1px solid $white;
+            min-width: 2rem;
+        }
+
+        .item-label {
+            width: 70%;
+        }
+
+        .item-state {
+            float: right;
+            position: relative;
+            transform: translateY(0);
+            left: 10px;
+            width: 24px;
+            height: 24px;
+            background-image: escape-svg($addStateIcon);
+        }
+
+        .item-count-span {
+            display: flex;
+            align-self: center;
+        }
     }
-    .badge {
-        background-color: $emptyTextColor;
-        border-radius: 10px;
-    }
-}
+
     .nav-item.active,
     .nav-aside li.active {
-        background-color: $navActiveBackgroundColor;
+        background-color: $primary;
+
+        .item-state {
+            background-image: escape-svg($removeStateIcon);
+        }
     }
 
     .nav-item.active>a,
     .nav-aside li.active a {
         position: relative;
         color: $navItemActiveTextColor;
-        background-color: $navItemActiveBackgroundColor;
+        background-color: $brand-400;
+
         &:hover {
             color: $navItemActiveTextColor;
-            background-color: $navItemActiveBackgroundColor;
+            background-color: $brand-400;
         }
-    }
-
-    .nav-item.active>a:before,
-    .nav-aside li.active a:before {
-        content: ' ';
-        position: absolute;
-        border: ($navItemActiveArrowSize*3 + 2) solid transparent;
-        border-right: none;
-        border-left-color: $navItemActiveBackgroundColor;
-        border-left-width: $navItemActiveArrowSize;
-        top: 0;
-        bottom: 0;
-        right: -$navItemActiveArrowSize;
-        width: $navItemActiveArrowSize;
-        height: 34px;
     }
 
     .nav-pills>li {
         float: none;
+
         @include media-breakpoint-down(sm) {
             float: left;
         }
     }
 
-    .nav-item.active>a span,
     .nav-aside li.active a span {
         white-space: nowrap;
     }
 }
 
+.filters {
+    .module-narrow {
+        .nav-item > a {
+            display: flex;
+            justify-content: space-between;
 
-.module-narrow .nav-item>a,
-.module-narrow .nav-aside li a {
-    padding-left: $gutterSmallX;
-    padding-right: $gutterSmallX;
-    position: relative;
+            @include media-breakpoint-down(lg) {
+                flex-wrap: wrap;
+            }
+        }
+
+        .nav-simple > li {
+            margin-bottom: 4px;
+            border-bottom: unset;
+        }
+    }
 }
 
 .module-narrow .nav-item.image,
@@ -108,9 +139,11 @@
 // FACET NAVIGATION
 .user-list {
     @include list-unstyled;
+
     li {
         margin: 0 0 10px 0;
     }
+
     .user-image {
         margin-right: 3px;
         margin-bottom: 3px;
@@ -118,14 +151,6 @@
     }
 }
 
-.nav-item{
-    .facet-close {
-        float: right;
-		position: relative;
-		transform: translateY(0);
-		left: 10px;
-    }
-}
 
 // Nav pills
 .nav-pills {
@@ -135,33 +160,83 @@
     gap: 4px;
     border-radius: .5rem;
     width: 100%;
+
     @include media-breakpoint-up(md) {
         display: flex;
         flex-direction: row;
     }
+
     li {
         padding: .5rem 1rem;
         gap: .5rem;
         border-radius: 8px;
         flex: 1 0 auto;
+
         a {
             color: $brand-300;
             display: block;
+
             &:hover {
                 text-decoration: none;
             }
         }
+
         &:hover {
             background-color: $gray-200;
 
         }
+
         &.active {
             background-color: $white;
             border-radius: 6px;
             box-shadow: 0px 4px 16px -4px rgba(0, 23, 31, 0.08), 0px 1px 4px -2px rgba(0, 0, 0, 0.04);
+
             a {
                 color: $brand-500;
             }
+        }
+    }
+}
+
+// Nav options in secondary
+.secondary .nav-options {
+    background-color: $gray-100;
+    border-radius: 8px;
+
+    .active {
+        background-color: $brand-600;
+
+        a {
+            color: $white;
+        }
+
+        &:hover {
+            background-color: $brand-600;
+        }
+    }
+
+    li {
+        border-radius: 8px;
+        padding: 10px 16px;
+        width: 100%;
+
+        a {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row-reverse;
+
+            i {
+                display: flex;
+                align-items: center;
+            }
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+
+        &:hover {
+            background-color: $gray-200;
         }
     }
 }
@@ -173,6 +248,7 @@
 .nav-stacked > li {
     float: none;
 }
+
 .nav-stacked > li > a {
     margin-right: 0; // no need for the gap between nav items
 }

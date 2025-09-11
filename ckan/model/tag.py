@@ -18,8 +18,6 @@ import ckan.model.domain_object as domain_object
 import ckan.model.vocabulary as vocabulary
 
 import ckan.logic
-import ckan.lib.dictization
-import ckan.lib.maintain as maintain
 from ckan.types import Query
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
@@ -158,42 +156,6 @@ class Tag(domain_object.DomainObject):
         return tag
 
     @classmethod
-    @maintain.deprecated(since="2.9.0")
-    def search_by_name(
-            cls, search_term: str,
-            vocab_id_or_name: Optional[str] = None) -> Optional[Query[Self]]:
-        '''DEPRECATED
-
-        Return all tags whose names contain a given string.
-
-        By default only free tags (tags which do not belong to any vocabulary)
-        are returned. If the optional argument ``vocab_id_or_name`` is given
-        then only tags from that vocabulary are returned.
-
-        :param search_term: the string to search for in the tag names
-        :type search_term: string
-        :param vocab_id_or_name: the id or name of the vocabulary to look in
-            (optional, default: None)
-        :type vocab_id_or_name: string
-
-        :returns: a list of tags that match the search term
-        :rtype: list of ckan.model.tag.Tag objects
-
-        '''
-        if vocab_id_or_name:
-            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
-            if vocab is None:
-                # The user specified an invalid vocab.
-                return None
-            query = meta.Session.query(cls).filter(cls.vocabulary_id==vocab.id)
-        else:
-            query = meta.Session.query(cls)
-        search_term = search_term.strip().lower()
-        query = query.filter(Tag.name.contains(search_term))
-        query: 'Query[Self]' = query.distinct().join(Tag.package_tags)
-        return query
-
-    @classmethod
     def all(cls, vocab_id_or_name: Optional[str]=None) -> Query[Self]:
         '''Return all tags that are currently applied to any dataset.
 
@@ -270,52 +232,6 @@ class PackageTag(core.StatefulObjectMixin,
         assert self.package
         assert self.tag
         return u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
-
-    @classmethod
-    @maintain.deprecated(since="2.9.0")
-    def by_name(
-            cls, package_name: str, tag_name: str,
-            vocab_id_or_name: Optional[str] = None,
-            autoflush: bool = True) -> Optional[Self]:
-        '''DEPRECATED (and broken - missing the join to Tag)
-
-        Return the PackageTag for the given package and tag names, or None.
-
-        By default only PackageTags for free tags (tags which do not belong to
-        any vocabulary) are returned. If the optional argument
-        ``vocab_id_or_name`` is given then only PackageTags for tags from that
-        vocabulary are returned.
-
-        :param package_name: the name of the package to look for
-        :type package_name: string
-        :param tag_name: the name of the tag to look for
-        :type tag_name: string
-        :param vocab_id_or_name: the id or name of the vocabulary to look for
-            the tag in
-        :type vocab_id_or_name: string
-
-        :returns: the PackageTag for the given package and tag names, or None
-            if there is no PackageTag for those package and tag names
-        :rtype: ckan.model.tag.PackageTag
-
-        '''
-        if vocab_id_or_name:
-            vocab = vocabulary.Vocabulary.get(vocab_id_or_name)
-            if vocab is None:
-                # The user specified an invalid vocab.
-                return None
-            query = (meta.Session.query(cls, Tag, ckan.model.Package)
-                    .filter(Tag.vocabulary_id == vocab.id)
-                    .filter(ckan.model.Package.name==package_name)
-                    .filter(Tag.name==tag_name))
-            query = query.autoflush(autoflush)
-            return query.one()[0]
-        else:
-            query = (meta.Session.query(cls)
-                    .filter(ckan.model.Package.name==package_name)
-                    .filter(Tag.name==tag_name))
-            query = query.autoflush(autoflush)
-            return query.one()
 
     def related_packages(self) -> list['ckan.model.Package']:
         if self.package:

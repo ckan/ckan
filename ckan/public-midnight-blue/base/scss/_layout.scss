@@ -37,18 +37,19 @@
     overflow: hidden;
 }
 
+.show-filters.btn {
+    background-color: $gray-50;
+    font-weight: 500;
+}
+
 .show-filters.btn,
 .hide-filters {
     display: none;
 }
 
 @include media-breakpoint-down(md) {
-    .main .secondary {
-        -webkit-box-ordinal-group: 2;
-        -moz-box-ordinal-group: 2;
-        -webkit-order: 2;
-        order: 2;
-        margin-top: 1rem;
+.main .secondary {
+        margin: 1rem 0;
     }
     .js .main .secondary .filters {
         display: none;
@@ -59,9 +60,8 @@
         right: 0;
         bottom: 0;
         z-index: 1000;
-        padding: 10px;
-        background-color: rgb(0, 0, 0);
-        background-color: rgba(0, 0, 0, 0.50);
+        padding: 40px 10px 0;
+        background-color: $white;
     }
     .js body.filters-modal .secondary .filters {
         display: block;
@@ -72,18 +72,15 @@
         -moz-border-radius: 4px;
         border-radius: 4px;
         overflow: hidden;
-    }
-    .js .main .secondary .filters>div .module-footer {
-        display: none;
+        padding: 0 10px;
     }
     .js body.filters-modal .secondary .filters .hide-filters {
         display: inline-block;
         position: absolute;
         top: 14px;
         right: 17px;
-        opacity: 0.6;
         i {
-            font-size: 18px;
+            font-size: 24px;
         }
     }
     .js .show-filters.btn {
@@ -111,7 +108,6 @@
     }
 }
 
-
 .hero:after {
     // Need to manually declare this here@mixin  If you pass rgba() through to
     // #gradient it breaks the filter property in IE7.
@@ -130,7 +126,17 @@
 
 .context-info {
     .module-content {
-        padding: 15px;
+        padding: 1rem 0;
+    }
+    @include media-breakpoint-down(md) {
+        .module-content {
+            padding: 1rem 1.5rem;
+        }
+        .image {
+            margin-right: .5rem;
+            width: 50%;
+            float: left;
+        }
     }
     .image {
         margin-bottom: 10px;
@@ -144,8 +150,7 @@
     }
     .description {
         word-wrap: break-word;
-        word-break: break-all;
-        overflow: auto;
+        overflow: visible;
     }
     code {
         display: block;
@@ -154,16 +159,15 @@
         margin: 0;
         overflow: auto;
     }
-    h1.heading {
+    h1.heading, span.heading {
         margin: 0 0 5px 0;
         font-size: 18px;
         line-height: 1.3;
+        font-weight: 600;
         @include break-word();
     }
     .info {
-        margin-top: 15px;
         padding-top: 10px;
-        border-top: 1px dotted #DDD;
         word-break: break-word;
         dl dd {
             margin-top: 3px;
@@ -171,22 +175,20 @@
         }
     }
     .nums {
-        @include clearfix;
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
         padding-top: 10px;
-        border-top: 1px dotted #DDD;
+        clear: both;
+        gap: 1%;
         dl {
             color: $layoutTextColor;
             dt {
-                font-size: 13px;
-                font-weight: 300;
+                font-weight: 400;
             }
             dd {
-                font-size: 30px;
-                font-weight: 700;
-                line-height: 36px;
+                font-size: 1.5rem;
+                font-weight: 500;
             }
         }
     }

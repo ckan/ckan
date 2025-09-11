@@ -470,7 +470,7 @@ $line-height-base:            1.5 !default;
 $line-height-sm:              1.25 !default;
 $line-height-lg:              2 !default;
 
-$h1-font-size:                $font-size-base * 2 !default;
+$h1-font-size:                $font-size-base * 3 !default;
 $h2-font-size:                $font-size-base * 1.75 !default;
 $h3-font-size:                $font-size-base * 1.5 !default;
 $h4-font-size:                $font-size-base * 1.24 !default;
@@ -699,10 +699,11 @@ $form-text-color:                       $text-muted !default;
 
 // scss-docs-start form-label-variables
 $form-label-margin-bottom:              .5rem !default;
-$form-label-font-size:                  null !default;
+$form-label-font-size:                  $small-font-size !default;
 $form-label-font-style:                 null !default;
-$form-label-font-weight:                null !default;
-$form-label-color:                      null !default;
+$form-label-font-weight:                $font-weight-semibold !default;
+$form-label-color:                      $brand-600 !default;
+$form-label-line-height:                1.25 !default;
 // scss-docs-end form-label-variables
 
 // scss-docs-start form-input-variables
@@ -833,6 +834,7 @@ $form-select-disabled-border-color: $input-disabled-border-color !default;
 $form-select-bg-position:           right $form-select-padding-x center !default;
 $form-select-bg-size:               16px 12px !default; // In pixels because image dimensions
 $form-select-indicator-color:       $gray-800 !default;
+$form-select:                       none !default;
 $form-select-indicator:             url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='#{$form-select-indicator-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>") !default;
 
 $form-select-feedback-icon-padding-end: $form-select-padding-x * 2.5 + $form-select-indicator-padding !default;
@@ -1247,11 +1249,11 @@ $toast-header-border-color:         rgba(0, 0, 0, .05) !default;
 
 // scss-docs-start badge-variables
 $badge-font-size:                   .75em !default;
-$badge-font-weight:                 $font-weight-bold !default;
+$badge-font-weight:                 $font-weight-semibold !default;
 $badge-color:                       $white !default;
-$badge-padding-y:                   .35em !default;
-$badge-padding-x:                   .65em !default;
-$badge-border-radius:               $border-radius !default;
+$badge-padding-y:                   .125em !default;
+$badge-padding-x:                   .5em !default;
+$badge-border-radius:               .1875em !default;
 // scss-docs-end badge-variables
 
 
@@ -1347,7 +1349,7 @@ $list-group-item-color-scale:       40% !default;
 
 $list-group-hover-bg:               $gray-100 !default;
 $list-group-active-color:           $component-active-color !default;
-$list-group-active-bg:              $component-active-bg !default;
+$list-group-active-bg:              $gray-500 !default;
 $list-group-active-border-color:    $list-group-active-bg !default;
 
 $list-group-disabled-color:         $gray-600 !default;
@@ -1384,7 +1386,7 @@ $figure-caption-color:              $gray-600 !default;
 // Breadcrumbs
 
 // scss-docs-start breadcrumb-variables
-$breadcrumb-font-size:              null !default;
+$breadcrumb-font-size:              14px !default;
 $breadcrumb-padding-y:              0 !default;
 $breadcrumb-padding-x:              0 !default;
 $breadcrumb-item-padding-x:         .5rem !default;

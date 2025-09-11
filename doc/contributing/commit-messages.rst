@@ -44,7 +44,7 @@ convention ``{issue number}.{change type}``, where **issue number** is
 a identified of issue or PR in the `CKAN issue tracker`_ and type is
 one of the following, depending on change type:
 
-* **migration** - fragment intorduces migration guide for existing CKAN instances
+* **migration** - fragment introduces migration guide for existing CKAN instances
 * **bugfix** - some issue was fixed.
 * **removal** - function/class/module was removed or deprecated
 * **misc** - another small changes, like additional logging or code-style fixes

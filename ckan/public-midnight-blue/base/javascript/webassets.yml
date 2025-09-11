@@ -23,8 +23,9 @@ main:
     - client.js
     - i18n.js
     - notify.js
+    - confirm.js
     - main.js
-    - htmx-csrf.js
+    - htmx-ckan.js
 
 ckan:
   filters: rjsmin
@@ -63,3 +64,11 @@ view-filters:
       - vendor/qs
   contents:
     - view-filters.js
+
+draft-package:
+  output: base/%(version)s_draft-package.js
+  extra:
+    preload:
+      - vendor/jquery
+  contents:
+    - draft-package.js

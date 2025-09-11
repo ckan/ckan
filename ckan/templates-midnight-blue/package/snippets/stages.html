@@ -16,27 +16,42 @@ Example:
 {% set s2 = stages[1] or 'uncomplete' %}
 {% set dataset_type = dataset_type or h.default_package_type() %}
 
+{% macro render_step(step_count, description, is_complete) %}
+  <div class="row">
+    <span class="step">Step {{ step_count }}</span>
+    <span class="step-name">{{ description }}</span>
+  </div>
+  {% if is_complete == 'complete' %}
+  <div class="icon-stage">
+    <i class="fa fa-check-circle" aria-hidden="true"></i>
+  </div>
+  {% endif %}
+{% endmacro %}
+
 {% if s1 != 'uncomplete' %}{% set class = 'stage-1' %}{% endif %}
 {% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
-
-<ol class="stages {{ class }}">
+<ol class="stages">
   <li class="first {{ s1 }}">
     {% if s1 != 'complete' %}
-      <span class="highlight">{{ h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset') }}</span>
+      <div class="stage-nohighlight">
+        {{ render_step(1, h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), s1) }}
+      </div>
     {% else %}
-      <button class="highlight" name="save" value="go-dataset" type="submit">{{ h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset') }}</button>
+    <button class="stage-nohighlight" name="save" value="go-dataset" type="submit" {% if form_id %}form="{{ form_id }}"{% endif %}>
+      {{ render_step(1, h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), s1) }}
+    </button>
     {% endif %}
   </li>
   <li class="last {{ s2 }}">
     {% if s2 != 'complete' %}
-      <span class="highlight">{{ _('Add data') }}</span>
+      <div class="stage-nohighlight">
+        {{ render_step(2, _('Add data'), s2) }}
+      </div>
     {% else %}
-      {% if s1 == 'active' %}
-        {# stage 1 #}
-        <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
-      {% else %}
-        {% link_for _('Add data'), named_route='dataset.new', class_="highlight" %}
-      {% endif %}
+    <button class="stage-nohighlight" name="save" value="go-resources" type="submit" {% if form_id %}form="{{ form_id }}"{% endif %}>
+      {{ render_step(2, _('Add data'), s2) }}
+    </button>
     {% endif %}
   </li>
 </ol>
+

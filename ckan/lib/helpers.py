@@ -48,10 +48,8 @@ import ckan.config
 import ckan.exceptions
 import ckan.model as model
 import ckan.lib.formatters as formatters
-import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
@@ -1037,7 +1035,8 @@ def humanize_entity_type(entity_type: str, object_type: str,
     Possible purposes(depends on `entity_type` and change over time)::
 
         `add link`: "Add [object]" button on search pages
-        `breadcrumb`: "Home / [object]s / New" section in breadcrums
+        `add association link`: "Add to [object]" button on dataset pages
+        `breadcrumb`: "Home / [object]s / New" section in breadcrumbs
         `content tab`: "[object]s | Groups | Activity" tab on details page
         `create label`: "Home / ... / Create [object]" part of breadcrumb
         `create title`: "Create [object] - CKAN" section of page title
@@ -1051,10 +1050,10 @@ def humanize_entity_type(entity_type: str, object_type: str,
         `my label`: "My [object]s" tab in dashboard
         `name placeholder`: "<[object]>" section of URL preview on object form
         `no any objects`: No objects created yet
-        `no associated label`: no gorups for dataset
+        `no associated label`: no groups for dataset
         `no description`: object has no description
         `no label`: package with no organization
-        `page title`: "Title - [objec]s - CKAN" section of page title
+        `page title`: "Title - [object]s - CKAN" section of page title
         `save label`: "Save [object]" button
         `search placeholder`: "Search [object]s..." placeholder
         `update label`: "Update [object]" button
@@ -1075,6 +1074,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
     templates = {
         u'add link': _(u"Add {object_type}"),
+        u'add association link': _(u"Add to {object_type}"),
         u'breadcrumb': _(u"{object_type}s"),
         u'content tab': _(u"{object_type}s"),
         u'create label': _(u"Create {object_type}"),
@@ -1200,6 +1200,26 @@ def has_more_facets(facet: str,
 
 
 @core_helper
+def currently_active_facet(facet: str) -> bool:
+    params_items = request.args.keys()
+    expanded_facet = "_" + facet + "_limit"
+    if facet in params_items or expanded_facet in params_items:
+        return True
+    else:
+        return False
+
+
+@core_helper
+def default_collapse_facets():
+    '''Returns config option for `ckan.default_collapse_facets`.
+    If true, the facets in the secondary will be collapsed by default.
+    If false, the facets will all be open, unless closed by the user.
+    Default is false
+    '''
+    return config['ckan.default_collapse_facets']
+
+
+@core_helper
 def get_param_int(name: str, default: int = 10) -> int:
     try:
         return int(request.args.get(name, default))
@@ -1305,54 +1325,6 @@ def group_name_to_title(name: str) -> str:
     if group is not None:
         return group.display_name
     return name
-
-
-@core_helper
-@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "builtin jinja filter instead.",
-                     since="2.10.0")
-def truncate(text: str,
-             length: int = 30,
-             indicator: str = '...',
-             whole_word: bool = False) -> str:
-    """Truncate ``text`` with replacement characters.
-
-    ``length``
-        The maximum length of ``text`` before replacement
-    ``indicator``
-        If ``text`` exceeds the ``length``, this string will replace
-        the end of the string
-    ``whole_word``
-        If true, shorten the string further to avoid breaking a word in the
-        middle.  A word is defined as any string not containing whitespace.
-        If the entire text before the break is a single word, it will have to
-        be broken.
-
-    Example::
-
-        >>> truncate('Once upon a time in a world far far away', 14)
-        'Once upon a...'
-
-    Deprecated: please use jinja filter `truncate` instead
-    """
-    if not text:
-        return ""
-    if len(text) <= length:
-        return text
-    short_length = length - len(indicator)
-    if not whole_word:
-        return text[:short_length] + indicator
-    # Go back to end of previous word.
-    i = short_length
-    while i >= 0 and not text[i].isspace():
-        i -= 1
-    while i >= 0 and text[i].isspace():
-        i -= 1
-    if i <= 0:
-        # Entire text before break is one word, or we miscalculated.
-        return text[:short_length] + indicator
-    return text[:i + 1] + indicator
 
 
 @core_helper
@@ -1830,7 +1802,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context: Context = {'model': model}
+    context: Context = {}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -2462,7 +2434,14 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
+    upload_config = config.get('ckan.uploads_enabled')
+    if upload_config is not None:
+        return upload_config
+
+    if config['ckan.storage_path'] is not None:
+        return True
+
+    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
         return True
     return False
 
@@ -2881,4 +2860,8 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_input.html')
+    '''
+    Render a hidden CSRF input field.
+    '''
+    import ckan.lib.base as base
+    return literal(base.render('snippets/csrf_input.html'))
