@@ -1,12 +1,16 @@
 <section class="module" id="search-results" hx-swap-oob="true" hx-swap="none">
   <div class="module-content">
-    {% block page_primary_action %}
-      {% if h.check_access('package_create') %}
-        <div class="page_primary_action">
-          {% snippet 'snippets/add_dataset.html', dataset_type=dataset_type %}
-        </div>
-      {% endif %}
-    {% endblock %}
+    <div class="row">
+    {% if heading %}
+      <h1 class="page-heading {% if h.check_access('package_create') %}col-md-9{% endif %}">
+        {{ heading }}
+        {% if state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
+      </h1>
+    {% endif %}
+    {% block page_primary_action %}{% endblock %}
+    </div>
     {% block form %}
       {% set facets = {
         'fields': fields_grouped,

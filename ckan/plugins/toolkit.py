@@ -17,7 +17,7 @@ import ckan.lib.base as base
 from ckan.lib.base import render, abort
 import packaging.version as pv
 
-from ckan.logic import (  # noqa: re-export
+from ckan.logic import (  # noqa
     get_action,
     check_access,
     get_validator,

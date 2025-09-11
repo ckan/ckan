@@ -6,7 +6,7 @@
  *
  */
 var csrf_field = $('meta[name=csrf_field_name]').attr('content');
-var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
+var csrf_token = $('meta[name=' + csrf_field + ']').attr('content');
 
 htmx.on('htmx:configRequest', (event) => {
   if (csrf_token) {
@@ -17,12 +17,12 @@ htmx.on('htmx:configRequest', (event) => {
 function htmx_cleanup_before_swap(event) {
   // Dispose any active tooltips before HTMX swaps the DOM
   event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(
-      el => {
-    const tooltip = bootstrap.Tooltip.getInstance(el)
-    if (tooltip) {
-      tooltip.dispose()
-    }
-  })
+    el => {
+      const tooltip = bootstrap.Tooltip.getInstance(el)
+      if (tooltip) {
+        tooltip.dispose()
+      }
+    })
 }
 document.body.addEventListener("htmx:beforeSwap", htmx_cleanup_before_swap);
 document.body.addEventListener("htmx:oobBeforeSwap", htmx_cleanup_before_swap);
@@ -40,16 +40,16 @@ function htmx_initialize_ckan_modules(event) {
   }
 
   event.detail.target.querySelectorAll('[data-bs-toggle="tooltip"]'
-      ).forEach(node => {
+  ).forEach(node => {
     bootstrap.Tooltip.getOrCreateInstance(node)
   })
   event.detail.target.querySelectorAll('.show-filters').forEach(node => {
-    node.onclick = function() {
+    node.onclick = function () {
       $("body").addClass("filters-modal")
     }
   })
   event.detail.target.querySelectorAll('.hide-filters').forEach(node => {
-    node.onclick = function() {
+    node.onclick = function () {
       $("body").removeClass("filters-modal")
     }
   })
@@ -57,7 +57,7 @@ function htmx_initialize_ckan_modules(event) {
 document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
 
-document.body.addEventListener("htmx:responseError", function(event) {
+document.body.addEventListener("htmx:responseError", function (event) {
   const xhr = event.detail.xhr
   const error = $(xhr.response).find('#error-content')
   const headerHTML = error.find('h1').remove().html() || `${xhr.status} ${xhr.statusText}`
@@ -77,4 +77,25 @@ document.body.addEventListener("htmx:responseError", function(event) {
     </div>
   `).appendTo('body')
   $('#responseErrorToast').toast('show')
+})
+
+document.addEventListener("htmx:confirm", function (e) {
+  // The event is triggered on every trigger for a request, so we need to check if the element
+  // that triggered the request has a confirm question set via the hx-confirm attribute,
+  // if not we can return early and let the default behavior happen
+  if (!e.detail.question) return
+
+  // This will prevent the request from being issued to later manually issue it
+  e.preventDefault()
+
+  ckan.confirm({
+    message: e.detail.question,
+    type: "primary",
+    centered: true,
+    onConfirm: () => {
+      // If the user confirms, we manually issue the request
+      // true to skip the built-in window.confirm()
+      e.detail.issueRequest(true);
+    }
+  });
 })

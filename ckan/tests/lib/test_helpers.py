@@ -153,7 +153,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         assert generated_url == url
 
     @pytest.mark.ckan_config("debug", True)
-    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
     @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
     def test_debugtoolbar_url(self, ckan_config):
         # test against built-in `url_for`, that is used by debugtoolbar ext.
