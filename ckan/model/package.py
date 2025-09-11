@@ -26,7 +26,6 @@ import ckan.model.license as _license
 import ckan.model.types as _types
 import ckan.model.domain_object as domain_object
 
-import ckan.lib.maintain as maintain
 from ckan.types import Query
 
 if TYPE_CHECKING:
@@ -439,20 +438,6 @@ class Package(core.StatefulObjectMixin,
             raise Exception(msg)
 
     license = property(get_license, set_license)
-
-    @maintain.deprecated('`is_private` attriute of model.Package is ' +
-                         'deprecated and should not be used.  Use `private`',
-                         since="2.1.0")
-
-    def _is_private(self):
-        """
-        DEPRECATED in 2.1
-
-        A package is private if belongs to any private groups
-        """
-        return self.private
-
-    is_private = property(_is_private)
 
     def is_in_group(self, group: "Group") -> bool:
         return group in self.get_groups()

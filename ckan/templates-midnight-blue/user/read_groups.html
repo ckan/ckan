@@ -9,7 +9,7 @@
 %}
 
 {% block primary_content_inner %}
-  <h2 class="hide-heading">{{ h.humanize_entity_type('group', group_type, 'facet label') or _('Groups') }}</h2>
+  <h1>{{ h.humanize_entity_type('group', group_type, 'facet label') or _('Groups') }}</h1>
   {% if groups_available %}
     <div class="wide">
       {% snippet "group/snippets/group_list.html", groups=groups_available, show_capacity=True %}
