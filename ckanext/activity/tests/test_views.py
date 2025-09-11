@@ -831,6 +831,7 @@ class TestPackage:
 
     def test_changes_with_new_resource(self, app):
         user = factories.User()
+        token = factories.APIToken(user=user["name"])
         dataset = factories.Dataset(title="First title", user=user)
         resource_name = "Image 1"
         helpers.call_action(
@@ -849,10 +850,9 @@ class TestPackage:
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]
-        env = {"REMOTE_USER": user["name"]}
         response = app.get(
             url_for("activity.package_changes", id=activity.id),
-            extra_environ=env,
+            headers={"Authorization": token["token"]},
         )
         assert helpers.body_contains(response, "Added resource")
         assert helpers.body_contains(response, resource_name)

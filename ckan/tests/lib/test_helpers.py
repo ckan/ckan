@@ -152,7 +152,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         assert generated_url == url
 
     @pytest.mark.ckan_config("debug", True)
-    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
     @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
     def test_debugtoolbar_url(self, ckan_config):
         # test against built-in `url_for`, that is used by debugtoolbar ext.
@@ -908,3 +907,26 @@ def test_decode_view_request_filters(test_request_context):
 def test_get_translated(data_dict, locale, result, monkeypatch):
     monkeypatch.setattr(flask_app, "get_locale", lambda: locale)
     assert h.get_translated(data_dict, 'notes') == result
+
+
+class TestUploadsEnabled:
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", True)
+    def test_uploads_enabled(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", False)
+    def test_uploads_disabled(self):
+        assert h.uploads_enabled() is False
+
+    def test_uploads_disabled_on_default_configuration(self):
+        assert h.uploads_enabled() is False
+
+    @pytest.mark.ckan_config("ckan.storage_path", "/some/path")
+    def test_uploads_enabled_with_only_storage_path(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.usefixtures("with_plugins")
+    @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
+    def test_uploads_enabled_when_iuploader_plugin_exists(self):
+        assert h.uploads_enabled() is True

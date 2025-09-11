@@ -32,7 +32,7 @@ $gutterSmallX: 15px;
 $gutterSmallY: $gutterY;
 
 $emptyTextColor: $gray-500;
-$genericBorderColor: #ddd;
+$genericBorderColor: $gray-300;
 
 $breadcrumbTextColor: #505050;
 
@@ -47,8 +47,8 @@ $navItemActiveArrowSize: $spacer-1;
 $pillTextColor: $navItemActiveTextColor;
 $pillBackgroundColor: darken($navItemActiveBackgroundColor, 10%);
 
-$footerBackgroundColor: $brand-800;
-$footerTextColor: #CCDEE3;
+$footerBackgroundColor: $brand-700;
+$footerTextColor: $white;
 $footerLinkColor: $footerTextColor;
 
 $inputColor: $black;

@@ -1,61 +1,3 @@
-
-// Dataset circle icon
-.dataset-circle-icon {
-  margin-bottom: 16px;
-
-  .fa {
-    color: $gray-400;
-    background-color: $gray-400;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    line-height: 1;
-
-    &.complete {
-      color: $green;
-      background-color: $green;
-
-      &::before {
-        content: '\f00c';
-        color: white;
-      }
-    }
-
-    &.uncomplete::before {
-      content: '\f101';
-      color: white;
-    }
-  }
-}
-
-// Dataset step styles
-.dataset-step {
-  font-weight: 600;
-  font-size: 10px;
-  line-height: 10px;
-  color: $gray-400;
-}
-
-.dataset-step-name {
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 18px;
-  color: $primary;
-  margin: 6px 0;
-  min-width: fit-content;
-}
-
-.dataset-step-status {
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 12px;
-  color: $primary;
-}
-
 // Line styles
 .dataset-line {
   width: 144px;
@@ -63,29 +5,6 @@
   background-color: $primary;
   margin-top: 11px;
   display: block;
-}
-
-// Stage styles
-.stage {
-  background-color: white;
-  padding: 24px;
-  margin-top: 2px;
-
-  > .row {
-    max-width: 1192px;
-
-    > .col-auto {
-      padding-right: 4px;
-
-      > .row {
-        width: 164px;
-      }
-    }
-  }
-
-  > .row > .col.row {
-    padding-left: 70px;
-  }
 }
 
 
@@ -164,68 +83,13 @@
   }
 }
 
-.stage-nohiglight {
-  display: inline-block;
-  padding: 0; 
-  border: none; 
-  background: none; 
-  width: 100%;
-  cursor: pointer;
-  text-align: left;
-}
 
-.stage > .row > .stage-nohiglight > .col-auto {
-  padding-right: 4px;
-}
-
-.stage > .row > .stage-nohiglight > .col-auto > .row {
-  width: 164px;
-}
-
-.page-heading,
-.hide-heading {
-  font-size: 3rem;
-  line-height: 3rem;
-  font-weight: 600;
-  color: #153084;
-
-  @media screen and (max-width: 768px) {
-    font-size: 1.875rem;
-    line-height: 1.875rem;
-  }
-}
 
 
 // Accordion styles
 
 
 // Additional styles
-.col.stage {
-  padding: 12px 4px;
-  border-radius: 8px;
-  background: $gray-100;
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-
-  > .row {
-    padding-left: 14px;
-
-    > .step {
-      color: #667085;
-      font-size: 12px;
-      font-weight: 400;
-      line-height: 18px;
-    }
-
-    > .step-name {
-      color: #101828;
-      font-size: 16px;
-      font-weight: 500;
-      letter-spacing: -0.8px;
-    }
-  }
-}
 .icon-stage {
   margin: auto 6px;
   .fa-check-circle {

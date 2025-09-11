@@ -40,3 +40,10 @@ filterwarnings = [
         "ignore::DeprecationWarning",
 ]
 addopts = "--ckan-ini test.ini"
+
+[tool.ruff]
+line-length = 127
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
