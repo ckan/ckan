@@ -1,4 +1,3 @@
-# encoding: utf-8
 from __future__ import annotations
 
 import os
@@ -29,9 +28,10 @@ from flask_babel import Babel
 
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, session, current_user
+from ckan.common import current_user, config_declaration
 
 import ckan.model as model
+from ckan.config.declaration import Flag
 from ckan.lib import base
 from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
@@ -58,7 +58,7 @@ from ckan.views import (identify_user,
                         set_ckan_current_url,
                         _get_user_for_apitoken,
                         )
-from ckan.types import CKANApp, Config, Response
+from ckan.types import CKANApp, Response
 
 log = logging.getLogger(__name__)
 
@@ -125,15 +125,20 @@ class I18nMiddleware(object):
         return self.app(environ, start_response)
 
 
-def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
-    """ This has to pass the flask app through all the same middleware that
-    Pylons used """
+def make_flask_stack() -> CKANApp:
+    """Create the Flask application and wrap it with all the middlewares.
+
+    This is the main function that builds the Flask app, registers blueprints
+    and error handlers, and does all the work that must be done once (unlike
+    ``ckan.config.environment.update_config``, which updates application state
+    whenever active plugins change).
+    """
 
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
-    testing = asbool(conf.get('testing', conf.get('TESTING', False)))
+    debug: bool = config["debug"]
+    testing: bool = config["testing"]
     app = flask_app = CKANFlask(__name__, static_url_path='')
 
     # Register storage for accessing group images, site logo, etc.
@@ -160,10 +165,11 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
-    if config:
-        app.config.update(config)
-    else:
-        app.config.update(conf)
+    app.config.update({
+        str(key): config[str(key)]
+        for key in config_declaration.iter_options()
+        if config_declaration[key].has_flag(Flag.flask)
+    })
 
     # Do all the Flask-specific stuff before adding other middlewares
 
@@ -335,28 +341,6 @@ def get_locale() -> str:
         config.get(u'ckan.locale_default'))
 
 
-def set_remote_user_as_current_user_for_tests():
-    '''This function exists to maintain backward compatibility
-    for the `TESTS` of the `CKAN` extensions
-
-    If `REMOTE_USER` is in the request environ we will try to get
-    the user_obj from the DB, if there is an user_obj, we will set the
-    `session['_user_id']` with that user_obj.id
-
-    This way, `Flask-Login` will load the user from
-    `session['_user_id']` and will set the `current_user`
-    proxy for us behind the scene.
-    '''
-    if "REMOTE_USER" in request.environ:
-        username = request.environ["REMOTE_USER"]
-        if isinstance(username, bytes):
-            username = username.decode()
-
-        userobj = model.User.get(username)
-        if userobj:
-            session["_user_id"] = userobj.id
-
-
 def ckan_before_request() -> Optional[Response]:
     u'''
     Common handler executed before all Flask requests
@@ -372,12 +356,6 @@ def ckan_before_request() -> Optional[Response]:
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
-
-    # This is needed for the TESTS of the CKAN extensions only!
-    # we should remove it as soon as the maintainers of the
-    # CKAN extensions change their tests according to the new changes.
-    if config.get("testing"):
-        set_remote_user_as_current_user_for_tests()
 
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions

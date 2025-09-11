@@ -696,15 +696,8 @@ def _group_or_org_create(context: Context,
 
     if context.get("schema"):
         schema: Schema = context["schema"]
-    elif hasattr(group_plugin, "create_group_schema"):
-        schema: Schema = group_plugin.create_group_schema()
-    # TODO: remove these fallback deprecated methods in the next release
-    elif hasattr(group_plugin, "form_to_db_schema_options"):
-        schema: Schema = getattr(group_plugin, "form_to_db_schema_options")({
-            'type': 'create', 'api': 'api_version' in context,
-            'context': context})
     else:
-        schema: Schema = group_plugin.form_to_db_schema()
+        schema: Schema = group_plugin.create_group_schema()
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
