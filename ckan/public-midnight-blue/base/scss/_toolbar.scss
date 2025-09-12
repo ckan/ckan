@@ -5,10 +5,6 @@
     padding: 5px 0;
 }
 
-.page_primary_action {
-    margin-bottom: 20px;
-}
-
 .toolbar .breadcrumb {
     @include clearfix;
     @include box-shadow(none);
@@ -112,9 +108,6 @@
 .content_action {
     display: flex;
     justify-content: flex-end;
-    .btn {
-        margin-bottom: 1rem;
-    }
 }
 
 .no-nav .page-header {

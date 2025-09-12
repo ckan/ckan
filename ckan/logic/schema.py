@@ -4,7 +4,6 @@ import inspect
 from functools import wraps
 from typing import Any, Callable, Iterable, cast
 
-from ckan.lib.maintain import deprecated
 import ckan.model
 import ckan.plugins as plugins
 from ckan.logic import get_validator
@@ -281,15 +280,6 @@ def default_show_package_schema(keep_extras: Validator,
     schema['license_title'] = []
 
     return schema
-
-
-@deprecated(
-    "Use the relevant `default_{create|update|show}_group_schema` instead",
-    since="2.11.0"
-)
-def default_group_schema():
-    """ Deprecated """
-    return default_create_group_schema()
 
 
 @validator_args
