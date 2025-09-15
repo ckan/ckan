@@ -236,9 +236,12 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     authorization_header = request.headers.get("Authorization")
 
     if authorization_header:
-        uuid4_regex = re.compile('[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$')
+        uuid4_regex = re.compile('[a-f0-9]{8}-[a-f0-9]{4}-'
+                                 '4[a-f0-9]{3}-[89ab][a-f0-9]{3}-'
+                                 '[a-f0-9]{12}$')
         if re.match(uuid4_regex, authorization_header):
-            return _finish_bad_request("Request made with old style API key, please use API token instead.")
+            return _finish_bad_request("Request made with old style API key, "
+                                       "please use API token instead.")
 
     # Check if action exists
     try:
