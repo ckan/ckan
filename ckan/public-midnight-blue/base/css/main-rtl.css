@@ -11880,14 +11880,17 @@ a.open-data {
 }
 a.open-data span {
   padding: 0.25rem 0.5rem;
+  color: #000;
 }
 a.open-data span.prefix {
   background-color: #e8eaf3;
-  color: #000;
 }
 a.open-data span.suffix {
   background-color: #3395FF;
-  color: #fff;
+}
+
+#organization-info {
+  float: left;
 }
 
 .tag {
@@ -12038,6 +12041,7 @@ a.tag:hover {
 
 .module-shallow {
   margin-bottom: 1rem;
+  clear: both;
 }
 
 .module-narrow .module-group {
@@ -13873,7 +13877,7 @@ td.diff_header {
   cursor: pointer;
 }
 
-.group-list {
+.groups-list {
   display: grid;
   grid-auto-flow: row;
   grid-auto-columns: minmax(0, 1fr);
@@ -13887,7 +13891,7 @@ td.diff_header {
 }
 
 @media (max-width: 767.98px) {
-  .group-list {
+  .groups-list {
     margin-bottom: 2rem;
     grid-template-columns: none;
   }
@@ -13918,10 +13922,6 @@ td.diff_header {
   display: block;
   clear: both;
   content: "";
-}
-
-.page_primary_action {
-  margin-bottom: 20px;
 }
 
 .toolbar .breadcrumb {
@@ -14024,9 +14024,6 @@ td.diff_header {
 .content_action {
   display: flex;
   justify-content: flex-end;
-}
-.content_action .btn {
-  margin-bottom: 1rem;
 }
 
 .no-nav .page-header {
@@ -14253,7 +14250,6 @@ td.diff_header {
   hyphens: auto;
 }
 .context-info .info {
-  margin-top: 15px;
   padding-top: 10px;
   word-break: break-word;
 }
@@ -14266,8 +14262,8 @@ td.diff_header {
   flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 10px;
-  column-gap: 5%;
   clear: both;
+  gap: 1%;
 }
 .context-info .nums dl {
   color: #344054;
@@ -14423,49 +14419,54 @@ td.diff_header {
 .account-masthead {
   min-height: 30px;
   color: #000;
-  background: #e6e6e6;
+  background: #f2f4f7;
 }
 .account-masthead .account {
   float: right;
 }
 .account-masthead .account ul {
   display: inline-flex;
-  justify-content: center;
   align-items: baseline;
+  flex-wrap: wrap;
 }
 .account-masthead .account ul li {
   display: block;
   float: left;
-  border-left: 1px solid #d9d9d9;
+  padding: 0.5rem 0;
 }
-.account-masthead .account ul li a {
+.account-masthead .account ul li a, .account-masthead .account ul li button {
   display: block;
   text-decoration: none;
-  color: #153084;
-  font-size: 13px;
-  font-weight: bold;
-  padding: 0 10px;
-  line-height: 31px;
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 6px 10px;
+  margin-left: 0.5rem;
 }
 .account-masthead .account ul li a span.username,
-.account-masthead .account ul li a span.text {
+.account-masthead .account ul li a span.text, .account-masthead .account ul li button span.username,
+.account-masthead .account ul li button span.text {
   margin: 0 2px 0 4px;
 }
-.account-masthead .account ul li a span.text {
+.account-masthead .account ul li a span.text, .account-masthead .account ul li button span.text {
   position: absolute;
   top: -9999px;
   left: -9999px;
 }
-.account-masthead .account ul li a:hover {
-  color: #11266a;
-  background-color: #d9d9d9;
+.account-masthead .account ul li a:hover, .account-masthead .account ul li button:hover {
+  color: #fff;
+  background-color: #0b1842;
   text-decoration: none;
 }
-.account-masthead .account ul li a.sub {
+.account-masthead .account ul li a.sub, .account-masthead .account ul li button.sub {
   font-weight: 300;
 }
-.account-masthead .account ul li .btn-link {
-  border-radius: 0;
+.account-masthead .account ul li a.image {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #d0d5dd;
+}
+.account-masthead .account ul li a.image:hover {
+  background-color: #d9d9d9;
 }
 .account-masthead .account .notifications a span.badge {
   font-size: 12px;
@@ -14481,8 +14482,9 @@ td.diff_header {
   background-color: #cccccc;
 }
 .account-masthead .account .notifications.notifications-important a span.badge {
-  color: #000;
-  background-color: #C9403A;
+  color: #fff;
+  border: 1px solid #CF1322;
+  background-color: #CF1322;
 }
 .account-masthead .account.authed .image img {
   border-radius: 4px;
@@ -14598,43 +14600,85 @@ td.diff_header {
     justify-content: flex-start;
   }
 }
-.site-footer {
-  background: #030d38;
-  padding: 20px 0;
+footer a {
+  color: #fff;
 }
-.site-footer label,
-.site-footer small,
-.site-footer .small {
-  color: #CCDEE3;
+footer .site-footer {
+  background: #0a1d5e;
+  color: #fff;
+  padding: 2rem 0;
 }
-.site-footer a {
-  color: #CCDEE3;
-}
-.site-footer .footer-links ul {
+footer .site-footer .footer-links ul {
   margin: 0;
 }
-.site-footer .footer-links ul li {
+footer .site-footer .footer-links ul li {
   margin-bottom: 5px;
 }
-.site-footer .attribution p {
-  color: #CCDEE3;
+footer .attribution p {
+  color: #fff;
   font-size: 1rem;
+  margin: auto;
+  padding: 1rem 0;
 }
-.site-footer .attribution .ckan-footer-logo {
-  display: block;
-  width: 68px;
-  height: 21px;
-  margin-top: 2px;
-  background: url("../../../base/images/ckan-logo-footer.png") no-repeat top left;
-  text-indent: -900em;
+footer .lang-select {
+  color: #fff;
 }
-.site-footer .lang-select .form-group {
-  width: 100%;
+footer .lang-select .form-group {
+  margin-bottom: 0;
   display: flex;
-  flex-direction: column;
+  padding: 1rem 0;
 }
-.site-footer .lang-select .form-group label {
+footer .lang-select .form-group label {
   font-size: 1rem;
+  margin-right: 5px;
+}
+footer .lang-select .form-group label::after {
+  content: "";
+}
+footer .lang-select .form-group label i {
+  vertical-align: middle;
+}
+footer .lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #fff;
+  background-color: #000;
+  border: none;
+  border-radius: 0;
+}
+footer .lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__rendered {
+  border: 1px solid #fff;
+  background-color: #fff;
+  color: #000;
+  border-radius: 4px;
+}
+footer .lang-select .form-group .select2-container--open.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  background-color: #000;
+  transform: rotate(180deg);
+}
+footer .lang-select .form-group .select2-container--default .select2-selection--single {
+  background-color: #fff;
+  border: none;
+  border-radius: 0;
+}
+footer .lang-select .form-group .select2-container--default .select2-selection--single .select2-selection__arrow b {
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23101828'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23101828'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  border: none;
+  margin: 3px -5px;
+  top: auto;
+  left: auto;
+}
+footer .ckan-footer-logo {
+  display: block;
+  margin-bottom: 1rem;
 }
 
 .table-selected td {

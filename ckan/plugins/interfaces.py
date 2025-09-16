@@ -960,6 +960,8 @@ class ITemplateHelpers(Interface):
     See ``ckanext/example_itemplatehelpers`` for an example plugin.
 
     '''
+    _reverse_iteration_order = True
+
     def get_helpers(self) -> dict[str, Callable[..., Any]]:
         u'''Return a dict mapping names to helper functions.
 
