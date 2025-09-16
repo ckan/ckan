@@ -4860,7 +4860,7 @@ Minor:
  * Documentation enhancements regarding file uploads
 
 Bug fixes:
- * Fixes for licences i18n
+ * Fixes for licenses i18n
  * Remove sensitive data from user dict (#2784)
  * Fix bug in feeds controller (#2869)
  * Show dataset author and maintainer names even if they have no emails
