@@ -93,7 +93,7 @@ class Upload(object):
         storage_name = f"{object_type}_uploads"
         self.storage = files.storages.get(storage_name)
         if not self.storage:
-            log.debug(
+            log.warning(
                 "Storage %s is not configured and upload of %s will be ignored",
                 storage_name,
                 object_type,
@@ -232,7 +232,7 @@ class ResourceUpload(object):
     def __init__(self, resource: dict[str, Any]) -> None:
         self.storage = files.storages.get("resources")
         if not self.storage:
-            log.debug("Storage resources is not configured")
+            log.warning("Storage resources is not configured")
             return
 
         config_mimetype_guess = config.get('ckan.mimetype_guess')
