@@ -181,7 +181,7 @@ def collect_storages() -> dict[str, Storage]:
         ) as err:
             raise CkanConfigurationException(str(err)) from err
 
-        storages.register(name, storage)
+        result[name] = storage
 
     if path := config["ckan.storage_path"]:
         result["resources"] = make_storage(
