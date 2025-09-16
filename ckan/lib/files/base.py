@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import logging
 from collections.abc import Iterable
 from typing import Any
 
@@ -16,15 +17,38 @@ Location: TypeAlias = fk.Location
 FileData: TypeAlias = fk.FileData
 MultipartData: TypeAlias = fk.MultipartData
 
+log = logging.getLogger(__name__)
+
 
 def is_supported_type(content_type: str, supported: Iterable[str]) -> bool:
     """Check whether content_type matches supported types.
 
+    Content type is expected in `type/subtype` format. Supported types can be
+    either full content types, or just type or subtype part. For example,
+    `video/mp4` matches `video`, `mp4` or `video/mp4`.
+
+    >>> is_supported_type("video/mp4", ["text", "video", "image"])
+    True
+    >>> is_supported_type("image/png", ["png", "jpeg", "gif"])
+    True
+    >>> is_supported_type("text/csv", ["text/csv", "application/json"])
+    True
+    >>> # incorrect input format, not `type/subtype`
+    >>> is_supported_type("xxx", ["text/csv", "xxx"])
+    False
+
     :param content_type: tested type
     :param supported: collection of supported types
     """
-    maintype, subtype = content_type.split("/")
-    desired = {content_type, maintype, subtype}
+    parts = content_type.split("/")
+    if len(parts) != 2:
+        log.warning(
+            "Expected `type/subtype` format for content type. Got: %s",
+            content_type,
+        )
+        return False
+
+    desired = {content_type, *parts}
     return any(st in desired for st in supported)
 
 
