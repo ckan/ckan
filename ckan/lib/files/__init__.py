@@ -131,7 +131,7 @@ def collect_storage_configuration(
         prefix: common prefix for storage options
 
     Keyword Args:
-        flat: do not transfrom nested keys into dictionaries
+        flat: do not transform nested keys into dictionaries
 
     Returns:
         dictionary with configuration of all storages
