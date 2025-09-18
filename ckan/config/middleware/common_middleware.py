@@ -1,6 +1,6 @@
-# encoding: utf-8
-
 """Additional middleware used by the Flask app stack."""
+from __future__ import annotations
+
 from typing import Any
 
 from urllib.parse import urlparse
@@ -20,7 +20,7 @@ class RootPathMiddleware(object):
     path and ckan adds the root url causing a duplication of the root path.
     This is a middleware to ensure that even redirects use this logic.
     '''
-    def __init__(self, app: CKANApp):
+    def __init__(self, app: Any):
         self.app = app
 
     def __call__(self, environ: Any, start_response: Any):
@@ -36,7 +36,7 @@ class HostHeaderMiddleware(object):
         Prevent the `Host` header from the incoming request to be used
         in the `Location` header of a redirect.
     '''
-    def __init__(self, app: CKANApp):
+    def __init__(self, app: Any):
         self.app = app
 
     def __call__(self, environ: Any, start_response: Any) -> Any:
