@@ -5,7 +5,7 @@
 # but at the same time making it easy to change for example the json lib
 # used.
 #
-# NOTE:  This file is specificaly created for
+# NOTE:  This file is specifically created for
 # from ckan.common import x, y, z to be allowed
 from __future__ import annotations
 

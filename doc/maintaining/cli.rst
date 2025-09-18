@@ -101,7 +101,7 @@ The main goal to execute a ckan shell command is IPython session with the applic
 There are three variables already populated into the namespace of the shell:
 
 •	**app** containing the Flask application
-•	**config** containing the CKAN config dictrionary
+•	**config** containing the CKAN config dictionary
 •	**model** module to access to the database using SQLAlchemy syntax
 
 **command:**
@@ -315,7 +315,7 @@ Usage
 
 .. parsed-literal::
 
- ckan datapusher resubmit    - Resubmit udated datastore resources
+ ckan datapusher resubmit    - Resubmit updated datastore resources
  ckan datapusher submit      - Submits resources from package
 
 
