@@ -85,22 +85,23 @@ def render_snippet(*template_names: str, **kw: Any) -> str:
         raise last_exc or TemplatesNotFound(template_names)
 
 
-def render(template_name: str,
-           extra_vars: Optional[dict[str, Any]] = None) -> str:
-    '''Render a template and return the output.
+def render(template_name: str, extra_vars: Optional[dict[str, Any]] = None) -> str:
+    """Render a template and return the output.
 
     This is CKAN's main template rendering function.
 
-    :params template_name: relative path to template inside registered tpl_dir
-    :type template_name: str
-    :params extra_vars: additional variables available in template
-    :type extra_vars: dict
+    :param template_name: relative path to template inside registered tpl_dir
+    :param extra_vars: additional variables available in template
 
-    '''
+    """
     if extra_vars is None:
         extra_vars = {}
 
     _allow_caching()
+
+    for plugin in p.PluginImplementations(p.IViewRender):
+        template_name, extra_vars = plugin.prepare_render(template_name, extra_vars)
+
     return flask_render_template(template_name, **extra_vars)
 
 
