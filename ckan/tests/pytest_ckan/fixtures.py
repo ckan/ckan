@@ -26,7 +26,6 @@ Deeper explanation can be found in `official documentation
 """
 from __future__ import annotations
 
-import pathlib
 import copy
 import smtplib
 import itertools
