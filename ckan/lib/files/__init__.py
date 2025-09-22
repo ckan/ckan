@@ -139,7 +139,7 @@ def collect_storage_configuration(
 
     :param config: mapping with configuration
     :param prefix: common prefix for storage options
-    :param flat: do not transfrom nested keys into dictionaries
+    :param flat: do not transform nested keys into dictionaries
 
     :returns: dictionary with configuration of all storages
 
