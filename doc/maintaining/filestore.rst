@@ -180,14 +180,37 @@ custom types get registered on startup::
 Using configured storages
 -------------------------
 
+In CKAN, a "storage" represents a logical container for specific set of
+files. Each storage is configured separately and serves a distinct purpose:
+
+- **Resource Storage**: Handles data files uploaded to CKAN resources
+- **User Storage**: Manages user avatars
+- **Group Storage**: Manages logo images for organizations/groups
+- **Custom Storages**: can be configured for application-specific files
+
+Each storage operates independently with its own configuration, but they all
+use the same interface. This allows different types of files to be stored in
+different locations (local filesystem, cloud storage, etc.) while maintaining a
+consistent API.
+
+For example, you might configure:
+
+- Resource files to be stored in `/var/lib/ckan/resources`
+- Organization logos in `/var/lib/ckan/logos`
+- Plugin assets in an S3 bucket
+
+All these storages will be accessible through
+:py:func:`~ckan.lib.files.get_storage` function and from user's perspective
+they will behave identically.
+
 CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
 the file storages. It exposes classes that provide a standard storage interface
-regardless of the underlying system. As a result, saving files into
-the local files ystem, a cloud provider or a database looks exactly the same from the 
+regardless of the underlying system. As a result, saving files into the local
+files ystem, a cloud provider or a database looks exactly the same from the
 code perspective.
 
 Storages are initialized during application startup and must be configured in
-advance. The exact settings depend on the type of the storage, but in general they 
+advance. The exact settings depend on the type of the storage, but in general they
 look like this::
 
   ckan.files.storage.my_storage.type = ckan:fs
