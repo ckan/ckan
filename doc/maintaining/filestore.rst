@@ -251,8 +251,8 @@ Additional information about storage functionality is available in the
 Storage types
 -------------
 
-Storage configuration requires ``type`` of the storage. Out of the box,
-following storage types are available:
+Configuring a storage requires defining its ``type`` of the storage. CKAN provides the following
+built-in storage types:
 
 .. list-table::
    :widths: 25 50 25
