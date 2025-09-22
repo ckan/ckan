@@ -214,33 +214,33 @@ It results in three storages:
 * ``b`` with configuration ``{"type": "yyy"}``
 * ``c`` with configuration ``{"type": "zzz"}``
 
-To get the instance of the storage, use ``ckan.lib.files.get_storage``
+To get the instance of the storage, use the``ckan.lib.files.get_storage``
 function::
 
   storage = get_storage("my_storage")
 
-Create a new file in the storage using it's ``upload`` method and
-``ckan.lib.files.make_upload`` function that thansforms variety of objects into
+To create a new file in the storage use its ``upload`` method and
+the ``ckan.lib.files.make_upload`` function, which can transform a variety of objects into an
 uploadable structure::
 
   upload = make_upload(b"hello world")
   info = storage.upload("file.txt", upload)
 
-When storage uploads the file, it returns an object with file details, namely
+When the storage instance uploads the file, it returns an object with the file details, namely
 its location, size, content type and content hash. This information is required
-to read file back from the storage::
+to read the file back from the storage::
 
   content = storage.content(info)
 
-When the object with file details is not available, usually it can be created
-manually using location of the file and ``ckan.lib.files.FileData`` class::
+When the object with the file details is not available, it can usually be created
+manually using the location of the file and the ``ckan.lib.files.FileData`` class::
 
   path = "path/to/file/inside/the/storage.txt"
   info = FileData(path)
   content = storage.content(info)
 
 
-Additional information about storage functionality is available inside
+Additional information about storage functionality is available in the
 `file-keeper`_ documentation.
 
 .. _mimetypes: https://docs.python.org/3/library/mimetypes.html
