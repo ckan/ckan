@@ -201,8 +201,8 @@ consumed by the storage.
 
 In the example above, storage ``my_storage`` is detected with configuration
 ``{"type": "ckan:fs", "path": "/tmp/my_storage", "create_path":
-true}``. Configuration for storages is grouped by the name, and that's how
-multiple storages can be configured::
+true}``. Configuration for storages is grouped by the name, and that allows
+multiple storages to be configured at the same time::
 
   ckan.files.storage.a.type = xxx
   ckan.files.storage.b.type = yyy
