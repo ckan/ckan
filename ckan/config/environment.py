@@ -154,7 +154,8 @@ def update_config() -> None:
         msg = "Invalid configuration values provided:\n" + msg
         raise CkanConfigurationException(msg)
 
-    # storages rely only on valid configuration
+    # Declared storage config options are valid at this point, storages can be
+    # configured
     files.storages.reset()
     files.storages.collect()
 

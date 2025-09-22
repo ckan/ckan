@@ -16,9 +16,9 @@ organization.
    :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
    to give CKAN more control over the files and make access control possible.
 
-.. versionchanged:: 2.12 Add support of configurable storages. Cloud uploads
-   are supported via correspoinding storage adapters, such as
-   ``ckan:libcloud``.
+.. versionchanged:: 2.12
+   Add support for configurable storages. Cloud uploads are supported via
+   correspoinding storage adapters, such as ``ckan:libcloud``.
 
 .. seealso::
 
@@ -181,27 +181,52 @@ custom types get registered on startup::
 Using configured storages
 -------------------------
 
+In CKAN, a "storage" represents a logical container for specific set of
+files. Each storage is configured separately and serves a distinct purpose:
+
+- **Resource Storage**: Handles data files uploaded to CKAN resources
+- **User Storage**: Manages user avatars
+- **Group Storage**: Manages logo images for organizations/groups
+- **Custom Storages**: can be configured for application-specific files
+
+Each storage operates independently with its own configuration, but they all
+use the same interface. This allows different types of files to be stored in
+different locations (local filesystem, cloud storage, etc.) while maintaining a
+consistent API.
+
+For example, you might configure:
+
+- Resource files to be stored in `/var/lib/ckan/resources`
+- Organization logos in `/var/lib/ckan/logos`
+- Plugin assets in an S3 bucket
+
+All these storages will be accessible through
+:py:func:`~ckan.lib.files.get_storage` function and from user's perspective
+they will behave identically.
+
 CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
-the file storages. It exposes classes that provide standard storage interface
-disregarding of the type of underlying system. As result, saving files into
-local filesystem, cloud or DB looks exactly the same from code perspective.
+the file storages. It exposes classes that provide a standard storage interface
+regardless of the underlying system. As a result, saving files into the local
+files ystem, a cloud provider or a database looks exactly the same from the
+code perspective.
 
 Storages are initialized during application startup and must be configured in
-advance. The exact settings depend on the type of the storage, but general form
-is following::
+advance. The exact settings depend on the type of the storage, but in general they
+look like this::
 
   ckan.files.storage.my_storage.type = ckan:fs
   ckan.files.storage.my_storage.path = /tmp/my_storage
   ckan.files.storage.my_storage.initialize = true
 
 Any option that starts with ``ckan.files.storage.`` is a storage
-configuration. The next segment is the name of the storage, ``my_storage``, and
-everything after the name is an option that will be consumed by the storage.
+configuration. After the prefix follows the name of the storage,
+``my_storage``, and everything after the name is an option that will be
+consumed by the storage.
 
 In the example above, storage ``my_storage`` is detected with configuration
 ``{"type": "ckan:fs", "path": "/tmp/my_storage", "initialize":
-true}``. Configuration for storages is grouped by the name, and that's how
-multiple storages can be configured::
+true}``. Configuration for storages is grouped by the name, and that allows
+multiple storages to be configured at the same time::
 
   ckan.files.storage.a.type = xxx
   ckan.files.storage.b.type = yyy
@@ -213,41 +238,42 @@ It results in three storages:
 * ``b`` with configuration ``{"type": "yyy"}``
 * ``c`` with configuration ``{"type": "zzz"}``
 
-To get the instance of the storage, use ``ckan.lib.files.get_storage``
+To get the instance of the storage, use the``ckan.lib.files.get_storage``
 function::
 
   storage = get_storage("my_storage")
 
-Create a new file in the storage using it's ``upload`` method and
-``ckan.lib.files.make_upload`` function that thansforms variety of objects into
+To create a new file in the storage use its ``upload`` method and
+the ``ckan.lib.files.make_upload`` function, which can transform a variety of objects into an
 uploadable structure::
 
   upload = make_upload(b"hello world")
   info = storage.upload("file.txt", upload)
 
-When storage uploads the file, it returns an object with file details, namely
+When the storage instance uploads the file, it returns an object with the file details, namely
 its location, size, content type and content hash. This information is required
-to read file back from the storage::
+to read the file back from the storage::
 
   content = storage.content(info)
 
-When the object with file details is not available, usually it can be created
-manually using location of the file and ``ckan.lib.files.FileData`` class::
+When the object with the file details is not available, it can usually be created
+manually using the location of the file and the ``ckan.lib.files.FileData`` class::
 
   path = "path/to/file/inside/the/storage.txt"
   info = FileData(path)
   content = storage.content(info)
 
 
-Additional information about storage functionality is available inside
+Additional information about storage functionality is available in the
 `file-keeper`_ documentation.
 
 -------------
 Storage types
 -------------
 
-Storage configuration requires ``type`` of the storage. Apart from the type,
-there is a number of common options that are supported by all storage types.
+Configuring a storage requires defining its ``type`` of the storage. Apart from
+the type, there is a number of common options that are supported by all storage
+types.
 
 * ``max_size``: The maximum size of a single upload
 * ``supported_types``: Space-separated list of allowed MIME types
@@ -257,9 +283,8 @@ there is a number of common options that are supported by all storage types.
   :py:meth:`~ckan.lib.files.Storage.prepare_location` to get the transformed version
   of the filename.
 
-The rest of options depends on the specific storage type. Out of the box,
-following storage types are available:
-
+The rest of options depends on the specific storage type. CKAN provides the following
+built-in storage types:
 
 ckan:fs
 ^^^^^^^
