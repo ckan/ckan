@@ -17,7 +17,7 @@ organization.
    to give CKAN more control over the files and make access control possible.
 
 .. versionchanged:: 2.12
-   Add support of configurable storages.
+   Add support for configurable storages.
 
 .. seealso::
 
