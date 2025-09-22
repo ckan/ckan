@@ -187,8 +187,8 @@ the local files ystem, a cloud provider or a database looks exactly the same fro
 code perspective.
 
 Storages are initialized during application startup and must be configured in
-advance. The exact settings depend on the type of the storage, but general form
-is following::
+advance. The exact settings depend on the type of the storage, but in general they 
+look like this::
 
   ckan.files.storage.my_storage.type = ckan:fs
   ckan.files.storage.my_storage.path = /tmp/my_storage
