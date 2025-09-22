@@ -195,7 +195,7 @@ look like this::
   ckan.files.storage.my_storage.create_path = true
 
 Any option that starts with ``ckan.files.storage.`` is a storage
-configuration. After the prefix fillows the name of the storage,
+configuration. After the prefix follows the name of the storage,
 ``my_storage``, and everything after the name is an option that will be
 consumed by the storage.
 
