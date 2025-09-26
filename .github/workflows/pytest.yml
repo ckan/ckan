@@ -126,7 +126,7 @@ jobs:
           POSTGRES_USER: ckan
           POSTGRES_PASSWORD: ckan
       ckan-solr:
-        image: ckan/ckan-solr:master
+        image: ckan/ckan-solr:master-solr9.9
       ckan-redis:
         image: redis:7
 
