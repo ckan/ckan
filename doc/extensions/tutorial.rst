@@ -121,9 +121,12 @@ Creating a plugin class
 
    Each CKAN extension contains one or more plugins that provide the
    extension's features.
+   
+.. note::
 
+    You can skip this section if you run the ``ckan generate extension`` command
 
-``cookiecutter`` should have created the following file file
+``cookiecutter`` should have created the following file
 ``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``.
 Edit it to match the following:
 
@@ -136,14 +139,19 @@ in this example, that inherits from CKAN's
 
 .. note::
 
-   Every CKAN plugin class should inherit from
-   :py:class:`~ckan.plugins.core.SingletonPlugin`.
+  Every CKAN plugin class should inherit from
+  :py:class:`~ckan.plugins.core.SingletonPlugin`. 
+  
 
 
 .. _setup.py:
 
 Adding the plugin to ``setup.py``
 =================================
+
+.. note::
+
+    You can skip this section if you run the ``ckan generate extension`` command
 
 Now let's add our class to the ``entry_points`` in ``setup.py``. This
 identifies the plugin class to CKAN once the extension is installed in CKAN's
@@ -156,6 +164,9 @@ the ``entry_points`` section like this::
         [ckan.plugins]
         example_iauthfunctions=ckanext.iauthfunctions.plugin:ExampleIAuthFunctionsPlugin
     ''',
+
+
+
 
 
 Installing the extension
