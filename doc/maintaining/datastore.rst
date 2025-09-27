@@ -418,7 +418,7 @@ Filters define the matching conditions to select from the DataStore. A filter is
   }
     }
 
-Filters must be supplied as a dictonary. Filters are used as `WHERE` statements.
+Filters must be supplied as a dictionary. Filters are used as `WHERE` statements.
 The filters have to be valid key/value pairs. The key must be a valid column name
 and the value must match the respective column type. The value may be provided as a List
 of multiple matching values. See :ref:`valid-types` for details on which types are valid.
@@ -495,7 +495,7 @@ oid
 Extending DataStore
 -------------------
 
-Starting from CKAN version 2.7, backend used in DataStore can be replaced with custom one. For this purpose, custom extension must implement `ckanext.datastore.interfaces.IDatastoreBackend`, which provides one method - `register_backends`. It should return dictonary with names of custom backends as keys and classes, that represent those backends as values. Each class supposed to be inherited from `ckanext.datastore.backend.DatastoreBackend`.
+Starting from CKAN version 2.7, backend used in DataStore can be replaced with custom one. For this purpose, custom extension must implement `ckanext.datastore.interfaces.IDatastoreBackend`, which provides one method - `register_backends`. It should return dictionary with names of custom backends as keys and classes, that represent those backends as values. Each class supposed to be inherited from `ckanext.datastore.backend.DatastoreBackend`.
 
 .. note:: Example of custom implementation can be found at `ckanext.example_idatastorebackend`
 

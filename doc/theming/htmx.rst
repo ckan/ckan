@@ -123,7 +123,7 @@ Note that this endpoint is reusing the ``package/snippets/info.html`` that is al
 templates are with ``htmx``.
 
 -------------------------------------------
-2. Accesing to HTMX request headers in CKAN
+2. Accessing to HTMX request headers in CKAN
 -------------------------------------------
 
 CKAN adds a new property to the CKANRequest class called ``htmx`` that you can

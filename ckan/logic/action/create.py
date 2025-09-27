@@ -1432,7 +1432,7 @@ def api_token_create(context: Context,
     :type name: string
 
     :returns: Returns a dict with the key "token" containing the
-              encoded token value. Extensions can privide additional
+              encoded token value. Extensions can provide additional
               fields via `add_extra` method of
               :py:class:`~ckan.plugins.interfaces.IApiToken`
     :rtype: dictionary
