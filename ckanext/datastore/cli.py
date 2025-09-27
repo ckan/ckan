@@ -21,7 +21,7 @@ from ckanext.datastore.backend.postgres import (
     _get_raw_field_info,
     _TIMEOUT,
 )
-from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
+from ckanext.datastore.blueprint import dump_formats, dump_to
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ def permissions_sql(maindb: str, datastoredb: str, mainuser: str,
     type=click.File(u'wb'),
     default=click.get_binary_stream(u'stdout')
 )
-@click.option(u'--format', default=u'csv', type=click.Choice(DUMP_FORMATS))
+@click.option(u'--format', default=u'csv', type=click.Choice([d.get_format() for d in dump_formats()]))
 @click.option(u'--offset', type=click.IntRange(0, None), default=0)
 @click.option(u'--limit', type=click.IntRange(0))
 @click.option(u'--bom', is_flag=True)
@@ -105,8 +105,12 @@ def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
     user = logic.get_action('get_site_user')(
             {'ignore_auth': True}, {})
     with flask_app.test_request_context():
+        for d in dump_formats():
+            if format == d.get_format():
+                format_class = d
+                break
         for block in dump_to(resource_id,
-                             fmt=format,
+                             fmt_class=format_class,
                              offset=offset,
                              limit=limit,
                              options={u'bom': bom},
