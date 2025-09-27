@@ -3,7 +3,7 @@
 
 {# Allows custom attributes to be added to the <html> tag #}
 {%- block htmltag -%}
-{% set lang = h.lang() %}
+{% set lang = h.lang()|replace("_", "-") %}
 <!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html lang="{{ lang }}" {% if h.is_rtl_language()  %} dir="rtl" {% endif %} > <!--<![endif]-->
 {%- endblock -%}
