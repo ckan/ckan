@@ -1,21 +1,28 @@
 // Activity Stream base colors
 $activityColorText: #FFFFFF;
-$activityColorBlank: #999999;
-$activityColorNew: #69A67A;
+$activityColorBlank: #3B3B3B;
+$activityColorNew: #3A833A;
 $activityColorNeutral: #767DCE;
-$activityColorModify: #767DCE;
-$activityColorDelete: #B95252;
+$activityColorModify: #6f42c1;
+$activityColorDelete: #DA1E28;
 $activityColorEmpty: #6E6E6E;
 
 .activity {
     padding: 0;
     list-style-type: none;
-
+    border-radius: 20px;
     .item {
         position: relative;
-        margin: 0 0 15px 0;
-        padding: 0;
-
+        padding: 1rem 0;
+        border-bottom: 1px solid #e4e7ec;
+        display: flex;
+        &:last-child {
+            border-bottom: none;
+        }
+        .fa-stack {
+            flex: 0 0 auto;
+            margin-right: 5px;
+        }
         .user-image {
             border-radius: 100px;
         }
@@ -29,21 +36,122 @@ $activityColorEmpty: #6E6E6E;
             // Use by datapusher
             margin-left: 40px;
         }
+        .icon {
+            color: $activityColorBlank ;
+        }
+    
+        // Non defined
+        &.failure .icon {
+            color: $activityColorDelete;
+        }
+    
+        &.success .icon {
+            color: $activityColorNew;
+        }
+    
+        &.added-tag .icon {
+            color: adjust-hue($activityColorNew, 60);
+        }
+    
+        &.changed-group .icon {
+            color: $activityColorModify;
+        }
+    
+        &.changed-package .icon {
+            color: adjust-hue($activityColorModify, 20);
+        }
+    
+        &.changed-package_extra .icon {
+            color: adjust-hue($activityColorModify, -20);
+        }
+    
+        &.changed-resource .icon {
+            color: adjust-hue($activityColorModify, 40);
+        }
+    
+        &.changed-user .icon {
+            color: adjust-hue($activityColorModify, -40);
+        }
+    
+        &.changed-organization .icon {
+            color: adjust-hue($activityColorNew, 50);
+        }
+    
+        &.deleted-group .icon {
+            color: $activityColorDelete;
+        }
+    
+        &.deleted-package .icon {
+            color: adjust-hue($activityColorDelete, 20);
+        }
+    
+        &.deleted-package_extra .icon {
+            color: adjust-hue($activityColorDelete, -20);
+        }
+    
+        &.deleted-resource .icon {
+            color: adjust-hue($activityColorDelete, 40);
+        }
+    
+        &.deleted-organization .icon {
+            color: adjust-hue($activityColorDelete, -40);
+        }
+    
+        &.new-group .icon {
+            color: $activityColorNew;
+        }
+    
+        &.new-package .icon {
+            color: adjust-hue($activityColorNew, 20);
+        }
+    
+        &.new-package_extra .icon {
+            color: adjust-hue($activityColorNew, -20);
+        }
+    
+        &.new-resource .icon {
+            color: adjust-hue($activityColorNew, -40);
+        }
+    
+        &.new-user .icon {
+            color: adjust-hue($activityColorNew, 80);
+        }
+    
+        &.new-organization .icon {
+            color: adjust-hue($activityColorNew, -40);
+        }
+    
+        &.removed-tag .icon {
+            color: adjust-hue($activityColorDelete, -40);
+        }
+    
+        &.deleted-related-item .icon {
+            color: adjust-hue($activityColorDelete, 60);
+        }
+    
+        &.follow-dataset .icon {
+            color: $activityColorNeutral;
+        }
+    
+        &.follow-user .icon {
+            color: adjust-hue($activityColorNeutral, 20);
+        }
+    
+        &.new-related-item .icon {
+            color: adjust-hue($activityColorNew, -60);
+        }
+    
+        &.follow-group .icon {
+            color: adjust-hue($activityColorNew, -50);
+        }
     }
 
     &.activity-empty {
         background: none;
     }
-
-    @media (min-width: 768px) {
-        background: transparent url('/dotted.png') 21px 0 repeat-y;
-
-        .item {
-            .date {
-                margin: 5px 0 0 80px;
-            }
-        }
-
+    .user {
+        font-size: 20px;
+        font-weight: 600;
     }
 }
 
@@ -78,119 +186,6 @@ $activityColorEmpty: #6E6E6E;
         padding: 10px;
         color: $activityColorEmpty;
         font-style: italic;
-    }
-}
-
-
-
-.activity .item {
-    .icon {
-        color: $activityColorBlank ;
-    }
-
-    // Non defined
-    &.failure .icon {
-        color: $activityColorDelete;
-    }
-
-    &.success .icon {
-        color: $activityColorNew;
-    }
-
-    &.added-tag .icon {
-        color: adjust-hue($activityColorNew, 60);
-    }
-
-    &.changed-group .icon {
-        color: $activityColorModify;
-    }
-
-    &.changed-package .icon {
-        color: adjust-hue($activityColorModify, 20);
-    }
-
-    &.changed-package_extra .icon {
-        color: adjust-hue($activityColorModify, -20);
-    }
-
-    &.changed-resource .icon {
-        color: adjust-hue($activityColorModify, 40);
-    }
-
-    &.changed-user .icon {
-        color: adjust-hue($activityColorModify, -40);
-    }
-
-    &.changed-organization .icon {
-        color: adjust-hue($activityColorNew, 50);
-    }
-
-    &.deleted-group .icon {
-        color: $activityColorDelete;
-    }
-
-    &.deleted-package .icon {
-        color: adjust-hue($activityColorDelete, 20);
-    }
-
-    &.deleted-package_extra .icon {
-        color: adjust-hue($activityColorDelete, -20);
-    }
-
-    &.deleted-resource .icon {
-        color: adjust-hue($activityColorDelete, 40);
-    }
-
-    &.deleted-organization .icon {
-        color: adjust-hue($activityColorDelete, -40);
-    }
-
-    &.new-group .icon {
-        color: $activityColorNew;
-    }
-
-    &.new-package .icon {
-        color: adjust-hue($activityColorNew, 20);
-    }
-
-    &.new-package_extra .icon {
-        color: adjust-hue($activityColorNew, -20);
-    }
-
-    &.new-resource .icon {
-        color: adjust-hue($activityColorNew, -40);
-    }
-
-    &.new-user .icon {
-        color: adjust-hue($activityColorNew, 40);
-    }
-
-    &.new-organization .icon {
-        color: adjust-hue($activityColorNew, -40);
-    }
-
-    &.removed-tag .icon {
-        color: adjust-hue($activityColorDelete, -40);
-    }
-
-    &.deleted-related-item .icon {
-        color: adjust-hue($activityColorDelete, 60);
-    }
-
-    &.follow-dataset .icon {
-        color: $activityColorNeutral;
-    }
-
-    &.follow-user .icon {
-        color: adjust-hue($activityColorNeutral, 20);
-    }
-
-    &.new-related-item .icon {
-        color: adjust-hue($activityColorNew, -60);
-    }
-
-    &.follow-group .icon {
-        color: adjust-hue($activityColorNew, -50);
     }
 }
 
