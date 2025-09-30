@@ -27,6 +27,7 @@ from . import (
     sass,
     sysadmin,
     translation,
+    theme,
     user,
     views,
     config_tool,
@@ -230,6 +231,7 @@ ckan.add_command(search_index.search_index)
 ckan.add_command(server.run)
 ckan.add_command(sysadmin.sysadmin)
 ckan.add_command(translation.translation)
+ckan.add_command(theme.theme)
 ckan.add_command(user.user)
 ckan.add_command(views.views)
 ckan.add_command(shell.shell)
