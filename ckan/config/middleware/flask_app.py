@@ -198,6 +198,7 @@ def make_flask_stack() -> CKANApp:
 
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
+        app.jinja_env.add_extension('jinja2.ext.debug')
 
     app.wsgi_app = RootPathMiddleware(app.wsgi_app)
     CKANSession(app)

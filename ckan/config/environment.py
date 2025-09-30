@@ -14,6 +14,7 @@ import sqlalchemy.exc
 
 import ckan.model as model
 import ckan.plugins as p
+from ckan.lib.theme import collect_themes, resolve_paths
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
@@ -187,20 +188,23 @@ def update_config() -> None:
 
     helpers.load_plugin_helpers()
 
-    # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates', 'templates-midnight-blue']
-    templates = config.get('ckan.base_templates_folder')
-    config['ckan.base_templates_folder'] = templates
+    theme_name: str = config["ckan.base_templates_folder"]
+    try:
+        template_paths = resolve_paths(theme_name)
+    except KeyError as e:
+        missing_theme: str = e.args[0]
+        if missing_theme == theme_name:
+            msg = f"The configured theme '{theme_name}' is not recognised."
 
-    if templates not in valid_base_templates_folder_names:
-        raise CkanConfigurationException(
-            'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible value is: "templates"".'
-        )
+        else:
+            msg = (
+                f"The configured theme '{theme_name}'"
+                + f" extends unknown theme '{missing_theme}'."
+            )
 
-    jinja2_templates_path = os.path.join(root, templates)
-    log.info('Loading templates from %s', jinja2_templates_path)
-    template_paths = [jinja2_templates_path]
+        raise CkanConfigurationException(msg) from e
+
+    log.info('Loading templates from %s', template_paths)
 
     extra_template_paths = config.get('extra_template_paths')
     if 'plugin_template_paths' in config:
