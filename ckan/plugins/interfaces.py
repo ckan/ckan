@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
+    from ckan.lib.theme import Theme
 
 
 __all__ = [
@@ -2249,34 +2250,26 @@ class ISignal(Interface):
 class ITheme(Interface):
     """Allow extensions to provide custom themes for CKAN."""
 
-    def register_themes(self) -> dict[str, dict[str, Any]]:
+    def register_themes(self) -> dict[str, Theme]:
         """Register themes provided by extension.
 
-        The returned dictionary maps theme names to their configuration. The
-        configuration is itself a dictionary with the following keys:
-
-            - ``path`` (string, required): the absolute path to the theme
-            - ``extends`` (string, optional): the name of a theme that this
-              theme extends. If provided, the extended theme must be
-              registered by some plugin or be one of CKAN's built-in themes
-              (``"classic"``, ``"midnight-blue"``, ``"bare"``).
-              If not provided, the theme does not extend any other theme.
-
-              Themes can only extend one other theme, but extensions can
-              register multiple themes that extend different themes.
+        The returned dictionary must map theme names to
+        :py:class:`~ckan.lib.theme.Theme` objects.
 
         Example::
 
             def register_themes(self):
+                from ckan.lib.theme import Theme
+
                 return {
-                    "mytheme": {"path": "/path/to/mytheme"},
-                    "myothertheme": {
-                        "path": "/path/to/myothertheme",
-                        "extends": "classic",
-                    }
+                    "mytheme": Theme("/path/to/mytheme"),
+                    "myothertheme": Theme(
+                        "/path/to/myothertheme",
+                        extends="templates",
+                    ),
                 }
 
-        :returns: mapping of theme names to their configuration
+        :returns: themes provided by the extension
         :rtype: dict
 
         """
