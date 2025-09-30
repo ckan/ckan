@@ -52,6 +52,7 @@ __all__ = [
     u'IResourceController',
     u'IGroupForm',
     u'ITagController',
+    "ITheme",
     u'ITemplateHelpers',
     u'IFacets',
     u'IAuthenticator',
@@ -2239,6 +2240,43 @@ class ISignal(Interface):
         signals may change over time, and some arguments may disappear.
 
         :returns: mapping of subscriptions to signals
+        :rtype: dict
+
+        """
+        return {}
+
+
+class ITheme(Interface):
+    """Allow extensions to provide custom themes for CKAN."""
+
+    def register_themes(self) -> dict[str, dict[str, Any]]:
+        """Register themes provided by extension.
+
+        The returned dictionary maps theme names to their configuration. The
+        configuration is itself a dictionary with the following keys:
+
+            - ``path`` (string, required): the absolute path to the theme
+            - ``extends`` (string, optional): the name of a theme that this
+              theme extends. If provided, the extended theme must be
+              registered by some plugin or be one of CKAN's built-in themes
+              (``"classic"``, ``"midnight-blue"``, ``"bare"``).
+              If not provided, the theme does not extend any other theme.
+
+              Themes can only extend one other theme, but extensions can
+              register multiple themes that extend different themes.
+
+        Example::
+
+            def register_themes(self):
+                return {
+                    "mytheme": {"path": "/path/to/mytheme"},
+                    "myothertheme": {
+                        "path": "/path/to/myothertheme",
+                        "extends": "classic",
+                    }
+                }
+
+        :returns: mapping of theme names to their configuration
         :rtype: dict
 
         """
