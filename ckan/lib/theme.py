@@ -17,15 +17,18 @@ Example usage::
 
 from __future__ import annotations
 
-
 import abc
 import os
+
 from collections.abc import Iterable
+
 from typing_extensions import override
+from jinja2 import Environment
 
 import ckan.plugins as p
 from ckan import types
-from jinja2 import Environment
+from ckan.common import config
+
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -78,18 +81,23 @@ class MacroUI(UI):
 
     def __init__(self, env: Environment):
         self.__env = env
-        self.__tmpl = env.get_template(self.source)
+        self.__tpl = env.get_template(self.source)
 
     def __getattr__(self, name: str):
         """Get a macro by name."""
-        return getattr(self.__tmpl.module, name)
+        if config["debug"]:
+            tpl = self.__env.get_template(self.source)
+            mod = tpl.make_module()
+        else:
+            mod = self.__tpl.module
+        return getattr(mod, name)
 
     @override
     def __iter__(self) -> Iterable[str]:
-        for name in dir(self.__tmpl.module):
+        for name in dir(self.__tpl.module):
             if name.startswith("_"):
                 continue
-            getattr(self.__tmpl.module, name)
+            getattr(self.__tpl.module, name)
             yield name
 
 
