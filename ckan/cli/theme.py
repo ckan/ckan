@@ -55,5 +55,6 @@ def list_components(ctx: click.Context, theme: str | None):
         raise click.Abort
 
     ui = info.build_ui(ctx.obj.app._wsgi_app)
+
     for item in ui:
         click.echo(f"\t{item}")

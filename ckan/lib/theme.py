@@ -1,3 +1,20 @@
+"""Theme and UI classes for CKAN theming system.
+
+A theme is a directory containing templates and static files, and
+optionally extending a parent theme. A UI provides access to a set of
+functions that can be used in templates for building the user interface.
+
+Themes can be registered by CKAN plugins using the ITheme interface.
+
+Example usage::
+
+    themes = collect_themes()
+    theme = themes['my-theme']
+    ui = theme.build_ui(app)
+    button = ui.button("Click me!", href="https://ckan.org")
+
+"""
+
 from __future__ import annotations
 
 
@@ -5,7 +22,7 @@ import abc
 import os
 from collections.abc import Iterable
 from typing_extensions import override
-from jinja2.runtime import Macro
+
 import ckan.plugins as p
 from ckan import types
 from jinja2 import Environment
@@ -14,6 +31,12 @@ root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Theme:
+    """Information about a theme.
+
+    :param path: Path to the theme directory.
+    :param extends: Name of the parent theme, or None.
+    """
+
     path: str
     extends: str | None
 
@@ -22,13 +45,35 @@ class Theme:
         self.extends = extends
 
     def build_ui(self, app: types.CKANApp) -> UI:
+        """Build a UI instance for this theme.
+
+        The default implementation returns a MacroUI instance that loads
+        macros from "macros/ui.html" in the theme's template directory.
+
+        :param app: The CKAN application instance.
+        :return: A UI instance.
+        """
         return MacroUI(app.jinja_env)
 
 
-class UI(Iterable[str], abc.ABC): ...
+class UI(Iterable[str], abc.ABC):
+    """Abstract base class for theme UIs.
+
+    A UI provides access to a set of macros that can be used in templates.
+    """
+
+    @override
+    @abc.abstractmethod
+    def __iter__(self) -> Iterable[str]:
+        """Return an iterable of macro names provided by this UI."""
 
 
 class MacroUI(UI):
+    """A UI implementation that loads macros from a Jinja2 template.
+
+    :param env: The Jinja2 environment to load templates from.
+    """
+
     source: str = "macros/ui.html"
 
     def __init__(self, env: Environment):
@@ -36,6 +81,7 @@ class MacroUI(UI):
         self.__tmpl = env.get_template(self.source)
 
     def __getattr__(self, name: str):
+        """Get a macro by name."""
         return getattr(self.__tmpl.module, name)
 
     @override
@@ -43,6 +89,7 @@ class MacroUI(UI):
         for name in dir(self.__tmpl.module):
             if name.startswith("_"):
                 continue
+            getattr(self.__tmpl.module, name)
             yield name
 
 
