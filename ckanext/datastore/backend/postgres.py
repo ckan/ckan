@@ -1496,68 +1496,81 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     is_keyset = False
     last_id = None
     last_id_select = ''
-    last_id_name = ''
+    operator = ''
     # Prepare operator for response
     if (len(sort) == 1 and sort[0].startswith('"_id"')):
         if sort[0].endswith(' desc'):
             operator = 'lt'
-            last_id_select = ', min(_id)'
+            last_id_select = 'min(_id)'
         else:
             operator = 'gt'
-            last_id_select = ', max(_id)'
-        last_id_name = ', _id'
+            last_id_select = 'max(_id)'
         is_keyset = any(i[0].startswith(
             f'_id {_OPERATORS[operator]} ') for i in query_dict['where'])
 
     if is_keyset:
-        final_statement = (
-            '{where} {sort} LIMIT {limit}')
+        final_statement = '{where} {sort} LIMIT {limit}'
     else:
         final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
 
-    if records_format == u'objects':
-        sql_fmt = u'''
-            SELECT array_to_json(array_agg(j))::text {last_id_select} FROM (
-                SELECT {distinct} {select}
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {final_statement}
-                ) as z
-            ) AS j'''
-    elif records_format == u'lists':
-        select_columns = u" || ',' || ".join(
-            s for s in query_dict['select']
-        )
-        sql_fmt = u'''
-            SELECT '[' || array_to_string(array_agg(j.v), ',') || ']'
-                    {last_id_select} FROM (
-                SELECT {distinct} '[' || {select} || ']' v
-                    {last_id_name}
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {final_statement}
-                ) as z
-            ) AS j'''
-    elif records_format == u'csv':
-        sql_fmt = u'''
+    if records_format == 'objects':
+        sql_fmt = '''
+            WITH records_page AS (
+                SELECT * FROM {resource} {ts_query} {final_statement}
+            ), select_cols AS (
+                SELECT {distinct} {select} FROM records_page
+            ), json_cols AS (
+                SELECT array_to_json(array_agg(select_cols))::text j
+                FROM select_cols
+            )'''
+        if last_id_select:
+            sql_fmt += ''', next_id AS (
+                SELECT {last_id_select} n FROM records_page
+            ) SELECT json_cols.j, next_id.n from json_cols, next_id
+            '''
+        else:
+            sql_fmt += ''' SELECT json_cols.j FROM json_cols'''
+
+    elif records_format == 'lists':
+        select_columns = " || ',' || ".join(query_dict['select'])
+        sql_fmt = '''
+            WITH records_page AS (
+                SELECT * FROM {resource} {ts_query} {final_statement}
+            ), select_cols AS (
+                SELECT {distinct} '[' || {select} || ']' v FROM records_page
+            ), list_cols AS (
+                SELECT '[' || array_to_string(array_agg(select_cols.v), ',') || ']' lc
+                FROM select_cols
+            )'''
+        if last_id_select:
+            sql_fmt += ''', next_id AS (
+                SELECT {last_id_select} n FROM records_page
+            ) SELECT list_cols.lc, next_id.n from list_cols, next_id
+            '''
+        else:
+            sql_fmt += ''' SELECT list_cols.lc FROM list_cols'''
+
+    elif records_format == 'csv':
+        sql_fmt = '''
             COPY (
-                SELECT {distinct} {select}
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {final_statement}
-                ) as z
-            ) TO STDOUT csv DELIMITER ',' '''
-    elif records_format == u'tsv':
-        sql_fmt = u'''
+                WITH records_page AS (
+                    SELECT * FROM {resource} {ts_query} {final_statement}
+                ) SELECT {distinct} {select} FROM records_page
+            ) TO STDOUT csv
+        '''
+
+    elif records_format == 'tsv':
+        sql_fmt = '''
             COPY (
-                SELECT {distinct} {select}
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {final_statement}
-                ) as z
-            ) TO STDOUT csv DELIMITER '\t' '''
+                WITH records_page AS (
+                    SELECT * FROM {resource} {ts_query} {final_statement}
+                ) SELECT {distinct} {select} FROM records_page
+            ) TO STDOUT csv DELIMITER '\t'
+        '''
+
     else:
-        sql_fmt = u''
+        sql_fmt = ''
+
     final_statement = final_statement.format(
         where=where_clause,
         limit=limit,
@@ -1570,9 +1583,9 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         resource=identifier(resource_id),
         ts_query=ts_query,
         last_id_select=last_id_select,
-        last_id_name=last_id_name,
         final_statement=final_statement)
-    if records_format == u'csv' or records_format == u'tsv':
+
+    if records_format == 'csv' or records_format == 'tsv':
         buf = StringIO()
         _execute_single_statement_copy_to(
             context, sql_string, where_values, buf)
@@ -1591,10 +1604,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 '''.format(
                     resource=identifier(resource_id),
                     ts_query=ts_query,
-                    last_id_select=last_id_select.lstrip(','),
+                    last_id_select=last_id_select,
                     final_statement=final_statement,
                 ),
-                [],
+                where_values,
             ).fetchone()[0]
     else:
         rval = list(_execute_single_statement(
@@ -1663,10 +1676,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             # this is slow for large results
             count_sql_string = u'''SELECT count(*) FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query} {where}) as t;'''.format(
+                FROM {resource} {ts_query} {where}) as t;'''.format(
                 distinct=distinct,
                 select=select_columns,
-                resource=resource_id,
+                resource=identifier(resource_id),
                 ts_query=ts_query,
                 where=where_clause)
             count_result = _execute_single_statement(

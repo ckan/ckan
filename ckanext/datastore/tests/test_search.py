@@ -2407,7 +2407,7 @@ class TestDatastoreSearchRecordsFormat(object):
         assert r["records"][:7] == u"aaac,0."
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
     def test_filter_results_csv(self):
         ds = factories.Dataset()
         r = helpers.call_action(
