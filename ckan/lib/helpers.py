@@ -1306,11 +1306,7 @@ def linked_user(user: Union[str, model.User],
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return literal(u'{icon} {link}'.format(
-            icon=user_image(
-                user.id,
-                size=avatar
-            ),
+        return literal(u'{link}'.format(
             link=link_to(
                 displayname,
                 url_for('user.read', id=name)
