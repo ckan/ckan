@@ -50,3 +50,16 @@ a.open-data {
 .add-new-res {
     border-top: 1px solid $gray-200;
 }
+
+.dropdown-toggle::after {
+    margin-left: 0;
+}
+
+input[id^=lang-].btn-check + label.btn {
+    &::after {
+        content: none;
+    }
+    &:hover {
+        color: $gray-800;
+    }
+}
