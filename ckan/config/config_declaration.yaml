@@ -1810,3 +1810,10 @@ groups:
         type: int
         default: 180
         description: The option defines the timeout in seconds until giving up on a job
+
+  - annotation: Files settings
+    options:
+      - key: ckan.files.default_storage
+        default: default
+        description: |
+          Default storage used for uploads when no explicit storage specified.

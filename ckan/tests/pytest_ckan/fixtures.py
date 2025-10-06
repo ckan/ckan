@@ -48,7 +48,7 @@ import ckan.cli
 import ckan.model as model
 from ckan import types
 from ckan.common import config
-from ckan.lib import redis, search
+from ckan.lib import redis, search, files
 
 
 @register
@@ -621,6 +621,7 @@ def create_with_upload(
         ckan_config: types.FixtureCkanConfig,
         monkeypatch: pytest.MonkeyPatch,
         tmpdir: Any,
+        reset_storages: Any
 ):
     """Shortcut for creating resource/user/org with upload.
 
@@ -649,6 +650,7 @@ def create_with_upload(
 
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+    reset_storages()
 
     def factory(
             data: str | bytes,
@@ -673,3 +675,25 @@ def create_with_upload(
         params.update(kwargs)
         return test_helpers.call_action(action, context, **params)
     return factory
+
+
+@pytest.fixture
+def reset_storages():
+    """Reset file storages.
+
+    Call this fixture after changing `ckan.storage_path` or any other option
+    that affects storage behavior.
+
+    Example::
+
+        def test_upload(self, ckan_config, monkeypatch, tmpdir, reset_storages):
+            monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+            reset_storages()
+            # now storages that rely on storage_path are available
+
+    """
+    def cleaner():
+        files.storages.reset()
+        files.storages.collect()
+
+    return cleaner

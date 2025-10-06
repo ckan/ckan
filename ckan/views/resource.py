@@ -4,6 +4,7 @@ from __future__ import annotations
 import cgi
 import json
 import logging
+import os
 from typing import Any, Optional, Union, cast
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
@@ -167,6 +168,10 @@ def download(package_type: str,
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
+        if hasattr(upload, "storage"):
+            filepath = os.path.join(
+                upload.storage.settings.path, filepath   # type: ignore
+            )
         resp = flask.send_file(filepath, download_name=filename)
 
         if rsc.get('mimetype'):
