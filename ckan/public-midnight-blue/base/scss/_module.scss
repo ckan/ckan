@@ -105,9 +105,19 @@
         .nav-item > a, .list-group-item {
             border-radius: 0;
         }
-        .list-group-item > a.flex-fill {
-            max-width: 80%;
-            overflow-wrap: break-word;
+        .list-group:last-child .list-group-item {
+            border-radius: 4px;
+        }
+        .list-group-item {
+            border-left: none;
+            border-right: none;
+            &:last-of-type {
+                border-bottom: none;
+            }
+            > .flex-fill {
+                max-width: 80%;
+                overflow-wrap: anywhere;
+            }
         }
     }
     .module-heading,
