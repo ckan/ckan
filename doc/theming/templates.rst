@@ -554,6 +554,10 @@ Then the contents of the ``foo`` block would appear multiple times:
 
     Lorem ipsum dolor sit amet, Adding plugin 3, quux, meh, baz, Adding plugin 2, quux, meh, baz, Adding plugin 1, quux, meh, baz
 
+``plugin2`` and ``plugin1`` add to the contents of ``foo``, but by calling ``super()``, they also cause the entire parent block
+- including a copy of ``foo`` - to be inserted at the start of the ``cicero`` block, before then adding another copy of ``foo``.
+This is rarely the desired behaviour. If you wish to call ``super()`` on a block that contains a nested block, and at the same time
+override the contents of the nested block, you should usually add your override as a top-level block, as shown above.
 
 -------------------------
 Template helper functions
