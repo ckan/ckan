@@ -510,7 +510,7 @@ Overriding a nested block should normally occur at the top level, as calling
 ``super()`` will copy the entire block from the parent, and defining it again
 within the enclosing block will create an additional copy.
 
-For example:
+For example, using the same 'Lorem ipsum' example page as above:
 
 .. topic:: ``plugin1/templates/home/index.html``
 
@@ -548,7 +548,7 @@ top level to nest it again, like so:
     {% block cicero %}{{ super() }}, Adding plugin 1{% block foo %}{{ super() }}, baz{% endblock %}{% endblock %}
 
     {% ckan_extends %}
-    {% block cicero %}{{ super() }}, Adding plugin 2{% block foo %}{{ super() }}, baz{% endblock %}{% endblock %}
+    {% block cicero %}{{ super() }}, Adding plugin 2{% block foo %}{{ super() }}, meh{% endblock %}{% endblock %}
 
 Then the contents of the ``foo`` block would appear multiple times:
 
