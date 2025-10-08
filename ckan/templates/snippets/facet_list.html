@@ -32,10 +32,6 @@ ones returned by url_for. Useful eg for dataset types.
 hide_empty
 Do not show facet if there are none, Default: false.
 
-within_tertiary
-Boolean for when a facet list should appear in the the right column of the
-page and not the left column.
-
 search_facets
 Dictionary with search facets
 
@@ -44,13 +40,8 @@ Dictionary with search facets
     {% set hide_empty = hide_empty or false %}
     {% with items = items or h.get_facet_items_dict(name, search_facets) %}
 	{% if items or not hide_empty %}
-	    {% if within_tertiary %}
-		{% set nav_class = 'nav nav-pills nav-stacked' %}
-		{% set nav_item_class = ' ' %}
-		{% set wrapper_class = 'nav-facet nav-facet-tertiary' %}
-	    {% endif %}
 	    {% block facet_list_item %}
-		<section class="{{ wrapper_class or 'module module-narrow module-shallow' }}">
+		<section class="module module-narrow module-shallow">
 		    {% block facet_list_heading %}
 			<h2 class="module-heading">
 			    <i class="fa fa-filter"></i>
@@ -60,18 +51,20 @@ Dictionary with search facets
 		    {% block facet_list_items %}
 			{% with items = items or h.get_facet_items_dict(name, search_facets) %}
 			    {% if items %}
-				<nav aria-label="{{ title }}">
-				    <ul class="{{ nav_class or 'list-unstyled nav nav-simple nav-facet' }}">
+				<nav aria-label="{{ _('Filter by: {title}').format(title=title) }}">
+				    <ul class="list-unstyled nav nav-simple nav-facet">
 					{% for item in items %}
 					    {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
 					    {% set label = label_function(item) if label_function else item.display_name %}
 					    {% set label_truncated = label|truncate(22) if not label_function else label %}
 					    {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
-					    <li class="{{ nav_item_class or 'nav-item' }}{% if item.active %} active{% endif %}">
-						<a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
+					    <li class="nav-item {% if item.active %} active{% endif %}">
+						<a hx-boost="true" href="{{ href }}" aria-label="{{ _('Search datasets by {name}: {label}').format(name=name, label=label_truncated) }}" {% if label != label_truncated %} data-bs-title="{{ label }}" data-bs-toggle="tooltip" {% endif %}>
 						    <span class="item-label">{{ label_truncated }}</span>
 						    <span class="hidden separator"> - </span>
 						    <span class="item-count badge">{{ count }}</span>
+
+							{% if item.active %}<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %}
 						</a>
 					    </li>
 					{% endfor %}
@@ -81,10 +74,10 @@ Dictionary with search facets
 				<p class="module-footer">
 				    {% if h.get_param_int('_%s_limit' % name) %}
 					{% if h.has_more_facets(name, search_facets) %}
-					    <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
+					    <a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
 					{% endif %}
 				    {% else %}
-					<a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
+					<a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
 				    {% endif %}
 				</p>
 			    {% else %}

@@ -12,8 +12,8 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
     u'''
     An example IConfigurer plugin that shows:
 
-    1. How to implement ``toolkit.add_ckan_admin_tab()`` in the
-       ``update_config`` method to add a custom config tab in the admin pages.
+    1. How to to add a custom config tab in the admin pages by extending
+       `ckan/templates/admin/base.html` template.
 
     2. How to make CKAN configuration options runtime-editable via
        the web frontend or the API
@@ -29,15 +29,6 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
         # Add extension templates directory
 
         toolkit.add_template_directory(config, u'templates')
-        # Add a new ckan-admin tabs for our extension
-        toolkit.add_ckan_admin_tab(
-            config, u'example_iconfigurer.config_one',
-            u'My First Custom Config Tab'
-        )
-        toolkit.add_ckan_admin_tab(
-            config, u'example_iconfigurer.config_two',
-            u'My Second Custom Config Tab'
-        )
 
     def update_config_schema(self, schema: Schema):
 

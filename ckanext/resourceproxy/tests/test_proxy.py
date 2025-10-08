@@ -4,7 +4,6 @@ import pytest
 import requests
 import json
 import responses
-import six
 
 from ckan.common import config
 from ckan.tests import factories, helpers
@@ -19,7 +18,7 @@ JSON_STRING = json.dumps({
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'resource_proxy')
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestProxyPrettyfied(object):
 
     @pytest.fixture(autouse=True)
@@ -34,6 +33,7 @@ class TestProxyPrettyfied(object):
 
     def mock_out_urls(self, *args, **kwargs):
         responses.add(responses.GET, *args, **kwargs)
+        kwargs.pop("body", None)
         responses.add(responses.HEAD, *args, **kwargs)
 
     @responses.activate
@@ -41,19 +41,19 @@ class TestProxyPrettyfied(object):
         self.mock_out_urls(
             self.url,
             content_type='application/json',
-            body=six.ensure_binary(JSON_STRING))
+            body=JSON_STRING)
 
         url = self.resource['url']
         result = requests.get(url, timeout=30)
 
         assert result.status_code == 200, result.status_code
-        assert "yes, I'm proxied" in six.ensure_str(result.content)
+        assert b"yes, I'm proxied" in result.content
 
     @responses.activate
     def test_resource_proxy_on_404(self, app):
         self.mock_out_urls(
             self.url,
-            body=six.ensure_binary("I'm not here"),
+            body="I'm not here",
             content_type='application/json',
             status=404)
 
@@ -73,7 +73,7 @@ class TestProxyPrettyfied(object):
 
     @responses.activate
     def test_large_file(self, app, ckan_config):
-        cl = ckan_config.get_value(u'ckan.resource_proxy.max_file_size') + 1
+        cl = ckan_config.get(u'ckan.resource_proxy.max_file_size') + 1
         self.mock_out_urls(
             self.url,
             headers={'Content-Length': str(cl)},
@@ -85,11 +85,11 @@ class TestProxyPrettyfied(object):
         })
         result = app.get(proxied_url)
         assert result.status_code == 409
-        assert six.b('too large') in result.data
+        assert b'too large' in result.data
 
     @responses.activate
     def test_large_file_streaming(self, app, ckan_config):
-        cl = ckan_config.get_value(u'ckan.resource_proxy.max_file_size') + 1
+        cl = ckan_config.get(u'ckan.resource_proxy.max_file_size') + 1
         self.mock_out_urls(
             self.url,
             stream=True,
@@ -101,7 +101,7 @@ class TestProxyPrettyfied(object):
         })
         result = app.get(proxied_url)
         assert result.status_code == 409
-        assert six.b('too large') in result.data
+        assert b'too large' in result.data
 
     @responses.activate
     def test_invalid_url(self, app):
@@ -120,7 +120,7 @@ class TestProxyPrettyfied(object):
 
         result = app.get(proxied_url)
         assert result.status_code == 409
-        assert six.b('Invalid URL') in result.data
+        assert b'Invalid URL' in result.data
 
     def test_non_existent_url(self, app):
         self.resource = helpers.call_action(
@@ -143,7 +143,7 @@ class TestProxyPrettyfied(object):
         })
         result = app.get(proxied_url)
         assert result.status_code == 502
-        assert six.b('connection error') in result.data
+        assert b'connection error' in result.data
 
     def test_proxied_resource_url_proxies_http_and_https_by_default(self):
         http_url = 'http://ckan.org'

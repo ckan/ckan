@@ -13,7 +13,7 @@ from ckanext.activity.model import (
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestActivity(object):
     def test_include_data(self, package, user, activity_factory):
         activity = activity_factory(

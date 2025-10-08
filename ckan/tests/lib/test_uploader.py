@@ -1,11 +1,13 @@
 # encoding: utf-8
-import six
+
+import pytest
 from io import BytesIO
 from werkzeug.datastructures import FileStorage
 
+from ckan.logic import ValidationError
 from ckan.lib.uploader import ResourceUpload, Upload
 
-
+@pytest.mark.ckan_config('ckan.uploads_enabled', True)
 class TestInitResourceUpload(object):
     def test_resource_without_upload_with_old_werkzeug(
             self, ckan_config, monkeypatch, tmpdir):
@@ -58,9 +60,27 @@ class TestInitResourceUpload(object):
         assert res_upload.filesize == 0
         assert res_upload.filename == u'data.csv'
 
+    def test_resource_with_dodgy_id(
+            self, ckan_config, monkeypatch, tmpdir):
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
+        resource_id = u'aaabbb/../../../../nope.txt'
+        res = {u'clear_upload': u'',
+               u'format': u'PNG',
+               u'url': u'https://example.com/data.csv',
+               u'description': u'',
+               u'upload': FileStorage(filename=u'data.csv', content_type=u'CSV'),
+               u'package_id': u'dataset1',
+               u'id': resource_id,
+               u'name': u'data.csv'}
+        res_upload = ResourceUpload(res)
+
+        with pytest.raises(ValidationError):
+            res_upload.upload(resource_id)
+
+@pytest.mark.ckan_config('ckan.uploads_enabled', True)
 class TestUpload(object):
-    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config):
+    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config, faker):
         """Reproduce group's logo upload and check that file available through
         public url.
 
@@ -68,9 +88,9 @@ class TestUpload(object):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
-                     BytesIO(six.ensure_binary(u'hello')),
+                     BytesIO(faker.image()),
                      filename=u'logo.png',
-                     content_type=u'PNG'
+                     content_type=u'image/png'
                  ),
                  u'name': u'test-group-upload'}
         group_upload = Upload(u'group')
@@ -82,4 +102,5 @@ class TestUpload(object):
         app = make_app()
         resp = app.get(u'/uploads/group/' + group[u'url'])
         assert resp.status_code == 200
-        assert resp.body == u'hello'
+        # PNG signature
+        assert resp.data.hex()[:16].upper() == '89504E470D0A1A0A'

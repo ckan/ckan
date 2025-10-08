@@ -13,7 +13,7 @@ from ckan.tests.helpers import call_auth
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u"example_ipermissionlabels")
-@pytest.mark.usefixtures(u'clean_db', u'clean_index', u'with_plugins', u'with_request_context')
+@pytest.mark.usefixtures(u'clean_db', u'clean_index', u'with_plugins')
 class TestExampleIPermissionLabels(object):
     def test_normal_dataset_permissions_are_normal(self):
         user = factories.User()

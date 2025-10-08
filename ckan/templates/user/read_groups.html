@@ -1,0 +1,26 @@
+{% extends "user/read_base.html" %}
+
+{% set user = user_dict %}
+{% set group_type = h.default_group_type('group') %}
+{% set groups_available = h.groups_available(am_member=True,
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['id'])
+%}
+
+{% block primary_content_inner %}
+  <h2 class="hide-heading">{{ h.humanize_entity_type('group', group_type, 'facet label') or _('Groups') }}</h2>
+  {% if groups_available %}
+    <div class="wide">
+      {% snippet "group/snippets/group_list.html", groups=groups_available, show_capacity=True %}
+    </div>
+  {% else %}
+    <p class="empty">
+      {% if is_myself %}
+        {{ h.humanize_entity_type('group', group_type, 'you not member') or _('You are not a member of any groups.') }}
+      {% else %}
+        {{ h.humanize_entity_type('group', group_type, 'user not member') or _('User isn\'t a member of any groups.') }}
+      {% endif %}
+    </p>
+  {% endif %}
+{% endblock %}

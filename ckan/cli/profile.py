@@ -7,14 +7,15 @@ import click
 from . import error_shout
 
 
-@click.group(
-    short_help=u"Code speed profiler.", invoke_without_command=True,
-)
-@click.pass_context
-def profile(ctx: click.Context):
+@click.command(short_help="Code speed profiler.")
+@click.argument("url")
+@click.argument("user", required=False, default="visitor")
+@click.option('--cold', is_flag=True, default=False, help='measure first call')
+@click.option('-b', '--best-of', type=int, default=3, help='best of N calls')
+def profile(url: str, user: str, cold: bool, best_of: int):
     """Provide a ckan url and it will make the request and record how
     long each function call took in a file that can be read by
-    pstats.Stats (command-line) or runsnakerun (gui).
+    pstats.Stats (command-line) or SnakeViz (web).
 
     Usage:
        profile URL [username]
@@ -28,36 +29,37 @@ def profile(ctx: click.Context):
     You may need to install python module: cProfile
 
     """
-    if ctx.invoked_subcommand is None:
-        ctx.invoke(main)
-
-
-@profile.command('profile', short_help=u"Code speed profiler.",)
-@click.argument(u"url")
-@click.argument(u"user", required=False, default=u"visitor")
-def main(url: str, user: str):
-    import cProfile
+    from cProfile import Profile
     from ckan.tests.helpers import _get_test_app
 
     app = _get_test_app()
 
-    def profile_url(url: str):  # type: ignore # noqa
+    def profile_url(url: str):
         try:
             app.get(
-                url, status=[200], extra_environ={u"REMOTE_USER": str(user)}
+                url, status=200, environ_overrides={"REMOTE_USER": str(user)}
             )
         except KeyboardInterrupt:
             raise
         except Exception:
             error_shout(traceback.format_exc())
 
-    output_filename = u"ckan%s.profile" % re.sub(
-        u"[/?]", u".", url.replace(u"/", u".")
-    )
-    profile_command = u"profile_url('%s')" % url
-    cProfile.runctx(
-        profile_command, globals(), locals(), filename=output_filename
-    )
+    if not cold:
+        profile_url(url)
+
+    best = None
+    for _n in range(best_of):
+        with Profile() as pr:
+            profile_url(url)
+        if best is None or (best.getstats()[0].totaltime
+                            > pr.getstats()[0].totaltime):
+            best = pr
+
+    if best is None:
+        return
+
+    output_filename = "ckan%s.profile" % re.sub(r"[\W]", ".", url)
+    best.dump_stats(output_filename)
     import pstats
 
     stats = pstats.Stats(output_filename)

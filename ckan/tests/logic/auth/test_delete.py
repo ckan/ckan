@@ -51,7 +51,7 @@ class TestDeleteAuth:
         user = factories.User()
         org = factories.Organization()
         dataset = factories.Dataset(
-            owner_org=org["id"], resources=[factories.Resource()]
+            owner_org=org["id"], resources=[{"url": "https://example.com/data.csv"}]
         )
 
         response = auth_delete.resource_delete(
@@ -66,7 +66,7 @@ class TestDeleteAuth:
         org_users = [{"name": user["name"], "capacity": "editor"}]
         org = factories.Organization(users=org_users)
         dataset = factories.Dataset(
-            owner_org=org["id"], resources=[factories.Resource()], user=user
+            owner_org=org["id"], resources=[{"url": "https://example.com/data.csv"}], user=user
         )
 
         response = auth_delete.resource_delete(
@@ -92,7 +92,7 @@ class TestDeleteAuth:
         user = factories.User()
         org = factories.Organization()
         dataset = factories.Dataset(
-            owner_org=org["id"], resources=[factories.Resource()]
+            owner_org=org["id"], resources=[{"url": "https://example.com/data.csv"}]
         )
 
         resource_view = factories.ResourceView(
@@ -113,7 +113,7 @@ class TestDeleteAuth:
         org_users = [{"name": user["name"], "capacity": "editor"}]
         org = factories.Organization(users=org_users)
         dataset = factories.Dataset(
-            owner_org=org["id"], resources=[factories.Resource()], user=user
+            owner_org=org["id"], resources=[{"url": "https://example.com/data.csv"}], user=user
         )
 
         resource_view = factories.ResourceView(

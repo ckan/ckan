@@ -26,8 +26,11 @@
 {% endcall %}
 
 <div class="control-group">
-  <label class="control-label">{{ _('Show Columns') }}</label>
-  <div class="controls">
+  <label class="form-label">{{ _('Show Columns') }}</label>
+  <br/>
+  <a class="dt-show-all" href="javascript:void(0);"><span class="me-3"><i class="fa fa-eye"></i>&nbsp;{{ _('Show All') }}</span></a>
+  <a class="dt-hide-all" href="javascript:void(0);"><span><i class="fa fa-eye-slash"></i>&nbsp;{{ _('Hide All') }}</span></a>
+  <div class="controls dt-select-columns mt-3">
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
@@ -44,7 +47,7 @@
             value="_id" checked/>_id</label>
           </td>
           <td></td>
-        </tr>      
+        </tr>
       {% for f in h.datastore_dictionary(resource.id) %}
         <tr>
           <td>
@@ -56,9 +59,15 @@
             {{ 'checked' if 'show_fields' not in data else
               'checked' if f.id in data.show_fields else '' }}
             />{{ f.id }}</label></td>
-          <td>{{ f.get('info', {}).label }}</td>
+          <td>
+            {%- block dict_field_label scoped -%}
+              {{ f.get('info', {}).label }}
+            {%- endblock -%}
+          </td>
         </tr>
       {% endfor %}
     </table>
   </div>
 </div>
+
+{% asset 'ckanext-datatablesview/form-js' %}

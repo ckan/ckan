@@ -7,6 +7,7 @@ import datetime
 import logging
 import magic
 import mimetypes
+from pathlib import Path
 from typing import Any, IO, Optional, Union
 from urllib.parse import urlparse
 
@@ -80,7 +81,7 @@ def get_resource_uploader(data_dict: dict[str, Any]) -> PResourceUploader:
 
 def get_storage_path() -> str:
     '''Function to get the storage path from config file.'''
-    storage_path = config.get_value('ckan.storage_path')
+    storage_path = config.get('ckan.storage_path')
     if not storage_path:
         log.critical('''Please specify a ckan.storage_path in your config
                         for your uploads''')
@@ -89,11 +90,11 @@ def get_storage_path() -> str:
 
 
 def get_max_image_size() -> int:
-    return config.get_value('ckan.max_image_size')
+    return config.get('ckan.max_image_size')
 
 
 def get_max_resource_size() -> int:
-    return config.get_value('ckan.max_resource_size')
+    return config.get('ckan.max_resource_size')
 
 
 class Upload(object):
@@ -159,10 +160,14 @@ class Upload(object):
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
                 self.filename = munge.munge_filename_legacy(self.filename)
                 self.filepath = os.path.join(self.storage_path, self.filename)
-                data_dict[url_field] = self.filename
                 self.upload_file = _get_underlying_file(
                     self.upload_field_storage)
                 self.tmp_filepath = self.filepath + '~'
+
+                self.verify_type()
+
+                data_dict[url_field] = self.filename
+
         # keep the file if there has been no change
         elif self.old_filename and not self.old_filename.startswith('http'):
             if not self.clear:
@@ -176,8 +181,6 @@ class Upload(object):
         been validated and flushed to the db. This is so we do not store
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
-
-        self.verify_type()
 
         if self.filename:
             assert self.upload_file and self.filepath
@@ -202,27 +205,69 @@ class Upload(object):
                 pass
 
     def verify_type(self):
-        if not self.filename or not self.upload_file:
+
+        if not self.upload_file:
             return
 
-        mimetypes = config.get_value(
+        allowed_mimetypes = config.get(
             f"ckan.upload.{self.object_type}.mimetypes")
-        types = config.get_value(f"ckan.upload.{self.object_type}.types")
-        if not mimetypes and not types:
-            return
+        allowed_types = config.get(f"ckan.upload.{self.object_type}.types")
+        if not allowed_mimetypes and not allowed_types:
+            raise logic.ValidationError(
+                {
+                    self.file_field: [
+                        f"No uploads allowed for object type {self.object_type}"
+                    ]
+                }
+            )
 
-        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        # Check that the declared types in the request are supported
+        declared_mimetype_from_filename = mimetypes.guess_type(
+            self.upload_field_storage.filename
+        )[0]
+        declared_content_type = self.upload_field_storage.content_type
+        for declared_mimetype in (
+            declared_mimetype_from_filename,
+            declared_content_type,
+        ):
+            if (
+                declared_mimetype
+                and allowed_mimetypes
+                and allowed_mimetypes[0] != "*"
+                and declared_mimetype not in allowed_mimetypes
+            ):
+                raise logic.ValidationError(
+                    {
+                        self.file_field: [
+                            f"Unsupported upload type: {declared_mimetype}"
+                        ]
+                    }
+                )
+
+        # Check that the actual type guessed from the contents is supported
+        # (2KB required for detecting xlsx mimetype)
+        content = self.upload_file.read(2048)
+        guessed_mimetype = magic.from_buffer(content, mime=True)
+
         self.upload_file.seek(0, os.SEEK_SET)
+
         err: ErrorDict = {
-            self.file_field: [f"Unsupported upload type: {actual}"]
+            self.file_field: [f"Unsupported upload type: {guessed_mimetype}"]
         }
 
-        if mimetypes and actual not in mimetypes:
+        if (allowed_mimetypes
+                and allowed_mimetypes[0] != "*"
+                and guessed_mimetype not in allowed_mimetypes):
             raise logic.ValidationError(err)
 
-        type_ = actual.split("/")[0]
-        if types and type_ not in types:
+        type_ = guessed_mimetype.split("/")[0]
+        if allowed_types and allowed_types[0] != "*" and type_ not in allowed_types:
             raise logic.ValidationError(err)
+
+        preferred_extension = mimetypes.guess_extension(guessed_mimetype)
+        if preferred_extension and self.filename and self.filepath:
+            self.filename = str(Path(self.filename).with_suffix(preferred_extension))
+            self.filepath = str(Path(self.filepath).with_suffix(preferred_extension))
 
 
 class ResourceUpload(object):
@@ -230,7 +275,7 @@ class ResourceUpload(object):
 
     def __init__(self, resource: dict[str, Any]) -> None:
         path = get_storage_path()
-        config_mimetype_guess = config.get_value('ckan.mimetype_guess')
+        config_mimetype_guess = config.get('ckan.mimetype_guess')
 
         if not path:
             self.storage_path = None
@@ -287,14 +332,24 @@ class ResourceUpload(object):
             resource['url_type'] = ''
 
     def get_directory(self, id: str) -> str:
-        assert self.storage_path
-        directory = os.path.join(self.storage_path,
-                                 id[0:3], id[3:6])
+        if self.storage_path is None:
+            raise TypeError("storage_path is not defined")
+
+        real_storage = os.path.realpath(self.storage_path)
+        directory = os.path.join(real_storage, id[0:3], id[3:6])
+        if directory != os.path.realpath(directory):
+            raise logic.ValidationError({
+                'upload': ['Invalid storage directory']
+            })
         return directory
 
     def get_path(self, id: str) -> str:
         directory = self.get_directory(id)
         filepath = os.path.join(directory, id[6:])
+
+        if filepath != os.path.realpath(filepath):
+            raise logic.ValidationError({'upload': ['Invalid storage path']})
+
         return filepath
 
     def upload(self, id: str, max_size: int = 10) -> None:

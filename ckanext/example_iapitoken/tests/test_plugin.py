@@ -2,7 +2,6 @@
 
 import json
 import pytest
-import six
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -53,7 +52,7 @@ class TestIApiTokenPlugin(object):
         app.get(
             tk.h.url_for(u"api.action", logic_function=u"user_show", ver=3),
             params={u"id": user[u"id"]},
-            headers={u"authorization": six.ensure_str(data[u"token"])},
+            headers={u"authorization": data[u"token"]},
         )
 
         obj = model.ApiToken.get(jti)
@@ -63,7 +62,7 @@ class TestIApiTokenPlugin(object):
         app.get(
             tk.h.url_for(u"api.action", logic_function=u"user_show", ver=3),
             params={u"id": user[u"id"]},
-            headers={u"authorization": six.ensure_str(data[u"token"])},
+            headers={u"authorization": data[u"token"]},
         )
 
         obj = model.ApiToken.get(jti)

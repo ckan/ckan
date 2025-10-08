@@ -5,9 +5,21 @@
 {% block primary_content_inner %}
 
   {% set action = h.url_for('datapusher.resource_data', id=pkg.name, resource_id=res.id) %}
+  {% set delete_action = h.url_for('datapusher.delete_datastore_table', id=pkg.id, resource_id=res.id) %}
   {% set show_table = true %}
 
-  <form method="post" action="{{ action }}" class="datapusher-form">
+  <form method="post" action="{{ delete_action }}" class="mb-3 d-inline-block">
+    {{ h.csrf_input() }}
+    <button class="btn btn-danger" name="delete" type="submit"
+      data-module="confirm-action"
+      data-module-with-data=true
+      data-module-content="{{ _('Are you sure you want to delete the DataStore and Data Dictionary?') }}">
+      <i class="fa fa-remove"></i> {{ _('Delete from DataStore') }}
+    </button>
+  </form>
+
+  <form method="post" action="{{ action }}" class="datapusher-form mb-3 d-inline-block">
+    {{ h.csrf_input() }}
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
     </button>
@@ -15,11 +27,11 @@
 
   {% if status.error and status.error.message %}
     {% set show_table = false %}
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
       <strong>{{ _('Upload error:') }}</strong> {{ status.error.message }}
     </div>
   {% elif status.task_info and status.task_info.error %}
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
       {% if status.task_info.error is string %}
         {# DataPusher < 0.0.3 #}
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
@@ -60,27 +72,33 @@
 
   {% if status.status and status.task_info and show_table %}
     <h3>{{ _('Upload Log') }}</h3>
-    <ul class="activity">
+    <ul class="datapusher-activity">
       {% for item in status.task_info.logs|sort(attribute='timestamp') %}
-        {% set icon = 'ok' if item.level == 'INFO' else 'exclamation' %}
+        {% set icon = 'check' if item.level == 'INFO' else 'exclamation' %}
         {% set class = ' failure' if icon == 'exclamation' else ' success' %}
         {% set popover_content = 'test' %}
         <li class="item no-avatar{{ class }}">
-          <i class="fa icon fa-{{ icon }}"></i>
-          <p>
-            {% for line in item.message.strip().split('\n') %}
-              {{ line | urlize }}<br>
-            {% endfor %}
-            <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
-              {{ h.time_ago_from_timestamp(item.timestamp) }}
-              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.items() %}<dt>{{ key }}</dt><dd>{{ h.clean_html(value|string) }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
-            </span>
-          </p>
+          <span class="fa-stack fa-lg">
+            <i class="fa fa-circle fa-stack-2x icon"></i>
+            <i class="fa fa-{{ icon }} fa-stack-1x fa-inverse"></i>
+          </span>
+          {% for line in item.message.strip().split('\n') %}
+            {{ line | urlize }}<br />
+          {% endfor %}
+          <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
+            {{ h.time_ago_from_timestamp(item.timestamp) }}
+            <a href="#" data-module="datapusher_popover" data-module-title="Details <a href='#' class='popover-close'>X</a>" data-module-content="<ul class='list-unstyled'>{% for key, value in item.items() %}<li><b>{{ key }}</b>: {{ h.clean_html(value|string) }}</li>{% endfor %}</ul>">
+              {{ _('Details') }}
+            </a>
+          </span>
         </li>
       {% endfor %}
       <li class="item no-avatar">
-        <i class="fa icon fa-info"></i>
-        <p class="muted">{{ _('End of log') }}</p>
+        <span class="fa-stack fa-lg">
+          <i class="fa fa-circle fa-stack-2x icon"></i>
+          <i class="fa fa-info fa-stack-1x fa-inverse"></i>
+        </span>
+        {{ _('End of log') }}
       </li>
     </ul>
   {% endif %}

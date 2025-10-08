@@ -6,7 +6,6 @@
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('admin.index', _('Sysadmins'), icon='gavel') }}
-  {{ h.build_nav_icon('admin.config', _('Config'), icon='check-square-o') }}
-  {{ h.build_nav_icon('admin.trash', _('Trash'), icon='trash-o') }}
-  {{ h.build_extra_admin_nav() }}
+  {{ h.build_nav_icon('admin.config', _('Config'), icon='gear') }}
+  {{ h.build_nav_icon('admin.trash', _('Trash'), icon='trash') }}
 {% endblock %}

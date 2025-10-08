@@ -1,7 +1,0 @@
-{% extends 'package/edit_base.html' %}
-
-{% block primary_content_inner %}
-    {% block form %}
-	{{- h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) -}}
-  {% endblock %}
-{% endblock %}

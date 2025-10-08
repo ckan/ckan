@@ -24,33 +24,11 @@ class AuthPlugin(p.SingletonPlugin):
         return {"package_list": lambda context, data_dict: {}}
 
 
-class MockGroupControllerPlugin(p.SingletonPlugin):
-    p.implements(p.IGroupController)
-
-    def __init__(self, *args, **kw):
-        self.calls = defaultdict(int)
-
-    def read(self, entity):
-        self.calls["read"] += 1
-
-    def create(self, entity):
-        self.calls["create"] += 1
-
-    def edit(self, entity):
-        self.calls["edit"] += 1
-
-    def delete(self, entity):
-        self.calls["delete"] += 1
-
-    def before_view(self, data_dict):
-        self.calls["before_view"] += 1
-        return data_dict
-
-
 class MockPackageControllerPlugin(p.SingletonPlugin):
     p.implements(p.IPackageController)
 
     def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
         self.calls = defaultdict(int)
 
     def read(self, entity):
@@ -107,6 +85,7 @@ class MockResourceViewExtension(mock_plugin.MockSingletonPlugin):
     p.implements(p.IResourceView)
 
     def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
         self.calls = defaultdict(int)
 
     def info(self):

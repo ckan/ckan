@@ -13,10 +13,16 @@
       <h1 class="page-heading">{{ _('Reset your password') }}</h1>
       {% block form %}
         <form action="" method="post">
+          {{ h.csrf_input() }} 
           <div class="form-group">
             <label for="field-username">{{ _('Email or username') }}</label>
             <input id="field-username" class="control-medium form-control" name="user" value="" type="text" />
           </div>
+
+          {% if g.recaptcha_publickey %}
+            {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
+          {% endif %}
+
           <div class="form-actions">
             {% block form_button %}
             <button class="btn btn-primary" type="submit" name="reset">{{ _("Request Reset") }}</button>

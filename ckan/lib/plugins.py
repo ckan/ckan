@@ -133,18 +133,20 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
     """
 
     from ckan.views.dataset import dataset, register_dataset_plugin_rules
-    from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
+    from ckan.views.resource import (
+        resource, prefixed_resource,
+        register_dataset_plugin_rules as dataset_resource_rules)
+
+    registered_dataset = False
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         for package_type in plugin.package_types():
 
-            if package_type == u'dataset':
-                # The default routes are registered with the core
-                # 'dataset' blueprint
-                continue
+            if package_type == 'dataset':
+                registered_dataset = True
 
-            elif package_type in app.blueprints:
+            if package_type in app.blueprints:
                 raise ValueError(
                     'A blueprint for has already been associated for the '
                     'package type {}'.format(package_type))
@@ -177,9 +179,16 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
             signals.register_blueprint.send(
                 u"resource", blueprint=resource_blueprint)
             app.register_blueprint(resource_blueprint)
-            log.debug(
-                'Registered blueprints for custom dataset type \'{}\''.format(
-                    package_type))
+            log.debug("Registered blueprints for custom dataset type '%s'"%
+                      package_type)
+
+    if not registered_dataset:
+        # core dataset blueprint not overridden
+        app.register_blueprint(dataset)
+        app.register_blueprint(resource)
+
+    # core no-package-type resource blueprint loaded last
+    app.register_blueprint(prefixed_resource)
 
 
 def set_default_package_plugin() -> None:
@@ -300,8 +309,7 @@ def set_default_group_plugin() -> None:
     global _group_controllers
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
-        _default_group_plugin = cast(
-            plugins.IDatasetForm, DefaultGroupForm())
+        _default_group_plugin = cast(plugins.IGroupForm, DefaultGroupForm())
     if _default_organization_plugin is None:
         _default_organization_plugin = cast(
             plugins.IGroupForm, DefaultOrganizationForm())
@@ -389,6 +397,9 @@ class DefaultDatasetForm(object):
     def search_template(self) -> str:
         return 'package/search.html'
 
+    def search_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
+
     def history_template(self) -> None:
         return None
 
@@ -396,7 +407,7 @@ class DefaultDatasetForm(object):
         return 'package/resource_read.html'
 
     def package_form(self) -> str:
-        return 'package/new_package_form.html'
+        return 'package/snippets/package_form.html'
 
     def resource_form(self) -> str:
         return 'package/snippets/resource_form.html'
@@ -443,6 +454,13 @@ class DefaultGroupForm(object):
         """
         return 'group/read.html'
 
+    def read_template_htmx(self) -> str:
+        """
+        Returns a string representing the location of the template to be
+        rendered for htmx updates to the read page
+        """
+        return 'package/snippets/search_htmx.html'
+
     def about_template(self) -> str:
         """
         Returns a string representing the location of the template to be
@@ -481,79 +499,14 @@ class DefaultGroupForm(object):
     def group_form(self) -> str:
         return 'group/new_group_form.html'
 
-    def form_to_db_schema_options(self,
-                                  options: dict[str, Any]) -> dict[str, Any]:
-        ''' This allows us to select different schemas for different
-        purpose eg via the web interface or via the api or creation vs
-        updating. It is optional and if not available form_to_db_schema
-        should be used.
-        If a context is provided, and it contains a schema, it will be
-        returned.
-        '''
-        schema = options.get('context', {}).get('schema', None)
-        if schema:
-            return schema
+    def create_group_schema(self) -> Schema:
+        return schema.default_create_group_schema()
 
-        if options.get('api'):
-            if options.get('type') == 'create':
-                return self.form_to_db_schema_api_create()
-            else:
-                return self.form_to_db_schema_api_update()
-        else:
-            return self.form_to_db_schema()
-
-    def form_to_db_schema_api_create(self) -> dict[str, Any]:
-        return schema.default_group_schema()
-
-    def form_to_db_schema_api_update(self) -> dict[str, Any]:
+    def update_group_schema(self) -> Schema:
         return schema.default_update_group_schema()
 
-    def form_to_db_schema(self) -> dict[str, Any]:
-        return schema.group_form_schema()
-
-    def db_to_form_schema(self) -> dict[str, Any]:
-        '''This is an interface to manipulate data from the database
-        into a format suitable for the form (optional)'''
-        return {}
-
-    def db_to_form_schema_options(self,
-                                  options: dict[str, Any]) -> dict[str, Any]:
-        '''This allows the selection of different schemas for different
-        purposes.  It is optional and if not available, ``db_to_form_schema``
-        should be used.
-        If a context is provided, and it contains a schema, it will be
-        returned.
-        '''
-        schema = options.get('context', {}).get('schema', None)
-        if schema:
-            return schema
-        return self.db_to_form_schema()
-
-    def check_data_dict(self, data_dict: dict[str, Any]) -> None:
-        '''Check if the return data is correct, mostly for checking out
-        if spammers are submitting only part of the form
-
-        .. code-block:: python
-
-            # Resources might not exist yet (eg. Add Dataset)
-            surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                'extras_validation', 'save', 'return_to',
-                'resources'
-            ]
-
-            schema_keys = form_to_db_package_schema().keys()
-            keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-            missing_keys = keys_in_schema - set(data_dict.keys())
-
-            if missing_keys:
-                #print data_dict
-                #print missing_keys
-                log.info('incorrect form fields posted')
-                raise DataError(data_dict)
-
-        '''
-        pass
+    def show_group_schema(self) -> Schema:
+        return schema.default_show_group_schema()
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
@@ -588,6 +541,9 @@ class DefaultOrganizationForm(DefaultGroupForm):
 
     def read_template(self) -> str:
         return 'organization/read.html'
+
+    def read_template_htmx(self) -> str:
+        return 'package/snippets/search_htmx.html'
 
     # don't override history_template - use group template for history
 
@@ -662,7 +618,7 @@ class DefaultPermissionLabels(object):
 
     def get_user_dataset_labels(self, user_obj: model.User) -> list[str]:
         labels = [u'public']
-        if not user_obj:
+        if not user_obj or user_obj.is_anonymous:
             return labels
 
         labels.append(u'creator-%s' % user_obj.id)

@@ -11,18 +11,19 @@ has been given.
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 import ckan
 import ckan.lib.base as base
 from ckan.lib.base import render, abort
+import packaging.version as pv
 
-from ckan.logic import (  # noqa: re-export
+from ckan.logic import (  # noqa
     get_action,
     check_access,
     get_validator,
     chained_auth_function,
     chained_action,
-    NotFound as ObjectNotFound,
+    NotFound,
     NotAuthorized,
     ValidationError,
     UnknownValidator,
@@ -31,11 +32,18 @@ from ckan.logic import (  # noqa: re-export
     auth_sysadmins_check,
     auth_allow_anonymous_access,
     auth_disallow_anonymous_access,
+    fresh_context,
+    validate,
+    schema,
 )
 
 import ckan.plugins.blanket as blanket
 import ckan.lib.signals as signals
-from ckan.lib.jobs import enqueue as enqueue_job
+from ckan.lib.jobs import (
+    enqueue as enqueue_job,
+    get_queue as get_job_queue,
+    job_from_id,
+)
 from ckan.logic.validators import Invalid
 from ckan.lib.navl.dictization_functions import (
     validate as navl_validate,
@@ -47,7 +55,7 @@ from ckan.lib.helpers import (
     literal,
     chained_helper,
     redirect_to,
-    url_for,
+    url_for
 )
 from ckan.exceptions import (
     CkanVersionException,
@@ -64,6 +72,9 @@ from ckan.common import (
     asbool,
     asint,
     aslist,
+    login_user,
+    logout_user,
+    current_user
 )
 
 from ckan.lib.plugins import (
@@ -74,32 +85,82 @@ from ckan.lib.plugins import (
 from ckan.cli import error_shout
 
 from ckan.lib.mailer import mail_recipient, mail_user
+from ckan.model.base import BaseModel
+
+ObjectNotFound = NotFound
 
 
 __all__ = [
-    "ckan", "base", "render", "abort",
-    "get_action", "check_access",
-    "get_validator", "get_converter",
-    "chained_auth_function", "chained_action",
-    "ObjectNotFound", "NotAuthorized", "ValidationError", "UnknownValidator",
-    "get_or_bust",
-    "side_effect_free", "auth_sysadmins_check",
-    "auth_allow_anonymous_access", "auth_disallow_anonymous_access",
-    "blanket", "signals", "enqueue_job",
-    "Invalid", "navl_validate", "missing", "StopOnError",
-    "h", "literal", "chained_helper", "redirect_to", "url_for",
-    "CkanVersionException", "HelperError",
-    "config", "_", "ungettext", "g", "c", "request",
-    "asbool", "asint", "aslist",
-    "DefaultDatasetForm", "DefaultGroupForm", "DefaultOrganizationForm",
+    "BaseModel",
+    "CkanVersionException",
+    "DefaultDatasetForm",
+    "DefaultGroupForm",
+    "DefaultOrganizationForm",
+    "HelperError",
+    "Invalid",
+    "NotAuthorized",
+    "NotFound",
+    "ObjectNotFound",
+    "StopOnError",
+    "UnknownValidator",
+    "ValidationError",
+    "_",
+    "abort",
+    "add_public_directory",
+    "add_resource",
+    "add_template_directory",
+    "asbool",
+    "asint",
+    "aslist",
+    "auth_allow_anonymous_access",
+    "auth_disallow_anonymous_access",
+    "auth_sysadmins_check",
+    "base",
+    "blanket",
+    "c",
+    "chained_action",
+    "chained_auth_function",
+    "chained_helper",
+    "check_access",
+    "check_ckan_version",
+    "ckan",
+    "config",
+    "current_user",
+    "enqueue_job",
     "error_shout",
-    "mail_recipient", "mail_user",
-    "render_snippet", "add_template_directory", "add_public_directory",
-    "add_resource", "add_ckan_admin_tab",
-    "check_ckan_version", "requires_ckan_version", "get_endpoint",
+    "fresh_context",
+    "g",
+    "get_action",
+    "get_converter",
+    "get_endpoint",
+    "get_job_queue",
+    "get_or_bust",
+    "get_validator",
+    "h",
+    "job_from_id",
+    "literal",
+    "login_user",
+    "logout_user",
+    "mail_recipient",
+    "mail_user",
+    "missing",
+    "navl_validate",
+    "redirect_to",
+    "render",
+    "render_snippet",
+    "request",
+    "requires_ckan_version",
+    "side_effect_free",
+    "signals",
+    "ungettext",
+    "url_for",
+    "validate_action_data",
+    "validator_args",
 ]
 
 get_converter = get_validator
+validate_action_data = validate
+validator_args = schema.validator_args
 
 
 # Wrapper for the render_snippet function as it uses keywords rather than
@@ -120,7 +181,7 @@ def add_template_directory(config_: CKANConfig, relative_path: str):
     The path is relative to the file calling this function.
 
     """
-    _add_served_directory(config_, relative_path, "extra_template_paths")
+    _add_served_directory(config_, relative_path, "plugin_template_paths")
 
 
 def add_public_directory(config_: CKANConfig, relative_path: str):
@@ -136,7 +197,7 @@ def add_public_directory(config_: CKANConfig, relative_path: str):
     from ckan.lib.helpers import _local_url
     from ckan.lib.webassets_tools import add_public_path
 
-    path = _add_served_directory(config_, relative_path, "extra_public_paths")
+    path = _add_served_directory(config_, relative_path, "plugin_public_paths")
     url = _local_url("/", locale="default")
     add_public_path(path, url)
 
@@ -147,18 +208,18 @@ def _add_served_directory(
     import inspect
     import os
 
-    assert config_var in ("extra_template_paths", "extra_public_paths")
+    assert config_var in ("plugin_template_paths", "plugin_public_paths")
     # we want the filename that of the function caller but they will
     # have used one of the available helper functions
     filename = inspect.stack()[2].filename
 
     this_dir = os.path.dirname(filename)
     absolute_path = os.path.join(this_dir, relative_path)
-    if absolute_path not in config_.get_value(config_var).split(","):
-        if config_.get_value(config_var):
-            config_[config_var] += "," + absolute_path
+    if absolute_path not in config_.get(config_var, []):
+        if config_var in config_:
+            config_[config_var] = [absolute_path] + config_[config_var]
         else:
-            config_[config_var] = absolute_path
+            config_[config_var] = [absolute_path]
     return absolute_path
 
 
@@ -185,30 +246,6 @@ def add_resource(path: str, name: str):
     create_library(name, absolute_path)
 
 
-def add_ckan_admin_tab(
-        config_: CKANConfig, route_name: str, tab_label: str,
-        config_var: str = "ckan.admin_tabs", icon: Optional[str] = None
-):
-    """
-    Update 'ckan.admin_tabs' dict the passed config dict.
-    """
-    # get the admin_tabs dict from the config, or an empty dict.
-    admin_tabs_dict = config_.get(config_var, {})
-    # update the admin_tabs dict with the new values
-    admin_tabs_dict.update({route_name: {"label": tab_label, "icon": icon}})
-    # update the config with the updated admin_tabs dict
-    config_.update({config_var: admin_tabs_dict})
-
-
-def _version_str_2_list(v_str: str):
-    """convert a version string into a list of ints
-    eg 1.6.1b --> [1, 6, 1]"""
-    import re
-
-    v_str = re.sub(r"[^0-9.]", "", v_str)
-    return [int(part) for part in v_str.split(".")]
-
-
 def check_ckan_version(
         min_version: Optional[str] = None, max_version: Optional[str] = None):
     """Return ``True`` if the CKAN version is greater than or equal to
@@ -230,17 +267,27 @@ def check_ckan_version(
     :type max_version: string
 
     """
-    current = _version_str_2_list(ckan.__version__)
+    current = pv.parse(ckan.__version__)
+    try:
+        at_least_min = (
+            min_version is None
+            or current >= pv.parse(min_version)
+        )
+    except pv.InvalidVersion:
+        raise ValueError(
+            f"min_version '{min_version}' is not a valid version identifier"
+        )
 
-    if min_version:
-        min_required = _version_str_2_list(min_version)
-        if current < min_required:
-            return False
-    if max_version:
-        max_required = _version_str_2_list(max_version)
-        if current > max_required:
-            return False
-    return True
+    try:
+        at_most_max = (
+            max_version is None
+            or current <= pv.parse(max_version)
+        )
+    except pv.InvalidVersion:
+        raise ValueError(
+            f"max_version '{max_version}' is not a valid version identifier"
+        )
+    return at_least_min and at_most_max
 
 
 def requires_ckan_version(min_version: str, max_version: Optional[str] = None):
@@ -278,10 +325,11 @@ def requires_ckan_version(min_version: str, max_version: Optional[str] = None):
 
 def get_endpoint() -> Union[tuple[str, str], tuple[None, None]]:
     """Returns tuple in format: (blueprint, view)."""
-    if not request:
+    # skip CLI requests and requests with unallowed method
+    if not request or not request.endpoint:
         return None, None
 
-    blueprint, *rest = cast(str, request.endpoint).split(".", 1)
+    blueprint, *rest = request.endpoint.split(".", 1)
     # service routes, like `static`
     view = rest[0] if rest else "index"
     return blueprint, view
@@ -297,7 +345,7 @@ docstring_overrides = {
 
 It stores the configuration values defined in the :ref:`config_file`, eg::
 
-    title = toolkit.config.get_value("ckan.site_title")
+    title = toolkit.config.get("ckan.site_title")
 
 """,
     "_": """Translates a string to the current locale.
@@ -365,5 +413,19 @@ attributes for getting things like the request headers, query-string variables,
 request body variables, cookies, the request URL, etc.
 
 """,
-    "ckan": "``ckan`` package itself."
+    "ckan": "``ckan`` package itself.",
+    "BaseModel": """Base class for SQLAlchemy declarative models.
+
+Models extending ``BaseModel`` class are attached to the SQLAlchemy's metadata
+object automatically::
+
+    from ckan.plugins import toolkit
+
+    class ExtModel(toolkit.BaseModel):
+        __tablename__ = "ext_model"
+        id = Column(String(50), primary_key=True)
+        ...
+
+""",
+
 }

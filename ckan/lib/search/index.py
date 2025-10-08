@@ -6,10 +6,9 @@ import string
 import logging
 import collections
 import json
-import datetime
 import re
-from dateutil.parser import parse
-from typing import Any, NoReturn, Optional, cast
+from dateutil.parser import parse, ParserError as DateParserError
+from typing import Any, NoReturn, Optional
 
 import six
 import pysolr
@@ -49,7 +48,7 @@ def escape_xml_illegal_chars(val: str, replacement: str='') -> str:
 
 def clear_index() -> None:
     conn = make_connection()
-    query = "+site_id:\"%s\"" % (config.get_value('ckan.site_id'))
+    query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
         conn.delete(q=query)
         conn.commit()
@@ -80,11 +79,11 @@ class SearchIndex(object):
 
     def update_dict(self, data: dict[str, Any], defer_commit: bool = False) -> None:
         """ Update data from a dictionary. """
-        log.debug("NOOP Index: %s" % ",".join(data.keys()))
+        log.debug("NOOP Index: %s", ",".join(data.keys()))
 
     def remove_dict(self, data: dict[str, Any]) -> None:
         """ Delete an index entry uniquely identified by ``data``. """
-        log.debug("NOOP Delete: %s" % ",".join(data.keys()))
+        log.debug("NOOP Delete: %s", ",".join(data.keys()))
 
     def clear(self) -> None:
         """ Delete the complete index. """
@@ -110,32 +109,23 @@ class PackageSearchIndex(SearchIndex):
                       defer_commit: bool = False) -> None:
         if pkg_dict is None:
             return
-
-        # tracking summary values will be stale, never store them
-        tracking_summary = pkg_dict.pop('tracking_summary', None)
-        for r in pkg_dict.get('resources', []):
-            r.pop('tracking_summary', None)
+        pkg_dict = dict(pkg_dict)
 
         # Index validated data-dict
-        package_plugin = lib_plugins.lookup_package_plugin(
-            pkg_dict.get('type'))
-        schema = package_plugin.show_package_schema()
-        validated_pkg_dict, _errors = lib_plugins.plugin_validate(
-            package_plugin,
-            cast(Context, {'model': model, 'session': model.Session}),
-            pkg_dict, schema, 'package_show')
+        assert 'with_custom_schema' in pkg_dict, (
+            'both default and custom schema data must be passed')
+        validated_pkg_dict = pkg_dict.pop('with_custom_schema')
+
+        pkg_dict['data_dict'] = json.dumps(pkg_dict)
         pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
             cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
-
-        data_dict_json = json.dumps(pkg_dict)
-        pkg_dict['data_dict'] = data_dict_json
 
         # add to string field for sorting
         title = pkg_dict.get('title')
         if title:
             pkg_dict['title_string'] = title
 
-        if config.get_value('ckan.search.remove_deleted_packages'):
+        if config.get('ckan.search.remove_deleted_packages'):
             # delete the package if there is no state, or the state is `deleted`
             if pkg_dict.get('state') in [None, 'deleted']:
                 return self.delete_package(pkg_dict)
@@ -158,7 +148,7 @@ class PackageSearchIndex(SearchIndex):
         # vocab_<tag name> so that they can be used in facets
         non_vocab_tag_names = []
         tags = pkg_dict.pop('tags', [])
-        context = cast(Context, {'model': model})
+        context = Context()
 
         for tag in tags:
             if tag.get('vocabulary_id'):
@@ -191,13 +181,6 @@ class PackageSearchIndex(SearchIndex):
            pkg_dict['organization'] = pkg_dict['organization']['name']
         else:
            pkg_dict['organization'] = None
-
-        # tracking
-        if not tracking_summary:
-            tracking_summary = model.TrackingSummary.get_for_package(
-                pkg_dict['id'])
-        pkg_dict['views_total'] = tracking_summary['total']
-        pkg_dict['views_recent'] = tracking_summary['recent']
 
         resource_fields = [('name', 'res_name'),
                            ('description', 'res_description'),
@@ -235,27 +218,22 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['dataset_type'] = pkg_dict['type']
 
         # clean the dict fixing keys and dates
-        # FIXME where are we getting these dirty keys from?  can we not just
-        # fix them in the correct place or is this something that always will
-        # be needed?  For my data not changing the keys seems to not cause a
-        # problem.
         new_dict = {}
-        bogus_date = datetime.datetime(1, 1, 1)
         for key, value in pkg_dict.items():
             key = six.ensure_str(key)
             if key.endswith('_date'):
+                if not value:
+                    continue
                 try:
-                    date = parse(value, default=bogus_date)
-                    if date != bogus_date:
-                        value = date.isoformat() + 'Z'
-                    else:
-                        # The date field was empty, so dateutil filled it with
-                        # the default bogus date
-                        value = None
-                except (IndexError, TypeError, ValueError):
-                    log.error('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
+                    date = parse(value)
+                    value = date.isoformat()
+                    if not date.tzinfo:
+                        value += 'Z'
+                except DateParserError:
+                    log.warning('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
                     continue
             new_dict[key] = value
+
         pkg_dict = new_dict
 
         for k in ('title', 'notes', 'title_string'):
@@ -269,7 +247,7 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['metadata_modified'] += 'Z'
 
         # mark this CKAN instance as data source:
-        pkg_dict['site_id'] = config.get_value('ckan.site_id')
+        pkg_dict['site_id'] = config.get('ckan.site_id')
 
         # Strip a selection of the fields.
         # These fields are possible candidates for sorting search results on,
@@ -284,7 +262,7 @@ class PackageSearchIndex(SearchIndex):
 
         # add a unique index_id to avoid conflicts
         import hashlib
-        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get_value('ckan.site_id')))).hexdigest()
+        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get('ckan.site_id')))).hexdigest()
 
         for item in PluginImplementations(IPackageController):
             pkg_dict = item.before_dataset_index(pkg_dict)
@@ -303,7 +281,7 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn = make_connection()
             commit = not defer_commit
-            if not config.get_value('ckan.search.solr_commit'):
+            if not config.get('ckan.search.solr_commit'):
                 commit = False
             conn.add(docs=[pkg_dict], commit=commit)
         except pysolr.SolrError as e:
@@ -319,7 +297,7 @@ class PackageSearchIndex(SearchIndex):
             raise SearchIndexError(err)
 
         commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
-        log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
+        log.debug('Updated index for %s [%s]', pkg_dict.get('name'), commit_debug_msg)
 
     def commit(self) -> None:
         try:
@@ -332,9 +310,9 @@ class PackageSearchIndex(SearchIndex):
     def delete_package(self, pkg_dict: dict[str, Any]) -> None:
         conn = make_connection()
         query = "+%s:%s AND +(id:\"%s\" OR name:\"%s\") AND +site_id:\"%s\"" % \
-                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.get_value('ckan.site_id'))
+                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.get('ckan.site_id'))
         try:
-            commit = config.get_value('ckan.search.solr_commit')
+            commit = config.get('ckan.search.solr_commit')
             conn.delete(q=query, commit=commit)
         except Exception as e:
             log.exception(e)

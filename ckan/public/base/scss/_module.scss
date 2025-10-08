@@ -29,33 +29,17 @@
         margin-bottom: $grid-gutter-width;
       }
     }
-}
 
-// @media (min-width: $screen-sm-min) {
-//     .span9 div.module-content {
-//         padding-left: 10px;
-//     }
-// }
-// .module-content:first-child {
-//     // margin-top: 0;
-//     padding-top: $gutterY;
-// }
-// .module-content:last-child {
-//     // margin-bottom: 0;
-//     padding-bottom: $gutterY;
-// }
-// .module-content> :last-child {
-//     // margin-bottom: 0;
-// }
+    p a:link {
+      text-decoration: underline;
+    }
+}
 
 .module:first-child .module-heading {
     @include border-radius(3px 0 0 0);
     border-top-width: 0;
 }
 
-// .module:last-child {
-//     margin-bottom: 20px;
-// }
 .module-footer {
     padding: 7px $gutterX 7px;
     margin: 0;
@@ -72,38 +56,6 @@
     border-top: 1px solid $hr-color;
     padding-top: math.div($grid-gutter-width,3);
 }
-
-// .module-content .pagination {
-//     margin-left: -25px;
-//     margin-right: -25px;
-//     margin-bottom: -20px;
-// }
-
-// .module @mixin pagination>ul {
-//     @include border-radius(0);
-//     @include box-shadow(none);
-//     border: 0;
-// }
-
-// .module .pagination li a {
-//     border-top: 1px solid $moduleHeadingBorderColor;
-//     ;
-//     border-bottom: 1px solid $moduleHeadingBorderColor;
-//     ;
-//     padding-top: 7px;
-//     padding-bottom: 7px;
-// }
-
-// .module .pagination li:first-child a,
-// .module .pagination li:last-child a {
-//     @include border-radius(0);
-// }
-
-// .module-content-shallow {
-//     padding: 0;
-//     margin-top: 10px;
-//     padding-bottom: 10px;
-// }
 
 .module h1 {
     margin-top: 0;
@@ -207,19 +159,15 @@
         position: relative;
         float: right;
         top: -10px;
-        right: -15px;
+        right: 0;
+        li {
+            margin-right: 0px;
+        }
     }
 }
 
 .module .module-tags {
     padding-bottom: 8px;
-}
-
-.secondary,
-.primary {
-    .module:first-child {
-        // margin-top: 0;
-    }
 }
 
 .no-nav .module:last-child {

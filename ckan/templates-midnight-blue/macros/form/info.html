@@ -1,0 +1,24 @@
+{#
+Renders an info box with a description. This will usually be used with in a
+call block when creating an input element.
+
+text    - The text to include in the box.
+inline  - If true displays the info box inline with the input.
+classes - A list of classes to add to the info box.
+
+Example
+
+{% import 'macros/form.html' as form %}
+{% call form.input('name') %}
+{{ form.info(_('My useful help text')) }}
+{% endcall %}
+
+#}
+{% macro info(text='', inline=false, classes=[]) %}
+{%- if text -%}
+<div class="info-block{{ ' info-inline' if inline }}{{ " " ~ classes | join(' ') }}">
+<i class="fa fa-info-circle"></i>
+{{ text }}
+</div>
+{%- endif -%}
+{% endmacro %}

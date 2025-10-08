@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import ckan.lib.base as base
-import ckan.lib.helpers as helpers
 from flask import Blueprint
 render = base.render
 
@@ -25,17 +24,9 @@ def config_two():
     )
 
 
-def build_extra_admin_nav():
-    u'''Return results of helpers.build_extra_admin_nav for testing.'''
-    return helpers.build_extra_admin_nav()
-
-
 example_iconfigurer.add_url_rule(
     u'/ckan-admin/myext_config_one', view_func=config_one
 )
 example_iconfigurer.add_url_rule(
     u'/ckan-admin/myext_config_two', view_func=config_two
-)
-example_iconfigurer.add_url_rule(
-    u'/build_extra_admin_nav', view_func=build_extra_admin_nav
 )

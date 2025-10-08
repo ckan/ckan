@@ -90,6 +90,25 @@ groups:
       or ``list``). Table view is the typical grid layout, with horizontal
       scrolling.  List view is a responsive table, automatically hiding columns
       as required to fit the browser viewport. In addition, list view allows
-      the user to view, copy and print the details of a specific row. This
-      value can be overridden at the resource level when configuring a
+      the user to expand the remaining columns by clicking on the first cell,
+      or view all valued for a row in a dialog box depending on the
+      ``ckan.datatables.responsive_modal`` setting.
+      This value can be overridden at the resource level when configuring a
       DataTables resource view.
+
+  - key: ckan.datatables.null_label
+    default: ''
+    example: N/A
+    description: |
+      The option defines the label used to display NoneType values for the front-end.
+      This should be a string and can be translated via po files.
+
+  - key: ckan.datatables.responsive_modal
+    default: false
+    type: bool
+    example: 'true'
+    description: |
+      When a table is in list (responsive) view mode with some columns hidden
+      and the user clicks on the first cell, use a modal dialog to  display the
+      complete row contents instead of expanding the missing columns
+      in the table itself. Prior to CKAN 2.12 the default setting was "true".

@@ -7,7 +7,7 @@ import ckan.tests.factories as factories
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore sample_datastore_plugin")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_datastore_search_can_create_custom_filters():
     records = [{"age": 20}, {"age": 30}, {"age": 40}]
     resource = _create_datastore_resource(records)
@@ -22,7 +22,7 @@ def test_datastore_search_can_create_custom_filters():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore sample_datastore_plugin")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_datastore_search_filters_sent_arent_modified():
     records = [{"age": 20}, {"age": 30}, {"age": 40}]
     resource = _create_datastore_resource(records)
@@ -36,7 +36,7 @@ def test_datastore_search_filters_sent_arent_modified():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore sample_datastore_plugin")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_datastore_search_custom_filters_have_the_correct_operator_precedence():
     """
     We're testing that the WHERE clause becomes:
@@ -58,7 +58,7 @@ def test_datastore_search_custom_filters_have_the_correct_operator_precedence():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore sample_datastore_plugin")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_datastore_search_insecure_filter():
     records = [{"age": 20}, {"age": 30}, {"age": 40}]
     resource = _create_datastore_resource(records)
@@ -81,7 +81,7 @@ def test_datastore_search_insecure_filter():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore sample_datastore_plugin")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_datastore_delete_can_create_custom_filters():
     records = [{"age": 20}, {"age": 30}, {"age": 40}]
     resource = _create_datastore_resource(records)
@@ -104,7 +104,7 @@ def test_datastore_delete_can_create_custom_filters():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore sample_datastore_plugin")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_datastore_delete_custom_filters_have_the_correct_operator_precedence():
     """
     We're testing that the WHERE clause becomes:
@@ -133,7 +133,7 @@ def test_datastore_delete_custom_filters_have_the_correct_operator_precedence():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore sample_datastore_plugin")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_datastore_delete_insecure_filter():
     records = [{"age": 20}, {"age": 30}, {"age": 40}]
     resource = _create_datastore_resource(records)
@@ -159,8 +159,7 @@ def test_datastore_delete_insecure_filter():
 
 
 def _create_datastore_resource(records):
-    dataset = factories.Dataset()
-    resource = factories.Resource(package=dataset)
+    resource = factories.Resource()
 
     data = {"resource_id": resource["id"], "force": True, "records": records}
 

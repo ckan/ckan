@@ -2,7 +2,6 @@
 
 import flask
 import pytest
-import six
 from unittest.mock import patch
 from ckan.lib.helpers import url_for
 
@@ -24,7 +23,7 @@ CONTENT = "data"
 # open)
 @pytest.mark.ckan_config("ckan.plugins", "example_iuploader")
 @pytest.mark.ckan_config("ckan.webassets.path", "/tmp/webassets")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 @patch.object(flask, "send_file", side_effect=[CONTENT])
 def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config
@@ -32,7 +31,8 @@ def test_resource_download_iuploader_called(
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
     user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    user_token = factories.APIToken(user=user["name"])
+    headers = {"Authorization": user_token["token"]}
     url = url_for("dataset.new")
 
     dataset_name = u"package_with_resource"
@@ -41,8 +41,7 @@ def test_resource_download_iuploader_called(
         "save": "",
         "_ckan_phase": 1
     }
-    response = app.post(
-        url, data=form, environ_overrides=env, follow_redirects=False)
+    response = app.post(url, data=form, headers=headers, follow_redirects=False)
     location = response.headers['location']
     location = urlparse(location)._replace(scheme='', netloc='').geturl()
 
@@ -54,13 +53,13 @@ def test_resource_download_iuploader_called(
         side_effect=plugin.ResourceUpload.get_path,
         autospec=True,
     ) as mock_get_path:
-        response = app.post(location, environ_overrides=env, data={
+        response = app.post(location, headers=headers, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata",
             "upload": ("README.rst", CONTENT)
         })
-    assert mock_get_path.call_count == 3
+    assert mock_get_path.call_count == 1
     assert isinstance(mock_get_path.call_args[0][0], plugin.ResourceUpload)
     pkg = model.Package.by_name(dataset_name)
     assert mock_get_path.call_args[0][1] == pkg.resources[0].id
@@ -68,7 +67,8 @@ def test_resource_download_iuploader_called(
     assert pkg.resources[0].url_type == u"upload"
     assert pkg.state == "active"
     url = url_for(
-        "resource.download", id=pkg.id, resource_id=pkg.resources[0].id
+        "{}_resource.download".format(pkg.type),
+        id=pkg.id, resource_id=pkg.resources[0].id
     )
 
     # Mock the plugin's ResourceUploader again

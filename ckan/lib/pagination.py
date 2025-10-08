@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import re
 from string import Template
-from typing import Any, Callable, Match, Optional, Sequence, List
+from typing import Any, Callable, Match, Optional, Sequence, List, cast
 
 import dominate.tags as tags
 from markupsafe import Markup
@@ -53,7 +53,7 @@ class BasePage(List[Any]):
 
     - a sequence
     - an SQLAlchemy query - e.g.: Session.query(MyModel)
-    - an SQLAlchemy select - e.g.: sqlalchemy.select([my_table])
+    - an SQLAlchemy select - e.g.: sqlalchemy.select(my_table)
 
     A "Page" instance maintains pagination logic associated with each
     page, where it begins, what the first/last item on the page is, etc.
@@ -200,7 +200,7 @@ class BasePage(List[Any]):
             # We subclassed "list" so we need to call its init() method
             # and fill the new list with the items to be displayed on the page.
             # We use list() so that the items on the current page are retrieved
-            # only once. Otherwise it would run the actual SQL query everytime
+            # only once. Otherwise it would run the actual SQL query every time
             # .items would be accessed.
             if presliced_list:
                 self.items = self.collection
@@ -410,7 +410,7 @@ class BasePage(List[Any]):
             Default: { 'class':'pager_dotdot' }
 
         onclick (optional)
-            This paramter is a string containing optional Javascript
+            This parameter is a string containing optional Javascript
             code that will be used as the 'onclick' action of each
             pager link.  It can be used to enhance your pager with
             AJAX actions loading another page into a DOM object.
@@ -554,7 +554,7 @@ class BasePage(List[Any]):
             nav_items.append(text)
 
         for thispage in range(leftmost_page, rightmost_page + 1):
-            # Hilight the current page number and do not use a link
+            # Highlight the current page number and do not use a link
             if thispage == self.page:
                 text = u"%s" % (thispage,)
                 # Wrap in a SPAN tag if nolink_attr is set
@@ -583,7 +583,7 @@ class BasePage(List[Any]):
 
         return self.separator.join(nav_items)
 
-    def _pagerlink(self, page: int, text: str):
+    def _pagerlink(self, page: int, text: str) -> Any:
         """
         Create a URL that links to another page using url_for().
 
@@ -633,14 +633,17 @@ class BasePage(List[Any]):
 
 class Page(BasePage):
     def pager(self, *args: Any, **kwargs: Any) -> Markup:
-        with tags.div(cls=u"pagination-wrapper") as wrapper:
-            tags.ul(u"$link_previous ~2~ $link_next", cls=u"pagination")
+        with cast(Any, tags.div(cls=u"pagination-wrapper")) as wrapper:
+            tags.ul(
+                "$link_previous ~2~ $link_next",
+                cls="pagination justify-content-center"
+            )
         params = dict(
             format=str(wrapper),
-            symbol_previous=u"«",
-            symbol_next=u"»",
-            curpage_attr={u"class": u"active"},
-            link_attr={},
+            symbol_previous=tags.i(cls='fa-solid fa-chevron-left'),
+            symbol_next=tags.i(cls='fa-solid fa-chevron-right'),
+            curpage_attr={u"class": u"page-item active"},
+            link_attr={"class": "page-link"},
         )
         params.update(kwargs)
         return super(Page, self).pager(*args, **params)
@@ -651,7 +654,7 @@ class Page(BasePage):
             self, page: int, text: str,
             extra_attributes: Optional[dict[str, Any]] = None):
         anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {}
+        extra_attributes = extra_attributes or {"class": "page-item"}
         return str(tags.li(anchor, **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>

@@ -6,6 +6,9 @@ from unittest import mock
 
 from ckan.tests import helpers, factories
 from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic import ValidationError
+from ckan.plugins.toolkit import config
+from ckan import model
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -25,6 +28,23 @@ class TestPatch(object):
 
         assert dataset2["name"] == stub.name
         assert dataset2["notes"] == "some test now"
+
+    def test_package_patch_invalid_characters_in_resource_id(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "package_patch",
+                id=dataset["id"],
+                resources=[
+                    {
+                        "id": "../../nope.txt",
+                        "url": "http://data",
+                        "name": "A nice resource",
+                    },
+                ],
+            )
 
     def test_resource_patch_updating_single_field(self):
         user = factories.User()
@@ -194,6 +214,33 @@ class TestPatch(object):
         assert user2["fullname"] == "Mr. Test User"
         assert user2["about"] == "somethingnew"
 
+    def test_extensions_successful_patch_updating_user_name(self):
+        user = factories.User()
+
+        updated_user = helpers.call_action(
+            "user_patch",
+            context={"user": user["name"], "ignore_auth": True},
+            id=user["id"],
+            name="somethingnew"
+        )
+
+        assert updated_user["name"] == "somethingnew"
+
+        user2 = helpers.call_action("user_show", id=user["id"])
+
+        assert user2["name"] == "somethingnew"
+
+    def test_extensions_failed_patch_updating_user_name(self):
+        user = factories.User()
+
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "user_patch",
+                context={"user": user["name"], "ignore_auth": False},
+                id=user["id"],
+                name="somethingnew2"
+            )
+
     def test_package_patch_for_update(self):
 
         dataset = factories.Dataset()
@@ -216,3 +263,59 @@ class TestPatch(object):
         with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
             helpers.call_action('resource_patch', id=resource['id'], description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_patch_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        res1 = factories.Resource()
+        res2 = factories.Resource(
+            package_id=res1['package_id'],
+            url="http://data",
+        )
+        params = {
+            "id": res2['id'],
+            "url": "http://data2",
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_patch", **params)
+            assert m.call_args.args[3] == {0: 0}, 'res 0 unmodified'
+
+    def test_user_patch_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+        user = factories.User()
+
+        # cannot change your own sysadmin privs
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "user_patch",
+                id=sysadmin["id"],
+                sysadmin=False,
+                context={"user": sysadmin["name"]},
+            )
+
+        # cannot change system user privs
+        site_id = config.get('ckan.site_id')
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "user_patch",
+                id=site_id,
+                sysadmin=False,
+                context={"user": sysadmin["name"]},
+            )
+
+        assert user["sysadmin"] is False
+
+        helpers.call_action(
+                "user_patch",
+                id=user["id"],
+                sysadmin=True,
+                context={"user": sysadmin["name"]},
+            )
+
+        # user dicts do not have sysadmin key, get from db
+        new_sysadmin = model.User.get(user["id"])
+
+        assert new_sysadmin.sysadmin is True

@@ -11,7 +11,7 @@ import ckan.tests.helpers as helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_iresourcecontroller")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestExampleIResourceController(object):
     """Tests for the plugin that uses IResourceController.
 
@@ -94,4 +94,4 @@ class TestExampleIResourceController(object):
         assert plugin.counter["after_resource_update"] == 0, plugin.counter
         assert plugin.counter["before_resource_delete"] == 0, plugin.counter
         assert plugin.counter["after_resource_delete"] == 0, plugin.counter
-        assert plugin.counter["before_resource_show"] == 4, plugin.counter
+        assert plugin.counter["before_resource_show"] == 2, plugin.counter

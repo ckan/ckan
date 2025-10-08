@@ -12,9 +12,7 @@ def test_build_and_clean(cli, ckan_config, tmpdir, monkeypatch):
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
     cli.invoke(ckan, [u'asset', u'build'])
-    assert len(tmpdir.listdir()) == 1
-    webassets_folder = tmpdir.listdir()[0]
-    assert webassets_folder.basename == u'webassets'
+    webassets_folder = [d for d in tmpdir.listdir() if d.basename == "webassets"][0]
     for folder in webassets_folder.listdir():
         if not folder.isdir():
             continue

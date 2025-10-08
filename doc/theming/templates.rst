@@ -37,17 +37,17 @@ an extension and plugin. For a detailed explanation of the steps below, see
         example_theme=ckanext.example_theme.plugin:ExampleThemePlugin
     ''',
 
-4. Run ``python setup.py develop``:
+4. Run ``pip install -e .``:
 
    .. parsed-literal::
 
     cd |extension_dir|
-    python setup.py develop
+    pip install -e .
 
 5. Add the plugin to the ``ckan.plugins`` setting in your |ckan.ini|
    file::
 
-    ckan.plugins = stats text_view recline_view example_theme
+    ckan.plugins = stats text_view datatables_view example_theme
 
 6. Start CKAN in the development web server:
 
@@ -312,8 +312,7 @@ enabled plugins with this code in any template file:
    :start-after: Jinja for-loop example
    :end-before: End example
 
-Other variables, such as :ref:`ckan.tracking_enabled`, are booleans, and can be
-tested using Jinja's ``{% if %}`` tag:
+Other boolean variables can be tested using Jinja's ``{% if %}`` tag:
 
 .. literalinclude:: /../ckanext/example_theme_docs/v03_jinja/templates/home/index.html
    :language: django
@@ -356,11 +355,11 @@ Replacing template blocks with ``{% block %}``
 ----------------------------------------------
 
 Jinja templates can contain *blocks* that child templates can override.  For
-example, CKAN's default ``home/layout1.html`` template (one of the files used
+example, CKAN's default ``home/index.html`` template (one of the files used
 to render the CKAN front page) has a block that contains the Jinja and HTML
 code for the "featured group" that appears on the front page:
 
-.. literalinclude:: /../ckan/templates/home/layout1.html
+.. literalinclude:: /../ckan/templates/home/index.html
    :language: django
    :start-after: {# Start template block example. #}
    :end-before: {# End template block example. #}
@@ -380,12 +379,12 @@ code for the "featured group" that appears on the front page:
 When a custom template file extends one of CKAN's default template files using
 ``{% ckan_extends %}``, it can replace any of the blocks from the default
 template with its own code by using ``{% block %}``. Create the file
-|layout1.html| with these contents:
+|index.html| with these contents:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v05_block/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v05_block/templates/home/index.html
    :language: django
 
-This file extends the default ``layout1.html`` template, and overrides the
+This file extends the default ``index.html`` template, and overrides the
 ``featured_group`` block.  Restart the development web server and reload the
 `CKAN front page`_ in your browser.  You should see that the featured groups
 section of the page has been replaced, but the rest of the page remains intact.
@@ -408,7 +407,7 @@ Extending parent blocks with Jinja's ``{{ super() }}``
 If you want to add some code to a block but don't want to replace the entire
 block, you can use Jinja's ``{{ super() }}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v06_super/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v06_super/templates/home/index.html
    :language: django
 
 When the child block above is rendered, Jinja will replace the
@@ -566,9 +565,9 @@ One way for templates to get content out of CKAN is by calling CKAN's
 
 For example, let's replace the featured group on the front page with an
 activity stream of the site's recently created, updated and deleted datasets.
-Change the code in |layout1.html| to this:
+Change the code in |index.html| to this:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v07_helper_function/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v07_helper_function/templates/home/index.html
    :language: django
 
 Reload the `CKAN front page`_ in your browser and you should see a new activity
@@ -581,7 +580,7 @@ To call a template helper function we use a Jinja2 *expression* (code wrapped
 in ``{{ ... }}`` brackets), and we use the global variable :py:data:`h`
 (available to all templates) to access the helper:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v07_helper_function/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v07_helper_function/templates/home/index.html
    :language: django
    :start-after: {% block featured_group %}
    :end-before: {% endblock %}
@@ -637,9 +636,9 @@ as a template helper:
 Now that we've registered our helper function, we need to call it from our
 template. As with CKAN's default template helpers, templates access custom
 helpers via the global variable :py:data:`h`.
-Edit |layout1.html| to look like this:
+Edit |index.html| to look like this:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/templates/home/index.html
    :language: django
 
 Now reload your `CKAN front page`_ in your browser. You should see the featured
@@ -679,14 +678,14 @@ and on user dashboard pages, for example):
 (As you can see, this snippet calls another snippet, ``group_item.html``, to
 render each individual group.)
 
-Let's change our |layout1.html| file to call this snippet:
+Let's change our |index.html| file to call this snippet:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v09_snippet/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v09_snippet/templates/home/index.html
    :language: django
 
 Here we pass two arguments to the ``{% snippet %}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v09_snippet/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v09_snippet/templates/home/index.html
    :language: django
    :start-after: {# Call the group_list.html snippet. #}
    :end-before: {% endblock %}
@@ -769,10 +768,10 @@ object (packages/datasets, organizations, users...) has, you can use
 attributes a group has, call the :py:func:`~ckan.logic.action.get.group_show`
 function.
 
-Now edit your |layout1.html| file and change it to use our new snippet instead
+Now edit your |index.html| file and change it to use our new snippet instead
 of the default one:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v10_custom_snippet/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v10_custom_snippet/templates/home/index.html
    :language: django
 
 Restart the development web server and reload the `CKAN front page`_ and you
@@ -838,10 +837,10 @@ and a ``<section class="module-content">``. We also added Bootstrap's
 If you reload the `CKAN front page`_, the most popular groups should look much
 better.
 
-To wrap your activity stream in a similar box, edit ``layout1.html`` to look
+To wrap your activity stream in a similar box, edit ``index.html`` to look
 like this:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v11_HTML_and_CSS/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v11_HTML_and_CSS/templates/home/index.html
    :language: django
 
 Reload the `CKAN front page`_, and you should see your activity stream and
@@ -891,9 +890,9 @@ the most popular groups on the front page. First, add a new helper function to
    of the extension, to avoid conflicting with core config settings or with
    config settings from other extensions. See :ref:`avoid name clashes`.
 
-Now we can call this helper function from our ``layout1.html`` template:
+Now we can call this helper function from our ``index.html`` template:
 
-.. literalinclude:: /../ckanext/example_theme_docs/custom_config_setting/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/custom_config_setting/templates/home/index.html
    :language: django
    :start-after: is True, otherwise call the super block. #}
 

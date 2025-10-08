@@ -15,6 +15,7 @@ ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 
 @toolkit.blanket.config_declarations
+@toolkit.blanket.helpers
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
@@ -37,25 +38,26 @@ class DataTablesView(p.SingletonPlugin):
         '''
 
         # https://datatables.net/reference/option/lengthMenu
-        self.page_length_choices = config.get_value(
+        self.page_length_choices = config.get(
             u'ckan.datatables.page_length_choices')
 
         self.page_length_choices = [int(i) for i in self.page_length_choices]
-        self.state_saving = config.get_value(u'ckan.datatables.state_saving')
+        self.state_saving = config.get(u'ckan.datatables.state_saving')
 
         # https://datatables.net/reference/option/stateDuration
-        self.state_duration = config.get_value(
+        self.state_duration = config.get(
             u"ckan.datatables.state_duration")
-        self.data_dictionary_labels = config.get_value(
+        self.data_dictionary_labels = config.get(
             u"ckan.datatables.data_dictionary_labels")
-        self.ellipsis_length = config.get_value(
+        self.ellipsis_length = config.get(
             u"ckan.datatables.ellipsis_length")
-        self.date_format = config.get_value(u"ckan.datatables.date_format")
-        self.default_view = config.get_value(u"ckan.datatables.default_view")
+        self.date_format = config.get(u"ckan.datatables.date_format")
+        self.default_view = config.get(u"ckan.datatables.default_view")
+        self.responsive_modal = config.get("ckan.datatables.responsive_modal")
 
         toolkit.add_template_directory(config, u'templates')
+        toolkit.add_resource(u'assets', u'ckanext-datatablesview')
         toolkit.add_public_directory(config, u'public')
-        toolkit.add_resource(u'public', u'ckanext-datatablesview')
 
     # IResourceView
 
@@ -65,13 +67,16 @@ class DataTablesView(p.SingletonPlugin):
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> dict[str, Any]:
-        return {u'page_length_choices': self.page_length_choices,
-                u'state_saving': self.state_saving,
-                u'state_duration': self.state_duration,
-                u'data_dictionary_labels': self.data_dictionary_labels,
-                u'ellipsis_length': self.ellipsis_length,
-                u'date_format': self.date_format,
-                u'default_view': self.default_view}
+        return {
+            'page_length_choices': self.page_length_choices,
+            'state_saving': self.state_saving,
+            'state_duration': self.state_duration,
+            'data_dictionary_labels': self.data_dictionary_labels,
+            'ellipsis_length': self.ellipsis_length,
+            'date_format': self.date_format,
+            'default_view': self.default_view,
+            'responsive_modal': self.responsive_modal,
+        }
 
     def view_template(self, context: Context, data_dict: dict[str, Any]):
         return u'datatables/datatables_view.html'

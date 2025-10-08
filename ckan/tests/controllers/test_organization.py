@@ -1,7 +1,8 @@
 # encoding: utf-8
 
+import uuid
+
 import pytest
-import six
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz
@@ -10,35 +11,46 @@ from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.fixture
+def user():
+    user = factories.UserWithToken()
+    return user
+
+
+@pytest.fixture
+def sysadmin():
+    user = factories.SysadminWithToken()
+    return user
+
+
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationNew(object):
-    @pytest.fixture
-    def user_env(self):
-        user = factories.User()
-        return {"REMOTE_USER": six.ensure_str(user["name"])}
 
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
 
-    def test_name_required(self, app, user_env):
-        response = app.post(
-            url=url_for("organization.new"), extra_environ=user_env, data={"save": ""}
-        )
+    def test_name_required(self, app, user):
+        url = url_for("organization.new")
+        headers = {"Authorization": user["token"]}
+        response = app.post(url=url, headers=headers, data={"save": ""})
         assert "Name: Missing value" in response
 
-    def test_saved(self, app, user_env):
+    def test_saved(self, app, user):
+        headers = {"Authorization": user["token"]}
+        url = url_for("organization.new")
         app.post(
-            url=url_for("organization.new"), extra_environ=user_env,
-            data={"save": "", "name": "saved"}
+            url=url, headers=headers, data={"save": "", "name": "saved"}
         )
         group = helpers.call_action("organization_show", id="saved")
         assert group["title"] == u""
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
-    def test_all_fields_saved(self, app, user_env):
+    def test_all_fields_saved(self, app, user):
+        headers = {"Authorization": user["token"]}
         app.post(
-            url=url_for("organization.new"), extra_environ=user_env,
+            url=url_for("organization.new"),
+            headers=headers,
             data={
                 "name": u"all-fields-saved",
                 "title": "Science",
@@ -52,28 +64,26 @@ class TestOrganizationNew(object):
         assert group["description"] == "Sciencey datasets"
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestOrganizationList(object):
     @pytest.mark.usefixtures("non_clean_db")
     def test_error_message_shown_when_no_organization_list_permission(
-        self, monkeypatch, app
+        self, monkeypatch, app, user
     ):
         authz._AuthFunctions.get('organization_list')
         monkeypatch.setitem(
             authz._AuthFunctions._functions, 'organization_list',
-            lambda *args: {'success': False})
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
+            lambda *args: {'success': False}
+        )
         self.organization_list_url = url_for("organization.index")
-
+        headers = {"Authorization": user["token"]}
         app.get(
             url=self.organization_list_url,
-            extra_environ=self.user_env,
-            status=403,
+            headers=headers,
+            status=403
         )
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationRead(object):
     def test_group_read(self, app):
         org = factories.Organization()
@@ -91,165 +101,200 @@ class TestOrganizationRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        name = factories.Organization.stub().name
-        org = factories.Organization(id=name, name=name)
+        id_ = str(uuid.uuid4())
+        org = factories.Organization(id=id_, name=id_)
         app.get(
             url_for("organization.read", id=org["id"]), status=200
         )  # ie no redirect
 
+    def test_group_read_displays_correct_dataset_count(self, app):
+        """
+        Tests that the organization read view displays the correct
+        dataset count with and without a search query.
+        """
+        org = factories.Organization()
+        _, dataset = factories.Dataset.create_batch(2, owner_org=org["id"])
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+        # Test without search query
+        resp = app.get(url_for("organization.read", id=org["id"]))
+        soup = BeautifulSoup(resp.body, 'html.parser')
+
+        dataset_count = soup.find('dt', text='Datasets').find_next_sibling('dd').find('span')
+        assert dataset_count.text == "2"
+
+        # Test with search query
+        title = dataset["title"]
+        resp = app.get(url_for("organization.read", id=org["id"], q=title))
+        soup = BeautifulSoup(resp.body, 'html.parser')
+
+        dataset_count = soup.find('dt', text='Datasets').find_next_sibling('dd').find('span')
+        assert dataset_count.text == "2"
+
+        h1_tag = soup.select_one('h1:contains("dataset")')
+        assert h1_tag.text.strip() == f'1 dataset found for "{title}"'
+
+
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationEdit(object):
-    @pytest.fixture
-    def initial_data(self):
-        user = factories.User()
-        return {
-            "user": user,
-            "user_env": {"REMOTE_USER": six.ensure_str(user["name"])},
-            "organization": factories.Organization(user=user),
-        }
 
-    def test_group_doesnt_exist(self, app, initial_data):
+    def test_group_doesnt_exist(self, app, user):
+        headers = {"Authorization": user["token"]}
         url = url_for("organization.edit", id="doesnt_exist")
-        app.get(url=url, extra_environ=initial_data["user_env"], status=404)
+        app.get(url=url, headers=headers, status=404)
 
-    def test_saved(self, app, initial_data):
+    def test_saved(self, app, user):
+        headers = {"Authorization": user["token"]}
+        group = factories.Organization(user=user)
         app.post(
             url=url_for(
-                "organization.edit", id=initial_data["organization"]["id"]
+                "organization.edit", id=group["id"]
             ),
-            extra_environ=initial_data["user_env"],
+            headers=headers,
             data={"save": ""}
         )
 
         group = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
-    def test_all_fields_saved(self, app, initial_data):
+    def test_all_fields_saved(self, app, user):
+        headers = {"Authorization": user["token"]}
+        group = factories.Organization(user=user)
         app.post(
             url=url_for(
-                "organization.edit", id=initial_data["organization"]["id"]
+                "organization.edit", id=group["id"]
             ),
-            extra_environ=initial_data["user_env"],
+            headers=headers,
             data={
-                "name": u"all-fields-edited",
-                "title": "Science",
+                "name": u"all-fields-edited-organization",
+                "title": "Science Organization Test",
                 "description": "Sciencey datasets",
                 "image_url": "http://example.com/image.png",
                 "save": ""
             }
         )
         group = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
-        assert group["title"] == u"Science"
+        assert group["title"] == u"Science Organization Test"
         assert group["description"] == "Sciencey datasets"
         assert group["image_url"] == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationDelete(object):
-    @pytest.fixture
-    def initial_data(self):
-        user = factories.User()
-        return {
-            "user": user,
-            "user_env": {"REMOTE_USER": six.ensure_str(user["name"])},
-            "organization": factories.Organization(user=user),
-        }
 
-    def test_owner_delete(self, app, initial_data):
+    def test_owner_delete(self, app, user):
+        headers = {"Authorization": user["token"]}
+        group = factories.Organization(user=user)
         app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
-            extra_environ=initial_data["user_env"],
+            headers=headers,
             data={"delete": ""}
         )
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "deleted"
 
-    def test_sysadmin_delete(self, app, initial_data):
-        sysadmin = factories.Sysadmin()
-        extra_environ = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
+    def test_sysadmin_delete(self, app, sysadmin):
+        group = factories.Organization()
+        headers = {"Authorization": sysadmin["token"]}
         app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
+            headers=headers,
             status=200,
-            extra_environ=extra_environ,
             data={"delete": ""}
         )
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "deleted"
+
+    def test_delete_form_rendered_correctly(self, app, sysadmin):
+        group = factories.Organization()
+        headers = {"Authorization": sysadmin["token"]}
+
+        res = app.get(
+            url=url_for(
+                "organization.delete", id=group["id"]
+            ),
+            headers=headers,
+            status=200
+        )
+
+        assert helpers.body_contains(res, url_for("organization.delete", id=group["id"]))
 
     def test_non_authorized_user_trying_to_delete_fails(
-        self, app, initial_data
+        self, app, user
     ):
-        user = factories.User()
-        extra_environ = {"REMOTE_USER": six.ensure_str(user["name"])}
+        headers = {"Authorization": user["token"]}
+        group = factories.Organization()
         app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
+            headers=headers,
             status=403,
-            extra_environ=extra_environ,
             data={"delete": ""}
         )
 
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "active"
 
-    def test_anon_user_trying_to_delete_fails(self, app, initial_data):
+    def test_anon_user_trying_to_delete_fails(self, app):
+        group = factories.Organization()
         app.get(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
             status=403,
         )
 
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "active"
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
-    def test_delete_organization_with_datasets(self, app, initial_data):
+    def test_delete_organization_with_datasets(self, app, user):
         """ Test deletion of organization that has datasets"""
+        headers = {"Authorization": user["token"]}
+        group = factories.Organization(user=user)
         text = "Organization cannot be deleted while it still has datasets"
-        for i in range(0, 5):
-            factories.Dataset(owner_org=initial_data["organization"]["id"])
+        for _ in range(0, 5):
+            factories.Dataset(owner_org=group["id"])
 
         response = app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
-            extra_environ=initial_data["user_env"],
-            data={"delete": ""}
+            headers=headers,
+            data={"delete": ""},
         )
 
         assert helpers.body_contains(response, text)
 
-    def test_delete_organization_with_unknown_dataset_true(self, initial_data):
+    def test_delete_organization_with_unknown_dataset_true(self, user):
         """ Test deletion of organization that has datasets and unknown
             datasets are set to true"""
+        group = factories.Organization(user=user)
         dataset = factories.Dataset(
-            owner_org=initial_data["organization"]["id"]
+            owner_org=group["id"]
         )
-        assert dataset["owner_org"] == initial_data["organization"]["id"]
+        assert dataset["owner_org"] == group["id"]
         user = factories.User()
         helpers.call_action(
             "organization_delete",
-            id=initial_data["organization"]["id"],
+            id=group["id"],
             context={"user": user["name"]},
         )
 
@@ -257,16 +302,15 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationBulkProcess(object):
-    def test_make_private(self, app):
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
-        self.organization = factories.Organization(user=self.user)
+    def test_make_private(self, app, user):
+        headers = {"Authorization": user["token"]}
+        self.organization = factories.Organization(user=user)
 
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=False)
-            for i in range(0, 5)
+            for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.private"] = "private"
@@ -275,7 +319,7 @@ class TestOrganizationBulkProcess(object):
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
-            extra_environ=self.user_env,
+            headers=headers,
             data=form
         )
 
@@ -283,14 +327,13 @@ class TestOrganizationBulkProcess(object):
             d = helpers.call_action("package_show", id=dataset["id"])
             assert d["private"]
 
-    def test_make_public(self, app):
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
-        self.organization = factories.Organization(user=self.user)
+    def test_make_public(self, app, user):
+        headers = {"Authorization": user["token"]}
+        self.organization = factories.Organization(user=user)
 
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
-            for i in range(0, 5)
+            for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.public"] = "public"
@@ -298,20 +341,19 @@ class TestOrganizationBulkProcess(object):
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
-            extra_environ=self.user_env,
+            headers=headers,
             data=form
         )
         for dataset in datasets:
             d = helpers.call_action("package_show", id=dataset["id"])
             assert not (d["private"])
 
-    def test_delete(self, app):
-        self.user = factories.User()
-        self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
-        self.organization = factories.Organization(user=self.user)
+    def test_delete(self, app, user):
+        headers = {"Authorization": user["token"]}
+        self.organization = factories.Organization(user=user)
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
-            for i in range(0, 5)
+            for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.delete"] = "delete"
@@ -320,8 +362,7 @@ class TestOrganizationBulkProcess(object):
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
-            extra_environ=self.user_env,
-
+            headers=headers,
             data=form
         )
 
@@ -330,7 +371,7 @@ class TestOrganizationBulkProcess(object):
             assert d["state"] == "deleted"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationSearch(object):
     """Test searching for organizations."""
 
@@ -500,21 +541,35 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationMembership(object):
-    def test_editor_users_cannot_add_members(self, app):
 
-        user = factories.User()
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
+    def test_admin_users_cannot_invite_members(self, app, user):
+        """ Org admin users can't invite users if they can't create users """
+        headers = {"Authorization": user["token"]}
+        organization = factories.Organization(
+            users=[{"name": user["name"], "capacity": "admin"}]
+        )
+
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url_for("organization.member_new", id=organization["id"]),
+                headers=headers,
+            )
+            assert response.status_code == 200
+            assert "invite a new user" not in response
+
+    def test_editor_users_cannot_add_members(self, app, user):
+        headers = {"Authorization": user["token"]}
         organization = factories.Organization(
             users=[{"name": user["name"], "capacity": "editor"}]
         )
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
         with app.flask_app.test_request_context():
             app.get(
                 url_for("organization.member_new", id=organization["id"]),
-                extra_environ=env,
+                headers=headers,
                 status=403,
             )
 
@@ -526,22 +581,20 @@ class TestOrganizationMembership(object):
                     "save": "save",
                     "role": "test",
                 },
-                extra_environ=env,
+                headers=headers,
                 status=403,
             )
 
-    def test_member_users_cannot_add_members(self, app):
-        user = factories.User()
+    def test_member_users_cannot_add_members(self, app, user):
+        headers = {"Authorization": user["token"]}
         organization = factories.Organization(
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
         with app.flask_app.test_request_context():
             app.get(
                 url_for("organization.member_new", id=organization["id"]),
-                extra_environ=env,
+                headers=headers,
                 status=403,
             )
 
@@ -553,7 +606,7 @@ class TestOrganizationMembership(object):
                     "save": "save",
                     "role": "test",
                 },
-                extra_environ=env,
+                headers=headers,
                 status=403,
             )
 
@@ -577,9 +630,9 @@ class TestOrganizationMembership(object):
                 status=403,
             )
 
-    def test_create_user_for_user_invite(self, mail_server):
+    @pytest.mark.usefixtures("with_request_context")
+    def test_create_user_for_user_invite(self, mail_server, sysadmin):
         group = factories.Group()
-        sysadmin = factories.Sysadmin()
         context = {"user": sysadmin["name"]}
 
         user_form = {
@@ -595,22 +648,108 @@ class TestOrganizationMembership(object):
         assert user_obj.state == 'pending'
         assert user_obj.last_active is None
 
-    def test_member_delete(self, app):
-        sysadmin = factories.Sysadmin()
-        user = factories.User()
+    def test_member_delete(self, app, sysadmin, user):
+        headers = {"Authorization": sysadmin["token"]}
         org = factories.Organization(
             users=[{"name": user["name"], "capacity": "member"}]
         )
-        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         # our user + test.ckan.net
         assert len(org["users"]) == 2
         with app.flask_app.test_request_context():
             app.post(
                 url_for("organization.member_delete", id=org["id"], user=user["id"]),
-                extra_environ=env,
+                headers=headers,
             )
             org = helpers.call_action('organization_show', id=org['id'])
 
             # only test.ckan.net
             assert len(org['users']) == 1
             assert user["id"] not in org["users"][0]["id"]
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestOrganizationFollow:
+    def test_organization_follow_and_unfollow(self, app, user):
+        headers = {"Authorization": user["token"]}
+
+        organization = factories.Organization()
+        organization_url = url_for("organization.read", id=organization["id"])
+        response = app.get(organization_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+          ''' in response
+
+        follow_url = url_for("organization.follow", id=organization["id"])
+        response = app.post(follow_url, headers=headers)
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>1</span></dd>
+        ''' in response
+
+    def test_organization_follow_not_exist(self, app, user):
+        """Pass an id for a organization that doesn't exist"""
+
+        headers = {"Authorization": user["token"]}
+        follow_url = url_for("organization.follow", id="not-here")
+        app.post(follow_url, headers=headers, status=404)
+
+    def test_organization_unfollow(self, app, user):
+
+        organization = factories.Organization()
+
+        headers = {"Authorization": user["token"]}
+        follow_url = url_for("organization.follow", id=organization["id"])
+        app.post(follow_url, headers=headers)
+
+        unfollow_url = url_for("organization.unfollow", id=organization["id"])
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+        ''' in response
+
+    def test_organization_unfollow_not_following(self, app, user):
+        """Unfollow a organization not currently following"""
+
+        organization = factories.Organization()
+
+        headers = {"Authorization": user["token"]}
+        unfollow_url = url_for("organization.unfollow", id=organization["id"])
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+          ''' in response
+
+    def test_organization_unfollow_not_exist(self, app, user):
+        """Unfollow a organization that doesn't exist."""
+
+        headers = {"Authorization": user["token"]}
+        unfollow_url = url_for("organization.unfollow", id="not-here")
+        app.post(unfollow_url, headers=headers, status=404)
+
+    def test_organization_follower_list(self, app, sysadmin):
+        """Following users appear on followers list page."""
+        organization = factories.Organization()
+        headers = {"Authorization": sysadmin["token"]}
+        follow_url = url_for("organization.follow", id=organization["id"])
+        app.post(follow_url, headers=headers)
+
+        followers_url = url_for("organization.followers", id=organization["id"])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, headers=headers, status=200)
+        assert sysadmin["name"] in followers_response

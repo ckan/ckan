@@ -17,12 +17,15 @@
           <td>
             <div class="btn-group pull-right">
               <form method="POST" action="{% url_for 'user.sysadmin' %}">
+                {{ h.csrf_input() }}
                 <input type="hidden" value="{{ user }}" name="username" />
                 <input type="hidden" value="0" name="status" />
                 <button
                   type="submit"
                   class="btn btn-danger btn-sm"
-                  title="{{ _('Revoke Sysadmin permission') }}"
+                  aria-label="{{ _('Revoke Sysadmin permission') }}"
+                  data-bs-title="{{ _('Revoke Sysadmin permission') }}"
+                  data-bs-toggle="tooltip"
                 >
                   <i class="fa fa-times"></i>
                 </button>
@@ -39,8 +42,9 @@
   <h2>{{ _('Promote user to Sysadmin') }}</h2>
 
   <form method="POST" action="{% url_for 'user.sysadmin' %}">
+    {{ h.csrf_input() }}
     <div class="row">
-      <div class="col-md-6">
+      <div class="col">
 
         <div class="form-group">
           <input
@@ -55,7 +59,7 @@
           <button
             type="submit"
             class="btn btn-primary"
-            title="{{ _('Promote user to Sysadmin') }}"
+            aria-label="{{ _('Promote user to Sysadmin') }}"
           >{{ _('Promote') }}</button>
         </div>
 
@@ -72,7 +76,7 @@
     </h2>
     <div class="module-content">
 
-      {% set docs_url = "http://docs.ckan.org/en/{0}/sysadmin-guide.html".format(g.ckan_doc_version) %}
+      {% set docs_url = "https://docs.ckan.org/en/{0}/sysadmin-guide.html".format(g.ckan_doc_version) %}
       {% trans %}
         <p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>
         <p>For guidance on using sysadmin features, see the CKAN  <a href="{{ docs_url }}" target="_blank" rel="noreferrer">sysadmin guide</a></p>

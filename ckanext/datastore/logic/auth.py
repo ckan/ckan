@@ -12,17 +12,17 @@ def datastore_auth(context: Context,
 
     user = context.get('user')
 
-    authorized = p.toolkit.check_access(privilege, context, data_dict)
-    if not authorized:
+    try:
+        p.toolkit.check_access(privilege, context, data_dict)
+    except p.toolkit.NotAuthorized:
         return {
             'success': False,
             'msg': p.toolkit._(
-                'User {0} not authorized to update resource {1}'
-                    .format(str(user), data_dict['id'])
+                'User {0} not authorized to perform {1} on resource {2}'
+                    .format(str(user), privilege, data_dict['id'])
             )
         }
-    else:
-        return {'success': True}
+    return {'success': True}
 
 
 def datastore_create(context: Context, data_dict: DataDict):
@@ -40,6 +40,10 @@ def datastore_upsert(context: Context, data_dict: DataDict):
 
 
 def datastore_delete(context: Context, data_dict: DataDict):
+    return datastore_auth(context, data_dict)
+
+
+def datastore_records_delete(context: Context, data_dict: DataDict):
     return datastore_auth(context, data_dict)
 
 

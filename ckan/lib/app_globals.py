@@ -4,20 +4,21 @@
 from __future__ import annotations
 
 import logging
-import re
 from threading import Lock
 from typing import Any, Union
+from packaging.version import parse as parse_version
 
 import ckan
 import ckan.model as model
 from ckan.logic.schema import update_configuration_schema
 from ckan.common import asbool, config, aslist
+from ckan.lib.webassets_tools import is_registered
 
 
 log = logging.getLogger(__name__)
 
 
-DEFAULT_MAIN_CSS_FILE = '/base/css/main.css'
+DEFAULT_THEME_ASSET = 'css/main'
 
 # mappings translate between config settings and globals because our naming
 # conventions are not well defined and/or implemented
@@ -37,17 +38,10 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     'ckan.site_intro_text': {},
     'ckan.site_custom_css': {},
     'ckan.favicon': {}, # default gets set in config.environment.py
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-        # has been setup in load_environment():
+    # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_delimiter': {'default': '-'},
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-    'ckan.dumps_url': {},
-    'ckan.dumps_format': {},
-    'ckan.homepage_style': {'default': '1'},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',
@@ -59,7 +53,6 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
@@ -70,15 +63,25 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
 }
 
 
-# A place to store the origional config options of we override them
+# A place to store the original config options of we override them
 _CONFIG_CACHE: dict[str, Any] = {}
 
-def set_main_css(css_file: str) -> None:
-    ''' Sets the main_css.  The css_file must be of the form file.css '''
-    assert css_file.endswith('.css')
-    new_css = css_file
-    # FIXME we should check the css file exists
-    app_globals.main_css = str(new_css)
+def set_theme(asset: str) -> None:
+    ''' Sets the theme.
+
+    The `asset` argument is a name of existing web-asset registered by CKAN
+    itself or by any enabled extension.
+
+    If asset is not registered, use default theme instead.
+    '''
+    if not is_registered(asset):
+        log.error(
+            "Asset '%s' does not exist. Fallback to '%s'",
+            asset, DEFAULT_THEME_ASSET
+        )
+        asset = DEFAULT_THEME_ASSET
+
+    app_globals.theme = asset
 
 
 def set_app_global(key: str, value: str) -> None:
@@ -143,11 +146,11 @@ def reset() -> None:
         if key not in _CONFIG_CACHE:
             _CONFIG_CACHE[key] = config_value
         if value is not None:
-            log.debug('config `%s` set to `%s` from db' % (key, value))
+            log.debug('config `%s` set to `%s` from db', key, value)
         else:
             value = _CONFIG_CACHE[key]
             if value:
-                log.debug('config `%s` set to `%s` from config' % (key, value))
+                log.debug('config `%s` set to `%s` from config', key, value)
             else:
                 value = default
 
@@ -164,9 +167,8 @@ def reset() -> None:
         get_config_value(key)
 
     # custom styling
-    main_css = get_config_value(
-        'ckan.main_css', DEFAULT_MAIN_CSS_FILE) or DEFAULT_MAIN_CSS_FILE
-    set_main_css(main_css)
+    theme = get_config_value('ckan.theme') or DEFAULT_THEME_ASSET
+    set_theme(theme)
 
     if app_globals.site_logo:
         app_globals.header_class = 'header-image'
@@ -180,7 +182,7 @@ class _Globals(object):
     ''' Globals acts as a container for objects available throughout the
     life of the application. '''
 
-    main_css: str
+    theme: str
     site_logo: str
     header_class: str
     site_description: str
@@ -195,7 +197,7 @@ class _Globals(object):
         self._mutex = Lock()
 
     def _check_uptodate(self):
-        ''' check the config is uptodate needed when several instances are
+        ''' check the config is up-to-date needed when several instances are
         running '''
         value = model.get_system_info('ckan.config_update')
         if self._config_update != value:
@@ -207,11 +209,13 @@ class _Globals(object):
     def _init(self):
 
         self.ckan_version = ckan.__version__
-        self.ckan_base_version = re.sub(r'[^0-9\.]', '', self.ckan_version)
-        if self.ckan_base_version == self.ckan_version:
-            self.ckan_doc_version = self.ckan_version[:3]
+        version = parse_version(self.ckan_version)
+
+        self.ckan_base_version = version.base_version
+        if not version.is_prerelease:
+            self.ckan_doc_version = f"{version.major}.{version.minor}"
         else:
-            self.ckan_doc_version = 'latest'
+            self.ckan_doc_version = "latest"
         # process the config details to set globals
         for key in app_globals_from_config_details.keys():
             new_key, value = process_app_global(key, config.get(key) or '')

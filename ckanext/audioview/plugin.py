@@ -21,12 +21,12 @@ class AudioView(p.SingletonPlugin):
 
     def update_config(self, config: CKANConfig):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        self.formats = config.get_value('ckan.preview.audio_formats').split()
+        self.formats = config.get('ckan.preview.audio_formats').split()
 
     def info(self) -> dict[str, Any]:
         return {'name': 'audio_view',
                 'title': p.toolkit._('Audio'),
-                'icon': 'file-audio-o',
+                'icon': 'file-audio',
                 'schema': {'audio_url': [ignore_empty, unicode_safe]},
                 'iframed': False,
                 'always_available': True,

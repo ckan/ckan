@@ -10,10 +10,11 @@
 
   <form method='post' action="" id="admin-config-form" enctype="multipart/form-data">
     {% block admin_form %}
+    {{ h.csrf_input() }}
 
       {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
 
-      {{ form.input('ckan.main_css', id='field-ckan-main-css', label=_('Custom Stylesheet'), value=data['ckan.main_css'], error=error, classes=['control-medium']) }}
+      {{ form.input('ckan.theme', id='field-ckan-main-css', label=_('Custom Stylesheet'), value=data['ckan.theme'], error=error, classes=['control-medium']) }}
 
       {{ form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=data['ckan.site_description'], error=error, classes=['control-medium']) }}
 
@@ -27,8 +28,6 @@
       {{ form.markdown('ckan.site_intro_text', id='field-ckan-site-intro-text', label=_('Intro Text'), value=data['ckan.site_intro_text'], error=error, placeholder=_('Text on home page')) }}
 
       {{ form.textarea('ckan.site_custom_css', id='field-ckan-site-custom-css', label=_('Custom CSS'), value=data['ckan.site_custom_css'], error=error, placeholder=_('Customisable css inserted into the page header')) }}
-
-      {{ form.select('ckan.homepage_style', id='field-homepage-style', label=_('Homepage'), options=homepages, selected=data['ckan.homepage_style'], error=error) }}
 
       {% endblock %}
       <div class="form-actions">
@@ -48,7 +47,7 @@
       {% block admin_form_help %}
         {% set about_url = h.url_for('home.about') %}
         {% set home_url = h.url_for('home.index') %}
-        {% set docs_url = "http://docs.ckan.org/en/{0}/theming".format(g.ckan_doc_version) %}
+        {% set docs_url = "https://docs.ckan.org/en/{0}/theming".format(g.ckan_doc_version) %}
         {% trans %}
           <p><strong>Site Title:</strong> This is the title of this CKAN instance
             It appears in various places throughout CKAN.</p>
@@ -63,8 +62,6 @@
             <code>&lt;head&gt;</code> tag of every page. If you wish to customize
             the templates more fully we recommend
             <a href="{{ docs_url }}" target="_blank" rel="noreferrer">reading the documentation</a>.</p>
-          <p><strong>Homepage:</strong> This is for choosing a predefined layout for
-            the modules that appear on your homepage.</p>
       {% endtrans %}
     {% endblock %}
     </div>

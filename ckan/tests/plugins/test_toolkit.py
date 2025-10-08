@@ -3,6 +3,7 @@
 import pytest
 
 import ckan.plugins.toolkit as tk
+from ckan.logic import NotFound
 
 
 @pytest.mark.parametrize(
@@ -63,6 +64,12 @@ import ckan.plugins.toolkit as tk
         ("1.5.1", "max", "1.6.1", True),
         ("1.5.1", "max", "1.5.0", False),
         ("1.5.1", "max", "1.5.2", True),
+        ("2.10.0a0", "min", "2.10.2", False),
+        ("2.10.0", "min", "2.10.0a1", True),
+        ("2.10.1b0", "min", "2.10.2", False),
+        ("2.10.1b0", "max", "2.10.1", True),
+        ("2.10.0a0", "max", "2.10.2", True),
+        ("2.10.0", "max", "2.10.0a1", False),
     ],
 )
 def test_check_ckan_version(version, bound, value, expected, monkeypatch):
@@ -118,3 +125,12 @@ def test_get_endpoint_without_context():
 def test_get_endpoint_with_context():
     """with_request_context fixture mocks request to the homepage."""
     assert tk.get_endpoint() == ("home", "index")
+
+
+@pytest.mark.parametrize("exception_class", [tk.NotFound, tk.ObjectNotFound])
+def test_not_found_exception(exception_class: Exception):
+
+    with pytest.raises(exception_class) as e:
+        tk.get_action("package_show")({"ignore_auth": True}, {"id": "not_found"})
+
+    assert isinstance(e.value, NotFound)

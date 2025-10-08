@@ -3,28 +3,30 @@ from __future__ import annotations
 
 from ckan.types import Context
 import logging
-from typing import Any, cast
+from typing import Any
+from contextlib import contextmanager
+from datetime import datetime, timezone, timedelta
 
 import sqlalchemy
-import six
+import sqlalchemy.exc
 
-
-import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
+import ckan.model as model
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
-from ckanext.datastore.backend import (
-    DatastoreBackend, InvalidDataError
-)
+from ckanext.datastore.backend import DatastoreBackend
 from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore import interfaces
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
 
 WHITELISTED_RESOURCES = ['_table_metadata']
+
+RESOURCE_LAST_MODIFIED_SETTLE_TIME = timedelta(seconds=15)
 
 
 def datastore_create(context: Context, data_dict: dict[str, Any]):
@@ -33,22 +35,19 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
     aliases and indexes and bulk insertion. This endpoint can be called
-    multiple times to initially insert more data, add fields, change the
+    multiple times to initially insert more data, add/remove fields, change the
     aliases or indexes as well as the primary keys.
 
-    To create an empty datastore resource and a CKAN resource at the same time,
+    To create a writable table and a CKAN resource at the same time,
     provide ``resource`` with a valid ``package_id`` and omit the
     ``resource_id``.
-
-    If you want to create a datastore resource from the content of a file,
-    provide ``resource`` with a valid ``url``.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     :param resource_id: resource id that the data is going to be stored
                         against.
     :type resource_id: string
-    :param force: set to True to edit a read-only resource
+    :param force: set to True to edit a read-only table
     :type force: bool (optional, default: False)
     :param resource: resource dictionary that is passed to
         :meth:`~ckan.logic.action.create.resource_create`.
@@ -58,6 +57,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata. (optional)
     :type fields: list of dictionaries
+    :param delete_fields: set to True to remove existing fields not passed
+    :type delete_fields: bool (optional, default: False)
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
                     (optional)
     :type records: list of dictionaries
@@ -81,7 +82,13 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the existing aliases or constraints. Setting ``records`` appends
-    the provided records to the resource.
+    the provided records to the resource. Setting ``fields`` without including
+    all existing fields will remove the others and the data they contain
+    when delete_fields=True.
+
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
 
     **Results:**
 
@@ -95,8 +102,11 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
-    data_dict, errors = _validate(data_dict, schema, context)
-    resource_dict = None
+    for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+        schema = plugin.update_datastore_create_schema(schema)
+    with _create_validate_context(context, data_dict) as validate_context:
+        plugin_data = validate_context['plugin_data']
+        data_dict, errors = _validate(data_dict, schema, validate_context)
     if records:
         data_dict['records'] = records
     if resource:
@@ -120,32 +130,36 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
         has_url = 'url' in data_dict['resource']
         # A datastore only resource does not have a url in the db
         data_dict['resource'].setdefault('url', '_datastore_only_resource')
-        resource_dict = p.toolkit.get_action('resource_create')(
-            context, data_dict['resource'])
-        data_dict['resource_id'] = resource_dict['id']
+        resource_data = dict(data_dict['resource'])
         # create resource from file
         if has_url:
+            # FIXME: xloader? datapusher+?
             if not p.plugin_loaded('datapusher'):
                 raise p.toolkit.ValidationError({'resource': [
                     'The datapusher has to be enabled.']})
+        else:
+            resource_data['last_modified'] = datetime.now(timezone.utc)
+            resource_data['url_type'] = 'datastore'
+
+        res = p.toolkit.get_action('resource_create')(
+            p.toolkit.fresh_context(context), resource_data
+        )
+        data_dict['resource_id'] = res['id']
+
+        if has_url:
+            # FIXME: xloader? datapusher+?
             p.toolkit.get_action('datapusher_submit')(context, {
-                'resource_id': resource_dict['id'],
+                'resource_id': res['id'],
                 'set_url_type': True
             })
             # since we'll overwrite the datastore resource anyway, we
             # don't need to create it here
             return
-
-        # create empty resource
-        else:
-            # no need to set the full url because it will be set
-            # in before_resource_show
-            resource_dict['url_type'] = 'datastore'
-            p.toolkit.get_action('resource_update')(context, resource_dict)
     else:
+        res = p.toolkit.get_action('resource_show')(
+            p.toolkit.fresh_context(context), {'id': data_dict['resource_id']})
         if not data_dict.pop('force', False):
-            resource_id = data_dict['resource_id']
-            _check_read_only(context, resource_id)
+            _check_read_only(res)
 
     # validate aliases
     aliases = datastore_helpers.get_list(data_dict.get('aliases', [])) or []
@@ -155,27 +169,83 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    try:
-        result = backend.create(context, data_dict)
-    except InvalidDataError as err:
-        raise p.toolkit.ValidationError({'message': str(err)})
+    result = backend.create(context, data_dict, plugin_data)
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
-    if resobj.extras.get('datastore_active') is not True:
+    if resobj and not resobj.extras.get('datastore_active'):
         log.debug(
-            'Setting datastore_active=True on resource {0}'.format(resobj.id)
+            'Setting datastore_active=True on resource %s', resobj.id,
         )
-        set_datastore_active_flag(context, data_dict, True)
+        patch_kwargs = {
+            'id': data_dict['resource_id'], 'datastore_active': True,
+        }
+        if ('resource' not in data_dict and res.get('url_type')
+            in p.toolkit.h.datastore_rw_resource_url_types()
+        ):
+            patch_kwargs['last_modified'] = datetime.now(timezone.utc)
+        p.toolkit.get_action('resource_patch')(
+            p.toolkit.fresh_context(context), patch_kwargs
+        )
+    elif 'resource' not in data_dict and res.get('url_type') in (
+        p.toolkit.h.datastore_rw_resource_url_types()
+    ):
+        _schedule_patch_resource_last_modified(res['id'])
 
     result.pop('id', None)
     result.pop('connection_url', None)
     result.pop('records', None)
     return result
+
+
+@contextmanager
+def _create_validate_context(context: Context, data_dict: dict[str, Any]):
+    '''
+    Populate plugin_data and resource for context to validators of
+    datastore_create data_dict. This is called before validation so nothing
+    about data_dict can be trusted.
+    '''
+    backend = DatastoreBackend.get_active_backend()
+    validate_context = p.toolkit.fresh_context(context)
+    plugin_data: dict[int, dict[str, Any]] = {}
+    validate_context['plugin_data'] = plugin_data
+    resource_id = data_dict.get('resource_id')
+    if not resource_id or not isinstance(resource_id, str):
+        yield validate_context
+        return
+
+    resource = model.Resource.get(data_dict['resource_id'])
+    if not resource:
+        yield validate_context
+        return
+    validate_context['resource'] = resource
+
+    fields = data_dict.get('fields')
+    if not fields or not isinstance(fields, list):
+        yield validate_context
+        return
+
+    try:
+        current_plugin_data = backend.resource_plugin_data(resource_id)
+    except NotImplementedError:
+        current_plugin_data = None
+    if not current_plugin_data:
+        yield validate_context
+        return
+
+    for i, field in enumerate(data_dict['fields']):
+        if not isinstance(field, dict):
+            continue
+        if field.get('id') in current_plugin_data:
+            plugin_data[i] = {'_current': current_plugin_data[field['id']]}
+    yield validate_context
+
+    # clean up _current values so they aren't saved
+    for pd in plugin_data.values():
+        pd.pop('_current', None)
 
 
 def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:
@@ -203,7 +273,7 @@ def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:
     try:
         results: Any = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
-        message = six.ensure_text(err.args[0].split('\n')[0])
+        message = str(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
                 u'records': [message.split(u') ', 1)[-1]]})
     return results.rowcount
@@ -219,19 +289,19 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
 
     *upsert*
         Update if record with same key already exists, otherwise insert.
-        Requires unique key.
+        Requires unique key or _id field.
     *insert*
         Insert only. This method is faster that upsert, but will fail if any
         inserted record matches an existing one. Does *not* require a unique
         key.
     *update*
         Update only. An exception will occur if the key that should be updated
-        does not exist. Requires unique key.
+        does not exist. Requires unique key or _id field.
 
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
-    :param force: set to True to edit a read-only resource
+    :param force: set to True to edit a read-only table
     :type force: bool (optional, default: False)
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}]
                     (optional)
@@ -249,6 +319,10 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     :param dry_run: set to True to abort transaction instead of committing,
                     e.g. to check for validation or type errors.
     :type dry_run: bool (optional, default: False)
+
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
 
     **Results:**
 
@@ -269,8 +343,10 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
 
     resource_id = data_dict['resource_id']
 
+    res = p.toolkit.get_action('resource_show')(
+        p.toolkit.fresh_context(context), {'id': resource_id})
     if not data_dict.pop('force', False):
-        _check_read_only(context, resource_id)
+        _check_read_only(res)
 
     res_exists = backend.resource_exists(resource_id)
     if not res_exists:
@@ -287,15 +363,24 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
+    if res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
+        _schedule_patch_resource_last_modified(resource_id)
+
     return result
 
 
-def datastore_info(context: Context, data_dict: dict[str, Any]):
+@logic.side_effect_free
+def datastore_info(context: Context, data_dict: dict[str, Any]
+        ) -> dict[str, Any]:
     '''
     Returns detailed metadata about a resource.
 
     :param resource_id: id or alias of the resource we want info about.
     :type resource_id: string
+    :param include_meta: return table size, index size, row count and aliases
+    :type include_meta: bool (optional, default: True)
+    :param include_fields_schema: return fields' index, unique, notnull status
+    :type include_fields_schema: bool (optional, default: True)
 
     **Results:**
 
@@ -323,8 +408,12 @@ def datastore_info(context: Context, data_dict: dict[str, Any]):
 
     '''
     backend = DatastoreBackend.get_active_backend()
+    schema = dsschema.datastore_info_schema()
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
 
-    resource_id = _get_or_bust(data_dict, 'id')
+    resource_id = data_dict['resource_id']
     res_exists = backend.resource_exists(resource_id)
     if not res_exists:
         alias_exists, real_id = backend.resource_id_from_alias(resource_id)
@@ -342,20 +431,32 @@ def datastore_info(context: Context, data_dict: dict[str, Any]):
 
     p.toolkit.get_action('resource_show')(context, {'id': id})
 
-    info = backend.resource_fields(id)
+    info = backend.resource_fields(
+        id, data_dict['include_meta'], data_dict['include_fields_schema'])
 
+    try:
+        plugin_data = backend.resource_plugin_data(id)
+    except NotImplementedError:
+        return {}
+
+    for i, field in enumerate(info['fields']):
+        for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+            field = plugin.update_datastore_info_field(
+                field, plugin_data.get(field['id'], {}))
+        info['fields'][i] = field
     return info
 
 
 def datastore_delete(context: Context, data_dict: dict[str, Any]):
     '''Deletes a table or a set of records from the DataStore.
+    (Use :py:func:`~ckanext.datastore.logic.action.datastore_records_delete` to keep tables intact)
 
     :param resource_id: resource id that the data will be deleted from.
                         (optional)
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
-    :param filters: filters to apply before deleting (eg {"name": "fred"}).
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
                    If missing delete whole table and all dependent views.
                    (optional)
     :type filters: dictionary
@@ -365,6 +466,10 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
         to change a resource, you only need to set this to True on the last
         request.
     :type calculate_record_count: bool (optional, default: False)
+
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
 
     **Results:**
 
@@ -393,41 +498,82 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
 
+    resource_id = data_dict['resource_id']
+
+    res = p.toolkit.get_action('resource_show')(
+        p.toolkit.fresh_context(context), {'id': resource_id})
     if not data_dict.pop('force', False):
-        resource_id = data_dict['resource_id']
-        _check_read_only(context, resource_id)
+        _check_read_only(res)
 
-    res_id = data_dict['resource_id']
-
-    res_exists = backend.resource_exists(res_id)
+    res_exists = backend.resource_exists(resource_id)
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
     result = backend.delete(context, data_dict)
     p.toolkit.signals.datastore_delete.send(
-        res_id, result=result, data_dict=data_dict)
+        resource_id, result=result, data_dict=data_dict)
     if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
+        backend.calculate_record_count(resource_id)  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
-    resource = model.Resource.get(data_dict['resource_id'])
-
-    if (not data_dict.get('filters') and
-            resource is not None and
-            resource.extras.get('datastore_active') is True):
+    if data_dict.get('filters', None) is None and res.get('datastore_active'):
         log.debug(
-            'Setting datastore_active=False on resource {0}'.format(
-                resource.id)
+            'Setting datastore_active=False on resource %s', resource_id,
         )
-        set_datastore_active_flag(context, data_dict, False)
+        patch_kwargs = {
+            'id': resource_id, 'datastore_active': False,
+        }
+        if res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
+            patch_kwargs['last_modified'] = datetime.now(timezone.utc)
+            _cancel_patch_resource_last_modified(resource_id)
+        p.toolkit.get_action('resource_patch')(
+            p.toolkit.fresh_context(context), patch_kwargs
+        )
+    elif res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
+        _schedule_patch_resource_last_modified(resource_id)
 
     result.pop('id', None)
     result.pop('connection_url', None)
     return result
+
+
+def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
+    '''Deletes records from a DataStore table but will never remove the table itself.
+
+    :param resource_id: resource id that the data will be deleted from.
+                        (required)
+    :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
+                   If {} delete all records.
+                   (required)
+    :type filters: dictionary
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
+
+    For writable tables the resource ``last_modified`` value will be updated
+    by a scheduled background job. See :ref:`background jobs` for more
+    information.
+
+    **Results:**
+
+    :returns: Original filters sent.
+    :rtype: dictionary
+
+    '''
+    schema = context.get('schema', dsschema.datastore_records_delete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+    return p.toolkit.get_action('datastore_delete')(context, data_dict)
 
 
 @logic.side_effect_free
@@ -443,7 +589,7 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
     :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
-    :param filters: matching conditions to select, e.g
+    :param filters: :ref:`filters` for matching conditions to select, e.g
                     {"key1": "a", "key2": "b"} (optional)
     :type filters: dictionary
     :param q: full text query. If it's a string, it'll search on all fields on
@@ -472,7 +618,7 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
                    (optional, default: all fields in original order)
     :type fields: list or comma separated string
     :param sort: comma separated field names with ordering
-                 e.g.: "fieldname1, fieldname2 desc"
+                 e.g.: "fieldname1, fieldname2 desc nulls last"
     :type sort: string
     :param include_total: True to return total matching record count
                           (optional, default: true)
@@ -611,68 +757,74 @@ def datastore_search_sql(context: Context, data_dict: dict[str, Any]):
         '''
         p.toolkit.check_access(
             'datastore_search_sql',
-            cast(Context, dict(context, table_names=table_names)),
+            Context(context, table_names=table_names),
             data_dict)
 
     result = backend.search_sql(
-        cast(Context, dict(context, check_access=check_access)),
+        Context(context, check_access=check_access),
         data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
     return result
 
 
-def set_datastore_active_flag(
-        context: Context, data_dict: dict[str, Any], flag: bool):
-    '''
-    Set appropriate datastore_active flag on CKAN resource.
-
-    Called after creation or deletion of DataStore table.
-    '''
-    # We're modifying the resource extra directly here to avoid a
-    # race condition, see issue #3245 for details and plan for a
-    # better fix
-    model = context['model']
-    update_dict = {'datastore_active': flag}
-
-    q = model.Session.query(model.Resource). \
-        filter(model.Resource.id == data_dict['resource_id'])
-    resource = q.one()
-
-    # update extras in database for record
-    extras = resource.extras
-    extras.update(update_dict)
-    q.update({'extras': extras}, synchronize_session=False)
-
-    model.Session.commit()
-
-    # get package with  updated resource from package_show
-    # find changed resource, patch it and reindex package
-    psi = search.PackageSearchIndex()
-    try:
-        _data_dict = p.toolkit.get_action('package_show')(context, {
-            'id': resource.package_id
-        })
-        for resource in _data_dict['resources']:
-            if resource['id'] == data_dict['resource_id']:
-                resource.update(update_dict)
-                psi.index_package(_data_dict)
-                break
-    except (logic.NotAuthorized, logic.NotFound) as e:
-        log.error(e.message)
-
-
-def _check_read_only(context: Context, resource_id: str):
+def _check_read_only(res: dict[str, Any]):
     ''' Raises exception if the resource is read-only.
     Make sure the resource id is in resource_id
     '''
-    res = p.toolkit.get_action('resource_show')(
-        context, {'id': resource_id})
-    if res.get('url_type') != 'datastore':
+    if res.get('url_type') not in (
+            p.toolkit.h.datastore_rw_resource_url_types()
+        ):
         raise p.toolkit.ValidationError({
-            'read-only': ['Cannot edit read-only resource. Either pass'
-                          '"force=True" or change url_type to "datastore"']
+            'read-only': ['Cannot edit read-only resource because changes '
+                          'made may be lost. Use a resource created for '
+                          'editing e.g. with datastore_create or use '
+                          '"force=True" to ignore this warning.']
         })
+
+
+def _cancel_patch_resource_last_modified(resource_id: str):
+    ''' Remove any existing scheduled job to patch resource
+    last_modified.
+    '''
+    job_id = f'{resource_id} datastore patch last_modified'
+    try:
+        existing_job = p.toolkit.job_from_id(job_id)
+    except KeyError:
+        return
+    existing_job.delete()
+
+
+def _schedule_patch_resource_last_modified(resource_id: str):
+    ''' Schedule a job to patch resource last_modified after a short
+    time, but first cancel any existing job to do the same. This way
+    metadata updates are minimized when there are sequential calls to
+    datastore_create, datastore_upsert and/or datastore_delete.
+    '''
+    last_modified = datetime.now(timezone.utc)
+    job_id = f'{resource_id} datastore patch last_modified'
+
+    _cancel_patch_resource_last_modified(resource_id)
+    p.toolkit.get_job_queue().enqueue_in(
+        RESOURCE_LAST_MODIFIED_SETTLE_TIME,
+        _patch_resource_last_modified,
+        resource_id,
+        last_modified,
+        job_id=job_id,
+    )
+
+
+def _patch_resource_last_modified(resource_id: str, last_modified: datetime):
+    ''' Job to patch a resource's last_modified value using the site user
+    to prevent the creation of an activity record.
+    '''
+    site_user = p.toolkit.get_action('get_site_user')(
+        {'ignore_auth': True}, {}
+    )
+    p.toolkit.get_action('resource_patch')(
+        {'user': site_user['name'], 'ignore_auth': True},
+        {'id': resource_id, 'last_modified': last_modified},
+    )
 
 
 @logic.validate(dsschema.datastore_function_create_schema)

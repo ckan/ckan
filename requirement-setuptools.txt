@@ -1,1 +1,0 @@
-setuptools==44.1.0

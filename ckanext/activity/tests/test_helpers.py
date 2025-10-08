@@ -8,7 +8,7 @@ import ckan.plugins.toolkit as tk
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_request_context", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
 class TestActivityListSelect(object):
     def test_simple(self):
         pkg_activity = {
@@ -21,8 +21,7 @@ class TestActivityListSelect(object):
         html = out[0]
         assert (
             str(html)
-            == '<option value="id1" >February 1, 2018 at 10:58:59 AM UTC'
-            "</option>"
+            == '<option value="id1" >February 1, 2018, 10:58:59\u202fAM UTC</option>'
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
 
@@ -37,9 +36,7 @@ class TestActivityListSelect(object):
         html = out[0]
         assert (
             str(html)
-            == '<option value="id1" selected>February 1, 2018 at 10:58:59'
-            " AM UTC"
-            "</option>"
+            == '<option value="id1" selected>February 1, 2018, 10:58:59\u202fAM UTC</option>'
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
 

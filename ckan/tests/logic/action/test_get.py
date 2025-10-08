@@ -326,7 +326,7 @@ class TestGroupList(object):
         group_list = helpers.call_action("group_list", all_fields=True)
 
         expected_group = dict(group)
-        for field in ("users", "tags", "extras", "groups"):
+        for field in ("users", "extras", "groups"):
             del expected_group[field]
 
         assert group_list[0] == expected_group
@@ -472,6 +472,19 @@ class TestGroupList(object):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("group_list", offset="-2")
+
+    @pytest.mark.parametrize("value", ["bb,cc", ["bb", "cc"]])
+    def test_group_list_filter_by_name(self, value):
+
+        factories.Group(name="aa")
+        factories.Group(name="bb")
+        factories.Group(name="cc")
+
+        group_list = helpers.call_action("group_list", groups=value, sort="name asc")
+
+        assert len(group_list) == 2
+        assert group_list[0] == "bb"
+        assert group_list[1] == "cc"
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -730,13 +743,13 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 1000  # i.e. default value
 
-    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", 5)
     def test_limit_configured(self):
         self._create_bulk_orgs("org_default", 7)
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
-    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", 5)
     def test_limit_with_custom_max_limit(self):
         self._create_bulk_orgs("org_default", 5)
         results = helpers.call_action("organization_list", limit=2)
@@ -748,7 +761,7 @@ class TestOrganizationList(object):
         assert len(results) == 25  # i.e. default value
 
     @pytest.mark.ckan_config(
-        "ckan.group_and_organization_list_all_fields_max", "5"
+        "ckan.group_and_organization_list_all_fields_max", 5
     )
     def test_all_fields_limit_with_custom_max_limit(self):
         self._create_bulk_orgs("org_all_fields_default", 5)
@@ -758,7 +771,7 @@ class TestOrganizationList(object):
         assert len(results) == 2
 
     @pytest.mark.ckan_config(
-        "ckan.group_and_organization_list_all_fields_max", "5"
+        "ckan.group_and_organization_list_all_fields_max", 5
     )
     def test_all_fields_limit_configured(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
@@ -857,14 +870,16 @@ class TestOrganizationShow(object):
 @pytest.mark.usefixtures("clean_db")
 class TestUserList(object):
     def test_user_list_default_values(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
 
-        got_users = helpers.call_action("user_list")
+        got_users = helpers.call_action(
+            "user_list",
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={"ignore_auth": False}
+        )
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["id"] == user["id"]
         assert got_user["name"] == user["name"]
@@ -881,9 +896,7 @@ class TestUserList(object):
         assert "datasets" not in got_user
 
     def test_user_list_edits(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Edited title"
         helpers.call_action(
@@ -891,32 +904,34 @@ class TestUserList(object):
         )
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["number_created_packages"] == 1
 
+    def test_include_site_user(self, ckan_config):
+        factories.User()
+
+        users = helpers.call_action("user_list")
+        assert len(users) == 1
+
+        users = helpers.call_action("user_list", include_site_user=True)
+        assert len(users) == 2
+
     def test_user_list_excludes_deleted_users(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
         factories.User(state="deleted")
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         assert got_users[0]["name"] == user["name"]
 
     def test_user_list_not_all_fields(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
 
         got_users = helpers.call_action("user_list", all_fields=False)
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user == user["name"]
 
@@ -1004,6 +1019,7 @@ class TestUserList(object):
             factories.Dataset(user=users[1]),
             factories.Dataset(user=users[1]),
         ]
+        factories.Dataset(user=users[2])
         for dataset in datasets:
             dataset["title"] = "Edited title"
             helpers.call_action(
@@ -1013,7 +1029,7 @@ class TestUserList(object):
             u["name"]
             for u in [
                 users[0],  # 0 packages created
-                users[2],  # 0 packages created
+                users[2],  # 1 packages created
                 users[1],  # 2 packages created
             ]
         ]
@@ -1038,7 +1054,13 @@ class TestUserShow(object):
 
         user = factories.User()
 
-        got_user = helpers.call_action("user_show", id=user["id"])
+        got_user = helpers.call_action(
+            "user_show",
+            id=user["id"],
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={"ignore_auth": False}
+        )
 
         assert got_user["id"] == user["id"]
         assert got_user["name"] == user["name"]
@@ -1060,7 +1082,14 @@ class TestUserShow(object):
         user = factories.User()
 
         got_user = helpers.call_action(
-            "user_show", context={"keep_email": True}, id=user["id"]
+            "user_show",
+            id=user["id"],
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={
+                "keep_email": True,
+                "ignore_auth": False
+            }
         )
 
         assert got_user["email"] == user["email"]
@@ -1073,7 +1102,14 @@ class TestUserShow(object):
         user = factories.User()
 
         got_user = helpers.call_action(
-            "user_show", context={"keep_apikey": True}, id=user["id"]
+            "user_show",
+            id=user["id"],
+            # call_action will set ignore_auth: True by default, which will
+            # include restricted fields like apikey
+            context={
+                "keep_apikey": True,
+                "ignore_auth": False
+            }
         )
 
         assert "email" not in got_user
@@ -1429,13 +1465,8 @@ class TestPackageSearch(object):
         # depending on the solr version.
 
     def _create_bulk_datasets(self, name, count):
-        from ckan import model
-
-        pkgs = [
-            model.Package(name="{}_{}".format(name, i)) for i in range(count)
-        ]
-        model.Session.add_all(pkgs)
-        model.repo.commit_and_remove()
+        for i in range(count):
+            factories.Dataset(name=f"{name}_{i}")
 
     def test_rows_returned_default(self):
         self._create_bulk_datasets("rows_default", 11)
@@ -2027,6 +2058,19 @@ class TestUserAutocomplete(object):
         factories.User(name="autocompleteuser")
         result = helpers.call_action("user_autocomplete", q="compl", limit=1)
         assert len(result) == 1
+
+    def test_autcomplete_email(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"]}
+        factories.User(name="user1234", email="joe@doe.com")
+        result = helpers.call_action("user_autocomplete", context=context,
+                                     q="joe@doe.com")
+        assert len(result) == 1
+        assert result[0]["name"] == "user1234"
+
+        # test when user is not sysadmin
+        result = helpers.call_action("user_autocomplete", q="joe")
+        assert len(result) == 0
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -2831,6 +2875,46 @@ class TestMembersList(object):
 
         assert len(org_members) == 0
 
+    def test_user_list_excludes_deleted_users_not_marked_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        user = factories.User()
+        context = {"user": sysadmin["name"]}
+
+        member_dict = {
+            "username": user["id"],
+            "id": org["id"],
+            "role": "member",
+        }
+        helpers.call_action(
+            "organization_member_create", context, **member_dict
+        )
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 1
+        assert org_members[0][0] == user["id"]
+        assert org_members[0][1] == "user"
+
+        model.Session.delete(model.User.get(user["id"]))
+        model.Session.commit()
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 0
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFollow(object):
@@ -2877,6 +2961,30 @@ class TestFollow(object):
         assert len(followee_list) == 1
         assert followee_list[0]["display_name"] == "Environment"
 
+    def test_followee_count_for_org_or_group(self):
+        group = factories.Group(title="Finance")
+        group2 = factories.Group(title="Environment")
+        org = factories.Organization(title="Acme")
+
+        user = factories.User()
+
+        context = {"user": user["name"]}
+
+        helpers.call_action("follow_group", context, id=group["id"])
+        helpers.call_action("follow_group", context, id=group2["id"])
+        helpers.call_action("follow_group", context, id=org["id"])
+
+        group_followee_count = helpers.call_action(
+            "group_followee_count", context, id=user["name"]
+        )
+
+        organization_followee_count = helpers.call_action(
+            "organization_followee_count", context, id=user["name"]
+        )
+
+        assert group_followee_count == 2
+        assert organization_followee_count == 1
+
 
 class TestStatusShow(object):
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -2891,11 +2999,12 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.ckan_config('ckan.hide_version', True)
+    @pytest.mark.usefixtures("with_plugins")
     def test_status_show_hiding_version(self):
 
         status = helpers.call_action("status_show")
@@ -2906,11 +3015,12 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.ckan_config('ckan.hide_version', True)
+    @pytest.mark.usefixtures("with_plugins")
     def test_status_show_version_to_sysadmins(self):
         sysadmin = factories.Sysadmin()
         status = helpers.call_action("status_show", context={"user": sysadmin["name"]})
@@ -2921,7 +3031,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
 
@@ -3001,9 +3111,16 @@ class TestApiToken(object):
         tokens = helpers.call_action(
             "api_token_list",
             context={"model": model, "user": user["name"]},
-            user=user["name"],
+            user_id=user["name"],
         )
         assert sorted([t["id"] for t in tokens]) == sorted(ids)
+
+        # Param "user" works for backwards compatibility
+        tokens = helpers.call_action(
+            "api_token_list",
+            context={"model": model, "user": user["name"]},
+            user=user["name"],
+        )
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -3392,3 +3509,55 @@ class TestPackageList:
         factories.Dataset(private=True, owner_org=org["id"])
         packages = helpers.call_action("package_list")
         assert packages == [pkg1["name"]]
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+
+    def test_returned_if_sysadmin_and_include_plugin_data_only(self):
+        sysadmin = factories.Sysadmin()
+        user = factories.User()
+
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "auth_user_obj": model.User.get(sysadmin["name"])
+        }
+        # sysadmin and include_plugin_data = True
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert pkg_dict["plugin_data"] == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }
+
+        # sysadmin and include_plugin_data = False
+        pkg_dict = helpers.call_action(
+            "package_show", context=context, id=dataset["id"]
+        )
+        assert "plugin_data" not in pkg_dict
+
+        # non-sysadmin and include_plugin_data = True
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+        }
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert "plugin_data" not in pkg_dict

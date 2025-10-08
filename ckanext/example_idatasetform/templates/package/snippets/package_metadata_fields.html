@@ -8,7 +8,7 @@
 {% block package_metadata_fields %}
 
   <div class="control-group">
-    <label class="control-label" for="field-country_code">{{ _("Country Code") }}</label>
+    <label class="form-label" for="field-country_code">{{ _("Country Code") }}</label>
     <div class="controls">
       <select id="field-country_code" name="country_code" data-module="autocomplete">
         {% for country_code in h.country_codes()  %}

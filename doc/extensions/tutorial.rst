@@ -187,7 +187,7 @@ you gave to your plugin class in the :ref:`left-hand-side of the assignment in
 the setup.py file <setup.py>` (``example_iauthfunctions`` in this example) is
 the name you'll use for your plugin in CKAN's config file::
 
-    ckan.plugins = stats text_view recline_view example_iauthfunctions
+    ckan.plugins = stats text_view datatables_view example_iauthfunctions
 
 You should now be able to start CKAN in the development web server and have it
 start up without any problems:
@@ -320,7 +320,7 @@ receive an ``Authorization Error`` from CKAN::
 
     $ http 127.0.0.1:5000/api/3/action/group_create Authorization:*** name=my_group
     HTTP/1.0 403 Forbidden
-    Access-Control-Allow-Headers: X-CKAN-API-KEY, Authorization, Content-Type
+    Access-Control-Allow-Headers: Authorization, Content-Type
     Access-Control-Allow-Methods: POST, PUT, GET, DELETE, OPTIONS
     Access-Control-Allow-Origin: *
     Cache-Control: no-cache

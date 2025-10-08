@@ -4,6 +4,7 @@ from __future__ import annotations
 import contextlib
 import os
 import json
+from packaging.version import Version
 import shutil
 from typing import Optional
 
@@ -89,17 +90,21 @@ def extension(output_dir: str):
 
     include_examples = int(click.confirm(
         "Do you want to include code examples?"))
+    full_ckan_version: Version = Version(ckan.__version__)
+    ckan_version = f"{full_ckan_version.major}.{full_ckan_version.minor}"
+
     context = {
-        u"project": name,
-        u"description": description,
-        u"author": author,
-        u"author_email": email,
-        u"keywords": keywords,
-        u"github_user_name": github,
-        u"project_shortname": project_short,
-        u"plugin_class_name": plugin_class_name,
-        u"include_examples": include_examples,
-        u"_source": u"cli",
+        "project": name,
+        "description": description,
+        "author": author,
+        "author_email": email,
+        "keywords": keywords,
+        "github_user_name": github,
+        "project_shortname": project_short,
+        "plugin_class_name": plugin_class_name,
+        "include_examples": include_examples,
+        "ckan_version": ckan_version,
+        "_source": "cli",
     }
 
     if output_dir == u'.':
@@ -161,7 +166,17 @@ def make_config(output_path: str, include_plugin: list[str]):
     for plugin in include_plugin:
         config_declaration.load_plugin(plugin)
 
-    variables = {"declaration": config_declaration.into_ini(False, False)}
+    variables = {
+        "app_main_section": config_declaration.into_ini(
+            minimal=False,
+            include_docs=False,
+        ),
+        "default_section": config_declaration.into_ini(
+            minimal=False,
+            include_docs=True,
+            section="DEFAULT"
+        )
+    }
     with open(template_loc, u'r') as file_in:
         template = string.Template(file_in.read())
         try:
@@ -181,7 +196,14 @@ def make_config(output_path: str, include_plugin: list[str]):
 @click.option(u"-m",
               u"--message",
               help=u"Message string to use with `revision`.")
-def migration(plugin: str, message: str):
+@click.option(
+    "--autogenerate",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Populate revision script with candidate migration operations, based"
+         " on comparison of database to model.")
+def migration(plugin: str, message: str, autogenerate: bool):
     """Create new alembic revision for DB migration.
     """
     if not config:
@@ -190,13 +212,15 @@ def migration(plugin: str, message: str):
     alembic_config = CKANAlembicConfig(_resolve_alembic_config(plugin))
     assert alembic_config.config_file_name
     migration_dir = os.path.dirname(alembic_config.config_file_name)
-    alembic_config.set_main_option("sqlalchemy.url", "")
-    alembic_config.set_main_option(u'script_location', migration_dir)
+    alembic_config.set_main_option("sqlalchemy.url", config["sqlalchemy.url"])
+    alembic_config.set_main_option('script_location', migration_dir)
 
     if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
         alembic.command.init(alembic_config, migration_dir)
 
-    rev = alembic.command.revision(alembic_config, message)
+    rev = alembic.command.revision(
+        alembic_config, message, autogenerate=autogenerate
+    )
     rev_path = rev.path  # type: ignore
     click.secho(
         f"Revision file created. Now, you need to update it: \n\t{rev_path}",
@@ -220,31 +244,37 @@ _factories = {
     "allow_extra_args": True, "ignore_unknown_options": True
 })
 @click.argument(
-    "category", required=False, type=click.Choice(list(_factories)))
+    "category",
+    required=False,
+    metavar="[{}|<module.name:Factory>]".format("|".join(_factories))
+)
 @click.option(
     "-f", "--factory-class",
-    help="Import path of the factory class that can generate an entity")
+    help="DEPRECATED. Import path of the factory class")
 @click.option("-n", "--fake-count", type=int, default=1,
               help="Number of entities to create")
 @click.pass_context
 def fake_data(ctx: click.Context, category: Optional[str],
               factory_class: Optional[str], fake_count: int):
-    """Generate random entities of the given category.
+    """Generate random entities using test factories.
 
-    Either positional `category` or named `--factory-class`/`-f` argument must
-    be specified. `--factory-class` has higher priority, which means that
-    `category` is ignored if both arguments are provided at the same time.
+    First argument of this command can be either an import path of a
+    factory-class or one of predefined aliases for built-in factories.
 
     All the extra arguments that follows format `--NAME=VALUE` will be passed
     into the entity factory.
+
+    ..note:: import path was specified using `-f`/`--factory-class` option in
+    past. This format is deprecated, because it does not support extra
+    arguments
 
     For instance:
 
     \b
         ckan generate fake-data dataset
         ckan generate fake-data dataset  --title="My test dataset"
-        ckan generate fake-data dataset \\
-            -f ckanext.myext.tests.factories.MyCustomDataset
+        ckan generate fake-data \\
+            ckanext.myext.tests.factories.MyCustomDataset
 
     All the validation rules still apply. For example, if you have
     `ckan.auth.create_unowned_dataset` config option set to `False`,
@@ -264,22 +294,23 @@ def fake_data(ctx: click.Context, category: Optional[str],
         error_shout("\tpip install -r dev-requirements.txt")
         raise click.Abort()
 
-    if not factory_class:
-        if not category:
-            error_shout(
-                "Either `category` or `--factory-class` must be specified")
-            raise click.Abort()
-        factory_class = _factories[category]
-    if not factory_class:
-        error_shout("Either `category` or `factory_class` must be specified")
+    if factory_class:
+        import_path = factory_class
+    elif category:
+        if category in _factories:
+            import_path = _factories[category]
+        else:
+            import_path = category
+    else:
+        error_shout("Either `category` or `--factory-class` must be specified")
         raise click.Abort()
 
-    factory = import_string(factory_class, silent=True)
+    factory = import_string(import_path, silent=True)
     if not factory:
-        error_shout(f"{factory_class} cannot be imported")
+        error_shout(f"{import_path} cannot be imported")
         raise click.Abort()
 
-    if not issubclass(factory, CKANFactory):
+    if not isinstance(factory, type) or not issubclass(factory, CKANFactory):
         error_shout("Factory must be a subclass of `{module}:{cls}`".format(
             module=CKANFactory.__module__,
             cls=CKANFactory.__name__,

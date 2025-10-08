@@ -37,7 +37,7 @@ minor release they belong to, so for example CKAN ``2.0``, ``2.0.1``,
 
    .. note::
 
-      If you have changed the |apache|, |nginx| or ``who.ini`` configuration
+      If you have changed the |apache| or |nginx| configuration
       files, you will get a prompt like the following, asking whether to keep
       your local changes or replace the files. You generally would like to keep
       your local changes (option ``N``, which is the default), but you can look
@@ -63,9 +63,9 @@ minor release they belong to, so for example CKAN ``2.0``, ``2.0.1``,
      enable them again, the installation process will iterate all folders in
      the ``src`` directory, reinstall the requirements listed in
      ``pip-requirements.txt`` and ``requirements.txt`` files and run
-     ``python setup.py develop`` for each. If you are using a custom extension
+     ``pip install -e .`` for each. If you are using a custom extension
      which does not use this requirements file names or is located elsewhere,
-     you will need to manually reenable it.
+     you will need to manually re-enable it.
 
 
 #. Finally, restart uWSGI and Nginx:

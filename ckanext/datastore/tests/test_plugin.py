@@ -62,7 +62,7 @@ class TestPluginLoadingOrder(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
-@pytest.mark.usefixtures("clean_index", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_index", "with_plugins")
 class TestPluginDatastoreSearch(object):
     def test_english_is_default_fts_language(self):
         expected_ts_query = ", plainto_tsquery('english', 'foo') \"query\""
@@ -113,6 +113,8 @@ class TestPluginDatastoreSearch(object):
 
         assert result["where"] == []
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text")
     def test_fts_where_clause_lang_uses_english_by_default(self):
         expected_where = [
             (
@@ -129,6 +131,8 @@ class TestPluginDatastoreSearch(object):
 
         assert result["where"] == expected_where
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text")
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
     def test_fts_where_clause_lang_can_be_overwritten_by_config(self):
         expected_where = [
@@ -146,6 +150,8 @@ class TestPluginDatastoreSearch(object):
 
         assert result["where"] == expected_where
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text")
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
     def test_fts_where_clause_lang_can_be_overwritten_using_lang_param(self):
         expected_where = [

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.lib import helpers as template_helpers
@@ -30,7 +29,7 @@ def test_info_success():
     }
     helpers.call_action("datastore_create", **data)
 
-    info = helpers.call_action("datastore_info", id=resource["id"])
+    info = helpers.call_action("datastore_info", resource_id=resource["id"])
 
     assert len(info["meta"]) == 7, info["meta"]
     assert info["meta"]["count"] == 2
@@ -52,37 +51,44 @@ def test_info_success():
     assert info["meta"]["count"] == 2
     assert info["meta"]["id"] == resource["id"]
 
+    info = helpers.call_action(
+        "datastore_info", resource_id=resource["id"],
+        include_meta=False, include_fields_schema=False)
+
+    assert 'meta' not in info
+    assert not any('schema' in f for f in info['fields'])
+
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
 @pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_api_info(app):
-    dataset = factories.Dataset()
-    resource = factories.Resource(
-        id="588dfa82-760c-45a2-b78a-e3bc314a4a9b",
-        package_id=dataset["id"],
-        datastore_active=True,
-    )
+    resource = factories.Resource()
+    data = {
+        "resource_id": resource["id"],
+        "force": True,
+        "records": [
+            {"from": "Brazil", "to": "Brazil", "num": 2},
+        ],
+    }
+    helpers.call_action("datastore_create", **data)
 
     # the 'API info' is seen on the resource_read page, a snippet loaded by
     # javascript via data_api_button.html
     url = template_helpers.url_for(
-        "api.snippet",
-        ver=1,
-        snippet_path="api_info.html",
+        "datastore.api_info",
         resource_id=resource["id"],
     )
 
     page = app.get(url, status=200)
 
-    # check we built all the urls ok
-    expected_urls = (
-        "http://test.ckan.net/api/3/action/datastore_create",
-        "http://test.ckan.net/api/3/action/datastore_upsert",
-        "<code>http://test.ckan.net/api/3/action/datastore_search",
-        "http://test.ckan.net/api/3/action/datastore_search_sql",
-        "url: 'http://test.ckan.net/api/3/action/datastore_search'",
-        "http://test.ckan.net/api/3/action/datastore_search"
+    # check we built some urls, examples properly
+    expected_html = (
+        "http://test.ckan.net/api/action/datastore_search",
+        "http://test.ckan.net/api/action/datastore_search_sql",
+        '<pre class="example-curl"><code class="language-bash"',
+        f'"sql": "SELECT * FROM \\"{resource["id"]}\\" WHERE',
+        "RemoteCKAN('http://test.ckan.net/', apikey=API_TOKEN)",
     )
-    content = six.ensure_text(page.data)
-    for url in expected_urls:
-        assert url in content
+    content = page.get_data(as_text=True)
+    for html in expected_html:
+        assert html in content

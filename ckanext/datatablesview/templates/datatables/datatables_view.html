@@ -8,8 +8,10 @@
 
 {%- block page -%}
 {#- pass the datadictionary to javascript, so we can init columns there -#}
-{%- set datadictionary = h.datastore_dictionary(resource.id) -%}
+{%- set datadictionary = h.datastore_dictionary(resource.id, resource_view.get('show_fields')) -%}
 {%- set nbspval = "&nbsp;"|safe -%}
+{%- set current_language = h.lang() -%}
+
 <script type=text/javascript>
     const gdataDict = {{ datadictionary|tojson }}
     const gresviewId = '{{ resource_view.id }}'
@@ -25,41 +27,38 @@
       data-date-format="{{ resource_view.date_format  if resource_view.date_format is defined else date_format }}"
       data-package-name="{{ package.name }}"
       data-resource-name="{{ h.resource_display_name(resource) }}"
-      data-languagecode="{{ h.lang() }}"
-      data-languagefile="{{ h.url_for_static('vendor/DataTables/i18n/' + h.lang() + '.json') }}"
+      data-languagecode="{{ current_language }}"
+      data-languagefile="{{ h.datatablesview_get_language_file_path(current_language) }}"
       data-ajaxurl="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
       data-ckanfilters="{{ request.args.get('filters', '')|e }}"
       data-responsive-flag="{{ resource_view.get('responsive')|lower }}"
       data-page-length-choices="{{ page_length_choices }}"
-      data-resource-url="{{ h.url_for('resource.read', id=package.name, resource_id=resource.id ) }}">
+      data-responsive-modal="{{ responsive_modal|lower }}"
+      data-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id ) }}">
     <thead>
       <tr>
         <th class="all" data-name="_id">_id</th>
         {% for field in datadictionary -%}
-          {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
-            <th scope="col">
-            {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
-              {{ field.info.label|replace(" ", nbspval) }}
-            {%- else -%}
-              {{ field.id|replace(" ", nbspval) }}
-            {%- endif -%}
-            &nbsp;
-            {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}            
-              <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
-            {%- endif -%}
-            &nbsp;</th>
-          {%- endif %}
+          <th scope="col">
+          {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
+            {{ field.info.label|replace(" ", nbspval) }}
+          {%- else -%}
+            {{ field.id|replace(" ", nbspval) }}
+          {%- endif -%}
+          &nbsp;
+          {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}
+            <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
+          {%- endif -%}
+          &nbsp;</th>
         {% endfor -%}
        <th id="_colspacer">colspacer</th>
       </tr>
       <tr>
-        <th><button id="refit-button" class="btn btn-default" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
+        <th><button id="refit-button" class="btn btn-secondary" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
         {% for field in datadictionary -%}
-          {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
-            <th id="cdx{{ loop.index }}" class="fhead" data-type="{{ field.type }}">
-                {{- field.id -}}
-            </th>
-          {% endif -%}
+          <th id="cdx{{ loop.index }}" class="fhead" data-type="{{ field.type }}">
+              {{- field.id -}}
+          </th>
         {% endfor -%}
        <th id="_colspacerfilter" class="none"></th>
       </tr>
@@ -70,6 +69,7 @@
   <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
                                                                   'datatablesview.filtered_download',
                                                                   resource_view_id=resource_view.id) -}}">
+    {{ h.csrf_input() }}
     <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e -}}" />
   </form>
 </div>
@@ -89,8 +89,8 @@
   {{- _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
   {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
   {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') -}}&nbsp;
-  {%- if res.size|int != 0 -%}
-   ( {{ h.SI_number_span(res.size)|striptags }} )
+  {%- if res.size and res.size|int != 0 -%}
+   ( {{ h.localised_filesize(res.size)}} )
   {%- endif -%}
 </div>
 {%- endblock -%}

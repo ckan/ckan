@@ -6,7 +6,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
 
-class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
+class ExampleIDatasetFormPlugin(tk.DefaultDatasetForm, p.SingletonPlugin):
     p.implements(p.IDatasetForm)
 
     def create_package_schema(self) -> Schema:

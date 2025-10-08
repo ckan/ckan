@@ -4,9 +4,9 @@ import os
 
 import hashlib
 import pytest
-import six
 
 from passlib.hash import pbkdf2_sha512
+from faker import Faker
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -23,12 +23,9 @@ def _set_password(password):
     #     password_8bit = password
 
     salt = hashlib.sha1(os.urandom(60))
-    hash = hashlib.sha1(six.ensure_binary(password + salt.hexdigest()))
+    hash = hashlib.sha1((password + salt.hexdigest()).encode())
     hashed_password = salt.hexdigest() + hash.hexdigest()
-
-    if not isinstance(hashed_password, str):
-        hashed_password = six.ensure_text(hashed_password)
-    return hashed_password
+    return str(hashed_password)
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -49,7 +46,7 @@ class TestPasswordUpgrade:
 
     def test_upgrade_from_sha_with_unicode_password(self):
         user = factories.User()
-        password = u"testpassword\xc2\xa0"
+        password = "testpassword\xc2\xa0"
         user_obj = model.User.by_name(user["name"])
 
         # setup our user with an old password hash
@@ -164,6 +161,21 @@ class TestUser:
         assert user.email == data["email"]
         assert user.last_active is None
 
+    def test_by_email(self, user_factory, faker: Faker):
+        """Search by email is case-insensitive and requires full-match.
+        """
+
+        mary = user_factory(email=faker.email(domain="ckan.net"))
+        john = user_factory(email=faker.email(domain="ckan.net"))
+
+        assert model.User.by_email(mary["email"]).id == mary["id"]
+        assert model.User.by_email(john["email"]).id == john["id"]
+
+        assert model.User.by_email(mary["email"].upper()).id == mary["id"]
+        assert model.User.by_email(john["email"].title()).id == john["id"]
+
+        assert not model.User.by_email("ckan.net")
+
     def test_get(self):
         brian = factories.User(fullname="Brian")
         sandra = factories.User(fullname="Sandra")
@@ -184,15 +196,15 @@ class TestUser:
     def test_user_is_active_by_default(self):
         data = factories.User()
         user = model.User.get(data["id"])
-        assert user.is_active()
+        assert user.is_active
 
     def test_activate(self):
         data = factories.User()
         user = model.User.get(data["id"])
         user.state = "some-state"
-        assert not user.is_active()
+        assert not user.is_active
         user.activate()
-        assert user.is_active()
+        assert user.is_active
 
     def test_is_pending(self):
         data = factories.User()
@@ -236,24 +248,25 @@ class TestUser:
         from ckan.lib.helpers import url_for
         from freezegun import freeze_time
 
-        frozen_time = datetime.datetime.utcnow()
         data = factories.User()
         dataset = factories.Dataset()
-        env = {"REMOTE_USER": str(data["name"])}
+        user_token = factories.APIToken(user=data["name"])
+        headers = {"Authorization": user_token["token"]}
 
+        frozen_time = datetime.datetime.utcnow()
         with freeze_time(frozen_time):
             user = model.User.get(data["id"])
             assert user.last_active is None
-            app.get(url_for("dataset.search"), extra_environ=env)
+            app.get(url_for("dataset.search"), headers=headers)
             assert isinstance(user.last_active, datetime.datetime)
             assert user.last_active == datetime.datetime.utcnow()
 
         with freeze_time(frozen_time + datetime.timedelta(seconds=540)):
             user = model.User.get(data["id"])
-            app.get(url_for("user.read", id=user.id), extra_environ=env)
+            app.get(url_for("user.read", id=user.id), headers=headers)
             assert user.last_active != datetime.datetime.utcnow()
 
         with freeze_time(frozen_time + datetime.timedelta(seconds=660)):
             user = model.User.get(data["id"])
-            app.get(url_for("dataset.read", id=dataset["id"]), extra_environ=env)
+            app.get(url_for("dataset.read", id=dataset["id"]), headers=headers)
             assert user.last_active == datetime.datetime.utcnow()

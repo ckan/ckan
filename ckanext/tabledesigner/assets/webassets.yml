@@ -1,0 +1,22 @@
+tabledesigner_css:
+  output: ckanext-tabledesigner/%(version)s_tabledesigner_css.css
+  contents:
+  - tabledesigner.css
+
+fields:
+  filters: rjsmin
+  output: ckanext-tabledesigner/%(version)s_tabledesigner_fields.js
+  extra:
+    preload:
+    - base/main
+  contents:
+  - js/tabledesigner-fields.js
+
+datatables_buttons:
+  filters: rjsmin
+  output: ckanext-tabledesigner/%(version)s_tabledesigner_datatables_buttons.js
+  extra:
+    preload:
+    - base/main
+  contents:
+  - js/tabledesigner-datatables-buttons.js

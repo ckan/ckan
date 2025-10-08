@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block heading_meta %}
+{{ super() }}
+{{ h.popular('recent views', package.tracking_summary.recent, min=10)}}
+{% endblock %}

@@ -1,31 +1,31 @@
-# encoding: utf-8
-
 from unittest import mock
 import pytest
 
 import ckan.tests.factories as factories
 from ckan.logic import _actions
+from ckanext.datapusher.tests import get_api_token
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
-@pytest.mark.usefixtures(u"non_clean_db", u"with_plugins", u"with_request_context")
+@pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
+@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 def test_resource_data(app, monkeypatch):
-    user = factories.User()
-    dataset = factories.Dataset(creator_user_id=user["id"])
-    resource = factories.Resource(
-        package_id=dataset["id"], creator_user_id=user["id"]
-    )
-    auth = {u"REMOTE_USER": user["name"]}
+    user = factories.UserWithToken()
+    org = factories.Organization(users=[{"name": user["name"], "capacity": "admin"}])
 
-    url = u"/dataset/{id}/resource_data/{resource_id}".format(
+    dataset = factories.Dataset(owner_org=org["id"])
+    resource = factories.Resource(package_id=dataset["id"])
+
+    url = "/dataset/{id}/resource_data/{resource_id}".format(
         id=str(dataset["name"]), resource_id=str(resource["id"])
     )
 
+    headers = {"Authorization": user["token"]}
     func = mock.Mock()
-    monkeypatch.setitem(_actions, 'datapusher_submit', func)
-    app.post(url=url, environ_overrides=auth, status=200)
+    monkeypatch.setitem(_actions, "datapusher_submit", func)
+    app.post(url=url, headers=headers, status=200)
     func.assert_called()
     func.reset_mock()
 
-    app.get(url=url, environ_overrides=auth, status=200)
+    app.get(url=url, headers=headers, status=200)
     func.assert_not_called()

@@ -134,6 +134,7 @@
       </table>
     </section>
 
+    {% if top_package_creators %}
     <section id="stats-most-create" class="module-content tab-content">
       <h2>{{ _('Users Creating Most Datasets') }}</h2>
       <table class="table table-chunky table-bordered table-striped">
@@ -153,12 +154,13 @@
         </tbody>
       </table>
     </section>
+    {% endif %}
   </article>
 {% endblock %}
 
 {% block secondary_content %}
   <section class="module module-narrow">
-    <h2 class="module-heading"><i class="fa fa-bar-chart-o"></i> {{ _('Statistics Menu') }}</h2>
+    <h2 class="module-heading"><i class="fa fa-chart-bar"></i> {{ _('Statistics Menu') }}</h2>
     <nav data-module="stats-nav">
       <ul class="unstyled nav nav-simple">
         <li class="nav-item active"><a href="#stats-total-datasets" data-toggle="tab" data-bs-toggle="tab">{{ _('Total Number of Datasets') }}</a></li>
@@ -166,7 +168,9 @@
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab" data-bs-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-largest-groups" data-toggle="tab" data-bs-toggle="tab">{{ _('Largest Groups') }}</a></li>
         <li class="nav-item"><a href="#stats-top-tags" data-toggle="tab" data-bs-toggle="tab">{{ _('Top Tags') }}</a></li>
-        <li class="nav-item"><a href="#stats-most-create" data-toggle="tab" data-bs-toggle="tab">{{ _('Users Creating Most Datasets') }}</a></li>
+        {% if top_package_creators %}
+          <li class="nav-item"><a href="#stats-most-create" data-toggle="tab" data-bs-toggle="tab">{{ _('Users Creating Most Datasets') }}</a></li>
+        {% endif %}
       </ul>
     </nav>
   </section>

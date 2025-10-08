@@ -33,6 +33,9 @@ VALIDATORS_PACKAGE_ACTIVITY_TYPES = {
     "changed package": "package_id_exists",
     "deleted package": "package_id_exists",
     "follow dataset": "package_id_exists",
+    "new resource view": "package_id_exists",
+    "changed resource view": "package_id_exists",
+    "deleted resource view": "package_id_exists",
 }
 
 VALIDATORS_USER_ACTIVITY_TYPES = {
@@ -45,10 +48,14 @@ VALIDATORS_GROUP_ACTIVITY_TYPES = {
     "new group": "group_id_exists",
     "changed group": "group_id_exists",
     "deleted group": "group_id_exists",
+    "follow group": "group_id_exists",
+}
+
+VALIDATORS_ORGANIZATION_ACTIVITY_TYPES = {
     "new organization": "group_id_exists",
     "changed organization": "group_id_exists",
     "deleted organization": "group_id_exists",
-    "follow group": "group_id_exists",
+    "follow organization": "group_id_exists",
 }
 
 # A dictionary mapping activity_type values from activity dicts to functions
@@ -57,6 +64,7 @@ object_id_validators = {
     **VALIDATORS_PACKAGE_ACTIVITY_TYPES,
     **VALIDATORS_USER_ACTIVITY_TYPES,
     **VALIDATORS_GROUP_ACTIVITY_TYPES,
+    **VALIDATORS_ORGANIZATION_ACTIVITY_TYPES
 }
 
 

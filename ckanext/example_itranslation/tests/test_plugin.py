@@ -41,6 +41,7 @@ class TestExampleITranslationPlugin(object):
         assert helpers.body_contains(response, "Einloggen")
         assert not helpers.body_contains(response, "Overwritten string in ckan.mo")
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_english_translation_replaces_default_english_string(self, app):
         response = app.get(url=plugins.toolkit.url_for(u"home.index"),)
         assert helpers.body_contains(response, "Replaced")

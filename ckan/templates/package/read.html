@@ -13,10 +13,10 @@
       {% block page_heading %}
         {{ h.dataset_display_name(pkg) }}
         {% if pkg.state.startswith('draft') %}
-          [{{ _('Draft') }}]
+          <span class="badge bg-info">{{ _('Draft') }}</span>
         {% endif %}
         {% if pkg.state == 'deleted' %}
-          [{{ _('Deleted') }}]
+          <span class="badge bg-info">{{ _('Deleted') }}</span>
         {% endif %}
       {% endblock %}
     </h1>
@@ -27,12 +27,11 @@
         </div>
       {% endif %}
     {% endblock %}
-    {# FIXME why is this here? seems wrong #}
-    <span class="insert-comment-thread"></span>
   {% endblock %}
 
   {% block package_resources %}
-    {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
+    {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources,
+      can_edit=h.check_access('package_update', {'id':pkg.id }) %}
   {% endblock %}
 
   {% block package_tags %}

@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import multiprocessing as mp
+import sys
 
 import click
 import sqlalchemy as sa
 from ckan.common import config
+from ckan.lib.search import query_for
+import ckan.logic as logic
+import ckan.model as model
 from . import error_shout
 
 
@@ -36,6 +40,7 @@ def rebuild(
         commit_each: bool, package_id: str, clear: bool
 ):
     u''' Rebuild search index '''
+    errors = 0
     from ckan.lib.search import rebuild, commit
     try:
 
@@ -45,10 +50,16 @@ def rebuild(
                 defer_commit=(not commit_each),
                 quiet=quiet and not verbose,
                 clear=clear)
+    except logic.NotFound:
+        error_shout("Couldn't find package %s" % package_id)
+        errors = 1
     except Exception as e:
         error_shout(e)
+        errors = 1
     if not commit_each:
         commit()
+    if errors:
+        sys.exit(errors)
 
 
 @search_index.command(name=u'check', short_help=u'Check search index')
@@ -77,6 +88,80 @@ def clear(dataset_name: str):
         clear_all()
 
 
+def get_orphans() -> list[str]:
+    search = None
+    indexed_package_ids = []
+    while search is None or len(indexed_package_ids) < search['count']:
+        search = logic.get_action('package_search')({}, {
+                'q': '*:*',
+                'fl': 'id',
+                'start': len(indexed_package_ids),
+                'rows': 1000})
+        indexed_package_ids += search['results']
+
+    package_ids = {r[0] for r in model.Session.query(model.Package.id)}
+
+    orphaned_package_ids = []
+
+    for indexed_package_id in indexed_package_ids:
+        if indexed_package_id['id'] not in package_ids:
+            orphaned_package_ids.append(indexed_package_id['id'])
+
+    return orphaned_package_ids
+
+
+@search_index.command(
+    name=u'list-orphans',
+    short_help=u'Lists any non-existent packages in the search index'
+)
+def list_orphans_command():
+    orphaned_package_ids = get_orphans()
+    if len(orphaned_package_ids):
+        click.echo(orphaned_package_ids)
+    click.echo("Found {} orphaned package(s).".format(
+        len(orphaned_package_ids)
+    ))
+
+
+@search_index.command(
+    name=u'clear-orphans',
+    short_help=u'Clear any non-existent packages in the search index'
+)
+@click.option(u'-v', u'--verbose', is_flag=True)
+@click.pass_context
+def clear_orphans(ctx: click.Context, verbose: bool = False):
+    for orphaned_package_id in get_orphans():
+        if verbose:
+            click.echo("Clearing search index for dataset {}...".format(
+                orphaned_package_id
+            ))
+        ctx.invoke(clear, dataset_name=orphaned_package_id)
+
+
+@search_index.command(
+    name=u'list-unindexed',
+    short_help=u'Lists any missing packages from the search index'
+)
+def list_unindexed():
+    packages = model.Session.query(model.Package.id)
+    if config.get('ckan.search.remove_deleted_packages'):
+        packages = packages.filter(model.Package.state != 'deleted')
+
+    package_ids = [r[0] for r in packages.all()]
+
+    package_query = query_for(model.Package)
+    indexed_pkg_ids = set(package_query.get_all_entity_ids(
+        max_results=len(package_ids)))
+    # Packages not indexed
+    unindexed_package_ids = set(package_ids) - indexed_pkg_ids
+
+    if len(unindexed_package_ids):
+        click.echo(unindexed_package_ids)
+    click.echo("Found {} unindexed package(s).".format(
+        len(unindexed_package_ids)
+    ))
+
+
 @search_index.command(name=u'rebuild-fast',
                       short_help=u'Reindex with multiprocessing')
 def rebuild_fast():
@@ -85,7 +170,10 @@ def rebuild_fast():
     db_url = config['sqlalchemy.url']
     engine = sa.create_engine(db_url)
     package_ids = []
-    result = engine.execute(u"select id from package where state = 'active';")
+    with engine.connect() as conn:
+        result = conn.execute(
+            sa.text("SELECT id FROM package where state = 'active'")
+        )
     for row in result:
         package_ids.append(row[0])
 

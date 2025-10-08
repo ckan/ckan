@@ -7,11 +7,8 @@ Configuration Options
 The functionality and features of CKAN can be modified using many different
 configuration options. These are generally set in the `CKAN configuration file`_,
 but some of them can also be set via `Environment variables`_ or at :ref:`runtime <runtime-config>`.
-Config options can be :ref:`declared on strict mode <declare-config-options>` to ensure they are validated and have default values.
 
 .. note:: Looking for the available configuration options? Jump to `CKAN configuration file`_.
-
-
 
 
 Environment variables
@@ -68,19 +65,171 @@ features and providing new ones, which means that some new config options may be
 introduced, while other options no longer have any effect. In
 order to keep track of all valid config options, CKAN uses config declarations.
 
-CKAN itself declares all the config options that are used throught the
+CKAN itself declares all the config options that are used through the
 code base (You can see the core config declarations in
 the ``ckan/config/config_declaration.yaml`` file). This allows to validate the
 current configuration against the declaration, or check which config
 options in the CKAN config file are not declared (and might have no effect).
 
-.. note:: To make use of the config declaration feature you need to set :ref:`config.mode` to ``strict``
-
 Declaring config options
 ------------------------
 
+.. note:: Starting from CKAN 2.11, CKAN will log a warning every time a non-declared
+  configuration option is accessed. To prevent this, declare the configuration options
+  offered by your extension using the methods below
+
+Using a text file (JSON, YAML or TOML)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The recommended way of declaring config options is using the
+``config_declarations``
+:py:attr:`~ckan.plugins.toolkit.ckan.plugins.toolkit.blanket`. It allows you to
+write less code and define your config options using JSON, YAML, or TOML (if the ``toml``
+package is installed inside your virtual environment). That is how CKAN
+declares config options for all its built-in plugins, like ``datastore`` or
+``datatables_view``.
+
+To use it, decorate the plugin with the ``config_declarations`` blanket::
+
+  import ckan.plugins as p
+  import ckan.plugins.toolkit as tk
+
+  @tk.blanket.config_declarations
+  class MyExt(p.SingletonPlugin):
+      pass
+
+Next, create a file `config_declaration.yaml` at the root directory of your
+extension: ``ckanext/my_ext/config_declaration.yaml``. You can use the `.json`
+or `.toml` extension instead of `.yaml`.
+
+Here is an example of the config declaration file. All the comments are added
+only for explanation and you don't need them in the real file::
+
+
+    # schema version of the config declaration. At the moment, the only valid value is `1`
+    version: 1
+
+    # an array of configuration blocks. Each block has an "annotation", that
+    # describes the block, and the list of options. These groups help to separate
+    # config options visually, but they have no extra meaning.
+    groups:
+
+    # short text that describes the group. It can be shown in the config file
+    # as following:
+    #   ## MyExt settings ##################
+    #   some.option = some.value
+    #   another.option = another.value
+    - annotation: MyExt settings
+
+      # an array of actual declarations
+      options:
+
+        # The only required item in the declaration is `key`. `key` defines the
+        # name of the config option
+        - key: my_ext.flag.do_something
+
+          # default value, used when the option is missing from the config file.
+          default: false
+
+          # import path of the function that must be called in order to get the
+          # default value. This can be used when the default value can be obtained from
+          # an environment variable, database or any other external source.
+          # IMPORTANT: use either `default` or `default_callable`, not both at the same time
+          default_callable: ckanext.my_ext.utils:function_that_returns_default
+
+          # Example of value that can be used for given option. If the config
+          # option is missing from the config file, `placeholder` IS IGNORED. It
+          # has only demonstration purpose. Good uses of `placeholder` are:
+          # examples of secrets, examples of DB connection string.
+          # IMPORTANT: do not use `default` and `placeholder` at the same
+          # time. `placeholder` should be used INSTEAD OF the `default`
+          # whenever you think it has a sense.
+          placeholder: false
+
+          # import path of the function that must be called in order to get the
+          # placeholder value.  Basically, same as `default_callable`, but it
+          # produces the value of `placeholder`.
+          # IMPORTANT: use either `placeholder` or `placeholder_callable`, not both at the same time
+          placeholder_callable: ckanext.my_ext.utils:function_that_returns_placeholder
+
+          # A dictionary with keyword-arguments that will be passed to
+          # `default_callable` or `placeholder_callable`.  As mentioned above,
+          # only one of these options may be used at the same time, so
+          # `callable_args` can be used by any of these options without a conflict.
+          callable_args:
+            arg_1: 20
+            arg_2: "hello"
+
+          # an alternative example of a valid value for option. Used only in
+          # CKAN documentation, thus has no value for extensions.
+          example: some-valid-value
+
+          # an explanation of the effect that option has. Don't hesitate to
+          # put as much details here as possible
+          description: |
+              Nullam eu ante vel est convallis dignissim.  Fusce suscipit, wisi
+              nec facilisis facilisis, est dui fermentum leo, quis tempor
+              ligula erat quis odio.  Nunc porta vulputate tellus.  Nunc rutrum
+              turpis sed pede.  Sed bibendum.  Aliquam posuere.  Nunc aliquet,
+              augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+              various mi purus non odio.  Pellentesque condimentum, magna ut
+              suscipit hendrerit, ipsum augue ornare nulla, non luctus diam
+              neque sit amet urna.  Curabitur vulputate vestibulum lorem.
+              Fusce sagittis, libero non molestie mollis, magna orci ultrices
+              dolor, at vulputate neque nulla lacinia eros.  Sed id ligula quis
+              est convallis tempor.  Curabitur lacinia pulvinar nibh.  Nam a
+              sapien.
+
+          # a space-separated list of validators, applied to the value of option.
+          validators: not_missing boolean_validator
+
+          # shortcut for the most common option types. It adds type validators to the option.
+          # If both, `type` and `validators` are set, validators from `type` are added first,
+          # then validators from `validators` are appended.
+          # Valid types are: bool, int, list, dynamic (see below for more information on dynamic
+          # options)
+          type: bool
+
+          # boolean flag that marks config option as experimental. Such options are hidden from
+          # examples of configuration or any other auto-generated output. But they are declared,
+          # thus can be validated and do not produce undeclared-warning. Use it for options that
+          # are not stable and may be removed from your extension before the public release
+          experimental: true
+
+          # boolean flag that marks config option as ignored. Can be used for options that are set
+          # programmatically. This flag means that there is no sense in setting this option, because
+          # it will be overridden or won't be used at all.
+          ignored: true
+
+          # boolean flag that marks config option as hidden. Used for options that should not be set
+          # inside config file or anyhow used by others. Often this flag is used for options
+          # that are added by Flask core or its extensions.
+          internal: true
+
+          # boolean flag that marks config option as required. Doesn't have a special effect for now,
+          # but may prevent application from startup in future, so use it only on options that
+          # are essential for your plugin and that have no sensible default value.
+          required: true
+
+          # boolean flag that marks config option as editable. Doesn't have a special effect for now.
+          # It's recommended to enable this flag for options that are editable via AdminUI.
+          editable: true
+
+          # boolean flag that marks option as commented. Such options are added
+          # as comments to the config file generated from template.
+          commented: true
+
+          # Deprecated name of the option. Can be used for options that were renamed.
+          # When `key` is missing from config and `legacy_key` is available, the value of
+          # `legacy_key` is used, printing a deprecation warning in the logs.
+          legacy_key: my_ext.legacy.flag.do_something
+
+The ``IConfigDeclaration`` interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 The :py:class:`~ckan.plugins.interfaces.IConfigDeclaration` interface is
-available to allow extensions to declare their own config options.
+available to plugins that want more control on how their own config options are declared.
 
 New config options can only be declared inside the
 :py:meth:`~ckan.plugins.interfaces.IConfigDeclaration.declare_config_options` method. This
@@ -113,14 +262,9 @@ These validators need to registered in CKAN core or in your own extension using
 the :py:class:`~ckan.plugins.interfaces.IValidators` interface.
 
 .. note:: Declared default values are also passed to validators. In addition,
-          different validators can be applied to the same option. This means that
-          validators must be idempotent and that the efault value itself must be valid for
-          the given set of validators.
-
-If this is a mandatory option (ie users need to explicitly provide a value and can't
-rely on a default value)::
-
-    option.required()
+          different validators can be applied to the same option multiple
+          times. This means that validators must be idempotent and that the
+          default value itself must be valid for the given set of validators.
 
 If you need to declare a lot of options, you can declare all of them at once loading a dict::
 
@@ -129,9 +273,49 @@ If you need to declare a lot of options, you can declare all of them at once loa
 This allows to keep the configuration declaration in a separate file to make it easier to maintain if
 your plugin supports several config options.
 
-.. note:: ``declaration.load_dict()`` takes only python dictionary as argument. If
-          you store the declaration in an external file like a JSON, YAML file, you have to parse it into a
-          Python dictionary yourself.
+.. note:: ``declaration.load_dict()`` takes only python dictionary as
+          argument. If you store the declaration in an external file like a
+          JSON, YAML file, you have to parse it into a Python dictionary
+          yourself or use corresponding
+          :py:attr:`~ckan.plugins.toolkit.ckan.plugins.toolkit.blanket`. Read
+          the following section for additional information.
+
+
+Dynamic config options
+^^^^^^^^^^^^^^^^^^^^^^
+
+There is a special option type, ``dynamic``. This option type is used for a set
+of options that have common name-pattern. Because ``dynamic`` type defines
+multiple options, it has no default, validators and serves mostly documentation
+purposes. Let's use CKAN's ``sqlalchemy.*`` options as example. Every option
+whose name follows the pattern ``sqlalchemy.SOMETHING`` is passed to the
+SQLAlchemy engine created by CKAN. CKAN doesn't actually know which options
+are valid and it's up to you to provide valid values. Basically, we have a set
+of options with prefix ``sqlalchemy.``. If use these options without declararing,
+it will trigger warnings about using undeclared options, which are harmless but can be
+annoying. Declaring them helps to make explicit which configuration options are actually being used.
+In order to declare such set of options, put some label surrounded with angle
+brackets instead of the dynamic part of option's name. In our case it can be
+``sqlalchemy.<OPTION>`` or ``sqlalchemy.<anything>``.  Any word can be used as
+label, the only important part here are angle brackets::
+
+  - key: sqlalchemy.<OPTION>
+    type: dynamic
+    description: |
+      Example::
+
+       sqlalchemy.pool_pre_ping=True
+       sqlalchemy.pool_size=10
+       sqlalchemy.max_overflow=20
+
+      Custom sqlalchemy config parameters used to establish the main
+      database connection.
+
+Use this feature sparsely, only when you really want to declare literally ANY
+value following the pattern. If you have finite set of possible options,
+consider declaring all of them, because it allows you to provide validators,
+defaults, and prevents you from accidental shadowing unrelated options.
+
 
 Accessing config options
 ------------------------
@@ -142,9 +326,10 @@ code like this one::
   is_enabled = toolkit.asbool(toolkit.config.get("ckanext.my_ext.enable", False))
 
 Declaring this configuration option and assigning validators (`convert_int`,
-`boolean_validators`) and a default value means that we can use the ``config.get_value()`` method::
+`boolean_validators`) and a default value means that we can use the
+``config.get(key)`` instead of the expression above::
 
-  is_enabled = toolkit.config.get_value("ckanext.my_ext.enable")
+  is_enabled = toolkit.config.get("ckanext.my_ext.enable")
 
 This will ensure that:
 
@@ -152,15 +337,14 @@ This will ensure that:
  2. This value is passed to the validators, and a valid value is returned
 
 
-.. note:: An attempt to use ``config.get_value()`` with an undeclared config option
+.. note:: An attempt to use ``config.get()`` with an undeclared config option
           will print a warning to the logs and return the option value or ``None`` as default.
 
 
 Command line interface
 ----------------------
 
-The current configuration can be validated using the :ref:`config declaration CLI <cli.ckan.config>` (again, assuming that
-you have set :ref:`config.mode` to ``strict``)::
+The current configuration can be validated using the :ref:`config declaration CLI <cli.ckan.config>`::
 
   ckan config validate
 
@@ -224,23 +408,42 @@ file settings, for reference.
 
         [DEFAULT]
 
-        ...
-
-        [server:main]
-        use = egg:Paste#http
-        host = 0.0.0.0
-        port = 5000
-
         # This setting will not work, because it's outside of [app:main].
         ckan.site_logo = /images/masaq.png
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats text_view recline_view
+        ckan.plugins = stats text_view datatables_view
 
-   If the same option is set more than once in your config file, exeption will
+   If the same option is set more than once in your config file, exception will
    be raised and CKAN application will not start
 
+.. _logging-settings:
+
+Logging settings
+----------------
+
+The logging settings control how CKAN outputs the log messages to the application logs, e.g.::
+
+  ckan run
+
+  2025-06-20 12:46:01,879 INFO  [ckan.cli] Using configuration file /home/adria/dev/projects/ckan-py310/ckan/ckan.ini
+  2025-06-20 12:46:01,880 INFO  [ckan.config.environment] Loading static files from public
+  2025-06-20 12:46:02,565 INFO  [ckan.config.environment] Loading templates from /home/adria/dev/projects/ckan-py310/ckan/ckan/templates
+  2025-06-20 12:46:02,874 INFO  [ckan.cli.server] Running CKAN on http://localhost:5310
+
+CKAN uses Python's standard `Configuration file format <https://docs.python.org/3/library/logging.config.html#configuration-file-format>`_ for the logging sections.
+You can refer to the Python documentation for all details but essentially there are
+three mandatory sections (``loggers``, ``handlers`` and ``formatters``) that contain the keys of
+the actual elements configured. Loggers allow you to define different debugging levels for
+different modules and libraries. By default CKAN only configures a console handler that
+outputs log message to *stderr* but you can configure any of the
+ones `included <https://docs.python.org/3/library/logging.handlers.html#module-logging.handlers>`_ in Python.
+
+If you are chaining configuration files using :ref:`use` you don't need to include the
+logging configuration in all the ini files contained in the chain. As with any regular
+configuration options base logging settings will take effect unless overridden by a higher
+level ini file.
 
 
 .. include:: ../_config_options.inc

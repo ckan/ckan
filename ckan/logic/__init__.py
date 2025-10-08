@@ -1,5 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
+from contextlib import contextmanager
 
 import functools
 import logging
@@ -12,9 +13,7 @@ from typing import (Any, Callable, Container, Iterable, Optional,
 from typing_extensions import Literal
 
 from werkzeug.datastructures import MultiDict
-
-import six
-
+from sqlalchemy import exc
 
 import ckan.model as model
 import ckan.authz as authz
@@ -24,14 +23,17 @@ import ckan.lib.signals as signals
 
 from ckan.common import _, g
 from ckan.types import (
-    Action, ChainedAction, Model,
+    Action, ChainedAction,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
-    Schema, Validator, ValidatorFactory)
+    FlattenKey, Schema, Validator, ValidatorFactory
+)
 
 Decorated = TypeVar("Decorated")
 
 log = logging.getLogger(__name__)
 _validate = df.validate
+
+_PG_ERR_CODE = {'unique_violation': '23505'}
 
 
 class NameConflict(Exception):
@@ -53,7 +55,7 @@ class ActionError(Exception):
         msg = self.message
         if not isinstance(msg, str):
             msg = str(msg)
-        return six.ensure_text(msg)
+        return msg
 
 
 class NotFound(ActionError):
@@ -136,6 +138,8 @@ class ValidationError(ActionError):
                 elif key == 'tags':
                     assert isinstance(error, list)
                     summary[_('Tags')] = error[0]
+                elif isinstance(error, str):
+                    summary[_(prettify(key))] = error
                 else:
                     assert isinstance(error, list)
                     summary[_(prettify(key))] = error[0]
@@ -149,6 +153,24 @@ class ValidationError(ActionError):
         err_msgs = (super(ValidationError, self).__str__(),
                     self.error_dict)
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
+
+
+def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
+    '''
+    Checks and delete, if the csrf_token is in "parsed".
+    We don't want the csrf_token to be a part of a data_dict
+    as it will expose the token to the metadata.
+    This way we are deleting the token from every data_dict that fills
+    from request.form instead of deleting it separately in every
+    view/blueprint.
+    '''
+    from ckan.common import config
+
+    # WTF_CSRF_FIELD_NAME is added by flask_wtf
+    csrf_token = config.get("WTF_CSRF_FIELD_NAME")
+    if csrf_token in parsed:
+        parsed.pop(csrf_token)
+    return parsed
 
 
 def parse_params(
@@ -177,6 +199,8 @@ def parse_params(
         if len(value) == 1:
             value = value[0]
         parsed[key] = value
+
+    parsed = checks_and_delete_if_csrf_token_in_forms(parsed)
     return parsed
 
 
@@ -234,7 +258,35 @@ def tuplize_dict(data_dict: dict[str, Any]) -> FlattenDataDict:
                 except ValueError:
                     raise df.DataError('Bad key')
         tuplized_dict[tuple(key_list)] = value
-    return tuplized_dict
+
+    # Sanitize key indexes to make sure they are sequential
+    seq_tuplized_dict: FlattenDataDict = {}
+    # sequential field indexes grouped by common prefix
+    groups: dict[FlattenKey, dict[FlattenKey, int]] = defaultdict(dict)
+    for key in sorted(tuplized_dict.keys()):
+        new_key = key
+
+        # iterate over even(numeric) parts of the key
+        for idx in range(1, len(key), 2):
+            # narrow down scope by common prefix
+            group = groups[key[:idx]]
+
+            # if the identifier(i.e `(extra, 123)`, `(resource, 9)`) is met for
+            # the first time, generate for it next number in the index
+            # sequence. Index of the latest added item is always equals to the
+            # number of unique identifiers minus one(because list indexation
+            # starts from 0 in Python). If identifier already present(i.e, we
+            # process `(extra, 10, VALUE)` after processing `(extra, 10,
+            # KEY)`), reuse sequential index of this identifier
+            seq_index = group.setdefault(key[idx-1:idx+1], len(group))
+
+            # replace the currently processed key segment with computed
+            # sequential index
+            new_key = new_key[:idx] + (seq_index,) + new_key[idx+1:]
+
+        seq_tuplized_dict[new_key] = tuplized_dict[key]
+
+    return seq_tuplized_dict
 
 
 def untuplize_dict(tuplized_dict: FlattenDataDict) -> dict[str, Any]:
@@ -255,7 +307,7 @@ def flatten_to_string_key(dict: dict[str, Any]) -> dict[str, Any]:
 def _prepopulate_context(context: Optional[Context]) -> Context:
     if context is None:
         context = {}
-    context.setdefault('model', cast(Model, model))
+    context.setdefault('model', model)  # type: ignore # deprecated since v2.12
     context.setdefault('session', model.Session)
 
     try:
@@ -326,11 +378,12 @@ def check_access(action: str,
         context['auth_user_obj'] = None
 
     context = _prepopulate_context(context)
-    if not context.get('ignore_auth'):
-        if not context.get('__auth_user_obj_checked'):
-            if context["user"] and not context["auth_user_obj"]:
-                context['auth_user_obj'] = model.User.by_name(context['user'])
-            context['__auth_user_obj_checked'] = True
+
+    if not context.get('__auth_user_obj_checked'):
+        if context["user"] and not context["auth_user_obj"]:
+            context['auth_user_obj'] = model.User.get(context['user'])
+        context['__auth_user_obj_checked'] = True
+
     try:
         logic_authorization = authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
@@ -454,8 +507,8 @@ def get_action(action: str) -> Action:
             '.' + action_module_name, 'ckan.logic.action')
         for k, v in authz.get_local_functions(module):
             _actions[k] = v
-            # Whitelist all actions defined in logic/action/get.py as
-            # being side-effect free.
+            # Allow all actions defined in logic/action/get.py to
+            # be side-effect free.
             if action_module_name == 'get' and \
                not hasattr(v, 'side_effect_free'):
                 v.side_effect_free = True
@@ -502,11 +555,12 @@ def get_action(action: str) -> Action:
     # wrap the functions
     for action_name, _action in _actions.items():
         def make_wrapped(_action: Action, action_name: str):
+            @functools.wraps(_action)
             def wrapped(context: Optional[Context] = None,
                         data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
-                    log.critical('%s was passed extra keywords %r'
-                                 % (_action.__name__, kw))
+                    log.critical('%s was passed extra keywords %r',
+                                 _action.__name__, kw)
 
                 context = _prepopulate_context(context)
 
@@ -529,7 +583,7 @@ def get_action(action: str) -> Action:
                     audit = context['__auth_audit'][-1]
                     if audit[0] == action_name and audit[1] == id(_action):
                         if action_name not in authz.auth_functions_list():
-                            log.debug('No auth function for %s' % action_name)
+                            log.debug('No auth function for %s', action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
                             raise Exception(
                                 'Action function {0} did not call its '
@@ -547,8 +601,6 @@ def get_action(action: str) -> Action:
             return wrapped
 
         fn = make_wrapped(_action, action_name)
-        # we need to mirror the docstring
-        fn.__doc__ = _action.__doc__
         # we need to retain the side effect free behaviour
         if getattr(_action, 'side_effect_free', False):
             # type_ignore_reason: custom attribute
@@ -612,8 +664,23 @@ def get_or_bust(
 
 def validate(schema_func: Callable[[], Schema],
              can_skip_validator: bool = False) -> Callable[[Action], Action]:
-    ''' A decorator that validates an action function against a given schema
-    '''
+    """A decorator that validates an action function against a given schema.
+
+    Example::
+
+        def schema_func():
+            return {
+                "a": [get_validator("int_validator")],
+                "__extras": [get_validator("ignore")]
+            }
+
+        @validate_action_data(schema_function)
+        def my_action(context, data_dict):
+            return data_dict
+
+        data = {"a": "1", "b": "2"}
+        assert my_action({}, data) == {"a": 1}
+    """
     def action_decorator(action: Action) -> Action:
         @functools.wraps(action)
         def wrapper(context: Context, data_dict: DataDict):
@@ -786,10 +853,10 @@ def get_validator(
         _validators_cache.update(converters)
         _validators_cache.update({'OneOf': _validators_cache['one_of']})
 
-        for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
+        for plugin in p.PluginImplementations(p.IValidators):
             for name, fn in plugin.get_validators().items():
-                log.debug('Validator function {0} from plugin {1} was inserted'
-                          .format(name, plugin.name))
+                log.debug('Validator function %s from plugin %s was inserted',
+                          name, plugin.name)
                 _validators_cache[name] = fn
     try:
         return _validators_cache[validator]
@@ -819,3 +886,117 @@ def _import_module_functions(
         k: v
         for k, v in authz.get_local_functions(module)
     }
+
+
+@contextmanager
+def guard_against_duplicated_email(email: str):
+    try:
+        yield
+    except exc.IntegrityError as e:
+        if cast(Any, e.orig).pgcode == _PG_ERR_CODE["unique_violation"]:
+            model.Session.rollback()
+            raise ValidationError({
+                "email": [
+                    "The email address '{email}' belongs to "
+                    "a registered user.".format(email=email)
+                ]
+            })
+        raise
+
+
+def fresh_context(
+    context: Context,
+    **kwargs: Any,
+) -> Context:
+    """ Copy just the minimum fields into a new context
+        for cases in which we reuse the context and
+        we want a clean version with minimum fields """
+    new_context = {
+        k: context[k] for k in (
+            'session', 'user', 'auth_user_obj',
+            'ignore_auth', 'defer_commit',
+        ) if k in context
+    }
+    new_context.update(kwargs)
+    new_context = cast(Context, new_context)
+    return new_context
+
+
+def package_show_default_and_custom_schemas(
+        parent_context: Context,
+        package_id: str,
+        ) -> tuple[dict[str, Any], dict[str, Any]]:
+    """
+    Returns tuple containing:
+    (
+        package data with default show package schema applied,
+        package data with custom show package schema applied
+    )
+
+    Used to avoid dictizing twice before indexing package data.
+    Indexing requires package data with both default and custom
+    show schemas applied (for now).
+    """
+    context = fresh_context(
+        parent_context, ignore_auth=True, use_cache=False, validate=False)
+    pkg_dictized = get_action('package_show')(context, {'id': package_id})
+
+    from ckan.logic.schema import default_show_package_schema
+    from ckan.lib.plugins import plugin_validate, lookup_package_plugin
+    default_schema = default_show_package_schema()
+    with_default_schema, _errors = plugin_validate(
+        object(), context, pkg_dictized, default_schema,
+        'package_show')
+
+    package_plugin = lookup_package_plugin(pkg_dictized['type'])
+    custom_schema = package_plugin.show_package_schema()
+
+    if custom_schema == default_schema:
+        with_custom_schema = with_default_schema
+    else:
+        with_custom_schema, _errors = plugin_validate(
+            package_plugin, context, pkg_dictized, custom_schema,
+            'package_show')
+
+    apply_after_dataset_show_plugins(context, with_custom_schema)
+
+    return (with_default_schema, with_custom_schema)
+
+
+def apply_after_dataset_show_plugins(
+        package_show_context: Context, package_dict: dict[str, Any]):
+    "last step of package_show unless use_cache = validate = False"
+
+    for item in p.PluginImplementations(p.IPackageController):
+        item.after_dataset_show(package_show_context, package_dict)
+
+
+def index_update_package(
+        context: Context, id_: str, defer_commit: bool = False):
+    "update package in search index by id"
+    both = package_show_default_and_custom_schemas(context, id_)
+    index_update_package_dicts(both, defer_commit)
+
+
+def index_update_package_dicts(
+        both: tuple[dict[str, Any], dict[str, Any]],
+        defer_commit: bool = False):
+    "update package in search index with default and custom schema data"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.update_dict(dict(both[0], with_custom_schema=both[1]), defer_commit)
+
+
+def index_insert_package_dicts(
+        both: tuple[dict[str, Any], dict[str, Any]]):
+    "create package in search index with default and custom schema data"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.insert_dict(dict(both[0], with_custom_schema=both[1]))
+
+
+def index_remove_package(id_: str):
+    "remove package from search index by id"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.remove_dict({'id': id_})

@@ -29,7 +29,7 @@ def get_proxified_resource_url(
     if not p.plugin_loaded(u'resource_proxy'):
         return url
 
-    ckan_url = config.get_value(u'ckan.site_url')
+    ckan_url = config.get(u'ckan.site_url')
     scheme = urlparse(url).scheme
     compare_domains = datapreview.compare_domains
     if not compare_domains([ckan_url, url]) and scheme in proxy_schemes:
@@ -38,7 +38,7 @@ def get_proxified_resource_url(
             id=data_dict[u'package'][u'name'],
             resource_id=data_dict[u'resource'][u'id']
         )
-        log.info(u'Proxified url is {0}'.format(url))
+        log.info('Proxified url is %s', url)
     return url
 
 

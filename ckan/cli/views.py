@@ -17,6 +17,7 @@ from ckan.lib.datapreview import (
     get_view_plugins,
     get_default_view_plugins,
 )
+from ckan.plugins import plugin_loaded
 from ckan.types import Context
 
 
@@ -40,21 +41,18 @@ def views():
 def create(ctx: click.Context, types: list[str], dataset: list[str],
            no_default_filters: bool, search: str, yes: bool):
     """Create views on relevant resources. You can optionally provide
-    specific view types (eg `recline_view`, `image_view`). If no types
+    specific view types (eg `datatables_view`, `image_view`). If no types
     are provided, the default ones will be used. These are generally
     the ones defined in the `ckan.views.default_views` config option.
-    Note that on either case, plugins must be loaded (ie added to
+    Note that in either case, plugins must be loaded (ie added to
     `ckan.plugins`), otherwise the command will stop.
 
     """
 
-    datastore_enabled = (
-        u"datastore" in config[u"ckan.plugins"].split()
-    )
-
     flask_app = ctx.meta['flask_app']
+    datastore_active = plugin_loaded("datastore")
     with flask_app.test_request_context():
-        loaded_view_plugins = _get_view_plugins(types, datastore_enabled)
+        loaded_view_plugins = _get_view_plugins(types, datastore_active)
     if loaded_view_plugins is None:
         return
     site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
@@ -63,7 +61,8 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
     page = 1
     while True:
         query = _search_datasets(
-            page, loaded_view_plugins, dataset, search, no_default_filters
+            context, page, loaded_view_plugins,
+            dataset, search, no_default_filters
         )
         if query is None:
             return
@@ -179,7 +178,7 @@ def clean(ctx: click.Context, yes: bool):
 
 def _get_view_plugins(view_plugin_types: list[str],
                       get_datastore_views: bool = False):
-    """Returns the view plugins that were succesfully loaded
+    """Returns the view plugins that were successfully loaded
 
     Views are provided as a list of ``view_plugin_types``. If no types
     are provided, the default views defined in the
@@ -224,6 +223,7 @@ def _get_view_plugins(view_plugin_types: list[str],
 
 
 def _search_datasets(
+        context: Context,
         page: int = 1, view_types: Optional[list[str]] = None,
         dataset: Optional[list[str]] = None, search: str = u"",
         no_default_filters: bool = False
@@ -264,12 +264,12 @@ def _search_datasets(
 
     elif not no_default_filters:
 
-        _add_default_filters(search_data_dict, view_types)
+        search_data_dict = _add_default_filters(search_data_dict, view_types)
 
     if not search_data_dict.get(u"q"):
         search_data_dict[u"q"] = u"*:*"
 
-    query = logic.get_action(u"package_search")({}, search_data_dict)
+    query = logic.get_action(u"package_search")(context, search_data_dict)
 
     return query
 
@@ -295,13 +295,13 @@ def _add_default_filters(search_data_dict: dict[str, Any],
     """
 
     from ckanext.textview.plugin import get_formats as get_text_formats
-    datapusher_formats = config.get_value("ckan.datapusher.formats")
+    datapusher_formats = config.get("ckan.datapusher.formats")
 
     filter_formats = []
 
     for view_type in view_types:
         if view_type == u"image_view":
-            formats = config.get_value(
+            formats = config.get(
                 "ckan.preview.image_formats").split()
             for _format in formats:
                 filter_formats.extend([_format, _format.upper()])
@@ -314,12 +314,7 @@ def _add_default_filters(search_data_dict: dict[str, Any],
         elif view_type == u"pdf_view":
             filter_formats.extend([u"pdf", u"PDF"])
 
-        elif view_type in [
-            u"recline_view",
-            u"recline_grid_view",
-            u"recline_graph_view",
-            u"recline_map_view",
-        ]:
+        elif view_type == "datatables_view":
 
             if datapusher_formats[0] in filter_formats:
                 continue

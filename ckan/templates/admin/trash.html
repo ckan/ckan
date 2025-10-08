@@ -2,6 +2,7 @@
 
 {% block primary_content_inner %}
 <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-all">
+  {{ h.csrf_input() }} 
   <div class="form-actions">
     <input type="hidden" name="action" value="all">
     <a class="btn btn-danger purge-all"

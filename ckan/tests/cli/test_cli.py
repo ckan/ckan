@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from configparser import InterpolationMissingOptionError
-import pytest
+import io
+import logging
 import os
 
+import pytest
+
+from ckan.common import config
 from ckan.cli.cli import ckan
 from ckan.cli import CKANConfigLoader
 from ckan.exceptions import CkanConfigurationException
@@ -186,3 +190,73 @@ def test_invalid_use_option():
         os.path.dirname(__file__), u'data', u'test-invalid-use.ini')
     with pytest.raises(CkanConfigurationException):
         CKANConfigLoader(filename).get_config()
+
+
+def test_reference_to_non_existing_config():
+    """Report missing file in the config chain.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-non-existing-path.ini')
+    with pytest.raises(CkanConfigurationException):
+        CKANConfigLoader(filename).get_config()
+
+
+@pytest.fixture
+def clean_logging():
+    yield
+
+    # Restore original logging state by reparsing the test ini file
+    CKANConfigLoader(config["__file__"]).get_config()
+
+
+def test_chained_logging_config_is_overriden(clean_logging):
+    filename = os.path.join(
+        os.path.dirname(__file__), "data", "test-log-2.ini")
+
+    CKANConfigLoader(filename).get_config()
+
+    captured_output = io.StringIO()
+    test_handler = logging.StreamHandler(captured_output)
+    test_handler.formatter = logging.getLogger().handlers[0].formatter
+
+    log = logging.getLogger(__name__)
+    log.addHandler(test_handler)
+
+    try:
+        log.info("Some info message")
+        log.critical("Some critical message")
+
+        assert "Some info message" not in captured_output.getvalue()
+        assert "Some critical message" in captured_output.getvalue()
+        assert "CUSTOM" in captured_output.getvalue()
+    finally:
+        log.removeHandler(test_handler)
+
+
+def test_chained_logging_last_file_does_not_require_logging_conf(clean_logging):
+    filename = os.path.join(
+        os.path.dirname(__file__), "data", "test-log-3.ini")
+
+    CKANConfigLoader(filename).get_config()
+
+
+def test_logging_is_restored():
+    filename = os.path.join(
+        os.path.dirname(__file__), "data", "test-one.ini")
+
+    CKANConfigLoader(filename).get_config()
+
+    captured_output = io.StringIO()
+    test_handler = logging.StreamHandler(captured_output)
+    test_handler.formatter = logging.getLogger().handlers[0].formatter
+
+    log = logging.getLogger(__name__)
+    log.addHandler(test_handler)
+
+    try:
+        log.critical("Some critical message")
+
+        assert "Some critical message" in captured_output.getvalue()
+        assert "CUSTOM" not in captured_output.getvalue()
+    finally:
+        log.removeHandler(test_handler)

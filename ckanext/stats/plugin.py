@@ -17,8 +17,7 @@ class StatsPlugin(p.SingletonPlugin):
 
     def update_config(self, config: CKANConfig):
         p.toolkit.add_template_directory(config, u'templates')
-        p.toolkit.add_public_directory(config, u'public')
-        p.toolkit.add_resource(u'public/ckanext/stats', u'ckanext_stats')
+        p.toolkit.add_resource(u'assets', u'ckanext_stats')
 
     def get_blueprint(self):
         return blueprint.stats

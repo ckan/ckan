@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 from ckan.common import CKANConfig
-from typing import Any, cast
-from ckan.types import Context, Schema, Validator, ValidatorFactory
+from typing import Any, cast, List
+from ckan.types import (
+    Context, Schema, Validator, ValidatorFactory, FlattenKey, FlattenErrorDict,
+    FlattenDataDict,
+)
 import logging
 
 import ckan.plugins as plugins
@@ -29,8 +32,7 @@ def create_country_codes():
         data = {'name': 'country_codes'}
         vocab = tk.get_action('vocabulary_create')(context, data)
         for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
-            logging.info(
-                    "Adding tag {0} to vocab 'country_codes'".format(tag))
+            logging.info("Adding tag %s to vocab 'country_codes'", tag)
             data: dict[str, str] = {'name': tag, 'vocabulary_id': vocab['id']}
             tk.get_action('tag_create')(context, data)
 
@@ -46,8 +48,18 @@ def country_codes_helper():
         return None
 
 
-class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
-        tk.DefaultDatasetForm):
+def draft_todo_validator(
+        key: FlattenKey, data: FlattenDataDict,
+        errors: FlattenErrorDict, context: Context) -> None:
+    '''Error if the dataset state is not set to draft'''
+    if not data.get(('state',), '').startswith('draft'):
+        errors[key].append('must be blank when published')
+
+
+class ExampleIDatasetFormPlugin(
+        tk.DefaultDatasetForm,
+        plugins.SingletonPlugin,
+):
     '''An example IDatasetForm CKAN plugin.
 
     Uses a tag vocabulary to add a custom metadata field to datasets.
@@ -65,7 +77,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     num_times_search_template_called = 0
     num_times_history_template_called = 0
     num_times_package_form_called = 0
-    num_times_check_data_dict_called = 0
     num_times_setup_template_variables_called = 0
 
     def update_config(self, config: CKANConfig):
@@ -104,7 +115,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
                 })
         # Add our custom_resource_text metadata field to the schema
         cast(Schema, schema['resources']).update({
-                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ],
+                'draft_only_todo': [
+                    tk.get_validator('ignore_empty'), draft_todo_validator],
                 })
         return schema
 
@@ -150,6 +163,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
             })
         return schema
 
+    def resource_validation_dependencies(self, package_type: str) -> List[str]:
+        return ['state']
+
     # These methods just record how many times they're called, for testing
     # purposes.
     # TODO: It might be better to test that custom templates returned by
@@ -185,11 +201,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     def package_form(self) -> Any:
         ExampleIDatasetFormPlugin.num_times_package_form_called += 1
         return super(ExampleIDatasetFormPlugin, self).package_form()
-
-    # check_data_dict() is deprecated, this method is only here to test that
-    # legacy support for the deprecated method works.
-    def check_data_dict(self, data_dict: dict[str, Any], schema: Any = None):
-        ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1
 
 
 class ExampleIDatasetFormInheritPlugin(plugins.SingletonPlugin,

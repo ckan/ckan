@@ -51,23 +51,24 @@ class TestUserCreate:
         context = {"user": sysadmin["name"], "model": model, "api_version": 3}
         assert helpers.call_auth("user_create", context)
 
-    def test_annon_can_create_via_web(self):
+    def test_anon_can_not_create_via_web(self):
         context = {"user": None, "model": model}
-        assert helpers.call_auth("user_create", context)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("user_create", context)
 
-    def test_annon_cannot_create_via_api(self):
+    def test_anon_cannot_create_via_api(self):
         context = {"user": None, "model": model, "api_version": 3}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_create", context)
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
-    def test_annon_cannot_create_via_forbidden_web(self):
+    def test_anon_cannot_create_via_forbidden_web(self):
         context = {"user": None, "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_create", context)
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_api", True)
-    def test_annon_not_create_via_allowed_api(self):
+    def test_anon_not_create_via_allowed_api(self):
         context = {"user": None, "model": model, "api_version": 3}
         assert helpers.call_auth("user_create", context)
 
@@ -405,6 +406,25 @@ class TestApiToken(object):
         )
 
 
+@pytest.fixture
+def members_fixtures():
+    org_admin = factories.User()
+    org_editor = factories.User()
+    org_member = factories.User()
+
+    org = factories.Organization(
+        users=[
+            {'name': org_admin['name'], 'capacity': 'admin'},
+            {'name': org_editor['name'], 'capacity': 'editor'},
+            {'name': org_member['name'], 'capacity': 'member'},
+        ]
+    )
+
+    dataset = factories.Dataset(owner_org=org['id'])
+
+    return locals()
+
+
 @pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreateAuth(object):
@@ -415,47 +435,29 @@ class TestPackageMemberCreateAuth(object):
             "user": user if isinstance(user, str) else user.get("name"),
         }
 
-    def setup(self):
+    def test_create_org_admin_is_authorized(self, members_fixtures):
 
-        self.org_admin = factories.User()
-        self.org_editor = factories.User()
-        self.org_member = factories.User()
-
-        self.normal_user = factories.User()
-
-        self.org = factories.Organization(
-            users=[
-                {'name': self.org_admin['name'], 'capacity': 'admin'},
-                {'name': self.org_editor['name'], 'capacity': 'editor'},
-                {'name': self.org_member['name'], 'capacity': 'member'},
-            ]
-        )
-
-        self.dataset = factories.Dataset(owner_org=self.org['id'])
-
-    def test_create_org_admin_is_authorized(self):
-
-        context = self._get_context(self.org_admin)
+        context = self._get_context(members_fixtures["org_admin"])
         assert helpers.call_auth(
-            'package_collaborator_create', context=context, id=self.dataset['id'])
+            'package_collaborator_create', context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_create_org_editor_is_not_authorized(self):
+    def test_create_org_editor_is_not_authorized(self, members_fixtures):
 
-        context = self._get_context(self.org_editor)
+        context = self._get_context(members_fixtures["org_editor"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_create',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_create_org_member_is_not_authorized(self):
+    def test_create_org_member_is_not_authorized(self, members_fixtures):
 
-        context = self._get_context(self.org_member)
+        context = self._get_context(members_fixtures["org_member"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_create',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_create_non_org_user_is_not_authorized(self):
+    def test_create_non_org_user_is_not_authorized(self, members_fixtures):
 
         user = factories.User()
 
@@ -463,9 +465,9 @@ class TestPackageMemberCreateAuth(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_create',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_create_org_admin_from_other_org_is_not_authorized(self):
+    def test_create_org_admin_from_other_org_is_not_authorized(self, members_fixtures):
 
         org_admin2 = factories.User()
         factories.Organization(
@@ -478,44 +480,44 @@ class TestPackageMemberCreateAuth(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_create',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_create_missing_org_is_not_authorized(self):
+    def test_create_missing_org_is_not_authorized(self, members_fixtures):
 
         dataset = factories.Dataset(owner_org=None)
 
-        context = self._get_context(self.org_admin)
+        context = self._get_context(members_fixtures["org_admin"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_create',
                 context=context, id=dataset['id'])
 
     @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
-    def test_create_collaborator_admin_is_authorized(self):
+    def test_create_collaborator_admin_is_authorized(self, members_fixtures):
 
         user = factories.User()
 
         helpers.call_action(
             'package_collaborator_create',
-            id=self.dataset['id'], user_id=user['id'], capacity='admin')
+            id=members_fixtures["dataset"]['id'], user_id=user['id'], capacity='admin')
 
         context = self._get_context(user)
         assert helpers.call_auth(
-            'package_collaborator_create', context=context, id=self.dataset['id'])
+            'package_collaborator_create', context=context, id=members_fixtures["dataset"]['id'])
 
     @pytest.mark.parametrize('role', ['editor', 'member'])
-    def test_create_collaborator_editor_and_member_are_not_authorized(self, role):
+    def test_create_collaborator_editor_and_member_are_not_authorized(self, role, members_fixtures):
         user = factories.User()
 
         helpers.call_action(
             'package_collaborator_create',
-            id=self.dataset['id'], user_id=user['id'], capacity=role)
+            id=members_fixtures["dataset"]['id'], user_id=user['id'], capacity=role)
 
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_create',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
     @pytest.mark.ckan_config('ckan.auth.create_dataset_if_not_in_organization', True)
     @pytest.mark.ckan_config('ckan.auth.create_unowned_dataset', True)

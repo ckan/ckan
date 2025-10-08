@@ -2,7 +2,6 @@
 
 import unittest.mock as mock
 import pytest
-import sqlalchemy.exc
 
 import ckan.lib.jobs as jobs
 import ckan.plugins as p
@@ -40,13 +39,15 @@ class TestCreateIndexes(object):
             "_full_text", connection, resource_id, method="gin"
         )
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_all_fields_except_dates_nested_and_arrays_with_english_as_default(
         self, _get_fields
     ):
         _get_fields.return_value = [
             {"id": "text", "type": "text"},
-            {"id": "number", "type": "number"},
+            {"id": "tsvector", "type": "tsvector"},
             {"id": "nested", "type": "nested"},
             {"id": "date", "type": "date"},
             {"id": "text array", "type": "text[]"},
@@ -63,9 +64,37 @@ class TestCreateIndexes(object):
             "text", connection, resource_id, "english"
         )
         self._assert_created_index_on(
-            "number", connection, resource_id, "english", cast=True
+            "tsvector", connection, resource_id,
         )
 
+    @mock.patch("ckanext.datastore.backend.postgres._get_fields")
+    def test_creates_no_fts_indexes_by_default(
+        self, _get_fields
+    ):
+        _get_fields.return_value = [
+            {"id": "text", "type": "text"},
+            {"id": "tsvector", "type": "tsvector"},
+            {"id": "nested", "type": "nested"},
+            {"id": "date", "type": "date"},
+            {"id": "text array", "type": "text[]"},
+            {"id": "timestamp", "type": "timestamp"},
+        ]
+        connection = mock.MagicMock()
+        context = {"connection": connection}
+        resource_id = "resource_id"
+        data_dict = {"resource_id": resource_id}
+
+        db.create_indexes(context, data_dict)
+
+        self._assert_no_index_created_on(
+            "text", connection, resource_id, "english"
+        )
+        self._assert_no_index_created_on(
+            "tsvector", connection, resource_id,
+        )
+
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_with_config_var(
@@ -81,6 +110,8 @@ class TestCreateIndexes(object):
 
         self._assert_created_index_on("foo", connection, resource_id, "simple")
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_using_lang_param(
@@ -120,50 +151,45 @@ class TestCreateIndexes(object):
             )
 
         calls = connection.execute.call_args_list
-        was_called = [call for call in calls if call[0][0].find(sql_str) != -1]
+
+        was_called = any(sql_str in str(call.args[0]) for call in calls)
 
         assert was_called, (
             "Expected 'connection.execute' to have been "
             "called with a string containing '%s'" % sql_str
         )
 
+    def _assert_no_index_created_on(
+        self,
+        field,
+        connection,
+        resource_id,
+        lang=None,
+        cast=False,
+        method="gist",
+    ):
+        field = u'"{0}"'.format(field)
+        if cast:
+            field = u"cast({0} AS text)".format(field)
+        if lang is not None:
+            sql_str = (
+                u'ON "resource_id" '
+                u"USING {method}(to_tsvector('{lang}', {field}))"
+            )
+            sql_str = sql_str.format(method=method, lang=lang, field=field)
+        else:
+            sql_str = u"USING {method}({field})".format(
+                method=method, field=field
+            )
 
-@mock.patch("ckanext.datastore.backend.postgres._get_fields")
-def test_upsert_with_insert_method_and_invalid_data(mock_get_fields_function):
-    """upsert_data() should raise InvalidDataError if given invalid data.
+        calls = connection.execute.call_args_list
 
-    If the type of a field is numeric and upsert_data() is given a whitespace
-    value like "   ", it should raise DataError.
+        was_called = any(sql_str in str(call.args[0]) for call in calls)
 
-    In this case we're testing with "method": "insert" in the data_dict.
-
-    """
-    mock_connection = mock.Mock()
-    mock_connection.execute.side_effect = sqlalchemy.exc.DataError(
-        "statement", "params", "orig", connection_invalidated=False
-    )
-
-    context = {"connection": mock_connection}
-    data_dict = {
-        "fields": [{"id": "value", "type": "numeric"}],
-        "records": [
-            {"value": 0},
-            {"value": 1},
-            {"value": 2},
-            {"value": 3},
-            {"value": "   "},  # Invalid numeric value.
-            {"value": 5},
-            {"value": 6},
-            {"value": 7},
-        ],
-        "method": "insert",
-        "resource_id": "fake-resource-id",
-    }
-
-    mock_get_fields_function.return_value = data_dict["fields"]
-
-    with pytest.raises(backend.InvalidDataError):
-        db.upsert_data(context, data_dict)
+        assert not was_called, (
+            "Expected 'connection.execute' to not have been "
+            "called with a string containing '%s'" % sql_str
+        )
 
 
 class TestGetAllResourcesIdsInDatastore(object):
@@ -203,7 +229,7 @@ class TestBackgroundJobs(helpers.RQTestBase):
     Test correct interaction with the background jobs system.
     """
     @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
+    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_worker_datastore_access(self, app):
         """
         Test DataStore access from within a worker.

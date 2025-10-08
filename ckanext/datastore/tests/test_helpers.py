@@ -2,6 +2,7 @@
 import re
 
 import pytest
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from sqlalchemy.exc import ProgrammingError
 
@@ -46,8 +47,10 @@ class TestTypeGetters(object):
         for multiple in multiples:
             assert postgres_backend.is_single_statement(multiple) is False
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text tsvector")
     def test_should_fts_index_field_type(self):
-        indexable_field_types = ["tsvector", "text", "number"]
+        indexable_field_types = ["tsvector", "text"]
 
         non_indexable_field_types = [
             "nested",
@@ -77,13 +80,13 @@ class TestGetTables(object):
         engine = db.get_write_engine()
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         create_tables = [
-            u"CREATE TABLE test_a (id_a text)",
-            u"CREATE TABLE test_b (id_b text)",
-            u'CREATE TABLE "TEST_C" (id_c text)',
-            u'CREATE TABLE test_d ("α/α" integer)',
+            "CREATE TABLE test_a (id_a text)",
+            "CREATE TABLE test_b (id_b text)",
+            'CREATE TABLE "TEST_C" (id_c text)',
+            'CREATE TABLE test_d ("α/α" integer)',
         ]
         for create_table_sql in create_tables:
-            session.execute(create_table_sql)
+            session.execute(sa.text(create_table_sql))
 
         test_cases = [
             (u"SELECT * FROM test_a", ["test_a"]),
@@ -134,7 +137,7 @@ class TestGetFunctions(object):
             u"CREATE TABLE test_b (name text, subject_id text)",
         ]
         for create_table_sql in create_tables:
-            session.execute(create_table_sql)
+            session.execute(sa.text(create_table_sql))
 
         test_cases = [
             (u"SELECT max(id) from test_a", ["max"]),
@@ -167,7 +170,7 @@ class TestGetFunctions(object):
             """
         ]
         for create_table_sql in create_tables:
-            session.execute(create_table_sql)
+            session.execute(sa.text(create_table_sql))
 
         context = {"connection": session.connection()}
 
@@ -191,7 +194,7 @@ class TestGetFunctions(object):
             u"CREATE TABLE test_b (name text, subject_id text)",
         ]
         for create_table_sql in create_tables:
-            session.execute(create_table_sql)
+            session.execute(sa.text(create_table_sql))
 
         test_cases = [
             (u"""SELECT *

@@ -6,6 +6,10 @@ Once you've written some CKAN code or documentation, you can submit it for
 review and merge into the central CKAN git repository by making a pull request.
 This section will walk you through the steps for making a pull request.
 
+.. note:: Except in some special cases, all pull requests should target the ``master``
+  branch. The tech team will backport the change to the relevant release branches (or ask you
+  to submit a separate pull request against a release branch), but all changes should
+  be present in the ``master`` branch first so they don't get lost in future versions.
 
 #. Create a git branch
 

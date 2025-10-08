@@ -15,7 +15,7 @@
 
 {% block breadcrumb_content %}
   {{ super() }}
-  <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
+  <li class="active"><a href="" aria-current="page" aria-label="{{ _('Current resource: {name}').format(name=h.resource_display_name(res)) }}">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
 {% endblock %}
 
 {% block pre_primary %}
@@ -25,11 +25,13 @@
       <div class="module-content">
         <div class="actions">
           {% block resource_actions %}
-            <ul>
+            <ul class="d-flex flex-wrap gap-1 justify-content-end">
               {% block resource_actions_inner %}
                 {% block action_manage %}
                   {% if h.check_access('package_update', {'id':pkg.id }) %}
-                    <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
+                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='pencil' %}</li>
+                    {% block action_manage_inner %}{% endblock %}
+                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='chart-bar' %}</li>
                   {% endif %}
                 {% endblock action_manage %}
             {% if res.url and h.is_url(res.url) %}
@@ -43,34 +45,10 @@
                   {% elif not res.has_views and not res.url_type == 'upload' %}
                     <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
                   {% else %}
-                    <i class="fa fa-arrow-circle-o-down"></i> {{ _('Download') }}
+                    <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
                   {% endif %}
                 </a>
-                {% block download_resource_button %}
-                  {% if res.datastore_active %}
-                <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="list of downloadable formats">
-                    <span class="caret"></span>
-                  </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownDownloadFormat">
-                  <li>
-                    <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, bom=True) }}"
-                      target="_blank" rel="noreferrer"><span>CSV</span></a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
-                      target="_blank" rel="noreferrer"><span>TSV</span></a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
-                      target="_blank" rel="noreferrer"><span>JSON</span></a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
-                      target="_blank" rel="noreferrer"><span>XML</span></a>
-                  </li>
-                </ul>
-                  {% endif %}
-                {% endblock %}
+                {% block download_resource_button %}{% endblock download_resource_button %}
                 </div>
               </li>
             {% endif %}
@@ -82,7 +60,7 @@
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
-              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" aria-label="{{ _('Resource URL: {url}').format(url=res.url) }}">{{ res.url }}</a></p>
             {% elif res.url %}
               <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
@@ -94,7 +72,7 @@
             {% if not res.description and package.notes %}
               <h3>{{ _('Dataset description:') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}<p>
             {% endif %}
           </div>
         {% endblock %}
@@ -130,7 +108,7 @@
                     <p class="text-muted">
                       <i class="fa fa-info-circle"></i>
                       {{ _("Not seeing the views you were expecting?")}}
-                      <a href="javascript:void(0);" data-toggle="collapse" data-target="#data-view-info">
+                      <a href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#data-view-info">
                         {{ _('Click here for more information.') }}</a>
                     </p>
                     <div id="data-view-info" class="collapse">
@@ -209,7 +187,7 @@
     {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read' %}
   {% endblock %}
 
-  {% block resource_license %}
+  {% block resource_social %}
     {% snippet "snippets/social.html" %}
   {% endblock %}
 {% endblock %}

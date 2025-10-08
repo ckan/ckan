@@ -1,12 +1,10 @@
 # encoding: utf-8
 
 import pytest
-from ckan.common import config
 
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.plugins as plugins
-from ckan.plugins.core import find_system_plugins
 
 
 def _make_calls(*args):
@@ -31,55 +29,73 @@ class IBar(plugins.Interface):
     pass
 
 
-class FooImpl(object):
+class IBaz(plugins.Interface):
+    pass
+
+
+class FooImpl(plugins.Plugin):
     plugins.implements(IFoo)
 
 
-class BarImpl(object):
+class BarImpl(plugins.Plugin):
     plugins.implements(IBar)
 
 
-class FooBarImpl(object):
+class FooBarImpl(plugins.Plugin):
     plugins.implements(IFoo)
     plugins.implements(IBar)
 
 
-@pytest.mark.usefixtures(u"with_plugins")
+class BarBazImpl(BarImpl):
+    plugins.implements(IBaz)
+
+
+class Ext(plugins.Plugin, IFoo, IBar):
+    pass
+
+
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config(
-    u"ckan.plugins",
-    u"example_idatasetform_v1 example_idatasetform_v2 example_idatasetform_v3")
-def test_plugins_order_in_pluginimplementations():
+    "ckan.plugins",
+    "example_idatasetform_v1 example_idatasetform_v3 example_idatasetform_v2")
+class TestPluginsOrderInPluginImplementations:
+    def test_order_matches_config(self):
+        assert (
+            [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
+            [
+                "example_idatasetform_v1",
+                "example_idatasetform_v3",
+                "example_idatasetform_v2",
+            ]
+        )
 
-    assert (
-        [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
-        [
-            u"example_idatasetform_v1",
-            u"example_idatasetform_v2",
-            u"example_idatasetform_v3"
-        ]
-    )
-
-
-@pytest.mark.usefixtures(u"with_plugins")
-@pytest.mark.ckan_config(
-    u"ckan.plugins",
-    u"example_idatasetform_v1 example_idatasetform_v3 example_idatasetform_v2")
-def test_plugins_order_in_pluginimplementations_matches_config():
-
-    assert (
-        [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
-        [
-            u"example_idatasetform_v1",
-            u"example_idatasetform_v3",
-            u"example_idatasetform_v2"
-        ]
-    )
+    def test_reverse_order_by_interface_attribute(self, monkeypatch):
+        monkeypatch.setattr(plugins.IDatasetForm, "_reverse_iteration_order", True)
+        assert (
+            [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
+            [
+                "example_idatasetform_v2",
+                "example_idatasetform_v3",
+                "example_idatasetform_v1",
+            ]
+        )
 
 
 def test_implemented_by():
     assert IFoo.implemented_by(FooImpl)
     assert IFoo.implemented_by(FooBarImpl)
     assert not IFoo.implemented_by(BarImpl)
+
+
+def test_implemented_by_through_inheritance():
+    assert IBaz.implemented_by(BarBazImpl)
+    assert IBar.implemented_by(BarBazImpl)
+
+
+def test_implemented_by_through_extending():
+    assert IFoo.implemented_by(Ext)
+    assert IBar.implemented_by(Ext)
+    assert not IBaz.implemented_by(Ext)
 
 
 def test_provided_by():
@@ -117,21 +133,15 @@ def test_notified_on_unload(observer):
 
 @pytest.fixture(autouse=True)
 def reset_observer():
-    plugins.load("test_observer_plugin")
+    observer = plugins.load("test_observer_plugin")
     plugins.unload("test_observer_plugin")
+    observer.reset_calls()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "action_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_plugins_load():
-    # synchronous_search automatically gets loaded
-    current_plugins = set(
-        [
-            plugins.get_plugin(p)
-            for p in ["action_plugin", "synchronous_search"]
-            + find_system_plugins()
-        ]
-    )
+    current_plugins = {plugins.get_plugin("action_plugin")}
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
 
 
@@ -158,19 +168,17 @@ def test_inexistent_plugin_loading():
 
 
 class TestPlugins:
-    def teardown_method(self):
-        plugins.unload_all()
-
-    def test_plugin_loading_order(self):
+    def test_plugin_loading_order(self, ckan_config, monkeypatch):
         """
         Check that plugins are loaded in the order specified in the config
         """
-        config_plugins = config["ckan.plugins"]
-        config[
-            "ckan.plugins"
-        ] = "test_observer_plugin action_plugin auth_plugin"
-        plugins.load_all()
 
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.plugins",
+            "test_observer_plugin action_plugin auth_plugin"
+        )
+        plugins.load_all()
         observerplugin = plugins.get_plugin("test_observer_plugin")
 
         expected_order = _make_calls(
@@ -179,6 +187,7 @@ class TestPlugins:
         )
 
         assert observerplugin.before_load.calls[:2] == expected_order
+
         expected_order = _make_calls(
             plugins.get_plugin("test_observer_plugin"),
             plugins.get_plugin("action_plugin"),
@@ -186,9 +195,13 @@ class TestPlugins:
         )
         assert observerplugin.after_load.calls[:3] == expected_order
 
-        config[
-            "ckan.plugins"
-        ] = "test_observer_plugin auth_plugin action_plugin"
+        observerplugin.reset_calls()
+
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.plugins",
+            "test_observer_plugin auth_plugin action_plugin",
+        )
         plugins.load_all()
 
         expected_order = _make_calls(
@@ -202,6 +215,3 @@ class TestPlugins:
             plugins.get_plugin("action_plugin"),
         )
         assert observerplugin.after_load.calls[:3] == expected_order
-        # cleanup
-        config["ckan.plugins"] = config_plugins
-        plugins.load_all()

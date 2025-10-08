@@ -14,10 +14,14 @@ from ckan.common import _, json
 
 log = logging.getLogger(__name__)
 
-TIMEOUT = config.get_value('ckan.requests.timeout')
 
 class License():
     """Domain object for a license."""
+
+    default_values = {
+        'od_conformance': False,
+        'osd_conformance': False,
+    }
 
     def __init__(self, data: dict[str, Any]) -> None:
         self._data = data
@@ -31,6 +35,9 @@ class License():
                 ))
                 self._data[key] = value
             elif isinstance(value, str):
+                self._data[key] = value
+        for (key, value) in self.default_values.items():
+            if key not in self._data:
                 self._data[key] = value
 
     def __getattr__(self, name: str) -> Any:
@@ -47,13 +54,21 @@ class License():
                 self.osd_conformance == 'approved'
         return self._isopen
 
+    def license_dictize(self) -> dict[str, Any]:
+        data = self._data.copy()
+        if 'date_created' in data:
+            value = data['date_created']
+            value = value.isoformat()
+            data['date_created'] = value
+        return data
+
 
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
     licenses: list[License]
 
     def __init__(self):
-        group_url = config.get_value('licenses_group_url')
+        group_url = config.get('licenses_group_url')
         if group_url:
             self.load_licenses(group_url)
         else:
@@ -77,12 +92,14 @@ class LicenseRegister(object):
             self._create_license_list(default_license_list)
 
     def load_licenses(self, license_url: str) -> None:
+
         try:
             if license_url.startswith('file://'):
                 with open(license_url.replace('file://', ''), 'r') as f:
                     license_data = json.load(f)
             else:
-                response = requests.get(license_url, timeout=TIMEOUT)
+                timeout = config.get('ckan.requests.timeout')
+                response = requests.get(license_url, timeout=timeout)
                 license_data = response.json()
         except requests.RequestException as e:
             msg = "Couldn't get the licenses file {}: {}".format(license_url, e)
@@ -303,7 +320,7 @@ class LicenseOpenGovernment(DefaultLicense):
     id = "uk-ogl"
     od_conformance = 'approved'
     # CS: bad_spelling ignore
-    url = "http://reference.data.gov.uk/id/open-government-licence"
+    url = "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
 
     @property
     def title(self):

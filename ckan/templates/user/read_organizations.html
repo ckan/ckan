@@ -1,0 +1,25 @@
+{% extends "user/read_base.html" %}
+
+{% set user = user_dict %}
+{% set orgs_available = h.organizations_available(permission='manage_group',
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['id'])
+%}
+
+{% block primary_content_inner %}
+  <h2 class="hide-heading">{{ h.humanize_entity_type('organization', org_type, 'facet label') or _('Organizations') }}</h2>
+  {% if orgs_available %}
+    <div class="wide">
+      {% snippet "organization/snippets/organization_list.html", organizations=orgs_available, show_capacity=True %}
+    </div>
+  {% else %}
+    <p class="empty">
+      {% if is_myself %}
+        {{ h.humanize_entity_type('organization', org_type, 'you not member') or _('You are not a member of any organizations.') }}
+      {% else %}
+        {{ h.humanize_entity_type('organization', org_type, 'user not member') or _('User isn\'t a member of any organizations.') }}
+      {% endif %}
+    </p>
+  {% endif %}
+{% endblock %}

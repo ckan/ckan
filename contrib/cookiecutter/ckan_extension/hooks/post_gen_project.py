@@ -36,15 +36,18 @@ def recut():
     setup_template = 'setup.py'
 
     # get context
-    context = {{ cookiecutter | jsonify }}
+    context = {}
+
+{% for key, value in cookiecutter.items() %}
+    context["{{key}}"] = {{ value.__repr__() | safe }}
+{% endfor %}
 
     # Process keywords
     keywords = context['keywords'].strip().split()
     keywords = [keyword for keyword in keywords
                 if keyword not in ('ckan', 'CKAN', 'A', 'space',
-                                   'seperated', 'list', 'of', 'keywords')]
+                                   'separated', 'list', 'of', 'keywords')]
     keywords.insert(0, 'CKAN')
-    keywords = u' '.join(keywords)
     context['keywords'] = keywords
 
     # Double check 'project_shortname' and 'plugin_class_name'
@@ -68,6 +71,5 @@ def recut():
 
 
 if __name__ == '__main__':
-    context = {{ cookiecutter | jsonify }}
-    if context['_source'] == 'local':
+    if '{{ cookiecutter._source }}' == 'local':
         recut()

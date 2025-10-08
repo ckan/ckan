@@ -1,11 +1,11 @@
 # encoding: utf-8
 from __future__ import annotations
 
+from io import StringIO, BytesIO
+
 from contextlib import contextmanager
-from email.utils import encode_rfc2231
 from typing import Any, Optional
 from simplejson import dumps
-import six
 
 from xml.etree.cElementTree import Element, SubElement, ElementTree
 
@@ -14,148 +14,130 @@ import csv
 from codecs import BOM_UTF8
 
 
-@contextmanager
-def csv_writer(response: Any, fields: list[dict[str, Any]],
-               name: Optional[str] = None, bom: bool = False):
-    u'''Context manager for writing UTF-8 CSV data to response
+BOM = "\N{bom}"
 
-    :param response: file-like or response-like object for writing
-        data and headers (response-like objects only)
+
+@contextmanager
+def csv_writer(fields: list[dict[str, Any]], bom: bool = False):
+    '''Context manager for writing UTF-8 CSV data to file
+
     :param fields: list of datastore fields
-    :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = StringIO()
 
-    if hasattr(response, u'headers'):
-        response.headers['Content-Type'] = b'text/csv; charset=utf-8'
-        if name:
-            response.headers['Content-disposition'] = (
-                u'attachment; filename="{name}.csv"'.format(
-                    name=encode_rfc2231(name)))
     if bom:
-        response.stream.write(BOM_UTF8)
+        output.write(BOM)
 
-    csv.writer(response.stream).writerow(
+    csv.writer(output).writerow(
         f['id'] for f in fields)
-    yield TextWriter(response.stream)
+    yield TextWriter(output)
 
 
 @contextmanager
-def tsv_writer(response: Any, fields: list[dict[str, Any]],
-               name: Optional[str] = None, bom: bool = False):
-    u'''Context manager for writing UTF-8 TSV data to response
+def tsv_writer(fields: list[dict[str, Any]], bom: bool = False):
+    '''Context manager for writing UTF-8 TSV data to file
 
-    :param response: file-like or response-like object for writing
-        data and headers (response-like objects only)
     :param fields: list of datastore fields
-    :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = StringIO()
 
-    if hasattr(response, u'headers'):
-        response.headers['Content-Type'] = (
-            b'text/tab-separated-values; charset=utf-8')
-        if name:
-            response.headers['Content-disposition'] = (
-                u'attachment; filename="{name}.tsv"'.format(
-                    name=encode_rfc2231(name)))
     if bom:
-        response.stream.write(BOM_UTF8)
+        output.write(BOM)
 
     csv.writer(
-        response.stream,
+        output,
         dialect='excel-tab').writerow(
             f['id'] for f in fields)
-    yield TextWriter(response.stream)
+    yield TextWriter(output)
 
 
 class TextWriter(object):
-    u'text in, text out'
-    def __init__(self, response: Any):
-        self.response = response
+    'text in, text out'
+    def __init__(self, output: StringIO):
+        self.output = output
 
-    def write_records(self, records: list[Any]):
-        self.response.write(records)
+    def write_records(self, records: list[Any]) -> bytes:
+        self.output.write(records)  # type: ignore
+        self.output.seek(0)
+        output = self.output.read().encode('utf-8')
+        self.output.truncate(0)
+        self.output.seek(0)
+        return output
+
+    def end_file(self) -> bytes:
+        return b''
 
 
 @contextmanager
-def json_writer(response: Any, fields: list[dict[str, Any]],
-                name: Optional[str] = None, bom: bool = False):
-    u'''Context manager for writing UTF-8 JSON data to response
+def json_writer(fields: list[dict[str, Any]], bom: bool = False):
+    '''Context manager for writing UTF-8 JSON data to file
 
-    :param response: file-like or response-like object for writing
-        data and headers (response-like objects only)
     :param fields: list of datastore fields
-    :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = StringIO()
 
-    if hasattr(response, u'headers'):
-        response.headers['Content-Type'] = (
-            b'application/json; charset=utf-8')
-        if name:
-            response.headers['Content-disposition'] = (
-                u'attachment; filename="{name}.json"'.format(
-                    name=encode_rfc2231(name)))
     if bom:
-        response.stream.write(BOM_UTF8)
-    response.stream.write(
-        six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(u',', u':'))))
-    yield JSONWriter(response.stream)
-    response.stream.write(b'\n]}\n')
+        output.write(BOM)
+
+    output.write(
+        '{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(',', ':')))
+    yield JSONWriter(output)
 
 
 class JSONWriter(object):
-    def __init__(self, response: Any):
-        self.response = response
+    def __init__(self, output: StringIO):
+        self.output = output
         self.first = True
 
-    def write_records(self, records: list[Any]):
+    def write_records(self, records: list[Any]) -> bytes:
         for r in records:
             if self.first:
                 self.first = False
-                self.response.write(b'\n    ')
+                self.output.write('\n    ')
             else:
-                self.response.write(b',\n    ')
+                self.output.write(',\n    ')
 
-            self.response.write(dumps(
-                r, ensure_ascii=False, separators=(u',', u':')))
+            self.output.write(dumps(
+                r, ensure_ascii=False, separators=(',', ':')))
+
+        self.output.seek(0)
+        output = self.output.read().encode('utf-8')
+        self.output.truncate(0)
+        self.output.seek(0)
+        return output
+
+    def end_file(self) -> bytes:
+        return b'\n]}\n'
 
 
 @contextmanager
-def xml_writer(response: Any, fields: list[dict[str, Any]],
-               name: Optional[str] = None, bom: bool = False):
-    u'''Context manager for writing UTF-8 XML data to response
+def xml_writer(fields: list[dict[str, Any]], bom: bool = False):
+    '''Context manager for writing UTF-8 XML data to file
 
-    :param response: file-like or response-like object for writing
-        data and headers (response-like objects only)
     :param fields: list of datastore fields
-    :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = BytesIO()
 
-    if hasattr(response, u'headers'):
-        response.headers['Content-Type'] = (
-            b'text/xml; charset=utf-8')
-        if name:
-            response.headers['Content-disposition'] = (
-                u'attachment; filename="{name}.xml"'.format(
-                    name=encode_rfc2231(name)))
     if bom:
-        response.stream.write(BOM_UTF8)
-    response.stream.write(b'<data>\n')
-    yield XMLWriter(response.stream, [f[u'id'] for f in fields])
-    response.stream.write(b'</data>\n')
+        output.write(BOM_UTF8)
+
+    output.write(
+        b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+    yield XMLWriter(output, [f['id'] for f in fields])
 
 
 class XMLWriter(object):
-    _key_attr = u'key'
-    _value_tag = u'value'
+    _key_attr = 'key'
+    _value_tag = 'value'
 
-    def __init__(self, response: Any, columns: list[str]):
-        self.response = response
-        self.id_col = columns[0] == u'_id'
+    def __init__(self, output: BytesIO, columns: list[str]):
+        self.output = output
+        self.id_col = columns[0] == '_id'
         if self.id_col:
             columns = columns[1:]
         self.columns = columns
@@ -164,7 +146,7 @@ class XMLWriter(object):
                      key_attr: Optional[Any] = None):
         element = SubElement(root, k)
         if v is None:
-            element.attrib[u'xsi:nil'] = u'true'
+            element.attrib['xsi:nil'] = 'true'
         elif not isinstance(v, (list, dict)):
             element.text = str(v)
         else:
@@ -178,12 +160,20 @@ class XMLWriter(object):
         if key_attr is not None:
             element.attrib[self._key_attr] = str(key_attr)
 
-    def write_records(self, records: list[Any]):
+    def write_records(self, records: list[Any]) -> bytes:
         for r in records:
-            root = Element(u'row')
+            root = Element('row')
             if self.id_col:
-                root.attrib[u'_id'] = str(r[u'_id'])
+                root.attrib['_id'] = str(r['_id'])
             for c in self.columns:
                 self._insert_node(root, c, r[c])
-            ElementTree(root).write(self.response, encoding=u'utf-8')
-            self.response.write(b'\n')
+            ElementTree(root).write(self.output, encoding='utf-8')
+            self.output.write(b'\n')
+        self.output.seek(0)
+        output = self.output.read()
+        self.output.truncate(0)
+        self.output.seek(0)
+        return output
+
+    def end_file(self) -> bytes:
+        return b'</data>\n'

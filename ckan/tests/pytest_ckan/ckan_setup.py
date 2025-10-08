@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+import pytest
 import ckan.plugins as plugins
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
@@ -54,20 +53,29 @@ def pytest_runtestloop(session):
     """When all the tests collected, extra plugin may be enabled because python
     interpreter visits their files.
 
-    Make sure only configured plugins are active when test loop starts.
+    Make sure all normal plugins are disabled. If test requires a plugin, it
+    must rely on `with_plugins` fixture.
+
     """
-    plugins.load_all()
+    plugins.unload_all()
 
 
-def pytest_runtest_setup(item):
-    """Automatically apply `ckan_config` fixture if test has `ckan_config`
-    mark.
+def pytest_runtest_setup(item: pytest.Function):
+    """Standard initialization of the test.
+
+    Automatically apply `ckan_config` fixture if test has `ckan_config` mark.
 
     `ckan_config` mark itself does nothing(as any mark). All actual
     config changes performed inside `ckan_config` fixture. So let's
     implicitly use `ckan_config` fixture inside any test that patches
     config object. This will save us from adding
     `@mark.usefixtures("ckan_config")` every time.
+
+    Automatically apply `provide_plugin` fixture if test has `ckan_plugin`
+    mark.
+
+    `provide_plugin` fixture mocks plugin-loader adding any fake plugin
+    specified via `ckan_plugin` mark to the list of available plugins.
 
     """
     # Restore configuration from the snapshot, removing all customization that
@@ -79,9 +87,12 @@ def pytest_runtest_setup(item):
     config.clear()
     config.update(_config)
 
-    custom_config = [
-        mark.args for mark in item.iter_markers(name=u"ckan_config")
-    ]
 
-    if custom_config:
-        item.fixturenames.append(u"ckan_config")
+    if any(item.iter_markers(name="ckan_config")):
+        item.fixturenames.append("ckan_config")
+
+    if any(item.iter_markers(name="provide_plugin")):
+        item.fixturenames.append("provide_plugin")
+
+    if any(item.iter_markers(name="with_plugins")):
+        item.fixturenames.append("with_plugins")

@@ -25,7 +25,7 @@ input requires validation.
 And in order to be more flexible and allow overrides, don't import validator
 functions directly. Instead, register them via the
 :py:class:`~ckan.plugins.interfaces.IValidators` interface and use the
-:py:func:`ckan.plugins.tookit.get_validator` function:
+:py:func:`ckan.plugins.toolkit.get_validator` function:
 
 .. code-block::
 

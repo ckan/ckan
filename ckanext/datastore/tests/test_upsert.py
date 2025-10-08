@@ -4,7 +4,7 @@ import pytest
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.plugins.toolkit import ValidationError, NotAuthorized
+from ckan.plugins.toolkit import ValidationError, NotAuthorized, job_from_id
 from ckanext.datastore.tests.helpers import when_was_last_analyze
 
 
@@ -12,12 +12,11 @@ def _search(resource_id):
     return helpers.call_action(u"datastore_search", resource_id=resource_id)
 
 
-@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
 class TestDatastoreUpsert(object):
     # Test action 'datastore_upsert' with 'method': 'upsert'
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_requires_auth(self):
         resource = factories.Resource(url_type=u"datastore")
         data = {
@@ -44,8 +43,6 @@ class TestDatastoreUpsert(object):
             in str(context.value)
         )
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_empty_fails(self):
         resource = factories.Resource(url_type=u"datastore")
         data = {
@@ -65,8 +62,6 @@ class TestDatastoreUpsert(object):
             helpers.call_action("datastore_upsert", **data)
         assert u"'Missing value'" in str(context.value)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_basic_as_update(self):
         resource = factories.Resource()
         data = {
@@ -97,13 +92,10 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "F Torres"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_basic_as_insert(self):
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
@@ -114,9 +106,11 @@ class TestDatastoreUpsert(object):
         }
         helpers.call_action("datastore_create", **data)
 
+        res = helpers.call_action("resource_show", id=resource["id"])
+        last_modified_1 = res['last_modified']
+
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "method": "upsert",
             "records": [
                 {"id": "2", "book": u"The boy", "author": u"F Torres"}
@@ -129,8 +123,16 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["book"] == u"El Niño"
         assert search_result["records"][1]["book"] == u"The boy"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+        # job scheduled to update last_modified
+        res = helpers.call_action("resource_show", id=resource["id"])
+        assert res["last_modified"] == last_modified_1
+        job = job_from_id(f"{resource['id']} datastore patch last_modified")
+        assert job
+
+        job.perform()
+        res = helpers.call_action("resource_show", id=resource["id"])
+        assert res["last_modified"] != last_modified_1
+
     def test_upsert_only_one_field(self):
         resource = factories.Resource()
         data = {
@@ -161,8 +163,11 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "Torres"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+        # no job for read-only tables
+        with pytest.raises(KeyError):
+            job_from_id(
+                f"{resource['id']} datastore patch last_modified")
+
     def test_field_types(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -214,15 +219,68 @@ class TestDatastoreUpsert(object):
 
         search_result = _search(resource["id"])
         assert search_result["total"] == 3
-        assert (
-            search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
-        )  # i.e. stored in db as datetime
         assert search_result["records"][2]["author"] == "adams"
         assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
         assert search_result["records"][2]["nested"] == {"baz": 3}
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
+    def test_field_timestamp(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"b\xfck",
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "nested", "type": "json"},
+                {"id": "published"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        search_result = _search(resource["id"])
+        assert (
+            search_result["records"][0]["published"] == u"2005-03-01T00:00:00.000"
+        )  # i.e. stored in db as datetime
+
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    def test_field_timestamp_without_ms(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"b\xfck",
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "nested", "type": "json"},
+                {"id": "published"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        search_result = _search(resource["id"])
+        assert (
+            search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
+        )  # i.e. stored in db as datetime
+
     def test_percent(self):
         resource = factories.Resource()
         data = {
@@ -254,8 +312,6 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["bo%ok"] == "The % boy"
         assert search_result["records"][1]["bo%ok"] == "Gu%ide"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_missing_key(self):
         resource = factories.Resource()
         data = {
@@ -281,8 +337,6 @@ class TestDatastoreUpsert(object):
             helpers.call_action("datastore_upsert", **data)
         assert u'fields "id" are missing' in str(context.value)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_non_existing_field(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -308,8 +362,6 @@ class TestDatastoreUpsert(object):
             helpers.call_action("datastore_upsert", **data)
         assert u'fields "dummy" do not exist' in str(context.value)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_works_with_empty_list_in_json_field(self):
         resource = factories.Resource()
         data = {
@@ -336,8 +388,6 @@ class TestDatastoreUpsert(object):
         assert search_result["total"] == 1
         assert search_result["records"][0]["nested"] == []
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_delete_field_value(self):
         resource = factories.Resource()
         data = {
@@ -366,8 +416,6 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["book"] is None
         assert search_result["records"][0]["author"] == "Torres"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_doesnt_crash_with_json_field(self):
         resource = factories.Resource()
         data = {
@@ -395,8 +443,6 @@ class TestDatastoreUpsert(object):
         }
         helpers.call_action("datastore_upsert", **data)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_doesnt_crash_with_json_field_with_string_value(self):
         resource = factories.Resource()
         data = {
@@ -418,8 +464,6 @@ class TestDatastoreUpsert(object):
         }
         helpers.call_action("datastore_upsert", **data)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dry_run(self):
         ds = factories.Dataset()
         table = helpers.call_action(
@@ -439,8 +483,6 @@ class TestDatastoreUpsert(object):
         )
         assert result["records"] == []
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dry_run_type_error(self):
         ds = factories.Dataset()
         table = helpers.call_action(
@@ -463,8 +505,6 @@ class TestDatastoreUpsert(object):
         else:
             assert 0, "error not raised"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dry_run_trigger_error(self):
         ds = factories.Dataset()
         helpers.call_action(
@@ -498,8 +538,6 @@ class TestDatastoreUpsert(object):
         else:
             assert 0, "error not raised"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_calculate_record_count_is_false(self):
         resource = factories.Resource()
         data = {
@@ -524,8 +562,6 @@ class TestDatastoreUpsert(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is None
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         resource = factories.Resource()
@@ -552,13 +588,99 @@ class TestDatastoreUpsert(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
+    def test_no_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "book", "type": "text"},
+            ],
+            "records": [{"book": u"El Niño"}],
+        }
+        helpers.call_action("datastore_create", **data)
 
-@pytest.mark.usefixtures("with_request_context")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"_id": "1", "book": u"The boy"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] == "The boy"
+
+    def test_id_instead_of_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"pk": "1000", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"_id": "1", "book": u"The boy", "author": u"F Torres"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["pk"] == "1000"
+        assert search_result["records"][0]["book"] == "The boy"
+        assert search_result["records"][0]["author"] == "F Torres"
+
+    def test_empty_string_instead_of_null(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "n", "type": "int"},
+                {"id": "d", "type": "date"},
+            ],
+            "records": [{"pk": "1000", "n": "5", "d": "2020-02-02"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"pk": "1000", "n": "", "d": ""}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        rec = search_result["records"][0]
+        assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
 class TestDatastoreInsert(object):
     # Test action 'datastore_upsert' with 'method': 'insert'
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_basic_insert(self):
         resource = factories.Resource()
         data = {
@@ -596,8 +718,6 @@ class TestDatastoreInsert(object):
             u"author": u"Torres",
         }
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_non_existing_field(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -623,8 +743,6 @@ class TestDatastoreInsert(object):
             helpers.call_action("datastore_upsert", **data)
         assert u'row "1" has extra keys "dummy"' in str(context.value)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_key_already_exists(self):
         resource = factories.Resource()
         data = {
@@ -658,13 +776,68 @@ class TestDatastoreInsert(object):
             context.value
         )
 
+    def test_empty_string_instead_of_null(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "n", "type": "int"},
+                {"id": "d", "type": "date"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
 
-@pytest.mark.usefixtures("with_request_context")
-class TestDatastoreUpdate(object):
-    # Test action 'datastore_upsert' with 'method': 'update'
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"pk": "1000", "n": "", "d": ""}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        rec = search_result["records"][0]
+        assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_insert_wrong_type(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "num", "type": "int"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"num": "notanumber"}
+            ],
+        }
+
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert 'invalid input syntax for ' in str(context.value)
+        assert ' integer: "notanumber"' in str(context.value)
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+class TestDatastoreUpdate(object):
+    # Test action 'datastore_upsert' with 'method': 'update'
+
     def test_basic(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -692,8 +865,6 @@ class TestDatastoreUpdate(object):
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "Torres"
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_field_types(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -749,8 +920,6 @@ class TestDatastoreUpdate(object):
         assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
         assert search_result["records"][2]["nested"] == {"baz": 3}
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_update_unspecified_key(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -776,8 +945,6 @@ class TestDatastoreUpdate(object):
             helpers.call_action("datastore_upsert", **data)
         assert u'fields "id" are missing' in str(context.value)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_update_unknown_key(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -799,12 +966,9 @@ class TestDatastoreUpdate(object):
             "records": [{"id": "1", "author": "tolkien"}],  # unknown
         }
 
-        with pytest.raises(ValidationError) as context:
+        with pytest.raises(ValidationError, match=r"key .*\\\'1\\\'.* not found"):
             helpers.call_action("datastore_upsert", **data)
-        assert u"key \"[\\'1\\']\" not found" in str(context.value)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_update_non_existing_field(self):
         resource = factories.Resource(url_type="datastore")
         data = {
@@ -829,3 +993,90 @@ class TestDatastoreUpdate(object):
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
         assert u'fields "dummy" do not exist' in str(context.value)
+
+    def test_no_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "book", "type": "text"},
+            ],
+            "records": [{"book": u"El Niño"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"_id": "1", "book": u"The boy"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] == "The boy"
+
+    def test_id_instead_of_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"pk": "1000", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"_id": "1", "book": u"The boy", "author": u"F Torres"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["pk"] == "1000"
+        assert search_result["records"][0]["book"] == "The boy"
+        assert search_result["records"][0]["author"] == "F Torres"
+
+    def test_empty_string_instead_of_null(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "n", "type": "int"},
+                {"id": "d", "type": "date"},
+            ],
+            "records": [{"pk": "1000", "n": "5", "d": "2020-02-02"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"pk": "1000", "n": "", "d": ""}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        rec = search_result["records"][0]
+        assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}

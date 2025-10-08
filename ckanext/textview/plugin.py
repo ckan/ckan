@@ -16,14 +16,14 @@ log = logging.getLogger(__name__)
 def get_formats(config: CKANConfig) -> dict[str, list[str]]:
     out = {}
 
-    out["text_formats"] = config.get_value(
+    out["text_formats"] = config.get(
         "ckan.preview.text_formats"
     ).split()
-    out["xml_formats"] = config.get_value("ckan.preview.xml_formats").split()
-    out["json_formats"] = config.get_value(
+    out["xml_formats"] = config.get("ckan.preview.xml_formats").split()
+    out["json_formats"] = config.get(
         "ckan.preview.json_formats"
     ).split()
-    out["jsonp_formats"] = config.get_value(
+    out["jsonp_formats"] = config.get(
         "ckan.preview.jsonp_formats"
     ).split()
 
@@ -55,14 +55,13 @@ class TextView(p.SingletonPlugin):
                                  self.xml_formats +
                                  self.json_formats)
 
-        p.toolkit.add_public_directory(config, 'theme/public')
-        p.toolkit.add_template_directory(config, 'theme/templates')
-        p.toolkit.add_resource('theme/public', 'ckanext-textview')
+        p.toolkit.add_template_directory(config, 'templates')
+        p.toolkit.add_resource('assets', 'ckanext-textview')
 
     def info(self):
         return {'name': 'text_view',
                 'title': p.toolkit._('Text'),
-                'icon': 'file-text-o',
+                'icon': 'file-lines',
                 'default_title': p.toolkit._('Text'),
                 }
 

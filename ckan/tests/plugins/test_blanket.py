@@ -50,7 +50,7 @@ class TestBlanketImplementation(object):
         return True
 
     def _config_declarations_registered(self, config):
-        return config.get_value("ckanext.blanket") == "declaration blanket"
+        return config.get("ckanext.blanket") == "declaration blanket"
 
     @pytest.mark.ckan_config(u"ckan.plugins", u"example_blanket")
     def test_empty_blanket_implements_all_available_interfaces(self, app, cli, ckan_config):

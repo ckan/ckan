@@ -10,10 +10,13 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.logic as logic
 from ckan import model
+from unittest import mock
 
 
-@pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-def test_auth_user_list():
+@pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
+@mock.patch("flask_login.utils._get_user")
+def test_auth_user_list(current_user):
+    current_user.return_value = mock.Mock(is_anonymous=True)
     context = {"user": None, "model": model}
     with pytest.raises(logic.NotAuthorized):
         helpers.call_auth("user_list", context=context)
@@ -33,13 +36,24 @@ def test_user_list_email_parameter():
 
 @pytest.mark.usefixtures(u"non_clean_db")
 class TestGetAuth(object):
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-    def test_auth_user_show(self):
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
+    @mock.patch("flask_login.utils._get_user")
+    def test_restrict_anon_auth_when_user_is_anonymouus(self, current_user):
         fred = factories.User()
         fred["capacity"] = "editor"
+        current_user.return_value = mock.Mock(is_anonymous=True)
         context = {"user": None, "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_show", context=context, id=fred["id"])
+
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
+    @mock.patch("flask_login.utils._get_user")
+    def test_restrict_anon_auth_when_user_is_in_context(self, current_user):
+        fred = factories.User()
+        fred["capacity"] = "editor"
+        current_user.return_value = mock.Mock(is_anonymous=True)
+        context = {"user": fred['id'], "model": model}
+        assert helpers.call_auth("user_show", context=context, id=fred["id"])
 
     def test_authed_user_show(self):
         fred = factories.User()
@@ -101,7 +115,7 @@ class TestGetAuth(object):
         ret = helpers.call_auth("group_show", context=context, id=org["name"])
         assert ret
 
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
     def test_group_show__user_is_hidden_to_public(self):
         group = factories.Group()
         context = {"model": model}
@@ -173,7 +187,7 @@ class TestApiToken(object):
             helpers.call_auth(
                 u"api_token_list",
                 {u"user": None, u"model": model},
-                user=user['name']
+                user_id=user['name']
             )
 
     def test_auth_user_is_allowed_to_list_tokens(self):
@@ -181,7 +195,7 @@ class TestApiToken(object):
         helpers.call_auth(u"api_token_list", {
             u"model": model,
             u"user": user[u"name"]
-        }, user=user[u"name"])
+        }, user_id=user[u"name"])
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
@@ -369,6 +383,27 @@ class TestGetAuthWithCollaborators(object):
             context=context, id=resource_view['id'])
 
 
+@pytest.fixture
+def members_fixtures():
+    org_admin = factories.User()
+    org_editor = factories.User()
+    org_member = factories.User()
+
+    normal_user = factories.User()
+
+    org = factories.Organization(
+        users=[
+            {'name': org_admin['name'], 'capacity': 'admin'},
+            {'name': org_editor['name'], 'capacity': 'editor'},
+            {'name': org_member['name'], 'capacity': 'member'},
+        ]
+    )
+
+    dataset = factories.Dataset(owner_org=org['id'])
+
+    return locals()
+
+
 @pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberList(object):
@@ -380,48 +415,30 @@ class TestPackageMemberList(object):
             'user': user if isinstance(user, str) else user.get('name')
         }
 
-    def setup(self):
+    def test_list_org_admin_is_authorized(self, members_fixtures):
 
-        self.org_admin = factories.User()
-        self.org_editor = factories.User()
-        self.org_member = factories.User()
-
-        self.normal_user = factories.User()
-
-        self.org = factories.Organization(
-            users=[
-                {'name': self.org_admin['name'], 'capacity': 'admin'},
-                {'name': self.org_editor['name'], 'capacity': 'editor'},
-                {'name': self.org_member['name'], 'capacity': 'member'},
-            ]
-        )
-
-        self.dataset = factories.Dataset(owner_org=self.org['id'])
-
-    def test_list_org_admin_is_authorized(self):
-
-        context = self._get_context(self.org_admin)
+        context = self._get_context(members_fixtures["org_admin"])
         assert helpers.call_auth(
             'package_collaborator_list',
-            context=context, id=self.dataset['id'])
+            context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_list_org_editor_is_not_authorized(self):
+    def test_list_org_editor_is_not_authorized(self, members_fixtures):
 
-        context = self._get_context(self.org_editor)
+        context = self._get_context(members_fixtures["org_editor"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_list_org_member_is_not_authorized(self):
+    def test_list_org_member_is_not_authorized(self, members_fixtures):
 
-        context = self._get_context(self.org_member)
+        context = self._get_context(members_fixtures["org_member"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_list_org_admin_from_other_org_is_not_authorized(self):
+    def test_list_org_admin_from_other_org_is_not_authorized(self, members_fixtures):
         org_admin2 = factories.User()
         factories.Organization(
             users=[
@@ -433,67 +450,67 @@ class TestPackageMemberList(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list_for_user',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
     @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
-    def test_list_collaborator_admin_is_authorized(self):
+    def test_list_collaborator_admin_is_authorized(self, members_fixtures):
 
         user = factories.User()
 
         helpers.call_action(
             'package_collaborator_create',
-            id=self.dataset['id'], user_id=user['id'], capacity='admin')
+            id=members_fixtures["dataset"]['id'], user_id=user['id'], capacity='admin')
 
         context = self._get_context(user)
         assert helpers.call_auth(
-            'package_collaborator_list', context=context, id=self.dataset['id'])
+            'package_collaborator_list', context=context, id=members_fixtures["dataset"]['id'])
 
     @pytest.mark.parametrize('role', ['editor', 'member'])
-    def test_list_collaborator_editor_and_member_are_not_authorized(self, role):
+    def test_list_collaborator_editor_and_member_are_not_authorized(self, role, members_fixtures):
         user = factories.User()
 
         helpers.call_action(
             'package_collaborator_create',
-            id=self.dataset['id'], user_id=user['id'], capacity=role)
+            id=members_fixtures["dataset"]['id'], user_id=user['id'], capacity=role)
 
         context = self._get_context(user)
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list',
-                context=context, id=self.dataset['id'])
+                context=context, id=members_fixtures["dataset"]['id'])
 
-    def test_user_list_own_user_is_authorized(self):
+    def test_user_list_own_user_is_authorized(self, members_fixtures):
 
-        context = self._get_context(self.normal_user)
+        context = self._get_context(members_fixtures["normal_user"])
         assert helpers.call_auth(
             'package_collaborator_list_for_user',
-            context=context, id=self.normal_user['id'])
+            context=context, id=members_fixtures["normal_user"]['id'])
 
-    def test_user_list_org_admin_is_not_authorized(self):
+    def test_user_list_org_admin_is_not_authorized(self, members_fixtures):
 
-        context = self._get_context(self.org_admin)
+        context = self._get_context(members_fixtures["org_admin"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list_for_user',
-                context=context, id=self.normal_user['id'])
+                context=context, id=members_fixtures["normal_user"]['id'])
 
-    def test_user_list_org_editor_is_not_authorized(self):
+    def test_user_list_org_editor_is_not_authorized(self, members_fixtures):
 
-        context = self._get_context(self.org_editor)
+        context = self._get_context(members_fixtures["org_editor"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list_for_user',
-                context=context, id=self.normal_user['id'])
+                context=context, id=members_fixtures["normal_user"]['id'])
 
-    def test_user_list_org_member_is_not_authorized(self):
+    def test_user_list_org_member_is_not_authorized(self, members_fixtures):
 
-        context = self._get_context(self.org_member)
+        context = self._get_context(members_fixtures["org_member"])
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list_for_user',
-                context=context, id=self.normal_user['id'])
+                context=context, id=members_fixtures["normal_user"]['id'])
 
-    def test_user_list_org_admin_from_other_org_is_not_authorized(self):
+    def test_user_list_org_admin_from_other_org_is_not_authorized(self, members_fixtures):
         org_admin2 = factories.User()
         factories.Organization(
             users=[
@@ -505,7 +522,7 @@ class TestPackageMemberList(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
                 'package_collaborator_list_for_user',
-                context=context, id=self.normal_user['id'])
+                context=context, id=members_fixtures["normal_user"]['id'])
 
     @pytest.mark.ckan_config('ckan.auth.create_dataset_if_not_in_organization', True)
     @pytest.mark.ckan_config('ckan.auth.create_unowned_dataset', True)
@@ -596,3 +613,71 @@ class TestStatusShow:
     def test_status_show_is_visible_to_anonymous(self):
         context = {"user": "", "model": model}
         assert helpers.call_auth("status_show", context)
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestFolloweeCount:
+
+    functions = [
+        "dataset_followee_count",
+        "followee_count",
+        "group_followee_count",
+        "organization_followee_count",
+        "user_followee_count",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anonymous_can_see_followee_count(self, func):
+        user = factories.User()
+        context = {"user": "", "model": model}
+        assert helpers.call_auth(func, context, id=user["id"])
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestFollowerCount:
+
+    functions = [
+        "dataset_follower_count",
+        "group_follower_count",
+        "organization_follower_count",
+        "user_follower_count",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anonymous_can_see_follower_count(self, func):
+        user = factories.User()
+        context = {"user": "", "model": model}
+        assert helpers.call_auth(func, context, id=user["id"])
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestAmFollowing:
+
+    functions = [
+        "am_following_dataset",
+        "am_following_group",
+        "am_following_user",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anonymous_can_see_am_following(self, func):
+        user = factories.User()
+        context = {"user": "", "model": model}
+        assert helpers.call_auth(func, context, id=user["id"])
+
+
+class TestVariousGetMethods:
+
+    functions = [
+        "group_package_show",
+        "member_list",
+        "resource_search",
+        "tag_search",
+        "term_translation_show",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anonymous_can_call_get_method(self, func):
+        user = factories.User()
+        context = {"user": "", "model": model}
+        assert helpers.call_auth(func, context, id=user["id"])

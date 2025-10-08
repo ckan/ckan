@@ -8,7 +8,7 @@ import ckan.model as model
 
 
 @pytest.mark.ckan_config("ckan.plugins", "{{cookiecutter.project_shortname}}")
-@pytest.mark.usefixtures("with_request_context", "with_plugins", "clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 def test_{{cookiecutter.project_shortname}}_get_sum():
     user = factories.User()
     context = {

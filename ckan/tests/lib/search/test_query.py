@@ -4,7 +4,6 @@ import pytest
 import ckan.model as model
 import ckan.lib.search as search
 import ckan.tests.factories as factories
-from ckan.lib.create_test_data import CreateTestData
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -132,7 +131,7 @@ class TestResourceQuery(object):
             query=query, fields=fields, terms=terms, options=options
         )
         resources = [
-            model.Session.query(model.Resource).get(resource_id)
+            model.Session.get(model.Resource, resource_id)
             for resource_id in result["results"]
         ]
         urls = set([resource.url for resource in resources])
@@ -143,7 +142,7 @@ class TestResourceQuery(object):
         result = search.query_for(model.Resource).run(fields=fields)
         assert result["count"] == 6
         resources = [
-            model.Session.query(model.Resource).get(resource_id)
+            model.Session.get(model.Resource, resource_id)
             for resource_id in result["results"]
         ]
         urls = set([resource.url for resource in resources])
@@ -342,11 +341,11 @@ class TestPackageQuery:
         assert {pkg1["name"], pkg2["name"], pkg3["name"]} == set(result["results"])
 
     def test_single_by_name(self):
-        factories.Dataset(name="first")
-        factories.Dataset(name="second")
+        factories.Dataset(name="verycomplexnameoffirstdataset")
+        factories.Dataset(name="verycomplexnameofseconddataset")
 
-        result = search.query_for(model.Package).run({"q": u"first"})
-        assert result["results"] == ["first"]
+        result = search.query_for(model.Package).run({"q": u"verycomplexnameoffirstdataset"})
+        assert result["results"] == ["verycomplexnameoffirstdataset"]
 
     def test_name_multiple_results(self):
         factories.Dataset(name="first-record")
@@ -434,7 +433,24 @@ class TestPackageQuery:
         assert result["results"] == [pkg1["name"]]
 
     def test_overall(self):
-        CreateTestData.create()
+        user = factories.User()
+        david = factories.Group(user=user, name="david")
+        roger = factories.Group(user=user, name="roger")
+        factories.Dataset(
+            name="annakarenina",
+            title="A Novel By Tolstoy",
+            version="0.7a",
+            url="http://datahub.io",
+            tags=[{"name": "russian"}, {"name": "tolstoy"}, {"name": "Flexible \u30a1"}],
+            groups=[{"id": david["id"]}, {"id": roger["id"]}],
+            )
+
+        factories.Dataset(
+            name="warandpeace",
+            groups=[{"id": david["id"]}],
+            tags=[{"name": "russian"}, {"name": "Flexible \u30a1"}]
+        )
+
         query = search.query_for(model.Package)
         assert query.run({"q": "annakarenina"})["count"] == 1
         assert query.run({"q": "warandpeace"})["count"] == 1

@@ -21,7 +21,7 @@ def show_most_popular_groups():
     :rtype: bool
 
     '''
-    value = config.get_value('ckan.example_theme.show_most_popular_groups')
+    value = config.get('ckan.example_theme.show_most_popular_groups')
     return value
 
 

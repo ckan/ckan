@@ -11,7 +11,6 @@ etc.
 
 import importlib
 import inspect
-import io
 import itertools
 import os
 import os.path
@@ -19,7 +18,6 @@ import re
 import subprocess
 import sys
 import pytest
-import six
 
 
 FILESYSTEM_ENCODING = str(
@@ -235,7 +233,7 @@ def test_building_the_docs():
     """
     try:
         output = subprocess.check_output(
-            [b"python", b"setup.py", b"build_sphinx"], stderr=subprocess.STDOUT
+            [b"sphinx-build", b"doc", b"build/sphinx"], stderr=subprocess.STDOUT
         )
     except subprocess.CalledProcessError as err:
         assert (
@@ -260,45 +258,6 @@ def test_building_the_docs():
         )
 
 
-def test_source_files_specify_encoding():
-    u"""
-    Test that *.py files have a PEP 263 UTF-8 encoding specification.
-
-    Empty files and files that only contain comments are ignored.
-    """
-    pattern = re.compile(u"#.*?coding[:=][ \\t]*utf-?8")
-    decode_errors = []
-    no_specification = []
-    for abs_path, rel_path in walk_python_files():
-        try:
-            with io.open(abs_path, encoding=u"utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if pattern.match(line):
-                        # Pattern found
-                        break
-                    elif line and not line.startswith(u"#"):
-                        # File contains non-empty non-comment line
-                        no_specification.append(rel_path)
-                        break
-        except UnicodeDecodeError:
-            decode_errors.append(rel_path)
-
-    msgs = []
-    if no_specification:
-        msgs.append(
-            u"The following files are missing an encoding specification: "
-            u"{}".format(no_specification)
-        )
-    if decode_errors:
-        msgs.append(
-            u"The following files are not valid UTF-8: "
-            u"{}".format(decode_errors)
-        )
-    if msgs:
-        assert False, u"\n\n".join(msgs)
-
-
 class TestActionAuth(object):
     """These tests check the logic auth/action functions are compliant. The
     main tests are that each action has a corresponding auth function and
@@ -312,23 +271,7 @@ class TestActionAuth(object):
         "delete: unfollow_dataset",
         "delete: unfollow_group",
         "delete: unfollow_user",
-        "get: am_following_dataset",
-        "get: am_following_group",
-        "get: am_following_user",
-        "get: dataset_followee_count",
-        "get: dataset_follower_count",
-        "get: followee_count",
-        "get: group_followee_count",
-        "get: group_follower_count",
-        "get: group_package_show",
-        "get: member_list",
-        "get: organization_follower_count",
-        "get: resource_search",
         "get: roles_show",
-        "get: tag_search",
-        "get: term_translation_show",
-        "get: user_followee_count",
-        "get: user_follower_count",
         "update: task_status_update_many",
         "update: term_translation_update_many",
     ]
@@ -411,7 +354,7 @@ class TestActionAuth(object):
 
     def test_fn_signatures(self, results):
         errors = []
-        for name, fn in six.iteritems(results[0]):
+        for name, fn in results[0].items():
             params = inspect.signature(fn).parameters
             if list(params) != ["context", "data_dict"]:
                 errors.append(name)
@@ -423,7 +366,7 @@ class TestActionAuth(object):
 
     def test_fn_docstrings(self, results):
         errors = []
-        for name, fn in six.iteritems(results[0]):
+        for name, fn in results[0].items():
             if not getattr(fn, "__doc__", None):
                 if name not in self.ACTION_NO_DOC_STR_BLACKLIST:
                     errors.append(name)

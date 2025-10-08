@@ -17,12 +17,3 @@ def test_config_set_to_blank():
 
     """
     assert g.site_description == ""
-
-
-def test_set_from_ini():
-    """ckan.template_head_end is configured in test-core.ini
-    """
-    assert (
-        g.template_head_end
-        == '<link rel="stylesheet" href="TEST_TEMPLATE_HEAD_END.css" type="text/css">'
-    )

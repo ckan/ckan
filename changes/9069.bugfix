@@ -1,0 +1,2 @@
+Restore handling of plugin order for ITemplateHelpers to align with
+add_template_directory precedence again (first plugin wins).

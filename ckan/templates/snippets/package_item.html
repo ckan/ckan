@@ -28,17 +28,16 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}">
+    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}" aria-label="{{ _('Navigate to dataset: {title}').format(title=title|truncate(80)) }}">
       {{title|truncate(80)}}
     </a>
             {% endblock %}
             {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}
-                <span class="badge badge-info">{{ _('Draft') }}</span>
+                <span class="badge bg-info">{{ _('Draft') }}</span>
               {% elif package.get('state', '').startswith('deleted') %}
-                <span class="badge badge-danger">{{ _('Deleted') }}</span>
+                <span class="badge bg-danger">{{ _('Deleted') }}</span>
               {% endif %}
-              {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
             {% endblock %}
           </h2>
         {% endblock %}

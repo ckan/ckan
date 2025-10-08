@@ -1,0 +1,13 @@
+datapusher:
+  filters: rjsmin
+  output: datapusher/%(version)s_datapusher.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - datapusher_popover.js
+
+datapusher-css:
+  output: ckanext-datapusher/%(version)s_datapusher.css
+  contents:
+    - datapusher.css

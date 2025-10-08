@@ -5,8 +5,10 @@
 import datetime
 import operator
 import unittest.mock as mock
-import pytest
+import uuid
 
+import pytest
+import sqlalchemy as sa
 
 import ckan.logic as logic
 from ckan.logic.action.get import package_show as core_package_show
@@ -178,6 +180,33 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        _id = str(uuid.uuid4())
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = _id
+        result = helpers.call_action("resource_view_create", context=context, **params)
+        assert result["id"] == _id
+
+    def test_normal_user_can_not_set_id(self):
+        user = factories.User()
+        _id = str(uuid.uuid4())
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = _id
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_view_create", context=context, **params)
+
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        resource_view = factories.ResourceView()
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = resource_view.pop("id")
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_view_create", context=context, **params)
+
     @mock.patch("ckan.lib.datapreview.get_view_plugin")
     def test_requires_view_type(self, get_view_plugin):
         context = {}
@@ -311,7 +340,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -336,7 +365,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -361,7 +390,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -400,6 +429,73 @@ class TestResourceCreate:
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_create", **data_dict)
+
+    def test_invalid_characters_in_id(self):
+
+        data_dict = {
+            "id": "../../nope.txt",
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_create", **data_dict)
+
+    def test_id_too_long(self):
+
+        data_dict = {
+            "id": "x" * 111,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_create", **data_dict)
+
+    def test_id_already_exists(self):
+        data_dict = {
+            'id': str(uuid.uuid4()),
+            'package_id': factories.Dataset()['id'],
+        }
+        helpers.call_action('resource_create', **data_dict)
+
+        data_dict['package_id'] = factories.Dataset()['id']
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('resource_create', **data_dict)
+
+    def test_sysadmin_can_set_id(self):
+        """
+        The system admin
+        """
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        data_dict = {
+            "id": _id,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        result = helpers.call_action("resource_create", context=context, **data_dict)
+        assert result["id"] == _id
+
+    def test_normal_user_can_provide_custom_id(self):
+
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        data_dict = {
+            "id": _id,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+        result = helpers.call_action("resource_create", context=context, **data_dict)
+        assert result["id"] == _id
 
     def test_doesnt_require_url(self):
         dataset = factories.Dataset()
@@ -666,6 +762,44 @@ class TestResourceCreate:
             helpers.call_action('resource_create', package_id=dataset['id'], url='http://example.com', description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
+    def test_resource_create_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        existing = factories.Resource()
+        params = {
+            "package_id": existing['package_id'],
+            "url": "http://data",
+            "name": "A second resource",
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_create", **params)
+            assert m.call_args.args[3] == {0: 0}, 'copy existing resource 0'
+
+    def test_upload_file_paths(self, create_with_upload):
+        from ckan.common import config
+        import os
+
+        storage_path = config["ckan.storage_path"]
+
+        dataset = factories.Dataset()
+        resource1 = create_with_upload(
+            "hello world", "file1.txt", url="http://data1",
+            package_id=dataset["id"])
+
+        assert os.path.exists(
+            os.path.join(storage_path, "resources", resource1["id"][:3])
+        )
+
+        resource2 = create_with_upload(
+            "bye bye world", "file2.txt", url="http://data2",
+            package_id=dataset["id"])
+
+        assert os.path.exists(
+            os.path.join(storage_path, "resources", resource2["id"][:3])
+        )
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate(object):
@@ -792,29 +926,30 @@ class TestDatasetCreate(object):
     def test_normal_user_cant_set_id(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "package_create",
                 context=context,
-                id=factories.Dataset.stub().name,
-                name=factories.Dataset.stub().name,
+                id=_id,
+                name="test",
             )
 
     def test_sysadmin_can_set_id(self):
         user = factories.Sysadmin()
         context = {"user": user["name"], "ignore_auth": False}
-        stub = factories.Dataset.stub()
+        _id = str(uuid.uuid4())
         dataset = helpers.call_action(
-            "package_create", context=context, id=stub.name, name=stub.name
+            "package_create", context=context, id=_id, name=f"test-dataset-{_id}"
         )
-        assert dataset["id"] == stub.name
+        assert dataset["id"] == _id
 
     def test_context_is_not_polluted(self):
         user = factories.Sysadmin()
-        stub = factories.Dataset.stub()
         context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
         helpers.call_action(
-            "package_create", context=context, id=stub.name, name=stub.name
+            "package_create", context=context, id=_id, name=f"test-dataset-{_id}"
         )
         assert "id" not in context
         assert "package" not in context
@@ -897,6 +1032,34 @@ class TestDatasetCreate(object):
         dataset = helpers.call_action("package_show", id=dataset["id"])
         assert dataset["extras"][0]["key"] == "original media"
         assert dataset["extras"][0]["value"] == '"book"'
+
+    def test_sysadmin_can_set_extras_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        dataset = helpers.call_action(
+            "package_create",
+            context=context,
+            name=factories.Dataset.stub().name,
+            title="Test Extras",
+            extras=[{"id": _id, "key": "original media", "value": '"book"'}],
+        )
+        dataset = helpers.call_action("package_show", id=dataset["id"])
+        assert dataset["extras"][0]["key"] == "original media"
+
+    def test_normal_user_can_not_set_extras_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "package_create",
+                context=context,
+                name=factories.Dataset.stub().name,
+                title="Test Extras",
+                extras=[{"id": _id, "key": "original media", "value": '"book"'}],
+            )
+        assert "The input field id was not expected" in str(exception.value)
 
     def test_license(self):
         dataset = helpers.call_action(
@@ -1003,6 +1166,19 @@ class TestDatasetCreate(object):
 
         assert isinstance(dataset, str)
 
+    def test_non_string_extras(self):
+        data_dict = {
+            "name": "test-non-string-extras",
+            "extras": [
+                {
+                    "key": "some_number",
+                    "value": 1.5
+                }
+            ]
+        }
+
+        helpers.call_action("package_create", **data_dict)
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestGroupCreate(object):
@@ -1063,6 +1239,71 @@ class TestGroupCreate(object):
         assert sorted(created.keys()) == sorted(shown.keys())
         for k in created.keys():
             assert created[k] == shown[k], k
+
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "group_create",
+                context=context,
+                name=f"test-group-{_id}",
+                id=_id
+            )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        result = helpers.call_action(
+            "group_create",
+            context=context,
+            name=f"test-group-{_id}",
+            id=_id
+        )
+        assert result.get("id") == _id
+
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        group = helpers.call_action(
+            "group_create",
+            name=factories.Group.stub().name,
+            context=context
+        )
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "group_create",
+                id=group["id"],
+                context=context,
+                name=factories.Group.stub().name,
+            )
+        assert "Id already exists" in str(exception.value)
+
+    def test_normal_user_cant_set_extras_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "group_create",
+                context=context,
+                name=f"test-group-{_id}",
+                extras=[{"id": _id, "key": "area", "value": '"non profit"'}]
+            )
+        assert "The input field id was not expected" in str(exception.value)
+
+    def test_sysadmin_user_cant_set_extras_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        helpers.call_action(
+            "group_create",
+            context=context,
+            name=f"test-group-{_id}",
+            extras=[{"id": _id, "key": "area", "value": '"non profit"'}]
+        )
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -1147,6 +1388,43 @@ class TestOrganizationCreate(object):
         assert org["is_organization"]
         assert org["type"] == custom_org_type
 
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "organization_create",
+                context=context,
+                name=f"test-org-{_id}",
+                id=_id
+            )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        result = helpers.call_action(
+            "organization_create",
+            context=context,
+            name=f"test-org-{_id}",
+            id=_id
+        )
+        assert result.get("id") == _id
+
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        group = factories.Group()
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "group_create",
+                id=group.pop("id"),
+                context=context,
+                name=group.pop("name")
+            )
+        assert "Id already exists" in str(exception.value)
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestUserCreate(object):
@@ -1165,6 +1443,7 @@ class TestUserCreate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password == "pretend-this-is-a-valid-hash"
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
         context = {"user": normal_user["name"], "ignore_auth": False}
@@ -1216,6 +1495,178 @@ class TestUserCreate(object):
         assert err.value.error_dict == {
             "password": ["Your password must be 8 characters or longer"]
         }
+
+    def test_user_create_defer_commit(self):
+        stub = factories.User.stub()
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        context = {"defer_commit": True}
+
+        helpers.call_action("user_create", context=context, **user_dict)
+
+        model.Session.close()
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("user_show", id=user_dict["name"])
+
+    def test_create_user_with_apitoken(self):
+        stub = factories.User.stub()
+        context = {"ignore_auth": True}
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+            "with_apitoken": True
+        }
+        user = helpers.call_action("user_create", context={}, **user_dict)
+        assert user["token"]
+
+        user_dict = {"user_id": user["name"]}
+        token = helpers.call_action(
+            "api_token_list", context=context, **user_dict
+        )
+        assert len(token) == 1
+
+    def test_create_user_with_apitoken_missing_flag(self):
+        stub = factories.User.stub()
+        context = {"ignore_auth": True}
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        user = helpers.call_action("user_create", context={}, **user_dict)
+        assert "token" not in user
+
+        user_dict = {"user_id": user["name"]}
+        token = helpers.call_action(
+            "api_token_list", context=context, **user_dict
+        )
+        assert not token
+
+    def test_user_create_fails_with_duplicate_email_case_insensitive(self):
+        factories.User(email="some_email@example.org")
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "user_create",
+                context={},
+                email="Some_Email@example.org",
+                name="test",
+                password="required",
+            )
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
+class TestUserCreateDb():
+
+    def test_anon_user_create_does_not_update(self):
+        user1 = factories.User(about="This is user 1")
+        user_dict = {
+            "id": user1["id"],
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": None,
+            "ignore_auth": False,
+        }
+
+        user2 = helpers.call_action("user_create", context=context, **user_dict)
+        assert user2["id"] != user1["id"]
+        assert user2["about"] != "This is user 1"
+
+    def test_normal_user_create_does_not_update(self):
+        user1 = factories.User(about="This is user 1")
+        user_dict = {
+            "id": user1["id"],
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": factories.User()["name"],
+            "ignore_auth": False,
+        }
+
+        user2 = helpers.call_action("user_create", context=context, **user_dict)
+        assert user2["id"] != user1["id"]
+        assert user2["about"] != "This is user 1"
+
+    def test_sysadmin_user_create_does_not_update(self):
+        user1 = factories.User(about="This is user 1")
+        user_dict = {
+            "id": user1["id"],
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": factories.Sysadmin()["name"],
+            "ignore_auth": False,
+        }
+
+        user2 = helpers.call_action("user_create", context=context, **user_dict)
+        assert user2["id"] != user1["id"]
+        assert user2["about"] != "This is user 1"
+
+    def test_anon_users_can_not_provide_custom_id(self):
+
+        user_dict = {
+            "id": "custom_id",
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": None,
+            "ignore_auth": False,
+        }
+
+        user = helpers.call_action("user_create", context=context, **user_dict)
+        assert user["id"] != "custom_id"
+
+    def test_normal_users_can_not_provide_custom_id(self):
+
+        user_dict = {
+            "id": "custom_id",
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": factories.User()["name"],
+            "ignore_auth": False,
+        }
+
+        user = helpers.call_action("user_create", context=context, **user_dict)
+        assert user["id"] != "custom_id"
+
+    def test_sysadmin_can_provide_custom_id(self):
+        _id = str(uuid.uuid4())
+        user_dict = {
+            "id": _id,
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+        context = {
+            "user": factories.Sysadmin()["name"],
+            "ignore_auth": False,
+        }
+
+        user = helpers.call_action("user_create", context=context, **user_dict)
+        assert user["id"] == _id
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -1580,6 +2031,7 @@ class TestPackageMemberCreate(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 class TestUserPluginExtras(object):
     def test_stored_on_create_if_sysadmin(self):
 
@@ -1620,7 +2072,7 @@ class TestUserPluginExtras(object):
 
         plugin_extras_from_db = (
             model.Session.execute(
-                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
                 {"id": created_user["id"]},
             )
             .first()[0]
@@ -1663,6 +2115,21 @@ class TestUserPluginExtras(object):
 
         assert user["plugin_extras"] is None
 
+    def test_extensions_can_provide_custom_id(self):
+
+        stub = factories.User.stub()
+        context = {"user": None, "ignore_auth": True}
+        _id = str(uuid.uuid4())
+        user_dict = {
+            "id": _id,
+            "name": stub.name,
+            "email": stub.email,
+            "password": "12345678",
+        }
+        created_user = helpers.call_action("user_create", context=context, **user_dict)
+
+        assert created_user["id"] == _id
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestUserImageUrl(object):
@@ -1682,7 +2149,7 @@ class TestUserImageUrl(object):
             user_dict["image_display_url"] == "https://example.com/mypic.png"
         )
 
-    def test_upload_non_picture_works_without_extra_config(
+    def test_upload_picture_works_without_extra_config(
             self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
@@ -1691,10 +2158,10 @@ class TestUserImageUrl(object):
             "action": "user_create",
             "upload_field_name": "image_upload",
         }
-        assert create_with_upload("hello world", "file.txt", **params)
+        assert create_with_upload(faker.image(), "image.png", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
-    def test_upload_non_picture(self, create_with_upload, faker):
+    def test_upload_non_picture_fails_without_extra_config(
+            self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
             "email": faker.email(),
@@ -1705,6 +2172,45 @@ class TestUserImageUrl(object):
         with pytest.raises(
                 logic.ValidationError, match="Unsupported upload type"):
             create_with_upload("hello world", "file.txt", **params)
+
+    def test_upload_non_picture_html_fails_without_extra_config(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload("<html><body>hello world</body></html>", "file.html", **params)
+
+    def test_upload_svg_fails_without_extra_config(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.svg", **params)
+
+    def test_upload_svg_wrong_extension_fails_without_extra_config(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.png", **params)
 
     @pytest.mark.ckan_config("ckan.upload.user.types", "image")
     def test_upload_non_picture_with_png_extension(
@@ -1720,6 +2226,47 @@ class TestUserImageUrl(object):
                 logic.ValidationError, match="Unsupported upload type"):
             create_with_upload("hello world", "file.png", **params)
 
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "")
+    def test_uploads_not_allowed_when_empty_mimetypes_and_types(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="No uploads allowed for object type"):
+            create_with_upload("hello world", "file.png", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_all_types_allowed_needs_both_options(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            assert create_with_upload(faker.json(), "file.json", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "*")
+    def test_upload_all_types_allowed(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        assert create_with_upload(faker.json(), "file.json", **params)
+
     @pytest.mark.ckan_config("ckan.upload.user.types", "image")
     def test_upload_picture(self, create_with_upload, faker):
         params = {
@@ -1730,6 +2277,20 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         assert create_with_upload(faker.image(), "file.png", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_picture_extension_enforced(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        user = create_with_upload(faker.image(image_format="jpeg"), "file.png", **params)
+
+        assert user["image_url"].endswith(".jpg")
+        assert user["image_display_url"].endswith(".jpg")
 
 
 class TestVocabularyCreate(object):
@@ -1946,3 +2507,59 @@ class TestMemberCreate2:
                 object_type="notvalid",
                 capacity="member",
             )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+
+    def test_stored_on_create_if_sysadmin(self):
+        sysadmin = factories.Sysadmin()
+
+        pkg_dict = {
+            "name": "test-dataset",
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        }
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "auth_user_obj": model.User.get(sysadmin["name"])
+        }
+        created_pkg = helpers.call_action(
+            "package_create", context=context, **pkg_dict
+        )
+        plugin_data_from_db = model.Session.execute(
+            sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
+            {'id': created_pkg["id"]}
+        ).first()[0]
+
+        assert plugin_data_from_db == {"plugin1": {"key1": "value1"}}
+
+    def test_ignored_on_create_if_non_sysadmin(self):
+        user = factories.User()
+
+        pkg_dict = {
+            "name": "test-dataset",
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        }
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+        }
+        created_pkg = helpers.call_action(
+            'package_create', context=context, **pkg_dict
+        )
+        assert "plugin_data" not in created_pkg
+
+        plugin_data_from_db = model.Session.execute(
+            sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
+            {'id': created_pkg["id"]}
+        ).first()[0]
+        assert plugin_data_from_db is None

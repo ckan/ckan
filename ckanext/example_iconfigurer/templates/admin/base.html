@@ -1,0 +1,7 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  {{ super() }}
+  {{ h.build_nav_icon('example_iconfigurer.config_one', _('My First Custom Config Tab'), icon='gear') }}
+  {{ h.build_nav_icon('example_iconfigurer.config_two', _('My Second Custom Config Tab'), icon='trash') }}
+{% endblock %}

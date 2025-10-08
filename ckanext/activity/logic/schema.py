@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from ckan.logic.schema import validator_args, default_pagination_schema
 from ckan.types import Schema, Validator, ValidatorFactory
 
@@ -19,33 +17,33 @@ def default_create_activity_schema(
     activity_type_exists: Validator,
     ignore_empty: Validator,
     ignore_missing: Validator,
-):
-    return cast(
-        Schema,
-        {
-            "id": [ignore],
-            "timestamp": [ignore],
-            "user_id": [
-                not_missing,
-                not_empty,
-                unicode_safe,
-                convert_user_name_or_id_to_id,
-            ],
-            "object_id": [
-                not_missing,
-                not_empty,
-                unicode_safe,
-                object_id_validator,
-            ],
-            "activity_type": [
-                not_missing,
-                not_empty,
-                unicode_safe,
-                activity_type_exists,
-            ],
-            "data": [ignore_empty, ignore_missing],
-        },
-    )
+    list_of_strings: Validator,
+) -> Schema:
+    return {
+        "id": [ignore],
+        "timestamp": [ignore],
+        "user_id": [
+            not_missing,
+            not_empty,
+            unicode_safe,
+            convert_user_name_or_id_to_id,
+        ],
+        "object_id": [
+            not_missing,
+            not_empty,
+            unicode_safe,
+            object_id_validator,
+        ],
+        "activity_type": [
+            not_missing,
+            not_empty,
+            unicode_safe,
+            activity_type_exists,
+        ],
+        "data": [ignore_empty, ignore_missing],
+        "permission_labels": [ignore_empty, list_of_strings],
+
+    }
 
 
 @validator_args
@@ -53,6 +51,9 @@ def default_dashboard_activity_list_schema(
     configured_default: ValidatorFactory,
     natural_number_validator: Validator,
     limit_to_configured_maximum: ValidatorFactory,
+    ignore_missing: Validator,
+    datetime_from_timestamp_validator: Validator,
+
 ):
     schema = default_pagination_schema()
     schema["limit"] = [
@@ -60,6 +61,8 @@ def default_dashboard_activity_list_schema(
         natural_number_validator,
         limit_to_configured_maximum("ckan.activity_list_limit_max", 100),
     ]
+    schema["before"] = [ignore_missing, datetime_from_timestamp_validator]
+    schema["after"] = [ignore_missing, datetime_from_timestamp_validator]
     return schema
 
 

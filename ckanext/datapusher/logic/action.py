@@ -6,7 +6,7 @@ import logging
 import json
 import datetime
 import time
-from typing import Any, cast
+from typing import Any
 
 from urllib.parse import urljoin
 from dateutil.parser import parse as parse_date
@@ -24,8 +24,6 @@ import ckanext.datapusher.interfaces as interfaces
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
-
-TIMEOUT = config.get_value('ckan.requests.timeout')
 
 
 def datapusher_submit(context: Context, data_dict: dict[str, Any]):
@@ -64,11 +62,11 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     except logic.NotFound:
         return False
 
-    datapusher_url: str = config.get_value('ckan.datapusher.url')
+    datapusher_url: str = config.get('ckan.datapusher.url')
 
-    callback_url_base = config.get_value(
+    callback_url_base = config.get(
         'ckan.datapusher.callback_url_base'
-    ) or config.get_value("ckan.site_url")
+    ) or config.get("ckan.site_url")
     if callback_url_base:
         site_url = callback_url_base
         callback_url = urljoin(
@@ -103,7 +101,7 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
             'key': 'datapusher'
         })
         assume_task_stale_after = datetime.timedelta(
-            seconds=config.get_value(
+            seconds=config.get(
                 'ckan.datapusher.assume_task_stale_after'))
         if existing_task.get('state') == 'pending':
             updated = datetime.datetime.strptime(
@@ -128,21 +126,24 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     # Use local session for task_status_update, so it can commit its own
     # results without messing up with the parent session that contains pending
     # updats of dataset/resource/etc.
-    context['session'] = context['model'].meta.create_local_session()
+    context.update({
+        'session': context['model'].meta.create_local_session()  # type: ignore
+    })
     p.toolkit.get_action('task_status_update')(context, task)
 
-    site_user = p.toolkit.get_action(
-        'get_site_user')({'ignore_auth': True}, {})
+    timeout = config.get('ckan.requests.timeout')
 
+    # This setting is checked on startup
+    api_token = p.toolkit.config.get("ckan.datapusher.api_token")
     try:
         r = requests.post(
             urljoin(datapusher_url, 'job'),
             headers={
                 'Content-Type': 'application/json'
             },
-            timeout=TIMEOUT,
+            timeout=timeout,
             data=json.dumps({
-                'api_key': site_user['apikey'],
+                'api_key': api_token,
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
@@ -166,12 +167,16 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
         r.raise_for_status()
     except requests.exceptions.HTTPError as e:
         m = 'An Error occurred while sending the job: {0}'.format(str(e))
-        try:
-            body = e.response.json()
-            if body.get('error'):
-                m += ' ' + body['error']
-        except ValueError:
-            body = e.response.text
+
+        body = ""
+        if e.response is not None:
+            try:
+                body = e.response.json()
+                if body.get('error'):
+                    m += ' ' + body['error']
+            except ValueError:
+                body = e.response.text
+
         error = {'message': m,
                  'details': body,
                  'status_code': r.status_code}
@@ -232,7 +237,7 @@ def datapusher_hook(context: Context, data_dict: dict[str, Any]):
             context, {'id': resource_dict['package_id']})
 
         for plugin in p.PluginImplementations(interfaces.IDataPusher):
-            plugin.after_upload(cast("dict[str, Any]", context),
+            plugin.after_upload(context,
                                 resource_dict, dataset_dict)
 
         logic.get_action('resource_create_default_resource_views')(
@@ -251,8 +256,8 @@ def datapusher_hook(context: Context, data_dict: dict[str, Any]):
                     resource_dict['last_modified'])
                 task_created_datetime = parse_date(metadata['task_created'])
                 if last_modified_datetime > task_created_datetime:
-                    log.debug('Uploaded file more recent: {0} > {1}'.format(
-                        last_modified_datetime, task_created_datetime))
+                    log.debug('Uploaded file more recent: %s > %s',
+                              last_modified_datetime, task_created_datetime)
                     resubmit = True
             except ValueError:
                 pass
@@ -260,16 +265,16 @@ def datapusher_hook(context: Context, data_dict: dict[str, Any]):
         elif (resource_dict.get('url') and
                 metadata.get('original_url') and
                 resource_dict['url'] != metadata['original_url']):
-            log.debug('URLs are different: {0} != {1}'.format(
-                resource_dict['url'], metadata['original_url']))
+            log.debug('URLs are different: %s != %s',
+                      resource_dict['url'], metadata['original_url'])
             resubmit = True
 
     context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)
 
     if resubmit:
-        log.debug('Resource {0} has been modified, '
-                  'resubmitting to DataPusher'.format(res_id))
+        log.debug('Resource %s has been modified, '
+                  'resubmitting to DataPusher', res_id)
         p.toolkit.get_action('datapusher_submit')(
             context, {'resource_id': res_id})
 
@@ -295,7 +300,7 @@ def datapusher_status(
         'key': 'datapusher'
     })
 
-    datapusher_url = config.get_value('ckan.datapusher.url')
+    datapusher_url = config.get('ckan.datapusher.url')
     if not datapusher_url:
         raise p.toolkit.ValidationError(
             {'configuration': ['ckan.datapusher.url not in config file']})
@@ -309,8 +314,9 @@ def datapusher_status(
     if job_id:
         url = urljoin(datapusher_url, 'job' + '/' + job_id)
         try:
+            timeout = config.get('ckan.requests.timeout')
             r = requests.get(url,
-                             timeout=TIMEOUT,
+                             timeout=timeout,
                              headers={'Content-Type': 'application/json',
                                       'Authorization': job_key})
             r.raise_for_status()

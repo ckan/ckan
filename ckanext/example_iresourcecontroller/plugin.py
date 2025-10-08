@@ -10,6 +10,7 @@ class ExampleIResourceControllerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IResourceController)
 
     def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self.counter = defaultdict(int)
 
     def before_resource_create(self, context: Any, resource: Any):

@@ -4,7 +4,7 @@ from __future__ import annotations
 import cgi
 import json
 import logging
-from typing import Any, cast, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -12,20 +12,20 @@ from flask.views import MethodView
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.lib import signals
-from ckan.common import _, g, request
+from ckan.common import _, config, g, request, current_user
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
 
-from ckan.types import Context, Response
+from ckan.types import Context, Response, ErrorDict
 
 Blueprint = flask.Blueprint
 NotFound = logic.NotFound
@@ -54,19 +54,32 @@ prefixed_resource = Blueprint(
 )
 
 
-def read(package_type: str, id: str, resource_id: str) -> str:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
+def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
+    context: Context = {
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
         u'for_view': True
-    })
+    }
 
     try:
         package = get_action(u'package_show')(context, {u'id': id})
-    except (NotFound, NotAuthorized):
+    except NotFound:
         return base.abort(404, _(u'Dataset not found'))
+    except NotAuthorized:
+        if config.get(u'ckan.auth.reveal_private_datasets'):
+            if current_user.is_authenticated:
+                return base.abort(
+                    403, _(u'Unauthorized to read resource %s') % resource_id)
+            else:
+                return h.redirect_to(
+                    "user.login",
+                    came_from=h.url_for(
+                        '{}_resource.read'.format(package_type),
+                        id=id, resource_id=resource_id))
+        return base.abort(
+            404,
+            _(u'Dataset not found')
+        )
 
     resource = None
     for res in package.get(u'resources', []):
@@ -81,7 +94,7 @@ def read(package_type: str, id: str, resource_id: str) -> str:
     try:
         package[u'isopen'] = model.Package.get_license_register()[license_id
                                                                   ].isopen()
-    except KeyError:
+    except (KeyError, AttributeError):
         package[u'isopen'] = False
 
     resource_views = get_action(u'resource_view_list')(
@@ -138,12 +151,10 @@ def download(package_type: str,
     Provides a direct download by either redirecting the user to the url
     stored or downloading an uploaded file directly.
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
-    })
+    context: Context = {
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
+    }
 
     try:
         rsc = get_action(u'resource_show')(context, {u'id': resource_id})
@@ -182,12 +193,10 @@ class CreateView(MethodView):
         del data[u'save']
         resource_id = data.pop(u'id')
 
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
-        })
+        context: Context = {
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
+        }
 
         # see if we have any data that we are trying to save
         data_provided = False
@@ -198,13 +207,19 @@ class CreateView(MethodView):
                 data_provided = True
                 break
 
-        if not data_provided and save_action != u"go-dataset-complete":
-            if save_action == u'go-dataset':
+        if not data_provided and save_action != "go-dataset-complete":
+            if save_action == 'again':
+                errors: dict[str, Any] = {}
+                error_summary = {_('Error'): _('No resource data entered')}
+                return self.get(package_type, id, data, errors, error_summary)
+            if save_action == 'go-dataset':
                 # go to final stage of adddataset
                 return h.redirect_to(u'{}.edit'.format(package_type), id=id)
-            # see if we have added any resources
             try:
-                data_dict = get_action(u'package_show')(context, {u'id': id})
+                get_action('package_patch')(
+                    logic.fresh_context(context),
+                    {'id': id, 'state': 'active'}
+                )
             except NotAuthorized:
                 return base.abort(403, _(u'Unauthorized to update dataset'))
             except NotFound:
@@ -212,21 +227,11 @@ class CreateView(MethodView):
                     404,
                     _(u'The dataset {id} could not be found.').format(id=id)
                 )
-            if not len(data_dict[u'resources']):
-                # no data so keep on page
-                msg = _(u'You must add at least one data resource')
-                # On new templates do not use flash message
-
-                errors: dict[str, Any] = {}
-                error_summary = {_(u'Error'): msg}
+            except ValidationError as e:
+                errors = cast(
+                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
+                error_summary = e.error_summary
                 return self.get(package_type, id, data, errors, error_summary)
-
-            # XXX race condition if another user edits/deletes
-            data_dict = get_action(u'package_show')(context, {u'id': id})
-            get_action(u'package_update')(
-                cast(Context, dict(context, allow_state_change=True)),
-                dict(data_dict, state=u'active')
-            )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
@@ -251,13 +256,33 @@ class CreateView(MethodView):
                 404, _(u'The dataset {id} could not be found.').format(id=id)
             )
         if save_action == u'go-metadata':
-            # XXX race condition if another user edits/deletes
+            try:
+                get_action('package_patch')(
+                    logic.fresh_context(context),
+                    {'id': id, 'state': 'active'}
+                )
+            except ValidationError as e:
+                errors = cast(
+                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
+                error_summary = e.error_summary
+                return self.get(package_type, id, data, errors, error_summary)
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+        elif save_action == u'go-metadata-preview':
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
-                cast(Context, dict(context, allow_state_change=True)),
+                Context(context, allow_state_change=True),
+                dict(data_dict, state=u'draft')
+            )
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
+        elif save_action == u'go-metadata-publish':
+            data_dict = get_action(u'package_show')(context, {u'id': id})
+            get_action(u'package_update')(
+                Context(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
         elif save_action == u'go-dataset':
             # go to first stage of add dataset
             return h.redirect_to(u'{}.edit'.format(package_type), id=id)
@@ -277,36 +302,33 @@ class CreateView(MethodView):
             data: Optional[dict[str, Any]] = None,
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
-        # get resources for sidebar
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
-        })
-        try:
-            pkg_dict = get_action(u'package_show')(context, {u'id': id})
-        except NotFound:
-            return base.abort(
-                404, _(u'The dataset {id} could not be found.').format(id=id)
-            )
+        context: Context = {
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
+        }
+
         try:
             check_access(
-                u'resource_create', context, {u"package_id": pkg_dict["id"]}
+                u'resource_create', context, {u"package_id": id}
             )
         except NotAuthorized:
             return base.abort(
                 403, _(u'Unauthorized to create a resource for this package')
             )
 
+        try:
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        except NotFound:
+            return base.abort(
+                404, _(u'The dataset {id} could not be found.').format(id=id)
+            )
+
         package_type = pkg_dict[u'type'] or package_type
 
-        errors = errors or {}
-        error_summary = error_summary or {}
         extra_vars: dict[str, Any] = {
             u'data': data,
-            u'errors': errors,
-            u'error_summary': error_summary,
+            u'errors': errors or {},
+            u'error_summary': error_summary or {},
             u'action': u'new',
             u'resource_form_snippet': _get_pkg_template(
                 u'resource_form', package_type
@@ -316,28 +338,29 @@ class CreateView(MethodView):
             u'pkg_dict': pkg_dict
         }
         template = u'package/new_resource_not_draft.html'
+
         if pkg_dict[u'state'].startswith(u'draft'):
             extra_vars[u'stage'] = ['complete', u'active']
             template = u'package/new_resource.html'
+
         return base.render(template, extra_vars)
 
 
 class EditView(MethodView):
     def _prepare(self, id: str):
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        user = current_user.name
+        context: Context = {
             u'api_version': 3,
             u'for_edit': True,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
-        })
+            u'user': user,
+            u'auth_user_obj': current_user
+        }
         try:
             check_access(u'package_update', context, {u'id': id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
         return context
 
@@ -427,20 +450,20 @@ class EditView(MethodView):
 
 
 class DeleteView(MethodView):
-    def _prepare(self, id: str):
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
-        })
+    def _prepare(self, resource_id: str):
+        context: Context = {
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
+        }
         try:
-            check_access(u'package_delete', context, {u'id': id})
+            check_access(u'resource_delete', context, {u'id': resource_id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'Unauthorized to delete package %s') % u''
+                _(u'Unauthorized to delete resource %s') % u''
             )
+        except NotFound:
+            return base.abort(404, _(u'Resource not found'))
         return context
 
     def post(self, package_type: str, id: str, resource_id: str) -> Response:
@@ -449,7 +472,7 @@ class DeleteView(MethodView):
                 u'{}_resource.edit'.format(package_type),
                 resource_id=resource_id, id=id
             )
-        context = self._prepare(id)
+        context = self._prepare(resource_id)
 
         try:
             get_action(u'resource_delete')(context, {u'id': resource_id})
@@ -471,7 +494,7 @@ class DeleteView(MethodView):
             return base.abort(404, _(u'Resource not found'))
 
     def get(self, package_type: str, id: str, resource_id: str) -> str:
-        context = self._prepare(id)
+        context = self._prepare(resource_id)
         try:
             resource_dict = get_action(u'resource_show')(
                 context, {
@@ -502,13 +525,11 @@ class DeleteView(MethodView):
 
 def views(package_type: str, id: str, resource_id: str) -> str:
     package_type = _get_package_type(id)
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
+    context: Context = {
+        u'user': current_user.name,
         u'for_view': True,
-        u'auth_user_obj': g.userobj
-    })
+        u'auth_user_obj': current_user
+    }
     data_dict = {u'id': id}
 
     try:
@@ -516,7 +537,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (g.user, id)
+            _(u'User %r not authorized to edit %s') % (current_user.name, id)
         )
     # check if package exists
     try:
@@ -565,14 +586,12 @@ def view(package_type: str,
 
     Depending on the type, different views are loaded. This could be an
     img tag where the image is loaded directly or an iframe that embeds a
-    webpage or a recline preview.
+    webpage or another preview.
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
-    })
+    context: Context = {
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
+    }
 
     try:
         package = get_action(u'package_show')(context, {u'id': id})
@@ -606,21 +625,20 @@ def view(package_type: str,
 class EditResourceViewView(MethodView):
     def _prepare(
             self, id: str, resource_id: str) -> tuple[Context, dict[str, Any]]:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
+        user = current_user.name
+        context: Context = {
+            u'user': user,
             u'for_view': True,
-            u'auth_user_obj': g.userobj
-        })
+            u'auth_user_obj': current_user
+        }
 
-        # update resource should tell us early if the user has privilages.
+        # update resource should tell us early if the user has privileges.
         try:
             check_access(u'resource_update', context, {u'id': resource_id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
 
         # get resource and package data
@@ -810,3 +828,6 @@ def register_dataset_plugin_rules(blueprint: Blueprint) -> None:
 
 register_dataset_plugin_rules(resource)
 register_dataset_plugin_rules(prefixed_resource)
+# remove this when we improve blueprint registration to be explicit:
+resource.auto_register = False  # type: ignore
+prefixed_resource.auto_register = False  # type: ignore

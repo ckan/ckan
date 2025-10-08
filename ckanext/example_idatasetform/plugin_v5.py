@@ -5,7 +5,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
 
-class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
+class ExampleIDatasetFormPlugin(tk.DefaultDatasetForm, p.SingletonPlugin):
     p.implements(p.IDatasetForm)
 
     def create_package_schema(self) -> Schema:
@@ -17,6 +17,12 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
             u'custom_text': [tk.get_validator(u'ignore_missing'),
                              tk.get_converter(u'convert_to_extras')]
         })
+        schema.update({
+            u'custom_number': [tk.get_validator(u'ignore_missing'),
+                               tk.get_converter(u'convert_to_extras'),
+                               tk.get_validator('int_validator')]
+        })
+
         return schema
 
     def update_package_schema(self) -> Schema:
@@ -27,6 +33,11 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
             u'custom_text': [tk.get_validator(u'ignore_missing'),
                              tk.get_converter(u'convert_to_extras')]
         })
+        schema.update({
+            u'custom_number': [tk.get_validator(u'ignore_missing'),
+                               tk.get_converter(u'convert_to_extras')]
+        })
+
         return schema
 
     def show_package_schema(self) -> Schema:
@@ -37,6 +48,10 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
                              tk.get_validator(u'ignore_missing')],
             u'custom_text_2': [tk.get_converter(u'convert_from_extras'),
                                tk.get_validator(u'ignore_missing')],
+            u'custom_number': [tk.get_converter(u'convert_from_extras'),
+                               tk.get_validator(u'ignore_missing'),
+                               tk.get_validator('int_validator')],
+
         })
         return schema
 

@@ -17,7 +17,7 @@ class TestTextView(object):
 
     def test_can_view(self):
         p = plugin.TextView()
-        url_same_domain = urljoin(config.get_value('ckan.site_url'), '/resource.txt')
+        url_same_domain = urljoin(config.get('ckan.site_url'), '/resource.txt')
         url_different_domain = 'http://some.com/resource.txt'
 
         data_dict = {'resource': {'format': 'jsonp',
@@ -41,7 +41,7 @@ class TestTextView(object):
 
         assert not p.can_view(data_dict)
 
-    @pytest.mark.usefixtures("non_clean_db", "with_request_context")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_title_description_iframe_shown(self, app, create_with_upload):
         package = factories.Dataset()
         resource = create_with_upload("hello world", "file.txt", package_id=package["id"])
@@ -54,7 +54,7 @@ class TestTextView(object):
         assert resource_view['description'] in result
         assert 'data-module="data-viewer"' in result.body
 
-    @pytest.mark.usefixtures("non_clean_db", "with_request_context")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_js_included(self, app, create_with_upload):
         package = factories.Dataset()
         resource = create_with_upload("hello world", "file.txt", package_id=package["id"])

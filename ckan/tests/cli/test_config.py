@@ -17,7 +17,6 @@ def command(cli):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestDescribe(object):
     def test_basic_invocation(self, command):
         """Command prints nothing without arguments;"""
@@ -89,6 +88,11 @@ class TestDescribe(object):
                             "description": mock.ANY,
                         },
                         {
+                            "key": "ckan.datapusher.api_token",
+                            "description": mock.ANY,
+                        },
+
+                        {
                             "key": "ckan.datapusher.callback_url_base",
                             "description": mock.ANY,
                             "placeholder": "%(ckan.site_url)s",
@@ -106,7 +110,6 @@ class TestDescribe(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestDeclaration(object):
     def test_basic_invocation(self, command):
         result = command("declaration")
@@ -143,7 +146,45 @@ class TestDeclaration(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
+class TestDocs(object):
+    def test_basic_invocation(self, command):
+        result = command("docs")
+        assert not result.output
+        assert not result.exit_code, result.output
+
+    def test_core(self, command):
+        result = command("docs", "--core")
+        assert result.output.startswith(".. _default-settings:")
+        assert not result.exit_code, result.output
+
+    def test_core_format(self, command):
+        result = command("docs", "--core", "--format", "md")
+        assert result.output.startswith("### Default settings")
+        assert not result.exit_code, result.output
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_enabled(self, command):
+        result = command("docs", "--enabled", "--format", "md")
+        assert "### Datastore settings" in result.output
+        assert (
+            "Default value: `postgresql://ckan_default:pass@localhost/datastore_default`"
+            in result.output
+        )
+        assert not result.exit_code, result.output
+
+    def test_explicit(self, command):
+        result = command("docs", "datastore", "--format", "md")
+        assert "### Datastore settings" in result.output
+        assert "Datastore settings" in result.output
+        assert (
+            "Default value: `postgresql://ckan_default:pass@localhost/datastore_default`"
+            in result.output
+        )
+        assert not result.exit_code, result.output
+
+
+@pytest.mark.usefixtures("with_extended_cli")
 class TestSearch(object):
     def test_wrong_non_pattern(self, command):
         result = command("search", "ckan")
@@ -190,11 +231,9 @@ class TestSearch(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestUndeclared(object):
     def test_no_undeclared_options_by_default(self, command):
         result = command("undeclared", "-idatapusher", "-idatastore")
-
         assert not result.output
         assert not result.exit_code, result.output
 
@@ -222,21 +261,13 @@ class TestUndeclared(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestValidate(object):
     def test_no_errors_by_default_in_safe_mofe(self, command):
         result = command("validate")
         assert not result.output
         assert not result.exit_code, result.output
 
-    @pytest.mark.ckan_config("beaker.session.secret", "")
-    def test_report_missing_use(self, command, capsys):
-        result = command("validate")
-        assert result.exit_code, result
-        assert "beaker.session.secret" in result.exception.args[0]
-
     @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
-    def test_invalid_port(self, command):
+    def test_invalid_port_prevents_application_initialization(self, command):
         result = command("validate")
         assert result.exit_code, result.stdout
-        assert "ckan.devserver.port" in result.exception.args[0]

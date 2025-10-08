@@ -20,8 +20,22 @@ def _clear_activities():
     model.Session.flush()
 
 
-@pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+def assert_user_link_in_response(user, response):
+    assert (
+        '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+        in response
+    )
+
+
+def assert_group_link_in_response(group, response):
+    assert (
+        '<a href="/{0}/{1}" title="{2}">{2}'.format(group["type"], group["name"], group["title"])
+        in response
+    )
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity example_igroupform")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestOrganization(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -32,6 +46,18 @@ class TestOrganization(object):
         response = app.get(url)
         assert user["fullname"] in response
         assert "created the organization" in response
+        assert_group_link_in_response(org, response)
+
+    def test_simple_for_custom_org_type(self, app):
+        """Checking the template shows the activity stream."""
+        user = factories.User()
+        org = factories.Organization(user=user, type="grup")
+
+        url = url_for("activity.organization_activity", id=org["id"])
+        response = app.get(url)
+        assert user["fullname"] in response
+        assert "created the organization" in response
+        assert_group_link_in_response(org, response)
 
     def test_create_organization(self, app):
         user = factories.User()
@@ -39,15 +65,9 @@ class TestOrganization(object):
 
         url = url_for("activity.organization_activity", id=org["id"])
         response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "created the organization" in response
-        assert (
-            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
-            in response
-        )
+        assert_group_link_in_response(org, response)
 
     def test_change_organization(self, app):
         user = factories.User()
@@ -60,19 +80,12 @@ class TestOrganization(object):
 
         url = url_for("activity.organization_activity", id=org["id"])
         response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the organization" in response
-        assert (
-            '<a href="/organization/{}">Organization with changed title'
-            .format(org["name"])
-            in response
-        )
+        assert_group_link_in_response(org, response)
 
     def test_delete_org_using_organization_delete(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         org = factories.Organization(user=user)
         _clear_activities()
         helpers.call_action(
@@ -80,8 +93,8 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"]}
-        app.get(url, extra_environ=env, status=404)
+        headers = {"Authorization": user["token"]}
+        app.get(url, headers=headers, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
         # Therefore you can't render the activity stream of that org. You'd
@@ -89,7 +102,7 @@ class TestOrganization(object):
         # state=deleted but they are not...
 
     def test_delete_org_by_updating_state(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         org = factories.Organization(user=user)
         _clear_activities()
         org["state"] = "deleted"
@@ -98,17 +111,11 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"]}
-        response = app.get(url, extra_environ=env)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
+        assert_user_link_in_response(user, response)
         assert "deleted the organization" in response
-        assert (
-            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
-            in response
-        )
+        assert_group_link_in_response(org, response)
 
     def test_create_dataset(self, app):
         user = factories.User()
@@ -120,10 +127,7 @@ class TestOrganization(object):
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -142,17 +146,14 @@ class TestOrganization(object):
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
+        user = factories.UserWithToken()
+        org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
         helpers.call_action(
@@ -160,20 +161,18 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestUser:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -191,10 +190,7 @@ class TestUser:
 
         url = url_for("activity.user_activity", id=user["id"])
         response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "signed up" in response
 
     def test_change_user(self, app):
@@ -208,10 +204,7 @@ class TestUser:
 
         url = url_for("activity.user_activity", id=user["id"])
         response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated their profile" in response
 
     def test_create_dataset(self, app):
@@ -224,10 +217,7 @@ class TestUser:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -247,17 +237,13 @@ class TestUser:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
 
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-
-        user = factories.User()
+        user = factories.UserWithToken()
         dataset = factories.Dataset(user=user)
         _clear_activities()
         helpers.call_action(
@@ -265,14 +251,11 @@ class TestUser:
         )
 
         url = url_for("activity.user_activity", id=user["id"])
-        env = {"REMOTE_USER": user["name"]}
-        response = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -287,10 +270,7 @@ class TestUser:
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
 
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "created the group" in response
         assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert group["title"] in href.text.strip()
@@ -309,10 +289,7 @@ class TestUser:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the group" in response
         assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert group["title"] in href.text.strip()
@@ -330,17 +307,14 @@ class TestUser:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "deleted the group" in response
         assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert group["title"] in href.text.strip()
 
     def test_delete_group_by_updating_state(self, app):
 
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         _clear_activities()
         group["state"] = "deleted"
@@ -349,21 +323,15 @@ class TestUser:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"]}
-        response = app.get(url, extra_environ=env)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
+        assert_user_link_in_response(user, response)
         assert "deleted the group" in response
-        assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"])
-            in response
-        )
+        assert_group_link_in_response(group, response)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestPackage:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -385,10 +353,7 @@ class TestPackage:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
 
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -407,10 +372,7 @@ class TestPackage:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -429,10 +391,7 @@ class TestPackage:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -456,10 +415,7 @@ class TestPackage:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -483,10 +439,7 @@ class TestPackage:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -513,10 +466,7 @@ class TestPackage:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
 
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -545,10 +495,7 @@ class TestPackage:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -560,8 +507,8 @@ class TestPackage:
         assert len(activities) == 1
 
     def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
+        user = factories.UserWithToken()
+        org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
         helpers.call_action(
@@ -569,26 +516,24 @@ class TestPackage:
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
 
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
     def test_admin_can_see_old_versions(self, app):
 
-        user = factories.User()
-        env = {"REMOTE_USER": user["name"]}
+        user = factories.UserWithToken()
+        headers = {"Authorization": user["token"]}
         dataset = factories.Dataset(user=user)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(url, extra_environ=env)
+        response = app.get(url, headers=headers)
         assert "View this version" in response
 
     def test_public_cant_see_old_versions(self, app):
@@ -602,20 +547,24 @@ class TestPackage:
 
     def test_admin_can_see_changes(self, app):
 
-        user = factories.User()
-        env = {"REMOTE_USER": user["name"]}
+        user = factories.UserWithToken()
+        headers = {"Authorization": user["token"]}
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(url, extra_environ=env)
+        response = app.get(url, headers=headers)
         assert "Changes" in response
 
     def test_public_cant_see_changes(self, app):
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action(
+            "package_update",
+            {"user": dataset["creator_user_id"]},
+            **dataset
+        )
 
         url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url)
@@ -634,7 +583,8 @@ class TestPackage:
     def test_custom_activity(self, app):
         """Render a custom activity"""
 
-        user = factories.User()
+        user = factories.UserWithToken()
+        headers = {"Authorization": user["token"]}
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
@@ -659,11 +609,8 @@ class TestPackage:
         helpers.call_action("activity_create", **activity_dict)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        response = app.get(url, headers=headers)
+        assert_user_link_in_response(user, response)
         # it renders the activity with fallback.html, since we've not defined
         # changed_datastore.html in this case
         assert "changed datastore" in response
@@ -675,8 +622,8 @@ class TestPackage:
             dataset["id"], limit=1, offset=0
         )[0]
         # view as an admin because viewing the old versions of a dataset
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"]}
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
         response = app.get(
             url_for(
                 "activity.package_history",
@@ -684,7 +631,7 @@ class TestPackage:
                 activity_id=activity.id,
             ),
             status=302,
-            extra_environ=env,
+            headers=headers,
             follow_redirects=False,
         )
         expected_path = url_for(
@@ -703,17 +650,21 @@ class TestPackage:
             .one()
         )
         dataset["title"] = "Changed title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action(
+            "package_update",
+            {"user": dataset["creator_user_id"]},
+            **dataset
+        )
 
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"]}
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
         response = app.get(
             url_for(
                 "activity.package_history",
                 id=dataset["name"],
                 activity_id=activity.id,
             ),
-            extra_environ=env,
+            headers=headers,
         )
         assert helpers.body_contains(response, "Original title")
 
@@ -753,34 +704,158 @@ class TestPackage:
         )
         model.Session.add(activity)
 
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"]}
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
         app.get(
             url_for(
                 "activity.package_history",
                 id=dataset["name"],
                 activity_id=activity.id,
             ),
-            extra_environ=env,
+            headers=headers,
             status=404,
         )
 
+    def test_read_dataset_as_it_used_to_be_after_deleting_resource(self, app):
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"])
+        activity_list = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .all()
+        )
+        # Get latest activity (creating the resource)
+        activity = activity_list[-1]
+
+        helpers.call_action(
+            "resource_delete",
+            context={"user": dataset["creator_user_id"]},
+            id=resource["id"],
+        )
+
+        # View as a sysadmin so we can see old versions of the dataset
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.package_history",
+                id=dataset["name"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert helpers.body_contains(response, "Dataset title")
+        assert helpers.body_contains(response, resource["name"])
+
+    @pytest.mark.flaky(retries=3, delay=1)
+    def test_read_resource_as_it_used_to_be(self, app):
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"], name="Original name")
+        activity_list = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .all()
+        )
+        # Get latest activity (creating the resource)
+        activity = activity_list[-1]
+
+        helpers.call_action(
+            "resource_update",
+            context={"user": dataset["creator_user_id"]},
+            id=resource["id"],
+            name="Updated name",
+            package_id=dataset["id"],
+        )
+
+        # View as a sysadmin so we can see old versions of the dataset
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.resource_history",
+                id=dataset["name"],
+                resource_id=resource["id"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert helpers.body_contains(response, "Original name")
+
+    def test_read_deleted_resource_as_it_used_to_be(self, app):
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"])
+        activity_list = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .all()
+        )
+        # Get latest activity (creating the resource)
+        activity = activity_list[-1]
+
+        helpers.call_action(
+            "resource_delete",
+            context={"user": dataset["creator_user_id"]},
+            id=resource["id"],
+        )
+
+        # View as a sysadmin so we can see old versions of the dataset
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.resource_history",
+                id=dataset["name"],
+                resource_id=resource["id"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert helpers.body_contains(response, resource["name"])
+
     def test_changes(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         dataset = factories.Dataset(title="First title", user=user)
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]
-        env = {"REMOTE_USER": user["name"]}
+        headers = {"Authorization": user["token"]}
         response = app.get(
             url_for("activity.package_changes", id=activity.id),
-            extra_environ=env,
+            headers=headers,
         )
         assert helpers.body_contains(response, "First")
         assert helpers.body_contains(response, "Second")
+
+    def test_changes_with_new_resource(self, app):
+        user = factories.User()
+        token = factories.APIToken(user=user["name"])
+        dataset = factories.Dataset(title="First title", user=user)
+        resource_name = "Image 1"
+        helpers.call_action(
+            "package_patch",
+            {"user": user["name"]},
+            id=dataset["id"],
+            resources=[
+                {
+                    "url": "http://example.com/image.png",
+                    "format": "png",
+                    "name": resource_name,
+                }
+            ],
+        )
+
+        activity = activity_model.package_activity_list(
+            dataset["id"], limit=1, offset=0
+        )[0]
+        response = app.get(
+            url_for("activity.package_changes", id=activity.id),
+            headers={"Authorization": token["token"]},
+        )
+        assert helpers.body_contains(response, "Added resource")
+        assert helpers.body_contains(response, resource_name)
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_invalid_get_params(self, app):
@@ -793,17 +868,17 @@ class TestPackage:
         assert "Invalid parameters" in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
-    def test_next_page_button(self, app):
+    def test_older_activities_url_button(self, app):
 
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Third title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Fourth title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url)
@@ -814,14 +889,15 @@ class TestPackage:
         before_time = datetime.fromisoformat(activities[2]["timestamp"])
 
         # Next page button
-        next_page_url = "/dataset/activity/{}?before={}".format(
+        older_activities_url_url = "/dataset/activity/{}?before={}".format(
             dataset["id"], before_time.timestamp()
         )
-        assert next_page_url in response.body
+        assert older_activities_url_url in response.body
 
         # Prev page button is not in the first page
-        prev_page_url = "/dataset/activity/{}?after=".format(dataset["id"])
-        assert prev_page_url not in response.body
+        newer_activities_url_url = "/dataset/activity/{}?after=".format(
+            dataset["id"])
+        assert newer_activities_url_url not in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_next_before_buttons(self, app):
@@ -830,17 +906,17 @@ class TestPackage:
         dataset = factories.Dataset(user=user)
 
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Third title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "4th title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "5th title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "6th title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "7h title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         db_activities = activity_model.package_activity_list(
             dataset["id"], limit=10
@@ -858,28 +934,28 @@ class TestPackage:
         )
 
         # Next page button exists in page 2
-        next_page_url = "/dataset/activity/{}?before={}".format(
+        older_activities_url_url = "/dataset/activity/{}?before={}".format(
             dataset["id"], db_activities[5].timestamp.timestamp()
         )
-        assert next_page_url in response.body
+        assert older_activities_url_url in response.body
         # Prev page button exists in page 2
-        prev_page_url = "/dataset/activity/{}?after={}".format(
+        newer_activities_url_url = "/dataset/activity/{}?after={}".format(
             dataset["id"], db_activities[3].timestamp.timestamp()
         )
-        assert prev_page_url in response.body
+        assert newer_activities_url_url in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
-    def test_prev_page_button(self, app):
+    def test_newer_activities_url_button(self, app):
 
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Third title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Fourth title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"], limit=10
@@ -893,19 +969,20 @@ class TestPackage:
         )
 
         # There's not a third page
-        next_page_url = "/dataset/activity/{}?before=".format(dataset["name"])
-        assert next_page_url not in response.body
+        older_activities_url_url = "/dataset/activity/{}?before=".format(
+            dataset["name"])
+        assert older_activities_url_url not in response.body
 
         # previous page exists
         after_time = datetime.fromisoformat(activities[3]["timestamp"])
-        prev_page_url = "/dataset/activity/{}?after={}".format(
+        newer_activities_url_url = "/dataset/activity/{}?after={}".format(
             dataset["id"], after_time.timestamp()
         )
-        assert prev_page_url in response.body
+        assert newer_activities_url_url in response.body
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestGroup:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -923,15 +1000,9 @@ class TestGroup:
 
         url = url_for("activity.group_activity", id=group["id"])
         response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "created the group" in response
-        assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"])
-            in response
-        )
+        assert_group_link_in_response(group, response)
 
     def test_change_group(self, app):
         user = factories.User()
@@ -944,18 +1015,12 @@ class TestGroup:
 
         url = url_for("activity.group_activity", id=group["id"])
         response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the group" in response
-        assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"])
-            in response
-        )
+        assert_group_link_in_response(group, response)
 
     def test_delete_group_using_group_delete(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         _clear_activities()
         helpers.call_action(
@@ -963,8 +1028,8 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"]}
-        app.get(url, extra_environ=env, status=404)
+        headers = {"Authorization": user["token"]}
+        app.get(url, headers=headers, status=404)
         # group_delete causes the Member to state=deleted and then the user
         # doesn't have permission to see their own deleted Group. Therefore you
         # can't render the activity stream of that group. You'd hope that
@@ -972,7 +1037,7 @@ class TestGroup:
         # not...
 
     def test_delete_group_by_updating_state(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         _clear_activities()
         group["state"] = "deleted"
@@ -981,17 +1046,11 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"]}
-        response = app.get(url, extra_environ=env)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
+        assert_user_link_in_response(user, response)
         assert "deleted the group" in response
-        assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"])
-            in response
-        )
+        assert_group_link_in_response(group, response)
 
     def test_create_dataset(self, app):
         user = factories.User()
@@ -1003,10 +1062,7 @@ class TestGroup:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
@@ -1026,16 +1082,13 @@ class TestGroup:
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         _clear_activities()
@@ -1044,13 +1097,11 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
+        assert_user_link_in_response(user, response)
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()

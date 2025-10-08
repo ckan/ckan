@@ -58,10 +58,6 @@
     background-color: $resourceFormatBackground;
 }
 
-.dataset-heading .popular {
-    top: 0;
-}
-
 // Resource List
 .resource-list {
     @include list-unstyled;
@@ -155,17 +151,14 @@
 // Dataset Forms
 // Tag List
 .tag-list {
-    @include list-unstyled;
     padding: 10px 10px 5px 10px;
-    @extend .card;
-    @extend .card-body;
     background-color: $gray-100;
-    margin-bottom: $paragraph-margin-bottom;
+    border: 1px solid $genericBorderColor;
+    border-radius: 0.25rem;
 }
 
 .tag-list li {
     display: inline-block;
-    margin-right: 5px;
 }
 
 .tag-list li:last-child {
@@ -232,7 +225,7 @@
     background-color: #0b4498;
 }
 
-.badge-default[href]:hover, 
+.badge-default[href]:hover,
 .badge-default[href]:focus {
     background-color: #5e5e5e;
     color: $white;

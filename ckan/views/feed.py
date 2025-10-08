@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import json
 import unicodedata
-from typing import Optional, cast, Any
+from typing import Optional, Any
 
 
 from urllib.parse import urlparse
@@ -12,10 +12,10 @@ from flask import Blueprint, make_response
 
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
-from ckan.common import _, config, g, request
-import ckan.lib.helpers as h
+from ckan.common import _, config, request, current_user
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import _url_with_params
 import ckan.lib.base as base
-import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.types import Context, DataDict, PFeedFactory, Response
@@ -32,17 +32,15 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
      * unless overridden, sorts results by metadata_modified date
      * unless overridden, sets a default item limit
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
-    })
+    context: Context = {
+        'user': current_user.name,
+        'auth_user_obj': current_user
+    }
     if u'sort' not in data_dict or not data_dict['sort']:
         data_dict['sort'] = u'metadata_modified desc'
 
     if u'rows' not in data_dict or not data_dict['rows']:
-        data_dict['rows'] = config.get_value('ckan.feeds.limit')
+        data_dict['rows'] = config.get('ckan.feeds.limit')
 
     # package_search action modifies the data_dict, so keep our copy intact.
     query = logic.get_action(u'package_search')(context, data_dict.copy())
@@ -106,8 +104,8 @@ class CKANFeed(FeedGenerator):
                 continue
             self.link(href=href, rel=rel)
 
-    def writeString(self, encoding: str) -> str:  # noqa
-        return cast(str, self.atom_str(encoding=encoding))
+    def writeString(self, encoding: str) -> str:
+        return self.atom_str(encoding=encoding)
 
     def add_item(self, **kwargs: Any) -> None:
         entry = self.add_entry()
@@ -136,8 +134,8 @@ def output_feed(
         results: list[dict[str, Any]], feed_title: str, feed_description: str,
         feed_link: str, feed_url: str, navigation_urls: dict[str, str],
         feed_guid: str) -> Response:
-    author_name = config.get_value(u'ckan.feeds.author_name').strip() or \
-        config.get_value(u'ckan.site_id').strip()
+    author_name = config.get(u'ckan.feeds.author_name').strip() or \
+        config.get(u'ckan.site_id').strip()
 
     def remove_control_characters(s: str):
         if not s:
@@ -196,12 +194,10 @@ def output_feed(
 
 def group(id: str) -> Response:
     try:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
-        })
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user
+        }
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
     except logic.NotFound:
         base.abort(404, _(u'Group not found'))
@@ -213,12 +209,10 @@ def group(id: str) -> Response:
 
 def organization(id: str) -> Response:
     try:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
-        })
+        context: Context = {
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
+        }
         group_dict = logic.get_action(u'organization_show')(context, {
             u'id': id
         })
@@ -248,7 +242,7 @@ def tag(id: str) -> Response:
 
     alternate_url = _alternate_url(params, tags=id)
 
-    site_title = config.get_value(u'ckan.site_title')
+    site_title = config.get(u'ckan.site_title')
     title = u'%s - Tag: "%s"' % (site_title, id)
     desc = u'Recently created or updated datasets on %s by tag: "%s"' % \
            (site_title, id)
@@ -277,7 +271,7 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
 
     data_dict['fq'] = u'{0}: "{1}"'.format(key, value)
     item_count, results = _package_search(data_dict)
-    site_title = config.get_value(u'ckan.site_title')
+    site_title = config.get(u'ckan.site_title')
 
     navigation_urls = _navigation_urls(
         params,
@@ -323,7 +317,7 @@ def _parse_url_params() -> tuple[dict[str, Any], dict[str, Any]]:
     """
     page = h.get_page_number(request.args)
 
-    limit = config.get_value('ckan.feeds.limit')
+    limit = config.get('ckan.feeds.limit')
     data_dict = {u'start': (page - 1) * limit, u'rows': limit}
 
     # Filter ignored query parameters
@@ -352,7 +346,7 @@ def general() -> Response:
 
     guid = _create_atom_id(u'/feeds/dataset.atom')
 
-    site_title = config.get_value(u'ckan.site_title')
+    site_title = config.get(u'ckan.site_title')
     desc = u'Recently created or updated datasets on %s' % site_title
 
     return output_feed(
@@ -381,7 +375,7 @@ def custom() -> Response:
 
     page = h.get_page_number(request.args)
 
-    limit = config.get_value('ckan.feeds.limit')
+    limit = config.get('ckan.feeds.limit')
     data_dict: dict[str, Any] = {
         u'q': q,
         u'fq': fq,
@@ -401,10 +395,10 @@ def custom() -> Response:
 
     feed_url = _feed_url(request.args, controller=u'feeds', action=u'custom')
 
-    atom_url = h._url_with_params(u'/feeds/custom.atom', search_params.items())
+    atom_url = _url_with_params(u'/feeds/custom.atom', search_params.items())
 
     alternate_url = _alternate_url(request.args)
-    site_title = config.get_value(u'ckan.site_title')
+    site_title = config.get(u'ckan.site_title')
     return output_feed(
         results,
         feed_title=u'%s - Custom query' % site_title,
@@ -553,9 +547,9 @@ def _create_atom_id(resource_path: str,
     [4] http://www.ietf.org/rfc/rfc4287
     """
     if authority_name is None:
-        authority_name = config.get_value(u'ckan.feeds.authority_name')
+        authority_name = config.get(u'ckan.feeds.authority_name')
         if not authority_name:
-            site_url = config.get_value(u'ckan.site_url')
+            site_url = config.get(u'ckan.site_url')
             authority_name = urlparse(site_url).netloc
 
     if not authority_name:
@@ -563,7 +557,7 @@ def _create_atom_id(resource_path: str,
                     'Generated feed will be invalid.')
         authority_name = ''
     if date_string is None:
-        date_string = config.get_value(u'ckan.feeds.date')
+        date_string = config.get(u'ckan.feeds.date')
 
     if not date_string:
         log.warning(u'No date_string available for feed generation.  '
@@ -572,7 +566,7 @@ def _create_atom_id(resource_path: str,
         # Don't generate a tagURI without a date as it wouldn't be valid.
         # This is best we can do, and if the site_url is not set, then
         # this still results in an invalid feed.
-        site_url = config.get_value(u'ckan.site_url')
+        site_url = config.get(u'ckan.site_url')
         return u''.join([site_url, resource_path])
 
     tagging_entity = u','.join([authority_name, date_string])

@@ -1,8 +1,9 @@
 {% set dataset_type = h.default_package_type() %}
 
 {% block info %}
-<div class="module context-info">
-  <section class="module-content">
+<section id="group-info" class="module module-narrow">
+  <div class="module context-info">
+    <div class="module-content">
     {% block inner %}
     {% block image %}
     <div class="image">
@@ -31,24 +32,33 @@
     {% endblock %}
     {% if show_nums %}
       {% block nums %}
+      {% set num_followers = h.follow_count('group', group.id) %}
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd data-module="followers-counter" data-module-id="{{ group.id }}" data-module-num_followers="{{ group.num_followers }}">{{ h.SI_number_span(group.num_followers) }}</dd>
+          <dd>{{ h.SI_number_span(num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
           <dd>{{ h.SI_number_span(group.package_count) }}</dd>
         </dl>
+        <dl>
+          <dt>{{ _('Members') }}</dt>
+          <dd>{{ h.member_count(group.id) }}</dd>
+        </dl>
       </div>
       {% endblock %}
       {% block follow %}
-      <div class="follow_button">
-        {{ h.follow_button('group', group.id) }}
-      </div>
+        {% if current_user.is_authenticated %}
+          {% if error_message %}
+            <div class="alert alert-danger">{{ error_message }}</div>
+          {% endif %}
+          {% snippet 'snippets/follow_button.html', am_following=am_following, obj_type='group', obj_id=group.id %}
+        {% endif %}
       {% endblock %}
     {% endif %}
     {% endblock %}
-  </section>
-</div>
+    </div>
+  </div>
+</section>
 {% endblock %}

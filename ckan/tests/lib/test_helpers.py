@@ -2,8 +2,8 @@
 
 import datetime
 import hashlib
-import six
 import os
+import sys
 
 import pytz
 import tzlocal
@@ -12,6 +12,7 @@ import flask_babel
 
 import pytest
 
+from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
 import ckan.exceptions
 from ckan.tests import helpers, factories
@@ -151,7 +152,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         assert generated_url == url
 
     @pytest.mark.ckan_config("debug", True)
-    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
     @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
     def test_debugtoolbar_url(self, ckan_config):
         # test against built-in `url_for`, that is used by debugtoolbar ext.
@@ -325,12 +325,12 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"test-tag" foobar',
-                '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test-tag">tag:"test-tag"</a> foobar</p>',
                 False,
             ),
             (
                 'tag:"test tag" foobar',
-                '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test+tag">tag:"test tag"</a> foobar</p>',
                 False,
             ),
             (
@@ -347,7 +347,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"Test- _." foobar',
-                '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>',
                 False,
             ),
             (
@@ -357,7 +357,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 u'tag:"Japanese katakana \u30a1" blah',
-                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
+                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:"Japanese katakana \u30a1"</a> blah</p>',
                 False,
             ),
             (
@@ -399,7 +399,7 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>'
         assert h.render_markdown(data) == output
 
     def test_tag_names_do_not_match_commas(self):
@@ -494,7 +494,7 @@ class TestGetDisplayTimezone(object):
         (
             datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
             {"with_seconds": True},
-            "April 13, 2008 at 8:40:59 PM UTC",
+            "April 13, 2008, 8:40:59\u202fPM UTC",
         ),
         ("2008-04-13T20:40:20.123456", {}, "April 13, 2008"),
         (None, {}, ""),
@@ -634,7 +634,7 @@ class TestBuildNavMain(object):
         with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
             menu = (
                 ("home.index", "Home"),
-                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("dataset.search", "Datasets", ['dataset', 'resource', 'dataset_resource']),
                 ("organization.index", "Organizations"),
                 ("group.index", "Groups"),
                 ("home.about", "About"),
@@ -655,8 +655,8 @@ class TestBuildNavMain(object):
         link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
 
     def test_build_nav_icon(self):
-        link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil-square-o')
-        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
+        link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil')
+        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i> Edit</a></li>'
 
 
 class TestRemoveUrlParam:
@@ -705,8 +705,11 @@ def test_sanitize_url():
         u'http://example.com/some-path/to_a/file.jpg'
     ) == u'http://example.com/some-path/to_a/file.jpg'
     assert h.sanitize_url(
-        u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
-    ) == u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+        u'sh+eme://host:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://host:12345/a/path?a=b&c=d'
+    assert h.sanitize_url(
+        u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
     assert h.sanitize_url(
         u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
     ) == u'http://éxàmple.com/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
@@ -738,17 +741,30 @@ Notes: this is the classic RDF source but historically has had some problems wit
     ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
     ("2008-04-13T20:40:20", datetime.datetime(2008, 4, 13, 20, 40, 20)),
     ("2008-04-13T20:40:20.1234", datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)),
+    (
+        "2008-04-13T20:40:20.123-01:30",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, 123000, datetime.timezone(
+            -datetime.timedelta(minutes=90)
+        ))),
+    pytest.param(
+        "2008-04-13T20:40:20-0130",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, tzinfo=datetime.timezone(
+            datetime.timedelta(days=-1, seconds=81000))),
+        marks=pytest.mark.skipif(sys.version_info < (3, 11), reason="This is invalid in py<3.11")
+    )
 ])
-def test_date_str_to_datetime_valid(string, date):
+def test_date_str_to_datetime_valid(string: str, date: datetime.datetime):
     assert h.date_str_to_datetime(string) == date
 
 
 @pytest.mark.parametrize("string", [
-    "2008-04-13T20:40:20-01:30",
-    "2008-04-13T20:40:20-0130",
-    "2008-04-13T20:40:20foobar",
+    pytest.param(
+        "2008-04-13T20:40:20-0130",  # no `:` in timezone
+        marks=pytest.mark.skipif(sys.version_info >= (3, 11), reason="This is valid in py>=3.11"),
+    ),
+    "2008-04-13T20:40:20foobar",  # cannot parse the rest as milliseconds
 ])
-def test_date_str_to_datetime_invalid(string):
+def test_date_str_to_datetime_invalid(string: str):
     with pytest.raises(ValueError):
         h.date_str_to_datetime(string)
 
@@ -776,7 +792,7 @@ def test_gravatar():
     email = "zephod@gmail.com"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
 
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200, default="mm")
     assert expected in res
 
@@ -784,12 +800,12 @@ def test_gravatar():
 def test_gravatar_config_set_default(ckan_config):
     """Test when default gravatar is None, it is pulled from the config file"""
     email = "zephod@gmail.com"
-    default = ckan_config.get_value("ckan.gravatar_default")
+    default = ckan_config.get("ckan.gravatar_default")
     expected = (
         '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
         % default
     )
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200)
     assert expected in res
 
@@ -800,7 +816,7 @@ def test_gravatar_encodes_url_correctly():
     default = "http://example.com/images/avatar.jpg"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"'
 
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200, default=default)
     assert expected in res
 
@@ -872,3 +888,45 @@ def test_decode_view_request_filters(test_request_context):
             '_id': ['1', '2', '3'],
             'Piped|Filter': ['Piped|Value']
         }
+
+
+@pytest.mark.parametrize("data_dict, locale, result", [
+    # no matching local returns base
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'es', 'untranslated'),
+    # specific returns specfic
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'en_GB', 'en_GB'),
+    # variant returns base
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en'}}, 'en_GB', 'en'),
+    # Null case, falls all the way through.
+    ({}, 'en', ''),
+])
+@pytest.mark.usefixtures("with_request_context")
+def test_get_translated(data_dict, locale, result, monkeypatch):
+    monkeypatch.setattr(flask_app, "get_locale", lambda: locale)
+    assert h.get_translated(data_dict, 'notes') == result
+
+
+class TestUploadsEnabled:
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", True)
+    def test_uploads_enabled(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", False)
+    def test_uploads_disabled(self):
+        assert h.uploads_enabled() is False
+
+    def test_uploads_disabled_on_default_configuration(self):
+        assert h.uploads_enabled() is False
+
+    @pytest.mark.ckan_config("ckan.storage_path", "/some/path")
+    def test_uploads_enabled_with_only_storage_path(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.usefixtures("with_plugins")
+    @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
+    def test_uploads_enabled_when_iuploader_plugin_exists(self):
+        assert h.uploads_enabled() is True

@@ -1,0 +1,15 @@
+datastore_css:
+  output: ckanext_datastore/%(version)s_datastore.css
+  contents:
+    - css/datastore.css
+    - vendor/a11y-dark.css
+
+datastore:
+  output: ckanext_datastore/%(version)s_datastore.js
+  extra:
+    preload:
+      - base/main
+      - ckanext_datastore/datastore_css
+  contents:
+      - js/api-info.js
+      - vendor/highlight.min.js

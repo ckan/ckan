@@ -3,10 +3,12 @@
 import datetime
 import hashlib
 import json
+from unittest import mock
 import pytest
 import six
 from ckan.common import config
 import ckan.lib.search as search
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
@@ -32,6 +34,8 @@ class TestSearchIndex(object):
             "metadata_created": datetime.datetime.now().isoformat(),
             "metadata_modified": datetime.datetime.now().isoformat(),
         }
+        cls.base_package_dict['with_custom_schema'] = dict(
+            cls.base_package_dict)
 
     def test_solr_is_available(self):
         assert self.solr_client.search("*:*") is not None
@@ -122,6 +126,7 @@ class TestSearchIndex(object):
                 "extras": [
                     {"key": "test_date", "value": "2014-03-22"},
                     {"key": "test_tim_date", "value": "2014-03-22 05:42:14"},
+                    {"key": "test_full_iso_date", "value": "2019-10-10T01:15:00Z"},
                 ]
             }
         )
@@ -140,6 +145,31 @@ class TestSearchIndex(object):
             response.docs[0]["test_tim_date"].strftime("%Y-%m-%d %H:%M:%S")
             == "2014-03-22 05:42:14"
         )
+        assert (
+            response.docs[0]["test_full_iso_date"].strftime("%Y-%m-%d %H:%M:%S")
+            == "2019-10-10 01:15:00"
+        )
+
+    def test_index_date_empty_value(self):
+
+        pkg_dict = self.base_package_dict.copy()
+        pkg_dict.update(
+            {
+                "extras": [
+                    {"key": "test_empty_date", "value": ""},
+                    {"key": "test_none_date", "value": None},
+                ]
+            }
+        )
+
+        self.package_index.index_package(pkg_dict)
+
+        response = self.solr_client.search(q="name:monkey", fq=self.fq)
+
+        assert len(response) == 1
+
+        assert "test_empty_date" not in response.docs[0]
+        assert "test_none_date" not in response.docs[0]
 
     def test_index_date_field_wrong_value(self):
 
@@ -185,7 +215,7 @@ class TestPackageSearchIndex:
     def _get_pkg_dict():
         # This is a simple package, enough to be indexed, in the format that
         # package_show would return
-        return {
+        pkg_dict = {
             "name": "river-quality",
             "id": "d9567b82-d3f0-4c17-b222-d9a7499f7940",
             "state": "active",
@@ -194,6 +224,8 @@ class TestPackageSearchIndex:
             "metadata_created": "2014-06-10T08:24:12.782257",
             "metadata_modified": "2014-06-10T08:24:12.782257",
         }
+        pkg_dict['with_custom_schema'] = dict(pkg_dict)
+        return pkg_dict
 
     @staticmethod
     def _get_pkg_dict_with_resources():
@@ -256,9 +288,6 @@ class TestPackageSearchIndex:
         # validated_data_dict is the result of package_show, validated
         validated_data_dict = json.loads(indexed_pkg["validated_data_dict"])
         assert validated_data_dict["name"] == "river-quality"
-        # title is inserted (copied from the name) during validation
-        # so its presence shows it is validated
-        assert "title" in validated_data_dict
 
     def test_index_package_stores_validated_data_dict_without_unvalidated_data_dict(
         self,
@@ -299,3 +328,22 @@ class TestPackageSearchIndex:
 
         # Resource types are indexed
         assert indexed_pkg["res_type"] == ["doc", "file"]
+
+
+@pytest.mark.usefixtures("clean_index")
+def test_index_only_called_once():
+
+    with mock.patch("ckan.lib.search.index.PackageSearchIndex.index_package") as m:
+
+        dataset = factories.Dataset()
+
+        assert m.call_count == 1
+
+        m.reset_mock()
+
+        dataset["notes"] = "hi"
+        helpers.call_action("package_update", **dataset)
+
+        assert m.call_count == 1
+
+        assert helpers.call_action("package_show", id=dataset["id"])["notes"] == "hi"

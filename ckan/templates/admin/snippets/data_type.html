@@ -5,7 +5,7 @@
         aria-expanded="true" aria-controls="{{ ent_type }}">
         {% if ent_type == "package" %} <i class='fa fa-sitemap p-2'></i>
           {% elif ent_type == 'group' %} <i class='fa fa-group p-2'></i>
-          {% else %} <i class="fa fa-building-o p-2"></i>
+          {% else %} <i class="fa fa-building p-2"></i>
         {% endif %}
         {% if ent_type == 'package' %}
           {{ _('Deleted datasets') }}
@@ -28,7 +28,7 @@
         {% set title = entity.title or entity.name %}
           {% do items.append(title) %}
         <li>
-          <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}">
+          <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}" aria-label="{{ _('Navigate to dataset: {title}').format(title=title|truncate(60)) }}">
             {{ title|truncate(80) }}
           </a>
         </li>
@@ -43,6 +43,7 @@
       {% if items|length > 0 %}
       <form method="POST" class="d-flex justify-content-end" action="{{ h.url_for('admin.trash') }}"
         id="form-purge-{{ ent_type }}">
+        {{ h.csrf_input() }}
         <input type="hidden" name="action" value="{{ent_type}}">
         <a href="{{ h.url_for('admin.trash', name=ent_type) }}" class="btn btn-danger purge-all"
           data-module="confirm-action" data-module-with-data=true

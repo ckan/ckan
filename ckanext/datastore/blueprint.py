@@ -1,20 +1,22 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from typing import Any, Optional, cast
+from typing import Any, Optional, cast, Union
 from itertools import zip_longest
 
-from flask import Blueprint, make_response
+from flask import Blueprint, Response
 from flask.views import MethodView
 
 import ckan.lib.navl.dictization_functions as dict_fns
+from ckan.common import current_user
 from ckan.logic import (
+    check_access,
     tuplize_dict,
     parse_params,
 )
 from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
-    abort, render, g, h
+    abort, render, g, h, ValidationError, asbool
 )
 from ckan.types import Schema, ValidatorFactory
 from ckanext.datastore.logic.schema import (
@@ -59,74 +61,128 @@ def dump_schema() -> Schema:
 
 
 def dump(resource_id: str):
+    try:
+        get_action('datastore_search')({}, {'resource_id': resource_id,
+                                            'limit': 0})
+    except (ObjectNotFound, NotAuthorized):
+        abort(404, _('DataStore resource not found'))
+
     data, errors = dict_fns.validate(request.args.to_dict(), dump_schema())
     if errors:
         abort(
-            400, u'\n'.join(
-                u'{0}: {1}'.format(k, u' '.join(e)) for k, e in errors.items()
+            400, '\n'.join(
+                '{0}: {1}'.format(k, ' '.join(e)) for k, e in errors.items()
             )
         )
 
-    response = make_response()
-    response.headers[u'content-type'] = u'application/octet-stream'
+    fmt = data['format']
+    offset = data['offset']
+    limit = data.get('limit')
+    options = {'bom': data['bom']}
+    sort = data['sort']
+    search_params = {
+        k: v
+        for k, v in data.items()
+        if k in [
+            'filters', 'q', 'distinct', 'plain', 'language',
+            'fields'
+        ]
+    }
+
+    user_context = g.user
+
+    content_type = None
+    content_disposition = None
+
+    if fmt == 'csv':
+        content_disposition = 'attachment; filename="{name}.csv"'.format(
+                                    name=resource_id)
+        content_type = b'text/csv; charset=utf-8'
+    elif fmt == 'tsv':
+        content_disposition = 'attachment; filename="{name}.tsv"'.format(
+                                    name=resource_id)
+        content_type = b'text/tab-separated-values; charset=utf-8'
+    elif fmt == 'json':
+        content_disposition = 'attachment; filename="{name}.json"'.format(
+                                    name=resource_id)
+        content_type = b'application/json; charset=utf-8'
+    elif fmt == 'xml':
+        content_disposition = 'attachment; filename="{name}.xml"'.format(
+                                    name=resource_id)
+        content_type = b'text/xml; charset=utf-8'
+    else:
+        abort(404, _('Unsupported format'))
+
+    headers = {}
+    if content_type:
+        headers['Content-Type'] = content_type
+    if content_disposition:
+        headers['Content-disposition'] = content_disposition
 
     try:
-        dump_to(
-            resource_id,
-            response,
-            fmt=data[u'format'],
-            offset=data[u'offset'],
-            limit=data.get(u'limit'),
-            options={u'bom': data[u'bom']},
-            sort=data[u'sort'],
-            search_params={
-                k: v
-                for k, v in data.items()
-                if k in [
-                    u'filters', u'q', u'distinct', u'plain', u'language',
-                    u'fields'
-                ]
-            },
-        )
+        return Response(dump_to(resource_id,
+                                fmt=fmt,
+                                offset=offset,
+                                limit=limit,
+                                options=options,
+                                sort=sort,
+                                search_params=search_params,
+                                user=user_context),
+                        mimetype='application/octet-stream',
+                        headers=headers)
     except ObjectNotFound:
-        abort(404, _(u'DataStore resource not found'))
-    return response
+        abort(404, _('DataStore resource not found'))
 
 
 class DictionaryView(MethodView):
 
     def _prepare(self, id: str, resource_id: str) -> dict[str, Any]:
         try:
-            # resource_edit_base template uses these
-            pkg_dict = get_action(u'package_show')({}, {u'id': id})
-            resource = get_action(u'resource_show')({}, {u'id': resource_id})
-            rec = get_action(u'datastore_search')(
-                {}, {
-                    u'resource_id': resource_id,
-                    u'limit': 0
-                }
+            check_access(
+                "datastore_create",
+                context={"user": current_user.name, "auth_user_obj": current_user},
+                data_dict={"resource_id": resource_id},
             )
+
+            # resource_edit_base template uses these
+            pkg_dict = get_action(u'package_show')({}, {'id': id})
+            resource = get_action(u'resource_show')({}, {'id': resource_id})
+            rec = get_action(u'datastore_info')({}, {
+                'id': resource_id,
+                'include_meta': False,
+                'include_fields_schema': False,
+            })
             return {
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
                 u'fields': [
-                    f for f in rec[u'fields'] if not f[u'id'].startswith(u'_')
+                    f for f in rec.get('fields', [])
+                    if not f[u'id'].startswith(u'_')
                 ]
             }
 
         except (ObjectNotFound, NotAuthorized):
             abort(404, _(u'Resource not found'))
 
-    def get(self, id: str, resource_id: str):
+    def get(self,
+            id: str,
+            resource_id: str,
+            data: Optional[dict[str, Any]] = None,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None,
+            ):
         u'''Data dictionary view: show field labels and descriptions'''
 
-        data_dict = self._prepare(id, resource_id)
+        template_vars = self._prepare(id, resource_id)
+        template_vars['data'] = data or {}
+        template_vars['errors'] = errors or {}
+        template_vars['error_summary'] = error_summary
 
         # global variables for backward compatibility
-        g.pkg_dict = data_dict[u'pkg_dict']
-        g.resource = data_dict[u'resource']
+        g.pkg_dict = template_vars['pkg_dict']
+        g.resource = template_vars['resource']
 
-        return render(u'datastore/dictionary.html', data_dict)
+        return render('datastore/dictionary.html', template_vars)
 
     def post(self, id: str, resource_id: str):
         u'''Data dictionary view: edit field labels and descriptions'''
@@ -137,18 +193,34 @@ class DictionaryView(MethodView):
         if not isinstance(info, list):
             info = []
         info = info[:len(fields)]
+        custom = data.get('fields')
+        if not isinstance(custom, list):
+            custom = []
 
-        get_action(u'datastore_create')(
-            {}, {
-                u'resource_id': resource_id,
-                u'force': True,
-                u'fields': [{
-                    u'id': f[u'id'],
-                    u'type': f[u'type'],
-                    u'info': fi if isinstance(fi, dict) else {}
-                } for f, fi in zip_longest(fields, info)]
-            }
-        )
+        try:
+            get_action('datastore_create')(
+                {}, {
+                    'resource_id': resource_id,
+                    'force': True,
+                    'fields': [dict(
+                        cu or {},
+                        id=f['id'],
+                        type=f['type'],
+                        info=fi if isinstance(fi, dict) else {}
+                    ) for f, fi, cu in zip_longest(fields, info, custom)]
+                }
+            )
+        except ValidationError as e:
+            errors = e.error_dict
+            # flatten field errors for summary
+            error_summary = {}
+            field_errors = errors.get('fields', [])
+            if isinstance(field_errors, list):
+                for i, f in enumerate(field_errors, 1):
+                    if isinstance(f, dict) and f:
+                        error_summary[_('Field %d') % i] = ', '.join(
+                            v for vals in f.values() for v in vals)
+            return self.get(id, resource_id, data, errors, error_summary)
 
         h.flash_success(
             _(
@@ -163,75 +235,97 @@ class DictionaryView(MethodView):
 
 
 def dump_to(
-    resource_id: str, output: Any, fmt: str, offset: int, limit: Optional[int],
-        options: dict[str, Any], sort: str, search_params: dict[str, Any]
+    resource_id: str, fmt: str, offset: int,
+    limit: Optional[int], options: dict[str, Any], sort: str,
+    search_params: dict[str, Any], user: str
 ):
-    if fmt == u'csv':
+    if fmt == 'csv':
         writer_factory = csv_writer
-        records_format = u'csv'
-    elif fmt == u'tsv':
+        records_format = 'csv'
+    elif fmt == 'tsv':
         writer_factory = tsv_writer
-        records_format = u'tsv'
-    elif fmt == u'json':
+        records_format = 'tsv'
+    elif fmt == 'json':
         writer_factory = json_writer
-        records_format = u'lists'
-    elif fmt == u'xml':
+        records_format = 'lists'
+    elif fmt == 'xml':
         writer_factory = xml_writer
-        records_format = u'objects'
+        records_format = 'objects'
     else:
-        assert False, u'Unsupported format'
+        assert False, 'Unsupported format'
 
-    def start_writer(fields: Any):
-        bom = options.get(u'bom', False)
-        return writer_factory(output, fields, resource_id, bom)
+    bom = options.get('bom', False)
 
-    def result_page(offs: int, lim: Optional[int]):
-        return get_action(u'datastore_search')(
-            {},
+    def start_stream_writer(fields: list[dict[str, Any]]):
+        return writer_factory(fields, bom=bom)
+
+    def stream_result_page(offs: int, lim: Union[None, int]):
+        return get_action('datastore_search')(
+            {'user': user},
             dict({
-                u'resource_id': resource_id,
-                u'limit': PAGINATE_BY
-                if lim is None else min(PAGINATE_BY, lim),
-                u'offset': offs,
-                u'sort': sort,
-                u'records_format': records_format,
-                u'include_total': False,
+                'resource_id': resource_id,
+                'limit': PAGINATE_BY
+                if limit is None else min(PAGINATE_BY, lim),  # type: ignore
+                'offset': offs,
+                'sort': sort,
+                'records_format': records_format,
+                'include_total': False,
             }, **search_params)
         )
 
-    result = result_page(offset, limit)
+    def stream_dump(offset: int, limit: Union[None, int],
+                    paginate_by: int, result: dict[str, Any]):
+        with start_stream_writer(result['fields']) as writer:
+            while True:
+                if limit is not None and limit <= 0:
+                    break
 
-    if result[u'limit'] != limit:
+                records = result['records']
+
+                yield writer.write_records(records)
+
+                if records_format == 'objects' or records_format == 'lists':
+                    if len(records) < paginate_by:
+                        break
+                elif not records:
+                    break
+
+                offset += paginate_by
+                if limit is not None:
+                    limit -= paginate_by
+                    if limit <= 0:
+                        break
+
+                result = stream_result_page(offset, limit)
+
+            yield writer.end_file()
+
+    result = stream_result_page(offset, limit)
+
+    if result['limit'] != limit:
         # `limit` (from PAGINATE_BY) must have been more than
-        # ckan.datastore.search.rows_max, so datastore_search responded with a
-        # limit matching ckan.datastore.search.rows_max. So we need to paginate
-        # by that amount instead, otherwise we'll have gaps in the records.
-        paginate_by = result[u'limit']
+        # ckan.datastore.search.rows_max, so datastore_search responded
+        # with a limit matching ckan.datastore.search.rows_max.
+        # So we need to paginate by that amount instead, otherwise
+        # we'll have gaps in the records.
+        paginate_by = result['limit']
     else:
         paginate_by = PAGINATE_BY
 
-    with start_writer(result[u'fields']) as wr:
-        while True:
-            if limit is not None and limit <= 0:
-                break
+    return stream_dump(offset, limit, paginate_by, result)
 
-            records = result[u'records']
 
-            wr.write_records(records)
+def api_info(resource_id: str):
+    try:
+        get_action('datastore_search')({}, {'resource_id': resource_id,
+                                            'limit': 0})
+    except (ObjectNotFound, NotAuthorized):
+        abort(404, _('DataStore resource not found'))
 
-            if records_format == u'objects' or records_format == u'lists':
-                if len(records) < paginate_by:
-                    break
-            elif not records:
-                break
-
-            offset += paginate_by
-            if limit is not None:
-                limit -= paginate_by
-                if limit <= 0:  # type: ignore
-                    break
-
-            result = result_page(offset, limit)
+    return render('datastore/snippets/api_info.html', {
+        'resource_id': resource_id,
+        'embedded': asbool(request.args.get('embedded', False)),
+    })
 
 
 datastore.add_url_rule(u'/datastore/dump/<resource_id>', view_func=dump)
@@ -239,3 +333,4 @@ datastore.add_url_rule(
     u'/dataset/<id>/dictionary/<resource_id>',
     view_func=DictionaryView.as_view(str(u'dictionary'))
 )
+datastore.add_url_rule('/datastore/api_info/<resource_id>', view_func=api_info)

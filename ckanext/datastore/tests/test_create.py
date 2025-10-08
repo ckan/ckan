@@ -2,6 +2,7 @@
 
 import json
 import pytest
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 
 import ckan.lib.create_test_data as ctd
@@ -19,7 +20,8 @@ from ckanext.datastore.tests.helpers import (
 )
 
 
-@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
 class TestDatastoreCreateNewTests(object):
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
@@ -28,10 +30,10 @@ class TestDatastoreCreateNewTests(object):
             FROM
                 pg_class
             WHERE
-                pg_class.relname = %s
+                pg_class.relname = :relname
             """
         index_name = db._generate_index_name(resource_id, field)
-        results = execute_sql(sql, index_name).fetchone()
+        results = execute_sql(sql, {"relname": index_name}).fetchone()
         return bool(results)
 
     def _get_index_names(self, resource_id):
@@ -46,13 +48,11 @@ class TestDatastoreCreateNewTests(object):
                 t.oid = idx.indrelid
                 AND i.oid = idx.indexrelid
                 AND t.relkind = 'r'
-                AND t.relname = %s
+                AND t.relname = :relname
             """
-        results = execute_sql(sql, resource_id).fetchall()
+        results = execute_sql(sql, {"relname": resource_id}).fetchall()
         return [result[0] for result in results]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_works_with_empty_array_in_json_field(self):
         package = factories.Dataset()
         data = {
@@ -66,8 +66,9 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action("datastore_create", **data)
         assert result["resource_id"] is not None
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+        res = helpers.call_action("resource_show", id=result["resource_id"])
+        assert res.get('last_modified')
+
     def test_create_works_with_empty_object_in_json_field(self):
         package = factories.Dataset()
         data = {
@@ -81,8 +82,6 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action("datastore_create", **data)
         assert result["resource_id"] is not None
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_creates_index_on_primary_key(self):
         package = factories.Dataset()
         data = {
@@ -97,8 +96,6 @@ class TestDatastoreCreateNewTests(object):
         index_names = self._get_index_names(resource_id)
         assert resource_id + "_pkey" in index_names
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_creates_url_with_site_name(self):
         package = factories.Dataset()
         data = {"resource": {"boo%k": "crime", "package_id": package["id"]}}
@@ -106,10 +103,8 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         resource = helpers.call_action("resource_show", id=resource_id)
         url = resource["url"]
-        assert url.startswith(config.get_value("ckan.site_url"))
+        assert url.startswith(config.get("ckan.site_url"))
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_index_on_specific_fields(self):
         package = factories.Dataset()
         data = {
@@ -128,8 +123,6 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"author"')
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_adds_index_on_full_text_search_when_creating_other_indexes(
         self
     ):
@@ -150,8 +143,6 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"_full_text"')
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_adds_index_on_full_text_search_when_not_creating_other_indexes(
         self
     ):
@@ -171,8 +162,8 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"_full_text"')
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text")
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
         data = {
@@ -196,8 +187,6 @@ class TestDatastoreCreateNewTests(object):
             resource_id, "to_tsvector('english', \"author\")"
         )
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_doesnt_add_more_indexes_when_updating_data(self):
         resource = factories.Resource()
         data = {
@@ -216,8 +205,6 @@ class TestDatastoreCreateNewTests(object):
         current_index_names = self._get_index_names(resource["id"])
         assert previous_index_names == current_index_names
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_duplicate_fields(self):
         package = factories.Dataset()
         data = {
@@ -234,50 +221,48 @@ class TestDatastoreCreateNewTests(object):
         with pytest.raises(p.toolkit.ValidationError):
             helpers.call_action("datastore_create", **data)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_sets_datastore_active_on_resource_on_create(self):
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
 
-        assert not (resource["datastore_active"])
+        assert not resource["datastore_active"]
+        assert not resource["last_modified"]
 
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "records": [{"book": "annakarenina", "author": "tolstoy"}],
         }
 
         helpers.call_action("datastore_create", **data)
 
         resource = helpers.call_action("resource_show", id=resource["id"])
-
         assert resource["datastore_active"]
+        assert resource["last_modified"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+
     def test_sets_datastore_active_on_resource_on_delete(self):
-        resource = factories.Resource(datastore_active=True)
-
-        assert resource["datastore_active"]
-
+        package = factories.Dataset()
         data = {
-            "resource_id": resource["id"],
-            "force": True,
-            "records": [{"book": "annakarenina", "author": "tolstoy"}],
+            "resource": {"package_id": package["id"]},
+            "fields": [
+                {"id": "movie", "type": "text"},
+            ],
+            "records": [{"movie": "sideways"}],
         }
-
-        helpers.call_action("datastore_create", **data)
+        result = helpers.call_action("datastore_create", **data)
+        resource = helpers.call_action("resource_show", id=result["resource_id"])
+        assert resource["last_modified"]
+        last_modified_1 = resource["last_modified"]
 
         helpers.call_action(
-            "datastore_delete", resource_id=resource["id"], force=True
+            "datastore_delete", resource_id=result["resource_id"]
         )
 
-        resource = helpers.call_action("resource_show", id=resource["id"])
+        resource = helpers.call_action("resource_show", id=result["resource_id"])
 
-        assert not (resource["datastore_active"])
+        assert not resource["datastore_active"]
+        assert resource["last_modified"]
+        assert resource["last_modified"] != last_modified_1
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_exceeds_column_name_limit(self):
         package = factories.Dataset()
         data = {
@@ -293,8 +278,6 @@ class TestDatastoreCreateNewTests(object):
         with pytest.raises(p.toolkit.ValidationError):
             helpers.call_action("datastore_create", **data)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_calculate_record_count_is_false(self):
         resource = factories.Resource()
         data = {
@@ -313,8 +296,6 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is None
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         # how datapusher loads data (send_resource_to_datastore)
@@ -336,6 +317,44 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
+    def test_delete_fields(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_b", "type": "text"},
+                {"id": "col_c", "type": "text"},
+                {"id": "col_d", "type": "text"},
+            ],
+            "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_c", "type": "text"},
+            ],
+            "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        info = helpers.call_action("datastore_info", id=resource["id"])
+        assert [f['id'] for f in info['fields']] == [
+            'col_a', 'col_b', 'col_c', 'col_d'
+        ]
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_c", "type": "text"},
+            ],
+            "force": True,
+            "delete_fields": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        info = helpers.call_action("datastore_info", id=resource["id"])
+        assert [f['id'] for f in info['fields']] == ['col_a', 'col_c']
 
 
 class TestDatastoreCreate(object):
@@ -375,11 +394,11 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_create_empty_fails(self, app):
         data = {}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
-            extra_environ=auth,
+            headers=headers,
         )
         assert res.status_code == 409
         res_dict = json.loads(res.data)
@@ -398,11 +417,11 @@ class TestDatastoreCreate(object):
             ],
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
         assert res_dict["success"] is False
@@ -415,11 +434,11 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -430,11 +449,11 @@ class TestDatastoreCreate(object):
     def test_create_duplicate_alias_name(self, app):
         resource = factories.Resource(url_type = 'datastore')
         data = {"resource_id": resource['id'], "aliases": u"myalias"}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
-            extra_environ=auth,
+            headers=headers,
         )
         assert res.status_code == 200
         res_dict = json.loads(res.data)
@@ -443,11 +462,11 @@ class TestDatastoreCreate(object):
         # try to create another table with the same alias
         resource_2 = factories.Resource(url_type = 'datastore')
         data = {"resource_id": resource_2['id'], "aliases": u"myalias"}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
-            extra_environ=auth,
+            headers=headers,
         )
         assert res.status_code == 409
 
@@ -459,11 +478,11 @@ class TestDatastoreCreate(object):
             "resource_id": resource_2['id'],
             "aliases": resource_2['id'],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             data=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -480,11 +499,11 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "INVALID"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -494,7 +513,7 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_create_invalid_field_name(self, app):
         resource = model.Package.get("annakarenina").resources[0]
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         invalid_names = [
             "_author",
             '"author',
@@ -516,7 +535,7 @@ class TestDatastoreCreate(object):
             res = app.post(
                 "/api/action/datastore_create",
                 json=data,
-                extra_environ=auth,
+                headers=headers,
                 status=409,
             )
             res_dict = json.loads(res.data)
@@ -537,11 +556,11 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace", "published": "1869"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -559,11 +578,11 @@ class TestDatastoreCreate(object):
             ],
             "records": ["bad"],  # treat author as null
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -584,11 +603,11 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace"},
             ],  # treat author as null
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -608,11 +627,11 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -630,11 +649,11 @@ class TestDatastoreCreate(object):
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -643,35 +662,34 @@ class TestDatastoreCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_alias_twice(self, app):
-        resource = model.Package.get("annakarenina").resources[1]
+        res1, res2 = model.Package.get("annakarenina").resources[:2]
         data = {
-            "resource_id": resource.id,
+            "resource_id": res1.id,
             "aliases": "new_alias",
             "fields": [
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},
             ],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True, res_dict
 
-        resource = model.Package.get("annakarenina").resources[0]
         data = {
-            "resource_id": resource.id,
+            "resource_id": res2.id,
             "aliases": "new_alias",
             "fields": [{"id": "more books", "type": "text"}],
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -684,9 +702,9 @@ class TestDatastoreCreate(object):
         aliases = [u"great_list_of_books", u"another_list_of_b\xfcks"]
         ### Firstly test to see whether resource has no datastore table yet
         data = {"id": resource.id}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
-            "/api/action/resource_show", data=data, extra_environ=auth
+            "/api/action/resource_show", data=data, headers=headers
         )
         res_dict = json.loads(res.data)
         assert res_dict["result"]["datastore_active"] is False
@@ -705,11 +723,11 @@ class TestDatastoreCreate(object):
             ],  # treat author as null
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
@@ -719,31 +737,34 @@ class TestDatastoreCreate(object):
         assert res["fields"] == data["fields"], res["fields"]
 
         c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(resource.id))
+        results = c.execute(sa.text(
+            'select * from "{0}"'.format(resource.id)
+        ))
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
-            assert data["records"][i].get("boo%k") == row["boo%k"]
+            assert data["records"][i].get("boo%k") == getattr(row, "boo%k")
+            author = getattr(row, "author")
             assert data["records"][i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                json.loads(author[0]) if author else None
             )
 
-        results = c.execute(
+        results = c.execute(sa.text(
             """
             select * from "{0}" where _full_text @@ to_tsquery('warandpeace')
             """.format(
                 resource.id
             )
-        )
+        ))
         assert results.rowcount == 1, results.rowcount
 
-        results = c.execute(
+        results = c.execute(sa.text(
             """
             select * from "{0}" where _full_text @@ to_tsquery('tolstoy')
             """.format(
                 resource.id
             )
-        )
+        ))
         assert results.rowcount == 2
         self.Session.remove()
 
@@ -753,28 +774,30 @@ class TestDatastoreCreate(object):
 
             results = [
                 row
-                for row in c.execute(
-                    u'select * from "{0}"'.format(resource.id)
-                )
+                for row in c.execute(sa.text(
+                        'select * from "{0}"'.format(resource.id)
+                ))
             ]
             results_alias = [
-                row for row in c.execute(u'select * from "{0}"'.format(alias))
+                row for row in c.execute(sa.text(
+                    'select * from "{0}"'.format(alias)
+                ))
             ]
 
             assert results == results_alias
 
             sql = (
                 u"select * from _table_metadata "
-                "where alias_of=%s and name=%s"
+                "where alias_of=:alias and name=:name"
             )
-            results = c.execute(sql, resource.id, alias)
+            results = c.execute(sa.text(sql), {"alias": resource.id, "name": alias})
             assert results.rowcount == 1
         self.Session.remove()
 
         # check to test to see if resource now has a datastore table
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
-            "/api/action/resource_show", data={"id": resource.id}, extra_environ=auth
+            "/api/action/resource_show", data={"id": resource.id}, headers=headers
         )
         res_dict = json.loads(res.data)
         assert res_dict["result"]["datastore_active"]
@@ -785,37 +808,40 @@ class TestDatastoreCreate(object):
             "records": [{"boo%k": "hagji murat", "author": ["tolstoy"]}],
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data2,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(resource.id))
+        results = c.execute(sa.text(
+            'select * from "{0}"'.format(resource.id)
+        ))
         self.Session.remove()
 
         assert results.rowcount == 4
 
         all_data = data["records"] + data2["records"]
         for i, row in enumerate(results):
-            assert all_data[i].get("boo%k") == row["boo%k"]
+            assert all_data[i].get("boo%k") == getattr(row, "boo%k")
+            author = getattr(row, "author")
             assert all_data[i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                json.loads(author[0]) if author else None
             )
 
         c = self.Session.connection()
-        results = c.execute(
+        results = c.execute(sa.text(
             """
             select * from "{0}" where _full_text @@ 'tolstoy'
             """.format(
                 resource.id
             )
-        )
+        ))
         self.Session.remove()
         assert results.rowcount == 3
 
@@ -832,37 +858,42 @@ class TestDatastoreCreate(object):
             "indexes": ["rating"],
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data3,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
-        assert res_dict["success"] is True
+        assert res_dict["success"] is True, res_dict
 
         c = self.Session.connection()
-        results = c.execute('select * from "{0}"'.format(resource.id))
+        results = c.execute(sa.text(
+            'select * from "{0}"'.format(resource.id)
+        ))
 
         assert results.rowcount == 5
 
         all_data = data["records"] + data2["records"] + data3["records"]
         for i, row in enumerate(results):
-            assert all_data[i].get("boo%k") == row["boo%k"], (
+            book = getattr(row, "boo%k")
+            assert all_data[i].get("boo%k") == book, (
                 i,
                 all_data[i].get("boo%k"),
-                row["boo%k"],
-            )
-            assert all_data[i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                book,
             )
 
-        results = c.execute(
+            author = getattr(row, "author")
+            assert all_data[i].get("author") == (
+                json.loads(author[0]) if author else None
+            )
+
+        results = c.execute(sa.text(
             """select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') """.format(
                 resource.id
             )
-        )
+        ))
         self.Session.remove()
         assert results.rowcount == 2
 
@@ -873,11 +904,11 @@ class TestDatastoreCreate(object):
             "primary_key": "boo%k",
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data4,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
@@ -893,11 +924,11 @@ class TestDatastoreCreate(object):
             "primary_key": "",
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data5,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
@@ -908,13 +939,19 @@ class TestDatastoreCreate(object):
         for alias in aliases:
             sql = (
                 "select * from _table_metadata "
-                "where alias_of=%s and name=%s"
+                "where alias_of=:alias and name=:name"
             )
-            results = c.execute(sql, resource.id, alias)
+            results = c.execute(
+                sa.text(sql),
+                {"alias": resource.id, "name": alias}
+            )
             assert results.rowcount == 0
 
-        sql = "select * from _table_metadata " "where alias_of=%s and name=%s"
-        results = c.execute(sql, resource.id, "another_alias")
+        sql = "select * from _table_metadata " "where alias_of=:alias and name=:name"
+        results = c.execute(
+            sa.text(sql),
+            {"alias": resource.id, "name": "another_alias"}
+        )
         assert results.rowcount == 1
         self.Session.remove()
 
@@ -937,11 +974,11 @@ class TestDatastoreCreate(object):
             "indexes": ["characters"],
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data6,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
@@ -967,11 +1004,11 @@ class TestDatastoreCreate(object):
             "indexes": ["characters"],
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data7,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
@@ -984,11 +1021,11 @@ class TestDatastoreCreate(object):
             "records": [{"boo%k": "warandpeace", "author": "99% good"}],
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data8,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
@@ -1013,11 +1050,11 @@ class TestDatastoreCreate(object):
             ],  # treat author as null
         }
 
-        auth = {"Authorization": self.normal_user_token}
+        headers = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
@@ -1038,11 +1075,11 @@ class TestDatastoreCreate(object):
         resource = model.Package.get("annakarenina").resources[1]
 
         data = {"resource_id": resource.id}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             data=data,
-            extra_environ=auth,
+            headers=headers,
         )  # ignore status
         res_dict = json.loads(res.data)
 
@@ -1066,16 +1103,18 @@ class TestDatastoreCreate(object):
                 {"book": "warandpeace"},
             ],  # treat author as null
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
         c = self.Session.connection()
-        results = c.execute("""select * from "{0}" """.format(resource.id))
+        results = c.execute(sa.text(
+            """select * from "{0}" """.format(resource.id)
+        ))
 
         types = [
             db._pg_types[field[1]] for field in results.cursor.description
@@ -1093,9 +1132,9 @@ class TestDatastoreCreate(object):
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
-            assert data["records"][i].get("book") == row["book"]
+            assert data["records"][i].get("book") == row._mapping["book"]
             assert data["records"][i].get("author") == (
-                json.loads(row["author"][0]) if row["author"] else None
+                json.loads(row._mapping["author"][0]) if row._mapping["author"] else None
             )
         self.Session.remove()
 
@@ -1125,16 +1164,18 @@ class TestDatastoreCreate(object):
             ],
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
 
         c = self.Session.connection()
-        results = c.execute("""select * from "{0}" """.format(resource.id))
+        results = c.execute(sa.text(
+            """select * from "{0}" """.format(resource.id)
+        ))
         self.Session.remove()
 
         types = [
@@ -1153,43 +1194,6 @@ class TestDatastoreCreate(object):
             u"timestamp",  # date2
             u"nested",  # count3
         ], types
-
-        ### fields resupplied in wrong order
-
-        data = {
-            "resource_id": resource.id,
-            "fields": [
-                {"id": "author", "type": "text"},
-                {"id": "count"},
-                {"id": "date"},  # date and book in wrong order
-                {"id": "book"},
-                {"id": "count2"},
-                {"id": "extra", "type": "text"},
-                {"id": "date2"},
-            ],
-            "records": [
-                {
-                    "book": "annakarenina",
-                    "author": "tolstoy",
-                    "count": 1,
-                    "date": "2005-12-01",
-                    "count2": 2,
-                    "count3": 432,
-                    "date2": "2005-12-01",
-                }
-            ],
-        }
-
-        auth = {"Authorization": self.sysadmin_token}
-        res = app.post(
-            "/api/action/datastore_create",
-            json=data,
-            extra_environ=auth,
-            status=409,
-        )
-        res_dict = json.loads(res.data)
-
-        assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
@@ -1211,21 +1215,21 @@ class TestDatastoreCreate(object):
             ],
             "method": "insert",
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data_dict,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.data)
 
         assert res_dict["success"] is False
         assert res_dict["error"]["__type"] == "Validation Error"
-        assert res_dict["error"]["message"].startswith("The data was invalid")
+        assert 'invalid input syntax for type numeric' in str(res_dict["error"])
 
 
-@pytest.mark.usefixtures("with_request_context")
+
 class TestDatastoreFunctionCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1292,7 +1296,7 @@ class TestDatastoreFunctionCreate(object):
         )
 
 
-@pytest.mark.usefixtures("with_request_context")
+
 class TestDatastoreCreateTriggers(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1411,7 +1415,10 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"EGGS"}],
                     triggers=[{u"function": u"spamexception_trigger"}],
                 )
-        assert error.value.error_dict == {u"records": [u'"EGGS"? Yeeeeccch!']}
+        assert error.value.error_dict == {
+            "records": ['"EGGS"? Yeeeeccch!'],
+            "records_row": 1,
+        }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1445,5 +1452,6 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"BEANS"}],
                 )
             assert error.value.error_dict == {
-                u"records": [u'"BEANS"? Yeeeeccch!']
+                "records": ['"BEANS"? Yeeeeccch!'],
+                "records_row": 1,
             }

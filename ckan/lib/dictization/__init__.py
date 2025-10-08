@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, Literal, cast
 
 import sqlalchemy
 from sqlalchemy import Table
-# type_ignore_reason: incomplete SQLAlchemy types
-from sqlalchemy.engine import Row # type: ignore
+from sqlalchemy.engine import Row
 from sqlalchemy.orm import class_mapper
 
 from ckan.model.core import State
@@ -28,7 +27,7 @@ def table_dictize(obj: Any, context: Context, **kw: Any) -> dict[str, Any]:
     result_dict: dict[str, Any] = {}
 
     if isinstance(obj, Row):
-        fields = obj.keys()
+        fields = obj._fields
     else:
         ModelClass = obj.__class__
         table = class_mapper(ModelClass).persist_selectable
@@ -110,26 +109,35 @@ def get_unique_constraints(table: Table, context: Context) -> list[list[str]]:
     return list_of_constraints
 
 
-def table_dict_save(table_dict: dict[str, Any],
-                    ModelClass: Any,
-                    context: Context,
-                    extra_attrs: Iterable[str] = ()) -> Any:
+def table_dict_save(
+        table_dict: dict[str, Any],
+        ModelClass: Any,
+        context: Context,
+        extra_attrs: Iterable[str] = ()
+        ) -> tuple[Any, Literal['create', 'update', None]]:
     '''Given a dict and a model class, update or create a sqlalchemy object.
     This will use an existing object if "id" is supplied OR if any unique
-    constraints are met. e.g supplying just a tag name will get out that tag obj.
+    constraints are met. e.g supplying just a tag name will get out that tag
+    obj.
+
+    Returns (obj, change) where change is:
+    - 'create' if this is a new object
+    - 'update' if any fields were changed or extra_attrs passed
+    - None if no change for an existing object
     '''
     session = context["session"]
 
-    table = class_mapper(ModelClass).persist_selectable
+    table = cast(Table, class_mapper(ModelClass).persist_selectable)
 
     obj = None
 
     id = table_dict.get("id")
 
     if id:
-        obj = session.query(ModelClass).get(id)
+        obj = session.get(ModelClass, id)
 
-    if not obj:
+    new = not obj
+    if new:
         unique_constraints = get_unique_constraints(table, context)
         for constraint in unique_constraints:
             params = dict((key, table_dict.get(key)) for key in constraint)
@@ -145,11 +153,13 @@ def table_dict_save(table_dict: dict[str, Any],
     if not obj:
         obj = ModelClass()
 
-    obj.from_dict(table_dict)
+    changed, _skipped = obj.from_dict(table_dict)
     for a in extra_attrs:
         if a in table_dict:
             setattr(obj, a, table_dict[a])
 
     session.add(obj)
 
-    return obj
+    return (
+        obj, 'create' if new else 'update' if changed or extra_attrs else None
+    )

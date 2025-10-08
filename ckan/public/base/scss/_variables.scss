@@ -1,6 +1,5 @@
 // Base variables
 $imagePath: "../../../base/images";
-$spritePath: "#{$imagePath}/sprite-ckan-icons.png";
 $bgPath: "#{$imagePath}/bg.png";
 
 // Layout Variables
@@ -12,6 +11,7 @@ $layoutBackgroundColor: #eee;
 $layoutTrimBackgroundColor: #fff;
 $layoutTrimBorderColor: #ccc;
 $logoMaxHeight: 60px;
+$logoMinHeight: 55px;
 
 $navLinkColor: #333;
 $navActiveBackgroundColor: #f6f6f6;
@@ -111,14 +111,6 @@ $textColor: $layoutTextColor;
 $linkColor: $layoutLinkColor;
 $iconSpritePath: "../images/bootstrap-glyphicons-halflings.png";
 $iconWhiteSpritePath: "../images/bootstrap-glyphicons-halflings-white.png";
-
-// Activity Stream base colors
-$activityColorText: #FFFFFF;
-$activityColorBlank: #999999;
-$activityColorNew: #69A67A;
-$activityColorNeutral: #767DCE;
-$activityColorModify: #767DCE;
-$activityColorDelete: #B95252;
 
 // Navigation
 $zindex-navbar: 1;

@@ -28,9 +28,16 @@ Example:
   {% endblock %}
   {% block datasets %}
     {% if organization.package_count %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong>
+      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong><br/>
     {% else %}
-      <span class="count">{{ _('0 Datasets') }}</span>
+      <span class="count">{{ _('0 Datasets') }}</span><br/>
+    {% endif %}
+  {% endblock %}
+  {% block members %}
+    {% if 'member_count' in organization and organization.member_count %}
+      <strong class="count">{{ ungettext('{num} Member', '{num} Members', organization.member_count).format(num=organization.member_count) }}</strong>
+    {% else %}
+      <span class="count">{{ _('0 Members') }}</span>
     {% endif %}
   {% endblock %}
   {% block capacity %}
@@ -39,7 +46,8 @@ Example:
     {% endif %}
   {% endblock %}
   {% block link %}
-  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}" class="media-view">
+  {% set view_label = _('Open details page for {name}').format(name=organization.display_name) %}
+  <a href="{{ url }}" aria-label="{{ view_label }}" data-bs-title="{{ view_label }}" data-bs-toggle="tooltip" class="media-view">
     <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
   </a>
   {% endblock %}

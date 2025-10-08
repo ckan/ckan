@@ -35,7 +35,7 @@
     .nav-aside li.active {
         background-color: $navActiveBackgroundColor;
     }
-    
+
     .nav-item.active>a,
     .nav-aside li.active a {
         position: relative;
@@ -46,7 +46,7 @@
             background-color: $navItemActiveBackgroundColor;
         }
     }
-    
+
     .nav-item.active>a:before,
     .nav-aside li.active a:before {
         content: ' ';
@@ -60,20 +60,18 @@
         right: -$navItemActiveArrowSize;
         width: $navItemActiveArrowSize;
         height: 34px;
-        // background-image: url("${imagePath}/nav-active.png?1");
     }
-    
+
     .nav-pills>li {
         float: none;
-        @include media-breakpoint-down(sm) { 
+        @include media-breakpoint-down(sm) {
             float: left;
         }
     }
-    
+
     .nav-item.active>a span,
     .nav-aside li.active a span {
         white-space: nowrap;
-        // display: block;
     }
 }
 
@@ -108,29 +106,6 @@
 }
 
 // FACET NAVIGATION
-.nav-facet .nav-item>a:hover:after,
-.nav-facet .nav-item.active>a:after {
-    @include ckan-icon;
-    background-position: 0px -16px;
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 5px;
-    margin-top: -8px;
-}
-
-.nav-facet .nav-item>a:hover:after{
-    @extend .ckan-icon-circle-add;
-}
-.nav-facet .nav-item.active>a:hover:after{
-    @extend .ckan-icon-circle-cross;
-}
-
-.nav-facet .nav-item.active>a:after {
-    @extend .ckan-icon-circle-cross;
-    right: 3px;
-}
-
 .user-list {
     @include list-unstyled;
     li {
@@ -143,53 +118,12 @@
     }
 }
 
-.nav-facet-tertiary {
-    margin: 10px 0;
-    .module-heading {
-        margin-bottom: 5px;
-        padding: 8px 12px;
-        border-bottom-width: 0;
-        @include border-radius(5px);
-        i {
-            display: none;
-        }
-    }
-    .module-footer {
-        padding: 8px 12px;
-        border-top-width: 0;
-        a {
-            font-weight: normal;
-            color: #8C8C8C;
-        }
-    }
-    .nav {
-        margin-bottom: 0;
-    }
-    .module-content.empty {
-        padding: 8px 12px;
-        margin-top: 0;
-    }
-    .nav li.active {
-        position: relative;
-    }
-    .nav li.active>a:hover:after,
-    .nav li.active>a:after {
-        @include ckan-icon;
-        @extend .ckan-icon-circle-cross;
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: 5px;
-        margin-top: -8px;
-    }
-}
-
-.nav-simple>.nav-btn {
-    padding-left: 0;
-    padding-right: 0;
-    text-align: center;
-    .btn {
-        display: inline-block;
+.nav-item{
+    .facet-close {
+        float: right;
+		position: relative;
+		transform: translateY(0);
+		left: 10px;
     }
 }
 

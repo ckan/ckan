@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from functools import partial
@@ -11,26 +10,29 @@ from typing import (
     Mapping,
     Optional,
     Union,
+    Generic,
 )
 
-from typing_extensions import Protocol, TypeAlias, TypedDict
+from typing_extensions import Protocol, TypeAlias, TypedDict, TypeVar
 from blinker import Signal
+from flask.ctx import RequestContext
 from flask.wrappers import Response, Request
+from sqlalchemy.orm.scoping import ScopedSession
+from sqlalchemy.orm.query import Query
+
 
 from .logic import ActionResult
-from .model import (
-    Model, AlchemySession,
-    Query,
-)
 
 if TYPE_CHECKING:
+    import ckan.model as model
+    from ckan.tests.helpers import CKANTestApp
     from ckanext.activity.model import Activity
 
 
 __all__ = [
     "Response", "Request",
     "ActionResult",
-    "Model", "AlchemySession", "Query",
+    "AlchemySession", "Query",
     "Config", "CKANApp",
     "DataDict", "ErrorDict",
     "FlattenKey", "FlattenErrorDict", "FlattenDataDict",
@@ -42,6 +44,9 @@ __all__ = [
     "Action", "ChainedAction", "AuthFunction", "ChainedAuthFunction",
     "PFeed", "PFeedFactory", "PResourceUploader", "PUploader",
 ]
+
+AlchemySession = ScopedSession[Any]
+
 Config: TypeAlias = Dict[str, Union[str, Mapping[str, str]]]
 CKANApp = Any
 
@@ -68,13 +73,12 @@ class Context(TypedDict, total=False):
     here.
     """
     user: str
-    model: Model
     session: AlchemySession
 
     __auth_user_obj_checked: bool
     __auth_audit: list[tuple[str, int]]
-    auth_user_obj: Optional["Model.User"]
-    user_obj: "Model.User"
+    auth_user_obj: model.User | model.AnonymousUser | None
+    user_obj: model.User
 
     schema_keys: list[Any]
     revision_id: Optional[Any]
@@ -83,18 +87,16 @@ class Context(TypedDict, total=False):
     connection: Any
     check_access: Callable[..., Any]
 
-    id: str
+    id: str | None
     user_id: str
     user_is_admin: bool
     search_query: bool
     return_query: bool
-    return_minimal: bool
     return_id_only: bool
     defer_commit: bool
     reset_password: bool
     save: bool
     active: bool
-    allow_partial_update: bool
     for_update: bool
     for_edit: bool
     for_view: bool
@@ -105,6 +107,10 @@ class Context(TypedDict, total=False):
     use_cache: bool
     include_plugin_extras: bool
     message: str
+    extras_as_string: bool
+    with_private: bool
+    group_type: str
+    parent: Optional[str]
 
     keep_email: bool
     keep_apikey: bool
@@ -113,15 +119,15 @@ class Context(TypedDict, total=False):
     count_private_and_draft_datasets: bool
 
     schema: "Schema"
-    group: "Model.Group"
-    package: "Model.Package"
-    vocabulary: "Model.Vocabulary"
-    tag: "Model.Tag"
+    group: model.Group
+    package: model.Package
+    vocabulary: model.Vocabulary
+    tag: model.Tag
     activity: "Activity"
-    task_status: "Model.TaskStatus"
-    resource: "Model.Resource"
-    resource_view: "Model.ResourceView"
-    relationship: "Model.PackageRelationship"
+    task_status: model.TaskStatus
+    resource: model.Resource
+    resource_view: model.ResourceView
+    relationship: model.PackageRelationship
     api_version: int
     dataset_counts: dict[str, Any]
     limits: dict[str, Any]
@@ -129,6 +135,9 @@ class Context(TypedDict, total=False):
     with_capacity: bool
 
     table_names: list[str]
+    plugin_data: dict[Any, Any]
+    original_package: dict[str, Any]
+    changed_entities: dict[str, set[str]]
 
 
 class AuthResult(TypedDict, total=False):
@@ -151,7 +160,7 @@ ValidatorFactory = Callable[..., Validator]
 
 Schema: TypeAlias = "dict[str, Union[list[Validator], Schema]]"
 
-# Function that accepts arbitary number of validators(decorated by
+# Function that accepts arbitrary number of validators(decorated by
 # ckan.logic.schema.validator_args) and returns Schema dictionary
 ComplexSchemaFunc = Callable[..., Schema]
 # ComplexSchemaFunc+validator_args decorator = function that accepts no args
@@ -241,3 +250,35 @@ class PResourceUploader(Protocol):
 
     def upload(self, id: str, max_size: int = ...) -> None:
         ...
+
+
+TFactoryResult = TypeVar("TFactoryResult", default="dict[str, Any]")
+TFactoryModel = TypeVar("TFactoryModel", default=Any, covariant=True)
+
+
+class TestFactory(Protocol, Generic[TFactoryModel, TFactoryResult]):
+    def __call__(self, **kwargs: Any) -> TFactoryResult:
+        ...
+
+    def api_create(self, data_dict: dict[str, Any]) -> TFactoryResult:
+        ...
+
+    def model(self, **kwargs: Any) -> TFactoryModel:
+        ...
+
+    def create_batch(self, size: int, **kwargs: Any) -> list[TFactoryResult]:
+        ...
+
+    def stub(self, **kwargs: Any) -> object:
+        ...
+
+
+FixtureProvidePlugin = Callable[[str, Callable[..., Any]], None]
+FixtureCkanConfig = dict[str, Any]
+FixtureMakeApp = Callable[[], "CKANTestApp"]
+FixtureApp: TypeAlias = "CKANTestApp"
+FixtureResetRedis = Callable[[], None]
+FixtureResetDb = Callable[[], None]
+FixtureResetQueues = Callable[[], None]
+FixtureResetIndex = Callable[[], None]
+FixtureTestRequestContext = Callable[..., RequestContext]

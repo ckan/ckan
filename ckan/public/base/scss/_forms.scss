@@ -50,16 +50,6 @@ label.checkbox:after {
     }
 }
 
-// input[type=radio],
-// input[type=checkbox] {
-//     position: relative;
-//     top: 7px;
-//     padding: 0;
-//     margin: 0;
-//     &.checkbox-onown {
-//         top: 0;
-//     }
-// }
 select {
     padding: 4px;
 }
@@ -95,68 +85,63 @@ textarea {
     width: 100%;
 }
 
-.control-large {
-    .control-label {
-        font-size: $btn-font-size-lg;
-    }
-}
-
 .control-required {
     color: $errorBorder;
 }
 
-.form-actions .control-required-message {
-    float: left;
-    margin-left: 20px;
-    margin-bottom: 0;
-    line-height: 30px;
-    &:first-child {
-        margin-left: 0;
-    }
-}
-
 .form-actions {
-  overflow: auto;
-}
+    overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+    justify-content: end;
+    text-align: right;
 
-.form-actions .action-info {
-    line-height: 2;
-    text-align: left;
-    color: $formInfoText;
-    margin: 0;
-}
+    .action-info {
+        line-height: 1rem;
+        text-align: left;
+        color: $formInfoText;
+        margin: 0 auto 1rem 0;
+        flex-basis: 100%;
 
-@include media-breakpoint-up(lg) {
-    .form-actions {
-        text-align: right;
+        .small {
+            font-size: 11px;
+            line-height: 1.2;
+        }
     }
-    .form-actions .action-info {
-        float: left;
-        width: 50%;
-        margin-right: math.div($grid-gutter-width,2);
+
+    .btn {
+        flex-basis: 100%;
+        height: fit-content;
+        margin-bottom: 0.5rem;
+    }
+
+    @include media-breakpoint-up(sm) {
+        flex-direction: row;
+
+        .btn {
+            margin-bottom: 0;
+            margin-inline-start: 0.5rem;
+            flex-basis: auto;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        .action-info {
+            line-height: 1.25rem;
+            flex-basis: 50%;
+            margin: 0 auto 0 0;
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+
+        .action-info {
+            flex-basis: 60%;
+        }
     }
 }
 
-.form-actions .action-info.small {
-    font-size: 11px;
-    line-height: 1.2;
-}
-
-@include media-breakpoint-down(sm) {
-    .form-actions .btn {
-        margin-top: 5px;
-    }
-}
-
-// Override the default form widths.
-// .form-horizontal .control-label {
-//     width: 120px;
-// }
-// @media (min-width: $screen-sm-min) {
-//     .form-horizontal .controls {
-//         margin-left: 130px;
-//     }
-// }
 .form-group .info-block {
     position: relative;
     display: block;
@@ -216,10 +201,6 @@ form .control-medium .info-block.info-inline {
     text-decoration: underline;
 }
 
-// form .form-actions {
-//     padding-left: $gutterX;
-//     padding-right: $gutterX;
-// }
 .form-inline input {
     padding-bottom: 9px;
 }
@@ -274,7 +255,6 @@ select[data-module="autocomplete"] {
 .simple-input .field input {
     width: 100%;
     height: auto; // margin: 0 -7px; // Pull input out into gutter
-    // padding: 7px 5px;
 }
 
 .simple-input .field .btn-search {
@@ -314,7 +294,6 @@ select[data-module="autocomplete"] {
 }
 
 .editor .editor-info-block a {
-    color: $layoutLinkColor;
     text-decoration: none;
 }
 
@@ -418,7 +397,7 @@ select[data-module="autocomplete"] {
     @include border-radius(0 0 $inputBorderRadius $inputBorderRadius);
     display: block;
     padding: 6px 8px 3px;
-    background: $errorBorder; // margin: -$inputBorderRadius 0 0;
+    background: $errorBorder;
     color: $inputBackground;
     width: auto;
 }
@@ -453,7 +432,7 @@ select[data-module="autocomplete"] {
     @include list-unstyled;
     @include clearfix;
     color: $stagesTextColor;
-    counter-reset: stage; // margin: -$gutterY -$gutterX $gutterY;
+    counter-reset: stage;
     overflow: hidden;
     margin-bottom: $grid-gutter-width;
     padding: 0;
@@ -657,9 +636,6 @@ select[data-module="autocomplete"] {
 }
 
 .control-full .select2-container {
-    // Important is bad but select2 incorrectly calculates the width and sets it on the element@mixin
-    // Commenting out, as I cannot reproduce this problem (SS)
-    //width: 520px !important;
     max-width: 100%;
 }
 
@@ -714,27 +690,16 @@ select[data-module="autocomplete"] {
     }
 }
 
-.add-member-form .control-label {
-  display: block;
-}
-
-.add-member-or-wrap{
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  @include media-breakpoint-up(sm) {
-    margin-bottom: $grid-gutter-width;
-  }
-  @include media-breakpoint-down(md) {
-    min-height: $grid-gutter-width*3 + 10;
-  }
-}
-
 .add-member-or {
     text-align: center;
     text-transform: uppercase;
-    color: $gray-300;
+    color: $gray-600;
     font-weight: bold;
+    margin-bottom: 30px;
+
+    @include media-breakpoint-up(md) {
+        margin-bottom: 0;
+    }
 }
 
 #recaptcha_table {

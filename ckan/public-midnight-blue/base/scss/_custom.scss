@@ -1,0 +1,48 @@
+h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: $font-weight-semibold;
+}
+
+.bg-dust-red {
+    background-color: $dust-red;
+    color: $white;
+}
+
+.alert {
+    border: unset;
+    border-left: map-get($map: $border-widths, $key: "4") solid;
+}
+
+.filter-svg {
+    font-size: 24px;
+    -webkit-text-stroke: 2px $gray-500;
+    color: transparent;
+}
+
+.all-members {
+    margin-bottom: 1rem;
+    @include media-breakpoint-up(lg) {
+        float: right;
+    }
+}
+a.open-data {
+    display: inline-flex;
+    align-items: flex-start;
+    border-radius: 6px;
+    text-decoration: none;
+    overflow: hidden;
+    span {
+        padding: .25rem .5rem;
+        color: $black;
+        &.prefix {
+            background-color: #e8eaf3;
+        }
+        &.suffix {
+            background-color: #3395FF;
+        }
+    }
+}
+#organization-info {
+    float: left;
+}

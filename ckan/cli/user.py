@@ -2,11 +2,9 @@
 from __future__ import annotations
 
 import logging
-from typing import cast
+from typing import Optional
 
-import six
 import click
-
 
 import ckan.logic as logic
 import ckan.model as model
@@ -51,25 +49,17 @@ def add_user(ctx: click.Context, username: str, args: list[str]):
         data_dict['password'] = click.prompt(u'Password ', hide_input=True,
                                              confirmation_prompt=True)
 
-    # Optional
-    if u'fullname' in data_dict:
-        data_dict['fullname'] = six.ensure_text(data_dict['fullname'])
-
     import ckan.logic as logic
-    import ckan.model as model
 
     try:
-        site_user = logic.get_action(u'get_site_user')(cast(Context, {
-            u'model': model,
-            u'ignore_auth': True}),
+        site_user = logic.get_action(u'get_site_user')(
+            {'ignore_auth': True},
             {}
         )
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'ignore_auth': True,
             u'user': site_user['name'],
-        })
+        }
         flask_app = ctx.meta['flask_app']
         # Current user is tested agains sysadmin role during model
         # dictization, thus we need request context
@@ -125,24 +115,28 @@ def show_user(username: str):
     click.secho(u'User: %s' % user)
 
 
-@user.command(u'setpass', short_help=u'Set password for the user')
-@click.argument(u'username')
-def set_password(username: str):
-    import ckan.model as model
-    if not username:
-        error_shout(u'Need name of the user.')
-        return
+@user.command("setpass")
+@click.argument("username")
+@click.option("-p", "--password", help="New password")
+def set_password(username: str, password: Optional[str]):
+    """Set password for the user."""
     user = model.User.get(username)
     if not user:
-        error_shout(u"User not found!")
-        return
-    click.secho(u'Editing user: %r' % user.name, fg=u'yellow')
+        error_shout("User not found!")
+        raise click.Abort()
 
-    password = click.prompt(u'Password', hide_input=True,
-                            confirmation_prompt=True)
+    click.secho(f"Editing user: {user.name}", fg="yellow")
+
+    if not password:
+        password = click.prompt(
+            "Password",
+            hide_input=True,
+            confirmation_prompt=True,
+        )
+
     user.password = password
     model.repo.commit_and_remove()
-    click.secho(u'Password updated!', fg=u'green', bold=True)
+    click.secho("Password updated!", fg="green", bold=True)
 
 
 @user.group()
@@ -162,8 +156,15 @@ def token():
     default=u"{}",
     help=u"Valid JSON object with additional fields for api_token_create",
 )
+@click.option(
+    "--quiet",
+    "-q",
+    is_flag=True,
+    help="Output just the token itself (useful in automated scripts)",
+)
 def add_token(
-        username: str, token_name: str, extras: list[str], json_str: str):
+        username: str, token_name: str, extras: list[str], json_str: str,
+        quiet: bool):
     """Create a new API Token for the given user.
 
     Arbitrary fields can be passed in the form `key=value` or using
@@ -197,8 +198,9 @@ def add_token(
     except logic.NotFound as e:
         error_shout(e)
         raise click.Abort()
-    click.secho(u"API Token created:", fg=u"green")
-    click.echo(u"\t", nl=False)
+    if not quiet:
+        click.secho(u"API Token created:", fg=u"green")
+        click.echo(u"\t", nl=False)
     click.echo(token[u"token"])
 
 

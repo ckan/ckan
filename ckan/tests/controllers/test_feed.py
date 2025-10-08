@@ -6,10 +6,9 @@ from ckan.lib.helpers import url_for
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-import ckan.plugins as plugins
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFeeds(object):
     @pytest.mark.parametrize("page", [0, -2, "abc"])
     def test_atom_feed_incorrect_page_gives_error(self, page, app):
@@ -70,15 +69,3 @@ class TestFeeds(object):
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset1["title"]))
 
         assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
-
-
-class MockFeedPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IFeed)
-
-    def get_item_additional_fields(self, dataset_dict):
-        extras = {e["key"]: e["value"] for e in dataset_dict["extras"]}
-
-        box = tuple(
-            float(extras.get(n)) for n in ("ymin", "xmin", "ymax", "xmax")
-        )
-        return {"geometry": box}

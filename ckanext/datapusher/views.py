@@ -7,6 +7,7 @@ import ckan.plugins.toolkit as toolkit
 import ckan.logic as logic
 import ckan.lib.helpers as core_helpers
 import ckan.lib.base as base
+from ckan.types import Context, Response
 
 from ckan.common import _
 
@@ -73,3 +74,28 @@ datapusher.add_url_rule(
     u'/dataset/<id>/resource_data/<resource_id>',
     view_func=ResourceDataView.as_view(str(u'resource_data'))
 )
+
+
+@datapusher.route(
+    "/dataset/<id>/delete-datastore/<resource_id>",
+    methods=["POST"]
+)
+def delete_datastore_table(id: str, resource_id: str) -> Response:
+    context: Context = {"user": toolkit.current_user.name}
+
+    try:
+        toolkit.get_action('datastore_delete')(
+            context, {'resource_id': resource_id, 'force': True})
+    except toolkit.NotAuthorized:
+        return toolkit.abort(
+            403, _(f'Unauthorized to delete resource {resource_id}'))
+
+    toolkit.h.flash_notice(
+        _('DataStore and Data Dictionary '
+            f'deleted for resource {resource_id}'))
+
+    return toolkit.h.redirect_to(
+        'datapusher.resource_data',
+        id=id,
+        resource_id=resource_id
+    )

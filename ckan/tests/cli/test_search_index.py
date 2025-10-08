@@ -38,7 +38,7 @@ class TestSearchIndex(object):
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
     def test_no_index_deleted_package(self, cli):
         """ Deleted packages should not be in search index. """
-        factories.Dataset(title="Deleted package", id="deleted-pkg")
+        factories.Dataset(title="Deleted package", name="deleted-pkg")
         helpers.call_action("package_delete", id="deleted-pkg")
         search_result = helpers.call_action('package_search', q="Deleted")
         assert search_result[u'count'] == 0
@@ -46,7 +46,7 @@ class TestSearchIndex(object):
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
     def test_no_index_deleted_package_rebuild(self, cli):
         """ Deleted packages should not be in search index after rebuild. """
-        factories.Dataset(title="Deleted package", id="deleted-pkg")
+        factories.Dataset(title="Deleted package", name="deleted-pkg")
         helpers.call_action("package_delete", id="deleted-pkg")
         result = cli.invoke(ckan, ['search-index', 'rebuild'])
         assert not result.exit_code, result.output
@@ -56,7 +56,7 @@ class TestSearchIndex(object):
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
     def test_index_deleted_package(self, cli):
         """ Deleted packages should be in search index if ckan.search.remove_deleted_packages """
-        dataset = factories.Dataset(title="Deleted package", id="deleted-pkg")
+        dataset = factories.Dataset(title="Deleted package", name="deleted-pkg")
         helpers.call_action("package_delete", id="deleted-pkg")
         search_result = helpers.call_action('package_search', q="Deleted", include_deleted=True)
         assert search_result[u'count'] == 1
@@ -69,7 +69,7 @@ class TestSearchIndex(object):
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
     def test_index_deleted_package_rebuild(self, cli):
         """ Deleted packages should be in search index after rebuild if ckan.search.remove_deleted_packages """
-        dataset = factories.Dataset(title="Deleted package", id="deleted-pkg")
+        dataset = factories.Dataset(title="Deleted package", name="deleted-pkg")
         helpers.call_action("package_delete", id="deleted-pkg")
         result = cli.invoke(ckan, ['search-index', 'rebuild'])
         assert not result.exit_code, result.output
@@ -172,3 +172,9 @@ class TestSearchIndex(object):
         assert not result.exit_code, result.output
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 2
+
+    def test_rebuild_invalid_dataset(self, cli):
+        # attempt to index package that doesn't exist
+        result = cli.invoke(ckan, [u'search-index', u'rebuild', u'invalid-dataset'])
+        assert result.exit_code, result.output
+        assert "Couldn't find" in result.output

@@ -1,6 +1,6 @@
 {% extends "user/edit_base.html" %}
 
-{% set user = g.userobj %}
+{% set user = current_user %}
 {% set org_type = h.default_group_type('organization') %}
 {% set group_type = h.default_group_type('group') %}
 {% set dataset_type = h.default_package_type() %}
@@ -17,13 +17,13 @@
     {% block page_header %}
       <header class="module-content page-header hug">
         <div class="content_action">
-          {% link_for _('Profile settings'), named_route='user.edit', id=user.name, class_='btn btn-default', icon='cog' %}
+          {% link_for _('Profile settings'), named_route='user.edit', id=user.name, class_='btn btn-secondary', icon='cog' %}
         </div>
       {% block content_primary_nav %}
         <ul class="nav nav-tabs">
           {% block dashboard_nav_links %}
             {{ h.build_nav_icon('dashboard.datasets', h.humanize_entity_type('package', dataset_type, 'my label') or _('My Datasets'), icon='sitemap') }}
-            {{ h.build_nav_icon('dashboard.organizations', h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations'), icon='building-o') }}
+            {{ h.build_nav_icon('dashboard.organizations', h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations'), icon='building') }}
             {{ h.build_nav_icon('dashboard.groups', h.humanize_entity_type('group', group_type, 'my label') or _('My Groups'), icon='users') }}
           {% endblock dashboard_nav_links %}
         </ul>

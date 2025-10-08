@@ -2,58 +2,48 @@
 """Contains ``ckan`` and ``ckanext`` namespaces for signals as well as a bunch
 of predefined core-level signals.
 
-Check :doc:`signals` for extra detais.
+Check :doc:`signals` for extra details.
 
 """
 
-from typing import Any
 import flask.signals
+import flask_login.signals
 from blinker import Namespace
 
 ckan = Namespace()
 ckanext = Namespace()
 
-
-def _request_finished_listener(*args: Any, **kwargs: Any):
-    request_finished.send(*args, **kwargs)
-
-
-flask.signals.request_finished.connect(_request_finished_listener)
-
-
-def _request_started_listener(*args: Any, **kwargs: Any):
-    request_started.send(*args, **kwargs)
-
-
-flask.signals.request_started.connect(_request_started_listener)
-
-
 request_started = ckan.signal(u"request_started")
 """This signal is sent when the request context is set up, before any
 request processing happens.
 """
-
+flask.signals.request_started.connect(request_started.send)
 
 request_finished = ckan.signal(u"request_finished")
 """This signal is sent right before the response is sent to the
 client.
 """
-
+flask.signals.request_finished.connect(request_finished.send)
 
 register_blueprint = ckan.signal(u"register_blueprint")
 """This signal is sent when a blueprint for dataset/resource/group/organization
 is going to be registered inside the application.
 """
 
-
 resource_download = ckan.signal(u"resource_download")
 """This signal is sent just before a file from an uploaded resource is sent
 to the user.
 """
 
-successful_login = ckan.signal(u"successful_login")
-"""This signal is sent after successful login attempt.
+user_logged_in = ckan.signal(u"logged_in")
+""" Sent when a user is logged in.
 """
+flask_login.signals.user_logged_in.connect(user_logged_in.send)
+
+user_logged_out = ckan.signal(u"logged_out")
+"""Sent when a user is logged out
+"""
+flask_login.signals.user_logged_out.connect(user_logged_out.send)
 
 failed_login = ckan.signal(u"failed_login")
 """This signal is sent after failed login attempt.
@@ -74,11 +64,9 @@ providing new password.
 
 """
 
-
 action_succeeded = ckan.signal(u"action_succeed")
 """This signal is sent when an action finished without an exception.
 """
-
 
 datastore_upsert = ckanext.signal(u"datastore_upsert")
 """This signal is sent after datasetore records inserted/updated via

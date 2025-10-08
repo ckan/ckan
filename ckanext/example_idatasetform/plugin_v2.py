@@ -7,7 +7,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
 
-class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
+class ExampleIDatasetFormPlugin(tk.DefaultDatasetForm, p.SingletonPlugin):
     p.implements(p.IDatasetForm)
     p.implements(p.IConfigurer)
 

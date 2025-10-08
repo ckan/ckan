@@ -1,172 +1,232 @@
-# encoding: utf-8
 from __future__ import annotations
 
 import logging
 import os
-import tempfile
-from typing import Any, Optional
+from typing import Any
+from typing_extensions import Literal, TypedDict, assert_never
 
-import yaml
 from markupsafe import Markup
 from webassets import Environment
 from webassets.loaders import YAMLLoader
 
 from ckan.common import config, g
+from ckan.lib.io import get_ckan_temp_directory
 
 
-logger = logging.getLogger(__name__)
-env: Optional[Environment] = None
+log = logging.getLogger(__name__)
+env: Environment
 
-yaml.warnings({u'YAMLLoadWarning': False})
+AssetType = Literal["style", "script"]
+
+
+class AssetCollection(TypedDict):
+    script: list[str]
+    style: list[str]
+    included: set[str]
 
 
 def create_library(name: str, path: str) -> None:
     """Create WebAssets library(set of Bundles).
     """
-    config_path = os.path.join(path, u'webassets.yml')
+    config_path = os.path.join(path, "webassets.yaml")
     if not os.path.exists(config_path):
+        config_path = os.path.join(path, "webassets.yml")
+
+    if not os.path.exists(config_path):
+        log.warning(
+            "Cannot create library %s at %s because webassets.yaml is missing",
+            name,
+            path,
+        )
         return
-    assert env
+
     library: dict[str, Any] = YAMLLoader(config_path).load_bundles()
     bundles = {
-        u'/'.join([name, key]): bundle
+        f"{name}/{key}": bundle
         for key, bundle
         in library.items()
     }
 
-    # Unfortunately, you'll get an error attempting to register bundle
-    # with the same name twice. For now, let's just pop existing
-    # bundle and avoid name-conflicts
-    # TODO: make PR into webassets with preferable solution
-    # Issue: https://github.com/miracle2k/webassets/issues/519
+    # skip attempts to register an asset if name is taken. It gives us
+    # templates-like behavior, where the item that was registered first has
+    # highest priority.
     for name, bundle in bundles.items():
-        env._named_bundles.pop(name, None)
-        env.register(name, bundle)
+        if is_registered(name):
+            log.debug(
+                "Skip registration of %s because it already exists",
+                name,
+            )
+            continue
 
-    env.append_path(path)
+        # use absolute path to files. Otherwise they'll behave like templates
+        # and if plugin A and plugin B has their own `x.css`(i.e
+        # `ckanext/A/assets/x.css` and `ckanext/B/assets/x.css`), both plugins
+        # will load the same `x.css` from the plugin that was first registered
+        bundle.contents = [
+            os.path.join(path, item)
+            for item in bundle.contents
+        ]
+        log.debug("Register asset %s", name)
+        env.register(name, bundle)
 
 
 def webassets_init() -> None:
+    """Initialize fresh Webassets environment
+    """
     global env
 
     static_path = get_webassets_path()
 
-    public = config.get_value(u'ckan.base_public_folder')
-
-    public_folder = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), u'..', public))
-
-    base_path = os.path.join(public_folder, u'base')
-
     env = Environment()
     env.directory = static_path
-    env.debug = config.get_value(u'debug')
-    env.url = u'/webassets/'
-
-    add_public_path(base_path, u'/base/')
-
-    logger.debug(u'Base path {0}'.format(base_path))
-    create_library(u'vendor', os.path.join(
-        base_path, u'vendor'))
-
-    create_library(u'base', os.path.join(base_path, u'javascript'))
-
-    create_library(u'datapreview', os.path.join(base_path, u'datapreview'))
-
-    create_library(u'css', os.path.join(base_path, u'css'))
+    env.debug = config["debug"]
+    env.url = config["ckan.webassets.url"]
 
 
-def _make_asset_collection() -> dict[str, Any]:
-    return {u'style': [], u'script': [], u'included': set()}
+def register_core_assets():
+    """Register CKAN core assets.
+
+    Call this function after registration of plugin assets. Asset overrides are
+    not allowed, so if plugin tries to replace CKAN core asset, it has to
+    register an asset with the same name before core asset is added. In this
+    case, asset from plugin will have higher precedence and core asset will be
+    ignored.
+
+    """
+    public = config["ckan.base_public_folder"]
+    public_folder = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        public,
+    ))
+
+    base_path = os.path.join(public_folder, "base")
+    add_public_path(base_path, "/base/")
+    create_library("vendor", os.path.join(base_path, "vendor"))
+    create_library("base", os.path.join(base_path, "javascript"))
+    create_library("css", os.path.join(base_path, "css"))
+
+
+def _make_asset_collection() -> AssetCollection:
+    return {"style": [], "script": [], "included": set()}
 
 
 def include_asset(name: str) -> None:
     from ckan.lib.helpers import url_for_static_or_external
-    try:
-        if not g.webassets:
-            raise AttributeError(u'WebAssets not initialized yet')
-    except AttributeError:
-        g.webassets = _make_asset_collection()
-    if name in g.webassets[u'included']:
+
+    if not hasattr(g, "_webassets"):
+        log.debug("Initialize fresh assets collection")
+        g._webassets = _make_asset_collection()
+
+    if name in g._webassets["included"]:
         return
 
-    assert env
-    try:
-        bundle: Any = env[name]
-    except KeyError:
-        logger.error(u'Trying to include unknown asset: <{}>'.format(name))
+    if not is_registered(name):
+        log.error("Trying to include unknown asset: %s", name)
         return
 
-    deps: list[str] = bundle.extra.get(u'preload', [])
+    bundle: Any = env[name]
+    deps: list[str] = bundle.extra.get("preload", [])
 
-    # Using DFS may lead to infinite recursion(unlikely, because
-    # extensions rarely depends on each other), so there is a sense to
-    # memoize visited routes.
-
-    # TODO: consider infinite loop prevention for assets that depends
-    # on each other
+    # mark current asset as included in order to avoid recursion while loading
+    # dependencies
+    g._webassets["included"].add(name)
     for dep in deps:
         include_asset(dep)
 
     # Add `site_root` if configured
     urls = [url_for_static_or_external(url) for url in bundle.urls()]
-    type_ = None
+
     for url in urls:
-        link = url.split(u'?')[0]
-        if link.endswith(u'.css'):
-            type_ = u'style'
+        link = url.split("?")[0]
+        if link.endswith(".css"):
+            type_ = "style"
             break
-        elif link.endswith(u'.js'):
-            type_ = u'script'
+        elif link.endswith(".js"):
+            type_ = "script"
             break
     else:
-        logger.warn(u'Undefined asset type: {}'.format(urls))
+        log.warning("Undefined asset type: %s", urls)
         return
-    g.webassets[type_].extend(urls)
-    g.webassets[u'included'].add(name)
+
+    g._webassets[type_].extend(urls)
 
 
-def _to_tag(url: str, type_: str):
-    if type_ == u'style':
-        return u'<link href="{}" rel="stylesheet"/>'.format(url)
-    elif type_ == u'script':
-        return u'<script src="{}" type="text/javascript"></script>'.format(url)
-    return u''
+def _to_tag(url: str, type_: AssetType) -> str:
+    """Turn asset URL into corresponding HTML tag.
+    """
+    if type_ == "style":
+        return f'<link href="{url}" rel="stylesheet"/>'
+    elif type_ == "script":
+        return f'<script src="{url}" type="text/javascript"></script>'
+    else:
+        assert_never(type_)
 
 
-def render_assets(type_: str) -> Markup:
+def render_assets(type_: AssetType) -> Markup:
+    """Render all assets of the given type as a string of HTML tags.
+
+    All assets that are included into output will be removed from the render
+    cache. I.e:
+
+        include_asset("a") # style
+        # render tags and clear style-cache
+        output = render_assets("style")
+        assert "a.css" in output
+
+        # style-cache is clean, nothing included since last render
+        output = render_assets("style")
+        assert output ==""
+
+        include_asset("b") # style
+        include_asset("c") # style
+        # render tags and clear style-cache. "a" was already rendered and
+        # removed from the cache, so this time only "b" and "c" are rendered.
+        output = render_assets("style")
+        assert "b.css" in output
+        assert "c.css" in output
+
+        # style-cache is clean, nothing included since last render
+        output = render_assets("style")
+        assert output == ""
+    """
     try:
-        assets = g.webassets
+        assets: AssetCollection = g._webassets
     except AttributeError:
-        return Markup(u'')
+        return Markup()
 
-    if not assets:
-        return Markup(u'')
-    collection = assets[type_]
-    tags = u'\n'.join([_to_tag(asset, type_) for asset in assets[type_]])
-    collection[:] = []
+    tags = "\n".join(_to_tag(asset, type_) for asset in assets[type_])
+    assets[type_].clear()
+
     return Markup(tags)
 
 
 def get_webassets_path() -> str:
-    webassets_path = config.get_value(u'ckan.webassets.path')
+    """Compute path to the folder where compiled assets are stored.
+    """
+    webassets_path = config["ckan.webassets.path"]
 
     if not webassets_path:
-        storage_path = config.get_value(
-            u'ckan.storage_path'
-        ) or tempfile.gettempdir()
+        storage_path = config.get(
+            "ckan.storage_path"
+        ) or get_ckan_temp_directory()
 
         if storage_path:
-            webassets_path = os.path.join(storage_path, u'webassets')
+            webassets_path = os.path.join(storage_path, "webassets")
 
     if not webassets_path:
         raise RuntimeError(
-            u'Either `ckan.webassets.path` or `ckan.storage_path` '
-            u'must be specified'
+            "Either `ckan.webassets.path` or `ckan.storage_path`"
+            " must be specified"
         )
     return webassets_path
 
 
 def add_public_path(path: str, url: str) -> None:
-    assert env
+    """Add a public path that can be used by `cssrewrite` filter."""
     env.append_path(path, url)
+
+
+def is_registered(asset: str) -> bool:
+    """Check if asset is registered in current environment."""
+    return asset in env

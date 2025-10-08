@@ -26,7 +26,8 @@ class TestWebPageView(object):
         )
 
         url = url_for(
-            "resource.read", id=dataset["name"], resource_id=resource["id"]
+            "{}_resource.read".format(dataset["type"]),
+            id=dataset["name"], resource_id=resource["id"]
         )
 
         response = app.get(url)

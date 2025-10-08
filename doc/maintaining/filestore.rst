@@ -37,11 +37,12 @@ To setup CKAN's FileStore with local file storage:
 
      sudo mkdir -p |storage_path|
 
-2. Add the following line to your CKAN config file, after the ``[app:main]``
+2. Add the following lines to your CKAN config file, after the ``[app:main]``
    line:
 
    .. parsed-literal::
 
+      ckan.uploads_enabled = true
       ckan.storage_path = |storage_path|
 
 3. Set the permissions of your :ref:`ckan.storage_path` directory.
@@ -94,7 +95,7 @@ To create a new resource and upload a file to it using the Python library
  import requests
  requests.post('http://0.0.0.0:5000/api/action/resource_create',
                data={"package_id":"my_dataset"},
-               headers={"X-CKAN-API-Key": "21a47217-6d7b-49c5-88f9-72ebd5a4d4bb"},
+               headers={"Authorization": "21a47217-6d7b-49c5-88f9-72ebd5a4d4bb"},
                files=[('upload', open('/path/to/file/to/upload.csv', 'rb'))])
 
 (Requests automatically sends a ``multipart-form-data`` heading when you use the
@@ -169,4 +170,4 @@ custom types get registered on startup::
 
 
 
-.. _mimetypes: http://docs.python.org/2/library/mimetypes.html
+.. _mimetypes: https://docs.python.org/3/library/mimetypes.html

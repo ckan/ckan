@@ -13,19 +13,21 @@ from ckan.tests import factories
 from ckan.tests.helpers import call_action
 from ckan.common import config
 from ckanext.datastore.tests.helpers import set_url_type
+from ckanext.datapusher.tests import get_api_token
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
+@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
 @pytest.mark.usefixtures("with_plugins", "non_clean_db")
 class TestDatastoreNew:
     def test_create_ckan_resource_in_package(self, app, api_token):
         package = factories.Dataset.model()
         data = {"resource": {"package_id": package.id}}
-        auth = {"Authorization": api_token["token"]}
+        headers = {"Authorization": api_token["token"]}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=200,
         )
         res_dict = json.loads(res.body)
@@ -63,6 +65,7 @@ class TestDatastoreNew:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
+@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
 @pytest.mark.usefixtures("with_plugins")
 class TestDatastoreCreate(object):
     sysadmin_user = None
@@ -111,11 +114,11 @@ class TestDatastoreCreate(object):
             "resource": {"package_id": package.id},
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=409,
         )
         res_dict = json.loads(res.body)
@@ -175,13 +178,13 @@ class TestDatastoreCreate(object):
         data = {"status": "success", "metadata": {"resource_id": resource.id}}
 
         if user["sysadmin"]:
-            auth = {"Authorization": self.sysadmin_token}
+            headers = {"Authorization": self.sysadmin_token}
         else:
-            auth = {"Authorization": self.normal_user_token}
+            headers = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datapusher_hook",
             json=data,
-            extra_environ=auth,
+            headers=headers,
             status=200,
         )
         res_dict = json.loads(res.body)

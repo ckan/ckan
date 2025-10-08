@@ -21,6 +21,7 @@ boolean_validator = get_validator('boolean_validator')
 int_validator = get_validator('int_validator')
 one_of = cast(ValidatorFactory, get_validator('one_of'))
 unicode_only = get_validator('unicode_only')
+dict_only = get_validator('dict_only')
 default = cast(ValidatorFactory, get_validator('default'))
 natural_number_validator = get_validator('natural_number_validator')
 configured_default = cast(ValidatorFactory, get_validator(
@@ -83,7 +84,7 @@ def json_validator(value: Any) -> Any:
         return value
     try:
         value = json.loads(value)
-    except ValueError:
+    except (ValueError, TypeError):
         raise df.Invalid('Cannot parse JSON')
     return value
 
@@ -119,6 +120,7 @@ def datastore_create_schema() -> Schema:
             'type': [ignore_missing],
             'info': [ignore_missing],
         },
+        'delete_fields': [default(False), boolean_validator],
         'primary_key': [ignore_missing, list_of_strings_or_string],
         'indexes': [ignore_missing, list_of_strings_or_string],
         'triggers': {
@@ -169,6 +171,20 @@ def datastore_delete_schema() -> Schema:
     return schema
 
 
+def datastore_records_delete_schema() -> Schema:
+    schema = {
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'force': [ignore_missing, boolean_validator],
+        'filters': [not_missing, dict_only],
+        'id': [ignore_missing],
+        'calculate_record_count': [ignore_missing, default(False),
+                                   boolean_validator],
+        '__junk': [empty],
+        '__before': [rename('id', 'resource_id')]
+    }
+    return schema
+
+
 def datastore_search_schema() -> Schema:
     schema = {
         'resource_id': [not_missing, not_empty, unicode_safe],
@@ -206,6 +222,8 @@ def datastore_function_create_schema() -> Schema:
         'arguments': {
             'argname': [unicode_only, not_empty],
             'argtype': [unicode_only, not_empty],
+            'argmode': [ignore_missing, unicode_only, one_of([
+                'in', 'out', 'inout'])],
         },
         'rettype': [default(u'void'), unicode_only],
         'definition': [unicode_only],
@@ -222,4 +240,14 @@ def datastore_function_delete_schema() -> Schema:
 def datastore_analyze_schema() -> Schema:
     return {
         'resource_id': [unicode_safe, resource_id_exists],
+    }
+
+
+def datastore_info_schema() -> Schema:
+    return {
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'id': [ignore_missing],
+        'include_meta': [default(True), boolean_validator],
+        'include_fields_schema': [default(True), boolean_validator],
+        '__before': [rename('id', 'resource_id')]
     }

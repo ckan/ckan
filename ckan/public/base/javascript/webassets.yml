@@ -5,6 +5,7 @@ main:
     preload:
       - vendor/vendor
       - vendor/bootstrap
+      - vendor/htmx
   contents:
     - apply-html-class.js
     - plugins/jquery.inherit.js
@@ -13,7 +14,6 @@ main:
     - plugins/jquery.date-helpers.js
     - plugins/jquery.slug.js
     - plugins/jquery.slug-preview.js
-    - plugins/jquery.truncator.js
     - plugins/jquery.masonry.js
     - plugins/jquery.form-warning.js
     - plugins/jquery.images-loaded.js
@@ -21,9 +21,11 @@ main:
     - module.js
     - pubsub.js
     - client.js
-    - notify.js
     - i18n.js
+    - notify.js
+    - confirm.js
     - main.js
+    - htmx-ckan.js
 
 ckan:
   filters: rjsmin
@@ -36,7 +38,6 @@ ckan:
     - modules/slug-preview.js
     - modules/basic-form.js
     - modules/confirm-action.js
-    - modules/api-info.js
     - modules/autocomplete.js
     - modules/custom-fields.js
     - modules/data-viewer.js
@@ -45,8 +46,6 @@ ckan:
     - modules/resource-upload-field.js
     - modules/resource-reorder.js
     - modules/resource-view-reorder.js
-    - modules/follow.js
-    - modules/activity-stream.js
     - modules/resource-view-embed.js
     - modules/resource-view-filters-form.js
     - modules/resource-view-filters.js
@@ -54,17 +53,8 @@ ckan:
     - modules/dataset-visibility.js
     - modules/media-grid.js
     - modules/image-upload.js
-    - modules/followers-counter.js
     - modules/metadata-button.js
     - modules/copy-into-buffer.js
-
-tracking:
-  output: base/%(version)s_tracking.js
-  extra:
-    preload:
-      - vendor/jquery
-  contents:
-    - tracking.js
 
 view-filters:
   output: base/%(version)s_view-filters.js

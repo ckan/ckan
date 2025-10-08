@@ -7,8 +7,10 @@ groups:
         internal: true
       - key: here
         internal: true
-      - key: ckan.admin_tabs
-        internal: true
+      - key: plugin_template_paths
+        ignored: true
+      - key: plugin_public_paths
+        ignored: true
       - key: computed_template_paths
         ignored: true
       - key: clear_logo_upload
@@ -17,11 +19,10 @@ groups:
         ignored: true
       - key: ckan.host
         ignored: true
-      - key: testing
-        ignored: true
-        type: bool
+      - key: CKAN_INI
+        internal: true
 
-  # Options that are available inside CircleCI containers:
+  # Options that are available inside the Docker / CI containers:
   - annotation: ~
     options:
       - key: CKAN_POSTGRES_USER
@@ -45,90 +46,111 @@ groups:
   - annotation: ~
     options:
       - key: APPLICATION_ROOT
+        flask: true
         internal: true
       - key: BABEL_DEFAULT_LOCALE
+        flask: true
         internal: true
       - key: BABEL_DEFAULT_TIMEZONE
+        flask: true
         ignored: true
       - key: BABEL_DOMAIN
-        ignored: true
-      - key: BABEL_MULTIPLE_DOMAINS
+        flask: true
         ignored: true
       - key: BABEL_TRANSLATION_DIRECTORIES
+        flask: true
         ignored: true
-      - key: CKAN_INI
-        internal: true
       - key: DEBUG
+        flask: true
         internal: true
       - key: ENV
+        flask: true
         internal: true
       - key: EXPLAIN_TEMPLATE_LOADING
+        flask: true
         internal: true
       - key: JSONIFY_MIMETYPE
+        flask: true
         internal: true
       - key: JSONIFY_PRETTYPRINT_REGULAR
+        flask: true
         internal: true
       - key: JSON_AS_ASCII
+        flask: true
         internal: true
       - key: JSON_SORT_KEYS
+        flask: true
         internal: true
       - key: MAX_CONTENT_LENGTH
+        flask: true
         internal: true
       - key: MAX_COOKIE_SIZE
+        flask: true
         internal: true
-      - key: PERMANENT_SESSION_LIFETIME
+      - key: MAX_FORM_MEMORY_SIZE
+        flask: true
+        internal: true
+      - key: MAX_FORM_PARTS
+        flask: true
         internal: true
       - key: PREFERRED_URL_SCHEME
+        flask: true
         internal: true
       - key: PRESERVE_CONTEXT_ON_EXCEPTION
+        flask: true
+        internal: true
+      - key: PROVIDE_AUTOMATIC_OPTIONS
+        flask: true
         internal: true
       - key: PROPAGATE_EXCEPTIONS
+        flask: true
         internal: true
-      - key: SECRET_KEY
+      - key: SECRET_KEY_FALLBACKS
+        flask: true
         internal: true
       - key: SEND_FILE_MAX_AGE_DEFAULT
+        flask: true
         internal: true
       - key: SERVER_NAME
+        flask: true
         internal: true
-      - key: SESSION_COOKIE_DOMAIN
-        internal: true
-      - key: SESSION_COOKIE_HTTPONLY
-        internal: true
-      - key: SESSION_COOKIE_NAME
-        internal: true
-      - key: SESSION_COOKIE_PATH
-        internal: true
-      - key: SESSION_COOKIE_SAMESITE
-        internal: true
-      - key: SESSION_COOKIE_SECURE
-        internal: true
-      - key: SESSION_REFRESH_EACH_REQUEST
+      - key: SESSION_COOKIE_PARTITIONED
+        flask: true
         internal: true
       - key: TEMPLATES_AUTO_RELOAD
+        flask: true
         internal: true
       - key: TESTING
+        flask: true
         internal: true
       - key: TRAP_BAD_REQUEST_ERRORS
+        flask: true
         internal: true
       - key: TRAP_HTTP_EXCEPTIONS
+        flask: true
+        internal: true
+      - key: TRUSTED_HOSTS
+        flask: true
         internal: true
       - key: USE_X_SENDFILE
+        flask: true
         internal: true
       - key: DEBUG_TB_HOSTS
+        flask: true
         internal: true
       - key: DEBUG_TB_ENABLED
+        flask: true
         internal: true
       - key: DEBUG_TB_INTERCEPT_REDIRECTS
+        flask: true
         internal: true
       - key: DEBUG_TB_PANELS
+        flask: true
         internal: true
 
-  - annotation: General settings
+  - annotation: Default settings
+    section: DEFAULT
     options:
-      - key: use
-        placeholder: egg:ckan
-        validators: not_empty
-        required: true
       - key: debug
         type: bool
         example: 'true'
@@ -156,6 +178,40 @@ groups:
              With debug mode enabled, a visitor to your site could execute malicious
              commands.
 
+  - annotation: General settings
+    options:
+      - key: use
+        placeholder: egg:ckan
+        description: |
+          Allows to define chained configuration files. The base ini file should use the ``egg:ckan``
+          value. Files extending the base ini files must use the ``config:<path to parent ini file>`` form.
+          For instance, if you need to tweak the test settings in a ``test-core-custom.ini`` file, you
+          would use ``use=config:test-core.ini`` as value. Configuration options defined in the higher level
+          files (e.g. ``test-core-custom.ini``) will override the existing ones defined in the base on
+          (e.g. ``test-core.ini``).
+
+      - key: SECRET_KEY
+        legacy_key: beaker.session.secret
+        validators: not_empty
+        required: true
+        flask: true
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
+        description: |
+          This is the secret token that is used by security related tasks by CKAN and its extensions.
+          ``ckan generate config`` generates a unique
+          value for this each time it generates a config file. Alternatively you can generate one with
+          the following command::
+
+            python -c "import secrets; print(secrets.token_urlsafe(20))"
+
+          When used in a cluster environment, the value must be the same on every machine.
+
+          If not provided, for backwards compatibility with earlier configurations the value of
+          ``beaker.session.secret`` will be used.
+
+
       - key: ckan.legacy_route_mappings
         default: {}
         example: '{"home": "home.index", "about": "home.about", "search": "dataset.search"}'
@@ -168,29 +224,27 @@ groups:
             Flask-based route names.
 
       - key: config.mode
-        default: default
+        default: strict
         example: strict
         description: |
-          Controls the parsing and validation of ``config`` object. In ``default`` mode there is no validation
-          applied to the provided configuration values and they are not guaranteed to be present. This is the
-          current default behaviour and was the only one available in CKAN<=2.9.
 
-          Enabling `strict` mode does the following:
+          .. warning:: This configuration option has no effect starting from CKAN 2.11. The
+            default behaviour going forward is the old ``strict`` mode, where CKAN will not
+            start unless **all** config options are valid according to the validators defined in the
+            configuration declaration. For every invalid config option, an error will be
+            printed to the output stream.
 
-          * For all the :ref:`declared config options <declare-config-options>`, if they
-            are not provided the config file, the ddefault value from the declaration will be
-            used in the ``config`` object.
-
-          * All the :ref:`declared config options <declare-config-options>` will be
-            normalized using validators specified in the declaration.
-
-          * None of CKAN CLI commands will be executed and the CKAN application itself will
-            not start unless **all** config options are valid according to the validators defined
-            in the declaration. For every invalid config option, an error will be printed to the
-            output stream.
 
   - annotation: Development settings
     options:
+      - key: testing
+        type: bool
+        commented: true
+        description: |
+          This flag is enabled during tests and can be used to conditionally
+          skip operations that are not desired during test execution,
+          e.g. creating a DOI for dataset or notifying public registry about
+          new data available on the portal
       - key: ckan.devserver.host
         default: localhost
         example: '0.0.0.0'
@@ -250,76 +304,114 @@ groups:
       - key: ckan.user.last_active_interval
         type: int
         default: 600
-      - key: cache_dir
-        placeholder: "/tmp/%(ckan.site_id)s"
-      - key: beaker.session.key
+        description: |
+          The number of seconds between requests to record the last time a user was active on the site.
+
+      - key: SESSION_TYPE
+        flask: true
+        default: cookie
+        description: |
+            Specifies which type of session interface to use. The default
+            ``cookie`` value stores the session data inside a JSON-serialized signed
+            cookie. Alternatively, this can be set to any of the types
+            supported by `Flask-Session
+            <https://flask-session.readthedocs.io/en/latest/config.html#SESSION_TYPE>`_
+            like ``redis``, ``filesystem``, etc. Keep in mind
+            that certain session types require additional Python packages and configuration settings.
+            Setting a not supported value will raise an exception on startup.
+
+      - key: SESSION_COOKIE_NAME
+        flask: true
         default: ckan
-      - key: beaker.session.secret
-        validators: not_empty
-        required: true
-        placeholder_callable: secrets:token_urlsafe
-        callable_args:
-          nbytes: 20
         description: |
-          This is the secret token that the beaker library uses to hash the
-          cookie sent to the client. `ckan generate config` generates a unique
-          value for this each time it generates a config file.
+          The name of the session cookie. Can be changed in case you already have a cookie with the same name.
 
-  - annotation: repoze.who settings
-    options:
-      - key: who.config_file
-        validators: not_empty
-        required: true
-        placeholder: "%(here)s/who.ini"
-        example: 3600
+      - key: SESSION_KEY_PREFIX
+        flask: true
+        default: "session:"
         description: |
-          This defines how long (in seconds) until a user is logged out after a period
-          of inactivity. If the setting isn't defined, the session doesn't expire. Not
-          active by default.
+          A prefix that is added before all session keys. This makes it
+          possible to use the same backend storage server for different apps.
 
-      - key: who.log_level
-        default: warning
-      - key: who.log_file
-        placeholder: "%(cache_dir)s/who_log.ini"
-      - key: who.reissue_time
-        default: 0
-        type: int
-      - key: who.timeout
-        validators: ignore_empty convert_int
+          .. note:: This option affects only server-side sessions. Cookie-based sessions ignore this option
+
+      - key: SESSION_COOKIE_DOMAIN
+        flask: true
+        validators: ignore_empty
         description: |
-          Session timeout (user logged out after period of inactivity, in
-          seconds). Inactive by default, so the session doesn't expire.
-      - key: who.httponly
+          The value of the Domain parameter on the session cookie. If not set,
+          browsers will only send the cookie to the exact domain it was set
+          from. Otherwise, they will send it to any subdomain of the given
+          value as well.
+
+      - key: SESSION_COOKIE_PATH
+        flask: true
+        validators: ignore_empty
+        description: |
+          The path that the session cookie will be valid for.
+
+      - key: SESSION_COOKIE_HTTPONLY
+        flask: true
         type: bool
         default: true
-        example: false
         description: |
-          This determines whether the HttpOnly flag will be set on the repoze.who
-          authorization cookie. The default in the absence of the setting is ``True``.
-          For enhanced security it is recommended to use the HttpOnly flag and not set
-          this to ``False``, unless you have a good reason for doing so.
+          Browsers will not allow JavaScript access to cookies marked as “HTTP only” for security.
 
-      - key: who.secure
+      - key: SESSION_COOKIE_SECURE
+        flask: true
         type: bool
-        example: "true"
         description: |
-          This determines whether the secure flag will be set for the repoze.who
-          authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
-          default in the absence of the setting is ``False``.
+          Browsers will only send cookies with requests over HTTPS if the
+          cookie is marked “secure”. The application must be served over HTTPS
+          for this to make sense.
 
-      - key: who.samesite
+      - key: SESSION_COOKIE_SAMESITE
+        flask: true
         default: Lax
-        example: Strict
+        validators: one_of(["Strict","Lax","None"])
         description: |
-          This determines whether the SameSite flag will be set for the repoze.who
-          authorization cookie. Allowed values are ``Lax`` (the default one), ``Strict`` or ``None``.
-          If set to ``None``,  ``who.secure`` must be set to ``True``.
+          Restrict how cookies are sent with requests from external sites. Can
+          be set to 'Lax' (recommended) or 'Strict'
+
+      - key: SESSION_REFRESH_EACH_REQUEST
+        flask: true
+        type: bool
+        description: |
+          Control whether the cookie is sent with every response when
+          :ref:`SESSION_PERMANENT` is true. Sending the cookie every time can more
+          reliably keep the session from expiring, but uses more
+          bandwidth. Non-permanent sessions are not affected.
+
+      - key: SESSION_PERMANENT
+        flask: true
+        default: true
+        type: bool
+        description: |
+          When disabled, session expires with the browser session. When
+          enabled, session's expiration time set to
+          :ref:`PERMANENT_SESSION_LIFETIME` seconds.
+
+      - key: PERMANENT_SESSION_LIFETIME
+        flask: true
+        type: int
+        default: 31_536_000 # 1 year
+        description: |
+          If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
+          set this number of seconds in the future. Note that you can not set a
+          session that never expires (only very far into the future).
+
+      - key: SESSION_USE_SIGNER
+        flask: true
+        type: bool
+        description: |
+          Whether to sign the session cookie sid or not.
+
+          .. note:: This option affects only server-side sessions. Cookie-based sessions ignore this option
 
   - annotation: Database settings
     options:
       - key: sqlalchemy.url
         placeholder: postgresql://ckan_default:pass@localhost/ckan_default
-        validators: not_empty
         required: true
         example: postgres://tester:pass@localhost/ckantest3
         description: |
@@ -330,6 +422,7 @@ groups:
       - key: sqlalchemy.pool_pre_ping
         type: bool
         default: true
+
       - key: sqlalchemy.<OPTION>
         type: dynamic
         description: |
@@ -344,14 +437,13 @@ groups:
 
           To get the list of all the available properties check the `SQLAlchemy documentation`_
 
-          .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+          .. _SQLAlchemy documentation: https://docs.sqlalchemy.org/en/20/core/engines.html#engine-creation-api
 
   - annotation: Site Settings
     options:
       - key: ckan.site_url
-        validators: not_empty
         required: true
-        placeholder: http://127.0.0.1:5000
+        placeholder: http://localhost:5000
         example: http://scotdata.ckan.net
         description: |
           Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
@@ -367,13 +459,14 @@ groups:
 
           .. warning:: This setting should not have a trailing / on the end.
 
-      - key: apikey_header_name
-        default: X-CKAN-API-Key
-        example: API-KEY
+      - key: apitoken_header_name
+        default: Authorization
+        legacy_key: apikey_header_name  # since v2.10.0
+        example: X-CKAN-API-TOKEN
         description: |
-          This allows another http header to be used to provide the CKAN API
-          key. This is useful if network infrastructure blocks the
-          Authorization header and ``X-CKAN-API-Key`` is not suitable.
+          This allows to customize the name of the HTTP header used to provide the CKAN API
+          token. This is useful in some scenarios where using the default ``Authorization`` one
+          causes problems.
 
       - key: ckan.cache_expires
         default: 0
@@ -402,17 +495,6 @@ groups:
 
           ``None`` will not store the mimetype for the resource.
 
-      - key: ckan.static_max_age
-        default: 3600
-        type: int
-        example: 2592000
-        description: Controls CKAN static files' cache max age, if we're serving and caching them.
-
-      - key: ckan.tracking_enabled
-        type: bool
-        example: "true"
-        description: This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
-
       - key: ckan.valid_url_schemes
         type: list
         default:
@@ -440,18 +522,19 @@ groups:
     options:
       - key: ckan.auth.anon_create_dataset
         type: bool
+        default: false
         example: "false"
         description: Allow users to create datasets without registering and logging in.
 
       - key: ckan.auth.create_unowned_dataset
-        default: true
         type: bool
+        default: false
         example: "false"
         description: Allow the creation of datasets not owned by any organization.
 
       - key: ckan.auth.create_dataset_if_not_in_organization
-        default: true
         type: bool
+        default: true
         example: "false"
         description: |
           Allow users who are not members of any organization to create datasets,
@@ -460,12 +543,13 @@ groups:
 
       - key: ckan.auth.user_create_groups
         type: bool
+        default: true
         example: "true"
         description: Allow users to create groups.
 
       - key: ckan.auth.user_create_organizations
-        default: true
         type: bool
+        default: true
         example: "false"
         description: Allow users to create organizations.
 
@@ -483,14 +567,19 @@ groups:
 
       - key: ckan.auth.create_user_via_api
         type: bool
+        default: false
         example: "false"
         description: Allow new user accounts to be created via the API by anyone. When ``False`` only sysadmins are authorised.
 
       - key: ckan.auth.create_user_via_web
         type: bool
-        default: true
+        default: false
         example: "true"
-        description: Allow new user accounts to be created via the Web.
+        description: |
+          Allow new user accounts to be created via the web UI. When ``False`` (default value), user accounts can only be created by:
+            * Being invited by an organization admin,
+            * Being created directly by a sysadmin in the ``/user/register`` endpoint, or
+            * Being created in the CLI using ``ckan user add``
 
       - key: ckan.auth.roles_that_cascade_to_sub_groups
         default:
@@ -522,6 +611,7 @@ groups:
 
       - key: ckan.auth.public_activity_stream_detail
         type: bool
+        default: false
         example: "true"
         description: |
           Restricts access to 'view this version' and 'changes' in the Activity
@@ -534,6 +624,7 @@ groups:
 
       - key: ckan.auth.allow_dataset_collaborators
         type: bool
+        default: false
         example: "true"
         description: |
           Enables or disable collaborators in individual datasets. If ``True``,
@@ -549,6 +640,7 @@ groups:
 
       - key: ckan.auth.allow_admin_collaborators
         type: bool
+        default: false
         example: "true"
         description: |
           Allows dataset collaborators to have the "Admin" role, allowing them
@@ -565,6 +657,7 @@ groups:
 
       - key: ckan.auth.allow_collaborators_to_change_owner_org
         type: bool
+        default: false
         example: "true"
         description: |
           Allows dataset collaborators to change the owner organization of the
@@ -574,13 +667,169 @@ groups:
 
       - key: ckan.auth.create_default_api_keys
         type: bool
+        default: false
         example: "true"
         description: |
-          Determines if a an API key should be automatically created for every
+          Determines if an API key should be automatically created for every
           user when creating a user account. If set to False (the default
           value), users can manually create an API token from their profile
           instead. See :ref:`api authentication`: for more details.
 
+      - key: ckan.auth.login_view
+        default: user.login
+        description: The name of the view to redirect to when the user needs to log in
+
+      - key: ckan.auth.reveal_private_datasets
+        type: bool
+        default: False
+        description: |
+          Determines whether unauthorised requests for private datasets should have
+          the existence of the datasets revealed (True) or hidden (False).
+          If True, then unauthenticated requests will be redirected to the login page,
+          and redirected back to the dataset after logging in, while authenticated
+          but unauthorised requests will receive HTTP 403 Forbidden.
+          If False, all unauthorised requests will receive HTTP 404 Not Found.
+          Default is False.
+
+      - key: ckan.auth.enable_cookie_auth_in_api
+        type: bool
+        default: True
+        description: |
+          When set to False, cookie-based authentication is entirely ignored in all API requests,
+          and authentication must be always done using :ref:`API Tokens <api authentication>`. Note
+          that this will break some existing JS modules from the frontend that perform API calls,
+          so it should be used with caution.
+
+      - key: ckan.auth.route_after_login
+        legacy_key: ckan.route_after_login  # since v2.10.0
+        default: dashboard.datasets
+        description: |
+          Allows to customize the route that the user will get redirected to after a successful login.
+
+  - annotation: CSRF Protection
+    options:
+      - key: WTF_CSRF_ENABLED
+        flask: true
+        type: bool
+        default: True
+        description: Set to False to disable all CSRF protection.
+
+      - key: WTF_CSRF_CHECK_DEFAULT
+        flask: true
+        type: bool
+        default: True
+        description: |
+          When using the CSRF protection extension,
+          this controls whether every view is protected by default.
+
+      - key: WTF_CSRF_SECRET_KEY
+        flask: true
+        placeholder: string:%(SECRET_KEY)s
+        validators: configured_default("SECRET_KEY",None)
+        description: |
+          Random data for generating secure tokens.
+          If not provided, the value of ``SECRET_KEY`` will be used.
+
+      - key: WTF_CSRF_METHODS
+        flask: true
+        type: list
+        default:
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+
+        description: HTTP methods to protect from CSRF.
+
+      - key: WTF_CSRF_FIELD_NAME
+        flask: true
+        default: _csrf_token
+        description: Name of the form field and session key that holds the CSRF token.
+
+      - key: WTF_CSRF_HEADERS
+        flask: true
+        type: list
+        default:
+          - X-CSRFToken
+          - X-CSRF-Token
+        description: |
+          HTTP headers to search for CSRF token when it is not provided in the form.
+
+      - key: WTF_CSRF_TIME_LIMIT
+        flask: true
+        type: int
+        default: 31536000
+        description: |
+          Max age in seconds for CSRF tokens.
+          This value is capped by the lifetime of the session.
+
+      - key: WTF_CSRF_SSL_STRICT
+        flask: true
+        type: bool
+        default: True
+        description: |
+          Whether to enforce the same origin policy by checking that the referrer matches the host.
+          Only applies to HTTPS requests. Default is True.
+
+      - key: WTF_I18N_ENABLED
+        flask: true
+        type: bool
+        default: True
+        description: |
+          Set to False to disable Flask-Babel I18N support.
+          Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
+
+  - annotation: Flask-Login Remember me cookie settings
+    options:
+      - key: REMEMBER_COOKIE_NAME
+        flask: true
+        default: remember_token
+        description: The name of the cookie to store the “remember me” information in.
+
+      - key: REMEMBER_COOKIE_DURATION
+        flask: true
+        default: 31_536_000
+        type: int
+        description: |
+          The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
+
+      - key: REMEMBER_COOKIE_DOMAIN
+        flask: true
+        placeholder: .example.com
+        commented: true
+        description: |
+          If the “Remember Me” cookie should cross domains, set the domain value here
+          (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
+
+      - key: REMEMBER_COOKIE_PATH
+        flask: true
+        default: /
+        description: Limits the “Remember Me” cookie to a certain path.
+
+      - key: REMEMBER_COOKIE_SECURE
+        flask: true
+        type: bool
+        default: False
+        description: Restricts the “Remember Me” cookie's scope to secure channels (typically HTTPS).
+
+      - key: REMEMBER_COOKIE_HTTPONLY
+        flask: true
+        type: bool
+        default: True
+        description: Prevents the “Remember Me” cookie from being accessed by client-side scripts.
+
+      - key: REMEMBER_COOKIE_REFRESH_EACH_REQUEST
+        flask: true
+        type: bool
+        default: False
+        description: |
+          If set to True the cookie is refreshed on every request, which bumps the lifetime.
+          Works like Flask's SESSION_REFRESH_EACH_REQUEST.
+
+      - key: REMEMBER_COOKIE_SAMESITE
+        flask: true
+        default: None
+        description: Restricts the “Remember Me” cookie to first-party or same-site context.
 
   - annotation: API Token Settings
     options:
@@ -591,35 +840,60 @@ groups:
         description: Number of bytes used to generate unique id for API Token.
 
       - key: api_token.jwt.encode.secret
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/private/key
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
 
-          * for asymmetric algorithms: path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
-          * for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+          * for asymmetric algorithms(RS256): path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
+          * for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+          .. note:: For symmetric algorithms this value must be identical to
+                    :ref:`api_token.jwt.decode.secret`. The algorithm used is controlled
+                    by the :ref:`api_token.jwt.algorithm` option.
 
           Value must have prefix, which defines its type. Supported prefixes are:
 
           * ``string:`` - Plain string, will be used as is.
           * ``file:`` - Path to file. Content of the file will be used as key.
 
+          If not provided, ``"string:" + SECRET_KEY`` is used.
+
       - key: api_token.jwt.decode.secret
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/public/key.pub
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
 
-          * for asymmetric algorithms: path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
-          * for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+          * for asymmetric algorithms(RS256): path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
+          * for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+          .. note:: For symmetric algorithms this value must be identical to
+                    :ref:`api_token.jwt.encode.secret`. The algorithm used is defined
+                    by the :ref:`api_token.jwt.algorithm` option.
 
           Value must have prefix, which defines it's type. Supported prefixes are:
 
           * ``string:`` - Plain string, will be used as is.
           * ``file:`` - Path to file. Content of the file will be used as key.
 
+          If not provided, ``"string:" + SECRET_KEY`` is used.
+
       - key: api_token.jwt.algorithm
         default: "HS256"
         example: RS256
-        description: Algorithm to sign the token with, e.g. "ES256", "RS256"
+        description: |
+
+          Algorithm to sign the token with, e.g. "ES256", "RS256"
+
+          Depending on the algorithm, additional restrictions may apply to
+          :ref:`api_token.jwt.decode.secret` and
+          :ref:`api_token.jwt.encode.secret`. For example, RS256 implies that
+          :ref:`api_token.jwt.encode.secret` contains RSA private key and
+          :ref:`api_token.jwt.decode.secret` contains public key. Whereas
+          HS256(default value) requires both :ref:`api_token.jwt.decode.secret`
+          and :ref:`api_token.jwt.encode.secret` to have exactly the same
+          value.
 
   - annotation: Search Settings
     options:
@@ -638,7 +912,6 @@ groups:
 
       - key: solr_url
         placeholder: http://127.0.0.1:8983/solr/ckan
-        validators: not_empty
         required: true
         example: http://solr.okfn.org:8983/solr/ckan-schema-2.0
         description: |
@@ -654,7 +927,10 @@ groups:
           .. note::  If you change this value, you need to rebuild the search index.
 
       - key: solr_user
+        description: User to use in HTTP Basic Authentication when connecting to Solr
       - key: solr_password
+        description: Password to use in HTTP Basic Authentication when connecting to Solr
+
       - key: ckan.search.remove_deleted_packages
         type: bool
         default: true
@@ -674,6 +950,15 @@ groups:
           this to false if on solr 4.0 and you have automatic (soft)commits
           enabled to improve dataset update/create speed (however there may be
           a slight delay before dataset gets seen in results).
+
+      - key: ckan.search.solr_allowed_query_parsers
+        type: list
+        default: []
+        example: ["bool", "knn"]
+        description: |
+          Local parameters are not allowed when passing queries to Solr. An exception to this is when passing local parameters for special query parsers, that need to be enabled explicitly using this config option. For instance, the example provided would allow sending queries like the following::
+            search_params["q"] = "{!bool must=test}..."
+            search_params["q"] = "{!knn field=vector topK=10}..."
 
       - key: ckan.search.show_all_types
         default: dataset
@@ -794,10 +1079,9 @@ groups:
   - annotation: Plugins Settings
     options:
       - key: ckan.plugins
-        required: true
         type: list
         placeholder: activity
-        example: disqus datapreview googleanalytics follower
+        example: activity scheming_datasets datatables_view datastore xloader
         description: |
           Specify which CKAN plugins are to be enabled.
 
@@ -833,9 +1117,14 @@ groups:
               they're given in the config file, regardless of which Python modules
               they're implemented in.
 
-      - key: ckan.resource_proxy.timeout
-        type: int
-        default: 5
+      - key: ckan.download_proxy
+        example: http://proxy:3128
+        description: |
+          Specifies a HTTP proxy to be used by extensions such as Resource Proxy, XLoader or Archiver
+          when downloading remote files. This may be useful for enabling access to
+          restricted network locations, or restricting access to privileged ones, eg
+          preventing `Server Side Request Forgery <https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/>`_.
+          It will not be used by CKAN core.
 
   - annotation: Front-End Settings
     options:
@@ -843,19 +1132,23 @@ groups:
         default: CKAN
         example: Open Data Scotland
         description: This sets the name of the site, as displayed in the CKAN web interface.
+        editable: true
 
       - key: ckan.site_description
         example: The easy way to get, use and share data
         description: This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+        editable: true
 
       - key: ckan.site_intro_text
         example: Nice introductory paragraph about CKAN or the site in general.
         description: This is for an introductory text used in the default template's index page.
+        editable: true
 
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
         example: /images/ckan_logo_fullname_long.png
         description: This sets the logo used in the title bar.
+        editable: true
 
       - key: ckan.site_about
         example: A _community-driven_ catalogue of _open data_ for the Greenfield area.
@@ -870,11 +1163,14 @@ groups:
             option will not be translatable. For this reason, it's better to
             overload the snippet in ``home/snippets/about_text.html``. For more
             information, see :doc:`/theming/index`.
+        editable: true
 
-      - key: ckan.main_css
-        default: /base/css/main.css
-        example: /base/css/my-custom.css
-        description: With this option, instead of using the default `main.css`, you can use your own.
+      - key: ckan.theme
+        default: css/main
+        example: my-extension/theme-asset
+        description: >
+          With this option, instead of using the default `css/main` asset with
+          the theme, you can use your own.
 
       - key: ckan.favicon
         default: /base/images/ckan.ico
@@ -897,23 +1193,6 @@ groups:
           .. warning:: While this is useful to e.g. create internal notes, it
             is not a security measure. The keys will still be available via the
             API and in revision diffs.
-
-      - key: ckan.dumps_url
-        description: |
-          If there is a page which allows you to download a dump of the entire catalogue
-          then specify the URL here, so that it can be advertised in the
-          web interface. For example::
-
-            ckan.dumps_url = http://ckan.net/dump/
-
-          For more information on using dumpfiles, see :ref:`datasets dump`.
-
-      - key: ckan.dumps_format
-        example: CSV/JSON
-        description: |
-          If there is a page which allows you to download a dump of the entire catalogue
-          then specify the format here, so that it can be advertised in the
-          web interface. ``dumps_format`` is just a string for display.
 
       - key: ckan.recaptcha.publickey
         description: |
@@ -974,10 +1253,16 @@ groups:
 
           .. note:: This info only shows if debug is set to True.
 
-      - key: ckan.homepage_style
-        default: "1"
       - key: ckan.site_custom_css
+        description: Custom CSS directives to include on all CKAN pages.
+        editable: true
 
+      - key: ckan.default_collapse_facets
+        type: bool
+        default: False
+        description: |
+          This controls the default view of the facet accordions, i.e. whether the accordions are expanded or collapsed
+          by default.
 
   - annotation: Resource Views Settings
     options:
@@ -985,8 +1270,8 @@ groups:
         type: list
         default:
           - image_view
-          - recline_view
-        example: image_view webpage_view recline_grid_view
+          - datatables_view
+        example: image_view webpage_view datatables_view
         description: |
           Defines the resource views that should be created by default when creating or
           updating a dataset. From this list only the views that are relevant to a particular
@@ -997,45 +1282,11 @@ groups:
 
 
           .. note:: You must have the relevant view plugins loaded on the ``ckan.plugins`` setting to be able to create the default views, eg::
-                        ckan.plugins = image_view webpage_view recline_grid_view datatables_view ...
-                        ckan.views.default_views = image_view webpage_view recline_grid_view
+                        ckan.plugins = image_view webpage_view geo_view datatables_view ...
+                        ckan.views.default_views = image_view webpage_view datatables_view
 
   - annotation: Theming Settings
     options:
-      - key: ckan.template_head_end
-        example: <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css">
-        description: |
-          HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
-
-          You can also have multiline strings. Just indent following lines. e.g.::
-
-           ckan.template_head_end =
-            <link rel="stylesheet" href="/css/extra1.css" type="text/css">
-            <link rel="stylesheet" href="/css/extra2.css" type="text/css">
-
-          .. note:: This is only for legacy code, and shouldn't be used anymore.
-
-      - key: ckan.template_footer_end
-        description: |
-          HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
-
-          .. note:: you can have multiline strings (just indent following lines)
-
-          Example (showing insertion of Google Analytics code)::
-
-            ckan.template_footer_end = <!-- Google Analytics -->
-              <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
-              <script type="text/javascript">
-              try {
-              var pageTracker = _gat._getTracker("XXXXXXXXX");
-              pageTracker._setDomainName(".ckan.net");
-              pageTracker._trackPageview();
-              } catch(err) {}
-              </script>
-              <!-- /Google Analytics -->
-
-          .. note:: This is only for legacy code, and shouldn't be used anymore.
-
       - key: ckan.template_title_delimiter
         default: '-'
         example: '|'
@@ -1068,28 +1319,77 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. It is currently unused and it only accepts one value: ``public``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``public`` as a value.
+          (This variable is kept for backwards compatibility when updating Bootstrap
+          versions.)
 
       - key: ckan.base_templates_folder
         default: templates
         example: templates
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. It is currently unused and it only accepts one value: ``templates``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``templates`` as a value.
+          (This variable is kept for backwards compatibility when updating Bootstrap
+          versions.)
+
+      - key: ckan.default.package_type
+        default: dataset
+        description: |
+          Default type of dataset that will be used in the UI links (eg. "New Dataset").
+
+          Use this option to change the dataset type that is used site-wide. Only existing dataset
+          types can be used as a value for this option. Upon setting a custom value, the following
+          happens:
+
+          * all new datasets have their ``type`` field set to the custom value(if no explicit value provided)
+          * all labels(e.g. "Create a Dataset", "My datasets", "Search datasets..") are adapted to the custom value
+          * all default links(e.g. ``/dataset/new``, ``/dataset/<name>/resource``) are adapted to the custom value
+
+          If labels require additional changes, register a chained helpers for :py:func:`~ckan.lib.helpers.humanize_entity_type`.
+          For example, setting a dataset type ``camel_photo`` as default, will turn the "Datasets" link in the header into
+          "Camel-photos". If "Camel Photos" is expected, the code below can be used::
+
+              @p.toolkit.chained_helper
+              def humanize_entity_type(next_helper: Callable[..., Any],
+                                       entity_type: str, object_type: str, purpose: str):
+                  if purpose == "main nav":
+                      return "Camel Photos"
+
+                  return next_helper(entity_type, object_type, purpose)
+
+          See :py:func:`~ckan.lib.helpers.humanize_entity_type` for additional details.
 
       - key: ckan.default.group_type
         default: group
+        description: |
+          Default type of group that used in UI links(eg. "New Group" button, "Groups" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for groups.
+
       - key: ckan.default.organization_type
         default: organization
+        description: |
+          Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for organizations.
 
   - annotation: Storage Settings
     options:
+      - key: ckan.uploads_enabled
+        validators: ignore_missing boolean_validator
+        example: false
+        description: |
+          Defines file uploads are enabled or not.
+
+          If enabled also set :ref:`ckan.storage_path` if you want to use internal storage.
+
       - key: ckan.storage_path
-        placeholder: /var/lib/storage
-        example: /var/lib/ckan
-        description: This defines the location of where CKAN will store all uploaded data.
+        placeholder: /var/lib/ckan/default
+        example: /var/lib/ckan/default
+        description: |
+          This defines the location of where CKAN will store all uploaded data.
+
+          If set to some directory, also set :ref:`ckan.uploads_enabled` to true to enable uploads in the UI.
 
       - key: ckan.max_resource_size
         type: int
@@ -1107,23 +1407,38 @@ groups:
     options:
       - key: ckan.upload.user.types
         type: list
+        default: image
         example: image text
-        description: File types allowed to upload as user's avatar. No restrictions applied when empty
+        description: File types allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.mimetypes`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended). Note also that ``text/svg`` can contain embedded
+          javascript code so it only should be used in trusted environments.
 
       - key: ckan.upload.user.mimetypes
         type: list
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+        default: image/png image/gif image/jpeg
+        example: image/png
+        description: File MIMETypes allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.types`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.types
         type: list
+        default: image
         example: image text
-        description: File types allowed to upload as group image. No restrictions applied when empty
+        description: File types allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.mimetypes
         type: list
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
+        default: image/png image/gif image/jpeg
+        example: image/png
+        description: File MIMEtypes allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.types` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
+          Note also that ``text/svg`` can contain embedded javascript code so it only should be used in
+          trusted environments.
 
   - annotation: Webassets Settings
     options:
@@ -1134,11 +1449,17 @@ groups:
           when the asset is used for the first time. All subsequent requests to the
           asset will use the existing file. CKAN stores the compiled webassets in the file system, in the path specified by this config option.
 
+      - key: ckan.webassets.url
+        example: /serve/assets/from/here
+        default: /webassets
+        description: |
+          URL path for endpoint that serves webassets.
+
       - key: ckan.webassets.use_x_sendfile
         type: bool
         example: true
         description: |
-          When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+          When serving static files, if this setting is ``True``, the application will set the ``X-Sendfile`` header instead of
           serving the files directly with Flask. This will increase performance when serving the assets, but it
           requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 
@@ -1158,8 +1479,27 @@ groups:
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
 
-      - key: ckan.route_after_login
-        default: dashboard.datasets
+      - key: ckan.user.unique_email_states
+        type: list
+        default: [active]
+        example: [pending, active]
+        description: |
+          When a new user created, uniqueness of its email is checked among
+          users with specified statuses.
+
+          Using `active` is appropriate if users are created on portal only
+          through original user registration form and always have active
+          status. When user is deleted, his email can be reused by a new
+          account.
+
+          Using `pending active` is suitable for workflows with user approval
+          or invitations. In such scenario, user is created with `pending`
+          status initially and activated at some point in future.
+
+          Adding `deleted` to this option makes sense if email of removed users
+          must not be reused. In other words, when user is deleted, he is not
+          able to create a new account with the same email and is virtually
+          blocked on the portal.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings
@@ -1168,7 +1508,10 @@ groups:
         type: bool
         default: true
         example: "false"
-        description: Turns on and off the activity streams used to track changes on datasets, groups, users, etc
+        description: Turns on and off the activity streams used to track changes on datasets, groups, users, etc.
+                     The activity feature has been moved to a separate activity plugin. To keep showing the
+                     activities in the UI and enable the activity related API actions you need to add the activity
+                     plugin to the ckan.plugins config option.
 
       - key: ckan.activity_streams_email_notifications
         type: bool
@@ -1233,6 +1576,7 @@ groups:
       - key: ckan.feeds.limit
         type: int
         default: 20
+        description: Number of items returned in the feeds
 
   - annotation: Internationalisation Settings
     options:
@@ -1311,11 +1655,11 @@ groups:
         example: he ar fa_IR
         description: Allows to modify the right-to-left languages
 
-      - key: ckan.i18n.rtl_css
-        default: /base/css/main-rtl.css
-        example: /base/css/my-custom-rtl.css
+      - key: ckan.i18n.rtl_theme
+        default: css/main-rtl
+        example: my-extension/my-custom-rtl-asset
         description: |
-          Allows to override the default rtl css file used for the languages defined
+          Allows to override the default rtl asset used for the languages defined
           in ``ckan.i18n.rtl_languages``.
 
       - key: ckan.display_timezone
@@ -1353,11 +1697,6 @@ groups:
 
           .. seealso::
               The host of your CKAN installation can be set via :ref:`ckan.site_url`.
-
-          The CKAN repoze config file ``who.ini`` file will also need to be edited
-          by adding the path prefix to the options in the ``[plugin:friendlyform]``
-          section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
-          Do not change the login/logout_handler_path options.
 
       - key: ckan.resource_formats
         example: /path/to/resource_formats

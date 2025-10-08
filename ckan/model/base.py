@@ -7,14 +7,12 @@ from typing import Any, Callable, Optional
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-from sqlalchemy.ext.declarative import declarative_base
 from typing_extensions import Self
 
-from .meta import metadata, Session
+from .meta import registry, Session
 
-Base = declarative_base(metadata=metadata)
-"""Base class for SQLAlchemy declaration-style models.
-"""
+
+BaseModel = registry.generate_base()
 
 
 class SessionMixin:
@@ -178,7 +176,7 @@ class DictMixin:
     def as_dict(self) -> dict[str, Any]:
         """
         returns: ordered dict with fields from table. Date/time values
-        are converted to strings for json compatibilty
+        are converted to strings for json compatibility
         """
         _dict: dict[str, Any] = OrderedDict()
         table: Any = orm.class_mapper(self.__class__).persist_selectable

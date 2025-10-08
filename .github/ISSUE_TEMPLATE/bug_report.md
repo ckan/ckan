@@ -7,16 +7,17 @@ assignees: ''
 
 ---
 
-**CKAN version**
+## CKAN version
 
-**Describe the bug**
+## Describe the bug
 A clear and concise description of what the bug is.
 
-**Steps to reproduce**
+### Steps to reproduce
 Steps to reproduce the behavior:
 
-**Expected behavior**
+### Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Additional details**
+### Additional details
 If possible, please provide the full stack trace of the error raised,  or add screenshots to help explain your problem.
+

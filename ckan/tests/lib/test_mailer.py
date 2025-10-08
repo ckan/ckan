@@ -2,11 +2,11 @@
 
 import base64
 import pytest
-import six
 import io
 from email.header import decode_header
 from email.mime.text import MIMEText
 from email.parser import Parser
+import email.utils
 
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
@@ -30,7 +30,7 @@ class MailerBase(object):
         return decode_header(header)[0][0]
 
 
-@pytest.mark.usefixtures("with_request_context", "non_clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestMailer(MailerBase):
     def test_mail_recipient(self, mail_server):
         user = factories.User()
@@ -200,13 +200,14 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
 
-        expected_from_header = "{0} <{1}>".format(
-            config.get_value("ckan.site_title"),
-            config.get_value("smtp.mail_from")
-        )
+        expected_from_header = email.utils.formataddr((
+            config.get("ckan.site_title"),
+            config.get("smtp.mail_from")
+        ))
 
         assert expected_from_header in msg[3]
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_send_reset_email(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
@@ -225,6 +226,7 @@ class TestMailer(MailerBase):
 
         assert expected_body in msg[3]
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_send_invite_email(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
@@ -245,6 +247,7 @@ class TestMailer(MailerBase):
         assert expected_body in msg[3]
         assert user_obj.reset_key is not None, user
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_send_invite_email_with_group(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
@@ -259,9 +262,10 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert group["title"] in six.ensure_text(body)
-        assert h.roles_translated()[role] in six.ensure_text(body)
+        assert group["title"] in body.decode()
+        assert h.roles_translated()[role] in body.decode()
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_send_invite_email_with_org(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
@@ -276,8 +280,8 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert org["title"] in six.ensure_text(body)
-        assert h.roles_translated()[role] in six.ensure_text(body)
+        assert org["title"] in body.decode()
+        assert h.roles_translated()[role] in body.decode()
 
     @pytest.mark.ckan_config("smtp.server", "999.999.999.999")
     def test_bad_smtp_host(self):
@@ -312,7 +316,7 @@ class TestMailer(MailerBase):
         msg = msgs[0]
 
         expected_from_header = "Reply-to: {}".format(
-            config.get_value("smtp.reply_to")
+            config.get("smtp.reply_to")
         )
 
         assert expected_from_header in msg[3]

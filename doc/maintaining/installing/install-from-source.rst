@@ -4,18 +4,17 @@
 Installing CKAN from source
 ===========================
 
+CKAN is a Python application that requires three main services: PostgreSQL, Solr and Redis.
+
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit or
-Ubuntu 16.04 64-bit. Installing CKAN from source works with other
+:doc:`install-from-package` is simpler, it requires Ubuntu 20.04 64-bit or
+Ubuntu 22.04 64-bit. Installing CKAN from source works with other
 versions of Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
 If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
-**For Python 3 installations, the minimum Python version required is 3.7**
-
-* **Ubuntu 20.04** includes **Python 3.8** as part of its distribution
-* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
+**The minimum Python version required is 3.10**
 
 From source is also the right installation method for developers who want to
 work on CKAN.
@@ -27,7 +26,7 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-tomcat openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core redis-server libmagic1
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -37,15 +36,13 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v3.7 or newer <https://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v10 or newer <https://www.postgresql.org/docs/10/libpq.html>`_
+Python                 `The Python programming language, v3.10 or newer <https://www.python.org/getit/>`_
+|postgres|             `The PostgreSQL database system, v12 or newer <https://www.postgresql.org/docs/10/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_
 python3-venv           `The Python3 virtual environment builder (or for Python 2 use 'virtualenv' instead) <https://virtualenv.pypa.io/en/latest/>`_
 Git                    `A distributed version control system <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
 Apache Solr            `A search platform <https://lucene.apache.org/solr/>`_
-Jetty                  `An HTTP server <https://www.eclipse.org/jetty/>`_ (used for Solr).
-OpenJDK JDK            `The Java Development Kit <https://openjdk.java.net/install/>`_ (used by Jetty)
 Redis                  `An in-memory data structure store <https://redis.io/>`_
 =====================  ===============================================
 
@@ -99,11 +96,10 @@ a. Create a Python `virtual environment <https://virtualenv.pypa.io/en/latest/>`
        |activate|
 
 
-b. Install the recommended ``setuptools`` version and up-to-date pip:
+b. Install an up-to-date pip:
 
    .. parsed-literal::
 
-       pip install setuptools==\ |min_setuptools_version|
        pip install --upgrade pip
 
 c. Install the CKAN source code into your virtualenv.
@@ -211,16 +207,17 @@ site_url
 
 .. _postgres-init:
 
-----------------------
-6. Link to ``who.ini``
-----------------------
+---------------
+6. Setup Redis
+---------------
 
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file, so create a symlink to it:
+If you installed it locally on the first step, make sure you have a Redis
+instance running in the `6379` port.
 
-.. parsed-literal::
+If you have Docker installed, you can setup a default Redis instance by
+running::
 
-    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
+    docker run --name ckan-redis -p 6379:6379 -d redis
 
 -------------------------
 7. Create database tables
@@ -260,9 +257,16 @@ extensions to add data to the DataStore. To install DataPusher refer to this lin
 https://github.com/ckan/datapusher and to install XLoader refer to this link:
 https://github.com/ckan/ckanext-xloader
 
----------------
-9. You're done!
----------------
+-------------------
+9. Create CKAN user
+-------------------
+
+To create, remove, list and manage users, you can follow the steps at `Create and Manage Users
+<https://docs.ckan.org/en/latest/maintaining/cli.html#user-create-and-manage-users>`__.
+
+----------------
+10. You're done!
+----------------
 
 You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:
@@ -308,33 +312,6 @@ Solr requests and errors are logged in the web server log files.
 * For Tomcat servers, they're::
 
     /var/log/tomcat6/catalina.<date>.log
-
-Unable to find a javac compiler
--------------------------------
-
-If when running Solr it says:
-
- Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.
-
-See the note in :ref:`setting up solr` about ``JAVA_HOME``.
-Alternatively you may not have installed the JDK.
-Check by seeing if ``javac`` is installed::
-
-     which javac
-
-If ``javac`` isn't installed, do::
-
-     sudo apt-get install openjdk-8-jdk
-
-and then restart Solr:
-
-For Ubuntu 18.04::
-
-     sudo service jetty9 restart
-
-or for Ubuntu 16.04::
-
-     sudo service jetty8 restart
 
 AttributeError: 'module' object has no attribute 'css/main.debug.css'
 ---------------------------------------------------------------------
