@@ -1073,7 +1073,17 @@ def user_invite(context: Context,
         context, {'id': data['group_id']})
 
     try:
-        mailer.send_invite(user, group_dict, data['role'])
+        notification_sent = False
+        for plugin in plugins.PluginImplementations(plugins.INotifier):
+            notification_sent = plugin.notify_about_topic(
+                notification_sent,
+                'user_invited',
+                {'user': user,
+                 'group': group_dict,
+                 'role': data['role']}
+            )
+        if not notification_sent:
+            mailer.send_invite(user, group_dict, data['role'])
     except (socket_error, mailer.MailerException) as error:
         # Email could not be sent, delete the pending user
 
