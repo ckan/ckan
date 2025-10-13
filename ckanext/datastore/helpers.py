@@ -253,7 +253,8 @@ def datastore_rw_resource_url_types() -> list[str]:
 
 def datastore_show_resource_actions():
     """
-    Extensions should not show action buttons (i.e.) next to the Manage / Data API core ones
+    Extensions should not show action buttons (i.e.) next to the Manage
+    / Data API core ones
     """
 
     return "midnight-blue" not in tk.config.get("ckan.base_templates_folder")
