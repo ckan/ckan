@@ -485,6 +485,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         // useful with very large resources that take long to load
         $('body.dt-view').css('visibility', 'visible');
         $('#dtprv_processing').addClass('pre-init');
+        $('#dtprv_processing').show();
       });
       datatable = $('#dtprv').DataTable({
         paging: true,
@@ -607,6 +608,7 @@ this.ckan.module('datatables_view', function (jQuery) {
 
           // hide the pre-loading indicator background so the table is interactive when loading
           $('#dtprv_processing').removeClass('pre-init');
+          $('#dtprv_processing').hide();
 
           // restore selected rows from state
           if (typeof gsavedSelected !== 'undefined') {
