@@ -258,11 +258,13 @@ class DatastorePlugin(p.SingletonPlugin):
         conf_dictionary = datastore_helpers.datastore_dictionary
         conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
         rw_url_types = datastore_helpers.datastore_rw_resource_url_types
+        datastore_show_resource_actions = datastore_helpers.datastore_show_resource_actions
 
         return {
             'datastore_dictionary': conf_dictionary,
             'datastore_search_sql_enabled': conf_sql_enabled,
             'datastore_rw_resource_url_types': rw_url_types,
+            'datastore_show_resource_actions': datastore_show_resource_actions,
         }
 
     # IForkObserver
