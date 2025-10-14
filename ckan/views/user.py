@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Optional, Union
 
-from flask import Blueprint
+from flask import Blueprint, current_app
 from flask.views import MethodView
 from ckan.common import asbool
 
@@ -547,6 +547,7 @@ def login() -> Union[Response, str]:
         user_obj = authenticator.ckan_authenticator(identity)
         if user_obj:
             next = request.args.get('next', request.args.get('came_from'))
+            current_app.session_interface.regenerate(session)
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
