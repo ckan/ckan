@@ -350,11 +350,6 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
             item_count=query['count'],
             items_per_page=limit)
 
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.group_dict['package_count'] = query['count']
-
         extra_vars["search_facets"] = query['search_facets']
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         default_limit: int = config.get(u'search.facets.default')
@@ -431,7 +426,6 @@ def read(group_type: str,
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
-        data_dict['include_dataset_count'] = False
 
         # Do not query group members as they aren't used in the view
         data_dict['include_users'] = False
