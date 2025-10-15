@@ -110,7 +110,7 @@ class PluginImplementations(Generic[TInterface]):
                 plugin_lookup.pop(pc)
 
         if plugin_lookup:
-            # Any oustanding plugin not in the ini file (ie system ones),
+            # Any outstanding plugin not in the ini file (ie system ones),
             # add to the end of the iterator
             ordered_plugins.extend(plugin_lookup.values())
 

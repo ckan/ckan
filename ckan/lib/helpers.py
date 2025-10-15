@@ -1083,7 +1083,7 @@ def get_facet_items_dict(
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
-    Returns the list of unselected facet contraints or facet items (e.g. tag
+    Returns the list of unselected facet constraints or facet items (e.g. tag
     names like "russian" or "tolstoy") for the given search facet (e.g.
     "tags"), sorted by facet item count (i.e. the number of search results that
     match each facet item).
@@ -1786,7 +1786,7 @@ def snippet(template_name: str, **kw: Any) -> str:
 @core_helper
 def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     ''' This is a helper function for converting lists of objects into
-    lists of dicts. It is for backwards compatability only. '''
+    lists of dicts. It is for backwards compatibility only. '''
 
     import ckan.lib.dictization.model_dictize as md
     converters = {'package': md.package_dictize}
@@ -1893,7 +1893,7 @@ def add_url_param(alternative_url: Optional[str] = None,
     :py:func:`~ckan.lib.helpers.url_for` controller & action default to the
     current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
     '''
 
@@ -1931,7 +1931,7 @@ def remove_url_param(key: Union[list[str], str],
     via :py:func:`~ckan.lib.helpers.url_for`
     controller & action default to the current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
 
     '''

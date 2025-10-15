@@ -24,7 +24,7 @@ def check_recaptcha(request: Request) -> None:
 def check_recaptcha_v2_base(client_ip_address: str,
                             recaptcha_response_field: str) -> None:
     '''Check a user's recaptcha submission is valid, and raise CaptchaError
-    on failure using discreet data'''
+    on failure using discrete data'''
     recaptcha_private_key = config.get('ckan.recaptcha.privatekey', '')
     if not recaptcha_private_key:
         # Recaptcha not enabled

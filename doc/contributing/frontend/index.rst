@@ -122,7 +122,7 @@ groups. The main two are:
 
 main.scss:
     This contains *all* the styles for the website including
-    dependancies and local styles. The only files that are excluded here
+    dependencies and local styles. The only files that are excluded here
     are those that are conditionally loaded such as IE only CSS and large
     external apps (like some preview plugins) that only appear on a single
     page.
@@ -259,7 +259,7 @@ See :ref:`javascript_i18n`.
 Life cycle
 ==========
 
-CKAN modules are intialised on dom ready. The ``ckan.module.initialize()``
+CKAN modules are initialised on dom ready. The ``ckan.module.initialize()``
 will look for all elements on the page with a ``data-module`` attribute and
 attempt to create an instance.
 

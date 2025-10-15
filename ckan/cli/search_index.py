@@ -111,7 +111,7 @@ def get_orphans() -> list[str]:
 
 @search_index.command(
     name=u'list-orphans',
-    short_help=u'Lists any non-existant packages in the search index'
+    short_help=u'Lists any non-existent packages in the search index'
 )
 def list_orphans_command():
     orphaned_package_ids = get_orphans()
@@ -124,7 +124,7 @@ def list_orphans_command():
 
 @search_index.command(
     name=u'clear-orphans',
-    short_help=u'Clear any non-existant packages in the search index'
+    short_help=u'Clear any non-existent packages in the search index'
 )
 @click.option(u'-v', u'--verbose', is_flag=True)
 @click.pass_context

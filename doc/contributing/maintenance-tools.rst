@@ -37,7 +37,7 @@ The behaviour of this action is the following:
   be created against it, assigned to the same user as the merged one.
   The usual checks will be run on the new PR
 * If the commits don't merge cleanly, a comment will be posted on the
-  orginal PR with the manual commands to fix the conflicts, and the PR
+  original PR with the manual commands to fix the conflicts, and the PR
   will be labelled with "Backport failed"
 * Additionally, Tech Team members can trigger a backport on open or
   already closed PRs adding a comment starting with ``/backport`` (and

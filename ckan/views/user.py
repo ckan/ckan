@@ -501,7 +501,7 @@ class RegisterView(MethodView):
             else:
                 return base.render(u'user/logout_first.html')
 
-        # log the user in programatically
+        # log the user in programmatically
         userobj = model.User.get(user_dict["id"])
         if userobj:
             login_user(userobj)

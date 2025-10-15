@@ -1248,7 +1248,7 @@ class IDatasetForm(Interface):
         for these datasets. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
-        This is an adavanced interface. Most changes to validation should be
+        This is an advanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
         ``show_package_schema()``, ``create_package_schema()``
         and ``update_package_schema()``. If you need to have a different
@@ -1508,7 +1508,7 @@ class IGroupForm(Interface):
         for these groups. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
-        This is an adavanced interface. Most changes to validation should be
+        This is an advanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
         ``form_to_db_schema()`` and ``db_to_form_schema()``
         If you need to have a different
@@ -1907,7 +1907,7 @@ class IPermissionLabels(Interface):
     def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         u'''
         Return a list of unicode strings to be stored in the search index
-        as the permission lables for a dataset dict.
+        as the permission labels for a dataset dict.
 
         :param dataset_obj: dataset details
         :type dataset_obj: Package model object

@@ -32,7 +32,7 @@ class Flag(enum.Flag):
 
 
     ignored: this option is ignored by CKAN(not used or unconditionally
-    overriden)
+    overridden)
 
     experimental: this option is not stabilized and can change in
     future. Mainly exist for extension developers, as only stable features are
@@ -61,13 +61,13 @@ class Flag(enum.Flag):
     domain. While it's similar to `placeholder` attribute of the
     :py:class:`~ckan.config.declaration.option.Option`, their goals are
     different.
-    Option.placeholer:
+    Option.placeholder:
     - shows an example of expectend value
     - is ignored when config option is **missing** from the config file
     - shown as a default value in the config file generated from template. For
       example, `Option<key=a, placeholder=b, commented=False>` is added to the
       config file as `a = b`. After this, `config.get('a')` returns `b`,
-      because it's explicitely written in the config file.
+      because it's explicitly written in the config file.
     Flag.commented:
     - Marks option as commented by default
     - Does not changes behavior of `Option.default` and `Option.placeholder`.
@@ -83,7 +83,7 @@ class Flag(enum.Flag):
     reserved_*(01-10): these flags are added for extension developers. CKAN
     doesn't treat them specially, neither includes them in groups, like
     `not_safe`/`not_iterable`. These flags are completely ignored by CKAN. If
-    your extension enchances the behavior of config options using some sort of
+    your extension enhances the behavior of config options using some sort of
     boolean flags - use reserved markers. Always rely on a config option that
     controls, which reserved marker to use, in order to avoid conflicts with
     other extensions. Example:
@@ -153,7 +153,7 @@ class Annotation(SectionMixin, str):
     """Details that are not attached to any option.
 
     Mainly serves documentation purposes. Can be used for creating section
-    separators or blocks of text with the recomendations, that are not
+    separators or blocks of text with the recommendations, that are not
     connected to any particular option and rather describle the whole section.
 
     """
@@ -223,7 +223,7 @@ class Option(SectionMixin, Generic[T]):
 
         If more sophisticated logic cannot be avoided, consider creating a
         subclass of :py:class:`~ckan.config.declaration.option.Option` with
-        custom `str_value` implemetation and declaring the option using
+        custom `str_value` implementation and declaring the option using
         `declare_option` method of
         :py:class:`~ckan.config.declaration.Declaration`.
 
@@ -389,7 +389,7 @@ def _validators_from_string(s: str) -> list[Validator]:
             try:
                 parsed_args = ast.literal_eval(args)
                 if not isinstance(parsed_args, tuple) or not parsed_args:
-                    # it's a signle argument. `not parsed_args` means that this
+                    # it's a single argument. `not parsed_args` means that this
                     # single argument is an empty tuple,
                     # for example: "default(())"
 

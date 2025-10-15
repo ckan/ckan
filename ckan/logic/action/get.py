@@ -1029,7 +1029,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             metadata_modified = pkg.metadata_modified.isoformat()
             search_metadata_modified = search_result['metadata_modified']
             # solr stores less precise datetime,
-            # truncate to 22 charactors to get good enough match
+            # truncate to 22 characters to get good enough match
             if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
 
@@ -1706,7 +1706,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     **Solr Parameters:**
 
-    For more in depth treatment of each paramter, please read the
+    For more in depth treatment of each parameter, please read the
     `Solr Documentation
     <https://lucene.apache.org/solr/guide/6_6/common-query-parameters.html>`_.
 
@@ -2393,7 +2393,7 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
 
     :param defer_commit: by default (or if set to false) get_site_user will
         commit and clean up the current transaction. If set to true, caller
-        is responsible for commiting transaction after get_site_user is
+        is responsible for committing transaction after get_site_user is
         called. Leaving open connections can cause cli commands to hang!
         (optional, default: ``False``)
     :type defer_commit: bool
@@ -2849,7 +2849,7 @@ def followee_list(
     :type id: string
 
     :param q: a query string to limit results by, only objects whose display
-        name begins with the given string (case-insensitive) wil be returned
+        name begins with the given string (case-insensitive) will be returned
         (optional)
     :type q: string
 
@@ -3036,7 +3036,7 @@ def _unpick_search(
     eg 'name asc, last_modified desc' and returns a list of
     split field order eg [('name', 'asc'), ('last_modified', 'desc')]
     allowed_fields can limit which field names are ok.
-    total controls how many sorts can be specifed '''
+    total controls how many sorts can be specified '''
     sorts: list[tuple[str, str]] = []
     split_sort = sort.split(',')
     for part in split_sort:

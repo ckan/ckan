@@ -256,7 +256,7 @@ groups:
             supported by `Flask-Session
             <https://flask-session.readthedocs.io/en/latest/config.html#SESSION_TYPE>`_
             like ``redis``, ``filesystem``, etc. Keep in mind
-            that certaint session types require additional Python packages and configuration settings.
+            that certain session types require additional Python packages and configuration settings.
             Setting a not supported value will raise an exception on startup.
 
       - key: SESSION_COOKIE_NAME
@@ -1371,7 +1371,7 @@ groups:
         type: bool
         example: true
         description: |
-          When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+          When serving static files, if this setting is ``True``, the application will set the ``X-Sendfile`` header instead of
           serving the files directly with Flask. This will increase performance when serving the assets, but it
           requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 

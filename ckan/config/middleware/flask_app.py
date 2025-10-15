@@ -463,7 +463,7 @@ class CKANFlask(MultiStaticFlask):
 
 
 def _register_plugins_blueprints(app: CKANApp):
-    """ Resgister all blueprints defined in plugins by IBlueprint
+    """ Register all blueprints defined in plugins by IBlueprint
     """
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()
