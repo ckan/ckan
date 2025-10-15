@@ -1,1 +1,0 @@
-Allow SECRET_KEY to fall back to beaker.session.secret for easier upgrades

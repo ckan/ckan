@@ -5,6 +5,7 @@ import csv
 
 from typing import NamedTuple, Optional
 
+import re
 import click
 import sqlalchemy as sa
 from sqlalchemy import desc, func, select, cast
@@ -14,6 +15,7 @@ from ckan.model import Package
 from ckan.model.meta import Session as session
 import ckan.logic as logic
 from ckan.cli import error_shout
+from ckan.common import config
 
 from ckanext.tracking.model import (TrackingSummary as ts,
                                     TrackingRaw as tr)
@@ -53,7 +55,7 @@ def update_all(start_date: Optional[str] = None):
         # If no date here then use 2011-01-01 as the start date
         result = session.query(ts).order_by(desc(ts.tracking_date)).first()
         if result:
-            date = result
+            date = result.tracking_date
             date += datetime.timedelta(-2)
             # convert date to datetime
             combine = datetime.datetime.combine
@@ -138,10 +140,16 @@ def update_tracking(summary_date: datetime.datetime):
     Update the tracking_summary table with data from tracking_raw
     '''
     package_url = "/dataset/"
+    rp = config.get('ckan.root_path', '')
+    root_path = re.sub('/{{LANG}}', '', rp) if rp else ''
+    url = (
+        func.replace(tr.url, root_path, '').label("tracking_url")
+        if root_path else tr.url
+    )
     session.query(ts).filter(ts.tracking_date == summary_date).delete()
     tracking_tmp = (
         session.query(
-            tr.url,
+            url,
             tr.user_key,
             cast(tr.access_timestamp, sa.Date)
             .label("tracking_date"),
@@ -153,18 +161,18 @@ def update_tracking(summary_date: datetime.datetime):
         .subquery()
     )
     summary = session.query(
-        tracking_tmp.c.url,
+        tracking_tmp.c.tracking_url if root_path else tracking_tmp.c.url,
         tracking_tmp.c.tracking_date,
         tracking_tmp.c.tracking_type,
         func.count(tracking_tmp.c.user_key).label("count"),
     ).group_by(
-        tracking_tmp.c.url,
+        tracking_tmp.c.tracking_url if root_path else tracking_tmp.c.url,
         tracking_tmp.c.tracking_date,
         tracking_tmp.c.tracking_type,
     )
-    for url, tracking_date, tracking_type, count in summary:
+    for tracking_url, tracking_date, tracking_type, count in summary:
         summary_row = ts(
-            url=url,
+            url=tracking_url,
             count=count,
             tracking_date=tracking_date,
             tracking_type=tracking_type,

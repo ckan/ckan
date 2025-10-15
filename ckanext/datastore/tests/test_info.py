@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import pytest
+from ckan.plugins.toolkit import ValidationError
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.lib import helpers as template_helpers
@@ -29,7 +30,7 @@ def test_info_success():
     }
     helpers.call_action("datastore_create", **data)
 
-    info = helpers.call_action("datastore_info", id=resource["id"])
+    info = helpers.call_action("datastore_info", resource_id=resource["id"])
 
     assert len(info["meta"]) == 7, info["meta"]
     assert info["meta"]["count"] == 2
@@ -50,6 +51,13 @@ def test_info_success():
     assert len(info["meta"]) == 7, info["meta"]
     assert info["meta"]["count"] == 2
     assert info["meta"]["id"] == resource["id"]
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins")
+def test_info_missing_id():
+    with pytest.raises(ValidationError):
+        helpers.call_action("datastore_info")
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")

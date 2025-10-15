@@ -49,7 +49,6 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
@@ -998,7 +997,8 @@ def humanize_entity_type(entity_type: str, object_type: str,
     Possible purposes(depends on `entity_type` and change over time)::
 
         `add link`: "Add [object]" button on search pages
-        `breadcrumb`: "Home / [object]s / New" section in breadcrums
+        `add association link`: "Add to [object]" button on dataset pages
+        `breadcrumb`: "Home / [object]s / New" section in breadcrumbs
         `content tab`: "[object]s | Groups | Activity" tab on details page
         `create label`: "Home / ... / Create [object]" part of breadcrumb
         `create title`: "Create [object] - CKAN" section of page title
@@ -1012,10 +1012,10 @@ def humanize_entity_type(entity_type: str, object_type: str,
         `my label`: "My [object]s" tab in dashboard
         `name placeholder`: "<[object]>" section of URL preview on object form
         `no any objects`: No objects created yet
-        `no associated label`: no gorups for dataset
+        `no associated label`: no groups for dataset
         `no description`: object has no description
         `no label`: package with no organization
-        `page title`: "Title - [objec]s - CKAN" section of page title
+        `page title`: "Title - [object]s - CKAN" section of page title
         `save label`: "Save [object]" button
         `search placeholder`: "Search [object]s..." placeholder
         `update label`: "Update [object]" button
@@ -1036,6 +1036,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
     templates = {
         u'add link': _(u"Add {object_type}"),
+        u'add association link': _(u"Add to {object_type}"),
         u'breadcrumb': _(u"{object_type}s"),
         u'content tab': _(u"{object_type}s"),
         u'create label': _(u"Create {object_type}"),
@@ -1984,7 +1985,7 @@ def groups_available(am_member: bool = False,
     '''
     if user is None:
         try:
-            user = current_user.id  # type: ignore
+            user = current_user.id
         except AttributeError:
             # current_user is anonymous
             pass
@@ -2008,7 +2009,7 @@ def organizations_available(permission: str = 'manage_group',
     '''
     if user is None:
         try:
-            user = current_user.id  # type: ignore
+            user = current_user.id
         except AttributeError:
             # current_user is anonymous
             pass
@@ -2054,7 +2055,7 @@ def user_in_org_or_group(group_id: str) -> bool:
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)  # type: ignore
+        .filter(model.Member.table_id == current_user.id)
     return len(query.all()) != 0
 
 
@@ -2423,7 +2424,14 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
+    upload_config = config.get('ckan.uploads_enabled')
+    if upload_config is not None:
+        return upload_config
+
+    if config['ckan.storage_path'] is not None:
+        return True
+
+    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
         return True
     return False
 
@@ -2489,6 +2497,17 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
             break
 
     return groups_data
+
+
+@core_helper
+def get_site_statistics() -> dict[str, int]:
+    stats = {}
+    stats['dataset_count'] = logic.get_action('package_search')(
+        {}, {"rows": 1})['count']
+    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
+    stats['organization_count'] = len(
+        logic.get_action('organization_list')({}, {}))
+    return stats
 
 
 _RESOURCE_FORMATS: dict[str, Any] = {}
@@ -2825,4 +2844,8 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_input.html')
+    '''
+    Render a hidden CSRF input field.
+    '''
+    import ckan.lib.base as base
+    return literal(base.render('snippets/csrf_input.html'))

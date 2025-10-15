@@ -8,7 +8,7 @@ For Python code style follow `PEP 8`_ plus the guidelines below.
 
 Some good links about Python code style:
 
-- `Guide to Python <http://docs.python-guide.org/en/latest/writing/style/>`_ from Hitchhiker's
+- `Guide to Python <https://docs.python-guide.org/writing/style/>`_ from Hitchhiker's
 - `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html>`_
 
 .. seealso::
@@ -93,7 +93,7 @@ When logging:
 - Choose an appropriate log-level (DEBUG, INFO, ERROR, WARNING or CRITICAL,
   see `Python's Logging HOWTO`_).
 
-.. _Python's Logging HOWTO: http://docs.python.org/2/howto/logging.html
+.. _Python's Logging HOWTO: https://docs.python.org/3/howto/logging.html
 
 String formatting
 ------------------
@@ -402,12 +402,9 @@ conformance and general code quality. We recommend using them.
 
 * `pyflakes`_ also analyzes Python programs to detect errors.
 
-* `flake8`_ combines both pep8 and pyflakes into a single tool.
+* `ruff`_ An extremely fast Python linter and code formatter, written in Rust.
 
-* `Syntastic`_ is a Vim plugin with support for flake8, pyflakes and pylint.
-
-.. _pep8: http://pypi.python.org/pypi/pep8
-.. _pylint: http://www.logilab.org/857
-.. _pyflakes: http://pypi.python.org/pypi/pyflakes
-.. _flake8: http://pypi.python.org/pypi/flake8
-.. _Syntastic: https://github.com/scrooloose/syntastic
+.. _pep8: https://pypi.org/project/pep8/
+.. _pylint: https://pypi.org/project/pylint/
+.. _pyflakes: https://pypi.org/project/pyflakes/
+.. _ruff: https://docs.astral.sh/ruff/
