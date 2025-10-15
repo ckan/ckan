@@ -15,9 +15,9 @@ Frontend development guidelines
 Install frontend dependencies
 -----------------------------
 
-The front end stylesheets are written using
-`Sass <https://sass-lang.com/>`_ (this depends on
-`node.js <http://nodejs.org/>`_ being installed on the system)
+The front end stylesheets are written using `Sass <https://sass-lang.com/>`_
+(this depends on `node.js <http://nodejs.org/>`_ being installed on the system)
+and compiled using `Gulp <https://gulpjs.com/>`_.
 
 Instructions for installing |nodejs| can be found on the |nodejs| `website
 <http://nodejs.org/>`_. Please check the ones relevant to your own distribution
@@ -25,7 +25,7 @@ Instructions for installing |nodejs| can be found on the |nodejs| `website
 On Ubuntu, run the following to install |nodejs| official repository and the node
 package::
 
-    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+    curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
 .. note:: If you use the package on the default Ubuntu repositories (eg ``sudo apt-get install nodejs``),
@@ -37,18 +37,37 @@ package::
     For more information, refer to the |nodejs| `instructions
     <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_.
 
+Latest instructions for installing Gulp can be found on the `Gulp website
+<https://gulpjs.com/>`_. In most scenarios, it can be installed globally::
+
+  npm install --global gulp-cli
+
 Dependencies can then be installed via the node package manager (npm).
-We use ``gulp`` to make our Sass compiler a watcher
-style script.
+``cd`` into the CKAN source folder (eg |virtualenv|/src/ckan ) and run::
 
-``cd`` into the CKAN source folder (eg |virtualenv|/src/ckan ) and run:
+  npm ci
 
-::
+.. note:: If Gulp is missing, you'll see the following output::
 
-    $ npm install
+       $ npm ci
 
+       > ckan@1.0.0 postinstall
+       > gulp updateVendorLibs
 
-You may need to use ``sudo`` depending on your CKAN install type.
+       sh: line 1: gulp: command not found
+       ...
+
+   Install Gulp using `official documentation <https://gulpjs.com/>`_ and run
+   ``npm ci`` again.
+
+.. note:: Prefer using ``npm ci`` instead of ``npm install``. The former
+          command always installs exact versions of dependencies from the
+          `package-lock.json`, produces predictable state of application and
+          does not change `package.json` or `package-lock.json`. ``npm
+          install`` may override `package-lock.json`, producing undesirable
+          changes and does not guarantee that all the dependencies will be
+          exactly the same as ones, specified in `package-lock.json`.
+
 
 --------------
 File structure
@@ -346,3 +365,127 @@ be attached)::
         this.module.teardown();
       });
     });
+
+Templates can also be loaded using the ``.loadFixture()`` method that is
+available in all test contexts. Tests can be made asynchronous by using promises
+(Cypress returns a promise in almost all functions)::
+
+    describe('ckan.module.MyModule()', function () {
+
+      before(function (done) {
+        cy.visit('/');
+
+        // Add a fixture element to page
+        cy.window().then(win => {
+            win.jQuery('<div id="fixture">').appendTo(win.document.body)
+        })
+
+        // Load the template once.
+        cy.loadFixture('my-template.html').then((template) => {
+            cy.wrap(template).as('template');
+        });
+      });
+
+      beforeEach(function () {
+        // Assign the template to the module each time.
+        cy.window().then(win => {
+            win.jQuery('#fixture').html(this.template).children();
+        });
+      });
+
+
+-----------------------
+Update vendor libraries
+-----------------------
+
+3rd-party libraries are installed via ``npm`` and copied into public folder via
+manual invocation of ``vendor-copy`` Make-rule.
+
+For example, when ``jQuery`` is updated, it must be installed from NPM registry
+first::
+
+  npm up jquery
+
+This command overrides `package-lock.json` and downloads a new version of
+``jQuery`` into `node_modules/`. But public `jquery.js` used by CKAN is not
+changed yet. It must be updated using one of the following options:
+
+* run ``make vendor-copy`` to copy all the dependencies from ``node_modules``
+  into public CKAN folder.
+
+* run ``make vendor-copy-<NAME>``, where ``<NAME>`` replaced by the actual name
+  of the dependency, to copy a specific dependency. In current example the
+  command is: ``make vendor-copy-jquery``. List of available names: ``make
+  vendor-list``.
+
+* Copy updated version manually: ``cp node_modules/jquery/dist/jquery.js
+  ckan/public/base/vendor/``. This option is not recommended, because every
+  vendor library must be copied into a different folder. Copying them manually
+  is too error-prone.
+
+
+----
+Gulp
+----
+
+`Gulp <https://gulpjs.com/>`_ is used for:
+
+* Compiling SCSS into CSS: ``npm run watch`` (``watch`` task) and ``npm run
+  build`` (``build`` task)
+* Copying vendor libraries into publicly available folders: ``npm run
+  postinstall`` (``updateVendorLibs`` task)
+
+New tasks can be added to ``gulpfile.js`` in the project root. Check `gulp
+documentation <https://gulpjs.com/docs/en/getting-started/creating-tasks>`_ for
+additional information.
+
+------------
+Highlight.js
+------------
+
+Built-in ``datastore`` and ``text_view`` plugins are using
+`Highlight.js <https://highlightjs.org/>`_ for syntax highlighting. In order to
+add Highlight.js to the page, include the following asset-tag into page
+source::
+
+  {# add JS code #}
+  {% asset "vendor/hljs" %}
+
+  {# and add one of the available themes: #}
+
+  {# light accessible theme #}
+  {% asset "vendor/hljs-light-theme" %}
+
+  {# or dark accessible theme #}
+  {% asset "vendor/hljs-dark-theme" %}
+
+  {# or include external theme(check current Highlight.js version and update URL if necessary) #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/docco.min.css">
+
+
+To reduce its size, Highlight.js was compiled for small subset of supported
+languages: ``javascript powershell r python json xml bash``. Every time ``make
+vendor-copy`` is executed, Highlight.js is rebuilt and copied into public
+vendor folder. During this step, different set of languages can be specified::
+
+  make vendor-copy hljs_languages="bash cpp"
+
+This command updates Highlight.js shipped with CKAN, but the next time ``make
+vendor-copy`` without ``hljs_languages`` is executed, standard version of
+Highlight.js will be restored. So, to permanently update the list of supported
+languages, update and commit the value of ``hljs_languages`` variable inside
+``Makefile`` in the root folder of CKAN repository.
+
+Alternatively, to include a new supported language without recompiling
+Highlight.js, add the following tag to the page(or download the script and
+include it via WebAssets)::
+
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
+
+Make sure the Highlight.js version (``11.9.0`` in the example) and language
+name (``powershell`` in the example) updated to meet your needs. And pay
+attention to the ``defer`` attribute of the tag. Additional languages must be
+included after Highlight.js is loaded and ``defer`` puts the script into a
+queue which will be processed after all normal scripts are loaded. Using
+webassets gives you more control over the load order(via ``extra: preload:
+...`` option), so consider using them instead of including external scripts.

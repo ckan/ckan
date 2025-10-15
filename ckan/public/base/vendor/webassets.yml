@@ -16,6 +16,22 @@ jquery:
   contents:
     - jquery.js
 
+hljs:
+  filters: rjsmin
+  output: vendor/%(version)s_hljs.js
+  contents:
+    - hljs/highlight.js
+
+hljs-light-theme:
+  output: vendor/%(version)s_hljs-light.css
+  contents:
+    - hljs/a11y-light.css
+
+hljs-dark-theme:
+  output: vendor/%(version)s_hljs-dark.css
+  contents:
+    - hljs/a11y-dark.css
+
 qs:
   filters: rjsmin
   output: vendor/%(version)s_qs.js
