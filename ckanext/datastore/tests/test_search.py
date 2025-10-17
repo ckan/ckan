@@ -836,6 +836,8 @@ class TestDatastoreSearchLegacyTests(object):
         assert result["total"] == 1
         assert result["records"] == [self.expected_records[0]]
 
+
+
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_sort(self, app):
@@ -1898,7 +1900,7 @@ class TestDatastoreSQLFunctional(object):
 class TestDatastoreSearchRecordsFormat(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
     def test_sort_results_objects(self):
         ds = factories.Dataset()
         r = helpers.call_action(
@@ -1981,6 +1983,12 @@ class TestDatastoreSearchRecordsFormat(object):
                 u"txt": u"aaac",
             },
         ]
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], limit=2
+        )["next_page"] == {"_id": {"gt": 2}}
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], sort="_id desc", limit=3
+        )["next_page"] == {"_id": {"lt": 1}}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
@@ -2070,7 +2078,7 @@ class TestDatastoreSearchRecordsFormat(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
     def test_sort_results_lists(self):
         ds = factories.Dataset()
         r = helpers.call_action(
@@ -2117,6 +2125,14 @@ class TestDatastoreSearchRecordsFormat(object):
             [1, 10, u"2020-01-01T00:00:00.000", u"aaab"],
             [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
         ]
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], limit=2,
+            records_format="lists"
+        )["next_page"] == {"_id": {"gt": 2}}
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], sort="_id desc",
+            limit=3, records_format="lists"
+        )["next_page"] == {"_id": {"lt": 1}}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
@@ -2170,7 +2186,7 @@ class TestDatastoreSearchRecordsFormat(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
     def test_sort_results_csv(self):
         ds = factories.Dataset()
         r = helpers.call_action(
@@ -2220,6 +2236,14 @@ class TestDatastoreSearchRecordsFormat(object):
             u"1,10,2020-01-01T00:00:00.000,aaab\n"
             u"3,9,2020-01-01T00:00:00.000,aaac\n"
         )
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], limit=2,
+            records_format="csv"
+        )["next_page"] == {"_id": {"gt": 2}}
+        assert helpers.call_action(
+            "datastore_search", resource_id=r["resource_id"], sort="_id desc",
+            limit=3, records_format="csv"
+        )["next_page"] == {"_id": {"lt": 1}}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
@@ -2385,7 +2409,7 @@ class TestDatastoreSearchRecordsFormat(object):
         assert r["records"][:7] == u"aaac,0."
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
     def test_filter_results_csv(self):
         ds = factories.Dataset()
         r = helpers.call_action(
@@ -2599,3 +2623,37 @@ class TestDatastoreSearchLazyJSON(object):
                 status=200,
             )
         assert '"result": {"records":   [ "space" ]  }}' in resp.body
+
+
+class TestDatastoreSearchFilters(object):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+    def test_range(self):
+        dataset = factories.Dataset()
+        data = {
+            "resource": {"package_id": dataset["id"]},
+            "fields": [
+                {"id": "num", "type": "int"},
+            ],
+            "records": [
+                {"num": 5}, {"num": 7}, {"num": 9}, {"num": 1}, {"num":10},
+            ]
+        }
+        result = helpers.call_action("datastore_create", **data)
+        resource_id = result["resource_id"]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={"num": {"gt": 5, "lt": 9}},
+        )
+        assert result["records"] == [{"_id": 2, "num": 7}]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={"num": {"gte": 5, "lte": 9}},
+        )
+        assert result["records"] == [
+            {"_id": 1, "num": 5},
+            {"_id": 2, "num": 7},
+            {"_id": 3, "num": 9},
+        ]
