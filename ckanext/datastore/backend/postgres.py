@@ -46,6 +46,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
 
+from ckanext.datastore.filters import parse_query_filters, FilterOp
 from ckanext.datastore.backend import (
     DatastoreBackend,
     DatastoreException,
@@ -84,14 +85,6 @@ _DATE_FORMATS = ['%Y-%m-%d',
 _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
-
-_OPERATORS = {
-    'eq': '=',
-    'gt': '>',
-    'gte': '>=',
-    'lt': '<',
-    'lte': '<=',
-}
 
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError  # type: ignore
@@ -427,41 +420,47 @@ def _where_clauses(
     clauses: WhereClauses = []
 
     idx_gen = itertools.count()
+    placeholders = {}
 
-    for field, value in filters.items():
-        if field not in fields_types:
-            continue
-        field_array_type = _is_array_type(fields_types[field])
+    def placeholder(f: str, v: Any) -> str:
+        if fields_types[f] == 'text':
+            # pSQL can do int_field = "10"
+            # but cannot do text_field = 10
+            # this fixes parity there.
+            v = str(v)
+        p = f"value_{next(idx_gen)}"
+        placeholders[p] = v
+        return p
 
-        if isinstance(value, list) and not field_array_type:
-            placeholders = [
-                f"value_{next(idx_gen)}" for _ in value
-            ]
-            clause_str = ('{0} in ({1})'.format(
-                sa.column(field),
-                ','.join(f":{p}" for p in placeholders)
-            ))
-            if fields_types[field] == 'text':
-                # pSQL can do int_field = "10"
-                # but cannot do text_field = 10
-                # this fixes parity there.
-                value = (str(v) for v in value)
-            clause = (clause_str, dict(zip(placeholders, value)))
-        else:
-            operator = '='
-            if isinstance(value, dict):
-                operator, value = _prepare_where_operator_and_value(value)
-            if fields_types[field] == 'text':
-                # pSQL can do int_field = "10"
-                # but cannot do text_field = 10
-                # this fixes parity there.
-                value = str(value)
-            placeholder = f"value_{next(idx_gen)}"
-            clause: tuple[Any, ...] = (
-                f'{sa.column(field)} {operator} :{placeholder}',
-                {placeholder: value}
-            )
-        clauses.append(clause)
+    def build_clause(fo: FilterOp) -> str:
+        '''recursively build clause and placeholders dict'''
+        match fo:
+            case FilterOp(op='$and', value=v):
+                c = (build_clause(f) for f in v)
+                return f'({" AND ".join(c)})' if v else 'true'
+            case FilterOp(op='$or', value=v):
+                c = (build_clause(f) for f in v)
+                return f'({" OR ".join(c)})' if v else 'false'
+            case FilterOp(field=f, op='eq', value=v):
+                return f'{identifier(f)} = :{placeholder(f, v)}'
+            case FilterOp(field=f, op='in', value=v):
+                ph = (placeholder(f, each) for each in v)
+                return f'{identifier(f)} in ({",".join(ph)})' if v else 'false'
+            case FilterOp(field=f, op='gt', value=v):
+                return f'{identifier(f)} > :{placeholder(f, v)}'
+            case FilterOp(field=f, op='gte', value=v):
+                return f'{identifier(f)} >= :{placeholder(f, v)}'
+            case FilterOp(field=f, op='lt', value=v):
+                return f'{identifier(f)} < :{placeholder(f, v)}'
+            case FilterOp(field=f, op='lte', value=v):
+                return f'{identifier(f)} <= :{placeholder(f, v)}'
+            case FilterOp(op=o):
+                raise ValidationError(
+                    {"filters": [f"Unknown filter operation: {o!r}"]}
+                )
+
+    fltr = parse_query_filters(filters, {"fields": fields_types})
+    clauses.append((build_clause(fltr), placeholders))
 
     # add full-text search where clause
     q: Union[dict[str, str], str, Any] = data_dict.get('q')
@@ -496,18 +495,6 @@ def _where_clauses(
         clauses.append((clause_str,))
 
     return clauses
-
-
-def _prepare_where_operator_and_value(value: dict[str, Any]) -> tuple[str, Any]:
-    try:
-        [(key, val)] = value.items()
-    except ValueError:
-        return '=', value
-
-    try:
-        return _OPERATORS[key], val
-    except KeyError:
-        return '=', value
 
 
 def _textsearch_query(
@@ -1505,8 +1492,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         else:
             operator = 'gt'
             last_id_select = 'max(_id)'
-        is_keyset = any(i[0].startswith(
-            f'_id {_OPERATORS[operator]} ') for i in query_dict['where'])
+        is_keyset = any(
+            i[0].startswith( f'_id > ') or i[0].startswith('_id < ')
+            for i in query_dict['where']
+        )
 
     if is_keyset:
         final_statement = '{where} {sort} LIMIT {limit}'
