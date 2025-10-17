@@ -460,7 +460,8 @@ def _where_clauses(
                 )
 
     fltr = parse_query_filters(filters, {"fields": fields_types})
-    clauses.append((build_clause(fltr), placeholders))
+    if fltr:
+        clauses.append((build_clause(fltr), placeholders))
 
     # add full-text search where clause
     q: Union[dict[str, str], str, Any] = data_dict.get('q')
