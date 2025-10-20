@@ -391,10 +391,6 @@ def _pg_version_is_at_least(connection: Any, version: Any):
         return False
 
 
-def _is_array_type(field_type: str):
-    return field_type.startswith('_')
-
-
 def _validate_record(record: Any, num: int, field_names: Iterable[str]):
     # check record for sanity
     if not isinstance(record, dict):
@@ -423,45 +419,47 @@ def _where_clauses(
     placeholders = {}
 
     def placeholder(f: str, v: Any) -> str:
-        if fields_types[f] == 'text':
+        if fields_types.get(f) == 'text':
             # pSQL can do int_field = "10"
             # but cannot do text_field = 10
             # this fixes parity there.
             v = str(v)
         p = f"value_{next(idx_gen)}"
         placeholders[p] = v
-        return p
+        return ':' + p
 
     def build_clause(fo: FilterOp) -> str:
         '''recursively build clause and placeholders dict'''
+        if fo.field and fo.field not in fields_types:
+            return ''  # ignore IDatastore custom filters
         match fo:
             case FilterOp(op='$and', value=v):
-                c = (build_clause(f) for f in v)
-                return f'({" AND ".join(c)})' if v else 'true'
+                c = [cl for f in v if (cl := build_clause(f))]
+                return f'({" AND ".join(c)})' if c else 'true'
             case FilterOp(op='$or', value=v):
-                c = (build_clause(f) for f in v)
-                return f'({" OR ".join(c)})' if v else 'false'
-            case FilterOp(field=f, op='eq', value=v):
-                return f'{identifier(f)} = :{placeholder(f, v)}'
-            case FilterOp(field=f, op='in', value=v):
+                c = [cl for f in v if (cl := build_clause(f))]
+                return f'({" OR ".join(c)})' if c else 'false'
+            case FilterOp(field=str(f), op='eq', value=v):
+                return f'{identifier(f)} = {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='in', value=v):
                 ph = (placeholder(f, each) for each in v)
                 return f'{identifier(f)} in ({",".join(ph)})' if v else 'false'
-            case FilterOp(field=f, op='gt', value=v):
-                return f'{identifier(f)} > :{placeholder(f, v)}'
-            case FilterOp(field=f, op='gte', value=v):
-                return f'{identifier(f)} >= :{placeholder(f, v)}'
-            case FilterOp(field=f, op='lt', value=v):
-                return f'{identifier(f)} < :{placeholder(f, v)}'
-            case FilterOp(field=f, op='lte', value=v):
-                return f'{identifier(f)} <= :{placeholder(f, v)}'
-            case FilterOp(op=o):
+            case FilterOp(field=str(f), op='gt', value=v):
+                return f'{identifier(f)} > {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='gte', value=v):
+                return f'{identifier(f)} >= {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='lt', value=v):
+                return f'{identifier(f)} < {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='lte', value=v):
+                return f'{identifier(f)} <= {placeholder(f, v)}'
+            case FilterOp() as op:
                 raise ValidationError(
-                    {"filters": [f"Unknown filter operation: {o!r}"]}
+                    {"filters": [f"Unknown filter operation: {op!r}"]}
                 )
 
-    fltr = parse_query_filters(filters, {"fields": fields_types})
-    if fltr:
-        clauses.append((build_clause(fltr), placeholders))
+    if fltr := parse_query_filters(filters, {"fields": fields_types}):
+        if cl := build_clause(fltr):
+            clauses.append((cl, placeholders))
 
     # add full-text search where clause
     q: Union[dict[str, str], str, Any] = data_dict.get('q')
@@ -473,7 +471,7 @@ def _where_clauses(
             clauses.append((clause_str,))
         elif isinstance(q, dict):
             lang = _fts_lang(data_dict.get('language'))
-            for field, value in q.items():
+            for field in q:
                 if field not in fields_types:
                     continue
                 query_field = _ts_query_alias(field)
@@ -1490,13 +1488,11 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         if sort[0].endswith(' desc'):
             operator = 'lt'
             last_id_select = 'min(_id)'
+            is_keyset = any(i[0].startswith( '_id < ') for i in query_dict['where'])
         else:
             operator = 'gt'
             last_id_select = 'max(_id)'
-        is_keyset = any(
-            i[0].startswith( f'_id > ') or i[0].startswith('_id < ')
-            for i in query_dict['where']
-        )
+            is_keyset = any(i[0].startswith( '_id > ') for i in query_dict['where'])
 
     if is_keyset:
         final_statement = '{where} {sort} LIMIT {limit}'

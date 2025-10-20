@@ -70,7 +70,7 @@ class FiltersParser:
     def __init__(
         self,
         input_value: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]],
-        search_schema: dict,
+        search_schema: dict[str, Any],
     ) -> None:
 
         self.search_schema = search_schema
@@ -101,13 +101,13 @@ class FiltersParser:
         if not self._is_list_of_dicts(value):
             return f"Filter operations must be defined as a list of dicts: {value}"
 
-    def _new_filter_op(self, *args, **kwargs) -> FilterOp:
+    def _new_filter_op(self, op: str, field: Optional[str], value: Any) -> FilterOp:
         self.total_ops += 1
         if self.total_ops > MAX_FILTER_OPS_NUM:
             raise ValidationError(
                 {"filters": ["Maximum number of filter operations exceeded"]}
             )
-        return FilterOp(*args, **kwargs)
+        return FilterOp(op, field, value)
 
     def _combine_filter_operator_members(
         self,
@@ -169,9 +169,9 @@ class FiltersParser:
 
         return combined_filters
 
-    def _process_filter_operator_members(
+    def _process_filter_operator_members(  # noqa: C901
         self,
-        value: List[dict],
+        value: Any,
         parent_operator: str,
         nesting_level: int,
     ) -> Optional[List[FilterOp]]:
@@ -258,7 +258,7 @@ class FiltersParser:
         else:
             return self._new_filter_op(field=field_name, op=op, value=value)
 
-    def _process_field_operator(
+    def _process_field_operator(  # noqa: C901
         self,
         field_name: str,
         value: Any,
@@ -291,7 +291,7 @@ class FiltersParser:
                 op = list(value.keys())[0]
                 return self._check_field_operator(field_name, op, value[op])
 
-        elif isinstance(value, list):
+        else:
             # TODO: fail if lists
 
             field_ops = [x for x in value if isinstance(x, dict)]
@@ -318,7 +318,7 @@ class FiltersParser:
             else:
                 return None
 
-    def _parse_query_filters(
+    def _parse_query_filters(  # noqa: C901
         self,
         input_value: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]],
     ) -> Optional[FilterOp]:
@@ -406,7 +406,7 @@ class FiltersParser:
 
 def parse_query_filters(
     input_value: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]],
-    search_schema: dict,
+    search_schema: dict[str, Any],
 ) -> Optional[FilterOp]:
 
     if not input_value:
