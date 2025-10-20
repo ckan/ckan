@@ -62,7 +62,7 @@ class FilterOp(NamedTuple):
 
 class FiltersParser:
 
-    search_schema: dict = {}
+    search_schema: dict[str, Any] = {}
     filters: Optional[FilterOp] = None
     errors: list[str] = []
     total_ops: int = 0
