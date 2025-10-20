@@ -14,7 +14,7 @@ import sqlalchemy.exc
 
 import ckan.model as model
 import ckan.plugins as p
-from ckan.lib.theme import collect_themes, resolve_paths
+from ckan.lib.theme import resolve_paths
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
