@@ -43,16 +43,18 @@ this.ckan.module('autocomplete', function (jQuery) {
       this.setupAutoComplete();
     },
 
-    /* Sets up the auto complete plugin. 
+    /* Sets up the auto complete plugin.
      *
      * Returns nothing.
      */
     setupAutoComplete: function () {
       var settings = {
         width: 'resolve',
-        formatResult: this.formatResult,
-        formatNoMatches: this.formatNoMatches,
-        formatInputTooShort: this.formatInputTooShort,
+        templateResult: this.templateResult.bind(this),
+        language: {
+          noResults: this.formatNoMatches,
+          inputTooShort: this.formatInputTooShort
+        },
         dropdownCssClass: this.options.dropdownClass,
         containerCssClass: this.options.containerClass,
         tokenSeparators: this.options.tokensep.split(''),
@@ -72,10 +74,38 @@ this.ckan.module('autocomplete', function (jQuery) {
             }
           }
         } else {
-          settings.query = this._onQuery;
-          settings.createSearchChoice = this.formatTerm;
+          // Create custom data adapter for Select2 4.0
+          // See https://select2.org/upgrading/migrating-from-35#custom-data-adapters-instead-of-query
+          var module = this;
+          var ArrayData = $.fn.select2.amd.require('select2/data/array');
+          var Utils = $.fn.select2.amd.require('select2/utils');
+
+          function CKANDataAdapter ($element, options) {
+            CKANDataAdapter.__super__.constructor.call(this, $element, options);
+          }
+
+          Utils.Extend(CKANDataAdapter, ArrayData);
+
+          CKANDataAdapter.prototype.query = function (params, callback) {
+            module._onQuery({
+              term: params.term,
+              callback: callback
+            });
+          };
+
+          CKANDataAdapter.prototype.current = function (callback) {
+            module.formatInitialValue(this.$element, function(formatted) {
+              // Ensure we always return an array for Select2 4.0
+              if (formatted && !Array.isArray(formatted)) {
+                formatted = [formatted];
+              }
+              callback(formatted || []);
+            });
+          };
+
+          settings.dataAdapter = CKANDataAdapter;
+          settings.createTag = this.formatTerm;
         }
-        settings.initSelection = this.formatInitialValue;
       }
       else {
         if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)) {
@@ -189,25 +219,30 @@ this.ckan.module('autocomplete', function (jQuery) {
      *
      * state     - The current object that is being rendered.
      * container - The element the content will be added to (added in 3.0)
-     * query     - The query object (added in select2 3.0).
      *
      *
-     * Returns a text string.
+     * Returns a text string or a jquery object.
      */
-    formatResult: function (state, container, query, escapeMarkup) {
-      var term = this._lastTerm || (query ? query.term : null) || null; // same as query.term
+    templateResult: function (state, container) {
+      var term = this._lastTerm || null;
 
-      if (container) {
+      if (state.loading) {
+        return state.text
+      }
+
+      var Utils = $.fn.select2.amd.require('select2/utils');
+
+      if (container && state.id) {
         // Append the select id to the element for styling.
-        container.attr('data-value', state.id);
+        $(container).attr('data-value', state.id);
       }
 
       var result = [];
       $(state.text.split(term)).each(function() {
-        result.push(escapeMarkup ? escapeMarkup(this) : this);
+        result.push(Utils.escapeMarkup(this));
       });
 
-      return result.join(term && (escapeMarkup ? escapeMarkup(term) : term).bold());
+      return $("<span>" + result.join(term && Utils.escapeMarkup(term).bold()) + "</span>");
     },
 
     /* Formatter for the select2 plugin that returns a string used when
@@ -215,7 +250,8 @@ this.ckan.module('autocomplete', function (jQuery) {
      *
      * Returns a text string.
      */
-    formatNoMatches: function (term) {
+    formatNoMatches: function () {
+      var term = this._lastTerm || null;
       return !term ? this._('Start typing…') : this._('No matches found');
     },
 
