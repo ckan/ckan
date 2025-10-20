@@ -770,7 +770,7 @@ class TestDatastoreSearchLegacyTests(object):
     def test_search_filter_array_field(self, app):
         data = {
             "resource_id": self.data["resource_id"],
-            "filters": {u"characters": [u"Princess Anna", u"Sergius"]},
+            "filters": {"characters": {"eq": ["Princess Anna", "Sergius"]}},
         }
 
         headers = {"Authorization": self.normal_user_token}
