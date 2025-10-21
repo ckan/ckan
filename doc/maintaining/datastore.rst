@@ -462,16 +462,96 @@ The DataStore supports querying with two API endpoints. They are similar but sup
 ..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`
 ==============================  ========================================================  ============================================================
 **Ease of use**                 Easy                                                      Complex
-**Flexibility**                 Low                                                       High
+**Flexibility**                 Medium                                                    High
 **Query language**              Custom (JSON)                                             SQL
 **Join resources**              No                                                        Yes
 ==============================  ========================================================  ============================================================
 
 
-.. _search_improvements:
+.. _advanced_filters:
 
-Search Improvements
--------------------
+Advanced Filters
+----------------
+
+Starting in CKAN 2.12 the ``datastore_search``, ``datastore_delete`` and
+``datastore_records_delete`` ``filters`` parameter supports ranges and logic with
+nested AND and OR conditions. Like in prior releases, filters
+specify the fields and values that records must match::
+
+    "filters": {
+        "family_name": "Romano",
+        "given_name": "Do-Yun"
+    }
+
+This will only return records that match both the ``family_name`` AND
+``given_name`` values. Also just like in prior releases, to match any one of multiple
+values for a field we can use a list::
+
+    "filters": {
+        "paint": ["Black", "Green", "Grey"]
+    }
+
+This will return records that match any of the ``paint`` values to the colors in the list.
+In CKAN 2.12 and later a list of filters value may be used to combine filters with
+an OR::
+
+    "filters": [
+        {"course": "appetizer"},
+        {"special": true}
+    ]
+
+This will return records from a table that are either an appetizer OR on special
+(or both).
+
+Ranges can be specified using filter operations ``lt``, ``lte``, ``gt`` or ``gte``::
+
+    "filters": {
+        "age": {"gt": 24}
+    }
+
+This will return all records with age > 24. Filter operations can be combined and
+even mixed with lists of values::
+
+    "filters": {
+        "year": [2005, {"gte": 2010, "lte": 2019}]
+    }
+
+This will return records with year = 2005 OR between 2010 and 2019.
+
+``$or`` can be used instead of a field name to group OR conditions within AND conditions::
+
+    "filters": {
+        "incident": "noise complaint",
+        "$or": [
+            {"resolution": ["unresolved", "in progress"]},
+            {"year": {"gt": 2024}}
+        ]
+    }
+
+This will return records for noise complaints that are unresolved or in progress OR more
+recent than 2024.
+
+Field names that begin with ``$`` must be prefixed with an extra ``$`` in filters, e.g.
+a field named ``$AUD`` would be filtered as::
+
+    "filters": {
+        "$$AUD": 100
+    }
+
+JSON and array fields can be filtered using ``eq`` filter operation::
+
+    "filters": {
+        "seat": {"eq": {"row": 34, "column": "B"}}
+        "options": {"eq": ["seafood meal"]}
+    }
+
+This will return records from a table with a JSON ``seat`` field containing exactly
+``{"row": 34, "column": "B"}`` and a text array ``options`` field containing exactly
+``["seafood meal"]``.
+
+
+Search Pagination
+-----------------
 
 ``datastore_search`` by default is using ``offset`` based pagination while retrieving data from DB. This works normally with table that has around 500k records, but becomes less efficient with more records due to ``offset`` usage as still processes this data and only then skip it, which leads to longer query time. For example, if your offset is 500k, it still process this 500k and only then skip it. In other words, the bigger offset number you have, the more time it requires for the query to be processed.
 
