@@ -40,7 +40,7 @@ class TestBlanketImplementation(object):
 
     def _commands_registered(self, cli):
         result = cli.invoke(ckan_command, [u'blanket'])
-        return not result.exit_code
+        return "Error: No such command" not in result.output
 
     def _validators_registered(self):
         try:

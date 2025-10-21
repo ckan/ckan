@@ -18,7 +18,7 @@ def test_without_args(cli):
     """
     result = cli.invoke(ckan)
     assert u'Usage: ckan' in result.output
-    assert not result.exit_code, result.output
+    assert result.exit_code == 2, result.output
 
 
 def test_incorrect_config(cli):

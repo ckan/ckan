@@ -6,7 +6,7 @@ from typing import Any
 from typing_extensions import Literal, TypedDict, assert_never
 
 from markupsafe import Markup
-from webassets import Environment
+from webassets.env import Environment
 from webassets.loaders import YAMLLoader
 
 from ckan.common import config, g
