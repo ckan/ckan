@@ -457,8 +457,12 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
     :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
-                   If missing delete whole table and all dependent views.
-                   (optional)
+                    *WARNING* if this parameter is missing the whole table and
+                    any associated data dictionary and dependent views will be deleted.
+                    (optional). Filters can also
+                    specify ranges of values and logic with nested ANDs and
+                    ORs, see the :ref:`advanced_filters` section.
+    :type filters: dictionary
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
@@ -549,8 +553,10 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
     :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
-                   If {} delete all records.
-                   (required)
+                    If {} delete all records.
+                    (required). Filters can also
+                    specify ranges of values and logic with nested ANDs and
+                    ORs, see the :ref:`advanced_filters` section.
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
@@ -590,10 +596,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
     :param filters: :ref:`filters` for matching conditions to select, e.g
-                    {"key1": "a", "key2": "b"} (optional). Filters also can
-                    be used for increase speed of datastore_serach results
-                    retrieval, for more information check
-                    :ref:`search_improvements` section.
+                    {"key1": "a", "key2": "b"} (optional). Filters can also
+                    specify ranges of values and logic with nested ANDs and
+                    ORs, see the :ref:`advanced_filters` section.
     :type filters: dictionary
     :param q: full text query. If it's a string, it'll search on all fields on
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},
@@ -615,7 +620,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
         ``ckan.datastore.search.rows_default``, upper limit: ``32000`` unless
         set in site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
-    :param offset: offset this number of rows (optional)
+    :param offset: offset this number of rows (optional) it is more efficient
+                   to use the value returned in ``next_page`` as a ``filter``
+                   instead of using ``offset`` for paginating over large tables
     :type offset: int
     :param fields: fields to return
                    (optional, default: all fields in original order)
@@ -676,6 +683,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :type total_was_estimated: bool
     :param records: list of matching results
     :type records: depends on records_format value passed
+    :param next_page: values to add to the ``filter`` parameter to retrieve the
+                      next page of results (when sorting by ``_id``, the default)
+    :type next_page: dictionary
 
     '''
     backend = DatastoreBackend.get_active_backend()
