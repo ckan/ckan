@@ -46,6 +46,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
 
+from ckanext.datastore.filters import parse_query_filters, FilterOp
 from ckanext.datastore.backend import (
     DatastoreBackend,
     DatastoreException,
@@ -84,7 +85,6 @@ _DATE_FORMATS = ['%Y-%m-%d',
 _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
-
 
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError  # type: ignore
@@ -391,10 +391,6 @@ def _pg_version_is_at_least(connection: Any, version: Any):
         return False
 
 
-def _is_array_type(field_type: str):
-    return field_type.startswith('_')
-
-
 def _validate_record(record: Any, num: int, field_names: Iterable[str]):
     # check record for sanity
     if not isinstance(record, dict):
@@ -416,42 +412,54 @@ def _validate_record(record: Any, num: int, field_names: Iterable[str]):
 def _where_clauses(
         data_dict: dict[str, Any], fields_types: dict[str, Any]
 ) -> WhereClauses:
-    filters = data_dict.get('filters', {})
+    filterops = data_dict.get('filterops')
     clauses: WhereClauses = []
 
     idx_gen = itertools.count()
+    placeholders = {}
 
-    for field, value in filters.items():
-        if field not in fields_types:
-            continue
-        field_array_type = _is_array_type(fields_types[field])
+    def placeholder(f: str, v: Any) -> str:
+        if fields_types.get(f) == 'text':
+            # pSQL can do int_field = "10"
+            # but cannot do text_field = 10
+            # this fixes parity there.
+            v = str(v)
+        p = f"value_{next(idx_gen)}"
+        placeholders[p] = v
+        return ':' + p
 
-        if isinstance(value, list) and not field_array_type:
-            placeholders = [
-                f"value_{next(idx_gen)}" for _ in value
-            ]
-            clause_str = ('{0} in ({1})'.format(
-                sa.column(field),
-                ','.join(f":{p}" for p in placeholders)
-            ))
-            if fields_types[field] == 'text':
-                # pSQL can do int_field = "10"
-                # but cannot do text_field = 10
-                # this fixes parity there.
-                value = (str(v) for v in value)
-            clause = (clause_str, dict(zip(placeholders, value)))
-        else:
-            if fields_types[field] == 'text':
-                # pSQL can do int_field = "10"
-                # but cannot do text_field = 10
-                # this fixes parity there.
-                value = str(value)
-            placeholder = f"value_{next(idx_gen)}"
-            clause: tuple[Any, ...] = (
-                f'{sa.column(field)} = :{placeholder}',
-                {placeholder: value}
-            )
-        clauses.append(clause)
+    def build_clause(fo: FilterOp) -> str:
+        '''recursively build clause and placeholders dict'''
+        if fo.field and fo.field not in fields_types:
+            return ''  # ignore IDatastore custom filters
+        match fo:
+            case FilterOp(op='$and', value=v):
+                c = [cl for f in v if (cl := build_clause(f))]
+                return f'({" AND ".join(c)})' if c else 'true'
+            case FilterOp(op='$or', value=v):
+                c = [cl for f in v if (cl := build_clause(f))]
+                return f'({" OR ".join(c)})' if c else 'false'
+            case FilterOp(field=str(f), op='eq', value=v):
+                return f'{identifier(f)} = {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='in', value=v):
+                ph = (placeholder(f, each) for each in v)
+                return f'{identifier(f)} in ({",".join(ph)})' if v else 'false'
+            case FilterOp(field=str(f), op='gt', value=v):
+                return f'{identifier(f)} > {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='gte', value=v):
+                return f'{identifier(f)} >= {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='lt', value=v):
+                return f'{identifier(f)} < {placeholder(f, v)}'
+            case FilterOp(field=str(f), op='lte', value=v):
+                return f'{identifier(f)} <= {placeholder(f, v)}'
+            case FilterOp() as op:
+                raise ValidationError(
+                    {"filters": [f"Unknown filter operation: {op!r}"]}
+                )
+
+    if filterops:
+        if cl := build_clause(filterops):
+            clauses.append((cl, placeholders))
 
     # add full-text search where clause
     q: Union[dict[str, str], str, Any] = data_dict.get('q')
@@ -463,7 +471,7 @@ def _where_clauses(
             clauses.append((clause_str,))
         elif isinstance(q, dict):
             lang = _fts_lang(data_dict.get('language'))
-            for field, value in q.items():
+            for field in q:
                 if field not in fields_types:
                     continue
                 query_field = _ts_query_alias(field)
@@ -1388,6 +1396,12 @@ def validate(context: Context, data_dict: dict[str, Any]):
         context['connection'], data_dict['resource_id'])
     data_dict_copy = copy.deepcopy(data_dict)
 
+    filterops = None
+    if 'filters' in data_dict:
+        filterops = parse_query_filters(
+            data_dict['filters'], {"fields": fields_types}
+        )
+
     # TODO: Convert all attributes that can be a comma-separated string to
     # lists
     if 'fields' in data_dict_copy:
@@ -1396,6 +1410,18 @@ def validate(context: Context, data_dict: dict[str, Any]):
     if 'sort' in data_dict_copy:
         fields = datastore_helpers.get_list(data_dict_copy['sort'], False)
         data_dict_copy['sort'] = fields
+    if filterops:
+        # IDatastore plugin backwards compatibility: flatten filter fields
+        flat_filters = {}
+        def flatten(fo: FilterOp):
+            if fo.op == '$and' or fo.op == '$or':
+                for f in fo.value:
+                    flatten(f)
+            else:
+                flat_filters[fo.field] = fo.value
+        flatten(filterops)
+        data_dict_copy['filters'] = flat_filters
+        data_dict['filterops'] = filterops
 
     for plugin in plugins.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.datastore_validate(context,
@@ -1462,7 +1488,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         distinct = ''
 
     if not sort and not distinct:
-        sort = ['_id']
+        sort = ['"_id" asc']
 
     if sort:
         sort_clause = 'ORDER BY {}'.format(', '.join(sort))
@@ -1470,64 +1496,130 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort_clause = ''
 
     records_format = data_dict['records_format']
-    if records_format == u'objects':
-        sql_fmt = u'''
-            SELECT array_to_json(array_agg(j))::text FROM (
-                SELECT {distinct} {select}
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
-                ) as z
-            ) AS j'''
-    elif records_format == u'lists':
-        select_columns = u" || ',' || ".join(
-            s for s in query_dict['select']
-        )
-        sql_fmt = u'''
-            SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
-                SELECT {distinct} '[' || {select} || ']' v
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
-                ) as z
-            ) AS j'''
-    elif records_format == u'csv':
-        sql_fmt = u'''
-            COPY (
-                SELECT {distinct} {select}
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
-                ) as z
-            ) TO STDOUT csv DELIMITER ',' '''
-    elif records_format == u'tsv':
-        sql_fmt = u'''
-            COPY (
-                SELECT {distinct} {select}
-                FROM (
-                    SELECT * FROM {resource} {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
-                ) as z
-            ) TO STDOUT csv DELIMITER '\t' '''
+
+    is_keyset = False
+    last_id = None
+    last_id_select = ''
+    operator = ''
+    # Prepare operator for response
+    if (len(sort) == 1 and sort[0].startswith('"_id"')):
+        if sort[0].endswith(' desc'):
+            operator = 'lt'
+            last_id_select = 'min(_id)'
+            is_keyset = any(i[0].startswith( '_id < ') for i in query_dict['where'])
+        else:
+            operator = 'gt'
+            last_id_select = 'max(_id)'
+            is_keyset = any(i[0].startswith( '_id > ') for i in query_dict['where'])
+
+    if is_keyset:
+        final_statement = '{where} {sort} LIMIT {limit}'
     else:
-        sql_fmt = u''
+        final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
+
+    if records_format == 'objects':
+        sql_fmt = '''
+            WITH records_page AS (
+                SELECT * FROM {resource} {ts_query} {final_statement}
+            ), select_cols AS (
+                SELECT {distinct} {select} FROM records_page
+            ), json_cols AS (
+                SELECT array_to_json(array_agg(select_cols))::text j
+                FROM select_cols
+            )'''
+        if last_id_select:
+            sql_fmt += ''', next_id AS (
+                SELECT {last_id_select} n FROM records_page
+            ) SELECT json_cols.j, next_id.n from json_cols, next_id
+            '''
+        else:
+            sql_fmt += ''' SELECT json_cols.j FROM json_cols'''
+
+    elif records_format == 'lists':
+        select_columns = " || ',' || ".join(query_dict['select'])
+        sql_fmt = '''
+            WITH records_page AS (
+                SELECT * FROM {resource} {ts_query} {final_statement}
+            ), select_cols AS (
+                SELECT {distinct} '[' || {select} || ']' v FROM records_page
+            ), list_cols AS (
+                SELECT '[' || array_to_string(array_agg(select_cols.v), ',') || ']' lc
+                FROM select_cols
+            )'''
+        if last_id_select:
+            sql_fmt += ''', next_id AS (
+                SELECT {last_id_select} n FROM records_page
+            ) SELECT list_cols.lc, next_id.n from list_cols, next_id
+            '''
+        else:
+            sql_fmt += ''' SELECT list_cols.lc FROM list_cols'''
+
+    elif records_format == 'csv':
+        sql_fmt = '''
+            COPY (
+                WITH records_page AS (
+                    SELECT * FROM {resource} {ts_query} {final_statement}
+                ) SELECT {distinct} {select} FROM records_page
+            ) TO STDOUT csv
+        '''
+
+    elif records_format == 'tsv':
+        sql_fmt = '''
+            COPY (
+                WITH records_page AS (
+                    SELECT * FROM {resource} {ts_query} {final_statement}
+                ) SELECT {distinct} {select} FROM records_page
+            ) TO STDOUT csv DELIMITER '\t'
+        '''
+
+    else:
+        sql_fmt = ''
+
+    final_statement = final_statement.format(
+        where=where_clause,
+        limit=limit,
+        offset=offset,
+        sort=sort_clause,
+    )
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
         resource=identifier(resource_id),
         ts_query=ts_query,
-        where=where_clause,
-        sort=sort_clause,
-        limit=limit,
-        offset=offset)
-    if records_format == u'csv' or records_format == u'tsv':
+        last_id_select=last_id_select,
+        final_statement=final_statement)
+
+    if records_format == 'csv' or records_format == 'tsv':
         buf = StringIO()
         _execute_single_statement_copy_to(
             context, sql_string, where_values, buf)
         records = buf.getvalue()
+
+        # can't easily add another parameter to a "copy to"
+        # so use a separate query for the last id
+        if last_id_select:
+            last_id = _execute_single_statement(
+                context,
+                '''
+                    SELECT {last_id_select} FROM (
+                        SELECT "_id" FROM {resource} {ts_query}
+                        {final_statement}
+                    ) as z
+                '''.format(
+                    resource=identifier(resource_id),
+                    ts_query=ts_query,
+                    last_id_select=last_id_select,
+                    final_statement=final_statement,
+                ),
+                where_values,
+            ).fetchone()[0]
     else:
-        v = list(_execute_single_statement(
-            context, sql_string, where_values))[0][0]
+        rval = list(_execute_single_statement(
+            context, sql_string, where_values))[0]
+        if last_id_select:
+            v, last_id = rval
+        else:
+            v = rval[0]
         if v is None or v == '[]':
             records = []
         elif 'api_version' in context:
@@ -1536,6 +1628,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             records = LazyJSONObject(v)
         else:
             records = msgspec.json.decode(v)
+
     data_dict['records'] = records
 
     data_dict['fields'] = _result_fields(
@@ -1587,16 +1680,19 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             # this is slow for large results
             count_sql_string = u'''SELECT count(*) FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query} {where}) as t;'''.format(
+                FROM {resource} {ts_query} {where}) as t;'''.format(
                 distinct=distinct,
                 select=select_columns,
-                resource=resource_id,
+                resource=identifier(resource_id),
                 ts_query=ts_query,
                 where=where_clause)
             count_result = _execute_single_statement(
                 context, count_sql_string, where_values)
             data_dict['total'] = count_result.fetchall()[0][0]
             data_dict['total_was_estimated'] = False
+
+    if last_id is not None:
+        data_dict['next_page'] = {'_id': {operator: last_id}}
 
     return data_dict
 
