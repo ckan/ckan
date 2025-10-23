@@ -292,7 +292,7 @@ def validate(
     # they can be used by the validators
     validators_context = Context(context, schema_keys=list(schema.keys()))
 
-    flattened = flatten_dict(data)
+    flattened = flatten_dict(data, schema=schema)
     flat_data, errors = _validate(flattened, schema, validators_context)
     converted_data = unflatten(flat_data)
 
@@ -380,7 +380,8 @@ def _validate(
 
 def flatten_list(data: list[Union[dict[str, Any], Any]],
                  flattened: Optional[FlattenDataDict] = None,
-                 old_key: Optional[list[Any]] = None
+                 old_key: Optional[list[Any]] = None,
+                 schema: dict[str, Any] = None,
                  ) -> FlattenDataDict:
     '''flatten a list of dicts'''
 
@@ -391,14 +392,15 @@ def flatten_list(data: list[Union[dict[str, Any], Any]],
         if not isinstance(value, dict):
             raise DataError('Values in lists need to be dicts')
         new_key = old_key + [num]
-        flattened = flatten_dict(value, flattened, new_key)
+        flattened = flatten_dict(value, flattened, new_key, schema)
 
     return flattened
 
 
 def flatten_dict(data: dict[str, Any],
                  flattened: Optional[FlattenDataDict] = None,
-                 old_key: Optional[list[Any]] = None
+                 old_key: Optional[list[Any]] = None,
+                 schema: dict[str, Any] = None,
                  ) -> FlattenDataDict:
     '''Flatten a dict'''
 
@@ -407,8 +409,11 @@ def flatten_dict(data: dict[str, Any],
 
     for key, value in data.items():
         new_key = old_key + [key]
-        if isinstance(value, list) and value and isinstance(value[0], dict):
-            flattened = flatten_list(value, flattened, new_key)
+        if (isinstance(value, list) and value and isinstance(value[0], dict)
+            and (not schema or isinstance(schema.get(key), dict))
+        ):
+            flattened = flatten_list(
+                value, flattened, new_key, schema.get(key) if schema else None)
         else:
             flattened[tuple(new_key)] = value
 
