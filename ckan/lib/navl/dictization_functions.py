@@ -381,7 +381,7 @@ def _validate(
 def flatten_list(data: list[Union[dict[str, Any], Any]],
                  flattened: Optional[FlattenDataDict] = None,
                  old_key: Optional[list[Any]] = None,
-                 schema: dict[str, Any] = None,
+                 schema: Optional[dict[str, Any]] = None,
                  ) -> FlattenDataDict:
     '''flatten a list of dicts'''
 
@@ -400,7 +400,7 @@ def flatten_list(data: list[Union[dict[str, Any], Any]],
 def flatten_dict(data: dict[str, Any],
                  flattened: Optional[FlattenDataDict] = None,
                  old_key: Optional[list[Any]] = None,
-                 schema: dict[str, Any] = None,
+                 schema: Optional[dict[str, Any]] = None,
                  ) -> FlattenDataDict:
     '''Flatten a dict'''
 
