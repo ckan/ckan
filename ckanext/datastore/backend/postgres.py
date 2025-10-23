@@ -412,7 +412,7 @@ def _validate_record(record: Any, num: int, field_names: Iterable[str]):
 def _where_clauses(
         data_dict: dict[str, Any], fields_types: dict[str, Any]
 ) -> WhereClauses:
-    filters = data_dict.get('filters', {})
+    filterops = data_dict.get('filterops')
     clauses: WhereClauses = []
 
     idx_gen = itertools.count()
@@ -457,8 +457,8 @@ def _where_clauses(
                     {"filters": [f"Unknown filter operation: {op!r}"]}
                 )
 
-    if fltr := parse_query_filters(filters, {"fields": fields_types}):
-        if cl := build_clause(fltr):
+    if filterops:
+        if cl := build_clause(filterops):
             clauses.append((cl, placeholders))
 
     # add full-text search where clause
@@ -1396,6 +1396,12 @@ def validate(context: Context, data_dict: dict[str, Any]):
         context['connection'], data_dict['resource_id'])
     data_dict_copy = copy.deepcopy(data_dict)
 
+    filterops = None
+    if 'filters' in data_dict:
+        filterops = parse_query_filters(
+            data_dict['filters'], {"fields": fields_types}
+        )
+
     # TODO: Convert all attributes that can be a comma-separated string to
     # lists
     if 'fields' in data_dict_copy:
@@ -1404,6 +1410,18 @@ def validate(context: Context, data_dict: dict[str, Any]):
     if 'sort' in data_dict_copy:
         fields = datastore_helpers.get_list(data_dict_copy['sort'], False)
         data_dict_copy['sort'] = fields
+    if filterops:
+        # IDatastore plugin backwards compatibility: flatten filter fields
+        flat_filters = {}
+        def flatten(fo: FilterOp):
+            if fo.op == '$and' or fo.op == '$or':
+                for f in fo.value:
+                    flatten(f)
+            else:
+                flat_filters[fo.field] = fo.value
+        flatten(filterops)
+        data_dict_copy['filters'] = flat_filters
+        data_dict['filterops'] = filterops
 
     for plugin in plugins.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.datastore_validate(context,

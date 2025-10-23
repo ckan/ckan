@@ -2657,3 +2657,74 @@ class TestDatastoreSearchFilters(object):
             {"_id": 2, "num": 7},
             {"_id": 3, "num": 9},
         ]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={"num": [{"lte": 1}, 7, {"gte": 10}]},
+        )
+        assert result["records"] == [
+            {"_id": 2, "num": 7},
+            {"_id": 4, "num": 1},
+            {"_id": 5, "num": 10},
+        ]
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+    def test_nested_and_or(self):
+        dataset = factories.Dataset()
+        data = {
+            "resource": {"package_id": dataset["id"]},
+            "fields": [
+                {"id": "course", "type": "text"},
+                {"id": "special", "type": "bool"},
+            ],
+            "records": [
+                {"course": "salad", "special": False},
+                {"course": "appetizer", "special": False},
+                {"course": "main", "special": True},
+                {"course": "dessert", "special": False},
+            ]
+        }
+        result = helpers.call_action("datastore_create", **data)
+        resource_id = result["resource_id"]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={
+                "$or": [
+                    {"course": "appetizer", "special": False},
+                    {"special": True}
+                ]
+            },
+        )
+        assert result["records"] == [
+            {"_id": 2, "course": "appetizer", "special": False},
+            {"_id": 3, "course": "main", "special": True},
+        ]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters=[
+                {"course": "appetizer", "special": False},
+                {"special": True}
+            ],
+        )
+        assert result["records"] == [
+            {"_id": 2, "course": "appetizer", "special": False},
+            {"_id": 3, "course": "main", "special": True},
+        ]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={
+                "special": False,
+                "$or": [
+                    {"course": "appetizer"},
+                    {"_id": {"gt": 2}}
+                ]
+            },
+        )
+        assert result["records"] == [
+            {"_id": 2, "course": "appetizer", "special": False},
+            {"_id": 4, "course": "dessert", "special": False},
+        ]
