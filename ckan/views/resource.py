@@ -687,7 +687,6 @@ class EditResourceViewView(MethodView):
             )
         )
         data.pop(u'save', None)
-
         to_preview = data.pop(u'preview', False)
         if to_preview:
             context[u'preview'] = True
@@ -731,8 +730,9 @@ class EditResourceViewView(MethodView):
             resource_id: str,
             view_id: Optional[str] = None,
             post_extra: Optional[dict[str, Any]] = None) -> str:
+        to_preview = post_extra["to_preview"] if post_extra else False
         context, extra_vars = self._prepare(id, resource_id)
-        to_preview = extra_vars[u'to_preview']
+
         if post_extra:
             extra_vars.update(post_extra)
 
