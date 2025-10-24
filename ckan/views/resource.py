@@ -692,7 +692,7 @@ class EditResourceViewView(MethodView):
             context[u'preview'] = True
         to_delete = data.pop(u'delete', None)
         data[u'resource_id'] = resource_id
-        data[u'view_type'] = request.args.get(u'view_type')
+        data[u'view_type'] = view_type = request.form.get(u'view_type')
 
         try:
             if to_delete:
@@ -718,6 +718,8 @@ class EditResourceViewView(MethodView):
                     u'{}_resource.views'.format(package_type),
                     id=id, resource_id=resource_id
                 )
+
+        data[u'view_type'] = view_type
         extra_vars[u'data'] = data
         extra_vars[u'to_preview'] = to_preview
         return self.get(package_type, id, resource_id, view_id, extra_vars)
