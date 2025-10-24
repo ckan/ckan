@@ -456,12 +456,11 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
-    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}
+                    or {"year": {"lt": 2020}}).
                     *WARNING* if this parameter is missing the whole table and
                     any associated data dictionary and dependent views will be deleted.
-                    (optional). Filters can also
-                    specify ranges of values and logic with nested ANDs and
-                    ORs, see the :ref:`advanced_filters` section.
+                    (optional).
     :type filters: dictionary
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
@@ -552,11 +551,9 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
-    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
-                    If {} delete all records.
-                    (required). Filters can also
-                    specify ranges of values and logic with nested ANDs and
-                    ORs, see the :ref:`advanced_filters` section.
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}
+                    or {"year": {"lt": 2020}}).
+                    If {} delete all records.  (required)
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
@@ -595,10 +592,8 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
     :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
-    :param filters: :ref:`filters` for matching conditions to select, e.g
-                    {"key1": "a", "key2": "b"} (optional). Filters can also
-                    specify ranges of values and logic with nested ANDs and
-                    ORs, see the :ref:`advanced_filters` section.
+    :param filters: :ref:`filters` for matching conditions to select (eg
+                    {"name": "fred"} or {"year": {"lt": 2020}}). (optional).
     :type filters: dictionary
     :param q: full text query. If it's a string, it'll search on all fields on
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},

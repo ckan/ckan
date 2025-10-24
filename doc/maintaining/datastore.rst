@@ -402,46 +402,95 @@ You can find more information about the formatting of dates in the `date/time ty
 
 .. _date/time types section of the PostgreSQL documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
+
 .. _filters:
 
 Filters
 -------
 
-Filters define the matching conditions to select from the DataStore. A filter is defined as follows::
+Filters specify the fields and values that returned records must match::
 
-    {
-        "resource_id":  # the resource ID (required)
-        "filters": {
-            # column name: # field value
-            # column name: # List of field values
-            ...:  # other user-defined filters
-  }
+    "filters": {
+        "family_name": "Romano",
+        "given_name": "Do-Yun"
     }
 
-Filters must be supplied as a dictonary. Filters are used as `WHERE` statements.
-The filters have to be valid key/value pairs. The key must be a valid column name
-and the value must match the respective column type. The value may be provided as a List
-of multiple matching values. See :ref:`valid-types` for details on which types are valid.
+This will only return records that match both the ``family_name`` AND
+``given_name`` values.
 
-Example (single filter values, used as `WHERE =` statements)::
+To match one of multiple values for a field we can use a list::
 
-    {
-        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
-        "filters": {
-            "name": "Fred",
-            "dob":  "1994-7-07"
-        }
+    "filters": {
+        "paint": ["Black", "Green", "Grey"]
     }
 
-Example (multiple filter values, used as `WHERE IN` statements)::
+This will return records that match any of the ``paint`` values to the colors in the list.
 
-    {
-        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
-        "filters": {
-            "name": ["Fred", "Jones"],
-            "dob":  ["1994-7-07", "1992-7-27"]
-        }
+
+.. _advanced_filters:
+
+Advanced Filters
+================
+
+CKAN 2.12 and later supports advanced filters: range filter operations and nested AND and
+OR conditions.
+
+Ranges can be specified using filter operations ``lt``, ``lte``, ``gt`` or ``gte``::
+
+    "filters": {
+        "age": {"gt": 24}
     }
+
+This will return all records with age > 24.
+
+Filter operations can be combined and even mixed with lists of values::
+
+    "filters": {
+        "year": [2005, {"gte": 2010, "lte": 2019}]
+    }
+
+This will return records with year = 2005 OR between 2010 and 2019.
+
+A list filters value may be used to combine filters with an OR instead of an AND::
+
+    "filters": [
+        {"course": "appetizer"},
+        {"special": true}
+    ]
+
+This will return records from a table that are either an appetizer OR on special
+(or both).
+
+``$or`` can be used instead of a field name to group OR conditions within AND conditions::
+
+    "filters": {
+        "incident": "noise complaint",
+        "$or": [
+            {"resolution": ["unresolved", "in progress"]},
+            {"year": {"gt": 2024}}
+        ]
+    }
+
+This will return records for noise complaints that are unresolved or in progress OR more
+recent than 2024.
+
+Field names that begin with ``$`` must be prefixed with an extra ``$`` in filters, e.g.
+a field named ``$AUD`` would be filtered as::
+
+    "filters": {
+        "$$AUD": 100
+    }
+
+JSON and array fields can be filtered using an ``eq`` filter operation::
+
+    "filters": {
+        "seat": {"eq": {"row": 34, "column": "B"}}
+        "options": {"eq": ["seafood meal"]}
+    }
+
+This will return records from a table with a JSON ``seat`` field containing exactly
+``{"row": 34, "column": "B"}`` and a text array ``options`` field containing exactly
+``["seafood meal"]``.
 
 .. _resource-aliases:
 
@@ -468,86 +517,6 @@ The DataStore supports querying with two API endpoints. They are similar but sup
 ==============================  ========================================================  ============================================================
 
 
-.. _advanced_filters:
-
-Advanced Filters
-----------------
-
-Starting in CKAN 2.12 the ``datastore_search``, ``datastore_delete`` and
-``datastore_records_delete`` ``filters`` parameter supports ranges and logic with
-nested AND and OR conditions. Like in prior releases, filters
-specify the fields and values that records must match::
-
-    "filters": {
-        "family_name": "Romano",
-        "given_name": "Do-Yun"
-    }
-
-This will only return records that match both the ``family_name`` AND
-``given_name`` values. Also just like in prior releases, to match any one of multiple
-values for a field we can use a list::
-
-    "filters": {
-        "paint": ["Black", "Green", "Grey"]
-    }
-
-This will return records that match any of the ``paint`` values to the colors in the list.
-In CKAN 2.12 and later a list of filters value may be used to combine filters with
-an OR::
-
-    "filters": [
-        {"course": "appetizer"},
-        {"special": true}
-    ]
-
-This will return records from a table that are either an appetizer OR on special
-(or both).
-
-Ranges can be specified using filter operations ``lt``, ``lte``, ``gt`` or ``gte``::
-
-    "filters": {
-        "age": {"gt": 24}
-    }
-
-This will return all records with age > 24. Filter operations can be combined and
-even mixed with lists of values::
-
-    "filters": {
-        "year": [2005, {"gte": 2010, "lte": 2019}]
-    }
-
-This will return records with year = 2005 OR between 2010 and 2019.
-
-``$or`` can be used instead of a field name to group OR conditions within AND conditions::
-
-    "filters": {
-        "incident": "noise complaint",
-        "$or": [
-            {"resolution": ["unresolved", "in progress"]},
-            {"year": {"gt": 2024}}
-        ]
-    }
-
-This will return records for noise complaints that are unresolved or in progress OR more
-recent than 2024.
-
-Field names that begin with ``$`` must be prefixed with an extra ``$`` in filters, e.g.
-a field named ``$AUD`` would be filtered as::
-
-    "filters": {
-        "$$AUD": 100
-    }
-
-JSON and array fields can be filtered using ``eq`` filter operation::
-
-    "filters": {
-        "seat": {"eq": {"row": 34, "column": "B"}}
-        "options": {"eq": ["seafood meal"]}
-    }
-
-This will return records from a table with a JSON ``seat`` field containing exactly
-``{"row": 34, "column": "B"}`` and a text array ``options`` field containing exactly
-``["seafood meal"]``.
 
 
 Search Pagination
