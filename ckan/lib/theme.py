@@ -19,9 +19,9 @@ import abc
 import os
 
 from collections.abc import Iterable
+from typing import Any, Protocol
 
 from typing_extensions import override
-from jinja2 import Environment
 
 import ckan.plugins as p
 from ckan import types
@@ -29,6 +29,10 @@ from ckan.common import config
 
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+class PElement(Protocol):
+    def __call__(self, *args: Any, **kwargs: Any) -> str: ...
 
 
 class Theme:
@@ -54,7 +58,7 @@ class Theme:
         :param app: The CKAN application instance.
         :return: A UI instance.
         """
-        return MacroUI(app.jinja_env)
+        return MacroUI(app)
 
 
 class UI(Iterable[str], abc.ABC):
@@ -63,32 +67,55 @@ class UI(Iterable[str], abc.ABC):
     A UI provides access to a set of macros that can be used in templates.
     """
 
+    @abc.abstractmethod
+    def __init__(self, app: types.CKANApp):
+        """Initialize the UI with the CKAN application instance.
+
+        :param app: The CKAN application instance.
+        """
+
     @override
     @abc.abstractmethod
     def __iter__(self) -> Iterable[str]:
-        """Return an iterable of macro names provided by this UI."""
+        """Return an iterable of element names provided by this UI.
+
+        :return: An iterable of element names.
+        """
+
+    @abc.abstractmethod
+    def __getattr__(self, name: str) -> PElement:
+        """Get an element factory by name.
+
+        :param name: The name of the element.
+        :return: A callable that produces the element.
+        """
 
 
 class MacroUI(UI):
     """A UI implementation that loads macros from a Jinja2 template.
 
-    :param env: The Jinja2 environment to load templates from.
+    The template should define macros for each UI element. The default template
+    is "macros/ui.html".
+
+    :param source: The path to the Jinja2 template containing the macros.
     """
 
     source: str = "macros/ui.html"
 
-    def __init__(self, env: Environment):
-        self.__env = env
-        self.__tpl = env.get_template(self.source)
+    @override
+    def __init__(self, app: types.CKANApp):
+        self.__env = app.jinja_env
+        self.__tpl = app.jinja_env.get_template(self.source)
 
+    @override
     def __getattr__(self, name: str):
-        """Get a macro by name."""
         if config["debug"]:
             tpl = self.__env.get_template(self.source)
             mod = tpl.make_module()
         else:
             mod = self.__tpl.module
-        return getattr(mod, name)
+        el: PElement = getattr(mod, name)
+        return el
 
     @override
     def __iter__(self) -> Iterable[str]:
@@ -100,7 +127,10 @@ class MacroUI(UI):
 
 
 def get_theme(name: str):
-    """Get theme by name, raises KeyError if not found."""
+    """Get theme by name.
+
+    :raises KeyError: if theme not found
+    """
     themes = collect_themes()
     return themes[name]
 

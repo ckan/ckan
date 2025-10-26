@@ -127,6 +127,8 @@ reportUnsupportedDunderAll = true
 reportUnusedCoroutine = true
 reportUnnecessaryTypeIgnoreComment = true
 reportMatchNotExhaustive = true
+reportAny = false
+reportExplicitAny = false
 
 [tool.mypy]
 files = "ckan"
