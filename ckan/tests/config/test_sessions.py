@@ -5,6 +5,7 @@ from flask import Blueprint, render_template
 import re
 
 import ckan.lib.helpers as h
+from ckan.lib.redis import connect_to_redis
 import ckan.plugins as p
 from ckan.tests.helpers import body_contains
 
@@ -103,6 +104,23 @@ def test_beaker_session_timeout(
     make_app()
 
 
+@pytest.mark.usefixtures("clean_redis")
+@pytest.mark.ckan_config("beaker.session.type", "ext:redis")
+@pytest.mark.ckan_config("beaker.session.url", "redis://ckan-redis:6379/1")
+def test_redis_storage(app, monkeypatch):
+    """Redis session interface creates a record in redis upon request.
+    """
+    redis = connect_to_redis()
+
+    assert not redis.keys("*")
+    response = app.get("/")
+
+    cookie = re.match(r'\W*ckan=([^;]+)', response.headers['set-cookie'])
+    assert cookie
+
+    assert redis.keys("*") == [f"beaker_cache:{cookie.group(1)[-32:]}:session".encode()]
+
+    
 @pytest.mark.ckan_config("beaker.session.type", "ext:redis")
 @pytest.mark.ckan_config("beaker.session.url", "redis://ckan-redis:6379/1")
 def test_redis_session_fixation(app, monkeypatch, user_factory, faker):
