@@ -257,4 +257,4 @@ def datastore_show_resource_actions():
     / Data API core ones
     """
 
-    return "midnight-blue" not in tk.config.get("ckan.base_templates_folder")
+    return "midnight-blue" != tk.config.get("ckan.ui.theme")

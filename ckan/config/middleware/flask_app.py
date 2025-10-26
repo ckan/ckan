@@ -215,7 +215,7 @@ def make_flask_stack() -> CKANApp:
         'ungettext': ungettext,
         'current_user': current_user,
         'c': g,  # backwards compat. with old Pylons templates
-        'ui': get_theme(config["ckan.base_templates_folder"]).build_ui(app),
+        'ui': get_theme(config["ckan.ui.theme"]).build_ui(app),
     })
 
     # Common handlers for all requests

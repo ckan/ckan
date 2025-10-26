@@ -188,7 +188,7 @@ def update_config() -> None:
 
     helpers.load_plugin_helpers()
 
-    theme_name: str = config["ckan.base_templates_folder"]
+    theme_name: str = config["ckan.ui.theme"]
     try:
         template_paths = resolve_paths(theme_name)
     except KeyError as e:

@@ -8,11 +8,9 @@ Themes can be registered by CKAN plugins using the ITheme interface.
 
 Example usage::
 
-    themes = collect_themes()
-    theme = themes['my-theme']
+    theme = get_theme(config["ckan.ui.theme"])
     ui = theme.build_ui(app)
-    button = ui.button("Click me!", href="https://ckan.org")
-
+    btn = ui.button("Click me!", href="https://ckan.org")
 """
 
 from __future__ import annotations
@@ -110,8 +108,8 @@ def get_theme(name: str):
 def collect_themes():
     """Collect available themes from core and plugins."""
     themes = {
-        "templates": Theme(os.path.join(root, "templates")),
-        "templates-midnight-blue": Theme(os.path.join(root, "templates-midnight-blue")),
+        "classic": Theme(os.path.join(root, "templates")),
+        "midnight-blue": Theme(os.path.join(root, "templates-midnight-blue")),
     }
     for plugin in p.PluginImplementations(p.ITheme):
         themes.update(plugin.register_themes())

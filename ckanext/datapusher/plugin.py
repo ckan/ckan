@@ -35,8 +35,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     resource_show_action = None
 
     def update_config(self, config: CKANConfig):
-        templates_base = config.get(u'ckan.base_templates_folder')
-        p.toolkit.add_template_directory(config, templates_base)
+        p.toolkit.add_template_directory(config, "templates")
         p.toolkit.add_public_directory(config, 'public')
         p.toolkit.add_resource('assets', 'ckanext-datapusher')
 

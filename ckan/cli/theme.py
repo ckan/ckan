@@ -46,7 +46,7 @@ def list_themes():
 def list_components(ctx: click.Context, theme: str | None):
     """List available components."""
     if not theme:
-        theme: str = config["ckan.base_templates_folder"]
+        theme: str = config["ckan.ui.theme"]
 
     try:
         info = lib_theme.get_theme(theme)
