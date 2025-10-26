@@ -24,7 +24,7 @@ this.ckan.module('data-viewer', function (jQuery) {
 
     _onLoad: function() {
       var self = this;
-      var loc = $('body').data('site-root');
+      var loc = $('meta[name=site-root]').attr('content');
       // see if page is in part of the same domain
       if (this.el.attr('src').substring(0, loc.length) === loc) {
         this._recalibrate();
