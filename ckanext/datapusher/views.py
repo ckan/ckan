@@ -88,10 +88,14 @@ def delete_datastore_table(id: str, resource_id: str) -> Response:
             context, {'resource_id': resource_id, 'force': True})
     except toolkit.NotAuthorized:
         return toolkit.abort(
-            403, _('Unauthorized to delete resource {resource_id}').format(resource_id=resource_id))
+            403, _(
+                'Unauthorized to delete resource {resource_id}'
+            ).format(resource_id=resource_id))
     except toolkit.ObjectNotFound:
         return toolkit.abort(
-            404, _('Resource not found in datastore {resource_id}').format(resource_id=resource_id))
+            404, _(
+                'Resource not found in datastore {resource_id}'
+            ).format(resource_id=resource_id))
 
     toolkit.h.flash_notice(
         _('DataStore and Data Dictionary '

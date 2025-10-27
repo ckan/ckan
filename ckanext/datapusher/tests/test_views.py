@@ -80,7 +80,6 @@ def test_datastore_delete_404(app, monkeypatch):
     org = factories.Organization(users=[{"name": user["name"], "capacity": "admin"}])
 
     dataset = factories.Dataset(owner_org=org["id"])
-    resource = factories.Resource(package_id=dataset["id"])
 
     url = "/dataset/{id}/delete-datastore/{resource_id}".format(
         id=str(dataset["name"]), resource_id="invalid")
