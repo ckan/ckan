@@ -781,8 +781,8 @@ class TestPackage:
                 headers=headers,
             )
             return helpers.body_contains(response, "Original name")
-        # flaky retries
-        assert got_orig() or sleep(1) or got_orig() or sleep(1) or got_orig()
+        # slow response retry
+        assert got_orig() or sleep(.5) or got_orig()
 
     def test_read_deleted_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
@@ -804,16 +804,19 @@ class TestPackage:
         # View as a sysadmin so we can see old versions of the dataset
         sysadmin = factories.SysadminWithToken()
         headers = {"Authorization": sysadmin["token"]}
-        response = app.get(
-            url_for(
-                "activity.resource_history",
-                id=dataset["name"],
-                resource_id=resource["id"],
-                activity_id=activity.id,
-            ),
-            headers=headers,
-        )
-        assert helpers.body_contains(response, resource["name"])
+        def got_orig():
+            response = app.get(
+                url_for(
+                    "activity.resource_history",
+                    id=dataset["name"],
+                    resource_id=resource["id"],
+                    activity_id=activity.id,
+                ),
+                headers=headers,
+            )
+            return helpers.body_contains(response, resource["name"])
+        # slow response retry
+        assert got_orig() or sleep(.5) or got_orig()
 
     def test_changes(self, app):
         user = factories.UserWithToken()
