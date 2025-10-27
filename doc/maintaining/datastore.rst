@@ -492,6 +492,51 @@ This will return records from a table with a JSON ``seat`` field containing exac
 ``{"row": 34, "column": "B"}`` and a text array ``options`` field containing exactly
 ``["seafood meal"]``.
 
+
+Search Pagination
+-----------------
+
+Using ``datastore_search`` with ``offset``-based pagination while retrieving data is
+common. This works as expected with tables up to around 500k records, but becomes less
+efficient with more records. This is due to ``offset`` needing to process the data and
+only then skip it, which leads to longer and longer query times. In other words, the
+bigger offset number you have, the more time is required for the query to be processed.
+
+There is an alternative (``keyset`` pagination) that can be used in order to reduce
+query time speed and as an result process data more quickly. It has one major
+advantage over ``offset``: later queries take almost the exact same amount of time
+as the first ``offset 0`` (which means no data is skipped).
+
+In order to use ``keyset`` approach, you'll need to add/update your ``filters`` in
+``datastore_search`` and have ``sort`` to match the the filter logic.
+
+For example to generate a keyset paginated query like this::
+
+    WHERE _id > 123 ORDER BY _id asc
+
+Where the last ``_id`` from the last row returned was ``123``,
+we would use ``datastore_search`` parameters like::
+
+    "filters": {
+        "_id": {"gt": 123}
+    },
+    "sort": "_id asc"
+
+Or if we are using keyset paginating in reverse and the last ``_id`` was ``456``::
+
+    WHERE _id < 456 ORDER BY _id desc
+
+We would use ``datastore_search`` parameters like::
+
+    "filters": {
+        "_id": {"lt": 123}
+    },
+    "sort": "_id desc"
+
+To make keyset pagination even easier ``datastore_search`` now automatically returns a
+``next_page`` value with the ``filters`` that are required to retrieve the next page,
+as long as your results are sorted by the ``_id`` field.
+
 .. _resource-aliases:
 
 Resource aliases
@@ -515,42 +560,6 @@ The DataStore supports querying with two API endpoints. They are similar but sup
 **Query language**              Custom (JSON)                                             SQL
 **Join resources**              No                                                        Yes
 ==============================  ========================================================  ============================================================
-
-
-
-
-Search Pagination
------------------
-
-``datastore_search`` by default is using ``offset`` based pagination while retrieving data from DB. This works normally with table that has around 500k records, but becomes less efficient with more records due to ``offset`` usage as still processes this data and only then skip it, which leads to longer query time. For example, if your offset is 500k, it still process this 500k and only then skip it. In other words, the bigger offset number you have, the more time it requires for the query to be processed.
-
-There is an alternative (``keyset`` pagination) that can be used in order to increase query time speed and as an result, process much more data. It has one major advantage over ``offset``, that the queries are taking almost similar amount of time as if it used ``offset 0`` (which means no data skip).
-
-In order to use ``keyset`` approach, you'll need to add/update your ``filters`` in ``datastore_search`` and have ``sort`` to match the the filter logic. Example::
-
-    For rule like this:
-    WHERE _id > 123 ORDER BY _id asc
-    {
-        "filters": {
-            "_id": {
-                "gt": 123, # gt - >, 123 - last row ID that was returned in previous call
-            }
-        },
-        "sort": "_id asc"
-	}
-
-    Reverse example:
-    WHERE _id < 123 ORDER BY _id desc
-    {
-        "filters": {
-            "_id": {
-                "lt": 123, # lt - <, 123 - last row ID that was returned in previous call
-            }
-        },
-        "sort": "_id desc"
-	}
-
-If the sort order (e.g. asc/desc) or the filter operator (e.g. gt/lt) will be different, it can lead to inconsistent results, as ``keyset`` pagination is build in combination of ``WHERE`` condition and ``ORDER BY``, which should help each other.
 
 
 .. _db_internals:
