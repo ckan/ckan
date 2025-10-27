@@ -4,6 +4,7 @@ import pytest
 from flask import Blueprint, render_template
 import re
 
+from ckan.common import config
 import ckan.lib.helpers as h
 from ckan.lib.redis import connect_to_redis
 import ckan.plugins as p
@@ -106,7 +107,7 @@ def test_beaker_session_timeout(
 
 @pytest.mark.usefixtures("clean_redis")
 @pytest.mark.ckan_config("beaker.session.type", "ext:redis")
-@pytest.mark.ckan_config("beaker.session.url", "redis://ckan-redis:6379/1")
+@pytest.mark.ckan_config("beaker.session.url", config["ckan.redis.url"])
 def test_redis_storage(app, monkeypatch):
     """Redis session interface creates a record in redis upon request.
     """
@@ -120,9 +121,9 @@ def test_redis_storage(app, monkeypatch):
 
     assert redis.keys("*") == [f"beaker_cache:{cookie.group(1)[-32:]}:session".encode()]
 
-    
+
 @pytest.mark.ckan_config("beaker.session.type", "ext:redis")
-@pytest.mark.ckan_config("beaker.session.url", "redis://ckan-redis:6379/1")
+@pytest.mark.ckan_config("beaker.session.url", config["ckan.redis.url"])
 def test_redis_session_fixation(app, monkeypatch, user_factory, faker):
     """Session id is regenerated on login
     """
@@ -153,4 +154,4 @@ def test_redis_session_fixation(app, monkeypatch, user_factory, faker):
     login_cookie = re.match(r'\W*ckan=([^;]+)', login_response.headers['set-cookie'])
     # assert that we're setting a new cookie on login.
     assert login_cookie.group(1) != orig_cookie.group(1)
- 
+
