@@ -35,32 +35,6 @@ class PElement(Protocol):
     def __call__(self, *args: Any, **kwargs: Any) -> str: ...
 
 
-class Theme:
-    """Information about a theme.
-
-    :param path: Path to the theme directory.
-    :param extends: Name of the parent theme, or None.
-    """
-
-    path: str
-    extends: str | None
-
-    def __init__(self, path: str, extends: str | None = None):
-        self.path = path
-        self.extends = extends
-
-    def build_ui(self, app: types.CKANApp) -> UI:
-        """Build a UI instance for this theme.
-
-        The default implementation returns a MacroUI instance that loads
-        macros from "macros/ui.html" in the theme's template directory.
-
-        :param app: The CKAN application instance.
-        :return: A UI instance.
-        """
-        return MacroUI(app)
-
-
 class UI(Iterable[str], abc.ABC):
     """Abstract base class for theme UIs.
 
@@ -124,6 +98,34 @@ class MacroUI(UI):
                 continue
             getattr(self.__tpl.module, name)
             yield name
+
+
+class Theme:
+    """Information about a theme.
+
+    :param path: Path to the theme directory.
+    :param extends: Name of the parent theme, or None.
+    """
+
+    path: str
+    extends: str | None
+
+    UI: type[UI] = MacroUI
+
+    def __init__(self, path: str, extends: str | None = None):
+        self.path = path
+        self.extends = extends
+
+    def build_ui(self, app: types.CKANApp) -> UI:
+        """Build a UI instance for this theme.
+
+        The default implementation returns a MacroUI instance that loads
+        macros from "macros/ui.html" in the theme's template directory.
+
+        :param app: The CKAN application instance.
+        :return: A UI instance.
+        """
+        return self.UI(app)
 
 
 def get_theme(name: str):

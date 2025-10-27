@@ -57,4 +57,4 @@ def list_components(ctx: click.Context, theme: str | None):
     ui = info.build_ui(ctx.obj.app._wsgi_app)
 
     for item in ui:
-        click.echo(f"\t{item}")
+        click.echo(f"\t{item}: {getattr(ui, item)}")
