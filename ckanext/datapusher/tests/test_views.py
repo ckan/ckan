@@ -52,11 +52,11 @@ def test_datastore_delete(app, monkeypatch):
     helpers.call_action("datastore_create", **data)
 
     assert helpers.call_action("datastore_info", resource_id=resource['id'])
-    
+
     url = "/dataset/{id}/delete-datastore/{resource_id}".format(
         id=str(dataset["name"]), resource_id=str(resource["id"])
     )
-    
+
     headers = {"Authorization": user["token"]}
     app.post(url=url, headers=headers, status=200)
 
@@ -73,7 +73,6 @@ def test_datastore_delete_404(app, monkeypatch):
     org = factories.Organization(users=[{"name": user["name"], "capacity": "admin"}])
 
     dataset = factories.Dataset(owner_org=org["id"])
-    resource = factories.Resource(package_id=dataset["id"])
 
     url = "/dataset/{id}/delete-datastore/{resource_id}".format(
         id=str(dataset["name"]), resource_id="invalid")
