@@ -316,8 +316,8 @@ class TestDatastoreCreateNewTests(object):
         helpers.call_action("datastore_create", **data)
         def has_la():
             return when_was_last_analyze(resource["id"]) is not None
-        # flaky retry because analyze is sometimes delayed
-        assert has_la() or sleep(1) or has_la()
+        # retry because analyze is sometimes delayed
+        assert has_la() or sleep(.5) or has_la()
 
     def test_delete_fields(self):
         resource = factories.Resource()

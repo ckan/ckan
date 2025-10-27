@@ -123,8 +123,8 @@ class TestDatastoreDelete(object):
         helpers.call_action("datastore_delete", **data)
         def has_la():
             return when_was_last_analyze(resource["id"]) is not None
-        # flaky retry because analyze is sometimes delayed
-        assert has_la() or sleep(1) or has_la()
+        # retry because analyze is sometimes delayed
+        assert has_la() or sleep(.5) or has_la()
 
 
 class TestDatastoreRecordsDelete(object):
