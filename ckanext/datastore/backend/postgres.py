@@ -24,9 +24,6 @@ import json
 import decimal
 from collections import OrderedDict
 
-from urllib.parse import (
-    urlencode, urlunparse, parse_qsl, urlparse
-)
 from io import StringIO
 import msgspec
 
@@ -818,44 +815,6 @@ def _execute_single_statement(
     return results
 
 
-def _insert_links(data_dict: dict[str, Any], limit: int, offset: int):
-    '''Adds link to the next/prev part (same limit, offset=offset+limit)
-    and the resource page.'''
-    data_dict['_links'] = {}
-
-    # get the url from the request
-    try:
-        urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
-    except (KeyError, TypeError, RuntimeError):
-        return  # no links required for local actions
-
-    # change the offset in the url
-    parsed = list(urlparse(urlstring))
-    query = parsed[4]
-
-    arguments = dict(parse_qsl(query))
-    arguments_start = dict(arguments)
-    arguments_prev: dict[str, Any] = dict(arguments)
-    arguments_next: dict[str, Any] = dict(arguments)
-    if 'offset' in arguments_start:
-        arguments_start.pop('offset')
-    arguments_next['offset'] = int(offset) + int(limit)
-    arguments_prev['offset'] = int(offset) - int(limit)
-
-    parsed_start = parsed[:]
-    parsed_prev = parsed[:]
-    parsed_next = parsed[:]
-    parsed_start[4] = urlencode(arguments_start)
-    parsed_next[4] = urlencode(arguments_next)
-    parsed_prev[4] = urlencode(arguments_prev)
-
-    # add the links to the data dict
-    data_dict['_links']['start'] = urlunparse(parsed_start)
-    data_dict['_links']['next'] = urlunparse(parsed_next)
-    if int(offset) - int(limit) > 0:
-        data_dict['_links']['prev'] = urlunparse(parsed_prev)
-
-
 def _where(
         where_clauses_and_values: WhereClauses
 ) -> tuple[str, list[dict[str, Any]]]:
@@ -1637,8 +1596,6 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         datastore_helpers.get_list(data_dict.get('fields')))
 
     _unrename_json_field(data_dict)
-
-    _insert_links(data_dict, limit, offset)
 
     if data_dict.get('include_total', True):
         total_estimation_threshold = \
