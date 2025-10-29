@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import multiprocessing as mp
+import sys
 
 import click
 import sqlalchemy as sa
@@ -39,6 +40,7 @@ def rebuild(
         commit_each: bool, package_id: str, clear: bool
 ):
     u''' Rebuild search index '''
+    errors = 0
     from ckan.lib.search import rebuild, commit
     try:
 
@@ -50,11 +52,14 @@ def rebuild(
                 clear=clear)
     except logic.NotFound:
         error_shout("Couldn't find package %s" % package_id)
+        errors = 1
     except Exception as e:
         error_shout(e)
+        errors = 1
     if not commit_each:
         commit()
-
+    if errors:
+        sys.exit(errors)
 
 @search_index.command(name=u'check', short_help=u'Check search index')
 def check():
@@ -106,7 +111,7 @@ def get_orphans() -> list[str]:
 
 @search_index.command(
     name=u'list-orphans',
-    short_help=u'Lists any non-existant packages in the search index'
+    short_help=u'Lists any non-existent packages in the search index'
 )
 def list_orphans_command():
     orphaned_package_ids = get_orphans()
@@ -119,7 +124,7 @@ def list_orphans_command():
 
 @search_index.command(
     name=u'clear-orphans',
-    short_help=u'Clear any non-existant packages in the search index'
+    short_help=u'Clear any non-existent packages in the search index'
 )
 @click.option(u'-v', u'--verbose', is_flag=True)
 @click.pass_context

@@ -100,7 +100,7 @@ class Resource(core.StatefulObjectMixin,
         self.hash = hash
         self.package_id = package_id
         # The base columns historically defaulted to empty strings
-        # not None (Null). This is why they are seperate here.
+        # not None (Null). This is why they are separate here.
         base_columns = ['url', 'format', 'description', 'hash']
         for key in set(CORE_RESOURCE_COLUMNS) - set(base_columns):
             setattr(self, key, kwargs.pop(key, None))

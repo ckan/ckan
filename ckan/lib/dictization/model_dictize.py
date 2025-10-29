@@ -462,7 +462,7 @@ def group_dictize(group: model.Group, context: Context,
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
     if image_url and not image_url.startswith('http'):
-        #munge here should not have an effect only doing it incase
+        #munge here should not have an effect only doing it in case
         #of potential vulnerability of dodgy api input
         image_url = munge.munge_filename_legacy(image_url)
         result_dict['image_display_url'] = h.url_for_static(

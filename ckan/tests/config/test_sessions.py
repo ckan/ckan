@@ -6,13 +6,15 @@ from flask import Blueprint, render_template
 
 import ckan.lib.helpers as h
 import ckan.plugins as p
+from ckan.config.middleware.flask_app import CKANJsonSessionSerializer
 from ckan.lib.redis import connect_to_redis
-from ckan.tests.helpers import body_contains
+from ckan import common as c
+from ckan.tests.helpers import body_contains, CKANTestApp
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
 class TestWithFlashPlugin:
-    def test_flash_success(self, app):
+    def test_flash_success(self, app: CKANTestApp):
         """
         Test flash_success messages are rendered.
         """
@@ -97,7 +99,7 @@ class FlashMessagePlugin(p.SingletonPlugin):
 class TestSessionTypes:
     @pytest.mark.usefixtures("clean_redis")
     @pytest.mark.ckan_config("SESSION_TYPE", "redis")
-    def test_redis_storage(self, app, ckan_config, monkeypatch):
+    def test_redis_storage(self, app: CKANTestApp, monkeypatch):
         """Redis session interface creates a record in redis upon request.
         """
         redis = connect_to_redis()
@@ -110,8 +112,40 @@ class TestSessionTypes:
 
         assert redis.keys("*") == [f"session:{cookie.group(1)}".encode()]
 
+    @pytest.mark.ckan_config("SESSION_TYPE", "redis")
+    def test_redis_session_fixation(self, app: CKANTestApp, monkeypatch, user_factory, faker):
+        """Session id is regenerated on login
+        """
+
+        # app convenience functions use separate test client for each request
+        # so cookies aren't saved.
+        test_client = app.test_client()
+
+        response = test_client.get("/")
+        orig_cookie = re.match(r'ckan=([^;]+)', response.headers['set-cookie'])
+        assert orig_cookie
+        cookie_header = 'ckan=%s' % orig_cookie.group(1)
+        same_session = test_client.get("/")
+        # assert that we're using the same session prior to logging in.
+        assert same_session.request.headers['cookie'] == cookie_header
+        password = faker.password()
+        user = user_factory(password=password)
+
+        login_response = test_client.post(h.url_for("user.login"),
+                                          follow_redirects=False,
+                                          data={
+                                              "login": user["name"],
+                                              "password": password,
+                                          }
+                                          )
+
+        assert 'set-cookie' in login_response.headers
+        login_cookie = re.match(r'ckan=([^;]+)', login_response.headers['set-cookie'])
+        # assert that we're setting a new cookie on login.
+        assert login_cookie.group(1) != orig_cookie.group(1)
+
     @pytest.mark.usefixtures("test_request_context")
-    def test_cookie_storage(self, app, user_factory, faker):
+    def test_cookie_storage(self, app: CKANTestApp, user_factory, faker):
         """User's ID added to session cookie upon login
         """
         password = faker.password()
@@ -130,3 +164,35 @@ class TestSessionTypes:
         )
         data = serializer.loads(cookie.group(1))
         assert data["_user_id"] == user["id"]
+
+
+@pytest.mark.ckan_config("SESSION_TYPE", "redis")
+class TestCKANJsonSessionSerializer:
+    def test_encode_returns_bytes(self, app: CKANTestApp):
+        with app.flask_app.test_request_context():
+            serializer = CKANJsonSessionSerializer()
+            session = c.session
+            session['user_id'] = '123'
+
+            encoded = serializer.encode(session)
+            assert isinstance(encoded, bytes)
+            assert b'"user_id":"123"' in encoded
+
+    def test_decode_round_trip(self, app: CKANTestApp):
+        with app.flask_app.test_request_context():
+            serializer = CKANJsonSessionSerializer()
+            session = c.session
+            session['theme'] = 'qld'
+
+            encoded = serializer.encode(session)
+            decoded = serializer.decode(encoded)
+            assert decoded == session
+
+    def test_decode_unicode_error_logs(self, app: CKANTestApp):
+        with app.flask_app.test_request_context():
+            serializer = CKANJsonSessionSerializer()
+            bad_data = b'\xff\xfe\xfd'  # Invalid UTF-8
+
+            result = serializer.decode(bad_data)
+
+            assert result is None

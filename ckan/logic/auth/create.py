@@ -182,7 +182,7 @@ def _check_group_auth(context: Context, data_dict: Optional[DataDict]) -> bool:
               mentions no groups, so it returns True.
 
     '''
-    # FIXME This code is shared amoung other logic.auth files and should be
+    # FIXME This code is shared among other logic.auth files and should be
     # somewhere better
     if not data_dict:
         return True

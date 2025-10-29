@@ -171,6 +171,32 @@ class TestUpdateWithView(object):
 
         assert response
 
+    def test_reorder_authorized_if_user_has_permissions_on_dataset(self):
+        '''Ensure that resource_view_reorder action correctly calls
+        the auth function
+        '''
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        resource = factories.Resource(user=user, package_id=dataset["id"])
+
+        resource_view = factories.ResourceView(resource_id=resource["id"])
+        resource_view2 = factories.ResourceView(resource_id=resource["id"])
+
+        params = {
+            "id": resource["id"],
+            "order": [resource_view2['id'], resource_view['id']]
+        }
+
+        context = {"user": user["name"], "model": model, 'ignore_auth': False}
+        response = helpers.call_action(
+            "resource_view_reorder", context=context, **params
+        )
+
+        assert response
+
+
     def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
 
         org = factories.Organization()

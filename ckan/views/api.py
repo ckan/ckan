@@ -221,7 +221,7 @@ def _get_request_data(try_url_params: bool = False):
 def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     u'''Main endpoint for the action API (v3)
 
-    Creates a dict with the incoming request data and calls the appropiate
+    Creates a dict with the incoming request data and calls the appropriate
     logic function. Returns a JSON response with the following keys:
 
         * ``help``: A URL to the docstring for the specified action

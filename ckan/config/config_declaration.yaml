@@ -256,7 +256,7 @@ groups:
             supported by `Flask-Session
             <https://flask-session.readthedocs.io/en/latest/config.html#SESSION_TYPE>`_
             like ``redis``, ``filesystem``, etc. Keep in mind
-            that certaint session types require additional Python packages and configuration settings.
+            that certain session types require additional Python packages and configuration settings.
             Setting a not supported value will raise an exception on startup.
 
       - key: SESSION_COOKIE_NAME
@@ -326,7 +326,7 @@ groups:
         default: 31_536_000 # 1 year
         description: |
           If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
-          set this number of seconds in the future. Note that you can not set a 
+          set this number of seconds in the future. Note that you can not set a
           session that never expires (only very far into the future).
 
       - key: SESSION_USE_SIGNER
@@ -422,12 +422,6 @@ groups:
           ``file_contents`` will guess the mimetype by the file itself, this tends to be inaccurate.
 
           ``None`` will not store the mimetype for the resource.
-
-      - key: ckan.static_max_age
-        default: 3600
-        type: int
-        example: 2592000
-        description: Controls CKAN static files' cache max age, if we're serving and caching them.
 
       - key: ckan.valid_url_schemes
         type: list
@@ -1293,10 +1287,21 @@ groups:
 
   - annotation: Storage Settings
     options:
+      - key: ckan.uploads_enabled
+        validators: ignore_missing boolean_validator
+        example: false
+        description: |
+          Defines file uploads are enabled or not.
+
+          If enabled also set :ref:`ckan.storage_path` if you want to use internal storage.
+
       - key: ckan.storage_path
         placeholder: /var/lib/ckan/default
         example: /var/lib/ckan/default
-        description: This defines the location of where CKAN will store all uploaded data.
+        description: |
+          This defines the location of where CKAN will store all uploaded data.
+
+          If set to some directory, also set :ref:`ckan.uploads_enabled` to true to enable uploads in the UI.
 
       - key: ckan.max_resource_size
         type: int
@@ -1366,7 +1371,7 @@ groups:
         type: bool
         example: true
         description: |
-          When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+          When serving static files, if this setting is ``True``, the application will set the ``X-Sendfile`` header instead of
           serving the files directly with Flask. This will increase performance when serving the assets, but it
           requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 

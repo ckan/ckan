@@ -35,7 +35,6 @@ import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
-from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
@@ -87,7 +86,15 @@ class CKANJsonSessionSerializer(TaggedJSONSerializer, FlaskSessionSerializer):
 
     def decode(self, serialized_data: bytes) -> Any:
         """Deserialize the session data."""
-        return self.loads(serialized_data.decode())
+        try:
+            return self.loads(serialized_data.decode())
+        except UnicodeDecodeError:
+            log.info(
+                "Unable to decode session data, X-Forward-For/remote_addr: %s, "
+                "dropping: %s ",
+                request.headers.get('X-Forwarded-For',
+                                    request.remote_addr),
+                serialized_data)
 
 
 class CKANSession(Session):
@@ -139,7 +146,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Register storage for accessing group images, site logo, etc.
     storage_folder = []
-    storage = uploader.get_storage_path()
+    storage = config.get('ckan.storage_path')
     if storage:
         storage_folder = [os.path.join(storage, 'storage')]
 
@@ -456,7 +463,7 @@ class CKANFlask(MultiStaticFlask):
 
 
 def _register_plugins_blueprints(app: CKANApp):
-    """ Resgister all blueprints defined in plugins by IBlueprint
+    """ Register all blueprints defined in plugins by IBlueprint
     """
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()

@@ -205,7 +205,7 @@ def resource_view_reorder(
         raise NotFound('Resource was not found.')
     context['resource'] = resource
 
-    _check_access('resource_view_reorder', context, data_dict)
+    _check_access('resource_view_reorder', context, {'resource_id': id})
 
     q = model.Session.query(model.ResourceView.id).filter_by(resource_id=id)
     existing_views = [res[0] for res in
