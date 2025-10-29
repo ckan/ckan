@@ -547,8 +547,9 @@ def login() -> Union[Response, str]:
         user_obj = authenticator.ckan_authenticator(identity)
         if user_obj:
             next = request.args.get('next', request.args.get('came_from'))
-            if hasattr(current_app.session_interface, 'regenerate'):
-                current_app.session_interface.regenerate(session)
+            regenerate = getattr(current_app.session_interface, 'regenerate', None)
+            if regenerate is not None:
+                regenerate(session)
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
