@@ -43,7 +43,7 @@ import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
-import ckan.lib.search as search
+from ckan.lib import redis, search
 import ckan.model as model
 from ckan.common import config, aslist
 
@@ -211,6 +211,75 @@ def reset_index():
     If possible use the ``clean_index`` fixture instead.
     """
     return search.clear_all
+
+
+@pytest.fixture(scope="session")
+def reset_redis():
+    """Callable for removing all keys from Redis.
+
+    Accepts redis key-pattern for narrowing down the list of items to
+    remove. By default removes everything.
+
+    This fixture removes all the records from Redis on call::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("test", "test")
+
+            reset_redis()
+            assert not redis.get("test")
+
+    If only specific records require removal, pass a pattern to the fixture::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("AAA-1", 1)
+            redis.set("AAA-2", 2)
+            redis.set("BBB-3", 3)
+
+            reset_redis("AAA-*")
+            assert not redis.get("AAA-1")
+            assert not redis.get("AAA-2")
+
+            assert redis.get("BBB-3") is not None
+
+    """
+    def cleaner(pattern: str = "*") -> int:
+        """Remove keys matching pattern.
+
+        Return number of removed records.
+        """
+        conn = redis.connect_to_redis()
+        keys = conn.keys(pattern)
+        if keys:
+            return conn.delete(*keys)  # type: ignore
+        return 0
+
+    return cleaner
+
+
+@pytest.fixture()
+def clean_redis(reset_redis):
+    """Remove all keys from Redis.
+
+    This fixture removes all the records from Redis::
+
+        @pytest.mark.usefixtures("clean_redis")
+        def test_redis_is_empty():
+            assert redis.keys("*") == []
+
+    If test requires presence of some initial data in redis, make sure that
+    data producer applied **after** ``clean_redis``::
+
+        @pytest.mark.usefixtures(
+            "clean_redis",
+            "fixture_that_adds_xxx_key_to_redis"
+        )
+        def test_redis_has_one_record():
+            assert redis.keys("*") == [b"xxx"]
+
+    """
+    reset_redis()
 
 
 @pytest.fixture
