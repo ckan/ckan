@@ -131,7 +131,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     for key, value in kwargs.items():
         config.setdefault(key, value)
 
-    engine = sa.engine_from_config(
+    engine = sqlalchemy.engine_from_config(
         dict(config),
         "ckan.datastore.sqlalchemy.",
         json_deserializer=lambda x: x,  # do not convert to python objects
