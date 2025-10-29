@@ -212,6 +212,7 @@ def datastore_search_schema() -> Schema:
         'records_format': [
             default(u'objects'),
             one_of([u'objects', u'lists', u'csv', u'tsv'])],
+        'include_next_page': [default(False), boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')],
         'full_text': [ignore_missing, unicode_safe]
