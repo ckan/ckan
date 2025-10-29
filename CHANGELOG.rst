@@ -9,6 +9,61 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.10.9 2025-10-29
+===================
+
+Migration notes
+---------------
+
+- This version requires a requirements upgrade on source installations
+- Restore handling of plugin order for ``ITemplateHelpers`` to align with
+  ``add_template_directory`` precedence again (first plugin wins). You might
+  have to change the order of a plugin in ``ckan.plugins`` if you relied on
+  overriding a template helper from another plugin. (`#9069
+  <https://github.com/ckan/ckan/pull/9069>`_)
+- A new config option :ref:`ckan.uploads_enabled` was added to prevent a critical error being shown
+  in the logs about a missing :ref:`ckan.storage_path` setting. This is not required and existing
+  sites should work as before. When the ``ckan.uploads_enabled`` is not set, uploads will be shown
+  in the UI if ``ckan.storage_path`` is defined or there is an ``IUploader`` plugin configured.
+  (`#8977 <https://github.com/ckan/ckan/pull/8977>`_)
+
+Minor changes
+-------------
+
+- Replaced lint tool flake8 with ruff. (`#8964
+  <https://github.com/ckan/ckan/pull/8964>`_)
+- Remove unused `ckan.static_max_age` config option (`#9005
+  <https://github.com/ckan/ckan/pull/9005>`_)
+- Include CHANGELOG.rst in MANIFEST.in. (`#9083
+  <https://github.com/ckan/ckan/pull/9083>`_)
+
+Bugfixes
+--------
+
+- `CVE-2025-XXXX <https://github.com/ckan/ckan/security/advisories/GHSA-2hvh-cw5c-8q8q>`_: Rotate
+  session identifiers to prevent Session Cookie Fixation .
+- `CVE-2025-54384 <https://github.com/ckan/ckan/security/advisories/GHSA-2r4h-8jxv-w2j8>`_: Stored
+  XSS vector in Markdown description fields.
+- Fix auth check for ``resource_view_reorder`` (`#9131 <https://github.com/ckan/ckan/pull/9131>`_)
+- Restore handling of plugin order for ``ITemplateHelpers`` to align with
+  ``add_template_directory`` precedence again (first plugin wins).
+  (`#9091 <https://github.com/ckan/ckan/pull/9091>`_)
+- Hide users data from `stats` if the `ckan.auth.public_user_details`
+  setting is set to `False`.
+  This ensures that user details are not exposed in the statistics when
+  public user details are disabled. (`#9030
+  <https://github.com/ckan/ckan/pull/9030>`_)
+- Fixes the font of the sort indicator in datatablesview by properly closing
+  the opening <i tag (`#9078 <https://github.com/ckan/ckan/pull/9078>`_)
+- Historical versions of a custom dataset type ignores base template specified
+  by the ``IDatasetForm`` interface. (`#8875 <https://github.com/ckan/ckan/pull/8875>`_)
+- Fix ``EXPLAIN JSON`` output sometimes being auto-decoded in multithreaded
+  environments by setting json_deserializer at engine level. (`#8929 <https://github.com/ckan/ckan/pull/8929>`_)
+- Catch ``NotAuthorized`` exception raised by ``datastore_search`` (`#8989 <https://github.com/ckan/ckan/pull/8989>`_)
+- Remove override of group_dict['package_count'] to display the correct dataset count (`#8252 <https://github.com/ckan/ckan/pull/8252>`_
+
+
+
 v.2.10.8 2025-05-07
 ===================
 
