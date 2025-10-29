@@ -123,7 +123,7 @@ class BeakerSessionInterface(SessionInterface):
 
     def regenerate(self, session: Any):
         session.invalidate()
-        
+
     def save_session(self, app: Any, session: Any, response: Any):
         session.save()
 
