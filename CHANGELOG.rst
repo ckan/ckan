@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.11.4 2025-10-22
+v.2.11.4 2025-10-29
 ===================
 
 Migration notes
