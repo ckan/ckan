@@ -115,7 +115,7 @@ pyyaml==6.0.1
     # via -r requirements.in
 redis==5.0.7
     # via rq
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r requirements.in
     #   pysolr
