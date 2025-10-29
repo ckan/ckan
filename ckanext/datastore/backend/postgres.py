@@ -1396,6 +1396,7 @@ def validate(context: Context, data_dict: dict[str, Any]):
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
+    data_dict_copy.pop('include_next_page', None)
 
     for key, values in data_dict_copy.items():
         if not values:
@@ -1461,7 +1462,9 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     last_id_select = ''
     operator = ''
     # Prepare operator for response
-    if (len(sort) == 1 and sort[0].startswith('"_id"')):
+    if data_dict['include_next_page'] and (
+        len(sort) == 1 and sort[0].startswith('"_id"')
+    ):
         if sort[0].endswith(' desc'):
             operator = 'lt'
             last_id_select = 'min(_id)'

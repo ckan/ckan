@@ -645,6 +645,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
         'csv' string containing comma-separated values with no header,
         'tsv' string containing tab-separated values with no header
     :type records_format: controlled list
+    :param include_next_page: set to True to return a filter parameter that
+        will retrieve the next page of results. Ignored if records are not
+        sorted by the `_id` field (default: False)
 
 
     Setting the ``plain`` flag to false enables the entire PostgreSQL
