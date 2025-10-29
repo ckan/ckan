@@ -49,13 +49,12 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
 
-from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
+from ckan.lib.pagination import Page  # type: ignore # noqa
 from ckan.common import _, ungettext, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
@@ -1131,7 +1130,7 @@ def get_facet_items_dict(
         if not len(facet_item['name'].strip()):
             continue
         params_items = request.args.items(multi=True)
-        if not (facet, facet_item['name']) in params_items:
+        if (facet, facet_item['name']) not in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1173,7 +1172,7 @@ def has_more_facets(facet: str,
         if not len(facet_item['name'].strip()):
             continue
         params_items = request.args.items(multi=True)
-        if not (facet, facet_item['name']) in params_items:
+        if (facet, facet_item['name']) not in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1350,7 +1349,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = RE_MD_HTML_TAGS.sub('', markdown(text))
+    plain = bleach_clean(markdown(text), strip=True)
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(
@@ -2112,10 +2111,6 @@ RE_MD_EXTERNAL_LINK = re.compile(
     flags=re.UNICODE
 )
 
-# find all tags but ignore < in the strings so that we can use it correctly
-# in markdown
-RE_MD_HTML_TAGS = re.compile('<[^><]*>')
-
 
 @core_helper
 def html_auto_link(data: str) -> str:
@@ -2175,7 +2170,6 @@ def render_markdown(data: str,
     if allow_html:
         data = markdown(data.strip())
     else:
-        data = RE_MD_HTML_TAGS.sub('', data.strip())
         data = bleach_clean(
             markdown(data), strip=True,
             tags=MARKDOWN_TAGS,
@@ -2410,7 +2404,14 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
+    upload_config = config.get('ckan.uploads_enabled')
+    if upload_config is not None:
+        return upload_config
+
+    if config['ckan.storage_path'] is not None:
+        return True
+
+    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
         return True
     return False
 
@@ -2654,7 +2655,7 @@ def load_plugin_helpers() -> None:
     helper_functions.update(_builtin_functions)
     chained_helpers = defaultdict(list)
 
-    for plugin in p.PluginImplementations(p.ITemplateHelpers):
+    for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
         for name, func in plugin.get_helpers().items():
             if _is_chained_helper(func):
                 chained_helpers[name].append(func)

@@ -2,8 +2,11 @@
 
 import pytest
 from flask import Blueprint, render_template
+import re
 
+from ckan.common import config
 import ckan.lib.helpers as h
+from ckan.lib.redis import connect_to_redis
 import ckan.plugins as p
 from ckan.tests.helpers import body_contains
 
@@ -100,3 +103,55 @@ def test_beaker_session_timeout(
     """
     monkeypatch.setitem(ckan_config, "beaker.session.timeout", timeout)
     make_app()
+
+
+@pytest.mark.usefixtures("clean_redis")
+@pytest.mark.ckan_config("beaker.session.type", "ext:redis")
+@pytest.mark.ckan_config("beaker.session.url", config["ckan.redis.url"])
+def test_redis_storage(app, monkeypatch):
+    """Redis session interface creates a record in redis upon request.
+    """
+    redis = connect_to_redis()
+
+    assert not redis.keys("*")
+    response = app.get("/")
+
+    cookie = re.match(r'\W*ckan=([^;]+)', response.headers['set-cookie'])
+    assert cookie
+
+    assert redis.keys("*") == [f"beaker_cache:{cookie.group(1)[-32:]}:session".encode()]
+
+
+@pytest.mark.ckan_config("beaker.session.type", "ext:redis")
+@pytest.mark.ckan_config("beaker.session.url", config["ckan.redis.url"])
+def test_redis_session_fixation(app, monkeypatch, user_factory, faker):
+    """Session id is regenerated on login
+    """
+
+    # app convenience functions use separate test client for each request
+    # so cookies aren't saved.
+    test_client = app.test_client()
+
+    response = test_client.get("/")
+    orig_cookie = re.match(r'\W*ckan=([^;]+)', response.headers['set-cookie'])
+    assert orig_cookie
+    cookie_header = 'ckan=%s' % orig_cookie.group(1)
+    same_session = test_client.get("/")
+    # assert that we're using the same session prior to logging in.
+    assert same_session.request.headers['cookie'] == cookie_header
+    password = faker.password()
+    user = user_factory(password=password)
+
+    login_response = test_client.post(h.url_for("user.login"),
+                                      follow_redirects=False,
+                                      data={
+                                          "login": user["name"],
+                                          "password": password,
+                                      }
+                                      )
+
+    assert 'set-cookie' in login_response.headers
+    login_cookie = re.match(r'\W*ckan=([^;]+)', login_response.headers['set-cookie'])
+    # assert that we're setting a new cookie on login.
+    assert login_cookie.group(1) != orig_cookie.group(1)
+

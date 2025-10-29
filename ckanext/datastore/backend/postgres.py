@@ -9,7 +9,7 @@ import copy
 import logging
 import sys
 from typing import (
-    Any, Callable, Container, Dict, Iterable, Optional, Set, Union,
+    Any, Container, Dict, Iterable, Optional, Set, Union,
     cast)
 import sqlalchemy
 import os
@@ -33,7 +33,7 @@ from ckan.lib.lazyjson import LazyJSONObject
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 
-from psycopg2.extras import register_default_json, register_composite
+from psycopg2.extras import register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
@@ -120,26 +120,25 @@ def get_write_engine():
 
 
 def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
-    '''Get either read or write engine.'''
+    """Get either read or write engine."""
     engine = _engines.get(connection_url)
-    if not engine:
-        extras = {'url': connection_url}
-        config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
-        for key, value in kwargs.items():
-            config.setdefault(key, value)
-        engine = sqlalchemy.engine_from_config(config,
-                                               'ckan.datastore.sqlalchemy.',
-                                               **extras)
-        _engines[connection_url] = engine
 
-    # don't automatically convert to python objects
-    # when using native json types in 9.2+
-    # http://initd.org/psycopg/docs/extras.html#adapt-json
-    _loads: Callable[[Any], Any] = lambda x: x
-    register_default_json(
-        conn_or_curs=engine.raw_connection().connection,
-        globally=False,
-        loads=_loads)
+    if engine:
+        return engine
+
+    config.setdefault("ckan.datastore.sqlalchemy.pool_pre_ping", True)
+
+    for key, value in kwargs.items():
+        config.setdefault(key, value)
+
+    engine = sqlalchemy.engine_from_config(
+        dict(config),
+        "ckan.datastore.sqlalchemy.",
+        json_deserializer=lambda x: x,  # do not convert to python objects
+        url=connection_url,
+    )
+
+    _engines[connection_url] = engine
 
     return engine
 

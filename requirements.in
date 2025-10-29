@@ -30,7 +30,7 @@ python-dateutil==2.8.2
 pytz
 PyUtilib==6.0.0
 pyyaml==6.0.1
-requests==2.32.3
+requests==2.32.4
 rq==1.11.0
 simplejson==3.17.6
 SQLAlchemy[mypy]==1.4.41
