@@ -43,6 +43,7 @@ Bugfixes
 - `CVE-2025-XXXX <https://github.com/ckan/ckan/security/advisories/GHSA-2hvh-cw5c-8q8q>`_: Rotate
   session identifiers to prevent Session Cookie Fixation .
 - `CVE-2025-54384 <https://github.com/ckan/ckan/security/advisories/GHSA-2r4h-8jxv-w2j8>`_: Stored
+  XSS vector in Markdown description fields
 - Add handling for ``ObjectNotFound`` to Datapusher ``delete-datastore`` route
   (`#9130 <https://github.com/ckan/ckan/pull/9130>`_)
 - Fix auth check for ``resource_view_reorder`` (`#9131 <https://github.com/ckan/ckan/pull/9131>`_)
