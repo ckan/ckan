@@ -121,6 +121,9 @@ class BeakerSessionInterface(SessionInterface):
         if 'beaker.session' in request.environ:
             return request.environ['beaker.session']
 
+    def regenerate(self, session: Any):
+        session.invalidate()
+        
     def save_session(self, app: Any, session: Any, response: Any):
         session.save()
 
