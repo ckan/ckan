@@ -1460,11 +1460,11 @@ def bulk_api_call(context: Context, data_dict: DataDict):
             for name, path in save_results.items():
                 value_to_save = result
                 for path_element in path.split('.'):
-                    if isinstance(value_to_save, dict):
-                        value_to_save = value_to_save.get(path_element)
-                    else:
+                    if not isinstance(value_to_save, dict) \
+                            or path_element not in value_to_save:
                         raise ValidationError(
                             {'save_results': 'Path not found'}
                         )
+                    value_to_save = value_to_save.get(path_element)
                 saved_results[name] = value_to_save
     return saved_results

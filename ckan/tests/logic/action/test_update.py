@@ -7,14 +7,11 @@ import unittest.mock as mock
 import pytest
 import sqlalchemy as sa
 
-import ckan.lib.app_globals as app_globals
-import ckan.logic as logic
-from ckan.logic.action.get import package_show as core_package_show
-import ckan.plugins as p
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
-from ckan import model
+from ckan import logic, model, plugins as p
+from ckan.lib import app_globals
 from ckan.lib.navl.dictization_functions import DataError
+from ckan.logic.action.get import package_show as core_package_show
+from ckan.tests import factories, helpers
 from freezegun import freeze_time
 
 
@@ -2762,3 +2759,59 @@ class TestBulkApiCall(object):
         assert saved_values.get('package_description') == 'Foo'
         assert saved_values.get('resource_description') == 'Baz'
         assert saved_values.get('package_state') == 'deleted'
+
+    def test_chained_api_calls_missing_action(self):
+        sysadmin = factories.Sysadmin()
+        context = {'user': sysadmin['name']}
+        calls = [
+            {
+             "data_dict": {
+                 "name": "some_package",
+                 "notes": "Foo"
+             },
+            }
+        ]
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "bulk_api_call", context=context, calls=calls
+            )
+
+    def test_chained_api_calls_with_wrong_path(self):
+        sysadmin = factories.Sysadmin()
+        context = {'user': sysadmin['name']}
+        calls = [
+            {
+             "action": "package_create",
+             "data_dict": {
+                 "name": "some_package",
+                 "notes": "Foo"
+             },
+             "save_results": {
+                 "package_id": "nonexistent"
+             }
+            }
+        ]
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "bulk_api_call", context=context, calls=calls
+            )
+
+    def test_chained_api_calls_with_path_too_deep(self):
+        sysadmin = factories.Sysadmin()
+        context = {'user': sysadmin['name']}
+        calls = [
+            {
+             "action": "package_create",
+             "data_dict": {
+                 "name": "some_package",
+                 "notes": "Foo"
+             },
+             "save_results": {
+                 "package_id": "id.foo"
+             }
+            }
+        ]
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "bulk_api_call", context=context, calls=calls
+            )
