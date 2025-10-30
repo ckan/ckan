@@ -2701,3 +2701,64 @@ class TestPackagePluginData(object):
                 "key1": "value1"
             }
         }
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestBulkApiCall(object):
+
+    def test_chained_api_calls(self):
+        sysadmin = factories.Sysadmin()
+        context = {'user': sysadmin['name']}
+        calls = [
+            {
+             "action": "package_create",
+             "data_dict": {
+                 "name": "some_package",
+                 "notes": "Foo"
+             },
+             "save_results": {
+                 "package_id": "id",
+                 "package_description": "notes"
+             }
+            },
+            {
+             "action": "resource_create",
+             "data_dict": {
+                 "url": "https://example.com",
+                 "description": "Baz"
+             },
+             "load_results": {
+                 "package_id": "package_id"
+             },
+             "save_results": {
+                 "resource_description": "description"
+             }
+            },
+            # Test call without saving results
+            {
+             "action": "package_delete",
+             "data_dict": {},
+             "load_results": {
+                 "id": "package_id"
+             }
+            },
+            {
+             "action": "package_show",
+             "data_dict": {},
+             "load_results": {
+                 "id": "package_id"
+             },
+             "save_results": {
+                 "package_state": "state"
+             }
+            }
+        ]
+        saved_values = helpers.call_action(
+            "bulk_api_call", context=context, calls=calls
+        )
+        assert saved_values is not None
+        assert len(saved_values.keys()) == 4
+        assert 'package_id' in saved_values
+        assert saved_values.get('package_description') == 'Foo'
+        assert saved_values.get('resource_description') == 'Baz'
+        assert saved_values.get('package_state') == 'deleted'
