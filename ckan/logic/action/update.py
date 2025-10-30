@@ -1397,7 +1397,7 @@ def bulk_api_call(context: Context, data_dict: DataDict):
         would add a 'username' entry to 'data_dict', using the value saved
         under 'user_id'.
 
-        Eg to create an organisation and a member of that organisation:
+        Eg to create an organization and a member of that organization:
 
         "calls": [
             {"action": "organization_create",
