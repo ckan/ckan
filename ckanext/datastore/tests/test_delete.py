@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 import json
+from time import sleep
+
 import pytest
 
 import sqlalchemy as sa
@@ -97,7 +99,6 @@ class TestDatastoreDelete(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
-    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         resource = factories.Resource()
         data = {
@@ -120,8 +121,10 @@ class TestDatastoreDelete(object):
             "force": True,
         }
         helpers.call_action("datastore_delete", **data)
-        last_analyze = when_was_last_analyze(resource["id"])
-        assert last_analyze is not None
+        def has_la():
+            return when_was_last_analyze(resource["id"]) is not None
+        # retry because analyze is sometimes delayed
+        assert has_la() or sleep(.5) or has_la()
 
 
 class TestDatastoreRecordsDelete(object):
