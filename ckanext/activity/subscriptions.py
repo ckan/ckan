@@ -182,6 +182,9 @@ def resource_view_changed(sender: str, **kwargs: Any):
     result: types.ActionResult.ResourceViewUpdate = kwargs["result"]
     data_dict = kwargs["data_dict"]
 
+    if context.get("preview"):
+        return
+
     if not result:
         id_ = data_dict["id"]
     elif isinstance(result, str):
@@ -197,7 +200,8 @@ def resource_view_changed(sender: str, **kwargs: Any):
         activity_type = "deleted resource view"
 
     if activity_type != "deleted resource view":
-        view = context["model"].ResourceView.get(id_)
+        view = model.ResourceView.get(id_)
+
         assert view
         view_dict = dictization.table_dictize(view, context)
     else:
@@ -207,11 +211,11 @@ def resource_view_changed(sender: str, **kwargs: Any):
     assert view_dict.get('resource_id')
 
     # type_ignore_reason: is asserted above, so will have resource_id here.
-    resource = context["model"].Resource.get(
+    resource = model.Resource.get(
         view_dict.get('resource_id'))  # type: ignore
     assert resource
 
-    user_obj = context["model"].User.get(context["user"])
+    user_obj = model.User.get(context["user"])
     if user_obj:
         user_id = user_obj.id
     else:
@@ -241,7 +245,7 @@ def group_or_org_changed(sender: str, **kwargs: Any):
     result: types.ActionResult.GroupUpdate = kwargs["result"]
     data_dict = kwargs["data_dict"]
 
-    group = context["model"].Group.get(
+    group = model.Group.get(
         result["id"] if result else data_dict["id"]
     )
     if not group:
