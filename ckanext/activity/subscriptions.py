@@ -192,7 +192,7 @@ def resource_view_changed(sender: str, **kwargs: Any):
     result: types.ActionResult.ResourceViewUpdate = kwargs["result"]
     data_dict = kwargs["data_dict"]
 
-    if context.get("preview"):
+    if not result.get("id"):
         return
 
     if not result:
