@@ -192,6 +192,9 @@ def resource_view_changed(sender: str, **kwargs: Any):
     result: types.ActionResult.ResourceViewUpdate = kwargs["result"]
     data_dict = kwargs["data_dict"]
 
+    if context.get("preview"):
+        return
+
     if not result:
         id_ = data_dict["id"]
     elif isinstance(result, str):
@@ -208,6 +211,7 @@ def resource_view_changed(sender: str, **kwargs: Any):
 
     if activity_type != "deleted resource view":
         view = model.ResourceView.get(id_)
+
         assert view
         view_dict = dictization.table_dictize(view, context)
     else:
