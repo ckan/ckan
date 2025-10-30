@@ -1113,7 +1113,7 @@ class TestResourceView(object):
         response = app.post(
             url,
             environ_overrides={"REMOTE_USER": user["name"]},
-            data={"title": "Test Image View"}
+            data={"title": "Test Image View", "view_type": "image_view"}
         )
         assert helpers.body_contains(response, "Test Image View")
 
