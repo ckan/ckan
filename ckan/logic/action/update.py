@@ -1382,20 +1382,23 @@ def bulk_api_call(context: Context, data_dict: DataDict):
             }
         ]
 
-        The call may also preserve its return value, by defining 'save_results',
-        a dictionary where each entry defines a value that should be saved.
+        Optionally, the call can also contain 'save_results', a dictionary
+        defining parts of the call's return value that should be saved.
 
-        The entry key is the name by which to refer to it, and the entry value
-        is the dotted path to the value that should be saved within the result.
-        Eg "save_results": {"user_id": "id"} would save the returned 'id' value
-        under the name 'user_id'.
+        Each key in 'save_results' is the name by which to refer to a value,
+        while the corresponding value is the dotted path that should be saved.
+        Eg if a call definition contains:
+        "save_results": {"user_id": "id"}
+        and the call returns:
+        {"id": "12345", "name": "Foo", "description": "Baz"}
+        then the value '12345' would be saved under the name 'user_id'.
 
         Saved values can then be applied to further calls, by including a
         'load_results' key. This should contain a dictionary whose keys
         are the extra keys to add to 'data_dict', and whose values are the
         names of saved values. Eg "load_results": {"username": "user_id"}
         would add a 'username' entry to 'data_dict', using the value saved
-        under 'user_id'.
+        under 'user_id' (ie '12345').
 
         Eg to create an organization and a member of that organization:
 
@@ -1430,6 +1433,8 @@ def bulk_api_call(context: Context, data_dict: DataDict):
              }
             }
         ]
+
+    :return A dictionary of the saved return values, if any.
     '''
     _check_access('bulk_api_call', context, data_dict)
     saved_results: dict[str, Any] = {}
@@ -1462,3 +1467,4 @@ def bulk_api_call(context: Context, data_dict: DataDict):
                             {'save_results': 'Path not found'}
                         )
                 saved_results[name] = value_to_save
+    return saved_results
