@@ -158,7 +158,7 @@ class Upload(object):
             if self.upload_field_storage.filename:
                 self.filename = self.upload_field_storage.filename
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
-                self.filename = munge.munge_filename_legacy(self.filename)
+                self.filename = munge.munge_filename(self.filename)
                 self.filepath = os.path.join(self.storage_path, self.filename)
                 self.upload_file = _get_underlying_file(
                     self.upload_field_storage)
