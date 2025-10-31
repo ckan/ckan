@@ -26,7 +26,7 @@ from typing_extensions import override
 import ckan.plugins as p
 from ckan import types
 from ckan.common import config
-
+from ckan.lib.helpers import helper_functions as h
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -63,6 +63,23 @@ class UI(Iterable[str], abc.ABC):
         :param name: The name of the element.
         :return: A callable that produces the element.
         """
+
+    def render_attrs(self, kwargs: dict[str, Any], prefix: str = ""):
+        """Helper method to render HTML attributes from a dictionary."""
+        parts = []
+        groups = [
+            ("aria", "aria-"),
+            ("data", "data-"),
+            ("attrs", ""),
+        ]
+
+        for key, prefix in groups:
+            if key in kwargs:
+                parts.append(
+                    " ".join(f'{prefix}{k}="{v}"' for k, v in kwargs[key].items())
+                )
+
+        return h.literal(" ".join(parts))
 
 
 class MacroUI(UI):

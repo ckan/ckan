@@ -1,0 +1,15 @@
+{%- macro button(content, style="primary", href=none, type="button", attrs=none) %}
+  {%- do kwargs -%}
+
+  {%- if href %}
+    <a {{ ui.render_attrs(kwargs) }} class="btn btn-{{ style }} {{ 'btn-' ~ kwargs.size if kwargs.size }}" href="{{ href }}">
+      {{- content -}}
+    </a>
+  {%- else %}
+    <button type="{{ type }}">{{ content }}</button>
+
+
+
+
+  {%- endif %}
+{%- endmacro %}
