@@ -2479,5 +2479,3 @@ class INotifier(Interface):
 
         """
         return False
->>>>>>> files-phase-1
->>>>>>> files-phase-2
