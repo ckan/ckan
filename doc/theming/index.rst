@@ -39,9 +39,12 @@ appearance of CKAN pages by developing your own CKAN themes.
 
 .. note::
 
-    Starting from CKAN version 2.12 base templates are controlled by the UI
-    theme.  You can select which theme to use (``classic``, ``midnight-blud``,
-    custom theme provided by the extension) by using the :ref:`ckan.ui.theme`
+    Starting from CKAN version 2.10 the Bootstrap version used in the default
+    CKAN theme is Bootstrap 5. For backwards compatibility, Bootstrap 3 templates
+    will be included in CKAN core for a few versions, but they will be eventually
+    removed so you are encouraged to update your custom theme to use Bootstrap 5.
+    You can select which set of templates to use (Bootstrap 5 or 3) by using the
+    :ref:`ckan.base_public_folder` and :ref:`ckan.base_templates_folder`
     configuration options.
 
 

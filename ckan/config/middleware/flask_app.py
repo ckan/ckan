@@ -36,7 +36,6 @@ from ckan.lib import base
 from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
 from ckan.lib import i18n
-from ckan.lib.theme import get_theme
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (
@@ -199,7 +198,6 @@ def make_flask_stack() -> CKANApp:
 
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
-        app.jinja_env.add_extension('jinja2.ext.debug')
 
     app.wsgi_app = RootPathMiddleware(app.wsgi_app)
     CKANSession(app)
@@ -215,7 +213,6 @@ def make_flask_stack() -> CKANApp:
         'ungettext': ungettext,
         'current_user': current_user,
         'c': g,  # backwards compat. with old Pylons templates
-        'ui': get_theme(config["ckan.ui.theme"]).build_ui(app),
     })
 
     # Common handlers for all requests
