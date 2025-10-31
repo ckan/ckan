@@ -2399,4 +2399,3 @@ class INotifier(Interface):
 
         """
         return False
->>>>>>> files-phase-1
