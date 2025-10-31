@@ -203,7 +203,14 @@ class Declaration:
             log.debug("Declaration for core is already loaded")
             return
 
+        # static information from config_declaration.yaml
         loader(self, "core")
+
+        # dynamic information computed depending on the list of registered
+        # storages. It's still a part of core declarations and must remain in
+        # this method to be discoverable via config CLI.
+        loader(self, "files")
+
         self._core_loaded = True
 
     def load_plugin(self, name: str):

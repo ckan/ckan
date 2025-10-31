@@ -60,9 +60,10 @@ def test_sideeffect_action_is_not_get_able(app):
 @pytest.mark.usefixtures("clean_db")
 class TestApiController(object):
     def test_resource_create_upload_file(
-        self, app, monkeypatch, tmpdir, ckan_config
+            self, app, monkeypatch, tmpdir, ckan_config, reset_storages
     ):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
+        reset_storages()
 
         user = factories.User()
         user_token = factories.APIToken(user=user["name"])
