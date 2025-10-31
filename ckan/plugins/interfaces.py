@@ -29,7 +29,6 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
-    from ckan.lib.theme import Theme
 
 
 AttachmentWithType = Union[
@@ -61,7 +60,6 @@ __all__ = [
     u'IResourceController',
     u'IGroupForm',
     u'ITagController',
-    "ITheme",
     u'ITemplateHelpers',
     u'IFacets',
     u'IAuthenticator',
@@ -2250,35 +2248,6 @@ class ISignal(Interface):
         signals may change over time, and some arguments may disappear.
 
         :returns: mapping of subscriptions to signals
-        :rtype: dict
-
-        """
-        return {}
-
-
-class ITheme(Interface):
-    """Allow extensions to provide custom themes for CKAN."""
-
-    def register_themes(self) -> dict[str, Theme]:
-        """Register themes provided by extension.
-
-        The returned dictionary must map theme names to
-        :py:class:`~ckan.lib.theme.Theme` objects.
-
-        Example::
-
-            def register_themes(self):
-                from ckan.lib.theme import Theme
-
-                return {
-                    "mytheme": Theme("/path/to/mytheme"),
-                    "myothertheme": Theme(
-                        "/path/to/myothertheme",
-                        extends="templates",
-                    ),
-                }
-
-        :returns: themes provided by the extension
         :rtype: dict
 
         """

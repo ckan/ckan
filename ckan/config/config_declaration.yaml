@@ -1323,14 +1323,14 @@ groups:
           (This variable is kept for backwards compatibility when updating Bootstrap
           versions.)
 
-      - key: ckan.ui.theme
-        default: classic
-        example: midnight-blue
+      - key: ckan.base_templates_folder
+        default: templates
+        example: templates
         description: |
-          This config option is used to configure the base folder for templates
-          used by CKAN core. It accepts the name of theme registered with
-          :py:class:`~ckan.plugins.interfaces.ITheme` interface as a value.
-
+          This config option is used to configure the base folder for templates used
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``templates`` as a value.
+          (This variable is kept for backwards compatibility when updating Bootstrap
+          versions.)
 
       - key: ckan.default.package_type
         default: dataset
