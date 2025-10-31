@@ -38,7 +38,7 @@ def mangle():
     u'''This will mangle the zh_TW translations for translation coverage
     testing.
 
-    NOTE: This will destroy the current translations fot zh_TW
+    NOTE: This will destroy the current translations for zh_TW
     '''
     i18n_path = get_i18n_path()
     pot_path = os.path.join(i18n_path, u'ckan.pot')

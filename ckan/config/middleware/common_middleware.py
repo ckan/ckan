@@ -17,7 +17,7 @@ class RootPathMiddleware(object):
     '''
     Prevents the SCRIPT_NAME server variable conflicting with the ckan.root_url
     config. The routes package uses the SCRIPT_NAME variable and appends to the
-    path and ckan addes the root url causing a duplication of the root path.
+    path and ckan adds the root url causing a duplication of the root path.
     This is a middleware to ensure that even redirects use this logic.
     '''
     def __init__(self, app: CKANApp):

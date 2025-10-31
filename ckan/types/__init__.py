@@ -166,7 +166,7 @@ ValidatorFactory = Callable[..., Validator]
 
 Schema: TypeAlias = "dict[str, Union[list[Validator], Schema]]"
 
-# Function that accepts arbitary number of validators(decorated by
+# Function that accepts arbitrary number of validators(decorated by
 # ckan.logic.schema.validator_args) and returns Schema dictionary
 ComplexSchemaFunc = Callable[..., Schema]
 # ComplexSchemaFunc+validator_args decorator = function that accepts no args

@@ -267,7 +267,7 @@ class Worker(rq.Worker):
         #   https://github.com/ckan/ckan/issues/3365
         #
         # Note that this rolls back any non-committed changes in the session.
-        # Both `Session` and `engine` automatically re-initialize themselve
+        # Both `Session` and `engine` automatically re-initialize themselves
         # when they are used the next time.
         log.debug(u'Disposing database engine before fork')
         meta.Session.remove()

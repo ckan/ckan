@@ -655,7 +655,7 @@ class EditResourceViewView(MethodView):
             u'auth_user_obj': current_user
         }
 
-        # update resource should tell us early if the user has privilages.
+        # update resource should tell us early if the user has privileges.
         try:
             check_access(u'resource_update', context, {u'id': resource_id})
         except NotAuthorized:
