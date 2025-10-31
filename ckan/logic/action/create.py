@@ -1073,7 +1073,17 @@ def user_invite(context: Context,
         context, {'id': data['group_id']})
 
     try:
-        mailer.send_invite(user, group_dict, data['role'])
+        notification_sent = False
+        for plugin in plugins.PluginImplementations(plugins.INotifier):
+            notification_sent = plugin.notify_about_topic(
+                notification_sent,
+                'user_invited',
+                {'user': user,
+                 'group': group_dict,
+                 'role': data['role']}
+            )
+        if not notification_sent:
+            mailer.send_invite(user, group_dict, data['role'])
     except (socket_error, mailer.MailerException) as error:
         # Email could not be sent, delete the pending user
 
@@ -1432,7 +1442,7 @@ def api_token_create(context: Context,
     :type name: string
 
     :returns: Returns a dict with the key "token" containing the
-              encoded token value. Extensions can privide additional
+              encoded token value. Extensions can provide additional
               fields via `add_extra` method of
               :py:class:`~ckan.plugins.interfaces.IApiToken`
     :rtype: dictionary

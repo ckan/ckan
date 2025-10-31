@@ -60,7 +60,7 @@
     font-size: 12px;
     line-height: math.div(14em,12);
     background-color: $white;
-    border-bottom: 1px dotted $genericBorderColor;
+    border-bottom: 1px solid $genericBorderColor;
     border-radius: 6px;
     &:last-of-type {
         border-bottom: 0;

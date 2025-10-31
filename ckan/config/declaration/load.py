@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module defines the ways to fill config declaration with difinitions
+"""This module defines the ways to fill config declaration with definitions
 from different sources.
 
 New loaders can be defined in the following manner:

@@ -181,7 +181,7 @@ def api_token_revoke(context: Context, data_dict: DataDict) -> AuthResult:
 
     token = model.ApiToken.get(data_dict[u'jti'])
     # Do not make distinction between absent keys and keys not owned
-    # by user in order to prevent accidential key discovery.
+    # by user in order to prevent accidental key discovery.
     if token is None or token.owner and token.owner.name != context[u'user']:
         return {u'success': False}
     return {u'success': True}

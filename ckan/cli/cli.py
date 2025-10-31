@@ -166,7 +166,7 @@ def _add_external_commands(ctx: click.Context):
 
 
 def _command_with_ckan_meta(cmd: click.Command, name: str, type_: str):
-    """Mark command as one retrived from CKAN extension.
+    """Mark command as one retrieved from CKAN extension.
 
     This information is used when CLI help text is generated.
     """

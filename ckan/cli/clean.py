@@ -37,7 +37,7 @@ def _get_users_with_invalid_image(mimetypes: List[str]) -> List[model.User]:
 
 @clean.command("users", short_help="Clean users containing invalid images.")
 @click.option(
-    "-f", "--force", is_flag=True, help="Do not ask for comfirmation."
+    "-f", "--force", is_flag=True, help="Do not ask for confirmation."
 )
 def users(force: bool):
     """Removes users with invalid images from the database.
