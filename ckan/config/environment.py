@@ -21,6 +21,7 @@ from ckan.lib.redis import is_redis_available
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
+from ckan.lib import files
 from ckan.lib.webassets_tools import webassets_init, register_core_assets
 
 from ckan.common import CKANConfig, config, config_declaration
@@ -112,8 +113,16 @@ def update_config() -> None:
         if from_env:
             config[option] = from_env
 
+    # adapters must be registered before declarations to properly extend
+    # declarations with adapter-specific options
+    files.adapters.reset()
+    files.adapters.collect()
+
+    # collect config declarations
     config_declaration.setup()
+    # add default values for the missing config options
     config_declaration.make_safe(config)
+    # validate/convert config options
     config_declaration.normalize(config)
 
     # these are collections of all template/public paths registered by
@@ -145,6 +154,15 @@ def update_config() -> None:
         )
         msg = "Invalid configuration values provided:\n" + msg
         raise CkanConfigurationException(msg)
+
+    # Declared storage config options are valid at this point, storages can be
+    # configured
+    files.storages.reset()
+    # location transformers can be collected at any point. But in future
+    # storage may validate presence of transformers, so it's safer to collect
+    # them before storages are initialized
+    files.collect_location_transformers()
+    files.storages.collect()
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

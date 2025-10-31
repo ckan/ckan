@@ -115,7 +115,7 @@ Example 1:
 .. parsed-literal::
 
  $ ckan shell
- Python 3.9.13 (main, Dec 11 2022, 15:23:12) 
+ Python 3.9.13 (main, Dec 11 2022, 15:23:12)
  Type 'copyright', 'credits' or 'license' for more information
 
  **In [1]:** model.User.all()
@@ -127,7 +127,7 @@ Example 1:
  **In [2]:** from ckan.logic.action.get import package_show
 
  **In [3]:** package_show({"model": model}, {"id": "api-package-1"})
- **Out[3]:** 
+ **Out[3]:**
  {'author': None,
  'author_email': None,
  'creator_user_id': 'f0c04c11-4369-4cf1-9da4-69d9aae06a2e',
@@ -755,3 +755,16 @@ Usage
  ckan views --no-default-filters
  ckan views --search (-s)         - Set Search
  ckan views --yes (-y)
+
+
+files: Manage storages and files
+=========================================
+
+Usage
+
+.. parsed-literal::
+
+ ckan files adapters [--with-docs] [--with-configuration]         - show all awailable storage adapters
+ ckan files storage list [-v]                                     - show all configured storages
+ ckan files storage scan                                          - iterate over all files available in storage
+ ckan files storage transfer SRC DEST [--location ...] [--remove] - move files between storages

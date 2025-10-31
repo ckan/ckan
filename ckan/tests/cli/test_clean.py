@@ -6,13 +6,13 @@ from ckan.tests.helpers import call_action
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
+@pytest.mark.ckan_config("ckan.upload.user.types", "*")
 class TestUserClean:
     def test_output_if_there_are_not_invalid_users(self, cli):
         result = cli.invoke(ckan, ["clean", "users"])
         assert "No users were found with invalid images." in result.output
 
-    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
-    @pytest.mark.ckan_config("ckan.upload.user.types", "*")
     def test_confirm_dialog_if_no_force(
         self, cli, monkeypatch, create_with_upload, faker, ckan_config
     ):
@@ -54,8 +54,6 @@ class TestUserClean:
         users = call_action("user_list")
         assert len(users) == 2
 
-    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
-    @pytest.mark.ckan_config("ckan.upload.user.types", "*")
     def test_correct_users_are_deleted(
         self, cli, monkeypatch, create_with_upload, faker, ckan_config
     ):
