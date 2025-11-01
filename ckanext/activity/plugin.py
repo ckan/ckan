@@ -21,7 +21,7 @@ class ActivityPlugin(p.SingletonPlugin):
 
     # IConfigurer
     def update_config(self, config: CKANConfig):
-        if config["ckan.ui.theme"] == "midnight-blue":
+        if config["ckan.base_templates_folder"] == "templates-midnight-blue":
             tk.add_template_directory(config, "templates-midnight-blue")
             tk.add_resource("assets-midnight-blue", "ckanext-activity")
         else:

@@ -8,11 +8,11 @@
 
   {#
   Override the header on a page by page basis by extending this block. If
-  making sitewide header changes it is preferable to override the header.html
+  making sitewide header changes it is preferable to override the _header.html
   file.
   #}
   {%- block header %}
-    {% include "header.html" %}
+    {% include "_header.html" %}
   {% endblock -%}
 
   {# The content block allows you to replace the content of the page if needed #}
@@ -123,7 +123,7 @@
   file.
   #}
   {%- block footer %}
-    {% include "footer.html" %}
+    {% include "_footer.html" %}
   {% endblock -%}
 {%- endblock -%}
 

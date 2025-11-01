@@ -31,8 +31,8 @@ from ckan.lib import signals
 log = logging.getLogger(__name__)
 
 # hooks for subclasses
-new_user_form = u'user/new_user_form.html'
-edit_user_form = u'user/edit_user_form.html'
+new_user_form = u'user/_new_user_form.html'
+edit_user_form = u'user/_edit_user_form.html'
 
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 

@@ -27,7 +27,7 @@ header
 ------
 
 Override the header on a page by page basis by extending this block. If
-making site wide header changes it is preferable to override the header.html
+making site wide header changes it is preferable to override the _header.html
 file::
 
   {% block header %}
