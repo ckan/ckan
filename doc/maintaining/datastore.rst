@@ -314,6 +314,7 @@ API reference
 
 .. _fields:
 
+------
 Fields
 ------
 
@@ -343,6 +344,7 @@ guessed type. See :ref:`valid-types` for details on which types are valid.
 
 .. _records:
 
+-------
 Records
 -------
 
@@ -367,8 +369,10 @@ Example::
         }
     ]
 
+
 .. _valid-types:
 
+-----------
 Field types
 -----------
 
@@ -405,18 +409,23 @@ You can find more information about the formatting of dates in the `date/time ty
 
 .. _filters:
 
+-------
 Filters
 -------
 
-Filters specify the fields and values that returned records must match::
+Filters are parameters to
+:meth:`~ckanext.datastore.logic.action.datastore_search`,
+:meth:`~ckanext.datastore.logic.action.datastore_delete` and
+:meth:`~ckanext.datastore.logic.action.datastore_records_delete` that
+specify the fields and values for records to match::
 
     "filters": {
         "family_name": "Romano",
         "given_name": "Do-Yun"
     }
 
-This will only return records that match both the ``family_name`` AND
-``given_name`` values.
+This will only match records where both the ``family_name`` AND
+``given_name`` values match the values given.
 
 To match one of multiple values for a field we can use a list::
 
@@ -424,7 +433,8 @@ To match one of multiple values for a field we can use a list::
         "paint": ["Black", "Green", "Grey"]
     }
 
-This will return records that match any of the ``paint`` values to the colors in the list.
+This will match records with ``"Black"``, ``"Green"`` OR ``"Grey"``
+``paint`` values.
 
 
 .. _advanced_filters:
@@ -432,7 +442,7 @@ This will return records that match any of the ``paint`` values to the colors in
 Advanced Filters
 ================
 
-CKAN 2.12 and later supports advanced filters: range filter operations and nested AND and
+CKAN 2.12 and later support advanced filters: range filter operations and nested AND and
 OR conditions.
 
 Ranges can be specified using filter operations ``lt``, ``lte``, ``gt`` or ``gte``::
@@ -441,7 +451,7 @@ Ranges can be specified using filter operations ``lt``, ``lte``, ``gt`` or ``gte
         "age": {"gt": 24}
     }
 
-This will return all records with age > 24.
+This will match all records with age > 24.
 
 Filter operations can be combined and even mixed with lists of values::
 
@@ -449,7 +459,7 @@ Filter operations can be combined and even mixed with lists of values::
         "year": [2005, {"gte": 2010, "lte": 2019}]
     }
 
-This will return records with year = 2005 OR between 2010 and 2019.
+This will match records with year = 2005 OR between 2010 and 2019.
 
 A list filters value may be used to combine filters with an OR instead of an AND::
 
@@ -458,8 +468,8 @@ A list filters value may be used to combine filters with an OR instead of an AND
         {"special": true}
     ]
 
-This will return records from a table that are either an appetizer OR on special
-(or both).
+This will match records from a table that have either ``course = "appetizer"`` OR
+``special = true`` (or both).
 
 ``$or`` can be used instead of a field name to group OR conditions within AND conditions::
 
@@ -471,8 +481,8 @@ This will return records from a table that are either an appetizer OR on special
         ]
     }
 
-This will return records for noise complaints that are unresolved or in progress OR more
-recent than 2024.
+This will match noise complaint records that are unresolved OR in progress, OR
+that are more recent than 2024.
 
 Field names that begin with ``$`` must be prefixed with an extra ``$`` in filters, e.g.
 a field named ``$AUD`` would be filtered as::
@@ -481,7 +491,8 @@ a field named ``$AUD`` would be filtered as::
         "$$AUD": 100
     }
 
-JSON and array fields can be filtered using an ``eq`` filter operation::
+JSON and array fields can be filtered to matching object or list values using an ``eq``
+filter operation::
 
     "filters": {
         "seat": {"eq": {"row": 34, "column": "B"}}
@@ -493,22 +504,26 @@ This will return records from a table with a JSON ``seat`` field containing exac
 ``["seafood meal"]``.
 
 
+-----------------
 Search Pagination
 -----------------
 
-Using ``datastore_search`` with ``offset``-based pagination while retrieving data is
-common. This works as expected with tables up to around 500k records, but becomes less
+Using :meth:`~ckanext.datastore.logic.action.datastore_search`
+with the ``offset`` parameter for pagination while retrieving data is common.
+
+This works as expected with tables up to around 500k records, but becomes less
 efficient with more records. This is due to ``offset`` needing to process the data and
-only then skip it, which leads to longer and longer query times. In other words, the
-bigger offset number you have, the more time is required for the query to be processed.
+only then skip it, which leads to longer and longer query times. In other words the
+bigger offset number you use, the more time is required for the query to be processed.
 
-There is an alternative (``keyset`` pagination) that can be used in order to reduce
-query time speed and as an result process data more quickly. It has one major
-advantage over ``offset``: later queries take almost the exact same amount of time
-as the first ``offset 0`` (which means no data is skipped).
+There is an alternative: `keyset pagination`.
 
-In order to use ``keyset`` approach, you'll need to add/update your ``filters`` in
-``datastore_search`` and have ``sort`` to match the the filter logic.
+Keyset pagination can be used to reduce query time and process data more quickly.
+It has one major advantage over ``offset``: later queries take almost the
+exact same amount of time as the first ``offset 0`` (which means no data is skipped).
+
+In order to use keyset pagination, you'll need to add/update your ``filters`` in
+``datastore_search`` and use ``sort`` to match the the filter logic.
 
 For example to generate a keyset paginated query like this::
 
@@ -529,16 +544,23 @@ Or if we are using keyset paginating in reverse and the last ``_id`` was ``456``
 We would use ``datastore_search`` parameters like::
 
     "filters": {
-        "_id": {"lt": 123}
+        "_id": {"lt": 456}
     },
     "sort": "_id desc"
 
-To make keyset pagination even easier ``datastore_search`` now automatically returns a
+To make keyset pagination easier ``datastore_search`` can return a
 ``next_page`` value with the ``filters`` that are required to retrieve the next page,
-as long as your results are sorted by the ``_id`` field.
+as long as your results are sorted by the ``_id`` field. To generate this value
+pass ``"include_next_page": true`` to your ``datastore_search`` call.
+
+If you are already processing the records returned and your records include the
+``_id`` field, it is slightly faster to take the last ``_id`` returned in ``records``
+instead of using ``"include_next_page": true``.
+
 
 .. _resource-aliases:
 
+----------------
 Resource aliases
 ----------------
 
@@ -547,6 +569,7 @@ A resource in the DataStore can have multiple aliases that are easier to remembe
 
 .. _comparison_querying:
 
+----------------------------------------
 Comparison of different querying methods
 ----------------------------------------
 
@@ -564,6 +587,7 @@ The DataStore supports querying with two API endpoints. They are similar but sup
 
 .. _db_internals:
 
+----------------------------------
 Internal structure of the database
 ----------------------------------
 
