@@ -262,14 +262,17 @@ def dump_to(
 
     def stream_result_page(offs: int, lim: Union[None, int],
                            keyset_dict: dict[str, Any]):
+        """
+        :param offs: offset parameter (ignored when keyset_dict not empty)
+        :param lim: (remaining) limit parameter
+        :param keyset_dict: pagination filters, e.g. {'_id': {'gt': 100}}
+        """
+        page_search = search_params
         if keyset_dict:
-            last_id = keyset_dict.get('last_id')
-            last_id_operator = keyset_dict.get('last_id_operator')
-            if last_id and last_id_operator:
-                if 'filters' not in search_params:
-                    search_params['filters'] = {}
-
-                search_params['filters']['_id'] = {last_id_operator: last_id}
+            page_search = dict(
+                page_search,
+                filters=search_params.get('filters', {}) | keyset_dict,
+            )
 
         return get_action('datastore_search')(
             {'user': user},
@@ -277,11 +280,12 @@ def dump_to(
                 'resource_id': resource_id,
                 'limit': PAGINATE_BY
                 if limit is None else min(PAGINATE_BY, lim),  # type: ignore
-                'offset': offs,
+                'offset': 0 if keyset_dict else offs,
                 'sort': sort,
                 'records_format': records_format,
                 'include_total': False,
-            }, **search_params)
+                'include_next_page': True,
+            }, **page_search)
         )
 
     def stream_dump(offset: int, limit: Union[None, int],
@@ -307,12 +311,8 @@ def dump_to(
                     if limit <= 0:
                         break
 
-                keyset_dict = {
-                    "last_id": result.get('last_id'),
-                    "last_id_operator": result.get('last_id_operator'),
-                }
-                result = stream_result_page(
-                    offset, limit, keyset_dict)
+                keyset_dict = result.get('next_page', {})
+                result = stream_result_page(offset, limit, keyset_dict)
 
             yield writer.end_file()
 
