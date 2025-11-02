@@ -51,7 +51,8 @@ markers = [
 ]
 
 testpaths = ["ckan", "ckanext"]
-addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
+log_cli = false
+addopts = "--capture=no --strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
 
 [tool.pyright]
 pythonVersion = "3.10"
