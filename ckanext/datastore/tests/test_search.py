@@ -1984,10 +1984,12 @@ class TestDatastoreSearchRecordsFormat(object):
             },
         ]
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], limit=2
+            "datastore_search", resource_id=r["resource_id"],
+            limit=2, include_next_page=True,
         )["next_page"] == {"_id": {"gt": 2}}
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], sort="_id desc", limit=3
+            "datastore_search", resource_id=r["resource_id"],
+            sort="_id desc", limit=3, include_next_page=True,
         )["next_page"] == {"_id": {"lt": 1}}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2126,12 +2128,13 @@ class TestDatastoreSearchRecordsFormat(object):
             [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
         ]
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], limit=2,
-            records_format="lists"
+            "datastore_search", resource_id=r["resource_id"],
+            limit=2, include_next_page=True, records_format="lists",
         )["next_page"] == {"_id": {"gt": 2}}
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], sort="_id desc",
-            limit=3, records_format="lists"
+            "datastore_search", resource_id=r["resource_id"],
+            sort="_id desc", limit=3, include_next_page=True,
+            records_format="lists",
         )["next_page"] == {"_id": {"lt": 1}}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2237,12 +2240,13 @@ class TestDatastoreSearchRecordsFormat(object):
             u"3,9,2020-01-01T00:00:00.000,aaac\n"
         )
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], limit=2,
-            records_format="csv"
+            "datastore_search", resource_id=r["resource_id"],
+            limit=2, include_next_page=True, records_format="csv",
         )["next_page"] == {"_id": {"gt": 2}}
         assert helpers.call_action(
-            "datastore_search", resource_id=r["resource_id"], sort="_id desc",
-            limit=3, records_format="csv"
+            "datastore_search", resource_id=r["resource_id"],
+            sort="_id desc", limit=3, include_next_page=True,
+            records_format="csv",
         )["next_page"] == {"_id": {"lt": 1}}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
