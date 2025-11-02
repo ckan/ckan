@@ -1854,11 +1854,11 @@ progress {
   --bs-table-color-state: initial;
   --bs-table-bg-state: initial;
   --bs-table-color: #101828;
-  --bs-table-bg: #f2f4f7;
+  --bs-table-bg: #fff;
   --bs-table-border-color: #d0d5dd;
   --bs-table-accent-bg: transparent;
   --bs-table-striped-color: #101828;
-  --bs-table-striped-bg: #fff;
+  --bs-table-striped-bg: #f2f4f7;
   --bs-table-active-color: #101828;
   --bs-table-active-bg: rgba(0, 0, 0, 0.1);
   --bs-table-hover-color: #101828;
@@ -1908,7 +1908,7 @@ progress {
   border-top-width: 0;
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) > * {
+.table-striped > tbody > tr:nth-of-type(even) > * {
   --bs-table-color-type: var(--bs-table-striped-color);
   --bs-table-bg-type: var(--bs-table-striped-bg);
 }
@@ -12067,14 +12067,11 @@ a.tag:hover {
   border-radius: 8px 8px 0 0;
   border-bottom: 1px solid #e4e7ec;
 }
-.module-narrow .module-group .nav-simple > li:not(:last-of-type), .module-narrow .module-group .nav-aside > li:not(:last-of-type) {
+.module-narrow .module-group .nav-simple > li:not(:last-of-type),
+.module-narrow .module-group .nav-aside > li:not(:last-of-type),
+.module-narrow .module-group .nav-item > a,
+.module-narrow .module-group .list-group-item {
   border-radius: 0;
-}
-.module-narrow .module-group .nav-item > a, .module-narrow .module-group .list-group-item {
-  border-radius: 0;
-}
-.module-narrow .module-group .list-group:last-child .list-group-item {
-  border-radius: 4px;
 }
 .module-narrow .module-group .list-group-item {
   border-left: none;
@@ -12082,6 +12079,9 @@ a.tag:hover {
 }
 .module-narrow .module-group .list-group-item:last-of-type {
   border-bottom: none;
+}
+.module-narrow .module-group .list-group-item:last-child {
+  border-radius: 0 0 4px 4px;
 }
 .module-narrow .module-group .list-group-item > .flex-fill {
   max-width: 80%;
@@ -12526,7 +12526,7 @@ a.tag:hover {
   flex: 1 0 auto;
 }
 .nav-pills li a {
-  color: #6d83ab;
+  color: #4c669e;
   display: block;
 }
 .nav-pills li a:hover {
@@ -12539,9 +12539,6 @@ a.tag:hover {
   background-color: #fff;
   border-radius: 6px;
   box-shadow: 0px 4px 16px -4px rgba(0, 23, 31, 0.08), 0px 1px 4px -2px rgba(0, 0, 0, 0.04);
-}
-.nav-pills li.active a {
-  color: #2f4b91;
 }
 
 .secondary .nav-options {
@@ -12659,7 +12656,7 @@ textarea {
 }
 
 .control-required {
-  color: #c6898b;
+  color: #a2191f;
 }
 
 .form-actions {
@@ -12948,7 +12945,7 @@ select[data-module=autocomplete] {
 .form-group.has-error textarea,
 .form-group.has-error .input-group .input-group-addon,
 .form-group.has-error .input-group .input-group-addon {
-  border-color: #c6898b;
+  border-color: #a2191f;
 }
 
 .form-group select,
@@ -12970,7 +12967,7 @@ select[data-module=autocomplete] {
   border-radius: 0 0 6px 6px;
   display: block;
   padding: 6px 8px 3px;
-  background: #c6898b;
+  background: #a2191f;
   color: #fff;
   width: auto;
 }
@@ -14282,12 +14279,13 @@ td.diff_header {
   margin-left: 0;
 }
 .context-info .nums {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-auto-flow: row;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 15%;
   padding-top: 10px;
   clear: both;
-  gap: 1%;
 }
 .context-info .nums dl {
   color: #344054;
@@ -14731,8 +14729,8 @@ footer .ckan-footer-logo {
   border-bottom: 2px solid #000;
 }
 
-.table-header thead th {
-  background-color: #f6f6f6;
+.table thead th {
+  background-color: #f2f4f7;
 }
 
 .table-edit-hover .edit {
