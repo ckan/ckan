@@ -763,7 +763,7 @@ class TestDatastoreDump(object):
             assert get_csv_record_values(response.data) == list(range(12))
 
         assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [
-            None, None, {'_id': {'gt': 5}}, {'_id': {'gt': 10}}, {'_id': {'gt': 12}}
+            None, {'_id': {'gt': 5}}, {'_id': {'gt': 10}}, {'_id': {'gt': 12}}
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -787,7 +787,7 @@ class TestDatastoreDump(object):
             assert get_csv_record_values(response.data) == list(range(11))
 
         assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [
-            None, None, {'_id': {'gt': 5}}, {'_id': {'gt': 10}}
+            None, {'_id': {'gt': 5}}, {'_id': {'gt': 10}}
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -809,9 +809,7 @@ class TestDatastoreDump(object):
         ) as sd:
             response = app.get(f"/datastore/dump/{resource['id']}?limit=6")
             assert get_csv_record_values(response.data) == list(range(6))
-        assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [
-            None, None
-        ]
+        assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [None]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -833,7 +831,7 @@ class TestDatastoreDump(object):
             response = app.get(f"/datastore/dump/{resource['id']}?limit=7")
             assert get_csv_record_values(response.data) == list(range(7))
         assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [
-            None, None, {'_id': {'gt': 5}}
+            None, {'_id': {'gt': 5}}
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -856,7 +854,7 @@ class TestDatastoreDump(object):
             response = app.get(f"/datastore/dump/{resource['id']}?limit=7")
             assert get_csv_record_values(response.data) == list(range(7))
         assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [
-            None, None, {'_id': {'gt': 6}}
+            None, {'_id': {'gt': 6}}
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -879,7 +877,7 @@ class TestDatastoreDump(object):
             response = app.get(f"/datastore/dump/{resource['id']}?limit=6&format=json")
             assert get_json_record_values(response.data) == list(range(6))
         assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [
-            None, None, {'_id': {'gt': 5}}
+            None, {'_id': {'gt': 5}}
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -902,7 +900,7 @@ class TestDatastoreDump(object):
             response = app.get(f"/datastore/dump/{resource['id']}?limit=7&format=json")
             assert get_json_record_values(response.data) == list(range(7))
         assert [ca[0][1].get('filters') for ca in sd.call_args_list] == [
-            None, None, {'_id': {'gt': 5}}
+            None, {'_id': {'gt': 5}}
         ]
 
 
