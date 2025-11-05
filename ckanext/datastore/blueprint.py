@@ -8,9 +8,7 @@ from flask import Blueprint, Response
 from flask.views import MethodView
 
 import ckan.lib.navl.dictization_functions as dict_fns
-from ckan.common import current_user
 from ckan.logic import (
-    check_access,
     tuplize_dict,
     parse_params,
 )
@@ -62,11 +60,7 @@ def dump_schema() -> Schema:
 
 def dump(resource_id: str):
     try:
-        get_action('datastore_search')({}, {
-            'resource_id': resource_id,
-            'limit': 0,
-            'include_total': False,
-        })
+        h.check_access('datastore_search', {'resource_id': resource_id})
     except (ObjectNotFound, NotAuthorized):
         abort(404, _('DataStore resource not found'))
 
@@ -141,12 +135,7 @@ class DictionaryView(MethodView):
 
     def _prepare(self, id: str, resource_id: str) -> dict[str, Any]:
         try:
-            check_access(
-                "datastore_create",
-                context={"user": current_user.name,
-                         "auth_user_obj": current_user},
-                data_dict={"resource_id": resource_id},
-            )
+            h.check_access("datastore_create", {"resource_id": resource_id})
 
             # resource_edit_base template uses these
             pkg_dict = get_action(u'package_show')({}, {'id': id})
