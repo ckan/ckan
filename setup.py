@@ -21,6 +21,7 @@ entry_points = {
     ],
     'paste.app_factory': [
         'main = ckan.config.middleware:make_app',
+        'flask_app = ckan.flask_app:make_app',  # NEW: Flask application factory
     ],
     'paste.app_install': [
         'main = ckan.config.install:CKANInstaller',

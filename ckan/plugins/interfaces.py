@@ -33,6 +33,7 @@ __all__ = [
     u'ITranslation',
     u'IUploader',
     u'IPermissionLabels',
+    u'IBlueprint',
 ]
 
 from inspect import isclass
@@ -1631,3 +1632,36 @@ class IPermissionLabels(Interface):
         :returns: permission labels
         :rtype: list of unicode strings
         '''
+
+
+class IBlueprint(Interface):
+    u"""
+    Extensions implementing this interface can register Flask blueprints
+    to add custom routes and views to CKAN.
+
+    This interface allows plugins to integrate with the Flask application
+    directly, replacing the need for IRoutes in Flask-based CKAN.
+    """
+
+    def register_blueprint(self, app):
+        u"""Register Flask blueprints with the application.
+
+        This method is called during application initialization. Plugins should
+        create and register their blueprints with the Flask app instance.
+
+        Example::
+
+            def register_blueprint(self, app):
+                from flask import Blueprint
+                my_blueprint = Blueprint("my_plugin", __name__)
+
+                @my_blueprint.route("/my-route")
+                def my_view():
+                    return "Hello from my plugin!"
+
+                app.register_blueprint(my_blueprint, url_prefix="/my-plugin")
+
+        :param app: The Flask application instance
+        :type app: flask.Flask
+        """
+
