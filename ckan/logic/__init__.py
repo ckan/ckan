@@ -328,7 +328,7 @@ def _prepopulate_context(context: Optional[Context]) -> Context:
 
 def check_access(action: str,
                  context: Context,
-                 data_dict: Optional[dict[str, Any]] = None) -> Literal[True]:
+                 data_dict: Optional[dict[str, Any]] = None) -> dict[str, Any]:
     '''Calls the authorization function for the provided action
 
     This is the only function that should be called to determine whether a
@@ -349,15 +349,21 @@ def check_access(action: str,
     Raise :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
     authorized to call the named action function.
 
-    If the user *is* authorized to call the action, return ``True``.
+    If the user *is* authorized to call the action, return the result of
+    the authorization function, typically ``{"success": True}``.
 
     :param action: the name of the action function, eg. ``'package_create'``
     :type action: string
 
-    :param context:
+    :param context: the context passed to the corresponding action is modified
+        by this function. When handling a request if context has no `user` set
+        the user name value will be set based on the logged in user, otherwise
+        it will be set to `""`. `auth_user_obj` will be set if it is missing
+        from the context based on the `user` user name.
     :type context: dict
 
-    :param data_dict:
+    :param data_dict: typically the same parameters passed to the
+        corresponding action
     :type data_dict: dict
 
     :raises: :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
@@ -395,7 +401,7 @@ def check_access(action: str,
         raise
 
     log.debug('check access OK - %s user=%s', action, context["user"])
-    return True
+    return logic_authorization
 
 
 _actions: dict[str, Action] = {}

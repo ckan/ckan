@@ -1283,7 +1283,7 @@ def check_access(
     try:
         logic.check_access(action, context, data_dict)
         authorized = True
-    except logic.NotAuthorized:
+    except (logic.NotAuthorized, logic.NotFound):
         authorized = False
 
     return authorized
