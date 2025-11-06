@@ -10,7 +10,6 @@ import importlib
 from collections import defaultdict
 from typing import (Any, Callable, Container, Iterable, Optional,
                     TypeVar, Union, cast, overload)
-from typing_extensions import Literal
 
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import exc
