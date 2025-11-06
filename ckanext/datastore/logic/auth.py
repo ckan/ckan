@@ -54,6 +54,28 @@ def datastore_info(context: Context, data_dict: DataDict):
 
 @p.toolkit.auth_allow_anonymous_access
 def datastore_search(context: Context, data_dict: DataDict):
+    '''
+    NOTE: this function will return the actual resource id as
+    'real_id' if an alias is passed as the data_dict['resource_id']
+    '''
+    from ckanext.datastore.logic.action import WHITELISTED_RESOURCES
+    from ckanext.datastore.backend import DatastoreBackend
+
+    if data_dict.get('resource_id') in WHITELISTED_RESOURCES:
+        return {'success': True}
+
+    backend = DatastoreBackend.get_active_backend()
+    res_exists, real_id = backend.resource_id_from_alias(
+        data_dict.get('resource_id'))
+
+    if not res_exists:
+        return {'success': False}
+
+    if real_id:
+        return dict(
+            datastore_auth(context, dict(data_dict, resource_id=real_id), 'resource_show'),
+            real_id=real_id
+        )
     return datastore_auth(context, data_dict, 'resource_show')
 
 
