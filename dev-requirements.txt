@@ -16,8 +16,6 @@ pip-tools==7.5.1
 pytest-cov==7.0.0
 pytest-factoryboy==2.8.1
 pytest-freezegun==0.4.2
-pytest-rerunfailures==16.1
-pytest-retry==1.7.0
 pytest-split==0.10.0
 pytest==8.4.2
 responses==0.25.8
