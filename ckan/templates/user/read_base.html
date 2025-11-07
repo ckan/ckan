@@ -28,5 +28,5 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet "user/snippets/info.html", user=user, is_myself=is_myself, is_sysadmin=is_sysadmin, dataset_type=dataset_type, org_type=org_type, group_type=group_type, am_following=am_following %}
+  {% snippet "user/snippets/info.html", user=user, is_myself=is_myself, is_sysadmin=is_sysadmin, dataset_type=dataset_type, org_type=org_type, group_type=group_type, am_following=am_following, about_formatted=about_formatted %}
 {% endblock %}
