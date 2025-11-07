@@ -998,7 +998,7 @@ proto._transitionTo = function( x, y ) {
 };
 
 proto.getTranslate = function( x, y ) {
-  // flip cooridinates if origin on right or bottom
+  // flip coordinates if origin on right or bottom
   var isOriginLeft = this.layout._getOption('originLeft');
   var isOriginTop = this.layout._getOption('originTop');
   x = isOriginLeft ? x : -x;
@@ -1375,7 +1375,7 @@ var noop = function() {};
 
 // globally unique identifiers
 var GUID = 0;
-// internal store of all Outlayer intances
+// internal store of all Outlayer instances
 var instances = {};
 
 
@@ -1553,7 +1553,7 @@ proto.layout = function() {
     layoutInstant : !this._isLayoutInited;
   this.layoutItems( this.items, isInstant );
 
-  // flag for initalized
+  // flag for initialized
   this._isLayoutInited = true;
 };
 
