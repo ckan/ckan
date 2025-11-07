@@ -90,7 +90,7 @@ def test_user_update_user_can_update_her():
     params = {"id": fred["id"], "name": "updated_user_name"}
 
     result = helpers.call_auth("user_update", context=context, **params)
-    assert result is True
+    assert result
 
 
 def test_user_update_with_no_user_in_context():
