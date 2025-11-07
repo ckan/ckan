@@ -24,7 +24,7 @@ from ckan.common import _, g
 from ckan.types import (
     Action, ChainedAction,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
-    FlattenKey, Schema, Validator, ValidatorFactory
+    FlattenKey, Schema, Validator, ValidatorFactory, AuthResult,
 )
 
 Decorated = TypeVar("Decorated")
@@ -327,7 +327,7 @@ def _prepopulate_context(context: Optional[Context]) -> Context:
 
 def check_access(action: str,
                  context: Context,
-                 data_dict: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+                 data_dict: Optional[dict[str, Any]] = None) -> AuthResult:
     '''Calls the authorization function for the provided action
 
     This is the only function that should be called to determine whether a

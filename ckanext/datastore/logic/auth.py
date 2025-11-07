@@ -67,11 +67,8 @@ def datastore_search(context: Context, data_dict: DataDict) -> AuthResult:
         return {'success': True}
 
     backend = DatastoreBackend.get_active_backend()
-    res_exists, real_id = backend.resource_id_from_alias(
+    _res_exists, real_id = backend.resource_id_from_alias(
         cast(str, data_dict.get('resource_id', '')))
-
-    if not res_exists:
-        return {'success': False}
 
     if real_id:
         return cast(AuthResult, dict(datastore_auth(context, dict(
