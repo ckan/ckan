@@ -10,6 +10,7 @@ import importlib
 from collections import defaultdict
 from typing import (Any, Callable, Container, Iterable, Optional,
                     TypeVar, Union, cast, overload)
+from typing_extensions import Literal
 
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import exc
@@ -24,7 +25,7 @@ from ckan.common import _, g
 from ckan.types import (
     Action, ChainedAction,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
-    FlattenKey, Schema, Validator, ValidatorFactory, AuthResult,
+    FlattenKey, Schema, Validator, ValidatorFactory
 )
 
 Decorated = TypeVar("Decorated")
@@ -327,7 +328,7 @@ def _prepopulate_context(context: Optional[Context]) -> Context:
 
 def check_access(action: str,
                  context: Context,
-                 data_dict: Optional[dict[str, Any]] = None) -> AuthResult:
+                 data_dict: Optional[dict[str, Any]] = None) -> Literal[True]:
     '''Calls the authorization function for the provided action
 
     This is the only function that should be called to determine whether a
@@ -348,21 +349,15 @@ def check_access(action: str,
     Raise :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
     authorized to call the named action function.
 
-    If the user *is* authorized to call the action, return the result of
-    the authorization function, typically ``{"success": True}``.
+    If the user *is* authorized to call the action, return ``True``.
 
     :param action: the name of the action function, eg. ``'package_create'``
     :type action: string
 
-    :param context: the context passed to the corresponding action is modified
-        by this function. When handling a request if context has no `user` set
-        the user name value will be set based on the logged in user, otherwise
-        it will be set to `""`. `auth_user_obj` will be set if it is missing
-        from the context based on the `user` user name.
+    :param context:
     :type context: dict
 
-    :param data_dict: typically the same parameters passed to the
-        corresponding action
+    :param data_dict:
     :type data_dict: dict
 
     :raises: :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
@@ -400,7 +395,7 @@ def check_access(action: str,
         raise
 
     log.debug('check access OK - %s user=%s', action, context["user"])
-    return logic_authorization
+    return True
 
 
 _actions: dict[str, Action] = {}

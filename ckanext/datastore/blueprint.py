@@ -8,7 +8,6 @@ from flask import Blueprint, Response
 from flask.views import MethodView
 
 import ckan.lib.navl.dictization_functions as dict_fns
-from ckan.common import current_user
 from ckan.logic import (
     tuplize_dict,
     parse_params,
@@ -23,6 +22,8 @@ from ckanext.datastore.logic.schema import (
     json_validator,
     unicode_or_json_validator,
 )
+from ckanext.datastore.logic.action import WHITELISTED_RESOURCES
+from ckanext.datastore.backend import DatastoreBackend
 from ckanext.datastore.writer import (
     csv_writer,
     tsv_writer,
@@ -60,16 +61,6 @@ def dump_schema() -> Schema:
 
 
 def dump(resource_id: str):
-    try:
-        check_access(
-            "datastore_search",
-            context={"user": current_user.name,
-                     "auth_user_obj": current_user},
-            data_dict={"resource_id": resource_id},
-        )
-    except (ObjectNotFound, NotAuthorized):
-        abort(404, _('DataStore resource not found'))
-
     data, errors = dict_fns.validate(request.args.to_dict(), dump_schema())
     if errors:
         abort(
@@ -77,6 +68,22 @@ def dump(resource_id: str):
                 '{0}: {1}'.format(k, ' '.join(e)) for k, e in errors.items()
             )
         )
+
+    if resource_id not in WHITELISTED_RESOURCES:
+        backend = DatastoreBackend.get_active_backend()
+        res_exists, real_id = backend.resource_id_from_alias(resource_id)
+
+        if not res_exists:
+            abort(404, _('DataStore resource not found'))
+
+        if real_id:
+            resource_id = real_id
+
+    try:
+        check_access('datastore_search', {}, {'resource_id': resource_id})
+    except NotAuthorized:
+        abort(404, _('DataStore resource not found'))
+
 
     fmt = data['format']
     offset = data['offset']
@@ -141,12 +148,7 @@ class DictionaryView(MethodView):
 
     def _prepare(self, id: str, resource_id: str) -> dict[str, Any]:
         try:
-            check_access(
-                "datastore_create",
-                context={"user": current_user.name,
-                         "auth_user_obj": current_user},
-                data_dict={"resource_id": resource_id},
-            )
+            h.check_access("datastore_create", {"resource_id": resource_id})
 
             # resource_edit_base template uses these
             pkg_dict = get_action(u'package_show')({}, {'id': id})
