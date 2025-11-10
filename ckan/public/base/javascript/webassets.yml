@@ -7,7 +7,6 @@ main:
       - vendor/bootstrap
       - vendor/htmx
   contents:
-    - apply-html-class.js
     - plugins/jquery.inherit.js
     - plugins/jquery.proxy-all.js
     - plugins/jquery.url-helpers.js

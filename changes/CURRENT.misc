@@ -3,3 +3,10 @@
   * ``user/edit_user_form.html`` renamed to ``user/_edit_user_form.html``
   * ``header.html`` renamed to ``_header.html``
   * ``footer.html`` renamed to ``_footer.html``
+
+* ``data-site-root`` and ``data-locale-root`` moved to
+  ``site-root``/``locale-root`` meta elements inside ``head``. It means that
+  code like ``$('body').data('site-root');`` must be replaced with
+  ``$('meta[name=site-root]').attr('content');``
+
+*
