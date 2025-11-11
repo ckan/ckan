@@ -2,6 +2,7 @@
 
 import unittest.mock as mock
 from datetime import datetime
+from time import sleep
 
 import pytest
 from bs4 import BeautifulSoup
@@ -747,7 +748,6 @@ class TestPackage:
         assert helpers.body_contains(response, "Dataset title")
         assert helpers.body_contains(response, resource["name"])
 
-    @pytest.mark.flaky(retries=3, delay=1)
     def test_read_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"], name="Original name")
@@ -770,16 +770,19 @@ class TestPackage:
         # View as a sysadmin so we can see old versions of the dataset
         sysadmin = factories.SysadminWithToken()
         headers = {"Authorization": sysadmin["token"]}
-        response = app.get(
-            url_for(
-                "activity.resource_history",
-                id=dataset["name"],
-                resource_id=resource["id"],
-                activity_id=activity.id,
-            ),
-            headers=headers,
-        )
-        assert helpers.body_contains(response, "Original name")
+        def got_orig():
+            response = app.get(
+                url_for(
+                    "activity.resource_history",
+                    id=dataset["name"],
+                    resource_id=resource["id"],
+                    activity_id=activity.id,
+                ),
+                headers=headers,
+            )
+            return helpers.body_contains(response, "Original name")
+        # slow response retry
+        assert got_orig() or sleep(.5) or got_orig()
 
     def test_read_deleted_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
@@ -801,16 +804,19 @@ class TestPackage:
         # View as a sysadmin so we can see old versions of the dataset
         sysadmin = factories.SysadminWithToken()
         headers = {"Authorization": sysadmin["token"]}
-        response = app.get(
-            url_for(
-                "activity.resource_history",
-                id=dataset["name"],
-                resource_id=resource["id"],
-                activity_id=activity.id,
-            ),
-            headers=headers,
-        )
-        assert helpers.body_contains(response, resource["name"])
+        def got_orig():
+            response = app.get(
+                url_for(
+                    "activity.resource_history",
+                    id=dataset["name"],
+                    resource_id=resource["id"],
+                    activity_id=activity.id,
+                ),
+                headers=headers,
+            )
+            return helpers.body_contains(response, resource["name"])
+        # slow response retry
+        assert got_orig() or sleep(.5) or got_orig()
 
     def test_changes(self, app):
         user = factories.UserWithToken()

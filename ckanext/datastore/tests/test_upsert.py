@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from time import sleep
+
 import pytest
 
 import ckan.tests.factories as factories
@@ -562,7 +564,6 @@ class TestDatastoreUpsert(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is None
 
-    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         resource = factories.Resource()
         data = {
@@ -585,8 +586,10 @@ class TestDatastoreUpsert(object):
             "calculate_record_count": True,
         }
         helpers.call_action("datastore_upsert", **data)
-        last_analyze = when_was_last_analyze(resource["id"])
-        assert last_analyze is not None
+        def has_la():
+            return when_was_last_analyze(resource["id"]) is not None
+        # retry because analyze is sometimes delayed
+        assert has_la() or sleep(.5) or has_la()
 
     def test_no_pk_update(self):
         resource = factories.Resource()
