@@ -2,7 +2,6 @@
 
 import unittest.mock as mock
 from datetime import datetime
-from time import sleep
 
 import pytest
 from bs4 import BeautifulSoup
