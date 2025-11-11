@@ -781,8 +781,7 @@ class TestPackage:
                 headers=headers,
             )
             return helpers.body_contains(response, "Original name")
-        # slow response retry
-        assert got_orig() or sleep(.5) or got_orig()
+        assert got_orig(), response.body
 
     def test_read_deleted_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
@@ -815,8 +814,7 @@ class TestPackage:
                 headers=headers,
             )
             return helpers.body_contains(response, resource["name"])
-        # slow response retry
-        assert got_orig() or sleep(.5) or got_orig()
+        assert got_orig(), response.body
 
     def test_changes(self, app):
         user = factories.UserWithToken()
