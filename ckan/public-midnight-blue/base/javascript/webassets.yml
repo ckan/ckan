@@ -4,7 +4,6 @@ main:
   extra:
     preload:
       - vendor/vendor
-      - vendor/bootstrap
       - vendor/htmx
   contents:
     - apply-html-class.js
@@ -33,7 +32,9 @@ ckan:
   extra:
     preload:
       - vendor/bootstrap
+      - base/main
   contents:
+    - init_tooltips.js
     - modules/select-switch.js
     - modules/slug-preview.js
     - modules/basic-form.js

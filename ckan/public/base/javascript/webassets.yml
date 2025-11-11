@@ -4,26 +4,25 @@ main:
   extra:
     preload:
       - vendor/vendor
-      - vendor/bootstrap
       - vendor/htmx
   contents:
-    - plugins/jquery.inherit.js
-    - plugins/jquery.proxy-all.js
-    - plugins/jquery.url-helpers.js
-    - plugins/jquery.date-helpers.js
-    - plugins/jquery.slug.js
-    - plugins/jquery.slug-preview.js
-    - plugins/jquery.masonry.js  # only media-grid module
-    - plugins/jquery.form-warning.js
-    - plugins/jquery.images-loaded.js # only media-grid module
+    - plugins/jquery.inherit.js # used in ckan.module() method
+    - plugins/jquery.proxy-all.js # recommended way to bind this to `_on*` methods of the module
+    - plugins/jquery.url-helpers.js # used in jquery.slug and jquery.slug-preview plugins
+    - plugins/jquery.date-helpers.js # used by client.js
+    - plugins/jquery.slug.js # used by jquery.slug-preview plugin and slug-preview module
+    - plugins/jquery.slug-preview.js # used by slug-preview module
+    - plugins/jquery.form-warning.js # used by basic-form module
+    - plugins/jquery.images-loaded.js # used by media-grid module
+    - plugins/jquery.masonry.js  # used by media-grid module
     - sandbox.js
     - module.js
     - pubsub.js
     - client.js
     - i18n.js
-    - notify.js
-    - confirm.js
-    - main.js # XXX: uses bootstrap
+    - notify.js # produces UI elements
+    - confirm.js # produces UI elements
+    - main.js
     - htmx-ckan.js
 
 ckan:
@@ -32,7 +31,9 @@ ckan:
   extra:
     preload:
       - vendor/bootstrap
+      - base/ckan
   contents:
+    - init_tooltips.js # uses bootstrap
     - modules/select-switch.js
     - modules/slug-preview.js
     - modules/basic-form.js
