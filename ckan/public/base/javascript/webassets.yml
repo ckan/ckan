@@ -13,9 +13,9 @@ main:
     - plugins/jquery.date-helpers.js
     - plugins/jquery.slug.js
     - plugins/jquery.slug-preview.js
-    - plugins/jquery.masonry.js
+    - plugins/jquery.masonry.js  # only media-grid module
     - plugins/jquery.form-warning.js
-    - plugins/jquery.images-loaded.js
+    - plugins/jquery.images-loaded.js # only media-grid module
     - sandbox.js
     - module.js
     - pubsub.js
@@ -23,7 +23,7 @@ main:
     - i18n.js
     - notify.js
     - confirm.js
-    - main.js
+    - main.js # XXX: uses bootstrap
     - htmx-ckan.js
 
 ckan:
