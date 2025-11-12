@@ -29,7 +29,6 @@ from sqlalchemy.sql import select, false
 
 import ckan.logic as logic
 import ckan.plugins as plugins
-import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.authz as authz
 import ckan.lib.search as search
@@ -37,6 +36,7 @@ import ckan.lib.munge as munge
 import ckan.model as model
 from ckan.types import Context
 from ckan.common import config
+from ckan.lib.helpers import helper_functions as h
 
 ## package save
 
