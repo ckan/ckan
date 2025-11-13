@@ -456,9 +456,12 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
-    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
-                   If missing delete whole table and all dependent views.
-                   (optional)
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}
+                    or {"year": {"lt": 2020}}).
+                    *WARNING* if this parameter is missing the whole table and
+                    any associated data dictionary and dependent views will be deleted.
+                    (optional).
+    :type filters: dictionary
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
@@ -548,9 +551,9 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
-    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
-                   If {} delete all records.
-                   (required)
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}
+                    or {"year": {"lt": 2020}}).
+                    If {} delete all records.  (required)
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
@@ -589,8 +592,8 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
     :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
-    :param filters: :ref:`filters` for matching conditions to select, e.g
-                    {"key1": "a", "key2": "b"} (optional)
+    :param filters: :ref:`filters` for matching conditions to select (eg
+                    {"name": "fred"} or {"year": {"lt": 2020}}). (optional).
     :type filters: dictionary
     :param q: full text query. If it's a string, it'll search on all fields on
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},
@@ -612,7 +615,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
         ``ckan.datastore.search.rows_default``, upper limit: ``32000`` unless
         set in site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
-    :param offset: offset this number of rows (optional)
+    :param offset: offset this number of rows (optional) it is more efficient
+                   to use the value returned in ``next_page`` as a ``filter``
+                   instead of using ``offset`` for paginating over large tables
     :type offset: int
     :param fields: fields to return
                    (optional, default: all fields in original order)
@@ -640,6 +645,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
         'csv' string containing comma-separated values with no header,
         'tsv' string containing tab-separated values with no header
     :type records_format: controlled list
+    :param include_next_page: set to True to return a filter parameter that
+        will retrieve the next page of results. Ignored if records are not
+        sorted by the `_id` field (default: False)
 
 
     Setting the ``plain`` flag to false enables the entire PostgreSQL
@@ -673,6 +681,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :type total_was_estimated: bool
     :param records: list of matching results
     :type records: depends on records_format value passed
+    :param next_page: values to add to the ``filter`` parameter to retrieve the
+                      next page of results (when sorting by ``_id``, the default)
+    :type next_page: dictionary
 
     '''
     backend = DatastoreBackend.get_active_backend()
