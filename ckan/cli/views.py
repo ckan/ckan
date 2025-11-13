@@ -48,7 +48,7 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
     `ckan.plugins`), otherwise the command will stop.
 
     """
-
+    breakpoint()
     flask_app = ctx.meta['flask_app']
     datastore_active = plugin_loaded("datastore")
     with flask_app.test_request_context():
@@ -246,7 +246,7 @@ def _search_datasets(
         u"rows": n,
         u"start": n * (page - 1),
     }
-
+    breakpoint()
     if dataset:
 
         search_data_dict[u"q"] = u" OR ".join(
@@ -295,7 +295,7 @@ def _add_default_filters(search_data_dict: dict[str, Any],
     """
 
     from ckanext.textview.plugin import get_formats as get_text_formats
-    datapusher_formats = config.get("ckan.datapusher.formats")
+    datapusher_formats = config.get("ckan.datapusher.formats", [])
 
     filter_formats = []
 
@@ -315,11 +315,10 @@ def _add_default_filters(search_data_dict: dict[str, Any],
             filter_formats.extend([u"pdf", u"PDF"])
 
         elif view_type == "datatables_view":
-
-            if datapusher_formats[0] in filter_formats:
-                continue
-
             for _format in datapusher_formats:
+                if _format in filter_formats:
+                    continue
+
                 if u"/" not in _format:
                     filter_formats.extend([_format, _format.upper()])
         else:
