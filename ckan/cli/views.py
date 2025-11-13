@@ -48,7 +48,7 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
     `ckan.plugins`), otherwise the command will stop.
 
     """
-    breakpoint()
+
     flask_app = ctx.meta['flask_app']
     datastore_active = plugin_loaded("datastore")
     with flask_app.test_request_context():
@@ -246,7 +246,7 @@ def _search_datasets(
         u"rows": n,
         u"start": n * (page - 1),
     }
-    breakpoint()
+
     if dataset:
 
         search_data_dict[u"q"] = u" OR ".join(
