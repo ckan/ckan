@@ -760,10 +760,19 @@ class PerformResetView(MethodView):
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to reset password.'))
 
+        # Ignore auth for the user_show action only.
+        # user_show might fail for anon users if
+        # `ckan.auth.public_user_details` is False
+        # and user_show has non core auth functions.
+        context[u'ignore_auth'] = True
         try:
             user_dict = logic.get_action(u'user_show')(context, {u'id': id})
         except logic.NotFound:
             base.abort(404, _(u'User not found'))
+
+        # remove ignore auth for any future use of this context.
+        del context[u'ignore_auth']
+
         user_obj = context[u'user_obj']
         g.reset_key = request.args.get(u'key')
         if not mailer.verify_reset_link(user_obj, g.reset_key):
