@@ -47,6 +47,7 @@ To temporary patch the CKAN configuration for the duration of a test you can use
     def test_some_action():
         pass
 """
+import pytest
 import ckanext.{{cookiecutter.project_shortname}}.plugin as plugin
 
 
