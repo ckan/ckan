@@ -31,25 +31,6 @@ class RootPathMiddleware(object):
         return self.app(environ, start_response)
 
 
-class HostHeaderMiddleware(object):
-    '''
-        Prevent the `Host` header from the incoming request to be used
-        in the `Location` header of a redirect.
-    '''
-    def __init__(self, app: CKANApp):
-        self.app = app
-
-    def __call__(self, environ: Any, start_response: Any) -> Any:
-        path_info = environ[u'PATH_INFO']
-        if path_info in ['/login_generic', '/user/login',
-                         '/user/logout', '/user/logged_in',
-                         '/user/logged_out']:
-            site_url = config.get('ckan.site_url')
-            parts = urlparse(site_url)
-            environ['HTTP_HOST'] = str(parts.netloc)
-        return self.app(environ, start_response)
-
-
 class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):
     """Flask cookie-based sessions with expiration support.
 
