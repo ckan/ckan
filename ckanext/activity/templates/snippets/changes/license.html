@@ -5,47 +5,47 @@
     {% if change.new_url != "" and change.old_url != "" %}
 
       {% trans
-        title=change.title, new_title=change.new_title, old_title=change.old_title,
+        title=change.title, new_license=change.new_title, old_license=change.old_title,
         new_url=change.new_url, old_url=change.old_url
       %}
       Changed the license of
       <a href="{{ pkg_link }}">{{ title }}</a> to
-      <a href="{{ new_url }}">{{ new_title }}</a> (previously
-      <a href="{{ old_url }}">{{ old_title }}</a>).
+      <a href="{{ new_url }}">{{ new_license }}</a> (previously
+      <a href="{{ old_url }}">{{ old_license }}</a>).
       {% endtrans %}
 
     {# if only the new one has a URL #}
     {% elif change.new_url != "" and change.old_url == "" %}
 
       {% trans
-        title=change.title, new_title=change.new_title, old_title=change.old_title,
+        title=change.title, new_license=change.new_title, old_license=change.old_title,
         new_url=change.new_url
       %}
       Changed the license of
       <a href="{{ pkg_link }}">{{ title }}</a> to
-      <a href="{{ new_url }}">{{ new_title }}</a> (previously {{ old_title }}).
+      <a href="{{ new_url }}">{{ new_license }}</a> (previously {{ old_license }}).
       {% endtrans %}
 
     {# if only the old one has a URL #}
     {% elif change.new_url == "" and change.old_url != "" %}
 
       {% trans
-        title=change.title, new_title=change.new_title, old_title=change.old_title,
+        title=change.title, new_license=change.new_title, old_license=change.old_title,
         old_url=change.old_url
       %}
       Changed the license of
-      <a href="{{ pkg_link }}">{{ title }}</a> to {{ new_title }}
-      (previously <a href="{{ old_url }}">{{ old_title }}</a>).
+      <a href="{{ pkg_link }}">{{ title }}</a> to {{ new_license }}
+      (previously <a href="{{ old_url }}">{{ old_license }}</a>).
       {% endtrans %}
 
     {# otherwise neither has a URL #}
     {% else %}
 
       {% trans
-        title=change.title, new_title=change.new_title, old_title=change.old_title
+        title=change.title, new_license=change.new_title, old_license=change.old_title
       %}
       Changed the license of
-      <a href="{{ pkg_link }}">{{ title }}</a> to {{ new_title }} (previously {{ old_title }}).
+      <a href="{{ pkg_link }}">{{ title }}</a> to {{ new_license }} (previously {{ old_license }}).
       {% endtrans %}
 
     {% endif %}
