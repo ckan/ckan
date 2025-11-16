@@ -719,13 +719,14 @@ class TestPackage:
     def test_read_dataset_as_it_used_to_be_after_deleting_resource(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"])
-        activity_list = (
+        # Get latest activity (creating the resource)
+        activity = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .all()
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
         )
-        # Get latest activity (creating the resource)
-        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_delete",
@@ -750,13 +751,14 @@ class TestPackage:
     def test_read_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"], name="Original name")
-        activity_list = (
+        # Get latest activity (creating the resource)
+        activity = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .all()
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
         )
-        # Get latest activity (creating the resource)
-        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_update",
@@ -783,13 +785,14 @@ class TestPackage:
     def test_read_deleted_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"])
-        activity_list = (
+        # Get latest activity (creating the resource)
+        activity = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .all()
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
         )
-        # Get latest activity (creating the resource)
-        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_delete",
