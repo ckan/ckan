@@ -33,6 +33,7 @@ vendor:
     - jed.js
     - moment-with-locales.js
     - select2/select2.full.js
+    - popperjs.js
     - purify.js
 
 bootstrap:
@@ -43,7 +44,6 @@ bootstrap:
       - vendor/fontawesome
       - vendor/jquery
   contents:
-    - popperjs.js
     - bootstrap/js/bootstrap.js
 
 fileupload:
