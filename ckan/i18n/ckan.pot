@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.11.3\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-16 01:50+0800\n"
+"POT-Creation-Date: 2025-11-18 15:56+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -211,8 +211,8 @@ msgstr ""
 #: ckan/lib/navl/dictization_functions.py:31
 #: ckan/lib/navl/dictization_functions.py:34 ckan/lib/navl/validators.py:51
 #: ckan/lib/navl/validators.py:75 ckan/lib/navl/validators.py:130
-#: ckan/logic/action/get.py:2084 ckan/logic/action/update.py:265
-#: ckan/logic/action/update.py:466 ckan/logic/validators.py:725
+#: ckan/logic/action/get.py:2084 ckan/logic/action/update.py:266
+#: ckan/logic/action/update.py:572 ckan/logic/validators.py:757
 msgid "Missing value"
 msgstr ""
 
@@ -259,19 +259,13 @@ msgid "Tag vocabulary \"%s\" does not exist"
 msgstr ""
 
 #: ckan/logic/converters.py:141 ckan/logic/converters.py:168
-#: ckan/logic/converters.py:195 ckan/logic/validators.py:197
-#: ckan/logic/validators.py:283 ckan/logic/validators.py:305
-#: ckan/logic/validators.py:317 ckan/logic/validators.py:339
-#: ckan/logic/validators.py:356 ckan/logic/validators.py:369
-#: ckan/logic/validators.py:853 ckan/views/api.py:299
+#: ckan/logic/converters.py:195 ckan/views/api.py:303
 #: ckanext/activity/logic/validators.py:28
 msgid "Not found"
 msgstr ""
 
-#: ckan/logic/converters.py:141 ckan/logic/validators.py:339
-#: ckan/logic/validators.py:356 ckan/logic/validators.py:853
-#: ckan/templates/admin/index.html:9 ckan/templates/group/manage_members.html:15
-#: ckan/templates/group/members.html:12
+#: ckan/logic/converters.py:141 ckan/templates/admin/index.html:9
+#: ckan/templates/group/manage_members.html:15 ckan/templates/group/members.html:12
 #: ckan/templates/organization/manage_members.html:22
 #: ckan/templates/organization/members.html:15
 #: ckan/templates/package/collaborators/collaborators.html:19
@@ -279,15 +273,14 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: ckan/logic/converters.py:168 ckan/logic/validators.py:197
-#: ckan/logic/validators.py:305 ckan/templates/package/read_base.html:22
+#: ckan/logic/converters.py:168 ckan/templates/package/read_base.html:22
 #: ckan/tests/config/test_middleware.py:27
 #: ckanext/stats/templates/ckanext/stats/index.html:63
 msgid "Dataset"
 msgstr ""
 
-#: ckan/logic/converters.py:195 ckan/logic/validators.py:369
-#: ckan/views/group.py:1180 ckanext/stats/templates/ckanext/stats/index.html:91
+#: ckan/logic/converters.py:195 ckan/views/group.py:1180
+#: ckanext/stats/templates/ckanext/stats/index.html:91
 msgid "Group"
 msgstr ""
 
@@ -295,20 +288,25 @@ msgstr ""
 msgid "Could not parse as valid JSON"
 msgstr ""
 
-#: ckan/logic/validators.py:51 ckan/logic/validators.py:61
+#: ckan/logic/validators.py:51 ckan/logic/validators.py:60
 msgid "An organization must be provided"
 msgstr ""
 
-#: ckan/logic/validators.py:78
+#: ckan/logic/validators.py:77
 msgid "You cannot move this dataset to another organization"
 msgstr ""
 
-#: ckan/logic/validators.py:82
+#: ckan/logic/validators.py:81
 msgid "Organization does not exist"
 msgstr ""
 
-#: ckan/logic/validators.py:90
+#: ckan/logic/validators.py:89
 msgid "You cannot add a dataset to this organization"
+msgstr ""
+
+#: ckan/logic/validators.py:100 ckan/logic/validators.py:789
+#, python-format
+msgid "Cannot change value of key from %(old)s to %(new)s. This key is read-only"
 msgstr ""
 
 #: ckan/logic/validators.py:133
@@ -331,237 +329,280 @@ msgstr ""
 msgid "Date format incorrect"
 msgstr ""
 
-#: ckan/logic/validators.py:209
+#: ckan/logic/action/create.py:683 ckan/logic/validators.py:196
+#: ckan/logic/validators.py:297 ckan/views/dataset.py:396 ckan/views/dataset.py:407
+#: ckan/views/dataset.py:608 ckan/views/dataset.py:744 ckan/views/dataset.py:781
+#: ckan/views/dataset.py:872 ckan/views/dataset.py:887 ckan/views/dataset.py:981
+#: ckan/views/dataset.py:1012 ckan/views/dataset.py:1092 ckan/views/resource.py:67
+#: ckan/views/resource.py:81 ckan/views/resource.py:531 ckan/views/resource.py:583
+#: ckan/views/resource.py:633 ckanext/activity/views.py:108
+#: ckanext/activity/views.py:118 ckanext/activity/views.py:216
+#: ckanext/activity/views.py:248 ckanext/activity/views.py:330
+msgid "Dataset not found"
+msgstr ""
+
+#: ckan/logic/validators.py:207
 msgid "Dataset id already exists"
 msgstr ""
 
-#: ckan/logic/validators.py:233
+#: ckan/logic/validators.py:230
 msgid "Resource id already exists."
 msgstr ""
 
-#: ckan/logic/validators.py:244 ckan/logic/validators.py:256
+#: ckan/logic/validators.py:240 ckan/logic/validators.py:251
 msgid "Id already exists"
 msgstr ""
 
-#: ckan/logic/validators.py:269
+#: ckan/logic/validators.py:263
 msgid "ResourceView id already exists"
 msgstr ""
 
-#: ckan/logic/validators.py:317
-msgid "Resource"
+#: ckan/logic/validators.py:276
+#, python-format
+msgid "Dataset not found: %s"
 msgstr ""
 
-#: ckan/logic/validators.py:325
+#: ckan/logic/validators.py:308
+#, python-format
+msgid "Resource not found: %s"
+msgstr ""
+
+#: ckan/logic/validators.py:316
 msgid "Invalid id provided"
 msgstr ""
 
-#: ckan/logic/validators.py:379
+#: ckan/logic/validators.py:329 ckan/logic/validators.py:881
+#, python-format
+msgid "User not found: %s"
+msgstr ""
+
+#: ckan/logic/action/create.py:687 ckan/logic/action/delete.py:360
+#: ckan/logic/auth/update.py:200 ckan/logic/validators.py:345
+#: ckan/views/dataset.py:1171 ckan/views/group.py:646 ckan/views/user.py:71
+#: ckan/views/user.py:388 ckan/views/user.py:419 ckan/views/user.py:480
+#: ckan/views/user.py:783 ckan/views/user.py:841 ckan/views/user.py:944
+msgid "User not found"
+msgstr ""
+
+#: ckan/logic/validators.py:357
+#, python-format
+msgid "Group not found: %s"
+msgstr ""
+
+#: ckan/logic/validators.py:366
 msgid "That group name or ID does not exist."
 msgstr ""
 
-#: ckan/logic/validators.py:402
+#: ckan/logic/validators.py:389
 msgid "Names must be strings"
 msgstr ""
 
-#: ckan/logic/validators.py:406
+#: ckan/logic/validators.py:393
 msgid "That name cannot be used"
 msgstr ""
 
-#: ckan/logic/validators.py:409
+#: ckan/logic/validators.py:396
 #, python-format
 msgid "Must be at least %s characters long"
 msgstr ""
 
-#: ckan/logic/validators.py:411 ckan/logic/validators.py:745
+#: ckan/logic/validators.py:398 ckan/logic/validators.py:776
 #, python-format
 msgid "Name must be a maximum of %i characters long"
 msgstr ""
 
-#: ckan/logic/validators.py:414
+#: ckan/logic/validators.py:401
 msgid "Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
 msgstr ""
 
-#: ckan/logic/validators.py:439
+#: ckan/logic/validators.py:425
 msgid "That URL is already in use."
 msgstr ""
 
-#: ckan/logic/validators.py:444
+#: ckan/logic/validators.py:430
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
 msgstr ""
 
-#: ckan/logic/validators.py:448
+#: ckan/logic/validators.py:434
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
 msgstr ""
 
-#: ckan/logic/validators.py:456
+#: ckan/logic/validators.py:442
 #, python-format
 msgid "Version must be a maximum of %i characters long"
 msgstr ""
 
-#: ckan/logic/validators.py:478
+#: ckan/logic/validators.py:464
 #, python-format
 msgid "Duplicate key \"%s\""
 msgstr ""
 
-#: ckan/logic/validators.py:499
+#: ckan/logic/validators.py:484
 msgid "Group name already exists in database"
 msgstr ""
 
-#: ckan/logic/validators.py:506
+#: ckan/logic/validators.py:491
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
 msgstr ""
 
-#: ckan/logic/validators.py:510
+#: ckan/logic/validators.py:495
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr ""
 
-#: ckan/logic/validators.py:519
+#: ckan/logic/validators.py:504
 #, python-format
 msgid ""
 "Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens "
 "(\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
 
-#: ckan/logic/validators.py:529
+#: ckan/logic/validators.py:514
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
 msgstr ""
 
-#: ckan/logic/validators.py:640
+#: ckan/logic/validators.py:623
+msgid "Cannot modify your own sysadmin privileges"
+msgstr ""
+
+#: ckan/logic/validators.py:627
+msgid "Cannot modify sysadmin privileges for system user"
+msgstr ""
+
+#: ckan/logic/validators.py:671
 msgid "User names must be strings"
 msgstr ""
 
-#: ckan/logic/validators.py:655
-msgid "That login name is not available."
-msgstr ""
-
-#: ckan/logic/validators.py:662
-msgid "That login name can not be modified."
-msgstr ""
-
-#: ckan/logic/validators.py:677
-msgid "Please enter both passwords"
-msgstr ""
-
-#: ckan/logic/validators.py:690
-msgid "Passwords must be strings"
+#: ckan/logic/validators.py:686
+msgid ""
+"The username is already associated with another account. Please use a "
+"different username."
 msgstr ""
 
 #: ckan/logic/validators.py:694
+msgid "That login name can not be modified."
+msgstr ""
+
+#: ckan/logic/validators.py:709
+msgid "Please enter both passwords"
+msgstr ""
+
+#: ckan/logic/validators.py:722
+msgid "Passwords must be strings"
+msgstr ""
+
+#: ckan/logic/validators.py:726
 msgid "Your password must be 8 characters or longer"
 msgstr ""
 
-#: ckan/logic/validators.py:706
+#: ckan/logic/validators.py:738
 msgid "The passwords you entered do not match"
 msgstr ""
 
-#: ckan/logic/validators.py:731
+#: ckan/logic/validators.py:763
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
 
-#: ckan/logic/validators.py:742
+#: ckan/logic/validators.py:773
 #, python-format
 msgid "Name must be at least %s characters long"
 msgstr ""
 
-#: ckan/logic/validators.py:750
+#: ckan/logic/validators.py:781
 msgid "That vocabulary name is already in use."
 msgstr ""
 
-#: ckan/logic/validators.py:758
-#, python-format
-msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
-
-#: ckan/logic/validators.py:769
+#: ckan/logic/validators.py:800
 msgid "Tag vocabulary was not found."
 msgstr ""
 
-#: ckan/logic/validators.py:784
+#: ckan/logic/validators.py:814
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
 msgstr ""
 
-#: ckan/logic/validators.py:794
+#: ckan/logic/validators.py:824
 msgid "No tag name"
 msgstr ""
 
-#: ckan/logic/validators.py:807
+#: ckan/logic/validators.py:836
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
 msgstr ""
 
-#: ckan/logic/validators.py:843
+#: ckan/logic/validators.py:872
 msgid "Please provide a valid URL"
 msgstr ""
 
-#: ckan/logic/validators.py:861
+#: ckan/logic/validators.py:889
 msgid "role does not exist."
 msgstr ""
 
-#: ckan/logic/validators.py:892
+#: ckan/logic/validators.py:920
 msgid "Datasets with no organization can't be private."
 msgstr ""
 
-#: ckan/logic/validators.py:901
+#: ckan/logic/validators.py:929
 msgid "Not a list"
 msgstr ""
 
-#: ckan/logic/validators.py:904
-msgid "Not a string"
+#: ckan/logic/validators.py:932
+#, python-format
+msgid "Not a string: %s"
 msgstr ""
 
-#: ckan/logic/validators.py:952
+#: ckan/logic/validators.py:980
 msgid "This parent would create a loop in the hierarchy"
 msgstr ""
 
-#: ckan/logic/validators.py:965
+#: ckan/logic/validators.py:993
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
 msgstr ""
 
-#: ckan/logic/validators.py:979
+#: ckan/logic/validators.py:1007
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
 msgstr ""
 
-#: ckan/logic/validators.py:982
+#: ckan/logic/validators.py:1010
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
 msgstr ""
 
-#: ckan/logic/validators.py:999
+#: ckan/logic/validators.py:1027
 msgid "There is a schema field with the same name"
 msgstr ""
 
-#: ckan/logic/validators.py:1038
+#: ckan/logic/validators.py:1066
 msgid "Email {email} is not a valid format"
 msgstr ""
 
-#: ckan/logic/validators.py:1081
+#: ckan/logic/validators.py:1109
 msgid "Must be a dict"
 msgstr ""
 
-#: ckan/logic/validators.py:1107
+#: ckan/logic/validators.py:1137
 msgid "The email address '{email}' belongs to a registered user."
 msgstr ""
 
-#: ckan/logic/validators.py:1114
-msgid "Value must be one of {}"
+#: ckan/logic/validators.py:1144
+#, python-format
+msgid "Value must be one of %s"
 msgstr ""
 
-#: ckan/logic/validators.py:1125
+#: ckan/logic/validators.py:1155
 msgid "The value should be a valid JSON object"
 msgstr ""
 
-#: ckan/logic/validators.py:1127
+#: ckan/logic/validators.py:1157
 msgid "Could not parse the value as a valid JSON object"
 msgstr ""
 
-#: ckan/logic/validators.py:1139
+#: ckan/logic/validators.py:1169
 msgid "Could not parse extra '{name}' as valid JSON"
 msgstr ""
 
@@ -571,26 +612,6 @@ msgstr ""
 
 #: ckan/logic/action/create.py:676
 msgid "Role must be one of \"{}\""
-msgstr ""
-
-#: ckan/logic/action/create.py:683 ckan/views/dataset.py:396
-#: ckan/views/dataset.py:407 ckan/views/dataset.py:608 ckan/views/dataset.py:744
-#: ckan/views/dataset.py:781 ckan/views/dataset.py:872 ckan/views/dataset.py:887
-#: ckan/views/dataset.py:981 ckan/views/dataset.py:1012 ckan/views/dataset.py:1092
-#: ckan/views/resource.py:67 ckan/views/resource.py:81 ckan/views/resource.py:531
-#: ckan/views/resource.py:583 ckan/views/resource.py:633
-#: ckanext/activity/views.py:108 ckanext/activity/views.py:118
-#: ckanext/activity/views.py:216 ckanext/activity/views.py:248
-#: ckanext/activity/views.py:330
-msgid "Dataset not found"
-msgstr ""
-
-#: ckan/logic/action/create.py:687 ckan/logic/action/delete.py:360
-#: ckan/logic/auth/update.py:200 ckan/views/dataset.py:1171 ckan/views/group.py:646
-#: ckan/views/user.py:71 ckan/views/user.py:388 ckan/views/user.py:419
-#: ckan/views/user.py:480 ckan/views/user.py:783 ckan/views/user.py:841
-#: ckan/views/user.py:944
-msgid "User not found"
 msgstr ""
 
 #: ckan/logic/action/create.py:691 ckan/logic/action/delete.py:352
@@ -656,12 +677,12 @@ msgid "Organization cannot be deleted while it still has datasets"
 msgstr ""
 
 #: ckan/logic/action/delete.py:611 ckan/logic/action/delete.py:637
-#: ckan/logic/action/get.py:2471 ckan/logic/action/update.py:1026
+#: ckan/logic/action/get.py:2471 ckan/logic/action/update.py:1119
 msgid "id not in data"
 msgstr ""
 
 #: ckan/logic/action/delete.py:615 ckan/logic/action/get.py:2474
-#: ckan/logic/action/update.py:1030
+#: ckan/logic/action/update.py:1123
 #, python-format
 msgid "Could not find vocabulary \"%s\""
 msgstr ""
@@ -687,8 +708,9 @@ msgstr ""
 msgid "Not allowed to retrieve collaborators"
 msgstr ""
 
-#: ckan/logic/action/get.py:1099 ckan/logic/action/update.py:80
-#: ckan/logic/action/update.py:96
+#: ckan/logic/action/get.py:1099 ckan/logic/action/update.py:74
+#: ckan/logic/action/update.py:97 ckan/logic/action/update.py:176
+#: ckan/logic/action/update.py:208
 msgid "Resource was not found."
 msgstr ""
 
@@ -704,16 +726,78 @@ msgstr ""
 msgid "Field \"{field}\" not recognised in resource_search."
 msgstr ""
 
-#: ckan/logic/action/update.py:269 ckan/logic/action/update.py:1070
+#: ckan/logic/action/update.py:159
+msgid "Resource view was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:203
+msgid "Must supply order as a list"
+msgstr ""
+
+#: ckan/logic/action/update.py:205
+msgid "No duplicates allowed in order"
+msgstr ""
+
+#: ckan/logic/action/update.py:223
+#, python-format
+msgid "View %(view)s does not exist"
+msgstr ""
+
+#: ckan/logic/action/update.py:270 ckan/logic/action/update.py:1162
 msgid "Package was not found."
 msgstr ""
 
-#: ckan/logic/action/update.py:879
+#: ckan/logic/action/update.py:674
+#, python-format
+msgid "resource_id %(id)s can not be found"
+msgstr ""
+
+#: ckan/logic/action/update.py:737
+#, python-format
+msgid "Subject package %s was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:739
+#, python-format
+msgid "Object package %s was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:750
+msgid "This relationship between the packages was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:764 ckan/logic/auth/create.py:207
+msgid "Group was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:772
+msgid "Type cannot be updated"
+msgstr ""
+
+#: ckan/logic/action/update.py:909
+msgid "User was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:980
 msgid "TaskStatus was not found."
 msgstr ""
 
-#: ckan/logic/action/update.py:1074
+#: ckan/logic/action/update.py:1087
+msgid "term_translation_update_many needs to have a list of dicts in field data"
+msgstr ""
+
+#: ckan/logic/action/update.py:1099
+#, python-format
+msgid "%s rows updated"
+msgstr ""
+
+#: ckan/logic/action/update.py:1166
 msgid "Organization was not found."
+msgstr ""
+
+#: ckan/logic/action/update.py:1316
+#, python-format
+msgid "Configuration option(s) '%(opts)s' can not be updated"
 msgstr ""
 
 #: ckan/logic/auth/create.py:31 ckan/logic/auth/create.py:54
@@ -766,10 +850,6 @@ msgstr ""
 
 #: ckan/logic/auth/create.py:166
 msgid "Not authorized to create users"
-msgstr ""
-
-#: ckan/logic/auth/create.py:207
-msgid "Group was not found."
 msgstr ""
 
 #: ckan/logic/auth/create.py:240
@@ -3407,17 +3487,32 @@ msgstr ""
 msgid "Massive purge complete"
 msgstr ""
 
-#: ckan/views/api.py:133
+#: ckan/views/api.py:132 ckan/views/api.py:136
 msgid "Bad request"
 msgstr ""
 
-#: ckan/views/api.py:266
+#: ckan/views/api.py:134
+#, python-format
+msgid "Bad request: %s"
+msgstr ""
+
+#: ckan/views/api.py:269
 #, python-format
 msgid "JSON Error: %s"
 msgstr ""
 
-#: ckan/views/api.py:290
+#: ckan/views/api.py:297
+#, python-format
+msgid "Access denied: %s"
+msgstr ""
+
+#: ckan/views/api.py:297
 msgid "Access denied"
+msgstr ""
+
+#: ckan/views/api.py:303
+#, python-format
+msgid "Not found: %s"
 msgstr ""
 
 #: ckan/views/dashboard.py:23 ckan/views/feed.py:205 ckan/views/feed.py:222
