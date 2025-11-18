@@ -493,7 +493,7 @@ def _group_or_org_purge(
         dataset_ids = model.Session.query(model.Package.id) \
                         .filter_by(owner_org=group.id) \
                         .filter(model.Package.state != 'deleted')
-        if dataset_ids:
+        if dataset_ids.count():
             if not authz.check_config_permission(
                     'ckan.auth.create_unowned_dataset'):
                 raise ValidationError({
