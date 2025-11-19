@@ -148,7 +148,11 @@ class DictionaryView(MethodView):
 
     def _prepare(self, id: str, resource_id: str) -> dict[str, Any]:
         try:
-            h.check_access("datastore_create", {"resource_id": resource_id})
+            check_access(
+                "datastore_create",
+                context={"user": current_user.name, "auth_user_obj": current_user},
+                data_dict={"resource_id": resource_id},
+            )
 
             # resource_edit_base template uses these
             pkg_dict = get_action(u'package_show')({}, {'id': id})
