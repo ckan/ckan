@@ -248,3 +248,40 @@ def test_clean_db_does_not_break_with_custom_models(_n):
 
     """
     pass
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_app_with_user(app, user):
+    """Smoke testing of flask-login authentication."""
+
+    # unauthenticated request to `user_show` fails
+    url = plugins.toolkit.url_for("api.action", logic_function="user_show")
+    resp = app.get(url)
+    assert not resp.json["success"]
+
+    # user can be authorized via remember cookie. After the first request it's
+    # copied into the session, so we'll have to clean both, the cookie and the
+    # session.
+    app.set_remember_user(user["name"])
+    resp = app.get(url)
+    assert resp.json["result"]["id"] == user["id"]
+
+    # if only session is cleared, user will be restored because of
+    # remember-cookie. If only cookie is cleared, active user remains in the
+    # session, so we must clear both.
+    app.set_remember_user(None)
+    app.set_session_user(None)
+    resp = app.get(url)
+    assert not resp.json["success"]
+
+    # save user into the session. This option is very close the real
+    # authentication.
+    app.set_session_user(user["name"])
+    resp = app.get(url)
+    assert resp.json["result"]["id"] == user["id"]
+
+    # without remember-cookie, just dropping user from the session is enough to
+    # anonymize following requests.
+    app.set_session_user(None)
+    resp = app.get(url)
+    assert not resp.json["success"]

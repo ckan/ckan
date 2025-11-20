@@ -1694,45 +1694,93 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''Allows custom authentication methods to be integrated into CKAN.
+    '''Allows custom authentication methods to be integrated into CKAN.
 
-        All interface methods except for the ``abort()`` one support
-        returning a Flask response object. This can be used for instance to
-        issue redirects or set cookies in the response. If a response object
-        is returned there will be no further processing of the current request
-        and that response will be returned. This can be used by plugins to:
+    Interface methods :py:meth:`.login`, :py:meth:`.logout` and deprecated
+    :py:meth:`.identify` support returning a Flask response object. This can be
+    used for instance to issue redirects or set cookies in the response. If a
+    response object is returned there will be no further processing of the
+    current request and that response will be returned. This can be used by
+    plugins to:
 
-        * Issue a redirect::
+    * Issue a redirect::
 
-            def identify(self):
+        def login(self):
 
-                return toolkit.redirect_to('myplugin.custom_endpoint')
+            return toolkit.redirect_to('myplugin.custom_endpoint')
 
-        * Set or clear cookies (or headers)::
+    * Set or clear cookies (or headers)::
 
-            from Flask import make_response
+        from flask import make_response
 
-            def identify(self)::
+        def login(self)::
 
-                response = make_response(toolkit.render('my_page.html'))
-                response.set_cookie(cookie_name, expires=0)
+            response = make_response(toolkit.render('my_page.html'))
+            response.set_cookie(cookie_name, expires=0)
 
-                return response
+            return response
+
+    Instead of using :py:meth:`.identify` in this role, it's recommended to use
+    :py:class:`~ckan.plugins.interfaces.IMiddleware` interfaces. Its
+    :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` accpets
+    ``app`` object that can be supplied with before-request callback::
+
+        p.implements(IMiddleware, inherit=True)
+        def make_middleware(self, app):
+            app.before_request(
+                lambda: toolkit.redirect_to('myplugin.custom_endpoint')
+            )
 
     '''
 
+    def identify_user(
+            self, user_id: str | None = None,
+    ) -> model.User | model.AnonymousUser | None:
+        """Load a user using.
+
+        When :py:func:`~ckan.plugins.toolkit.ckan.plugins.toolkit.login_user`
+        is called with a user object, user's ID is saved in the session. After
+        that, in the beginning of each request the same user's ID from the
+        session is used to get user details via :py:meth:`.identify_user`.
+
+        If all implementations of the method return ``None`` when called with
+        non-empty ``user_id``, application assumes that the user stored in the
+        session is not valid and calls the method once again, but without
+        arguments this time. At this point implementations have a chance to
+        identify user using request details or any other appropriate source of
+        user's identity.
+
+        The implementation returns:
+
+        * a :py:class:`~ckan.model.User` object if user is identified
+
+        * a :py:class:`~ckan.model.AnonymousUser` object if user definitely is
+          not authenticated and identification from following plugins must be
+          ignored.
+
+        * ``None`` if the user cannot be identified by the current
+          implementation, but there is a chance that following plugins can
+          identify it.
+
+        If any implementation returns :py:class:`~ckan.model.AnonymousUser` for
+        call with ``user_id``, no further processing happens and app treats the
+        request as an anonymous request. If all implementations return
+        ``None``, :py:meth:`.identify_user` will be called once again without
+        arguments.
+
+        """
+        return None
+
     def identify(self) -> Optional[Response]:
-        u'''Called to identify the user.
+        '''DEPRECATED. Called for side effects before the request.
 
-        If the user is identified then it should set:
-
-         - g.user: The name of the user
-         - g.userobj: The actual user object
-
-        Alternatively, plugins can return a response object in order to prevent
-        the default CKAN authorization flow. See
-        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
-        for more details.
+        Formerly it was used to identify a user during the request. This
+        responsibility is moved to :py:meth:`.identify_user`. The
+        current method can perform side-effects or produce a response object to
+        stop further processing of the requests. More idiomatic way to achieve
+        both goals is using Flask's ``app.before_request`` callback, that can
+        be registered using
+        :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` method.
 
         '''
 
