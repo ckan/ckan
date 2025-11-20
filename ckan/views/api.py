@@ -131,9 +131,9 @@ def _finish_ok(response_data: Any = None,
 def _finish_bad_request(extra_msg: Optional[str] = None) -> Response:
     response_data = _(u'Bad request')
     if extra_msg:
-        response_data = _(u'Bad request: %s') % extra_msg
+        response_data = _('Bad request: %s') % extra_msg
     else:
-        response_data = _(u'Bad request')
+        response_data = _('Bad request')
     return _finish(400, response_data, u'json')
 
 
