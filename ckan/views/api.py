@@ -294,15 +294,15 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         return_dict[u'success'] = False
         return _finish(400, return_dict, content_type=u'json')
     except NotAuthorized as e:
-        error_msg = _(u'Access denied: %s') % e if str(e) else _(u'Access denied')
+        error_msg = _('Access denied: %s') % e if str(e) else _('Access denied')
         return_dict[u'error'] = {u'__type': u'Authorization Error',
-                                 u'message': error_msg}
+                                 'message': error_msg}
         return_dict[u'success'] = False
         return _finish(403, return_dict, content_type=u'json')
     except NotFound as e:
-        error_msg = _(u'Not found: %s') % e if str(e) else _(u'Not found')
+        error_msg = _('Not found: %s') % e if str(e) else _('Not found')
         return_dict[u'error'] = {u'__type': u'Not Found Error',
-                                 u'message': error_msg}
+                                 'message': error_msg}
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')
     except ValidationError as e:
