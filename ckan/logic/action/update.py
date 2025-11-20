@@ -156,7 +156,7 @@ def resource_view_update(
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
-        raise NotFound
+        raise NotFound(_('Resource view was not found.'))
 
     view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
     schema = (context.get('schema') or
@@ -173,7 +173,7 @@ def resource_view_update(
     context['resource_view'] = resource_view
     resource = model.Resource.get(resource_view.resource_id)
     if resource is None:
-        raise NotFound('Resource was not found.')
+        raise NotFound(_('Resource was not found.'))
     context['resource'] = resource
 
     _check_access('resource_view_update', context, data_dict)
@@ -200,12 +200,12 @@ def resource_view_reorder(
     '''
     id, order = _get_or_bust(data_dict, ["id", "order"])
     if not isinstance(order, list):
-        raise ValidationError({"order": "Must supply order as a list"})
+        raise ValidationError({"order": _('Must supply order as a list')})
     if len(order) != len(set(order)):
-        raise ValidationError({"order": "No duplicates allowed in order"})
+        raise ValidationError({"order": _('No duplicates allowed in order')})
     resource = model.Resource.get(id)
     if resource is None:
-        raise NotFound('Resource was not found.')
+        raise NotFound(_('Resource was not found.'))
     context['resource'] = resource
 
     _check_access('resource_view_reorder', context, {'resource_id': id})
@@ -220,7 +220,7 @@ def resource_view_reorder(
             ordered_views.append(view)
         except ValueError:
             raise ValidationError(
-                {"order": "View {view} does not exist".format(view=view)}
+                {"order": _('View %(view)s does not exist') % {'view': view}}
             )
     new_order = ordered_views + existing_views
 
@@ -671,8 +671,7 @@ def package_resource_reorder(
                 break
         else:
             raise ValidationError(
-                {'order':
-                 'resource_id {id} can not be found'.format(id=resource_id)}
+                {'order': _('resource_id %(id)s can not be found') % {'id': resource_id}}
             )
 
     new_resources = ordered_resources + existing_resources
@@ -735,9 +734,9 @@ def package_relationship_update(
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise NotFound(_('Subject package %s was not found.') % id)
     if not pkg2:
-        raise NotFound('Object package %r was not found.' % id2)
+        raise NotFound(_('Object package %s was not found.') % id2)
 
     _data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -748,7 +747,7 @@ def package_relationship_update(
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
-        raise NotFound('This relationship between the packages was not found.')
+        raise NotFound(_('This relationship between the packages was not found.'))
     entity = existing_rels[0]
     comment = data_dict.get('comment', u'')
     context['relationship'] = entity
@@ -762,7 +761,7 @@ def _group_or_org_update(
 
     group = model.Group.get(id)
     if group is None:
-        raise NotFound('Group was not found.')
+        raise NotFound(_('Group was not found.'))
     context["group"] = group
 
     data_dict_type = data_dict.get('type')
@@ -770,7 +769,7 @@ def _group_or_org_update(
         data_dict['type'] = group.type
     else:
         if data_dict_type != group.type:
-            raise ValidationError({"message": "Type cannot be updated"})
+            raise ValidationError({"message": _('Type cannot be updated')})
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
@@ -907,7 +906,7 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
 
     user_obj = model.User.get(id)
     if user_obj is None:
-        raise NotFound('User was not found.')
+        raise NotFound(_('User was not found.'))
     context['user_obj'] = user_obj
 
     _check_access('user_update', context, data_dict)
@@ -1085,8 +1084,7 @@ def term_translation_update_many(
     '''
     if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
-            {'error': 'term_translation_update_many needs to have a '
-                      'list of dicts in field data'}
+            {'error': _('term_translation_update_many needs to have a list of dicts in field data')}
         )
 
     context['defer_commit'] = True
@@ -1098,7 +1096,7 @@ def term_translation_update_many(
 
     model.Session.commit()
 
-    return {'success': '%s rows updated' % (num + 1)}
+    return {'success': _('%s rows updated') % (num + 1)}
 
 
 def vocabulary_update(context: Context, data_dict: DataDict) -> ActionResult.VocabularyUpdate:
@@ -1314,8 +1312,8 @@ def config_option_update(
 
     unsupported_options = set(provided_options) - set(available_options)
     if unsupported_options:
-        msg = 'Configuration option(s) \'{0}\' can not be updated'.format(
-              ' '.join(list(unsupported_options)))
+        opts = ' '.join(list(unsupported_options))
+        msg = _('Configuration option(s) \'%(opts)s\' can not be updated') % {'opts': opts}
 
         raise ValidationError({'message': msg})
 
