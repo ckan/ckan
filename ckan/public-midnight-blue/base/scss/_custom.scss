@@ -55,11 +55,9 @@ a.open-data {
     margin-left: 0;
 }
 
-input[id^=lang-].btn-check + label.btn {
-    &::after {
-        content: none;
-    }
-    &:hover {
-        color: $gray-800;
+.icon-stage {
+    margin: auto 6px;
+    .fa-check-circle {
+        color: $green;
     }
 }

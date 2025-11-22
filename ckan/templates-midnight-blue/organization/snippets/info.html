@@ -18,9 +18,7 @@
           <div class="image-container">
           {% block image %}
             <div class="image">
-              <a href="{{ url }}">
-                <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" width="200" alt="{{ organization.name }}" />
-              </a>
+              <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" width="200" alt="{{ organization.name }}" />
             </div>
           {% endblock %}
           <div class="heading-container">
