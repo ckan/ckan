@@ -11901,11 +11901,11 @@ a.open-data span.suffix {
   margin-left: 0;
 }
 
-input[id^=lang-].btn-check + label.btn::after {
-  content: none;
+.icon-stage {
+  margin: auto 6px;
 }
-input[id^=lang-].btn-check + label.btn:hover {
-  color: #1d2939;
+.icon-stage .fa-check-circle {
+  color: #3A833A;
 }
 
 .tag {
@@ -13721,6 +13721,46 @@ select[data-module=autocomplete] {
   background-color: #153084;
 }
 
+@media screen and (max-width: 768px) {
+  .package-metadata-field {
+    padding: 4px;
+    padding-top: 24px;
+  }
+}
+
+.preview-text {
+  margin-bottom: 24px;
+}
+.preview-text > .value {
+  color: #101828;
+  font-family: "Noto Sans", serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+.preview-text > .label {
+  color: #667085;
+  font-family: "Noto Sans", serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 120%;
+}
+
+.slug-preview-inner {
+  padding: 4px 8px;
+  background-color: white;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  margin-right: 8px;
+}
+@media screen and (max-width: 768px) {
+  .slug-preview-inner {
+    letter-spacing: -0.6px;
+    font-size: 0.6rem;
+  }
+}
+
 .resource-view {
   margin-top: 20px;
 }
@@ -15349,19 +15389,11 @@ footer .ckan-footer-logo {
   color: #1d2939;
 }
 
-.dataset-line {
-  width: 144px;
-  height: 2px;
-  background-color: #153084;
-  margin-top: 11px;
-  display: block;
+input[id^=lang-].btn-check + label.btn::after {
+  content: none;
 }
-
-@media screen and (max-width: 768px) {
-  .package-metadata-field {
-    padding: 4px;
-    padding-top: 24px;
-  }
+input[id^=lang-].btn-check + label.btn:hover {
+  color: #1d2939;
 }
 
 .custom-btn {
@@ -15390,60 +15422,10 @@ footer .ckan-footer-logo {
   background-color: rgb(122.6536312849, 135.5027932961, 157.3463687151);
 }
 
-.preview-text {
-  margin-bottom: 24px;
-}
-.preview-text > .value {
-  color: #101828;
-  font-family: "Noto Sans", serif;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
-  letter-spacing: -1.2px;
-}
-.preview-text > .label {
-  color: #667085;
-  font-family: "Noto Sans", serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 120%;
-}
-
-.slug-preview-inner {
-  padding: 4px 8px;
-  background-color: white;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 18px;
-  margin-right: 8px;
-}
-@media screen and (max-width: 768px) {
-  .slug-preview-inner {
-    letter-spacing: -0.6px;
-    font-size: 0.6rem;
-  }
-}
-
-.icon-stage {
-  margin: auto 6px;
-}
-.icon-stage .fa-check-circle {
-  color: #3A833A;
-}
-
 .accordion-button {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
   padding: 1rem 0.9em;
-  font-size: 1rem;
   color: #101828;
-  text-align: left;
   background-color: #fff;
-  border: 0;
-  border-radius: 0;
-  overflow-anchor: none;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-radius 0.15s ease;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -15461,11 +15443,8 @@ footer .ckan-footer-logo {
   transform: rotate(-180deg);
 }
 .accordion-button::after {
-  flex-shrink: 0;
   width: 1.25rem;
   height: 1.25rem;
-  margin-left: auto;
-  content: "";
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23101828'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-size: 1.25rem;
@@ -15476,13 +15455,8 @@ footer .ckan-footer-logo {
     transition: none;
   }
 }
-.accordion-button:hover {
-  z-index: 2;
-}
 .accordion-button:focus {
-  z-index: 3;
   border-color: #153084;
-  outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(21, 48, 132, 0.25);
 }
 
