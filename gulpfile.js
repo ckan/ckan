@@ -91,11 +91,6 @@ const fontAwesomeFonts = () =>
     dest(__dirname + "/ckan/public/base/vendor/fontawesome-free/webfonts")
   );
 
-const jQueryFileUpload = () =>
-  src(__dirname + "/node_modules/blueimp-file-upload/js/*.js").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/jquery-fileupload/")
-  );
-
 const qs = () =>
   src(__dirname + "/node_modules/qs/dist/qs.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor/")
@@ -128,7 +123,6 @@ exports.updateVendorLibs = parallel(
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
-  jQueryFileUpload,
   qs,
   DOMPurify,
   popOver,
