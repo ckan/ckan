@@ -1349,7 +1349,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = bleach_clean(markdown(text), strip=True)
+    plain = bleach_clean(markdown(text), tags=(), strip=True)
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(

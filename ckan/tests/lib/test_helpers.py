@@ -726,7 +726,7 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    with_html = u"""Data exposed: &mdash;
+    with_html = u"""<i>Data</i> *exposed*: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """
