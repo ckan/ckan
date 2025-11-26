@@ -63,8 +63,11 @@ def dump_schema() -> Schema:
 
 def dump(resource_id: str):
     try:
-        get_action('datastore_search')({}, {'resource_id': resource_id,
-                                            'limit': 0})
+        get_action('datastore_search')({}, {
+            'resource_id': resource_id,
+            'limit': 0,
+            'include_total': False,
+        })
     except (ObjectNotFound, NotAuthorized):
         abort(404, _('DataStore resource not found'))
 
