@@ -1132,7 +1132,7 @@ def email_is_unique(key: FlattenKey, data: FlattenDataDict,
                 return
 
     raise Invalid(
-        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key]))
+        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key].lower()))
 
 
 def one_of(list_of_value: Container[Any]) -> Validator:
