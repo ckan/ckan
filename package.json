@@ -6,7 +6,6 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@highlightjs/cdn-assets": "^11.11.1",
     "@popperjs/core": "^2.11.8",
-    "blueimp-file-upload": "^10.32.0",
     "bootstrap": "^5.3.6",
     "dompurify": "^3.2.6",
     "htmx.org": "^2.0.4",
