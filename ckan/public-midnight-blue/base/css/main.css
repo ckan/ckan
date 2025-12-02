@@ -13285,11 +13285,10 @@ select[data-module=autocomplete] {
 }
 .resource-upload-field .btn-remove-url {
   position: absolute;
-  margin-right: 0;
-  margin-top: 11px;
   top: 1.5rem;
   right: 0.25rem;
-  padding: 0 12px;
+  padding: 5px 12px;
+  transform: translateY(30%);
   border-radius: 100px;
 }
 .resource-upload-field .btn-remove-url .icon-remove {

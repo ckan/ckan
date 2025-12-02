@@ -746,11 +746,10 @@ select[data-module="autocomplete"] {
 
     .btn-remove-url {
         position: absolute;
-        margin-right: 0;
-        margin-top: 11px;
         top: $grid-gutter-width;
         right: math.div($grid-gutter-width, 6);
-        padding: 0 12px;
+        padding: 5px 12px;
+        transform: translateY(30%);
         border-radius: 100px;
         .icon-remove {
             margin-right: 0;
