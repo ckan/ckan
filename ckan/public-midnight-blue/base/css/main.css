@@ -13238,9 +13238,9 @@ select[data-module=autocomplete] {
 .js .image-upload .btn-remove-url {
   position: absolute;
   margin-right: 0;
-  top: 0.3rem;
+  top: 0.25rem;
   right: 0.25rem;
-  padding: 0 12px;
+  padding: 5px 12px;
   border-radius: 100px;
 }
 .js .image-upload .btn-remove-url .icon-remove {
