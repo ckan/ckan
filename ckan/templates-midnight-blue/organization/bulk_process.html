@@ -16,7 +16,7 @@
 
 {% block primary_content_inner %}
   <h1>{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit Datasets') }}</h1>
-  <div class="primary col-md-12">
+  <div class="primary col-12">
     {% block search_form %}
       {% set sorting = [
           (_('Name Ascending'), 'title_string asc'),

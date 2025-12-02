@@ -14116,6 +14116,11 @@ td.diff_header {
     border-bottom-color: #dddddd;
   }
 }
+@media (max-width: 575.98px) {
+  .page_primary_action {
+    width: 100%;
+  }
+}
 .prose h1, .prose .h1,
 .prose heading-1 h2,
 .prose heading-1 .h2,
