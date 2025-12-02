@@ -2,8 +2,10 @@
   Embeds a organization within the sidebar of a page.
 
   organization    - The organization dict.
+  image_link      - Whether the organization image should include link to the
+                    organization page or not.
 
-  {% snippet 'snippets/organization, organization=group_dict %}
+  {% snippet "organization/snippets/info.html", organization=group_dict, image_link=true %}
 
   #}
 {% set organization = organization or group%}
@@ -18,7 +20,13 @@
           <div class="image-container">
           {% block image %}
             <div class="image">
-              <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" width="200" alt="{{ organization.name }}" />
+              {% if image_link %}
+                <a href="{{ url }}">
+                  <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" width="200" alt="{{ organization.name }}" />
+                </a>
+              {% else %}
+                <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" width="200" alt="{{ organization.name }}" />
+              {% endif %}
             </div>
           {% endblock %}
           <div class="heading-container">
