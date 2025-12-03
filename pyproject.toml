@@ -37,9 +37,6 @@ name = 'Removals and deprecations'
 showcontent = true
 
 [tool.pytest.ini_options]
-retries = 0
-retry_delay = 0.5
-cumulative_timing = true
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::bs4.GuessedAtParserWarning",  # using lxml as default parser
@@ -51,7 +48,8 @@ markers = [
 ]
 
 testpaths = ["ckan", "ckanext"]
-addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
+log_cli = false
+addopts = "--capture=no --strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb --ckan-ini=test-core.ini"
 
 [tool.pyright]
 pythonVersion = "3.10"
