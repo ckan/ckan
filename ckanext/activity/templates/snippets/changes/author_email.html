@@ -1,42 +1,36 @@
 <li>
   <p>
-    {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id))%}
+    {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id)) %}
     {% if change.method == "change" %}
 
-      {{ _('Set author email of ')}}
-      <a href="{{pkg_link}}">
-        {{ change.title }}
-      </a>
-
-      {{ _('to') }}
-      <a href="{{ 'mailto:' + change.new_author_email }}">
-        {{change.new_author_email}}
-      </a>
-
-      {{_('( previously ')}}
-      <a href="{{ 'mailto:' + change.old_author_email }}">
-        {{change.old_author_email}}
-      </a>
-      {{ _(')') }}
+      {% trans
+        title=change.title, new_email=change.new_author_email,
+        old_email=change.old_author_email
+      %}
+      Set author email of
+      <a href="{{ pkg_link }}">{{ title }}</a> to
+      <a href="mailto:{{ new_email }}">{{ new_email }}</a> (previously
+      <a href="mailto:{{ old_email }}">{{ old_email }}</a>).
+      {% endtrans %}
 
     {% elif change.method == "add" %}
-    
-      {{_('Set author email of')}}
-      <a href="{{pkg_link}}">
-        {{change.title}}
-      </a>
 
-      {{ _('to') }}
-      <a href="{{ 'mailto:' + change.new_author_email }}">
-        {{ change.new_author_email }}
-      </a>
+      {% trans
+        title=change.title, new_email=change.new_author_email
+      %}
+      Set author email of
+      <a href="{{ pkg_link }}">{{ title }}</a> to
+      <a href="mailto:{{ new_email }}">{{ new_email }}</a>.
+      {% endtrans %}
 
     {% elif change.method == "remove" %}
 
-      {{ _('Removed author email from')}}
-      <a href="{{pkg_link}}">
-        {{change.title}}
-      </a>
+      {% trans
+        title=change.title
+      %}
+      Removed author email from
+      <a href="{{ pkg_link }}">{{ title }}</a>.
+      {% endtrans %}
 
     {% else %}
 
