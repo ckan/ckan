@@ -47,8 +47,8 @@ are using them. More generic snippets are added to templates/snippets.
     templates/
       base.html             # A base template with just core HTML structure
       page.html             # A base template with default page layout
-      _header.html           # The site header.
-      _footer.html           # The site footer.
+      header.html           # The site header.
+      footer.html           # The site footer.
       snippets/             # A folder of generic sitewide snippets
       home/
         index.html          # Template for the index action of the home controller
