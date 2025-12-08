@@ -6,7 +6,7 @@ Revises: 4a8577e55a02
 Create Date: 2018-09-04 18:48:55.958481
 
 """
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
@@ -101,5 +101,10 @@ def upgrade():
 
 
 def downgrade():
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
     for name, table, _ in indexes:
-        op.execute(f"ALTER TABLE \"{table}\" DROP CONSTRAINT IF EXISTS {name}")
+        execute(f"ALTER TABLE \"{table}\" DROP CONSTRAINT IF EXISTS {name}")
