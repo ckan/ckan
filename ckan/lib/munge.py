@@ -122,21 +122,6 @@ def munge_tag(tag: str) -> str:
     return tag
 
 
-def munge_filename_legacy(filename: str) -> str:
-    ''' Tidies a filename. NB: deprecated
-
-    Unfortunately it mangles any path or filename extension, so is deprecated.
-    It needs to remain unchanged for use by group_dictize() and
-    Upload.update_data_dict() because if this routine changes then group images
-    uploaded previous to the change may not be viewable.
-    '''
-    filename = substitute_ascii_equivalents(filename)
-    filename = filename.strip()
-    filename = re.sub(r'[^a-zA-Z0-9.\- ]', '', filename).replace(' ', '-')
-    filename = _munge_to_length(filename, 3, 100)
-    return filename
-
-
 def munge_filename(filename: Union[str, bytes]) -> str:
     ''' Tidies a filename
 
