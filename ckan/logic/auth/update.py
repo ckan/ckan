@@ -285,3 +285,10 @@ def config_option_update(context: Context, data_dict: DataDict) -> AuthResult:
        Only sysadmins can do it
     '''
     return {'success': False}
+
+
+def bulk_api_call(context: Context, data_dict: DataDict) -> AuthResult:
+    '''
+    Anyone can call this API, each delegated call is checked separately.
+    '''
+    return {'success': True}
