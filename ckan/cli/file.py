@@ -50,7 +50,7 @@ def adapters(
     show_all: bool,
     with_configuration: bool,
 ):
-    """Show all awailable storage adapters."""
+    """Show all available storage adapters."""
 
     for name in sorted(files.adapters):
         if adapter and name != adapter:
