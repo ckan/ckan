@@ -249,7 +249,7 @@ class TestStorageClean:
         storage = files.get_storage("resources")
         assert list(storage.scan())
 
-        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--yes"])
+        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--remove-registered"])
         assert not list(storage.scan())
 
         with pytest.raises(logic.NotFound):
@@ -263,5 +263,5 @@ class TestStorageClean:
             files.make_upload(faker.binary(100)),
         )
 
-        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--yes"])
+        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--remove-unknown"])
         assert not list(storage.scan())
