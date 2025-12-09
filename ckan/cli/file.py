@@ -602,7 +602,7 @@ def missing_files(storage_name: str | None, remove: bool):
         )
         return
 
-    click.echo(f"Following files are not found in the storage {storage_name}")
+    click.echo(f"The following files are not found in the storage {storage_name}")
     for file in missing:
         size = fk.humanize_filesize(file.size)
         click.echo(
