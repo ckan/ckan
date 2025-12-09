@@ -136,7 +136,11 @@ def file_stream(file_id: str, output: str | None, offset: int, length: int | Non
             # stream into the specified directory with original filename. But
             # make sure the name is sanitized, as we don't control it
             output = os.path.join(output, secure_filename(file_obj.name))
-        dest = open(output, "wb")  # noqa: SIM115
+        try:
+            dest = open(output, "xb")  # noqa: SIM115
+        except FileExistsError:
+            error_shout(f"Output file '{output}' already exists")
+            raise click.Abort
 
     for chunk in content_stream:
         click.echo(chunk, nl=False, file=dest)
