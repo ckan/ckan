@@ -343,8 +343,11 @@ def storage_transfer(  # noqa: C901
 
 @storage.command("clean")
 @storage_option
-@click.option("-y", "--yes", help="Do not ask for confirmation", is_flag=True)
-def storage_clean(storage_name: str | None, yes: bool):
+@click.option("--remove-registered", help="", is_flag=True)
+@click.option("--remove-unknown", help="", is_flag=True)
+def storage_clean(
+    storage_name: str | None, remove_registered: bool, remove_unknown: bool
+):
     """Remove all files from the storage."""
     user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
     storage_name = storage_name or config["ckan.files.default_storages.default"]
@@ -361,26 +364,34 @@ def storage_clean(storage_name: str | None, yes: bool):
     if total:
         click.echo(f"Storage {storage_name} contains {total} registered files.")
 
-        if not yes and not click.confirm("Proceed with removal?"):
-            raise click.Abort
+        if remove_registered:
+            bar = click.progressbar(model.Session.scalars(stmt), length=total)
+            with bar:
+                for id in bar:
+                    bar.label = f"Removing {id}"
+                    logic.get_action("file_delete")({"user": user["name"]}, {"id": id})
 
-        bar = click.progressbar(model.Session.scalars(stmt), length=total)
-        with bar:
-            for id in bar:
-                bar.label = f"Removing {id}"
-                logic.get_action("file_delete")({"user": user["name"]}, {"id": id})
+        else:
+            click.echo(
+                "Skipping registered files removal."
+                + " Enable with `--remove-registered` flag"
+            )
 
     if storage.supports(files.Capability.SCAN) and (names := list(storage.scan())):
         click.echo(f"Storage {storage_name} contains {len(names)} unknown files.")
 
-        if not yes and not click.confirm("Proceed with removal?"):
-            raise click.Abort
+        if remove_unknown:
+            bar = click.progressbar(names)
+            with bar:
+                for name in bar:
+                    bar.label = f"Removing {name}"
+                    storage.remove(files.FileData(files.Location(name)))
 
-        bar = click.progressbar(names)
-        with bar:
-            for name in bar:
-                bar.label = f"Removing {name}"
-                storage.remove(files.FileData(files.Location(name)))
+        else:
+            click.echo(
+                "Skipping unknown files removal."
+                + " Enable with `--remove-unknown` flag"
+            )
 
 
 @file.group()
@@ -543,12 +554,15 @@ def empty_owner(storage_name: str | None, remove: bool):
         size = fk.humanize_filesize(file.size)
         click.echo(f"\t{file.id}: {file.name} [{file.content_type}, {size}]")
 
-    if remove and click.confirm("Do you want to delete these files?"):
-        action = logic.get_action("file_delete")
+    if not remove:
+        click.echo("To remove these files, rerun with `--remove` option enabled")
+        return
 
-        with click.progressbar(model.Session.scalars(stmt), length=total) as bar:
-            for file in bar:
-                action({"ignore_auth": True}, {"id": file.id})
+    action = logic.get_action("file_delete")
+
+    with click.progressbar(model.Session.scalars(stmt), length=total) as bar:
+        for file in bar:
+            action({"ignore_auth": True}, {"id": file.id})
 
 
 @maintain.command()
@@ -595,9 +609,12 @@ def missing_files(storage_name: str | None, remove: bool):
             f"\t{file.id}: {file.name} [{file.content_type}, {size}]",
         )
 
-    if remove and click.confirm("Do you want to delete these files from registry?"):
-        action = logic.get_action("file_delete")
+    if not remove:
+        click.echo("To remove these files, rerun with `--remove` option enabled")
+        return
 
-        with click.progressbar(missing) as bar:
-            for file in bar:
-                action({"ignore_auth": True}, {"id": file.id})
+    action = logic.get_action("file_delete")
+
+    with click.progressbar(missing) as bar:
+        for file in bar:
+            action({"ignore_auth": True}, {"id": file.id})
