@@ -11,6 +11,7 @@ import click
 import file_keeper as fk
 import sqlalchemy as sa
 from babel.dates import format_datetime, format_timedelta
+from werkzeug.utils import secure_filename
 
 from ckan import logic, model
 from ckan.common import config
@@ -94,18 +95,18 @@ def adapters(
 @click.option("-o", "--output", help="Stream into specified file or directory")
 def file_stream(file_id: str, output: str | None, offset: int, length: int | None):
     """Stream content of the file."""
-    file = model.Session.get(model.File, file_id)
-    if not file:
+    file_obj = model.Session.get(model.File, file_id)
+    if not file_obj:
         error_shout("File not found")
         raise click.Abort
 
     try:
-        storage = files.get_storage(file.storage)
+        storage = files.get_storage(file_obj.storage)
     except files.exc.UnknownStorageError as err:
         error_shout(err)
         raise click.Abort from err
 
-    file_data = files.FileData.from_object(file)
+    file_data = files.FileData.from_object(file_obj)
     if length is None:
         # stream to the end of file
         end = None
@@ -132,7 +133,9 @@ def file_stream(file_id: str, output: str | None, offset: int, length: int | Non
 
     else:
         if os.path.isdir(output):
-            output = os.path.join(output, file.name)
+            # stream into the specified directory with original filename. But
+            # make sure the name is sanitized, as we don't control it
+            output = os.path.join(output, secure_filename(file_obj.name))
         dest = open(output, "wb")  # noqa: SIM115
 
     for chunk in content_stream:
