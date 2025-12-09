@@ -257,8 +257,20 @@ def storage_scan(
     help="Remove file from the source after transfer",
     is_flag=True,
 )
+@click.option(
+    "--skip-missing-files", is_flag=True, help="Do not interrupt on missing files"
+)
+@click.option(
+    "--skip-existing-files", is_flag=True, help="Do not interrupt on existing files"
+)
 def storage_transfer(
-    src: str, dest: str, location: tuple[str, ...], id: tuple[str, ...], remove: bool
+    src: str,
+    dest: str,
+    location: tuple[str, ...],
+    id: tuple[str, ...],
+    remove: bool,
+    skip_existing_files: bool,
+    skip_missing_files: bool,
 ):
     """Move files between storages.
 
@@ -307,11 +319,15 @@ def storage_transfer(
             try:
                 info = op(data.location, data, to_storage)
 
-            except (
-                files.exc.MissingFileError,
-                files.exc.ExistingFileError,
-            ) as err:
+            except files.exc.MissingFileError as err:
                 error_shout(err)
+                if not skip_missing_files:
+                    raise click.Abort
+
+            except files.exc.ExistingFileError as err:
+                error_shout(err)
+                if not skip_existing_files:
+                    raise click.Abort
 
             else:
                 if file := model.Session.scalar(model.File.by_location(item, src)):
