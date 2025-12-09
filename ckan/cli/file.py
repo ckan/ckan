@@ -279,7 +279,7 @@ def storage_transfer(
         op = from_storage.copy_synthetic
 
     else:
-        error_shout("Operation is not supported")
+        error_shout(f"Operation is not supported by the storage {src}")
         raise click.Abort
 
     # normalize IDs to locations to process all files in the same way instead
