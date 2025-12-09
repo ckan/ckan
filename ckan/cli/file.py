@@ -378,7 +378,7 @@ def stats_overview(storage_name: str | None):
 
     if not count:
         error_shout(f"Storage {storage_name} is empty")
-        raise click.Abort
+        return
 
     click.secho(f"Number of files: {click.style(count, bold=True)}")
     click.secho(
