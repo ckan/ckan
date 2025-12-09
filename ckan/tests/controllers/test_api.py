@@ -5,6 +5,7 @@ controller itself.
 """
 import json
 import re
+import uuid
 
 import pytest
 from io import BytesIO
@@ -383,3 +384,15 @@ def test_package_search_connection_errors(app):
         url_for("api.action", logic_function="package_search", ver=3),
     )
     assert res.json["error"]["__type"] == "Search Connection Error"
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_api_key_giving_an_error(app):
+
+    headers = {"Authorization": uuid.uuid4()}
+    url = url_for("api.action", ver=3, logic_function="package_search")
+
+    res = app.get(url, headers=headers)
+
+    assert res.status_code == 400
+    assert "Bad request - Request made with old style API key, please use API token instead." in res
