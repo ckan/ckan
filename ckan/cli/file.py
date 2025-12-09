@@ -93,7 +93,12 @@ def adapters(
 )
 @click.option("--length", type=int, help="Number of bytes to stream")
 @click.option("-o", "--output", help="Stream into specified file or directory")
-def file_stream(file_id: str, output: str | None, offset: int, length: int | None):
+def file_stream(  # noqa: C901
+    file_id: str,
+    output: str | None,
+    offset: int,
+    length: int | None,
+):
     """Stream content of the file."""
     file_obj = model.Session.get(model.File, file_id)
     if not file_obj:
@@ -263,7 +268,7 @@ def storage_scan(
 @click.option(
     "--skip-existing-files", is_flag=True, help="Do not interrupt on existing files"
 )
-def storage_transfer(
+def storage_transfer(  # noqa: C901
     src: str,
     dest: str,
     location: tuple[str, ...],
