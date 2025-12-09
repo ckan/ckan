@@ -111,9 +111,7 @@ def file_stream(file_id: str, output: str | None, offset: int, length: int | Non
         # stream to the end of file
         end = None
     else:
-        # just as in `range`, upper bound is not included and must be shifted
-        # by 1 byte
-        end = offset + length + 1
+        end = offset + length
 
     if not offset and end is None and storage.supports(files.Capability.STREAM):
         content_stream = storage.stream(file_data)
@@ -143,7 +141,7 @@ def file_stream(file_id: str, output: str | None, offset: int, length: int | Non
             raise click.Abort
 
     for chunk in content_stream:
-        click.echo(chunk, nl=False, file=dest)
+        dest.write(chunk)
 
 
 @file.group()
