@@ -481,7 +481,7 @@ def stats_owner(storage_name: str | None, verbose: bool):
     owner_col = (
         sa.func.concat(model.Owner.owner_type, " ", model.Owner.owner_id)
         if verbose
-        else sa.func.concat(model.Owner.owner_type, "")
+        else model.Owner.owner_type
     )
 
     stmt = (
