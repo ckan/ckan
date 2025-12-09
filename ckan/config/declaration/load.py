@@ -22,7 +22,6 @@ avoided unless you have an irresistible desire to hack into CKAN core.
 
 from __future__ import annotations
 
-import json
 import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
@@ -188,10 +187,9 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
         storage_key = Key().from_string(files.STORAGE_PREFIX + name)
 
-        available_adapters = json.dumps(
+        available_adapters = msgspec.json.encode(
             [item for item in files.adapters if not files.adapters[item].hidden],
-            separators=(",", ":"),
-        )
+        ).decode()
 
         # this option reports unrecognized type of the storage and shows all
         # available correct types
