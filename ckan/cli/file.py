@@ -87,10 +87,12 @@ def adapters(
 
 @file.command("stream")
 @click.argument("file_id")
-@click.option("--start", type=int, default=0, help="Start streaming from position")
-@click.option("--end", type=int, help="End streaming at position")
+@click.option(
+    "--offset", type=int, default=0, help="Start streaming from specified byte offset"
+)
+@click.option("--length", type=int, help="Number of bytes to stream")
 @click.option("-o", "--output", help="Stream into specified file or directory")
-def file_stream(file_id: str, output: str | None, start: int, end: int | None):
+def file_stream(file_id: str, output: str | None, offset: int, length: int | None):
     """Stream content of the file."""
     file = model.Session.get(model.File, file_id)
     if not file:
@@ -104,14 +106,22 @@ def file_stream(file_id: str, output: str | None, start: int, end: int | None):
         raise click.Abort from err
 
     file_data = files.FileData.from_object(file)
-    if not start and end is None and storage.supports(files.Capability.STREAM):
+    if length is None:
+        # stream to the end of file
+        end = None
+    else:
+        # just as in `range`, upper bound is not included and must be shifted
+        # by 1 byte
+        end = offset + length + 1
+
+    if not offset and end is None and storage.supports(files.Capability.STREAM):
         content_stream = storage.stream(file_data)
 
     elif storage.supports(files.Capability.RANGE):
-        content_stream = storage.range(file_data, start, end)
+        content_stream = storage.range(file_data, offset, end)
 
     elif storage.supports_synthetic(files.Capability.RANGE, storage):
-        content_stream = storage.range_synthetic(file_data, start, end)
+        content_stream = storage.range_synthetic(file_data, offset, end)
 
     else:
         error_shout("File streaming is not supported")
