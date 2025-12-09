@@ -156,13 +156,13 @@ def storage_list(verbose: bool):
     for name, settings in files.collect_storage_configuration(config).items():
         click.secho("{}: {}".format(click.style(name, bold=True), settings["type"]))
         if verbose:
-            storage = files.get_storage(name)
+            storage_obj = files.get_storage(name)
 
             label = click.style("Supports", fg="green", bold=True)
-            click.secho(f"\t{label}: {storage.capabilities}")
+            click.secho(f"\t{label}: {storage_obj.capabilities}")
 
             label = click.style("Does not support", fg="red", bold=True)
-            click.secho(f"\t{label}: {~storage.capabilities}")
+            click.secho(f"\t{label}: {~storage_obj.capabilities}")
 
 
 @storage.command("scan")
