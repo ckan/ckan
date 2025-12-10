@@ -54,7 +54,7 @@
         {# TODO: display metadata for more than most recent change #}
         {% if i == 0 %}
           {# button to show JSON metadata diff for the most recent change - not shown by default #}
-          <input type="button" data-module="metadata-button" data-module-target="" class="btn" value="Show metadata diff" id="metadata_button"></input>
+          <input type="button" data-module="metadata-button" data-module-target="" class="btn" value="{{ _('Show metadata diff') }}" id="metadata_button"></input>
           <div id="metadata_diff" style="display:none;">
           {% block organization_changes_diff %}
             <pre>
