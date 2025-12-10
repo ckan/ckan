@@ -68,9 +68,9 @@
             {% if error_message %}
               <div class="alert alert-danger">{{ error_message }}</div>
             {% elif am_following %}
-              <a class="btn btn-danger" hx-post="{{ h.url_for('organization.unfollow', id=organization.id) }}" hx-target="#organization-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
+              <a class="btn btn-danger" hx-post="{{ h.url_for('organization.unfollow', id=organization.id) }}" hx-target="#organization-info"><i class="fa-solid fa-circle-minus"></i> {{ _('Unfollow') }}</a>
             {% else %}
-              <a class="btn btn-success" hx-post="{{ h.url_for('organization.follow', id=organization.id) }}" hx-target="#organization-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
+              <a class="btn btn-success" hx-post="{{ h.url_for('organization.follow', id=organization.id) }}" hx-target="#organization-info"><i class="fa-solid fa-circle-plus"></i> {{ _('Follow') }}</a>
             {% endif %}
           {% endif %}
           {% endblock %}

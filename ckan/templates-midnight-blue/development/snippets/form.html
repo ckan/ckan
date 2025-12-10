@@ -19,9 +19,9 @@
       label=_('Custom Field'),
       values=('key', 'value', true),
       error=error ) }}
-    {{ form.markdown('desc', id='field-description', label=_('Markdown'), placeholder='Some nice placeholder text', error=error) }}
-    {{ form.textarea('desc', id='field-description', label=_('Textarea'), placeholder='Some nice placeholder text', error=error) }}
+    {{ form.markdown('desc', id='field-description', label=_('Markdown'), placeholder=_('Some nice placeholder text'), error=error) }}
+    {{ form.textarea('desc', id='field-description', label=_('Textarea'), placeholder=_('Some nice placeholder text'), error=error) }}
     {{ form.select('year', label=_('Select'), options=[{'value': 2010}, {'value': 2011}], selected=2011, error=error) }}
-    {{ form.checkbox('remember', label="This is my checkbox", checked=true, error=error) }}
+    {{ form.checkbox('remember', label=_('This is my checkbox'), checked=true, error=error) }}
   </form>
 </section>
