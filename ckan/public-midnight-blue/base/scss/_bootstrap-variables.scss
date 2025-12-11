@@ -563,14 +563,14 @@ $table-cell-padding-x-sm:     .25rem !default;
 $table-cell-vertical-align:   top !default;
 
 $table-color:                 $body-color !default;
-$table-bg:                    $gray-100 !default;
+$table-bg:                    $white !default;
 $table-accent-bg:             transparent !default;
 
 $table-th-font-weight:        null !default;
 
 $table-striped-color:         $table-color !default;
 $table-striped-bg-factor:     .05 !default;
-$table-striped-bg:            $white !default;
+$table-striped-bg:            $gray-100 !default;
 
 $table-active-color:          $table-color !default;
 $table-active-bg-factor:      .1 !default;
@@ -584,7 +584,7 @@ $table-border-factor:         .1 !default;
 $table-border-width:          0 !default;
 $table-border-color:          $border-color !default;
 
-$table-striped-order:         odd !default;
+$table-striped-order:         even !default;
 
 $table-group-separator-color: currentColor !default;
 

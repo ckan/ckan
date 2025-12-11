@@ -175,12 +175,13 @@
         }
     }
     .nums {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        display: grid;
+        grid-auto-flow: row;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 15%;
         padding-top: 10px;
         clear: both;
-        gap: 1%;
         dl {
             color: $layoutTextColor;
             dt {

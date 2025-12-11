@@ -147,3 +147,10 @@
         border-bottom-color: #dddddd;
     }
 }
+
+// Page Primary Action
+@include media-breakpoint-down(sm) {
+    .page_primary_action {
+        width: 100%;
+    }
+}
