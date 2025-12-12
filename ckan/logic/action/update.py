@@ -736,7 +736,7 @@ def package_relationship_update(
     if not pkg1:
         raise NotFound(_('Subject package %s was not found.') % repr(id))
     if not pkg2:
-        raise NotFound(_('Object package %s was not found.') % id2)
+        raise NotFound(_('Object package %s was not found.') % repr(id2))
 
     _data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -769,7 +769,7 @@ def _group_or_org_update(
         data_dict['type'] = group.type
     else:
         if data_dict_type != group.type:
-            raise ValidationError({"message": _('Type cannot be updated')})
+            raise ValidationError({"type": _('Type cannot be updated')})
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
@@ -1084,7 +1084,7 @@ def term_translation_update_many(
     '''
     if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
-            {'error': _('term_translation_update_many needs to have a list of dicts in field data')}
+            {'error': _('Must be a list of dicts')}
         )
 
     context['defer_commit'] = True
@@ -1312,7 +1312,7 @@ def config_option_update(
 
     unsupported_options = set(provided_options) - set(available_options)
     if unsupported_options:
-        opts = ' '.join(list(unsupported_options))
+        opts = ' '.join(unsupported_options)
         msg = _('Configuration option(s) \'%(opts)s\' can not be updated') % {'opts': opts}
 
         raise ValidationError({'message': msg})
