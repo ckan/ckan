@@ -18,13 +18,13 @@
             {% if q %}
               {% trans count=page.item_count, query=q %}
                 {{ count }} dataset found for "{{ query }}".
-              {% plural %}
+              {% pluralize %}
                 {{ count }} datasets found for "{{ query }}".
               {% endtrans %}
             {% else %}
               {% trans count=page.item_count %}
                 {{ count }} dataset found.
-              {% plural %}
+              {% pluralize %}
                 {{ count }} datasets found.
               {% endtrans %}
             {% endif %}
