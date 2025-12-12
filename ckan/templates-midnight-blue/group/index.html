@@ -28,7 +28,7 @@
       {% endif %}
     {% else %}
       <p class="empty">
-        {{ h.humanize_entity_type('group', group_type, 'no any objects') or _('There are currently no groups for this site') }}.
+        {{ h.humanize_entity_type('group', group_type, 'no any objects') or _('There are currently no groups for this site.') }}
       </p>
     {% endif %}
   {% endblock %}

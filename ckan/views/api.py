@@ -131,7 +131,9 @@ def _finish_ok(response_data: Any = None,
 def _finish_bad_request(extra_msg: Optional[str] = None) -> Response:
     response_data = _(u'Bad request')
     if extra_msg:
-        response_data = u'%s - %s' % (response_data, extra_msg)
+        response_data = _('Bad request: %s') % extra_msg
+    else:
+        response_data = _('Bad request')
     return _finish(400, response_data, u'json')
 
 
@@ -292,19 +294,15 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         return_dict[u'success'] = False
         return _finish(400, return_dict, content_type=u'json')
     except NotAuthorized as e:
+        error_msg = _('Access denied: %s') % e if str(e) else _('Access denied')
         return_dict[u'error'] = {u'__type': u'Authorization Error',
-                                 u'message': _(u'Access denied')}
+                                 'message': error_msg}
         return_dict[u'success'] = False
-
-        if str(e):
-            return_dict[u'error'][u'message'] += u': %s' % e
-
         return _finish(403, return_dict, content_type=u'json')
     except NotFound as e:
+        error_msg = _('Not found: %s') % e if str(e) else _('Not found')
         return_dict[u'error'] = {u'__type': u'Not Found Error',
-                                 u'message': _(u'Not found')}
-        if str(e):
-            return_dict[u'error'][u'message'] += u': %s' % e
+                                 'message': error_msg}
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')
     except ValidationError as e:
