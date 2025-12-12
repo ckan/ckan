@@ -734,7 +734,7 @@ def package_relationship_update(
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound(_('Subject package %s was not found.') % id)
+        raise NotFound(_('Subject package %s was not found.') % repr(id))
     if not pkg2:
         raise NotFound(_('Object package %s was not found.') % id2)
 
