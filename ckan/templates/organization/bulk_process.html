@@ -17,11 +17,15 @@
           {%- if page.item_count -%}
             {% if q %}
               {% trans count=page.item_count, query=q %}
-              {{ count }} datasets found for "{{ query }}".
+                {{ count }} dataset found for "{{ query }}".
+              {% plural %}
+                {{ count }} datasets found for "{{ query }}".
               {% endtrans %}
             {% else %}
               {% trans count=page.item_count %}
-              {{ count }} datasets found.
+                {{ count }} dataset found.
+              {% plural %}
+                {{ count }} datasets found.
               {% endtrans %}
             {% endif %}
           {%- elif request.args -%}
