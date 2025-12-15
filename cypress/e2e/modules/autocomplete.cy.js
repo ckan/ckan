@@ -72,6 +72,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
+        formatSearching: this.module.formatSearching,
         createSearchChoice: this.module.formatTerm, // Not used by tags.
         initSelection: this.module.formatInitialValue,
 	      tokenSeparators: [','],
@@ -92,6 +93,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
+        formatSearching: this.module.formatSearching,
         initSelection: this.module.formatInitialValue,
         tokenSeparators: [','],
         minimumInputLength: 0
@@ -112,6 +114,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
+        formatSearching: this.module.formatSearching,
         createSearchChoice: this.module.formatTerm, // Not used by tags.
         initSelection: this.module.formatInitialValue,
         tokenSeparators: [','],
@@ -132,6 +135,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
+        formatSearching: this.module.formatSearching,
         createSearchChoice: this.module.formatTerm, // Not used by tags.
         initSelection: this.module.formatInitialValue,
         tokenSeparators: [','],
@@ -152,6 +156,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
+        formatSearching: this.module.formatSearching,
         createSearchChoice: this.module.formatTerm, // Not used by tags.
         initSelection: this.module.formatInitialValue,
         tokenSeparators: [','],
