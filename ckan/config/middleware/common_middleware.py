@@ -3,12 +3,9 @@
 """Additional middleware used by the Flask app stack."""
 from typing import Any
 
-from urllib.parse import urlparse
-
 from flask.sessions import SecureCookieSessionInterface
 from flask_session.redis import RedisSessionInterface
 
-from ckan.common import config
 from ckan.types import CKANApp, Request
 from ckan.lib.redis import connect_to_redis
 
