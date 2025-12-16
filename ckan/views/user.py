@@ -252,9 +252,10 @@ def api_tokens_revoke(id: str) -> Union[Response, str]:
     token_names = []
     for jti in tokens:
         try:
-            token = model.ApiToken.get(jti)
+            token_obj: Optional[model.ApiToken] = model.ApiToken.get(jti)
             logic.get_action('api_token_revoke')({}, {'jti': jti})
-            token_names.append(token.name)
+            if token_obj:
+                token_names.append(token_obj.name)
         except logic.NotAuthorized:
             base.abort(403, _('Unauthorized to revoke API tokens.'))
         except logic.NotFound:
