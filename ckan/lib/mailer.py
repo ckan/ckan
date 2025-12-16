@@ -7,6 +7,7 @@ import smtplib
 import socket
 import logging
 import mimetypes
+from urllib.parse import urlparse
 from time import time
 from typing import Any, Iterable, Optional, Tuple, Union, IO
 
@@ -96,8 +97,10 @@ def _mail_recipient(
     smtp_user = config.get('smtp.user')
     smtp_password = config.get('smtp.password')
 
+    host, port = parse_smtp_server(smtp_server)
+
     try:
-        smtp_connection = smtplib.SMTP(smtp_server)
+        smtp_connection = smtplib.SMTP(host, port)
     except (socket.error, smtplib.SMTPConnectError) as e:
         log.exception(e)
         raise MailerException('SMTP server could not be connected to: "%s" %s'
@@ -296,3 +299,26 @@ def verify_reset_link(user: model.User, key: Optional[str]) -> bool:
     if not user.reset_key or len(user.reset_key) < 5:
         return False
     return key.strip() == user.reset_key
+
+
+def parse_smtp_server(smtp_server: str) -> tuple[str, int]:
+    """Parse SMTP server that may include port.
+
+    Examples:
+        'smtp.example.com' -> ('smtp.example.com', 25)
+        'smtp.example.com:587' -> ('smtp.example.com', 587)
+        '[::1]:587' -> ('::1', 587)
+    """
+    default_port = 0
+
+    if "://" not in smtp_server:
+        smtp_server = f"smtp://{smtp_server}"
+
+    parsed = urlparse(smtp_server)
+    host = parsed.hostname
+    port = parsed.port or default_port
+
+    if not host:
+        raise ValueError(f"Invalid SMTP server: {smtp_server}")
+
+    return host, port
