@@ -1,0 +1,1 @@
+Pass proper context to tabledesigner `_create_table_and_view` to preserve the original context from `resource_create` and `resource_update`

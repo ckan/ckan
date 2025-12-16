@@ -7,7 +7,6 @@ from ckan.types.logic import ActionResult
 import logging
 import datetime
 import time
-import json
 from copy import deepcopy
 from typing import Any, Union, TYPE_CHECKING, cast
 
@@ -20,11 +19,11 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions as dfunc
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.search as search
 import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
 
+from ckan import model
 from ckan.common import _, config
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
@@ -64,7 +63,6 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     :rtype: string
 
     '''
-    model = context['model']
     rid: str = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
@@ -127,7 +125,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
+            {'user': context['user'],
              'ignore_auth': True},
             {'package': updated_pkg_dict,
              'resource': resource})
@@ -154,7 +152,6 @@ def resource_view_update(
     :rtype: string
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, "id")
 
     resource_view = model.ResourceView.get(id)
@@ -201,7 +198,6 @@ def resource_view_reorder(
     :returns: the updated order of the view
     :rtype: dictionary
     '''
-    model = context['model']
     id, order = _get_or_bust(data_dict, ["id", "order"])
     if not isinstance(order, list):
         raise ValidationError({"order": "Must supply order as a list"})
@@ -212,7 +208,7 @@ def resource_view_reorder(
         raise NotFound('Resource was not found.')
     context['resource'] = resource
 
-    _check_access('resource_view_reorder', context, data_dict)
+    _check_access('resource_view_reorder', context, {'resource_id': id})
 
     q = model.Session.query(model.ResourceView.id).filter_by(resource_id=id)
     existing_views = [res[0] for res in
@@ -265,7 +261,6 @@ def package_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
@@ -440,6 +435,17 @@ def package_update(
 
             item.after_dataset_update(context, data)
 
+    return_id_only = context.get('return_id_only', False)
+
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
+
+    pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
+        context, pkg.id)
+
+    if not context.get('defer_commit'):
+        logic.index_update_package_dicts((pkg_default, pkg_custom))
+
         nested.commit()
         if not context.get('defer_commit'):
             model.repo.commit()
@@ -462,12 +468,7 @@ def package_update(
     if not change and original_package:
         return original_package
 
-    # we could update the dataset so we should still be able to read it.
-    show_context = logic.fresh_context(context, ignore_auth=True)
-    return _get_action('package_show')(show_context, {
-        'id': data_dict['id'],
-        'include_plugin_data': include_plugin_data,
-    })
+    return pkg_custom
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:
@@ -556,8 +557,6 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     schema = schema_.package_revise_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -690,7 +689,6 @@ def package_resource_reorder(
 def _update_package_relationship(
         relationship: 'model_.PackageRelationship', comment: str,
         context: Context) -> dict[str, Any]:
-    model = context['model']
     api = context.get('api_version')
     ref_package_by = 'id' if api == 2 else 'name'
     is_changed = relationship.comment != comment
@@ -729,7 +727,6 @@ def package_relationship_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
     schema = context.get('schema') \
         or schema_.default_update_relationship_schema()
 
@@ -760,7 +757,6 @@ def package_relationship_update(
 
 def _group_or_org_update(
         context: Context, data_dict: DataDict, is_org: bool = False):
-    model = context['model']
     session = context['session']
     id = _get_or_bust(data_dict, 'id')
 
@@ -781,15 +777,8 @@ def _group_or_org_update(
 
     if context.get("schema"):
         schema: Schema = context["schema"]
-    elif hasattr(group_plugin, "update_group_schema"):
-        schema: Schema = group_plugin.update_group_schema()
-    # TODO: remove these fallback deprecated methods in the next release
-    elif hasattr(group_plugin, "form_to_db_schema_options"):
-        schema: Schema = getattr(group_plugin, "form_to_db_schema_options")({
-            'type': 'update', 'api': 'api_version' in context,
-            'context': context})
     else:
-        schema: Schema = group_plugin.form_to_db_schema()
+        schema: Schema = group_plugin.update_group_schema()
 
     upload = uploader.get_uploader('group')
     upload.update_data_dict(data_dict, 'image_url',
@@ -911,7 +900,6 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     :rtype: dictionary
 
     '''
-    model = context['model']
     user = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
@@ -982,7 +970,6 @@ def task_status_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
     session = context['session']
 
     id = data_dict.get("id")
@@ -1021,7 +1008,6 @@ def task_status_update_many(
 
     '''
     results = []
-    model = context['model']
     deferred = context.get('defer_commit')
     context['defer_commit'] = True
 
@@ -1052,8 +1038,6 @@ def term_translation_update(
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     _check_access('term_translation_update', context, data_dict)
 
     schema = {'term': [validators.not_empty, validators.unicode_safe],
@@ -1099,8 +1083,6 @@ def term_translation_update_many(
     :rtype: string
 
     '''
-    model = context['model']
-
     if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
             {'error': 'term_translation_update_many needs to have a '
@@ -1134,8 +1116,6 @@ def vocabulary_update(context: Context, data_dict: DataDict) -> ActionResult.Voc
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     vocab_id = data_dict.get('id')
     if not vocab_id:
         raise ValidationError({'id': _('id not in data')})
@@ -1174,7 +1154,6 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
     :param organization_id: the name or id of the owning organization
     :type organization_id: string
     '''
-    model = context['model']
     name_or_id = data_dict.get('id', '')
     organization_id = data_dict.get('organization_id')
 
@@ -1227,50 +1206,16 @@ def _bulk_update_dataset(
     datasets = data_dict.get('datasets', [])
     org_id = data_dict.get('org_id')
 
-    model = context['model']
-    model.Session.query(model.package_table) \
+    dataset_ids = model.Session.query(model.Package.id) \
         .filter(
             model.Package.id.in_(datasets)
-        ) .filter(model.Package.owner_org == org_id) \
-        .update(update_dict, synchronize_session=False)
+        ) .filter(model.Package.owner_org == org_id)
 
-    model.Session.commit()
-
-    # solr update here
-    psi = search.PackageSearchIndex()
-
-    # update the solr index in batches
-    BATCH_SIZE = 50
-
-    def process_solr(q: str):
-        # update the solr index for the query
-        query = search.PackageSearchQuery()
-        q_dict = {
-            'q': q,
-            'fl': 'data_dict',
-            'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
-            'rows': BATCH_SIZE
-        }
-
-        for result in query.run(q_dict)['results']:
-            data_dict = json.loads(result['data_dict'])
-            if data_dict['owner_org'] == org_id:
-                data_dict.update(update_dict)
-                psi.index_package(data_dict, defer_commit=True)
-
-    count = 0
-    q = []
-    for id in datasets:
-        q.append('id:"%s"' % (id))
-        count += 1
-        if count % BATCH_SIZE == 0:
-            process_solr(' OR '.join(q))
-            q = []
-    if len(q):
-        process_solr(' OR '.join(q))
-    # finally commit the changes
-    psi.commit()
+    for d in dataset_ids:
+        _get_action('package_patch')(
+            logic.fresh_context(context),
+            dict(update_dict, id=d),
+        )
 
 
 def bulk_update_private(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdatePrivate:
@@ -1359,8 +1304,6 @@ def config_option_update(
         own extension, or have reviewed the use of in core CKAN.
 
     '''
-    model = context['model']
-
     _check_access('config_option_update', context, data_dict)
 
     schema = schema_.update_configuration_schema()

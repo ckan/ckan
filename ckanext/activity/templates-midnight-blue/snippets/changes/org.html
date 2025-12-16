@@ -1,0 +1,30 @@
+<li>
+  <p>
+    {% if change.method == "change" %}
+
+      {{ _('Moved {pkg_link} from organization {old_org_link} to organization {new_org_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        old_org_link = h.nav_link(change.old_org_title, named_route='organization.read', id=change.old_org_id),
+        new_org_link = h.nav_link(change.new_org_title, named_route='organization.read', id=change.new_org_id)
+        ) }}
+
+    {% elif change.method == "remove" %}
+
+      {{ _('Removed {pkg_link} from organization {old_org_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        old_org_link = h.nav_link(change.old_org_title, named_route='organization.read', id=change.old_org_id)
+        ) }}
+
+    {% elif change.method == "add" %}
+
+      {{ _('Added {pkg_link} to organization {new_org_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        new_org_link = h.nav_link(change.new_org_title, named_route='organization.read', id=change.new_org_id)
+        ) }}
+      {% else %}
+
+        {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>

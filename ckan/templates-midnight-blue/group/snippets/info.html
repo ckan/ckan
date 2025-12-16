@@ -5,31 +5,33 @@
   <div class="module context-info">
     <div class="module-content">
     {% block inner %}
-    {% block image %}
-    <div class="image">
-      <a href="{{ group.url }}">
+    <div class="image-container">
+      {% block image %}
+      <div class="image">
         <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.svg') }}" width="190" height="118" alt="{{ group.name }}" />
-      </a>
-    </div>
-    {% endblock %}
-    {% block heading %}
-    <h1 class="heading">
-      {{ group.display_name }}
-      {% if group.state == 'deleted' %}
-        [{{ _('Deleted') }}]
+      </div>
+      {% endblock %}
+      <div class="heading-container">
+      {% block heading %}
+      <span class="heading">
+        {{ group.display_name }}
+        {% if group.state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
+      </span>
+      {% endblock %}
+      {% block description %}
+      {% if group.description %}
+        <p class="description">
+          {{ h.markdown_extract(group.description, 180) }}
+        </p>
+        <p class="read-more">
+          {% link_for _('read more'), named_route='group.about', id=group.name %}
+        </p>
       {% endif %}
-    </h1>
-    {% endblock %}
-    {% block description %}
-    {% if group.description %}
-      <p class="description">
-        {{ h.markdown_extract(group.description, 180) }}
-      </p>
-      <p class="read-more">
-        {% link_for _('read more'), named_route='group.about', id=group.name %}
-      </p>
-    {% endif %}
-    {% endblock %}
+      {% endblock %}
+      </div>
+    </div>
     {% if show_nums %}
       {% block nums %}
       {% set num_followers = h.follow_count('group', group.id) %}

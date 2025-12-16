@@ -1,56 +1,53 @@
-this.ckan.module('tabledesigner_datatables_add', function($, _) {
+/**
+ * Adds table designer buttons to the datatable view.
+ */
+this.ckan.module('tabledesigner_datatables_buttons', function ($, _) {
   return {
-    initialize: function() {
-      var defn = $(this)[0].el;
-      var editText = defn.data('edit-text');
-      var editUrl = defn.data('edit-url');
+    options: {
+      type: null,
+      text: null,
+      url: null,
+      buttonClass: 'btn-tabledesigner',
+    },
+    initialize: function () {
+      if (!this.options.type || !this.options.text || !this.options.url) {
+        console.error('tabledesigner_datatables_buttons: Missing required options');
+        return;
+      }
 
-      const table = $('#dtprv').DataTable();
-      table.button().add(0, {
-        text: editText,
-        action: function ( e, dt, button, config ){
-          window.parent.location = editUrl;
-        }
-      });
-    }
-  }
-});
-this.ckan.module('tabledesigner_datatables_edit', function($, _) {
-  return {
-    initialize: function() {
-      var defn = $(this)[0].el;
-      var editText = defn.data('edit-text');
-      var editUrl = defn.data('edit-url');
+      const buttonType = this.options.type;
+      const text = this.options.text;
+      const url = this.options.url;
+      const buttonClass = this.options.buttonClass;
+      function _addButton(settings, json) {
+        const table = $(settings.nTable).DataTable();
+        let buttonConfig = { text: text, className: buttonClass };
 
-      const table = $('#dtprv').DataTable();
-      table.button().add(0, {
-        extend: "selectedSingle",
-        text: editText,
-        action: function ( e, dt, button, config ){
-          var _id = dt.rows( { selected: true } ).data()[0]._id;
-          window.parent.location = editUrl + '?_id=' + encodeURIComponent(_id);
+        switch (buttonType) {
+          case 'add':
+            buttonConfig.action = () => window.parent.location = url;
+            break;
+          case 'edit':
+            buttonConfig.extend = "selectedSingle";
+            buttonConfig.action = function (e, dt, button, config) {
+              var _id = dt.rows({ selected: true }).data()[0]._id;
+              window.parent.location = url + '?_id=' + encodeURIComponent(_id);
+            };
+            break;
+          case 'delete':
+            buttonConfig.extend = "selected";
+            buttonConfig.action = function (e, dt, button, config) {
+              var _ids = dt.rows({ selected: true }).data().map(
+                e => encodeURIComponent(e._id)).join('&_id=');
+              window.parent.location = url + '?_id=' + _ids;
+            };
+            break;
         }
-      });
-    }
-  }
-});
-this.ckan.module('tabledesigner_datatables_delete', function($, _) {
-  return {
-    initialize: function() {
-      var defn = $(this)[0].el;
-      var editText = defn.data('edit-text');
-      var editUrl = defn.data('edit-url');
 
-      const table = $('#dtprv').DataTable();
-      table.button().add(0, {
-        extend: "selected",
-        text: editText,
-        action: function ( e, dt, button, config ){
-          var _ids = dt.rows( { selected: true } ).data().map(
-            e=>encodeURIComponent(e._id)).join('&_id=');
-          window.parent.location = editUrl + '?_id=' + _ids;
-        }
-      });
+        table.button().add(0, buttonConfig);
+      }
+
+      this.sandbox.subscribe("datatablesview:init-complete", _addButton);
     }
   }
 });

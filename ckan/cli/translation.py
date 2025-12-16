@@ -38,7 +38,7 @@ def mangle():
     u'''This will mangle the zh_TW translations for translation coverage
     testing.
 
-    NOTE: This will destroy the current translations fot zh_TW
+    NOTE: This will destroy the current translations for zh_TW
     '''
     i18n_path = get_i18n_path()
     pot_path = os.path.join(i18n_path, u'ckan.pot')
@@ -146,7 +146,7 @@ def simple_conv_specs(s: str):
 
     e.g. ['%s', '%i']
 
-    See http://docs.python.org/library/stdtypes.html#string-formatting
+    See https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting
     '''
     simple_conv_specs_re = re.compile(u'\\%\\w')
     return simple_conv_specs_re.findall(s)
@@ -157,7 +157,7 @@ def mapping_keys(s: str):
 
     e.g. ['%(name)s', '%(age)i']
 
-    See http://docs.python.org/library/stdtypes.html#string-formatting
+    See https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting
     '''
     mapping_keys_re = re.compile(u'\\%\\([^\\)]*\\)\\w')
     return sorted(mapping_keys_re.findall(s))
@@ -168,7 +168,7 @@ def replacement_fields(s: str):
 
     e.g. ['{}', '{2}', '{object}', '{target}']
 
-    See http://docs.python.org/library/string.html#formatstrings
+    See https://docs.python.org/3/library/string.html#formatstrings
     '''
     repl_fields_re = re.compile(u'\\{[^\\}]*\\}')
     return sorted(repl_fields_re.findall(s))

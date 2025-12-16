@@ -2639,15 +2639,9 @@ class TestPackagePluginData(object):
                 }
             }
         }
-        updated_pkg = helpers.call_action(
+        helpers.call_action(
             "package_update", context=context, **pkg_dict
         )
-        assert updated_pkg["plugin_data"] == {
-            "plugin1": {
-                "key1": "updated_value",
-                "key2": "value2"
-            }
-        }
 
         pkg_dict = helpers.call_action(
             "package_show",

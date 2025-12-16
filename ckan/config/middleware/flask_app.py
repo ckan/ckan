@@ -1,4 +1,3 @@
-# encoding: utf-8
 from __future__ import annotations
 
 import os
@@ -14,7 +13,9 @@ from typing import Any, Optional, Union, cast
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
+from flask.json.tag import TaggedJSONSerializer
 from flask_session import Session
+from flask_session.base import Serializer as FlaskSessionSerializer
 
 from werkzeug.exceptions import (
     default_exceptions,
@@ -27,13 +28,13 @@ from flask_babel import Babel
 
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, session, current_user
+from ckan.common import current_user, config_declaration
 
 import ckan.model as model
+from ckan.config.declaration import Flag
 from ckan.lib import base
 from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
-from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
@@ -57,36 +58,61 @@ from ckan.views import (identify_user,
                         set_ckan_current_url,
                         _get_user_for_apitoken,
                         )
-from ckan.types import CKANApp, Config, Response
+from ckan.types import CKANApp, Response
 
 log = logging.getLogger(__name__)
 
 csrf = CSRFProtect()
 
-csrf_warn_extensions = (
-        "Extensions are excluded from CSRF protection! "
-        "We allow extensions to run without CSRF protection "
-        "but it will be forced future releases. "
-        "Read the documentation for more information on how to add "
-        "CSRF protection to your extension."
-    )
+
+class CKANJsonSessionSerializer(TaggedJSONSerializer, FlaskSessionSerializer):
+    """Adapter of flask's serializer for flask-session.
+
+    This serializer is used instead of MsgPackSerializer from flask-session,
+    because the latter cannot handle Markup and raises an exception when flash
+    message with HTML added to session.
+    """
+    def encode(self, session: CKANSession) -> bytes:
+        """Serialize the session data."""
+        return self.dumps(session).encode()
+
+    def decode(self, serialized_data: bytes) -> Any:
+        """Deserialize the session data."""
+        try:
+            return self.loads(serialized_data.decode())
+        except UnicodeDecodeError:
+            log.info(
+                "Unable to decode session data, X-Forward-For/remote_addr: %s, "
+                "dropping: %s ",
+                request.headers.get('X-Forwarded-For',
+                                    request.remote_addr),
+                serialized_data)
 
 
 class CKANSession(Session):
     def _get_interface(self, app: CKANApp):
         """Initialize session interface.
+
         We use our own classes for these interfaces:
             * cookie: to support persistent sessions
             * redis: to be able use the value of ckan.redis.url
 
+        In addition, all flask-session backends(any backend other from
+        `cookie`) have their MsgPack serializer replaced with flask's
+        TaggedJSONSerializer to support storing Markup(flash messages) and
+        datetime object inside session.
         """
         session_type = app.config["SESSION_TYPE"]
         if session_type == "cookie":
             return CKANSecureCookieSessionInterface(app)
-        elif session_type == "redis":
-            return CKANRedisSessionInterface(app)
 
-        return super()._get_interface(app)
+        if session_type == "redis":
+            interface = CKANRedisSessionInterface(app)
+        else:
+            interface = super()._get_interface(app)
+
+        interface.serializer = CKANJsonSessionSerializer()  # type: ignore
+        return interface
 
 
 class I18nMiddleware(object):
@@ -99,20 +125,25 @@ class I18nMiddleware(object):
         return self.app(environ, start_response)
 
 
-def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
-    """ This has to pass the flask app through all the same middleware that
-    Pylons used """
+def make_flask_stack() -> CKANApp:
+    """Create the Flask application and wrap it with all the middlewares.
+
+    This is the main function that builds the Flask app, registers blueprints
+    and error handlers, and does all the work that must be done once (unlike
+    ``ckan.config.environment.update_config``, which updates application state
+    whenever active plugins change).
+    """
 
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
-    testing = asbool(conf.get('testing', conf.get('TESTING', False)))
+    debug: bool = config["debug"]
+    testing: bool = config["testing"]
     app = flask_app = CKANFlask(__name__, static_url_path='')
 
     # Register storage for accessing group images, site logo, etc.
     storage_folder = []
-    storage = uploader.get_storage_path()
+    storage = config.get('ckan.storage_path')
     if storage:
         storage_folder = [os.path.join(storage, 'storage')]
 
@@ -134,10 +165,11 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
-    if config:
-        app.config.update(config)
-    else:
-        app.config.update(conf)
+    app.config.update({
+        str(key): config[str(key)]
+        for key in config_declaration.iter_options()
+        if config_declaration[key].has_flag(Flag.flask)
+    })
 
     # Do all the Flask-specific stuff before adding other middlewares
 
@@ -223,11 +255,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     if not app.config.get(wtf_key):
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
+    app.config["WTF_CSRF_ENABLED"] = config.get("WTF_CSRF_ENABLED")
+    app.config["WTF_CSRF_TIME_LIMIT"] = config.get("WTF_CSRF_TIME_LIMIT")
     csrf.init_app(app)
-
-    if config.get("ckan.csrf_protection.ignore_extensions"):
-        log.warning(csrf_warn_extensions)
-        _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
@@ -311,28 +341,6 @@ def get_locale() -> str:
         config.get(u'ckan.locale_default'))
 
 
-def set_remote_user_as_current_user_for_tests():
-    '''This function exists to maintain backward compatibility
-    for the `TESTS` of the `CKAN` extensions
-
-    If `REMOTE_USER` is in the request environ we will try to get
-    the user_obj from the DB, if there is an user_obj, we will set the
-    `session['_user_id']` with that user_obj.id
-
-    This way, `Flask-Login` will load the user from
-    `session['_user_id']` and will set the `current_user`
-    proxy for us behind the scene.
-    '''
-    if "REMOTE_USER" in request.environ:
-        username = request.environ["REMOTE_USER"]
-        if isinstance(username, bytes):
-            username = username.decode()
-
-        userobj = model.User.get(username)
-        if userobj:
-            session["_user_id"] = userobj.id
-
-
 def ckan_before_request() -> Optional[Response]:
     u'''
     Common handler executed before all Flask requests
@@ -348,12 +356,6 @@ def ckan_before_request() -> Optional[Response]:
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
-
-    # This is needed for the TESTS of the CKAN extensions only!
-    # we should remove it as soon as the maintainers of the
-    # CKAN extensions change their tests according to the new changes.
-    if config.get("testing"):
-        set_remote_user_as_current_user_for_tests()
 
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
@@ -427,7 +429,7 @@ class CKANFlask(MultiStaticFlask):
 
 
 def _register_plugins_blueprints(app: CKANApp):
-    """ Resgister all blueprints defined in plugins by IBlueprint
+    """ Register all blueprints defined in plugins by IBlueprint
     """
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()
@@ -436,20 +438,6 @@ def _register_plugins_blueprints(app: CKANApp):
                 app.register_blueprint(blueprint)
         else:
             app.register_blueprint(plugin_blueprints)
-
-
-def _exempt_plugins_blueprints_from_csrf(csrf: CSRFProtect):
-    """Exempt plugins blueprints from CSRF protection.
-
-    This feature will be deprecated in future versions.
-    """
-    for plugin in PluginImplementations(IBlueprint):
-        plugin_blueprints = plugin.get_blueprint()
-        if isinstance(plugin_blueprints, list):
-            for blueprint in plugin_blueprints:
-                csrf.exempt(blueprint)
-        else:
-            csrf.exempt(plugin_blueprints)
 
 
 def _register_core_blueprints(app: CKANApp):

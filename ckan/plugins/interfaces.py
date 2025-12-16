@@ -7,8 +7,8 @@ extend CKAN.
 from __future__ import annotations
 
 from typing import (
-    Any, Callable, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Union, List,
+    Any, Callable, IO, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Tuple, Union, List
 )
 
 from flask.blueprints import Blueprint
@@ -29,6 +29,14 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
+
+
+AttachmentWithType = Union[
+    Tuple[str, IO[str], str],
+    Tuple[str, IO[bytes], str]
+]
+AttachmentWithoutType = Union[Tuple[str, IO[str]], Tuple[str, IO[bytes]]]
+Attachment = Union[AttachmentWithType, AttachmentWithoutType]
 
 
 __all__ = [
@@ -63,6 +71,7 @@ __all__ = [
     u'IApiToken',
     u'IClick',
     u'ISignal',
+    u'INotifier',
 ]
 
 
@@ -114,18 +123,6 @@ class IDomainObjectModification(Interface):
     def notify(self, entity: Any, operation: str) -> None:
         u'''
         Send a notification on entity modification.
-
-        :param entity: instance of module.Package.
-        :param operation: 'new', 'changed' or 'deleted'.
-        '''
-        pass
-
-    def notify_after_commit(self, entity: Any, operation: Any) -> None:
-        u'''
-        ** DEPRECATED **
-
-        Supposed to send a notification after entity modification, but it
-        doesn't work.
 
         :param entity: instance of module.Package.
         :param operation: 'new', 'changed' or 'deleted'.
@@ -970,6 +967,8 @@ class ITemplateHelpers(Interface):
     See ``ckanext/example_itemplatehelpers`` for an example plugin.
 
     '''
+    _reverse_iteration_order = True
+
     def get_helpers(self) -> dict[str, Callable[..., Any]]:
         u'''Return a dict mapping names to helper functions.
 
@@ -1197,6 +1196,18 @@ class IDatasetForm(Interface):
         '''
         return ''
 
+    def search_template_htmx(self, package_type: str) -> str:
+        '''
+        Return the path to the template to use in the dataset search page
+        for htmx responses.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/search_htmx.html'``.
+
+        :rtype: string
+        '''
+        return ''
+
     def history_template(self, package_type: str) -> str:
         u'''
         .. warning:: This template is removed. The function exists for
@@ -1246,7 +1257,7 @@ class IDatasetForm(Interface):
         for these datasets. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
-        This is an adavanced interface. Most changes to validation should be
+        This is an advanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
         ``show_package_schema()``, ``create_package_schema()``
         and ``update_package_schema()``. If you need to have a different
@@ -1325,11 +1336,12 @@ class IGroupForm(Interface):
     u'''
     Allows customisation of the group form and its underlying schema.
 
-    The behaviour of the plugin is determined by 5 method hooks:
+    The behaviour of the plugin is determined by these method hooks:
 
      - group_form(self)
-     - form_to_db_schema(self)
-     - db_to_form_schema(self)
+     - create_group_schema(self)
+     - update_group_schema(self)
+     - show_group_schema(self)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -1468,6 +1480,13 @@ class IGroupForm(Interface):
         '''
         return ''
 
+    def read_template_htmx(self, group_type: str) -> str:
+        u'''
+        Returns a string representing the location of the template to be
+        rendered for the read htmx page
+        '''
+        return ''
+
     def history_template(self, group_type: str) -> str:
         u'''
         Returns a string representing the location of the template to be
@@ -1489,20 +1508,6 @@ class IGroupForm(Interface):
         '''
         return ''
 
-    def form_to_db_schema(self) -> Schema:
-        u'''
-        Returns the schema for mapping group data from a form to a format
-        suitable for the database.
-        '''
-        return {}
-
-    def db_to_form_schema(self) -> Schema:
-        u'''
-        Returns the schema for mapping group data from the database into a
-        format suitable for the form (optional)
-        '''
-        return {}
-
     def setup_template_variables(self, context: Context,
                                  data_dict: DataDict) -> None:
         u'''
@@ -1518,9 +1523,10 @@ class IGroupForm(Interface):
         for these groups. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
-        This is an adavanced interface. Most changes to validation should be
+        This is an advanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
-        ``form_to_db_schema()`` and ``db_to_form_schema()``
+        ``create_group_schema()``, ``update_group_schema()`` or
+        ``show_group_schema()``.
         If you need to have a different
         schema depending on the user or value of any field stored in the
         group, or if you wish to use a different method for validation, then
@@ -1530,8 +1536,8 @@ class IGroupForm(Interface):
         :type context: dictionary
         :param data_dict: the group to be validated
         :type data_dict: dictionary
-        :param schema: a schema, typically from ``form_to_db_schema()``,
-          or ``db_to_form_schema()``
+        :param schema: a schema, typically from ``create_group_schema()``,
+          ``update_group_schema()`` or ``show_group_schema()``
         :type schema: dictionary
         :param action: ``'group_show'``, ``'group_create'``,
           ``'group_update'``, ``'organization_show'``,
@@ -1917,7 +1923,7 @@ class IPermissionLabels(Interface):
     def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         u'''
         Return a list of unicode strings to be stored in the search index
-        as the permission lables for a dataset dict.
+        as the permission labels for a dataset dict.
 
         :param dataset_obj: dataset details
         :type dataset_obj: Package model object
@@ -2246,3 +2252,105 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class INotifier(Interface):
+    """
+    Allow plugins to add custom notification mechanisms. CKAN by default uses
+    email notifications. This interface allows plugins to add custom
+    notification mechanisms.
+    """
+
+    def notify_recipient(
+        self,
+        already_notified: bool,
+        recipient_name: str,
+        recipient_email: str,
+        subject: str,
+        body: str,
+        body_html: Optional[str] = None,
+        headers: Optional[dict[str, Any]] = None,
+        attachments: Optional[Iterable[Attachment]] = None,
+    ) -> bool:
+        """Sends an notification to a user.
+
+        .. note:: This custom notification could replace the default
+            email mechanism.
+
+        :param already_notified: if the notification has already
+                                 been sent by a previous plugin
+        :type already_notified: bool
+
+        :param recipient_name: the name of the recipient
+        :type recipient_name: string
+
+        :param recipient_email: the email address of the recipient
+        :type recipient_email: string
+
+        :param subject: the notification subject
+        :type subject: string
+
+        :param body: the notification body, in plain text
+        :type body: string
+
+        :param body_html: the notification body, in html format (optional)
+        :type body_html: string
+
+        :param headers: extra headers to add to notification, in the form
+            {'Header name': 'Header value'}
+        :type headers: dict
+
+        :param attachments: a list of tuples containing file attachments
+            to add to the notification.
+            Tuples should contain the file name and a file-like
+            object pointing to the file contents::
+
+                [
+                    ('some_report.csv', file_object),
+                ]
+
+            Optionally, you can add a third element to the tuple containing the
+            media type::
+
+                [
+                    ('some_report.csv', file_object, 'text/csv'),
+                ]
+        :type attachments: list
+
+        :returns: True if the notification was sent successfully,
+                  False otherwise. If return False, CKAN will
+                  continue to send the email via SMTP.
+        :rtype: bool
+
+        """
+        return False
+
+    def notify_about_topic(self,
+                           already_notified: bool,
+                           topic: str,
+                           details: Optional[dict[str, Any]] = None) -> bool:
+        """Sends details specific to the notification topic.
+        This happens prior to `notify_recipient`.
+
+        Core topics:
+            - request_password_reset
+            - user_invited
+
+        :param already_notified: if the notification has already
+                                 been sent by a previous plugin
+        :type already_notified: bool
+
+        :param topic: the notification topic label
+        :type topic: string
+
+        :param details: details about the notification topic
+            {'user': model.User}
+        :type details: dict
+
+        :returns: True if the notification was handled successfully,
+                  False otherwise. If return False, CKAN will
+                  continue to send the email via SMTP.
+        :rtype: bool
+
+        """
+        return False

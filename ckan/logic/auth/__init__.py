@@ -4,42 +4,40 @@
 Helper functions to be used in the auth check functions
 '''
 
-from typing import Any, Optional, TYPE_CHECKING, overload
+from typing import Any, Optional, overload
 from typing_extensions import Literal
 
 import ckan.logic as logic
 import ckan.authz as authz
+from ckan import model
 from ckan.types import Context, AuthResult, DataDict
 
-if TYPE_CHECKING:
-    import ckan.model as model_
-
 
 @overload
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
-                class_name: Literal['Package']) -> 'model_.Package':
+                class_name: Literal['Package']) -> model.Package:
     ...
 
 
 @overload
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
-                class_name: Literal['Resource']) -> 'model_.Resource':
+                class_name: Literal['Resource']) -> model.Resource:
     ...
 
 
 @overload
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
-                class_name: Literal['Group']) -> 'model_.Group':
+                class_name: Literal['Group']) -> model.Group:
     ...
 
 
 @overload
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
-                class_name: Literal['User']) -> 'model_.User':
+                class_name: Literal['User']) -> model.User:
     ...
 
 
@@ -47,7 +45,6 @@ def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
                 class_name: str) -> Any:
     # return the named item from model.class_name
-    model = context['model']
     if not data_dict:
         data_dict = {}
     id = data_dict.get('id', None)
@@ -63,25 +60,25 @@ def _get_object(context: Context,
 
 def get_package_object(
         context: Context,
-        data_dict: Optional[DataDict] = None) -> 'model_.Package':
+        data_dict: Optional[DataDict] = None) -> model.Package:
     return _get_object(context, data_dict, 'package', 'Package')
 
 
 def get_resource_object(
         context: Context,
-        data_dict: Optional[DataDict] = None) -> 'model_.Resource':
+        data_dict: Optional[DataDict] = None) -> model.Resource:
     return _get_object(context, data_dict, 'resource', 'Resource')
 
 
 def get_group_object(
         context: Context,
-        data_dict: Optional[DataDict] = None) -> 'model_.Group':
+        data_dict: Optional[DataDict] = None) -> model.Group:
     return _get_object(context, data_dict, 'group', 'Group')
 
 
 def get_user_object(
         context: Context,
-        data_dict: Optional[DataDict] = None) -> 'model_.User':
+        data_dict: Optional[DataDict] = None) -> model.User:
     return _get_object(context, data_dict, 'user_obj', 'User')
 
 

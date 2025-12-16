@@ -152,7 +152,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         assert generated_url == url
 
     @pytest.mark.ckan_config("debug", True)
-    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
     @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
     def test_debugtoolbar_url(self, ckan_config):
         # test against built-in `url_for`, that is used by debugtoolbar ext.
@@ -261,8 +260,8 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<h1>moo</h1>", "<h1>moo</h1>", True),
-            ("<h1>moo</h1>", "<p>moo</p>", False),
+            ("<script>moo</script>", "<script>moo</script>", True),
+            ("<script>moo</script>", "moo", False),
             (
                 "http://example.com",
                 '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
@@ -286,7 +285,7 @@ class TestHelpersRenderMarkdown(object):
             (u"[text](javascript: alert(1))", u"<p><a>text</a></p>", False),
             (
                 u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
-                u"<p>and text</p>",
+                '<p><img src="image.png"> and text</p>',
                 False,
             ),
             (u"#heading", u"<h1>heading</h1>", False),
@@ -382,8 +381,8 @@ class TestHelpersRenderMarkdown(object):
                 False,
             ),
             (
-                u"<a href=\u201dsomelink\u201d>somelink</a>",
-                "<p>somelink</p>",
+                "<a href=\u201dsomelink\u201d>somelink</a>",
+                '<p><a href="\u201dsomelink\u201d">somelink</a></p>',
                 False,
             ),
         ],
@@ -726,7 +725,7 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    with_html = u"""Data exposed: &mdash;
+    with_html = u"""<i>Data</i> *exposed*: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """
@@ -908,3 +907,26 @@ def test_decode_view_request_filters(test_request_context):
 def test_get_translated(data_dict, locale, result, monkeypatch):
     monkeypatch.setattr(flask_app, "get_locale", lambda: locale)
     assert h.get_translated(data_dict, 'notes') == result
+
+
+class TestUploadsEnabled:
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", True)
+    def test_uploads_enabled(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", False)
+    def test_uploads_disabled(self):
+        assert h.uploads_enabled() is False
+
+    def test_uploads_disabled_on_default_configuration(self):
+        assert h.uploads_enabled() is False
+
+    @pytest.mark.ckan_config("ckan.storage_path", "/some/path")
+    def test_uploads_enabled_with_only_storage_path(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.usefixtures("with_plugins")
+    @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
+    def test_uploads_enabled_when_iuploader_plugin_exists(self):
+        assert h.uploads_enabled() is True

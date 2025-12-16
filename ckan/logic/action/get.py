@@ -18,7 +18,6 @@ from sqlalchemy import text
 import ckan
 import ckan.lib.dictization
 import ckan.logic as logic
-import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs
@@ -73,7 +72,6 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
     :rtype: list of strings
 
     '''
-    model = context["model"]
     api = context.get("api_version", 1)
 
     _check_access('package_list', context, data_dict)
@@ -165,7 +163,6 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
 
     '''
     _check_access('member_list', context, data_dict)
-    model = context['model']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
     if not group:
@@ -220,9 +217,6 @@ def package_collaborator_list(context: Context,
     :rtype: list of dictionaries
 
     '''
-
-    model = context['model']
-
     package_id = _get_or_bust(data_dict, 'id')
 
     package = model.Package.get(package_id)
@@ -272,9 +266,6 @@ def package_collaborator_list_for_user(
     :rtype: list of dictionaries
 
     '''
-
-    model = context['model']
-
     user_id = _get_or_bust(data_dict, 'id')
 
     if not authz.check_config_permission('allow_dataset_collaborators'):
@@ -315,7 +306,6 @@ def package_collaborator_list_for_user(
 
 def _group_or_org_list(
         context: Context, data_dict: DataDict, is_org: bool = False):
-    model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     group_type = data_dict.get('type', 'group')
@@ -567,7 +557,6 @@ def group_list_authz(context: Context,
     :rtype: list of dicts
 
     '''
-    model = context['model']
     user = context['user']
     available_only = data_dict.get('available_only', False)
     am_member = data_dict.get('am_member', False)
@@ -661,7 +650,6 @@ def organization_list_for_user(context: Context,
     :rtype: list of dicts
 
     '''
-    model = context['model']
     if data_dict.get('id'):
         user_obj = model.User.get(data_dict['id'])
         if not user_obj:
@@ -740,8 +728,6 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
-
     _check_access('license_list', context, data_dict)
 
     license_register = model.Package.get_license_register()
@@ -771,8 +757,6 @@ def tag_list(context: Context,
     :rtype: list of dictionaries
 
     '''
-    model = context['model']
-
     vocab_id_or_name = data_dict.get('vocabulary_id')
     query = data_dict.get('query') or data_dict.get('q')
     if query:
@@ -827,8 +811,6 @@ def user_list(
       or draft state.
 
     '''
-    model = context['model']
-
     _check_access('user_list', context, data_dict)
 
     q = data_dict.get('q', '')
@@ -924,7 +906,6 @@ def package_relationships_list(context: Context,
 
     '''
     ##TODO needs to work with dictization layer
-    model = context['model']
     api = context.get('api_version')
 
     id = _get_or_bust(data_dict, "id")
@@ -967,14 +948,12 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :type id: string
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
-    :type use_default_schema: bool
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
     :rtype: dictionary
 
     '''
-    model = context['model']
     user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
@@ -1023,7 +1002,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             metadata_modified = pkg.metadata_modified.isoformat()
             search_metadata_modified = search_result['metadata_modified']
             # solr stores less precise datetime,
-            # truncate to 22 charactors to get good enough match
+            # truncate to 22 characters to get good enough match
             if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
 
@@ -1053,10 +1032,11 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             package_dict, _errors = lib_plugins.plugin_validate(
                 package_plugin, context, package_dict, schema,
                 'package_show')
+        else:
+            # up to caller to apply after_dataset_show plugins
+            return package_dict
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_dataset_show(context, package_dict)
-
+    logic.apply_after_dataset_show_plugins(context, package_dict)
     return package_dict
 
 
@@ -1071,7 +1051,6 @@ def resource_show(
     :rtype: dictionary
 
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     resource = model.Resource.get(id)
@@ -1104,7 +1083,6 @@ def resource_view_show(context: Context, data_dict: DataDict) -> ActionResult.Re
 
     :rtype: dictionary
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     resource_view = model.ResourceView.get(id)
@@ -1132,7 +1110,6 @@ def resource_view_list(context: Context,
 
     :rtype: list of dictionaries.
     '''
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
     resource = model.Resource.get(id)
     if not resource:
@@ -1152,7 +1129,6 @@ def resource_view_list(context: Context,
 def _group_or_org_show(
         context: Context, data_dict: DataDict,
         is_org: bool = False) -> dict[str, Any]:
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
@@ -1211,15 +1187,8 @@ def _group_or_org_show(
 
     if context.get("schema"):
         schema: Schema = context["schema"]
-    elif hasattr(group_plugin, "show_group_schema"):
-        schema: Schema = group_plugin.show_group_schema()
-    # TODO: remove these fallback deprecated methods in the next release
-    elif hasattr(group_plugin, "db_to_form_schema_options"):
-        schema: Schema = getattr(group_plugin, "db_to_form_schema_options")({
-            'type': 'show', 'api': 'api_version' in context,
-            'context': context})
     else:
-        schema: Schema = group_plugin.db_to_form_schema()
+        schema: Schema = group_plugin.show_group_schema()
 
     if include_followers:
         context = plugins.toolkit.fresh_context(context)
@@ -1315,7 +1284,6 @@ def group_package_show(context: Context,
     '''
     _check_access('group_package_show', context, data_dict)
 
-    model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
 
     limit = data_dict.get('limit', '')
@@ -1364,8 +1332,6 @@ def tag_show(context: Context, data_dict: DataDict) -> ActionResult.TagShow:
         datasets and their details
     :rtype: dictionary
     '''
-
-    model = context['model']
     id = _get_or_bust(data_dict, 'id')
     include_datasets = asbool(data_dict.get('include_datasets', False))
 
@@ -1411,8 +1377,6 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     if 'user' in context and 'id' not in data_dict:
         data_dict['id'] = context.get('user')
 
@@ -1472,7 +1436,7 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
     if asbool(data_dict.get('include_num_followers', False)):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
-            {'model': model, 'session': model.Session},
+            {'session': model.Session},
             {'id': user_dict['id']})
 
     return user_dict
@@ -1555,7 +1519,6 @@ def format_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.F
     :rtype: list of strings
 
     '''
-    model = context['model']
     session = context['session']
 
     _check_access('format_autocomplete', context, data_dict)
@@ -1593,7 +1556,6 @@ def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.Use
         ``'fullname'``, and ``'id'``
 
     '''
-    model = context['model']
     user = context['user']
 
     _check_access('user_autocomplete', context, data_dict)
@@ -1627,7 +1589,6 @@ def _group_or_org_autocomplete(
 
     q = data_dict['q']
     limit = data_dict.get('limit', 20)
-    model = context['model']
 
     query = model.Group.search_by_name_or_title(q, group_type=None,
                                                 is_org=is_org, limit=limit)
@@ -1692,7 +1653,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     **Solr Parameters:**
 
-    For more in depth treatment of each paramter, please read the
+    For more in depth treatment of each parameter, please read the
     `Solr Documentation
     <https://lucene.apache.org/solr/guide/6_6/common-query-parameters.html>`_.
 
@@ -1825,7 +1786,6 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     if errors:
         raise ValidationError(errors)
 
-    model = context['model']
     session = context['session']
     user = context.get('user')
 
@@ -2062,8 +2022,6 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
     '''
     _check_access('resource_search', context, data_dict)
 
-    model = context['model']
-
     query = data_dict.get('query')
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
@@ -2159,7 +2117,6 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
 def _tag_search(
         context: Context, data_dict: DataDict) -> tuple[list[model.Tag], int]:
-    model = context['model']
 
     terms = data_dict.get('query') or data_dict.get('q') or []
     if isinstance(terms, str):
@@ -2295,7 +2252,6 @@ def task_status_show(context: Context, data_dict: DataDict) -> ActionResult.Task
 
     :rtype: dictionary
     '''
-    model = context['model']
     id = data_dict.get('id')
 
     if id:
@@ -2340,8 +2296,6 @@ def term_translation_show(
     '''
     _check_access('term_translation_show', context, data_dict)
 
-    model = context['model']
-
     trans_table = model.term_translation_table
 
     q = _select(trans_table)
@@ -2382,13 +2336,12 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
 
     :param defer_commit: by default (or if set to false) get_site_user will
         commit and clean up the current transaction. If set to true, caller
-        is responsible for commiting transaction after get_site_user is
+        is responsible for committing transaction after get_site_user is
         called. Leaving open connections can cause cli commands to hang!
         (optional, default: ``False``)
     :type defer_commit: bool
     '''
     _check_access('get_site_user', context, data_dict)
-    model = context['model']
     site_id = config.get('ckan.site_id')
     user = model.User.get(site_id)
     if not user:
@@ -2441,7 +2394,6 @@ def vocabulary_list(
     '''
     _check_access('vocabulary_list', context, data_dict)
 
-    model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
 
@@ -2457,7 +2409,6 @@ def vocabulary_show(context: Context, data_dict: DataDict) -> ActionResult.Vocab
     '''
     _check_access('vocabulary_show', context, data_dict)
 
-    model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
         raise ValidationError({'id': _('id not in data')})
@@ -2493,7 +2444,7 @@ def user_follower_count(
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
-        context['model'].UserFollowingUser)
+        model.UserFollowingUser)
 
 
 def dataset_follower_count(
@@ -2511,7 +2462,7 @@ def dataset_follower_count(
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
-        context['model'].UserFollowingDataset)
+        model.UserFollowingDataset)
 
 
 def group_follower_count(
@@ -2529,7 +2480,7 @@ def group_follower_count(
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        context['model'].UserFollowingGroup)
+        model.UserFollowingGroup)
 
 
 def organization_follower_count(
@@ -2556,7 +2507,6 @@ def _follower_list(
         raise ValidationError(errors)
 
     # Get the list of Follower objects.
-    model = context['model']
     object_id = data_dict.get('id')
     followers = FollowerClass.follower_list(object_id)
 
@@ -2583,7 +2533,7 @@ def user_follower_list(
     return _follower_list(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
-        context['model'].UserFollowingUser)
+        model.UserFollowingUser)
 
 
 def dataset_follower_list(
@@ -2601,7 +2551,7 @@ def dataset_follower_list(
     return _follower_list(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
-        context['model'].UserFollowingDataset)
+        model.UserFollowingDataset)
 
 
 def group_follower_list(
@@ -2619,7 +2569,7 @@ def group_follower_list(
     return _follower_list(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        context['model'].UserFollowingGroup)
+        model.UserFollowingGroup)
 
 
 def organization_follower_list(
@@ -2637,7 +2587,7 @@ def organization_follower_list(
     return _follower_list(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        context['model'].UserFollowingGroup)
+        model.UserFollowingGroup)
 
 def _am_following(
         context: Context, data_dict: DataDict, default_schema: Schema,
@@ -2649,8 +2599,6 @@ def _am_following(
 
     if 'user' not in context:
         raise NotAuthorized
-
-    model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
@@ -2675,7 +2623,7 @@ def am_following_user(context: Context,
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
-        context['model'].UserFollowingUser)
+        model.UserFollowingUser)
 
 
 def am_following_dataset(
@@ -2693,7 +2641,7 @@ def am_following_dataset(
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
-        context['model'].UserFollowingDataset)
+        model.UserFollowingDataset)
 
 
 def am_following_group(context: Context,
@@ -2710,7 +2658,7 @@ def am_following_group(context: Context,
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        context['model'].UserFollowingGroup)
+        model.UserFollowingGroup)
 
 
 def _followee_count(
@@ -2745,7 +2693,6 @@ def followee_count(context: Context,
 
     '''
     _check_access('followee_count', context, data_dict)
-    model = context['model']
     followee_users = _followee_count(context, data_dict,
                                      model.UserFollowingUser)
 
@@ -2775,7 +2722,7 @@ def user_followee_count(
     _check_access('user_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingUser)
+        model.UserFollowingUser)
 
 
 def dataset_followee_count(
@@ -2792,7 +2739,7 @@ def dataset_followee_count(
     _check_access('dataset_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingDataset)
+        model.UserFollowingDataset)
 
 
 def group_followee_count(
@@ -2809,7 +2756,7 @@ def group_followee_count(
     _check_access('group_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingGroup,
+        model.UserFollowingGroup,
         is_org = False)
 
 def organization_followee_count(
@@ -2826,7 +2773,7 @@ def organization_followee_count(
     _check_access('organization_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingGroup,
+        model.UserFollowingGroup,
         is_org = True)
 
 @logic.validate(ckan.logic.schema.default_follow_user_schema)
@@ -2841,7 +2788,7 @@ def followee_list(
     :type id: string
 
     :param q: a query string to limit results by, only objects whose display
-        name begins with the given string (case-insensitive) wil be returned
+        name begins with the given string (case-insensitive) will be returned
         (optional)
     :type q: string
 
@@ -2916,7 +2863,6 @@ def user_followee_list(
             raise ValidationError(errors)
 
     # Get the list of Follower objects.
-    model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingUser.followee_list(user_id)
 
@@ -2949,7 +2895,6 @@ def dataset_followee_list(
             raise ValidationError(errors)
 
     # Get the list of Follower objects.
-    model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingDataset.followee_list(user_id)
 
@@ -3007,7 +2952,6 @@ def _group_or_org_followee_list(
             raise ValidationError(errors)
 
     # Get the list of UserFollowingGroup objects.
-    model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingGroup.followee_list(user_id)
 
@@ -3028,7 +2972,7 @@ def _unpick_search(
     eg 'name asc, last_modified desc' and returns a list of
     split field order eg [('name', 'asc'), ('last_modified', 'desc')]
     allowed_fields can limit which field names are ok.
-    total controls how many sorts can be specifed '''
+    total controls how many sorts can be specified '''
     sorts: list[tuple[str, str]] = []
     split_sort = sort.split(',')
     for part in split_sort:
@@ -3217,7 +3161,7 @@ def api_token_list(
 
     :param string user_id: The user ID or name
 
-    :returns: collection of all API Tokens
+    :returns: collection of all API Tokens from oldest to newest
     :rtype: list
 
     .. versionadded:: 2.9
@@ -3232,4 +3176,5 @@ def api_token_list(
     if user is None:
         raise NotFound("User not found")
     tokens = model.Session.query(model.ApiToken).filter_by(user_id=user.id)
+    tokens = tokens.order_by(model.ApiToken.created_at)
     return model_dictize.api_token_list_dictize(tokens, context)
