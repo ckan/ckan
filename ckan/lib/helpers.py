@@ -2888,4 +2888,4 @@ def csrf_input():
 
 @core_helper
 def resource_list_view_limit():
-    return int(config.get('ckan.resource_list_view_limit', 8))
+    return config['ckan.resource_list_view_limit']
