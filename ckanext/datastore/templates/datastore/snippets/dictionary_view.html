@@ -1,0 +1,66 @@
+{% block dictionary_view %}
+  <div class="module-content">
+    <h2>{{ _('Data Dictionary') }}</h2>
+    {% macro dictionary_field(label) %}
+      {% set content = caller().strip() %}
+      {% if content %}
+        <dt class="col-sm-3 text-secondary">{{ label }}</dt>
+        <dd class="col-sm-9">{{ content }}</dd>
+      {% endif %}
+    {% endmacro %}
+    <div class="accordion">
+      {% for field in ddict %}
+        {% set field_type %}
+          {% block dictionary_field_type scoped%}
+            {{ field.type }}
+          {% endblock %}
+        {% endset %}
+        {% set extra_info -%}
+          {% call dictionary_field(_('Label')) %}
+            {{ h.get_translated(field.get('info', {}), 'label') }}
+          {% endcall %}
+          {% call dictionary_field(_('Description')) %}
+            {{ h.render_markdown(h.get_translated(
+              field.get('info', {}), 'notes')) }}
+          {% endcall %}
+          {% block dictionary_field_extras scoped %}
+          {% endblock %}
+        {%- endset %}
+        {# render_markdown to strip snippet comments and whitespace #}
+        {% set has_extra=h.render_markdown(extra_info) %}
+        <div class="accordion-item">
+          <h3 class="accordion-header" id="field{{ prefix }}-{{ loop.index }}">
+            {%- if has_extra -%}
+              <button class="accordion-button collapsed" type="button"
+              data-bs-toggle="collapse" aria-expanded="false"
+              data-bs-target="#collapse{{ prefix }}-{{ loop.index }}"
+              aria-controls="collapse{{ prefix }}-{{ loop.index }}">
+            {%- else -%}
+              <button class="accordion-button no-after" disabled>
+            {%- endif -%}
+              <div class="col-1">{{ loop.index }}.</div>
+              <div class="col-7">
+                {{- h.get_translated(field.get('info', {}), 'label')
+                  or field.id -}}
+              </div>
+              <div class="col-3">{{ field_type }}</div>
+            </button>
+          </h3>
+          {% if has_extra %}
+            <div id="collapse{{ prefix }}-{{ loop.index }}"
+              class="accordion-collapse collapse"
+              aria-labelledby="field{{ prefix }}-{{ loop.index }}">
+              <dl class="row accordion-body">
+                {% block resource_data_dictionary_field scoped %}
+                  {% call dictionary_field(_('ID')) %}{{ field.id }}{% endcall %}
+                  {% call dictionary_field(_('Type')) %}{{ field_type }}{% endcall %}
+                  {{ extra_info }}
+                {% endblock %}
+              </dl>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

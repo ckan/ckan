@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import uuid
 from bs4 import BeautifulSoup
 from werkzeug.routing import BuildError
 from flask_babel import refresh as refresh_babel
@@ -145,7 +146,7 @@ class TestPackageNew(object):
 
     def test_resource_required(self, app, user):
         url = url_for("dataset.new")
-        name = "one-resource-required"
+        name = "resource-data-required"
         headers = {"Authorization": user["token"]}
         response = app.post(url, headers=headers, data={
             "name": name,
@@ -156,9 +157,9 @@ class TestPackageNew(object):
         response = app.post(location, headers=headers, data={
             "id": "",
             "url": "",
-            "save": "go-metadata",
+            "save": "again",
         })
-        assert "You must add at least one data resource" in response
+        assert "No resource data entered" in response
 
     def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")
@@ -1115,7 +1116,7 @@ class TestResourceView(object):
         response = app.post(
             url,
             headers={"Authorization": user["token"]},
-            data={"title": "Test Image View"}
+            data={"title": "Test Image View", "view_type": "image_view"}
         )
         assert helpers.body_contains(response, "Test Image View")
 
@@ -1909,7 +1910,8 @@ class TestDatasetRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        dataset = factories.Dataset(id="abc", name="abc")
+        _id = str(uuid.uuid4())
+        dataset = factories.Dataset(id=_id, name=_id)
         app.get(
             url_for("dataset.read", id=dataset["id"]), status=200
         )  # ie no redirect

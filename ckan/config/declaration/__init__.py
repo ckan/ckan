@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
 
 
-__all__ = ["Declaration", "Key"]
+__all__ = ["Declaration", "Key", "Flag"]
 
 _non_iterable = Flag.non_iterable()
 
@@ -120,7 +120,7 @@ class Declaration:
         self._seal()
 
     def make_safe(self, config: "CKANConfig"):
-        """Load defaul values for missing options.
+        """Load default values for missing options.
         """
 
         for key in self.iter_options(exclude=Flag.not_safe()):
@@ -166,7 +166,7 @@ class Declaration:
             if config.get(k) == v:
                 continue
 
-            log.debug(f"Normalized {k} config option: {v}")
+            log.debug("Normalized %s config option: %s", k, v)
             config[k] = v
 
     def validate(
@@ -234,10 +234,11 @@ class Declaration:
         """
         return serializer(self, "validation_schema")
 
-    def into_docs(self) -> str:
-        """Serialize declaration into reST documentation.
+    def into_docs(self, fmt: str = "rst") -> str:
         """
-        return serializer(self, "rst")
+        Serialize declaration into one of the supported documentation formats.
+        """
+        return serializer(self, fmt)
 
     def describe(self, fmt: str) -> str:
         """Describe definition of options in the given format.

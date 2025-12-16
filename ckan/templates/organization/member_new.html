@@ -7,7 +7,7 @@
 {% block subtitle %}{{ _('Edit Member') if user else _('Add Member') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  {% link_for _('Back to all members'), named_route=group_type+'.manage_members', id=organization.name, class_='btn btn-default pull-right', icon='arrow-left' %}
+  {% link_for _('Back to all members'), named_route=group_type+'.manage_members', id=organization.name, class_='btn btn-secondary pull-right', icon='arrow-left' %}
   <h1 class="page-heading">
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      {% if not user %}
+      {% if not user and h.check_access('user_create') %}
       <div class="col-md-2">
         <div class="add-member-or">
           {{ _('or') }}

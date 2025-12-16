@@ -21,7 +21,7 @@ Back-end tests
 --------------
 
 Most of CKAN's testsuite is for the backend Python code. You can run
-the code in a dockerized environment that replicates circleci, or you
+the code in a dockerized environment that replicates GitHub Actions, or you
 can use a virtual environment based testing.
 
 ~~~~~~~~~~~~~~~~
@@ -29,7 +29,7 @@ Dockerized Tests
 ~~~~~~~~~~~~~~~~
 
 The ``test-infrastructure`` directory contains a configuration using
-docker compose replicating the circleci test process on the local
+docker compose replicating the GitHub Actions test process on the local
 machine.
 
 Set up the testing environment
@@ -40,7 +40,7 @@ Set up the testing environment
    ./setup.sh
 
 This starts a docker compose environment with the supporting postgres,
-redis, and solr containers from the circleci test environment. The
+redis, and solr containers from the GitHub Actions test environment. The
 databases are initialized, and the current ckan is installed into a
 python container.
 
@@ -57,7 +57,7 @@ Or, if you wish to run a specific test, for example
 
 .. parsed-literal::
 
-   docker compose exec ckan pytest --ckan-ini=test-core-circle-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
+   docker compose exec ckan pytest --ckan-ini=test-core-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
 
 
 Teardown

@@ -1,1 +1,0 @@
- The ``ckan.homepage_style`` configuration options and the ``homepage_style`` variable have been removed. ``layout1.html`` code has been moved into ``home/index.html``, as it will be the only layout available.

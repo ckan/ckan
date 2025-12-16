@@ -9,11 +9,11 @@ from typing import Any, Iterable, Optional, Sequence, Union
 from jinja2 import nodes
 from jinja2 import loaders
 from jinja2 import ext
+from jinja2.parser import Parser
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists
 from markupsafe import escape
 
-import ckan.lib.base as base
 import ckan.lib.helpers as h
 from ckan.common import config
 from markupsafe import Markup
@@ -128,8 +128,8 @@ class CkanExtend(ext.Extension):
                 raise Exception('ckan_extends tag wrong path %s in %s'
                                 % (provided_template, template_path))
             else:
-                log.critical('Remove path from ckan_extend tag in %s'
-                             % template_path)
+                log.critical('Remove path from ckan_extend tag in %s',
+                             template_path)
 
         # provide our magic format
         # format is *<search path parent directory>*<template name>
@@ -197,6 +197,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             searchpaths = self.searchpath[index + 1:]
         else:
             searchpaths = self.searchpath
+        # § snippet wrapper
+        smatch = re.match(r'([^"]+)§(\w+(?:,\w+)*)?([.]\w+)$', template)
+        if smatch:
+            # check for TemplateNotFound on real template
+            args = ',' + smatch[2] if smatch[2] else ''
+            return (
+                f'{{% macro snippet(_template{args}) %}}'
+                f'{{% include _template %}}'
+                f'{{% endmacro %}}',
+                template,
+                lambda: True
+            )
         # end of ckan changes
         pieces = loaders.split_template_path(template)
         for searchpath in searchpaths:
@@ -208,8 +220,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 contents = f.read().decode(self.encoding)
             except UnicodeDecodeError as e:
                 log.critical(
-                    'Template corruption in `%s` unicode decode errors'
-                    % filename
+                    'Template corruption in `%s` unicode decode errors',
+                    filename
                 )
                 raise e
             finally:
@@ -261,20 +273,61 @@ class BaseExtension(ext.Extension):
         return nodes.Output([make_call_node()]).set_lineno(tag.lineno)
 
 
-class SnippetExtension(BaseExtension):
+class SnippetExtension(ext.Extension):
     ''' Custom snippet tag
 
     {% snippet <template_name> [, <fallback_template_name>]...
                [, <keyword>=<value>]... %}
 
-    see lib.helpers.snippet() for more details.
+    renders <template_name> with <keyword>=<value> as local variables
     '''
 
-    tags = set(['snippet'])
+    tags = {'snippet'}
 
-    @classmethod
-    def _call(cls, args: Iterable[Any], kwargs: dict[str, Any]):
-        return base.render_snippet(*args, **kwargs)
+    def parse(self, parser: Parser):
+        lineno = next(parser.stream).lineno
+        templates: list[nodes.Expr] = []
+        targets: list[nodes.Name] = []
+        kwargs: list[nodes.Keyword] = []
+        while not parser.stream.current.test_any('block_end'):
+            if templates or targets:
+                parser.stream.expect('comma')
+            if parser.stream.current.test('name') and parser.stream.look().test('assign'):
+                key = parser.parse_assign_target()
+                key.set_ctx('param')
+                targets.append(key)
+                parser.stream.expect('assign')
+                value = parser.parse_expression()
+                kwargs.append(nodes.Keyword(key.name, value, lineno=lineno))
+            else:
+                templates.append(parser.parse_expression())
+
+        imp = nodes.FromImport(lineno=lineno)
+        args = '§' + ','.join(targ.name for targ in targets)
+        template = 'dynamic' + args + '.html'
+        if isinstance(templates[0], nodes.Const):
+            template = args.join(path.splitext(templates[0].value))
+        imp.template = nodes.Const(template)
+        imp.names = ['snippet']
+        imp.with_context = False
+        nam = nodes.Name('snippet', 'load', lineno=lineno)
+        call = nodes.Call(
+            nam,
+            [nodes.List(templates, lineno=lineno)],
+            kwargs,
+            None,
+            None,
+            lineno=lineno
+        )
+        call.node = nam
+        out = nodes.Output(lineno=lineno)
+        out.nodes = [call]
+        wit = nodes.With(lineno=lineno)
+        wit.targets = []
+        wit.values = []
+        wit.body = [imp, out]
+        return wit
+
 
 class UrlForStaticExtension(BaseExtension):
     ''' Custom url_for_static tag for getting a path for static assets.

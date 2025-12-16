@@ -13,10 +13,10 @@ import logging
 from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import (orm, types, Column, Table, ForeignKey, Index,
+                        CheckConstraint)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.ext.associationproxy import AssociationProxy
 
 from ckan.common import config
 
@@ -26,12 +26,11 @@ import ckan.model.license as _license
 import ckan.model.types as _types
 import ckan.model.domain_object as domain_object
 
-import ckan.lib.maintain as maintain
 from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import (
-     PackageExtra, PackageRelationship, Resource,
+     PackageRelationship, Resource,
      PackageTag, Tag, Vocabulary,
      Group,
     )
@@ -54,27 +53,38 @@ PACKAGE_VERSION_MAX_LENGTH: int = 100
 
 # Our Domain Object Tables
 package_table = Table('package', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
-               nullable=False, unique=True),
-        Column('title', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
-               doc='remove_if_not_provided'),
-        Column('url', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('author', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('type', types.UnicodeText, default=u'dataset'),
-        Column('owner_org', types.UnicodeText),
-        Column('creator_user_id', types.UnicodeText),
-        Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
-        Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
-        Column('private', types.Boolean, default=False),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
-        Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
+           nullable=False, unique=True),
+    Column('title', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
+           doc='remove_if_not_provided'),
+    Column('url', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('author', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('type', types.UnicodeText, default=u'dataset'),
+    Column('owner_org', types.UnicodeText),
+    Column('creator_user_id', types.UnicodeText),
+    Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
+    Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
+    Column('private', types.Boolean, default=False),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+        """
+        jsonb_typeof(extras) = 'object' and
+        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+        """,
+        name='package_flat_extras',
+    )),
+    Index('idx_pkg_sid', 'id', 'state'),
+    Index('idx_pkg_sname', 'name', 'state'),
+    Index('idx_pkg_stitle', 'title', 'state'),
+    Index('idx_package_creator_user_id', 'creator_user_id'),
 )
 
 
@@ -84,7 +94,8 @@ package_member_table = Table(
     Column('package_id', ForeignKey('package.id'), primary_key=True),
     Column('user_id', ForeignKey('user.id'), primary_key = True),
     Column('capacity', types.UnicodeText, nullable=False),
-    Column('modified', types.DateTime, default=datetime.datetime.utcnow),
+    Column('modified', types.DateTime, default=datetime.datetime.utcnow,
+           nullable=False),
 )
 
 
@@ -112,12 +123,11 @@ class Package(core.StatefulObjectMixin,
     private: Mapped[bool]
     state: Mapped[str]
     plugin_data: Mapped[dict[str, Any]]
+    extras: Mapped[dict[str, str]]
 
     package_tags: Mapped[list["PackageTag"]]
 
     resources_all: Mapped[list["Resource"]]
-    _extras: Mapped[dict[str, Any]]
-    extras: AssociationProxy
 
     relationships_as_subject: Mapped['PackageRelationship']
     relationships_as_object: Mapped['PackageRelationship']
@@ -140,11 +150,12 @@ class Package(core.StatefulObjectMixin,
         if not reference:
             return None
 
-        q = meta.Session.query(cls)
-        if for_update:
-            q = q.with_for_update()
-        pkg = q.get(reference)
-        if pkg == None:
+        pkg = meta.Session.get(
+            cls,
+            reference,
+            with_for_update=for_update or None,
+        )
+        if not pkg:
             pkg = cls.by_name(reference, for_update=for_update)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
@@ -428,20 +439,6 @@ class Package(core.StatefulObjectMixin,
 
     license = property(get_license, set_license)
 
-    @maintain.deprecated('`is_private` attriute of model.Package is ' +
-                         'deprecated and should not be used.  Use `private`',
-                         since="2.1.0")
-
-    def _is_private(self):
-        """
-        DEPRECATED in 2.1
-
-        A package is private if belongs to any private groups
-        """
-        return self.private
-
-    is_private = property(_is_private)
-
     def is_in_group(self, group: "Group") -> bool:
         return group in self.get_groups()
 
@@ -450,11 +447,14 @@ class Package(core.StatefulObjectMixin,
         import ckan.model as model
 
         # Gets [ (group, capacity,) ...]
-        pairs: list[tuple[model.Group, str]] = model.Session.query(
+        pairs = model.Session.query(
             model.Group,model.Member.capacity
         ). join(
-            model.Member, model.Member.group_id == model.Group.id and
-            model.Member.table_name == 'package'
+            model.Member,
+            and_(
+                model.Member.group_id == model.Group.id,
+                model.Member.table_name == 'package'
+            )
         ).join(
             model.Package, model.Package.id == model.Member.table_id
         ).filter(model.Member.state == 'active').filter(
@@ -467,19 +467,6 @@ class Package(core.StatefulObjectMixin,
         groups = [group for (group, cap) in pairs if not capacity or cap == capacity]
         return groups
 
-    @property
-    @maintain.deprecated(since="2.9.0")
-    def extras_list(self) -> list['PackageExtra']:
-        '''DEPRECATED in 2.9
-
-        Returns a list of the dataset's extras, as PackageExtra object
-        NB includes deleted ones too (state='deleted')
-        '''
-        from ckan.model.package_extra import PackageExtra
-        return meta.Session.query(PackageExtra) \
-            .filter_by(package_id=self.id) \
-            .all()
-
 
 class PackageMember(domain_object.DomainObject):
     package_id: Mapped[str]
@@ -489,7 +476,7 @@ class PackageMember(domain_object.DomainObject):
 
 
 # import here to prevent circular import
-from ckan.model import tag
+from ckan.model import tag  # noqa: E402
 
 meta.registry.map_imperatively(Package, package_table, properties={
     # delete-orphan on cascade does NOT work!

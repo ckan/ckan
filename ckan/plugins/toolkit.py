@@ -17,13 +17,13 @@ import ckan.lib.base as base
 from ckan.lib.base import render, abort
 import packaging.version as pv
 
-from ckan.logic import (  # noqa: re-export
+from ckan.logic import (  # noqa
     get_action,
     check_access,
     get_validator,
     chained_auth_function,
     chained_action,
-    NotFound as ObjectNotFound,
+    NotFound,
     NotAuthorized,
     ValidationError,
     UnknownValidator,
@@ -33,11 +33,17 @@ from ckan.logic import (  # noqa: re-export
     auth_allow_anonymous_access,
     auth_disallow_anonymous_access,
     fresh_context,
+    validate,
+    schema,
 )
 
 import ckan.plugins.blanket as blanket
 import ckan.lib.signals as signals
-from ckan.lib.jobs import enqueue as enqueue_job
+from ckan.lib.jobs import (
+    enqueue as enqueue_job,
+    get_queue as get_job_queue,
+    job_from_id,
+)
 from ckan.logic.validators import Invalid
 from ckan.lib.navl.dictization_functions import (
     validate as navl_validate,
@@ -81,31 +87,80 @@ from ckan.cli import error_shout
 from ckan.lib.mailer import mail_recipient, mail_user
 from ckan.model.base import BaseModel
 
+ObjectNotFound = NotFound
+
+
 __all__ = [
-    "ckan", "base", "render", "abort",
-    "get_action", "check_access",
-    "get_validator", "get_converter",
-    "chained_auth_function", "chained_action",
-    "ObjectNotFound", "NotAuthorized", "ValidationError", "UnknownValidator",
-    "get_or_bust",
-    "side_effect_free", "auth_sysadmins_check",
-    "auth_allow_anonymous_access", "auth_disallow_anonymous_access",
-    "blanket", "signals", "enqueue_job",
-    "Invalid", "navl_validate", "missing", "StopOnError",
-    "h", "literal", "chained_helper", "redirect_to", "url_for",
-    "CkanVersionException", "HelperError",
-    "config", "_", "ungettext", "g", "c", "request",
-    "asbool", "asint", "aslist", "login_user", "logout_user", "current_user",
-    "DefaultDatasetForm", "DefaultGroupForm", "DefaultOrganizationForm",
-    "error_shout",
-    "mail_recipient", "mail_user",
-    "render_snippet", "add_template_directory", "add_public_directory",
+    "BaseModel",
+    "CkanVersionException",
+    "DefaultDatasetForm",
+    "DefaultGroupForm",
+    "DefaultOrganizationForm",
+    "HelperError",
+    "Invalid",
+    "NotAuthorized",
+    "NotFound",
+    "ObjectNotFound",
+    "StopOnError",
+    "UnknownValidator",
+    "ValidationError",
+    "_",
+    "abort",
+    "add_public_directory",
     "add_resource",
-    "check_ckan_version", "requires_ckan_version", "get_endpoint",
-    "fresh_context", "BaseModel",
+    "add_template_directory",
+    "asbool",
+    "asint",
+    "aslist",
+    "auth_allow_anonymous_access",
+    "auth_disallow_anonymous_access",
+    "auth_sysadmins_check",
+    "base",
+    "blanket",
+    "c",
+    "chained_action",
+    "chained_auth_function",
+    "chained_helper",
+    "check_access",
+    "check_ckan_version",
+    "ckan",
+    "config",
+    "current_user",
+    "enqueue_job",
+    "error_shout",
+    "fresh_context",
+    "g",
+    "get_action",
+    "get_converter",
+    "get_endpoint",
+    "get_job_queue",
+    "get_or_bust",
+    "get_validator",
+    "h",
+    "job_from_id",
+    "literal",
+    "login_user",
+    "logout_user",
+    "mail_recipient",
+    "mail_user",
+    "missing",
+    "navl_validate",
+    "redirect_to",
+    "render",
+    "render_snippet",
+    "request",
+    "requires_ckan_version",
+    "side_effect_free",
+    "signals",
+    "ungettext",
+    "url_for",
+    "validate_action_data",
+    "validator_args",
 ]
 
 get_converter = get_validator
+validate_action_data = validate
+validator_args = schema.validator_args
 
 
 # Wrapper for the render_snippet function as it uses keywords rather than

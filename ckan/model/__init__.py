@@ -14,7 +14,8 @@ from sqlalchemy import MetaData, Table, inspect
 from alembic.command import (
     upgrade as alembic_upgrade,
     downgrade as alembic_downgrade,
-    current as alembic_current
+    current as alembic_current,
+    stamp as alembic_stamp,
 )
 from alembic.config import Config as AlembicConfig
 
@@ -55,14 +56,6 @@ from ckan.model.group import (
     Group,
     group_table,
     member_table,
-)
-from ckan.model.group_extra import (
-    GroupExtra,
-    group_extra_table,
-)
-from ckan.model.package_extra import (
-    PackageExtra,
-    package_extra_table,
 )
 from ckan.model.resource import (
     Resource,
@@ -124,7 +117,6 @@ __all__ = [
     "Tag", "PackageTag", "MAX_TAG_LENGTH", "MIN_TAG_LENGTH", "tag_table",
     "package_tag_table", "User", "user_table", "AnonymousUser", "Member", "Group",
     "group_table", "member_table",
-    "GroupExtra", "group_extra_table", "PackageExtra", "package_extra_table",
     "Resource", "DictProxy", "resource_table",
     "ResourceView", "resource_view_table",
     "PackageRelationship", "package_relationship_table",
@@ -250,7 +242,16 @@ class Repository():
         '''
         with ensure_engine().begin() as conn:
             self.metadata.create_all(conn)
+
         log.info('Database tables created')
+
+    def stamp_alembic_head(self):
+        '''mark database as up to date for alembic'''
+        alembic_config = AlembicConfig(self._alembic_ini)
+        alembic_config.set_main_option(
+            "sqlalchemy.url", config.get("sqlalchemy.url")
+        )
+        alembic_stamp(alembic_config, 'head')
 
     def rebuild_db(self) -> None:
         '''Clean and init the db'''
@@ -270,10 +271,22 @@ class Repository():
         self.session.remove()
         ## use raw connection for performance
         connection: Any = self.session.connection()
+        inspector = sa.inspect(connection)
         tables = reversed(self.metadata.sorted_tables)
         for table in tables:
+            # `alembic_version` contains current migration version of the
+            # DB. If we drop this information, next attempt to apply migrations
+            # will fail. Don't worry about `<PLUGIN>_alembic_version` tables
+            # created by extensions - CKAN metadata does not track them, so
+            # they'll never appear in this list.
             if table.name == 'alembic_version':
                 continue
+
+            # if custom model imported without migrations applied,
+            # corresponding table can be missing from DB
+            if not inspector.has_table(table.name):
+                continue
+
             connection.execute(sa.delete(table))
         self.session.commit()
         log.info('Database table data deleted')
@@ -371,6 +384,9 @@ class Repository():
 
     def are_tables_created(self) -> bool:
         meta.metadata = MetaData()
+        if not meta.engine:
+            return False
+
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
             meta.metadata.reflect(meta.engine)

@@ -11,7 +11,7 @@
 
 {% block content_action %}
   {% if h.check_access('organization_update', {'id': group_dict.id}) %}
-    {% link_for _('Manage'), named_route=group_type+'.edit', id=group_dict.name, class_='btn btn-default', icon='wrench' %}
+    {% link_for _('Manage'), named_route=group_type+'.edit', id=group_dict.name, class_='btn btn-secondary', icon='wrench' %}
   {% endif %}
 {% endblock %}
 

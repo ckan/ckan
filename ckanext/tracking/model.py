@@ -17,47 +17,110 @@ from __future__ import annotations
 
 import datetime
 
-from sqlalchemy import types, Column, Table, text
-from sqlalchemy.orm import Mapped
+from sqlalchemy import types, Column, text, Index, Table
 
-from ckan.model import meta
-from ckan.model import domain_object
+import ckan.model.meta as meta
+import ckan.model.domain_object as domain_object
+import ckan.model.types as _types
+from ckan.model.base import BaseModel
 
-__all__ = ['tracking_summary_table', 'TrackingSummary', 'tracking_raw_table']
-
-
-tracking_raw_table = Table(
-    'tracking_raw',
-    meta.metadata,
-    Column('user_key', types.Unicode(100), nullable=False),
-    Column('url', types.UnicodeText, nullable=False),
-    Column('tracking_type', types.Unicode(10), nullable=False),
-    Column('access_timestamp', types.DateTime),
-)
+__all__ = ['TrackingSummary', 'TrackingRaw']
 
 
-tracking_summary_table = Table(
-    'tracking_summary',
-    meta.metadata,
-    Column('url', types.UnicodeText, primary_key=True, nullable=False),
-    Column('package_id', types.UnicodeText),
-    Column('tracking_type', types.Unicode(10), nullable=False),
-    Column('count', types.Integer, nullable=False),
-    Column('running_total', types.Integer, nullable=False),
-    Column('recent_views', types.Integer, nullable=False),
-    Column('tracking_date', types.DateTime),
-)
+class TrackingRaw(domain_object.DomainObject, BaseModel):
+
+    __table__ = Table(
+        "tracking_raw",
+        BaseModel.metadata,
+        Column("user_key", types.Unicode(100), nullable=False, primary_key=True),
+        Column("url", types.UnicodeText, nullable=False, primary_key=True),
+        Column("tracking_type", types.Unicode(10), nullable=False),
+        Column(
+            "access_timestamp",
+            types.DateTime,
+            primary_key=True,
+            default=datetime.datetime.now
+        ),
+    )
+
+    def __init__(self, user_key: str,
+                 url: str,
+                 tracking_type: str) -> None:
+        self.user_key = user_key
+        self.url = url
+        self.tracking_type = tracking_type
+
+    @classmethod
+    def get(cls, **kw: _types.Any) -> TrackingRaw | None:
+        """Get tracking raw entry."""
+        query = meta.Session.query(cls).autoflush(False)
+        return query.filter_by(**kw).first()
+
+    @classmethod
+    def create(cls, **kw: _types.Any) -> TrackingRaw:
+        """Create a new tracking raw entry."""
+        obj = cls(**kw)
+        meta.Session.add(obj)
+        meta.Session.commit()
+        return obj
 
 
-class TrackingSummary(domain_object.DomainObject):
-    url: Mapped[str]
-    package_id: Mapped[str]
-    tracking_type: Mapped[str]
-    # count attribute shadows DomainObject.count()
-    count: Mapped[int]
-    running_total: Mapped[int]
-    recent_views: Mapped[int]
-    tracking_date: Mapped[datetime.datetime]
+Index('tracking_raw_user_key', TrackingRaw.user_key)
+Index('tracking_raw_url', TrackingRaw.url)
+Index('tracking_raw_access_timestamp', 'access_timestamp')
+
+
+class TrackingSummary(domain_object.DomainObject, BaseModel):
+
+    __table__ = Table(
+        "tracking_summary",
+        BaseModel.metadata,
+        Column("url", types.UnicodeText, nullable=False, primary_key=True),
+        Column("package_id", types.UnicodeText),
+        Column("tracking_type", types.Unicode(10), nullable=False),
+        Column("count", types.Integer, nullable=False),
+        Column("running_total", types.Integer, nullable=False, server_default="0"),
+        Column("recent_views", types.Integer, nullable=False, server_default="0"),
+        Column("tracking_date", types.Date)
+    )
+
+    def __init__(self,
+                 url: str,
+                 package_id: str | None,
+                 tracking_type: str | None,
+                 count: int,
+                 running_total: int,
+                 recent_views: int,
+                 tracking_date: datetime.date) -> None:
+        self.url = url
+        self.package_id = package_id
+        self.tracking_type = tracking_type
+        self.count = count  # type: ignore
+        self.running_total = running_total
+        self.recent_views = recent_views
+        self.tracking_date = tracking_date
+
+    @classmethod
+    def get(cls, **kw: _types.Any) -> TrackingSummary | None:
+        obj = meta.Session.query(cls).autoflush(False)
+        return obj.filter_by(**kw).first()
+
+    @classmethod
+    def create(cls, **kwargs: _types.Any) -> TrackingSummary:
+        obj = cls(**kwargs)
+        meta.Session.add(obj)
+        meta.Session.commit()
+        return obj
+
+    @classmethod
+    def update(cls, filters: dict[str, _types.Any],
+               **kwargs: _types.Any) -> TrackingSummary | None:
+        obj = meta.Session.query(cls).filter_by(**filters).first()
+        if obj:
+            for key, value in kwargs.items():
+                setattr(obj, key, value)
+            meta.Session.commit()
+        return obj
 
     @classmethod
     def get_for_package(cls, package_id: str) -> dict[str, int]:
@@ -81,4 +144,6 @@ class TrackingSummary(domain_object.DomainObject):
         return {'total': 0, 'recent': 0}
 
 
-meta.registry.map_imperatively(TrackingSummary, tracking_summary_table)
+Index('tracking_summary_url', TrackingSummary.url)
+Index('tracking_summary_package_id', TrackingSummary.package_id)
+Index('tracking_summary_date', 'tracking_date')

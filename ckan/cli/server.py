@@ -1,17 +1,20 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from ckan.exceptions import CkanDeprecationWarning
+import glob
+import itertools
 import logging
 import warnings
-from typing import Optional
+from typing import Iterable, Optional
 
 import click
 from werkzeug.serving import run_simple
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 from ckan.common import config
+from ckan.exceptions import CkanDeprecationWarning
 from . import error_shout
+from ckan.lib.i18n import build_js_translations
 
 log = logging.getLogger(__name__)
 
@@ -57,9 +60,9 @@ DEFAULT_PORT = 5000
 @click.pass_context
 def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         passthrough_errors: bool, disable_debugger: bool, threaded: bool,
-        extra_files: list[str], processes: int, ssl_cert: Optional[str],
+        extra_files: Iterable[str], processes: int, ssl_cert: Optional[str],
         ssl_key: Optional[str], prefix: Optional[str]):
-    u"""Runs the Werkzeug development server"""
+    """Regenerate JS translations and run the Werkzeug development server"""
 
     if config.get("debug"):
         warnings.filterwarnings("default", category=CkanDeprecationWarning)
@@ -75,10 +78,15 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
 
     # Reloading
     use_reloader = not disable_reloader
-    config_extra_files = config.get(u"ckan.devserver.watch_patterns")
-    extra_files = list(extra_files) + [
-        config[u"__file__"]
-    ] + config_extra_files
+    config_extra_files = config["ckan.devserver.watch_patterns"]
+    extra_files = itertools.chain(
+        [config[u"__file__"]],
+        *[
+            glob.glob(path, recursive=True)
+            for path
+            in list(extra_files) + config_extra_files
+        ]
+    )
 
     # Threads and processes
     threaded = threaded or config.get(u"ckan.devserver.threaded")
@@ -115,9 +123,11 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         error_shout(u"Server port must be an integer, not {}".format(port))
         raise click.Abort()
 
-    log.info(u"Running CKAN on {scheme}://{host}:{port}{prefix}".format(
-        scheme='https' if ssl_context else 'http', host=host, port=port_int,
-        prefix=prefix))
+    # Once automatic on startup, run only here for faster debug iterations
+    build_js_translations()
+
+    log.info("Running CKAN on %s://%s:%s%s",
+             'https' if ssl_context else 'http', host, port_int, prefix)
 
     run_simple(
         host,

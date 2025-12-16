@@ -16,10 +16,9 @@ Compatibility with core CKAN versions:
 
 | CKAN version    | Compatible?   |
 | --------------- | ------------- |
-| 2.6 and earlier | not tested    |
-| 2.7             | not tested    |
-| 2.8             | not tested    |
-| 2.9             | not tested    |
+| 2.9 and earlier | not tested    |
+| 2.10            | not tested    |
+| 2.11            | not tested    |
 
 Suggested values:
 
@@ -75,7 +74,7 @@ do:
 
     git clone https://github.com/{{ cookiecutter.github_user_name }}/{{ cookiecutter.project }}.git
     cd {{ cookiecutter.project }}
-    python setup.py develop
+    pip install -e .
     pip install -r dev-requirements.txt
 
 
@@ -90,7 +89,7 @@ To run the tests, do:
 
 If {{ cookiecutter.project }} should be available on PyPI you can follow these steps to publish a new version:
 
-1. Update the version number in the `setup.py` file. See [PEP 440](http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers) for how to choose version numbers.
+1. Update the version number in the `pyproject.toml` file. See [PEP 440](http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers) for how to choose version numbers.
 
 2. Make sure you have the latest version of necessary packages:
 
@@ -98,7 +97,7 @@ If {{ cookiecutter.project }} should be available on PyPI you can follow these s
 
 3. Create a source and binary distributions of the new version:
 
-       python setup.py sdist bdist_wheel && twine check dist/*
+       python -m build && twine check dist/*
 
    Fix any errors you get.
 

@@ -18,6 +18,11 @@ log = logging.getLogger(__name__)
 class License():
     """Domain object for a license."""
 
+    default_values = {
+        'od_conformance': False,
+        'osd_conformance': False,
+    }
+
     def __init__(self, data: dict[str, Any]) -> None:
         self._data = data
         for (key, value) in self._data.items():
@@ -30,6 +35,9 @@ class License():
                 ))
                 self._data[key] = value
             elif isinstance(value, str):
+                self._data[key] = value
+        for (key, value) in self.default_values.items():
+            if key not in self._data:
                 self._data[key] = value
 
     def __getattr__(self, name: str) -> Any:

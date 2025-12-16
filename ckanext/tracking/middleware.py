@@ -1,13 +1,16 @@
 import hashlib
-from typing import cast
+import logging
 
 from urllib.parse import unquote
 
-import sqlalchemy as sa
 
-from ckan.model.meta import engine
 from ckan.common import request
 from ckan.types import Response
+
+from ckanext.tracking.model import TrackingRaw
+
+
+logger = logging.getLogger(__name__)
 
 
 def track_request(response: Response) -> Response:
@@ -35,15 +38,18 @@ def track_request(response: Response) -> Response:
         h.update(key.encode())
         key = h.hexdigest()
         # store key/data here
-        sql = '''INSERT INTO tracking_raw
-                    (user_key, url, tracking_type)
-                     VALUES (:key, :url, :type)'''
-
-        with cast(sa.engine.Engine, engine).begin() as conn:
-            conn.execute(sa.text(sql), {
-                "key": key,
-                "url": data.get("url"),
-                "type": data.get("type"),
-            })
+        try:
+            logger.debug(
+                "Tracking %s for %s",
+                data.get('type'),
+                data.get('url'),
+            )
+            TrackingRaw.create(
+                user_key=key,
+                url=data.get("url"),
+                tracking_type=data.get("type")
+            )
+        except Exception as e:
+            logger.error("Error tracking request", e)
 
     return response

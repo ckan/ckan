@@ -15,7 +15,7 @@
 
 {% block breadcrumb_content %}
   {{ super() }}
-  <li class="active"><a href="" title="{{ h.resource_display_name(res) }}">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
+  <li class="active"><a href="" aria-current="page" aria-label="{{ _('Current resource: {name}').format(name=h.resource_display_name(res)) }}">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
 {% endblock %}
 
 {% block pre_primary %}
@@ -29,65 +29,38 @@
               {% block resource_actions_inner %}
                 {% block action_manage %}
                   {% if h.check_access('package_update', {'id':pkg.id }) %}
-                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='pencil' %}</li>
+                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='pencil' %}</li>
                     {% block action_manage_inner %}{% endblock %}
-                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='chart-bar' %}
+                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='chart-bar' %}</li>
                   {% endif %}
                 {% endblock action_manage %}
-                <li>
-                  <div class="btn-group">
-                    {% if res.url and h.is_url(res.url) %}
-                      <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
-                        {% if res.resource_type in ('listing', 'service') %}
-                          <i class="fa fa-eye"></i> {{ _('View') }}
-                        {% elif  res.resource_type == 'api' %}
-                          <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-                        {% elif not res.has_views and not res.url_type == 'upload' %}
-                          <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
-                        {% else %}
-                          <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
-                        {% endif %}
-                      </a>
-                    {% endif %}
-                    {% block download_resource_button %}
-                      {% if res.datastore_active %}
-                        <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ _('List of downloadable formats') }}">
-                          {% if not res.url or not h.is_url(res.url) %}
-                            {{ _('Download') }}&nbsp;
-                          {% endif %}
-                          <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownDownloadFormat">
-                          <li>
-                            <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, bom=True) }}"
-                              target="_blank" rel="noreferrer"><span>CSV</span></a>
-                          </li>
-                          <li>
-                            <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
-                              target="_blank" rel="noreferrer"><span>TSV</span></a>
-                          </li>
-                          <li>
-                              <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
-                              target="_blank" rel="noreferrer"><span>JSON</span></a>
-                          </li>
-                          <li>
-                              <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
-                              target="_blank" rel="noreferrer"><span>XML</span></a>
-                          </li>
-                        </ul>
-                      {% endif %}
-                    {% endblock %}
-                  </div>
-                </li>
-              {% endblock %}
-            </ul>
+            {% if res.url and h.is_url(res.url) %}
+              <li>
+                <div class="btn-group">
+                <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
+                  {% if res.resource_type in ('listing', 'service') %}
+                    <i class="fa fa-eye"></i> {{ _('View') }}
+                  {% elif  res.resource_type == 'api' %}
+                    <i class="fa fa-key"></i> {{ _('API Endpoint') }}
+                  {% elif not res.has_views and not res.url_type == 'upload' %}
+                    <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
+                  {% else %}
+                    <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
+                  {% endif %}
+                </a>
+                {% block download_resource_button %}{% endblock download_resource_button %}
+                </div>
+              </li>
+            {% endif %}
+            {% endblock %}
+          </ul>
           {% endblock %}
         </div>
         {% block resource_content %}
-          {% block resource_read_title %}<h1 class="page-heading" title="{{ h.resource_display_name(res) }}">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
-              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" aria-label="{{ _('Resource URL: {url}').format(url=res.url) }}">{{ res.url }}</a></p>
             {% elif res.url %}
               <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
@@ -99,7 +72,7 @@
             {% if not res.description and package.notes %}
               <h3>{{ _('Dataset description:') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}<p>
             {% endif %}
           </div>
         {% endblock %}
@@ -214,7 +187,7 @@
     {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read' %}
   {% endblock %}
 
-  {% block resource_license %}
+  {% block resource_social %}
     {% snippet "snippets/social.html" %}
   {% endblock %}
 {% endblock %}

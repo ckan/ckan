@@ -14,6 +14,7 @@
 {% endmacro %}
 
 {% macro organization(activity) %}
+  {% set group_type = group_type or (activity.data.group.type if (activity.data.group and activity.data.group.type) else 'organization') %}
   <a href="{{ h.url_for(group_type ~ '.read', id=activity.object_id) }}">
     {{ activity.data.group.title if activity.data.group else _('unknown') }}
   </a>

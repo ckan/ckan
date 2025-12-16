@@ -1,1 +1,0 @@
-Environment variables prefixed with `CKAN_` can be used as variables inside config file via `option = %(CKAN_***)s`

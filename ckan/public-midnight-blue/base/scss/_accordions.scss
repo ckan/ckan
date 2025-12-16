@@ -1,0 +1,125 @@
+//
+// Base styles
+//
+
+.accordion-button {
+  padding: $accordion-button-padding-y 0.9em;
+  color: $accordion-button-color;
+  background-color: $accordion-button-bg;
+  @include transition($accordion-transition);
+
+  &:not(.collapsed) {
+    color: $accordion-button-color;
+    background-color: $gray-50;
+    box-shadow: none;
+
+    &::after {
+      background-image: escape-svg($accordion-button-icon);
+      transform: $accordion-icon-transform;
+    }
+  }
+
+  // Accordion icon
+  &::after {
+    width: $accordion-icon-width;
+    height: $accordion-icon-width;
+    background-image: escape-svg($accordion-button-icon);
+    background-repeat: no-repeat;
+    background-size: $accordion-icon-width;
+    @include transition($accordion-icon-transition);
+  }
+
+  &:focus {
+    border-color: $accordion-button-focus-border-color;
+    box-shadow: $accordion-button-focus-box-shadow;
+  }
+}
+
+.accordion-header,
+.accordion-heading {
+  margin-bottom: 0;
+}
+
+.accordion-item {
+  border-bottom: $accordion-border-width solid $gray-300;
+  background-color: $accordion-bg;
+  &:last-of-type {
+    @include border-bottom-radius(var(--#{$prefix}accordion-border-radius));
+
+    > .accordion-header .accordion-button {
+      @include border-bottom-radius(var(--#{$prefix}accordion-inner-border-radius));
+    }
+  }
+}
+
+.accordion-body {
+  padding: $accordion-body-padding-y $accordion-body-padding-x;
+}
+
+// Secondary accordions
+
+.secondary .accordion {
+  .accordion-item {
+    background-color: transparent;
+    border: none;
+    border-radius: 0.5rem;
+
+    &:has(.accordion-button:disabled),
+    .module-content {
+      background-color: $gray-100;
+    }
+
+    &:first-of-type .accordion-button {
+      border-radius: 0.5rem;
+    }
+
+    .module-content {
+      padding: 1rem;
+      border-radius: 0 0 .5rem .5rem;
+    }
+  }
+
+  .accordion-button:not(.collapsed) {
+    box-shadow: none;
+    background-color: $primary;
+    color: $white;
+
+    .filter-svg {
+      -webkit-text-stroke: 2px $white;
+    }
+
+    &::after {
+      background-image: escape-svg($chevronActiveIcon);
+    }
+  }
+
+  .accordion-button {
+    background-color: $gray-100;
+
+    &:disabled::after {
+      background-image: none;
+    }
+  }
+
+  .module-heading {
+    border-radius: .5rem;
+    font-weight: $font-weight-normal;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  nav {
+    padding: .5rem;
+  }
+
+  .accordion-collapse.show {
+    background-color: $gray-100;
+    border-radius: 0 0 .5rem .5rem;
+  }
+  
+  .package-accordion .accordion-body {
+    background-color: #fff;
+    padding: 6px 0;
+  }
+}

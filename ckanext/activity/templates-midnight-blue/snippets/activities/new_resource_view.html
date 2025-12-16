@@ -1,0 +1,19 @@
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+  <span class="fa-stack fa-lg">
+    <i class="fa fa-circle fa-stack-2x icon"></i>
+    <i class="fa fa-chart-bar fa-stack-1x fa-inverse"></i>
+  </span>
+  {% set view_link = h.link_to(label=h.get_translated(activity.data, 'title'),
+                               url=h.url_for('resource.read', id=activity.data.package_id,
+                                resource_id=activity.data.resource_id, view_id=activity.data.id)) %}
+  <span>
+    {{ _('{actor} created resource view {view_link}').format(
+      actor=ah.actor(activity),
+      view_link=view_link
+    )|safe }}
+    <br />
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+      {{ h.time_ago_from_timestamp(activity.timestamp) }}
+    </span>
+  </span>
+</li>

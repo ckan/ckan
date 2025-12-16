@@ -17,7 +17,8 @@
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
-  <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
+  {% set name_or_id = res.name or res.id %}
+  <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=name_or_id)}}">
     {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
   </a>
   {% endblock %}
@@ -68,7 +69,7 @@
       {% if can_edit %}
         <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='pencil' %}</li>
         {% block resource_item_explore_inner scoped %}{% endblock %}
-        <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='chart-bar' %}
+        <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='chart-bar' %}</li>
       {% endif %}
       {% endblock %}
     </ul>

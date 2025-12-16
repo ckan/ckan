@@ -1,0 +1,249 @@
+.nav-simple,
+.nav-aside {
+    @include simple-list; // Adds border and padding.
+    padding-bottom: 0;
+    display: block;
+}
+
+.nav-aside {
+    border-top: 1px dotted #DDD;
+    border-bottom: 1px dotted #DDD;
+    margin-bottom: 15px;
+}
+
+
+.module-narrow {
+
+    .nav-item>a,
+    .nav-aside li a {
+        text-decoration: none;
+        display: block;
+        color: $navLinkColor;
+        font-size: $font-size-base;
+        line-height: $line-height-base;
+        padding: 10px ($gutterX);
+        border-radius: .5rem;
+        position: relative;
+        &:hover {
+            text-decoration: none;
+            background-color: #f8f9fa;
+        }
+
+        &:focus {
+            background-color: $gray-300;
+        }
+
+        .badge {
+            background-color: $emptyTextColor;
+            border-radius: 6px;
+            padding: 5px 6px;
+            color: $white;
+            border: 1px solid $white;
+            min-width: 2rem;
+        }
+
+        .item-label {
+            width: 70%;
+        }
+
+        .item-state {
+            float: right;
+            position: relative;
+            transform: translateY(0);
+            left: 10px;
+            width: 24px;
+            height: 24px;
+            background-image: escape-svg($addStateIcon);
+        }
+
+        .item-count-span {
+            display: flex;
+            align-self: center;
+        }
+    }
+
+    .nav-item.active,
+    .nav-aside li.active {
+        background-color: $primary;
+
+        .item-state {
+            background-image: escape-svg($removeStateIcon);
+        }
+    }
+
+    .nav-item.active>a,
+    .nav-aside li.active a {
+        position: relative;
+        color: $navItemActiveTextColor;
+        background-color: $brand-400;
+
+        &:hover {
+            color: $navItemActiveTextColor;
+            background-color: $brand-400;
+        }
+    }
+
+    .nav-pills>li {
+        float: none;
+
+        @include media-breakpoint-down(sm) {
+            float: left;
+        }
+    }
+
+    .nav-aside li.active a span {
+        white-space: nowrap;
+    }
+}
+
+.filters {
+    .module-narrow {
+        .nav-item > a {
+            display: flex;
+            justify-content: space-between;
+
+            @include media-breakpoint-down(lg) {
+                flex-wrap: wrap;
+            }
+        }
+
+        .nav-simple > li {
+            margin-bottom: 4px;
+        }
+    }
+}
+
+.module-narrow .nav-item.image,
+.module-narrow .nav-aside li.image {
+    position: relative;
+}
+
+.module-narrow .nav-item.image>a,
+.module-narrow .nav-aside li.image a {
+    padding-left: $gutterSmallX + 27;
+    padding-right: $gutterSmallX + 27;
+}
+
+.module-narrow .nav-item.image>img,
+.module-narrow .nav-aside li.image img {
+    position: absolute;
+    top: 50%;
+    left: $gutterSmallX;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    z-index: 2;
+}
+
+// FACET NAVIGATION
+.user-list {
+    @include list-unstyled;
+
+    li {
+        margin: 0 0 10px 0;
+    }
+
+    .user-image {
+        margin-right: 3px;
+        margin-bottom: 3px;
+        @include border-radius(100px);
+    }
+}
+
+
+// Nav pills
+.nav-pills {
+    background-color: $gray-50;
+    display: grid;
+    padding: 4px;
+    gap: 4px;
+    border-radius: .5rem;
+    width: 100%;
+
+    @include media-breakpoint-up(md) {
+        display: flex;
+        flex-direction: row;
+    }
+
+    li {
+        padding: .5rem 1rem;
+        gap: .5rem;
+        border-radius: 8px;
+        flex: 1 0 auto;
+
+        a {
+            color: $brand-400;
+            display: block;
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+
+        &:hover {
+            background-color: $gray-200;
+
+        }
+
+        &.active {
+            background-color: $white;
+            border-radius: 6px;
+            box-shadow: 0px 4px 16px -4px rgba(0, 23, 31, 0.08), 0px 1px 4px -2px rgba(0, 0, 0, 0.04);
+        }
+    }
+}
+
+// Nav options in secondary
+.secondary .nav-options {
+    background-color: $gray-100;
+    border-radius: 8px;
+
+    .active {
+        background-color: $brand-600;
+
+        a {
+            color: $white;
+        }
+
+        &:hover {
+            background-color: $brand-600;
+        }
+    }
+
+    li {
+        border-radius: 8px;
+        padding: 10px 16px;
+        width: 100%;
+
+        a {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row-reverse;
+
+            i {
+                display: flex;
+                align-items: center;
+            }
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+
+        &:hover {
+            background-color: $gray-200;
+        }
+    }
+}
+
+// STACKED NAV
+// -----------
+
+// Stacked tabs and pills
+.nav-stacked > li {
+    float: none;
+}
+
+.nav-stacked > li > a {
+    margin-right: 0; // no need for the gap between nav items
+}

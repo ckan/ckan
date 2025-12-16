@@ -26,7 +26,8 @@ system_info_table = Table(
     Column('id', types.Integer(),  primary_key=True, nullable=False),
     Column('key', types.Unicode(100), unique=True, nullable=False),
     Column('value', types.UnicodeText),
-    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE,
+           nullable=False),
 )
 
 

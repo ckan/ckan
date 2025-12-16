@@ -53,7 +53,7 @@ def ckan_before_flush(session: Any, flush_context: Any, instances: Any):
 @event.listens_for(create_local_session, 'after_commit')
 @event.listens_for(Session, 'after_commit')
 def ckan_after_commit(session: Any):
-    """ Cleans our custom _object_cache attribute after commiting.
+    """ Cleans our custom _object_cache attribute after committing.
     """
     if hasattr(session, '_object_cache'):
         del session._object_cache
@@ -78,7 +78,7 @@ def ckan_after_rollback(session: Any):
         del session._object_cache
 
 
-mapper = orm.mapper
+mapper = orm.mapper  # type: ignore
 
 metadata = MetaData()
 registry = orm.registry(metadata=metadata)

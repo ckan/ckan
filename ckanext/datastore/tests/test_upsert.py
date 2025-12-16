@@ -1,10 +1,12 @@
 # encoding: utf-8
 
+from time import sleep
+
 import pytest
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.plugins.toolkit import ValidationError, NotAuthorized
+from ckan.plugins.toolkit import ValidationError, NotAuthorized, job_from_id
 from ckanext.datastore.tests.helpers import when_was_last_analyze
 
 
@@ -93,10 +95,9 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["author"] == "F Torres"
 
     def test_basic_as_insert(self):
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "primary_key": "id",
             "fields": [
                 {"id": "id", "type": "text"},
@@ -107,9 +108,11 @@ class TestDatastoreUpsert(object):
         }
         helpers.call_action("datastore_create", **data)
 
+        res = helpers.call_action("resource_show", id=resource["id"])
+        last_modified_1 = res['last_modified']
+
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "method": "upsert",
             "records": [
                 {"id": "2", "book": u"The boy", "author": u"F Torres"}
@@ -121,6 +124,16 @@ class TestDatastoreUpsert(object):
         assert search_result["total"] == 2
         assert search_result["records"][0]["book"] == u"El Niño"
         assert search_result["records"][1]["book"] == u"The boy"
+
+        # job scheduled to update last_modified
+        res = helpers.call_action("resource_show", id=resource["id"])
+        assert res["last_modified"] == last_modified_1
+        job = job_from_id(f"{resource['id']} datastore patch last_modified")
+        assert job
+
+        job.perform()
+        res = helpers.call_action("resource_show", id=resource["id"])
+        assert res["last_modified"] != last_modified_1
 
     def test_upsert_only_one_field(self):
         resource = factories.Resource()
@@ -151,6 +164,11 @@ class TestDatastoreUpsert(object):
         assert search_result["total"] == 1
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "Torres"
+
+        # no job for read-only tables
+        with pytest.raises(KeyError):
+            job_from_id(
+                f"{resource['id']} datastore patch last_modified")
 
     def test_field_types(self):
         resource = factories.Resource(url_type="datastore")
@@ -203,12 +221,67 @@ class TestDatastoreUpsert(object):
 
         search_result = _search(resource["id"])
         assert search_result["total"] == 3
-        assert (
-            search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
-        )  # i.e. stored in db as datetime
         assert search_result["records"][2]["author"] == "adams"
         assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
         assert search_result["records"][2]["nested"] == {"baz": 3}
+
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
+    def test_field_timestamp(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"b\xfck",
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "nested", "type": "json"},
+                {"id": "published"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        search_result = _search(resource["id"])
+        assert (
+            search_result["records"][0]["published"] == u"2005-03-01T00:00:00.000"
+        )  # i.e. stored in db as datetime
+
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    def test_field_timestamp_without_ms(self):
+        resource = factories.Resource(url_type="datastore")
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": u"b\xfck",
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "nested", "type": "json"},
+                {"id": "published"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        search_result = _search(resource["id"])
+        assert (
+            search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
+        )  # i.e. stored in db as datetime
 
     def test_percent(self):
         resource = factories.Resource()
@@ -491,7 +564,6 @@ class TestDatastoreUpsert(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is None
 
-    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         resource = factories.Resource()
         data = {
@@ -514,8 +586,10 @@ class TestDatastoreUpsert(object):
             "calculate_record_count": True,
         }
         helpers.call_action("datastore_upsert", **data)
-        last_analyze = when_was_last_analyze(resource["id"])
-        assert last_analyze is not None
+        def has_la():
+            return when_was_last_analyze(resource["id"]) is not None
+        # retry because analyze is sometimes delayed
+        assert has_la() or sleep(.5) or has_la()
 
     def test_no_pk_update(self):
         resource = factories.Resource()
@@ -758,7 +832,8 @@ class TestDatastoreInsert(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'invalid input syntax for integer: "notanumber"' in str(context.value)
+        assert 'invalid input syntax for ' in str(context.value)
+        assert ' integer: "notanumber"' in str(context.value)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")

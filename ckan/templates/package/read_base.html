@@ -6,14 +6,15 @@
 
 {% block head_extras -%}
   {{ super() }}
-  {% set description = h.markdown_extract(pkg.notes, extract_length=200)|forceescape %}
+  {% set description = h.markdown_extract(
+    h.get_translated(pkg, 'notes'), extract_length=200) %}
   <meta property="og:title" content="{{ h.dataset_display_name(pkg) }} - {{ g.site_title }}">
   <meta property="og:description" content="{{ description|forceescape|trim }}">
 {% endblock -%}
 
 {% block content_action %}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-light', icon='wrench' %}
+    {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-secondary', icon='wrench' %}
   {% endif %}
 {% endblock %}
 

@@ -1,0 +1,33 @@
+{% extends "package/resource_edit_base.html" %}
+
+{% set num = records | count %}
+
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }} -
+{{ungettext('Delete row', 'Delete rows', num)}} {% endblock %}
+
+{% block primary_content_inner %}
+
+  <h1>{{ ungettext('Delete row', 'Delete rows', num) }}</h1>
+
+  <p>{{ungettext('Delete {num} row?', 'Delete {num} rows?', num).format(num=num) }}</p>
+
+  <table class="table">
+    <thead>
+      {% for f in fields %}<th scope="col">{{ f.id }}</th>{% endfor %}
+    </thead>
+    <tbody>
+      {% for r in records %}
+        <tr>
+          {% for f in fields %}<td>{{ r.get(f.id, '') }}</td>{% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post" >
+    <button class="btn btn-primary" name="save" type="submit">
+      <i class="fa fa-alert"></i> {{ _('Delete') }}
+    </button>
+  </form>
+{% endblock %}
+

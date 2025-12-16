@@ -42,7 +42,6 @@
   display: block;
 }
 
-/* rtl:begin:ignore */
 .carousel-item-next:not(.carousel-item-start),
 .active.carousel-item-end {
   transform: translateX(100%);
@@ -52,8 +51,6 @@
 .active.carousel-item-start {
   transform: translateX(-100%);
 }
-
-/* rtl:end:ignore */
 
 
 //
@@ -102,6 +99,7 @@
   color: $carousel-control-color;
   text-align: center;
   background: none;
+  filter: var(--#{$prefix}carousel-control-icon-filter);
   border: 0;
   opacity: $carousel-control-opacity;
   @include transition($carousel-control-transition);
@@ -135,19 +133,11 @@
   background-size: 100% 100%;
 }
 
-/* rtl:options: {
-  "autoRename": true,
-  "stringMap":[ {
-    "name"    : "prev-next",
-    "search"  : "prev",
-    "replace" : "next"
-  } ]
-} */
 .carousel-control-prev-icon {
-  background-image: escape-svg($carousel-control-prev-icon-bg);
+  background-image: escape-svg($carousel-control-prev-icon-bg) #{"/*rtl:" + escape-svg($carousel-control-next-icon-bg) + "*/"};
 }
 .carousel-control-next-icon {
-  background-image: escape-svg($carousel-control-next-icon-bg);
+  background-image: escape-svg($carousel-control-next-icon-bg) #{"/*rtl:" + escape-svg($carousel-control-prev-icon-bg) + "*/"};
 }
 
 // Optional indicator pips/controls
@@ -168,7 +158,6 @@
   margin-right: $carousel-control-width;
   margin-bottom: 1rem;
   margin-left: $carousel-control-width;
-  list-style: none;
 
   [data-bs-target] {
     box-sizing: content-box;
@@ -180,7 +169,7 @@
     margin-left: $carousel-indicator-spacer;
     text-indent: -999px;
     cursor: pointer;
-    background-color: $carousel-indicator-active-bg;
+    background-color: var(--#{$prefix}carousel-indicator-active-bg);
     background-clip: padding-box;
     border: 0;
     // Use transparent borders to increase the hit area by 10px on top and bottom.
@@ -207,23 +196,31 @@
   left: (100% - $carousel-caption-width) * .5;
   padding-top: $carousel-caption-padding-y;
   padding-bottom: $carousel-caption-padding-y;
-  color: $carousel-caption-color;
+  color: var(--#{$prefix}carousel-caption-color);
   text-align: center;
 }
 
 // Dark mode carousel
 
+@mixin carousel-dark() {
+  --#{$prefix}carousel-indicator-active-bg: #{$carousel-indicator-active-bg-dark};
+  --#{$prefix}carousel-caption-color: #{$carousel-caption-color-dark};
+  --#{$prefix}carousel-control-icon-filter: #{$carousel-control-icon-filter-dark};
+}
+
 .carousel-dark {
-  .carousel-control-prev-icon,
-  .carousel-control-next-icon {
-    filter: $carousel-dark-control-icon-filter;
-  }
+  @include carousel-dark();
+}
 
-  .carousel-indicators [data-bs-target] {
-    background-color: $carousel-dark-indicator-active-bg;
-  }
+:root,
+[data-bs-theme="light"] {
+  --#{$prefix}carousel-indicator-active-bg: #{$carousel-indicator-active-bg};
+  --#{$prefix}carousel-caption-color: #{$carousel-caption-color};
+  --#{$prefix}carousel-control-icon-filter: #{$carousel-control-icon-filter};
+}
 
-  .carousel-caption {
-    color: $carousel-dark-caption-color;
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    @include carousel-dark();
   }
 }

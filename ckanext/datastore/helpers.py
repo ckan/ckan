@@ -82,7 +82,8 @@ def _strip(s: Any):
 
 
 def should_fts_index_field_type(field_type: str):
-    return field_type.lower() in ['tsvector', 'text', 'number']
+    return field_type in tk.config.get(
+        'ckan.datastore.default_fts_index_field_types', [])
 
 
 def get_table_and_function_names_from_sql(context: Context, sql: str):
@@ -216,11 +217,11 @@ def datastore_dictionary(
     """
     try:
         return [
-            f for f in tk.get_action('datastore_search')(
-                {}, {
-                    u'resource_id': resource_id,
-                    u'limit': 0,
-                    u'include_total': False})['fields']
+            f for f in tk.get_action('datastore_info')({}, {
+                'id': resource_id,
+                'include_meta': False,
+                'include_fields_schema': False,
+            })['fields']
             if not f['id'].startswith(u'_') and (
                 include_columns is None or f['id'] in include_columns)
             ]
@@ -248,3 +249,12 @@ def datastore_rw_resource_url_types() -> list[str]:
     datastore_delete
     """
     return ["datastore"]
+
+
+def datastore_show_resource_actions():
+    """
+    Extensions should not show action buttons (i.e.) next to the Manage
+    / Data API core ones
+    """
+
+    return "midnight-blue" not in tk.config.get("ckan.base_templates_folder")

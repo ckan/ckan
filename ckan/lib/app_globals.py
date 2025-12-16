@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from threading import Lock
 from typing import Any, Union
-from packaging.version import parse as parse_version, Version
+from packaging.version import parse as parse_version
 
 import ckan
 import ckan.model as model
@@ -63,7 +63,7 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
 }
 
 
-# A place to store the origional config options of we override them
+# A place to store the original config options of we override them
 _CONFIG_CACHE: dict[str, Any] = {}
 
 def set_theme(asset: str) -> None:
@@ -146,11 +146,11 @@ def reset() -> None:
         if key not in _CONFIG_CACHE:
             _CONFIG_CACHE[key] = config_value
         if value is not None:
-            log.debug('config `%s` set to `%s` from db' % (key, value))
+            log.debug('config `%s` set to `%s` from db', key, value)
         else:
             value = _CONFIG_CACHE[key]
             if value:
-                log.debug('config `%s` set to `%s` from config' % (key, value))
+                log.debug('config `%s` set to `%s` from config', key, value)
             else:
                 value = default
 
@@ -197,7 +197,7 @@ class _Globals(object):
         self._mutex = Lock()
 
     def _check_uptodate(self):
-        ''' check the config is uptodate needed when several instances are
+        ''' check the config is up-to-date needed when several instances are
         running '''
         value = model.get_system_info('ckan.config_update')
         if self._config_update != value:
@@ -210,8 +210,6 @@ class _Globals(object):
 
         self.ckan_version = ckan.__version__
         version = parse_version(self.ckan_version)
-        if not isinstance(version, Version):
-            raise ValueError(self.ckan_version)
 
         self.ckan_base_version = version.base_version
         if not version.is_prerelease:

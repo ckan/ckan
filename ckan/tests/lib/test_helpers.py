@@ -3,6 +3,7 @@
 import datetime
 import hashlib
 import os
+import sys
 
 import pytz
 import tzlocal
@@ -151,7 +152,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         assert generated_url == url
 
     @pytest.mark.ckan_config("debug", True)
-    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
     @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
     def test_debugtoolbar_url(self, ckan_config):
         # test against built-in `url_for`, that is used by debugtoolbar ext.
@@ -260,8 +260,8 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<h1>moo</h1>", "<h1>moo</h1>", True),
-            ("<h1>moo</h1>", "<p>moo</p>", False),
+            ("<script>moo</script>", "<script>moo</script>", True),
+            ("<script>moo</script>", "moo", False),
             (
                 "http://example.com",
                 '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
@@ -285,7 +285,7 @@ class TestHelpersRenderMarkdown(object):
             (u"[text](javascript: alert(1))", u"<p><a>text</a></p>", False),
             (
                 u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
-                u"<p>and text</p>",
+                '<p><img src="image.png"> and text</p>',
                 False,
             ),
             (u"#heading", u"<h1>heading</h1>", False),
@@ -325,12 +325,12 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"test-tag" foobar',
-                '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test-tag">tag:"test-tag"</a> foobar</p>',
                 False,
             ),
             (
                 'tag:"test tag" foobar',
-                '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test+tag">tag:"test tag"</a> foobar</p>',
                 False,
             ),
             (
@@ -347,7 +347,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"Test- _." foobar',
-                '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>',
                 False,
             ),
             (
@@ -357,7 +357,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 u'tag:"Japanese katakana \u30a1" blah',
-                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
+                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:"Japanese katakana \u30a1"</a> blah</p>',
                 False,
             ),
             (
@@ -381,8 +381,8 @@ class TestHelpersRenderMarkdown(object):
                 False,
             ),
             (
-                u"<a href=\u201dsomelink\u201d>somelink</a>",
-                "<p>somelink</p>",
+                "<a href=\u201dsomelink\u201d>somelink</a>",
+                '<p><a href="\u201dsomelink\u201d">somelink</a></p>',
                 False,
             ),
         ],
@@ -399,7 +399,7 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>'
         assert h.render_markdown(data) == output
 
     def test_tag_names_do_not_match_commas(self):
@@ -705,8 +705,11 @@ def test_sanitize_url():
         u'http://example.com/some-path/to_a/file.jpg'
     ) == u'http://example.com/some-path/to_a/file.jpg'
     assert h.sanitize_url(
-        u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
-    ) == u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+        u'sh+eme://host:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://host:12345/a/path?a=b&c=d'
+    assert h.sanitize_url(
+        u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
     assert h.sanitize_url(
         u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
     ) == u'http://éxàmple.com/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
@@ -722,7 +725,7 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    with_html = u"""Data exposed: &mdash;
+    with_html = u"""<i>Data</i> *exposed*: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """
@@ -738,17 +741,30 @@ Notes: this is the classic RDF source but historically has had some problems wit
     ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
     ("2008-04-13T20:40:20", datetime.datetime(2008, 4, 13, 20, 40, 20)),
     ("2008-04-13T20:40:20.1234", datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)),
+    (
+        "2008-04-13T20:40:20.123-01:30",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, 123000, datetime.timezone(
+            -datetime.timedelta(minutes=90)
+        ))),
+    pytest.param(
+        "2008-04-13T20:40:20-0130",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, tzinfo=datetime.timezone(
+            datetime.timedelta(days=-1, seconds=81000))),
+        marks=pytest.mark.skipif(sys.version_info < (3, 11), reason="This is invalid in py<3.11")
+    )
 ])
-def test_date_str_to_datetime_valid(string, date):
+def test_date_str_to_datetime_valid(string: str, date: datetime.datetime):
     assert h.date_str_to_datetime(string) == date
 
 
 @pytest.mark.parametrize("string", [
-    "2008-04-13T20:40:20-01:30",
-    "2008-04-13T20:40:20-0130",
-    "2008-04-13T20:40:20foobar",
+    pytest.param(
+        "2008-04-13T20:40:20-0130",  # no `:` in timezone
+        marks=pytest.mark.skipif(sys.version_info >= (3, 11), reason="This is valid in py>=3.11"),
+    ),
+    "2008-04-13T20:40:20foobar",  # cannot parse the rest as milliseconds
 ])
-def test_date_str_to_datetime_invalid(string):
+def test_date_str_to_datetime_invalid(string: str):
     with pytest.raises(ValueError):
         h.date_str_to_datetime(string)
 
@@ -891,3 +907,26 @@ def test_decode_view_request_filters(test_request_context):
 def test_get_translated(data_dict, locale, result, monkeypatch):
     monkeypatch.setattr(flask_app, "get_locale", lambda: locale)
     assert h.get_translated(data_dict, 'notes') == result
+
+
+class TestUploadsEnabled:
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", True)
+    def test_uploads_enabled(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", False)
+    def test_uploads_disabled(self):
+        assert h.uploads_enabled() is False
+
+    def test_uploads_disabled_on_default_configuration(self):
+        assert h.uploads_enabled() is False
+
+    @pytest.mark.ckan_config("ckan.storage_path", "/some/path")
+    def test_uploads_enabled_with_only_storage_path(self):
+        assert h.uploads_enabled() is True
+
+    @pytest.mark.usefixtures("with_plugins")
+    @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
+    def test_uploads_enabled_when_iuploader_plugin_exists(self):
+        assert h.uploads_enabled() is True

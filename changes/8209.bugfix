@@ -1,0 +1,2 @@
+Datatables View's `lastView` local storage key is now suffixed with the view ID,
+allowing each datatable view to respect its given `responsive-flag`.

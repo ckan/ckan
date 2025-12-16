@@ -4,6 +4,7 @@ import json
 import pytest
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
+from time import sleep
 
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
@@ -65,6 +66,9 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action("datastore_create", **data)
         assert result["resource_id"] is not None
+
+        res = helpers.call_action("resource_show", id=result["resource_id"])
+        assert res.get('last_modified')
 
     def test_create_works_with_empty_object_in_json_field(self):
         package = factories.Dataset()
@@ -159,6 +163,8 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"_full_text"')
 
+    @pytest.mark.ckan_config(
+        "ckan.datastore.default_fts_index_field_types", "text")
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
         data = {
@@ -217,42 +223,46 @@ class TestDatastoreCreateNewTests(object):
             helpers.call_action("datastore_create", **data)
 
     def test_sets_datastore_active_on_resource_on_create(self):
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
 
-        assert not (resource["datastore_active"])
+        assert not resource["datastore_active"]
+        assert not resource["last_modified"]
 
         data = {
             "resource_id": resource["id"],
-            "force": True,
             "records": [{"book": "annakarenina", "author": "tolstoy"}],
         }
 
         helpers.call_action("datastore_create", **data)
 
         resource = helpers.call_action("resource_show", id=resource["id"])
-
         assert resource["datastore_active"]
+        assert resource["last_modified"]
+
 
     def test_sets_datastore_active_on_resource_on_delete(self):
-        resource = factories.Resource(datastore_active=True)
-
-        assert resource["datastore_active"]
-
+        package = factories.Dataset()
         data = {
-            "resource_id": resource["id"],
-            "force": True,
-            "records": [{"book": "annakarenina", "author": "tolstoy"}],
+            "resource": {"package_id": package["id"]},
+            "fields": [
+                {"id": "movie", "type": "text"},
+            ],
+            "records": [{"movie": "sideways"}],
         }
-
-        helpers.call_action("datastore_create", **data)
+        result = helpers.call_action("datastore_create", **data)
+        resource = helpers.call_action("resource_show", id=result["resource_id"])
+        assert resource["last_modified"]
+        last_modified_1 = resource["last_modified"]
 
         helpers.call_action(
-            "datastore_delete", resource_id=resource["id"], force=True
+            "datastore_delete", resource_id=result["resource_id"]
         )
 
-        resource = helpers.call_action("resource_show", id=resource["id"])
+        resource = helpers.call_action("resource_show", id=result["resource_id"])
 
-        assert not (resource["datastore_active"])
+        assert not resource["datastore_active"]
+        assert resource["last_modified"]
+        assert resource["last_modified"] != last_modified_1
 
     def test_create_exceeds_column_name_limit(self):
         package = factories.Dataset()
@@ -287,7 +297,6 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is None
 
-    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         # how datapusher loads data (send_resource_to_datastore)
         resource = factories.Resource()
@@ -305,8 +314,10 @@ class TestDatastoreCreateNewTests(object):
             "force": True,
         }
         helpers.call_action("datastore_create", **data)
-        last_analyze = when_was_last_analyze(resource["id"])
-        assert last_analyze is not None
+        def has_la():
+            return when_was_last_analyze(resource["id"]) is not None
+        # retry because analyze is sometimes delayed
+        assert has_la() or sleep(.5) or has_la()
 
     def test_delete_fields(self):
         resource = factories.Resource()
@@ -857,7 +868,7 @@ class TestDatastoreCreate(object):
         )
         res_dict = json.loads(res.data)
 
-        assert res_dict["success"] is True
+        assert res_dict["success"] is True, res_dict
 
         c = self.Session.connection()
         results = c.execute(sa.text(

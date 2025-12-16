@@ -9,13 +9,14 @@ from flask import Blueprint
 
 import ckan.plugins.toolkit as tk
 import ckan.model as model
+from ckan.logic import NotFound
 from ckan.views.group import (
-    set_org,
     # TODO: don't use hidden funcitons
-    _get_group_dict,
     _get_group_template,
-    _replace_group_org,
 )
+from ckan.views.dataset import _get_pkg_template
+
+from ckan.common import request as ckan_request
 
 # TODO: don't use hidden funcitons
 from ckan.views.user import _extra_template_variables
@@ -112,18 +113,15 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     # view an 'old' version of the package, as recorded in the
     # activity stream
     current_pkg = package
-    try:
-        activity = context["session"].query(Activity).get(activity_id)
-        assert activity
-        package = activity.data["package"]
-    except AttributeError:
+    activity = context["session"].get(Activity, activity_id)
+    if not activity:
         tk.abort(404, tk._("Dataset not found"))
+    package = activity.data["package"]
 
     if package["id"] != current_pkg["id"]:
         log.info(
-            "Mismatch between pkg id in activity and URL {} {}".format(
-                package["id"], current_pkg["id"]
-            )
+            "Mismatch between pkg id in activity and URL %s %s",
+            package["id"], current_pkg["id"],
         )
         # the activity is not for the package in the URL - don't allow
         # misleading URLs as could be malicious
@@ -153,10 +151,15 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     except KeyError:
         package["isopen"] = False
 
-    resource_views = tk.get_action("resource_view_list")(
-        context, {"id": resource_id}
-    )
-    resource["has_views"] = len(resource_views) > 0
+    try:
+        resource_views = tk.get_action("resource_view_list")(
+            context, {"id": resource["id"]}
+        )
+        resource["has_views"] = len(resource_views) > 0
+    except NotFound:
+        # Resource has been deleted since this version
+        resource_views = []
+        resource["has_views"] = False
 
     current_resource_view = None
     view_id = tk.request.args.get("view_id")
@@ -183,6 +186,7 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     tk.g.pkg_dict = package
 
     extra_vars: dict[str, Any] = {
+        "base_template": _get_pkg_template("resource_template", dataset_type),
         "resource_views": resource_views,
         "current_resource_view": current_resource_view,
         "dataset_type": dataset_type,
@@ -245,17 +249,16 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
         tk.abort(404, tk._("Dataset not found"))
     if "id" not in pkg_dict or "resources" not in pkg_dict:
         log.info(
-            "Attempt to view unmigrated or badly migrated dataset "
-            "{} {}".format(id, activity_id)
+            "Attempt to view unmigrated or badly migrated dataset %s %s",
+            id, activity_id,
         )
         tk.abort(
             404, tk._("The detail of this dataset activity is not available")
         )
     if pkg_dict["id"] != current_pkg["id"]:
         log.info(
-            "Mismatch between pkg id in activity and URL {} {}".format(
-                pkg_dict["id"], current_pkg["id"]
-            )
+            "Mismatch between pkg id in activity and URL %s %s",
+            pkg_dict["id"], current_pkg["id"],
         )
         # the activity is not for the package in the URL - don't allow
         # misleading URLs as could be malicious
@@ -271,10 +274,14 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 
     # can the resources be previewed?
     for resource in pkg_dict["resources"]:
-        resource_views = tk.get_action("resource_view_list")(
-            context, {"id": resource["id"]}
-        )
-        resource["has_views"] = len(resource_views) > 0
+        try:
+            resource_views = tk.get_action("resource_view_list")(
+                context, {"id": resource["id"]}
+            )
+            resource["has_views"] = len(resource_views) > 0
+        except NotFound:
+            # Resource has been deleted since this version
+            resource["has_views"] = False
 
     package_type = pkg_dict["type"] or "dataset"
     _setup_template_variables(context, {"id": id}, package_type=package_type)
@@ -282,6 +289,7 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
     return tk.render(
         "package/history.html",
         {
+            "base_template": _get_pkg_template("read_template", package_type),
             "dataset_type": package_type,
             "pkg_dict": pkg_dict,
             "pkg": pkg,
@@ -348,21 +356,32 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         activity_type=activity_type
     )
 
-    return tk.render(
-        "package/activity_stream.html",
-        {
-            "dataset_type": dataset_type,
-            "pkg_dict": pkg_dict,
-            "activity_stream": activity_stream,
-            "id": id,  # i.e. package's current name
-            "limit": limit,
-            "has_more": has_more,
-            "activity_type": activity_type,
-            "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
-            "newer_activities_url": newer_activities_url,
-            "older_activities_url": older_activities_url,
-        },
-    )
+    object_type = "package"
+    blueprint = "activity.{}_activity".format(object_type)
+
+    extra_vars = {
+        "dataset_type": dataset_type,
+        "pkg_dict": pkg_dict,
+        "activity_stream": activity_stream,
+        "id": id,  # i.e. package's current name
+        "limit": limit,
+        "has_more": has_more,
+        "activity_type": activity_type,
+        "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url,
+        "blueprint": blueprint,
+        "object_type": object_type,
+    }
+
+    if ckan_request.htmx:
+        return tk.render(
+            "snippets/activity_stream.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "package/activity_stream.html", extra_vars
+        )
 
 
 @bp.route("/dataset/changes/<id>")
@@ -378,7 +397,7 @@ def package_changes(id: str) -> Union[Response, str]:  # noqa
             {"id": activity_id, "object_type": "package", "diff_type": "html"},
         )
     except tk.ObjectNotFound as e:
-        log.info("Activity not found: {} - {}".format(str(e), activity_id))
+        log.info("Activity not found: %s - %s", e, activity_id)
         return tk.abort(404, tk._("Activity not found"))
     except tk.NotAuthorized:
         return tk.abort(403, tk._("Unauthorized to view activity data"))
@@ -456,7 +475,7 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
                 },
             )
         except tk.ObjectNotFound as e:
-            log.info("Activity not found: {} - {}".format(str(e), current_id))
+            log.info("Activity not found: %s - %s", e, current_id)
             return tk.abort(404, tk._("Activity not found"))
         except tk.NotAuthorized:
             return tk.abort(403, tk._("Unauthorized to view activity data"))
@@ -488,53 +507,57 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 @bp.route(
     "/group/activity/<id>",
     endpoint="group_activity",
-    defaults={"group_type": "group"},
+    defaults={
+        "group_type": "group",
+        "is_organization": False,
+    },
 )
 @bp.route(
     "/organization/activity/<id>",
     endpoint="organization_activity",
-    defaults={"group_type": "organization"},
+    defaults={
+        "group_type": "organization",
+        "is_organization": True,
+    },
 )
-def group_activity(id: str, group_type: str) -> str:
+def group_activity(id: str, group_type: str, is_organization: bool) -> str:
     """Render this group's public activity stream page."""
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
 
-    if group_type == 'organization':
-        set_org(True)
-
     context: Context = {"user": tk.g.user, "for_view": True}
 
     try:
-        group_dict = _get_group_dict(id, group_type)
+        action_name = "organization_show" if is_organization else "group_show"
+        group_dict = tk.get_action(action_name)(context, {"id": id})
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
-
-    real_group_type = group_dict["type"]
-    action_name = "organization_activity_list"
-    if not group_dict.get("is_organization"):
-        action_name = "group_activity_list"
 
     activity_type = tk.request.args.get("activity_type")
     activity_types = [activity_type] if activity_type else None
 
     limit = _get_activity_stream_limit()
-
+    action_name = (
+        "organization_activity_list"
+        if is_organization
+        else "group_activity_list"
+    )
     try:
         activity_stream = tk.get_action(action_name)(
-            context, {
+            context,
+            {
                 "id": group_dict["id"],
                 "before": before,
                 "after": after,
                 "limit": limit + 1,
                 "activity_types": activity_types
-                }
-            )
+            }
+        )
     except tk.ValidationError as error:
         tk.abort(400, error.message or "")
 
     filter_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.copy()
-    if group_type == 'organization':
+    if is_organization:
         filter_types.update(VALIDATORS_ORGANIZATION_ACTIVITY_TYPES)
     else:
         filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
@@ -561,20 +584,29 @@ def group_activity(id: str, group_type: str) -> str:
         activity_type=activity_type
     )
 
+    blueprint = "activity.{}_activity".format(group_type)
+
     extra_vars = {
         "id": id,
         "activity_stream": activity_stream,
-        "group_type": real_group_type,
+        "group_type": group_dict["type"],
         "group_dict": group_dict,
         "activity_type": activity_type,
         "activity_types": filter_types.keys(),
         "newer_activities_url": newer_activities_url,
-        "older_activities_url": older_activities_url
+        "older_activities_url": older_activities_url,
+        "blueprint": blueprint,
+        "object_type": group_type,
     }
 
-    return tk.render(
-        _get_group_template("activity_template", group_type), extra_vars
-    )
+    if ckan_request.htmx:
+        return tk.render(
+            "snippets/activity_stream.html", extra_vars
+        )
+    else:
+        return tk.render(
+            _get_group_template("activity_template", group_type), extra_vars
+        )
 
 
 @bp.route(
@@ -591,7 +623,6 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
     Shows the changes to an organization in one particular activity stream
     item.
     """
-    extra_vars = {}
     activity_id = id
     context: Context = {
         "auth_user_obj": tk.g.userobj,
@@ -602,7 +633,7 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
             {"id": activity_id, "object_type": "group", "diff_type": "html"},
         )
     except tk.ObjectNotFound as e:
-        log.info("Activity not found: {} - {}".format(str(e), activity_id))
+        log.info("Activity not found: %s - %s", e, activity_id)
         return tk.abort(404, tk._("Activity not found"))
     except tk.NotAuthorized:
         return tk.abort(403, tk._("Unauthorized to view activity data"))
@@ -611,10 +642,16 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
     # Use the current version of the package, in case the name/title have
     # changed, and we need a link to it which works
     group_id = activity_diff["activities"][1]["data"]["group"]["id"]
-    current_group_dict = tk.get_action(group_type + "_show")(
+
+    action_name = "organization_show" if is_organization else "group_show"
+    current_group_dict = tk.get_action(action_name)(
         context, {"id": group_id}
     )
-    group_activity_list = tk.get_action(group_type + "_activity_list")(
+    action_name = (
+        "organization_activity_list"
+        if is_organization else "group_activity_list"
+    )
+    group_activity_list = tk.get_action(action_name)(
         context, {"id": group_id, "limit": 100}
     )
 
@@ -624,8 +661,11 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
         "group_activity_list": group_activity_list,
         "group_type": current_group_dict["type"],
     }
-
-    return tk.render(_replace_group_org("group/changes.html"), extra_vars)
+    template_name = (
+        "organization/changes.html"
+        if is_organization else "group/changes.html"
+    )
+    return tk.render(template_name, extra_vars)
 
 
 @bp.route(
@@ -644,12 +684,11 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     activity diffs for the changes in the given version range, then
     re-renders changes.html with the list.
     """
-    extra_vars = {}
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
 
     context: Context = {
-            "auth_user_obj": tk.g.userobj,
+        "auth_user_obj": tk.g.userobj,
     }
 
     # check to ensure that the old activity is actually older than
@@ -695,7 +734,7 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
                 },
             )
         except tk.ObjectNotFound as e:
-            log.info("Activity not found: {} - {}".format(str(e), current_id))
+            log.info("Activity not found: %s - %s", e, current_id)
             return tk.abort(404, tk._("Activity not found"))
         except tk.NotAuthorized:
             return tk.abort(403, tk._("Unauthorized to view activity data"))
@@ -708,10 +747,15 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
             current_id = activity_diff["activities"][0]["id"]
 
     group_id: str = diff_list[0]["activities"][1]["data"]["group"]["id"]
-    current_group_dict = tk.get_action(group_type + "_show")(
+    action_name = "organization_show" if is_organization else "group_show"
+    current_group_dict = tk.get_action(action_name)(
         context, {"id": group_id}
     )
-    group_activity_list = tk.get_action(group_type + "_activity_list")(
+    action_name = (
+        "organization_activity_list"
+        if is_organization else "group_activity_list"
+    )
+    group_activity_list = tk.get_action(action_name)(
         context, {"id": group_id, "limit": 100}
     )
 
@@ -721,8 +765,11 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
         "group_activity_list": group_activity_list,
         "group_type": current_group_dict["type"],
     }
-
-    return tk.render(_replace_group_org("group/changes.html"), extra_vars)
+    template_name = (
+        "organization/changes.html"
+        if is_organization else "group/changes.html"
+    )
+    return tk.render(template_name, extra_vars)
 
 
 @bp.route("/user/activity/<id>")
@@ -788,7 +835,14 @@ def user_activity(id: str) -> str:
         "older_activities_url": older_activities_url
     })
 
-    return tk.render("user/activity_stream.html", extra_vars)
+    if ckan_request.htmx:
+        return tk.render(
+            "snippets/activity_stream.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "user/activity_stream.html", extra_vars
+        )
 
 
 @bp.route("/dashboard/", strict_slashes=False)
@@ -860,7 +914,14 @@ def dashboard() -> str:
     # dashboard page.
     tk.get_action("dashboard_mark_activities_old")(context, {})
 
-    return tk.render("user/dashboard.html", extra_vars)
+    if ckan_request.htmx:
+        return tk.render(
+            "user/snippets/news_feed.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "user/dashboard.html", extra_vars
+        )
 
 
 def _get_dashboard_context(
@@ -921,3 +982,16 @@ def _get_dashboard_context(
         "selected_id": False,
         "dict": None,
     }
+
+
+@bp.route("/testing/dashboard")
+def dashboard_testing() -> str:
+    return tk.render(
+        'user/snippets/followee_dropdown.html', {
+            'context': {},
+            'followees': [
+                {"dict": {"id": 1}, "display_name": "Test followee"},
+                {"dict": {"id": 2}, "display_name": "Not valid"}
+            ]
+        }
+    )

@@ -3,15 +3,25 @@
 from typing import Any
 import logging
 import os
+import json
 
 import click
+import sqlalchemy as sa
 
 from ckan.model import parse_db_config
 from ckan.common import config
 import ckan.logic as logic
 
 import ckanext.datastore as datastore_module
-from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore.backend import get_all_resources_ids_in_datastore
+from ckanext.datastore.backend.postgres import (
+    identifier,
+    literal_string,
+    get_read_engine,
+    get_write_engine,
+    _get_raw_field_info,
+    _TIMEOUT,
+)
 from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 
 log = logging.getLogger(__name__)
@@ -129,27 +139,17 @@ def purge():
 
     site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
 
-    result = logic.get_action('datastore_search')(
-        {'user': site_user['name']},
-        {'resource_id': '_table_metadata'}
-    )
-
     resource_id_list = []
-    for record in result['records']:
+    for resid in get_all_resources_ids_in_datastore():
         try:
-            # ignore 'alias' records (views) as they are automatically
-            # deleted when the parent resource table is dropped
-            if record['alias_of']:
-                continue
-
             logic.get_action('resource_show')(
                 {'user': site_user['name']},
-                {'id': record['name']}
+                {'id': resid}
             )
         except logic.NotFound:
-            resource_id_list.append(record['name'])
+            resource_id_list.append(resid)
             click.echo("Resource '%s' orphaned - queued for drop" %
-                       record[u'name'])
+                       resid)
         except KeyError:
             continue
 
@@ -175,5 +175,78 @@ def purge():
     click.echo('Dropped %s tables' % drop_count)
 
 
+@datastore.command(
+    'upgrade',
+    short_help='upgrade datastore field info for plugin_data support'
+)
+def upgrade():
+    '''Move field info to _info so that plugins may add private information
+    to each field for their own purposes.'''
+
+    count = 0
+    skipped = 0
+    noinfo = 0
+    read_connection = get_read_engine().connect()
+    for resid in get_all_resources_ids_in_datastore():
+        raw_fields, old = _get_raw_field_info(read_connection, resid)
+        if not old:
+            if not raw_fields:
+                noinfo += 1
+            else:
+                skipped += 1
+            continue
+
+        alter_sql = []
+        with get_write_engine().begin() as connection:
+            for fid, fvalue in raw_fields.items():
+                raw = {'_info': fvalue}
+                # ' ' prefix for data version
+                raw_sql = literal_string(' ' + json.dumps(
+                    raw, ensure_ascii=False, separators=(',', ':')))
+                alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                    identifier(resid),
+                    identifier(fid),
+                    raw_sql))
+
+            if alter_sql:
+                connection.execute(sa.text(
+                    ';'.join(alter_sql).replace(':', r'\:')  # no bind params
+                ))
+                count += 1
+            else:
+                noinfo += 1
+
+    click.echo('Upgraded %d tables (%d already upgraded, %d no info)' % (
+        count, skipped, noinfo))
+
+
+@datastore.command(
+    'fts-index',
+    short_help='create or remove full-text search indexes after changing '
+    'the ckan.datastore.default_fts_index_field_types setting'
+)
+@click.option(
+    '--timeout', metavar='SECONDS',
+    type=click.FloatRange(0, 2147483.647),  # because postgres max int
+    default=_TIMEOUT / 1000, show_default=True,
+    help='maximum index creation time in seconds',
+)
+def fts_index(timeout: float):
+    '''Use to create or remove full-text search indexes after changing
+    the ckan.datastore.default_fts_index_field_types setting.
+    '''
+    site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+    resource_ids = get_all_resources_ids_in_datastore()
+
+    for i, resid in enumerate(get_all_resources_ids_in_datastore(), 1):
+        print(f'\r{resid} [{i}/{len(resource_ids)}] ...', end='')
+        logic.get_action('datastore_create')(
+            {'user': site_user['name'],
+             'query_timeout': int(timeout * 1000)},  # type: ignore
+            {'resource_id': resid, 'force': True}
+        )
+    print('\x08\x08\x08done')
+
+
 def get_commands():
-    return (set_permissions, dump, purge)
+    return (set_permissions, dump, purge, upgrade)

@@ -263,8 +263,44 @@ const esc = function (t) {
     .replace(/"/g, '&quot;')
 }
 
+function responsiveModalSettings (that, packagename, resourcename) {
+  return {
+    details: {
+      display: $.fn.dataTable.Responsive.display.modal({
+        header: function (row) {
+          // add clipboard and print buttons to modal record display
+          var data = row.data();
+          return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
+            '<button id="modalcopy-button" class="btn btn-secondary" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
+            packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
+            '<button id="modalprint-button" class="btn btn-secondary" title="' + that._('Print') + '" onclick="printModal(\'' +
+            packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
+            '</div>&nbsp;'
+        }
+      }),
+      // render the Record Details in a modal dialog box
+      // do not render the _colspacer column, which has the 'none' class
+      // the none class in responsive mode forces the _colspacer column to be hidden
+      // guaranteeing the blue record details button is always displayed, even for narrow tables
+      // also, when a column's content has been truncated with an ellipsis, show the untruncated content
+      renderer: function (api, rowIdx, columns) {
+        const data = $.map(columns, function (col, i) {
+          return col.className !== ' none'
+            ? '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+              '<td>' + col.title + ':' + '</td><td>' +
+              (col.data.startsWith('<span class="ellipsis"') ? col.data.substr(30, col.data.indexOf('">') - 30) : col.data) +
+              '</td></tr>'
+            : ''
+        }).join('')
+        return data ? $('<table class="dtr-details" width="100%"/>').append(data) : false
+      }
+    }
+  }
+}
+
 // MAIN
 this.ckan.module('datatables_view', function (jQuery) {
+
   return {
     initialize: function () {
       const that = this
@@ -286,16 +322,17 @@ this.ckan.module('datatables_view', function (jQuery) {
       const ckanfilters = dtprv.data('ckanfilters')
       const resourceurl = dtprv.data('resource-url')
       const defaultview = dtprv.data('default-view')
+      const responsivemodal = dtprv.data('responsive-modal')
 
       // get view mode setting from localstorage (table or list/responsive])
-      const lastView = getWithExpiry('lastView')
+      const lastView = getWithExpiry('lastView-' + gresviewId)
       if (!lastView) {
         if (responsiveflag) {
           gcurrentView = 'list' // aka responsive
         } else {
           gcurrentView = defaultview
         }
-        setWithExpiry('lastView', gcurrentView, 0)
+        setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
       } else {
         gcurrentView = lastView
       }
@@ -381,12 +418,6 @@ this.ckan.module('datatables_view', function (jQuery) {
       gtableSearchText = that._('TABLE FILTER')
       gcolFilterText = that._('COLUMN FILTER/S')
 
-      let activelanguage = languagefile
-      // en is the default language, no need to load i18n file
-      if (languagefile === '/vendor/DataTables/i18n/en.json') {
-        activelanguage = ''
-      }
-
       // settings if gcurrentView === table
       let fixedColumnSetting = true
       let scrollXflag = true
@@ -398,46 +429,19 @@ this.ckan.module('datatables_view', function (jQuery) {
         fixedColumnSetting = false
         scrollXflag = false
 
-        // create _colspacer column to ensure display of green record detail button
-        dynamicCols.push({
-          data: '',
-          searchable: false,
-          className: 'none',
-          defaultContent: ''
-        })
-
-        // initialize settings for responsive mode (list view)
-        responsiveSettings = {
-          details: {
-            display: $.fn.dataTable.Responsive.display.modal({
-              header: function (row) {
-                // add clipboard and print buttons to modal record display
-                var data = row.data();
-                return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
-                  '<button id="modalcopy-button" class="btn btn-default" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
-                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
-                  '<button id="modalprint-button" class="btn btn-default" title="' + that._('Print') + '" onclick="printModal(\'' +
-                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
-                  '</div>&nbsp;'
-              }
-            }),
-            // render the Record Details in a modal dialog box
-            // do not render the _colspacer column, which has the 'none' class
-            // the none class in responsive mode forces the _colspacer column to be hidden
-            // guaranteeing the blue record details button is always displayed, even for narrow tables
-            // also, when a column's content has been truncated with an ellipsis, show the untruncated content
-            renderer: function (api, rowIdx, columns) {
-              const data = $.map(columns, function (col, i) {
-                return col.className !== ' none'
-                  ? '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
-                    '<td>' + col.title + ':' + '</td><td>' +
-                    (col.data.startsWith('<span class="ellipsis"') ? col.data.substr(30, col.data.indexOf('">') - 30) : col.data) +
-                    '</td></tr>'
-                  : ''
-              }).join('')
-              return data ? $('<table class="dtr-details" width="100%"/>').append(data) : false
-            }
-          }
+        if (responsivemodal) {
+          // create _colspacer column to ensure display of green record detail button
+          dynamicCols.push({
+            data: '',
+            searchable: false,
+            className: 'none',
+            defaultContent: ''
+          })
+          responsiveSettings = responsiveModalSettings(that, packagename, resourcename)
+        } else {
+          responsiveSettings = {}
+          $('#_colspacer').remove()
+          $('#_colspacerfilter').remove()
         }
       } else {
         // we're in table view mode
@@ -503,7 +507,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           blurable: true
         },
         language: {
-          url: activelanguage,
+          url: languagefile,
           paginate: {
             previous: '&lt;',
             next: '&gt;'
@@ -514,6 +518,9 @@ this.ckan.module('datatables_view', function (jQuery) {
           url: ajaxurl,
           type: 'POST',
           timeout: 60000,
+          headers: {
+            'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+          },
           data: function (d) {
             d.filters = ckanfilters
           }
@@ -555,7 +562,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           // save selected rows settings
           gsavedSelected = data.selected
           // save view mode
-          setWithExpiry('lastView', data.viewmode, 0)
+          setWithExpiry('lastView-' + gresviewId, data.viewmode, 0)
 
           // restore values of column filters
           const api = new $.fn.dataTable.Api(settings)
@@ -695,12 +702,15 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           }
+
+          // publish the event for other modules that are subscribed to it
+          that.sandbox.publish("datatablesview:init-complete", settings, json);
         }, // end InitComplete
         buttons: [{
           name: 'viewToggleButton',
           text: gcurrentView === 'table' ? '<i class="fa fa-list"></i>' : '<i class="fa fa-table"></i>',
           titleAttr: that._('Table/List toggle'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           action: function (e, dt, node, config) {
             if (gcurrentView === 'list') {
               dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>')
@@ -711,7 +721,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               gcurrentView = 'list'
               $('#dtprv').addClass('dt-responsive')
             }
-            setWithExpiry('lastView', gcurrentView, 0)
+            setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
             window.localStorage.removeItem('loadctr-' + gresviewId)
             dt.state.clear()
             window.location.reload()
@@ -720,7 +730,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'copy',
           text: '<i class="fa fa-copy"></i>',
           titleAttr: that._('Copy to clipboard'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           title: function () {
             // remove html tags from filterInfo msg
             const filternohtml = filterInfo(datatable, true)
@@ -734,7 +744,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'colvis',
           text: '<i class="fa fa-eye-slash"></i>',
           titleAttr: that._('Toggle column visibility'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           columns: 'th:gt(0):not(:contains("colspacer"))',
           collectionLayout: 'fixed',
           postfixButtons: [{
@@ -772,7 +782,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         }, {
           text: '<i class="fa fa-download"></i>',
           titleAttr: that._('Filtered download'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           autoClose: true,
           extend: 'collection',
           buttons: [{
@@ -808,7 +818,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'resetButton',
           text: '<i class="fa fa-repeat"></i>',
           titleAttr: that._('Reset'),
-          className: 'btn-default resetButton',
+          className: 'btn-secondary resetButton',
           action: function (e, dt, node, config) {
             dt.state.clear()
             $('.resetButton').css('color', 'black')
@@ -819,7 +829,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'print',
           text: '<i class="fa fa-print"></i>',
           titleAttr: that._('Print'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           title: packagename + ' — ' + resourcename,
           messageTop: function () {
             return filterInfo(datatable)
@@ -835,7 +845,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'shareButton',
           text: '<i class="fa fa-share"></i>',
           titleAttr: that._('Share current view'),
-          className: 'btn-default',
+          className: 'btn-secondary',
           action: function (e, dt, node, config) {
             dt.state.save()
             const sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()))
@@ -860,6 +870,14 @@ this.ckan.module('datatables_view', function (jQuery) {
       // called after getting an AJAX response from CKAN
       datatable.on('xhr', function (e, settings, json, xhr) {
         gelapsedTime = window.performance.now() - gstartTime
+      })
+
+      // indicate when total displayed is estimated
+      datatable.on('draw.dt', function() {
+        if (datatable.ajax.json().total_was_estimated) {
+          document.getElementById('dtprv_info'
+            ).innerHTML += ' ' + that._('(estimated)')
+        }
       })
 
       // save state of table when row selection is changed
@@ -888,7 +906,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           return
         }
         gsortInfo = '<b> ' + that._('Sort') + '</b> <i id="sortinfoicon" class="fa fa-info-circle" title="' +
-            that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"</i> : '
+            that._('Press SHIFT key while clicking on\nsort control for multi-column sort') + '"></i> : '
         sortOrder.forEach((sortcol, idx) => {
           const colText = datatable.column(sortcol[0]).name()
           gsortInfo = gsortInfo + colText +
@@ -897,6 +915,8 @@ this.ckan.module('datatables_view', function (jQuery) {
                         : ' <span class="fa fa-sort-amount-desc"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
+        //adjust column widths after sorting
+        fitColText();
       })
     }
   }

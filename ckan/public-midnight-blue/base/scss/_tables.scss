@@ -1,0 +1,65 @@
+.table-selected td {
+    background-color: $input-bg;
+    .edit {
+        display: block;
+    }
+}
+
+.table-bulk-edit {
+    th input {
+        top: -5px;
+    }
+    .table-actions .btn-group {
+        float: left;
+        margin: 0 10px 0 0;
+    }
+    .context p {
+        margin-bottom: 0;
+    }
+}
+
+.table-bordered > :not(caption) > * > * {
+    border-bottom-width: 1px;
+}
+.table-bordered thead {
+    border-bottom: 2px solid $black;
+}
+.table thead th {
+    background-color: $gray-100;
+}
+
+.table-edit-hover {
+    .edit {
+        display: none;
+        float: right;
+    }
+    tr:hover .edit {
+        display: block;
+    }
+}
+
+.js {
+    .table-toggle-more {
+        .toggle-more {
+            display: none;
+        }
+        .show-more {
+            display: inline;
+        }
+        .show-less {
+            display: none;
+        }
+    }
+    .table .toggle-show td {
+        background: none;
+        text-align: center;
+    }
+    .table-toggle-less {
+        .show-less {
+            display: inline;
+        }
+        .show-more {
+            display: none;
+        }
+    }
+}

@@ -193,7 +193,7 @@ def get_group_or_org_admin_ids(group_id: Optional[str]) -> list[str]:
         .filter(model.Member.state == 'active') \
         .filter(model.Member.capacity == 'admin')
 
-    # type_ignore_reason: all stored memerships have table_id
+    # type_ignore_reason: all stored memberships have table_id
     return [a.table_id for a in q]
 
 
@@ -390,6 +390,11 @@ def users_role_for_group_or_org(
 def has_user_permission_for_some_org(
         user_name: Optional[str], permission: str) -> bool:
     ''' Check if the user has the given permission for any organization. '''
+
+    # Sys admins can do anything
+    if is_sysadmin(user_name):
+        return True
+
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
@@ -519,11 +524,11 @@ CONFIG_PERMISSIONS_DEFAULTS: dict[str, Union[bool, str]] = {
 def check_config_permission(permission: str) -> Union[list[str], bool]:
     '''Returns the configuration value for the provided permission
 
-    Permission is a string indentifying the auth permission (eg
+    Permission is a string identifying the auth permission (eg
     `anon_create_dataset`), optionally prefixed with `ckan.auth.`.
 
     The possible values for `permission` are the keys of
-    CONFIG_PERMISSIONS_DEFAULTS. These can be overriden in the config file
+    CONFIG_PERMISSIONS_DEFAULTS. These can be overridden in the config file
     by prefixing them with `ckan.auth.`.
 
     Returns the permission value, generally True or False, except on

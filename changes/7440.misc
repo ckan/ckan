@@ -1,1 +1,0 @@
-Refactor functional tests to use headers instead of environ overrides to authenticate requests. See :ref:`test client` for more details

@@ -17,6 +17,7 @@ from ckan.common import _, config
 
 
 import ckan
+from ckan import plugins
 import ckan.model as model
 import ckan.lib.helpers as h
 from ckan.lib.base import render
@@ -124,7 +125,7 @@ def _mail_recipient(
             smtp_connection.login(smtp_user, smtp_password)
 
         smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
-        log.info("Sent email to {0}".format(recipient_email))
+        log.info("Sent email to %s", recipient_email)
 
     except smtplib.SMTPException as e:
         msg = '%r' % e
@@ -180,10 +181,23 @@ def mail_recipient(recipient_name: str,
     '''
     site_title = config.get('ckan.site_title')
     site_url = config.get('ckan.site_url')
-    return _mail_recipient(
-        recipient_name, recipient_email,
-        site_title, site_url, subject, body,
-        body_html=body_html, headers=headers, attachments=attachments)
+    notification_sent = False
+    for plugin in plugins.PluginImplementations(plugins.INotifier):
+        # Allow extensions to use other notification methods
+        notification_sent = plugin.notify_recipient(
+            notification_sent,
+            recipient_name, recipient_email, subject,
+            body, body_html, headers, attachments
+        )
+
+    if not notification_sent:
+        # send an email ONLY if we have smtp settings available
+        if config.get('smtp.server'):
+            _mail_recipient(
+                recipient_name, recipient_email,
+                site_title, site_url, subject, body,
+                body_html, headers, attachments
+            )
 
 
 def mail_user(recipient: model.User,

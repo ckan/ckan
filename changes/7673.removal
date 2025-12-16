@@ -1,1 +1,0 @@
-`ckan.dumps_url` and `ckan.dumps_format` config options have been removed. You can achieve the same effect by extending package/search.html.

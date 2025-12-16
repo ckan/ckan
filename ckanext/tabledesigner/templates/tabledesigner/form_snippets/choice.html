@@ -1,0 +1,40 @@
+{% import 'macros/form.html' as form %}
+
+{%- set info = field.get('info', {}) -%}
+{%- set help_text = info.get('notes', '') -%}
+
+{%- set options=[{'value':'', 'text':''}] -%}
+{%- set choices=column_type.choices() -%}
+{%- if column_type.choice_value_key -%}
+  {%- set value=column_type.choice_value_key(value) -%}
+{%- endif -%}
+{%- if value and value not in choices -%}
+  {%- do options.append({
+    'value': value,
+    'text': value ~ ' ' ~ _('(invalid choice)')
+  }) -%}
+{%- endif -%}
+{% if choices is mapping %}
+  {%- for c, v in choices.items() -%}
+    {%- do options.append({'value': c, 'text': v}) -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for c in choices -%}
+    {%- do options.append({'value': c, 'text': c}) -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- call form.select(
+    'col__' ~ position ~ '__value',
+    id='field-' ~ position,
+    label=info.get('label', '') or field.id
+      ~ (_(' (Primary key)') if pk else ''), classes=['control-full'],
+    options=options,
+    selected=value,
+    error=errors.get(field.id),
+    is_required=is_required
+) -%}
+  {%- if help_text -%}
+    {{- form.info(help_text) -}}
+  {%- endif -%}
+{% endcall %}

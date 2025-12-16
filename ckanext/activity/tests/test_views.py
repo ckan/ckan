@@ -551,7 +551,7 @@ class TestPackage:
         headers = {"Authorization": user["token"]}
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url, headers=headers)
@@ -560,7 +560,11 @@ class TestPackage:
     def test_public_cant_see_changes(self, app):
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action(
+            "package_update",
+            {"user": dataset["creator_user_id"]},
+            **dataset
+        )
 
         url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url)
@@ -646,7 +650,11 @@ class TestPackage:
             .one()
         )
         dataset["title"] = "Changed title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action(
+            "package_update",
+            {"user": dataset["creator_user_id"]},
+            **dataset
+        )
 
         sysadmin = factories.SysadminWithToken()
         headers = {"Authorization": sysadmin["token"]}
@@ -708,11 +716,109 @@ class TestPackage:
             status=404,
         )
 
+    def test_read_dataset_as_it_used_to_be_after_deleting_resource(self, app):
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"])
+        # Get latest activity (creating the resource)
+        activity = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
+        )
+
+        helpers.call_action(
+            "resource_delete",
+            context={"user": dataset["creator_user_id"]},
+            id=resource["id"],
+        )
+
+        # View as a sysadmin so we can see old versions of the dataset
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.package_history",
+                id=dataset["name"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert helpers.body_contains(response, "Dataset title")
+        assert helpers.body_contains(response, resource["name"])
+
+    def test_read_resource_as_it_used_to_be(self, app):
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"], name="Original name")
+        # Get latest activity (creating the resource)
+        activity = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
+        )
+
+        helpers.call_action(
+            "resource_update",
+            context={"user": dataset["creator_user_id"]},
+            id=resource["id"],
+            name="Updated name",
+            package_id=dataset["id"],
+        )
+
+        # View as a sysadmin so we can see old versions of the dataset
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.resource_history",
+                id=dataset["name"],
+                resource_id=resource["id"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert "Original name" in response.body
+
+    def test_read_deleted_resource_as_it_used_to_be(self, app):
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"])
+        # Get latest activity (creating the resource)
+        activity = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
+        )
+
+        helpers.call_action(
+            "resource_delete",
+            context={"user": dataset["creator_user_id"]},
+            id=resource["id"],
+        )
+
+        # View as a sysadmin so we can see old versions of the dataset
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.resource_history",
+                id=dataset["name"],
+                resource_id=resource["id"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert resource["name"] in response.body
+
     def test_changes(self, app):
         user = factories.UserWithToken()
         dataset = factories.Dataset(title="First title", user=user)
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
@@ -724,6 +830,34 @@ class TestPackage:
         )
         assert helpers.body_contains(response, "First")
         assert helpers.body_contains(response, "Second")
+
+    def test_changes_with_new_resource(self, app):
+        user = factories.User()
+        token = factories.APIToken(user=user["name"])
+        dataset = factories.Dataset(title="First title", user=user)
+        resource_name = "Image 1"
+        helpers.call_action(
+            "package_patch",
+            {"user": user["name"]},
+            id=dataset["id"],
+            resources=[
+                {
+                    "url": "http://example.com/image.png",
+                    "format": "png",
+                    "name": resource_name,
+                }
+            ],
+        )
+
+        activity = activity_model.package_activity_list(
+            dataset["id"], limit=1, offset=0
+        )[0]
+        response = app.get(
+            url_for("activity.package_changes", id=activity.id),
+            headers={"Authorization": token["token"]},
+        )
+        assert helpers.body_contains(response, "Added resource")
+        assert helpers.body_contains(response, resource_name)
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_invalid_get_params(self, app):
@@ -742,11 +876,11 @@ class TestPackage:
         dataset = factories.Dataset(user=user)
 
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Third title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Fourth title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url)
@@ -774,17 +908,17 @@ class TestPackage:
         dataset = factories.Dataset(user=user)
 
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Third title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "4th title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "5th title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "6th title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "7h title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         db_activities = activity_model.package_activity_list(
             dataset["id"], limit=10
@@ -819,11 +953,11 @@ class TestPackage:
         dataset = factories.Dataset(user=user)
 
         dataset["title"] = "Second title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Third title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         dataset["title"] = "Fourth title"
-        helpers.call_action("package_update", **dataset)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
 
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"], limit=10

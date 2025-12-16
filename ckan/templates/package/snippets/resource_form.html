@@ -10,7 +10,7 @@
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}
-      {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name, dataset_type=dataset_type) }}
+      {% snippet 'package/snippets/stages.html', stages=stage, pkg_name=pkg_name, dataset_type=dataset_type %}
     {% endif %}
   {% endblock %}
 
@@ -76,15 +76,15 @@
     {% endblock %}
     {% if stage %}
       {% block previous_button %}
-        <button class="btn btn-default" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
+        <button class="btn btn-secondary" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
       {% endblock %}
     {% endif %}
     {% block again_button %}
-      <button class="btn btn-default" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+      <button class="btn btn-secondary" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
     {% endblock %}
     {% if stage %}
       {% block save_button %}
-        <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>
+        <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Publish') }}{% endblock %}</button>
       {% endblock %}
     {% else %}
       {% block add_button %}

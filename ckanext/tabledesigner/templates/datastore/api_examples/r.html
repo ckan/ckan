@@ -1,0 +1,95 @@
+{% ckan_extends %}
+
+{% block custom %}
+  {{ super() }}
+
+  {% macro r_data(obj) -%}
+    {% for k, v in obj.items() %}{{ k }} = {%
+      if v is iterable and v is not string
+      %}list({% for lv in v %}{{ lv | tojson }}{%
+        if not loop.last %}, {% endif %}{% endfor %}){%
+      else %}{{ v | tojson }}{% endif %}
+      {%- if not loop.last %},
+{% endif -%}
+    {% endfor %}
+  {%- endmacro %}
+
+  {% if examples %}
+  {% call register_example('r', 'request_filter_custom') %}
+<pre class="example-r"><code class="language-bash"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %>% 
+    req_body_json(list(
+        resource_id = '{{ resource_id }}', 
+        filters = list(
+            {{ r_data(examples.text_column_filters_object) | indent(12) }})))
+    req_perform %&gt;% 
+    resp_body_json</code></pre>
+  {% endcall %}
+
+  {% call register_example('r', 'request_sql_custom') %}
+<pre class="example-r"><code class="language-bash"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %&gt;% 
+    req_body_json(list(
+        sql = "SELECT * FROM \"{{resource_id}}\" WHERE {{ examples.text_column_name_sql }} LIKE 'jones'"))
+    req_perform %&gt;% 
+    resp_body_json
+</code></pre>
+{% endcall %}
+
+  {% call register_example('r', 'request_insert') %}
+<pre class="example-r"><code class="language-bash"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_upsert', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %>% 
+    req_body_json(list(
+        resource_id = '{{ resource_id }}', 
+        method = 'insert',
+        records = list(list(
+            {{ r_data(examples.insert_record_object) | indent(12) }}))))
+    req_perform %&gt;% 
+    resp_body_json</code></pre>
+  {% endcall %}
+
+  {% call register_example('r', 'request_update') %}
+<pre class="example-r"><code class="language-bash"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_upsert', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %>% 
+    req_body_json(list(
+        resource_id = '{{ resource_id }}', 
+        method = 'update',
+        records = list(list(
+            {{ r_data(examples.update_record_object) | indent(12) }}))))
+    req_perform %&gt;% 
+    resp_body_json</code></pre>
+  {% endcall %}
+
+  {% call register_example('r', 'request_delete') %}
+<pre class="example-r"><code class="language-bash"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_records_delete', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %>% 
+    req_body_json(list(
+        resource_id = '{{ resource_id }}', 
+        filters = list(
+            {{ r_data(examples.unique_filter_object) | indent(12) }})))
+    req_perform %&gt;% 
+    resp_body_json</code></pre>
+  {% endcall %}
+  {% endif %}
+
+{% endblock %}

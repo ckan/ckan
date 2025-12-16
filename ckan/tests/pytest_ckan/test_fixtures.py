@@ -4,12 +4,13 @@ import os
 
 import pytest
 from urllib.parse import urlparse
-from sqlalchemy import inspect
+from sqlalchemy import inspect, Column, Integer
 
 import ckan.plugins as plugins
 from ckan.common import config, asbool
 from ckan.tests import factories
 from ckan.lib.redis import connect_to_redis
+from ckan.model.base import BaseModel
 
 
 def test_ckan_config_fixture(ckan_config):
@@ -27,6 +28,10 @@ def test_ckan_config_mark(ckan_config):
 
 
 # END-CONFIG-OVERRIDE
+
+
+class _FakePlugin:
+    pass
 
 
 @pytest.mark.ckan_config(u"some.new.config", u"exists")
@@ -50,6 +55,50 @@ class TestWithPlugins:
             self, load_example_helpers, with_plugins
     ):
         assert "example_helper" not in plugins.toolkit.h
+
+    def test_fake_plugin_does_not_exist(self,):
+        """Fake plugin is not accidentally registered via entrypoint."""
+        with pytest.raises(plugins.PluginNotFoundException):
+            plugins.load("fake_plugin")
+
+    @pytest.mark.provide_plugin("fake_plugin", _FakePlugin)
+    @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")
+    def test_provided_plugin_can_be_loaded_manually(self,):
+        """Fake plugin can be loaded when provided via mark."""
+        try:
+            plugin = plugins.load("fake_plugin")
+            assert isinstance(plugin, _FakePlugin)
+        finally:
+            # manually loaded plugins need to be cleaned up
+            # or they will affect other tests
+            plugins.unload_all()
+
+    @pytest.mark.provide_plugin("fake_plugin", _FakePlugin)
+    @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_provided_plugins(self):
+        """Fake plugins are loaded by `with_plugins`."""
+        plugin = plugins.get_plugin("fake_plugin")
+        assert isinstance(plugin, _FakePlugin)
+
+    @pytest.mark.ckan_config("ckan.plugins", "stats")
+    @pytest.mark.with_plugins(
+        "text_view",
+        "image_view",
+        {"activity": list, "datapusher": dict},
+    )
+    @pytest.mark.with_plugins("audio_view")
+    @pytest.mark.with_plugins({"fake_plugin": _FakePlugin})
+    def test_mark_mode(self):
+        """`with_plugins` can load real plugins, register fake plugins and be
+        used multiple times."""
+        assert plugins.plugin_loaded("stats")
+        assert plugins.plugin_loaded("text_view")
+        assert plugins.plugin_loaded("image_view")
+        assert plugins.plugin_loaded("audio_view")
+        assert isinstance(plugins.get_plugin("activity"), list)
+        assert isinstance(plugins.get_plugin("datapusher"), dict)
+        assert isinstance(plugins.get_plugin("fake_plugin"), _FakePlugin)
 
 
 @pytest.mark.ckan_config("ckan.site_url", "https://example.org")
@@ -180,3 +229,22 @@ class TestRedisFixtures:
 
         reset_redis()
         assert not redis.get("BBB-3")
+
+
+class CustomTestModel(BaseModel):
+    __tablename__ = "test_table"
+    id = Column(Integer, primary_key=True)
+
+
+@pytest.mark.parametrize("_n", [1, 2])
+@pytest.mark.usefixtures("clean_db")
+def test_clean_db_does_not_break_with_custom_models(_n):
+    """This test verifies that `CustomTestModel` that has no corresponding
+    table in DB is ignored by `clean_db` fixture. If this test is executed
+    individually, on first run DB may be empty and `clean_db` doesn't try to
+    delete anything. So we have to run this test two times to guarantee, that
+    on the second execution tables are created and `clean_db` invokes `DELETE
+    ...` statement.
+
+    """
+    pass

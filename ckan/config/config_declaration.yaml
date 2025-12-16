@@ -19,11 +19,10 @@ groups:
         ignored: true
       - key: ckan.host
         ignored: true
-      - key: testing
-        ignored: true
-        type: bool
+      - key: CKAN_INI
+        internal: true
 
-  # Options that are available inside CircleCI containers:
+  # Options that are available inside the Docker / CI containers:
   - annotation: ~
     options:
       - key: CKAN_POSTGRES_USER
@@ -47,78 +46,106 @@ groups:
   - annotation: ~
     options:
       - key: APPLICATION_ROOT
+        flask: true
         internal: true
       - key: BABEL_DEFAULT_LOCALE
+        flask: true
         internal: true
       - key: BABEL_DEFAULT_TIMEZONE
+        flask: true
         ignored: true
       - key: BABEL_DOMAIN
+        flask: true
         ignored: true
       - key: BABEL_TRANSLATION_DIRECTORIES
+        flask: true
         ignored: true
-      - key: CKAN_INI
-        internal: true
       - key: DEBUG
+        flask: true
         internal: true
       - key: ENV
+        flask: true
         internal: true
       - key: EXPLAIN_TEMPLATE_LOADING
+        flask: true
         internal: true
       - key: JSONIFY_MIMETYPE
+        flask: true
         internal: true
       - key: JSONIFY_PRETTYPRINT_REGULAR
+        flask: true
         internal: true
       - key: JSON_AS_ASCII
+        flask: true
         internal: true
       - key: JSON_SORT_KEYS
+        flask: true
         internal: true
       - key: MAX_CONTENT_LENGTH
+        flask: true
         internal: true
       - key: MAX_COOKIE_SIZE
+        flask: true
         internal: true
-      - key: PERMANENT_SESSION_LIFETIME
+      - key: MAX_FORM_MEMORY_SIZE
+        flask: true
+        internal: true
+      - key: MAX_FORM_PARTS
+        flask: true
         internal: true
       - key: PREFERRED_URL_SCHEME
+        flask: true
         internal: true
       - key: PRESERVE_CONTEXT_ON_EXCEPTION
+        flask: true
+        internal: true
+      - key: PROVIDE_AUTOMATIC_OPTIONS
+        flask: true
         internal: true
       - key: PROPAGATE_EXCEPTIONS
+        flask: true
+        internal: true
+      - key: SECRET_KEY_FALLBACKS
+        flask: true
         internal: true
       - key: SEND_FILE_MAX_AGE_DEFAULT
+        flask: true
         internal: true
       - key: SERVER_NAME
+        flask: true
         internal: true
-      - key: SESSION_COOKIE_DOMAIN
-        internal: true
-      - key: SESSION_COOKIE_HTTPONLY
-        internal: true
-      - key: SESSION_COOKIE_NAME
-        internal: true
-      - key: SESSION_COOKIE_PATH
-        internal: true
-      - key: SESSION_COOKIE_SAMESITE
-        internal: true
-      - key: SESSION_COOKIE_SECURE
-        internal: true
-      - key: SESSION_REFRESH_EACH_REQUEST
+      - key: SESSION_COOKIE_PARTITIONED
+        flask: true
         internal: true
       - key: TEMPLATES_AUTO_RELOAD
+        flask: true
         internal: true
       - key: TESTING
+        flask: true
         internal: true
       - key: TRAP_BAD_REQUEST_ERRORS
+        flask: true
         internal: true
       - key: TRAP_HTTP_EXCEPTIONS
+        flask: true
+        internal: true
+      - key: TRUSTED_HOSTS
+        flask: true
         internal: true
       - key: USE_X_SENDFILE
+        flask: true
         internal: true
       - key: DEBUG_TB_HOSTS
+        flask: true
         internal: true
       - key: DEBUG_TB_ENABLED
+        flask: true
         internal: true
       - key: DEBUG_TB_INTERCEPT_REDIRECTS
+        flask: true
         internal: true
       - key: DEBUG_TB_PANELS
+        flask: true
         internal: true
 
   - annotation: Default settings
@@ -155,10 +182,19 @@ groups:
     options:
       - key: use
         placeholder: egg:ckan
+        description: |
+          Allows to define chained configuration files. The base ini file should use the ``egg:ckan``
+          value. Files extending the base ini files must use the ``config:<path to parent ini file>`` form.
+          For instance, if you need to tweak the test settings in a ``test-core-custom.ini`` file, you
+          would use ``use=config:test-core.ini`` as value. Configuration options defined in the higher level
+          files (e.g. ``test-core-custom.ini``) will override the existing ones defined in the base on
+          (e.g. ``test-core.ini``).
 
       - key: SECRET_KEY
+        legacy_key: beaker.session.secret
         validators: not_empty
         required: true
+        flask: true
         placeholder_callable: secrets:token_urlsafe
         callable_args:
           nbytes: 20
@@ -171,6 +207,9 @@ groups:
             python -c "import secrets; print(secrets.token_urlsafe(20))"
 
           When used in a cluster environment, the value must be the same on every machine.
+
+          If not provided, for backwards compatibility with earlier configurations the value of
+          ``beaker.session.secret`` will be used.
 
 
       - key: ckan.legacy_route_mappings
@@ -195,8 +234,17 @@ groups:
             configuration declaration. For every invalid config option, an error will be
             printed to the output stream.
 
+
   - annotation: Development settings
     options:
+      - key: testing
+        type: bool
+        commented: true
+        description: |
+          This flag is enabled during tests and can be used to conditionally
+          skip operations that are not desired during test execution,
+          e.g. creating a DOI for dataset or notifying public registry about
+          new data available on the portal
       - key: ckan.devserver.host
         default: localhost
         example: '0.0.0.0'
@@ -258,99 +306,107 @@ groups:
         default: 600
         description: |
           The number of seconds between requests to record the last time a user was active on the site.
-      - key: cache_dir
-        placeholder: "/tmp/%(ckan.site_id)s"
-      - key: beaker.session.key
-        default: ckan
-        description: Name of the cookie key used to save the session under.
-      - key: beaker.session.secret
-        placeholder: string:%(SECRET_KEY)s
-        validators: configured_default("SECRET_KEY",None)
-        description: |
-          This is the secret token that the beaker library uses to hash the
-          cookie sent to the client. `ckan generate config` generates a unique
-          value for this each time it generates a config file. When used in a
-          cluster environment, the value must be the same on every machine.
-          If not provided, the value of ``SECRET_KEY`` will be used.
-      - key: beaker.session.auto
-        type: bool
-        default: False
-        description: |
-          When set to True, the session will save itself anytime it is accessed during a request,
-          negating the need to issue the save() method.
 
-      - key: beaker.session.cookie_expires
-        type: bool
-        description: |
-          Determines when the cookie used to track the client-side of the session will expire.
-          When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
-          Setting to a datetime forces a hard ending time for the session (generally used for setting a session to a far off date).
-          Setting to an integer will result in the cookie being set to expire in that many seconds.
-          I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
-          Defaults to never expiring.
-
-      - key: beaker.session.cookie_domain
-        commented: true
-        placeholder: .example.com
-        description: |
-          What domain the cookie should be set to. When using sub-domains,
-          this should be set to the main domain the cookie should be valid for. For example,
-          if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
-          Defaults to the current domain in its entirety.
-
-      - key: beaker.session.save_accessed_time
-        type: bool
-        default: True
-        description: Whether beaker should save the session's access time (true) or only modification time (false).
-
-      - key: beaker.session.secure
-        type: bool
-        description: |
-          Whether or not the session cookie should be marked as secure. When marked as secure,
-          browsers are instructed to not send the cookie over anything other than an SSL connection.
-
-      - key: beaker.session.timeout
-        validators: int_validator
-        description: |
-          Seconds until the session is considered invalid, after which it will be ignored and invalidated.
-          This number is based on the time since the session was last accessed, not from when the session was created.
-          Defaults to never expiring.
-          Requires that save_accessed_time be true.
-
-      - key: beaker.session.type
+      - key: SESSION_TYPE
+        flask: true
         default: cookie
         description: |
-          The type of session to use. The default is cookie, which uses a cookie to store the session id.
-          Other options include file, which stores the session id in a file, and dbm, which stores the session id in a dbm file.
-          The dbm option is not recommended as it is not thread-safe.
+            Specifies which type of session interface to use. The default
+            ``cookie`` value stores the session data inside a JSON-serialized signed
+            cookie. Alternatively, this can be set to any of the types
+            supported by `Flask-Session
+            <https://flask-session.readthedocs.io/en/latest/config.html#SESSION_TYPE>`_
+            like ``redis``, ``filesystem``, etc. Keep in mind
+            that certain session types require additional Python packages and configuration settings.
+            Setting a not supported value will raise an exception on startup.
 
-      - key: beaker.session.validate_key
-        validators: not_empty
-        placeholder_callable: secrets:token_urlsafe
-        validators: configured_default("SECRET_KEY",None)
-        callable_args:
-          nbytes: 20
+      - key: SESSION_COOKIE_NAME
+        flask: true
+        default: ckan
         description: |
-          This is the secret token that is used to sign the local encrypted session.
-          `ckan generate config` generates a unique
-          value for this each time it generates a config file. When used in a
-          cluster environment, the value must be the same on every machine.
-          If not provided, the value of ``SECRET_KEY`` will be used.
+          The name of the session cookie. Can be changed in case you already have a cookie with the same name.
 
-      - key: beaker.session.httponly
+      - key: SESSION_KEY_PREFIX
+        flask: true
+        default: "session:"
+        description: |
+          A prefix that is added before all session keys. This makes it
+          possible to use the same backend storage server for different apps.
+
+          .. note:: This option affects only server-side sessions. Cookie-based sessions ignore this option
+
+      - key: SESSION_COOKIE_DOMAIN
+        flask: true
+        validators: ignore_empty
+        description: |
+          The value of the Domain parameter on the session cookie. If not set,
+          browsers will only send the cookie to the exact domain it was set
+          from. Otherwise, they will send it to any subdomain of the given
+          value as well.
+
+      - key: SESSION_COOKIE_PATH
+        flask: true
+        validators: ignore_empty
+        description: |
+          The path that the session cookie will be valid for.
+
+      - key: SESSION_COOKIE_HTTPONLY
+        flask: true
         type: bool
-        default: True
+        default: true
         description: |
-          Whether or not the session cookie should be marked as http only. When marked as http only,
-          browsers are instructed to not allow javascript access to the cookie.
+          Browsers will not allow JavaScript access to cookies marked as “HTTP only” for security.
 
-      - key: beaker.session.samesite
-        default: Lax
-        validators: OneOf(["Strict","Lax","None"])
+      - key: SESSION_COOKIE_SECURE
+        flask: true
+        type: bool
         description: |
-          Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
-          browsers are instructed to not send the cookie with cross-site requests.
-          The value can be "Strict", "Lax" or "None".
+          Browsers will only send cookies with requests over HTTPS if the
+          cookie is marked “secure”. The application must be served over HTTPS
+          for this to make sense.
+
+      - key: SESSION_COOKIE_SAMESITE
+        flask: true
+        default: Lax
+        validators: one_of(["Strict","Lax","None"])
+        description: |
+          Restrict how cookies are sent with requests from external sites. Can
+          be set to 'Lax' (recommended) or 'Strict'
+
+      - key: SESSION_REFRESH_EACH_REQUEST
+        flask: true
+        type: bool
+        description: |
+          Control whether the cookie is sent with every response when
+          :ref:`SESSION_PERMANENT` is true. Sending the cookie every time can more
+          reliably keep the session from expiring, but uses more
+          bandwidth. Non-permanent sessions are not affected.
+
+      - key: SESSION_PERMANENT
+        flask: true
+        default: true
+        type: bool
+        description: |
+          When disabled, session expires with the browser session. When
+          enabled, session's expiration time set to
+          :ref:`PERMANENT_SESSION_LIFETIME` seconds.
+
+      - key: PERMANENT_SESSION_LIFETIME
+        flask: true
+        type: int
+        default: 31_536_000 # 1 year
+        description: |
+          If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
+          set this number of seconds in the future. Note that you can not set a
+          session that never expires (only very far into the future).
+
+      - key: SESSION_USE_SIGNER
+        flask: true
+        type: bool
+        description: |
+          Whether to sign the session cookie sid or not.
+
+          .. note:: This option affects only server-side sessions. Cookie-based sessions ignore this option
 
   - annotation: Database settings
     options:
@@ -381,7 +437,7 @@ groups:
 
           To get the list of all the available properties check the `SQLAlchemy documentation`_
 
-          .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+          .. _SQLAlchemy documentation: https://docs.sqlalchemy.org/en/20/core/engines.html#engine-creation-api
 
   - annotation: Site Settings
     options:
@@ -438,12 +494,6 @@ groups:
           ``file_contents`` will guess the mimetype by the file itself, this tends to be inaccurate.
 
           ``None`` will not store the mimetype for the resource.
-
-      - key: ckan.static_max_age
-        default: 3600
-        type: int
-        example: 2592000
-        description: Controls CKAN static files' cache max age, if we're serving and caching them.
 
       - key: ckan.valid_url_schemes
         type: list
@@ -659,11 +709,13 @@ groups:
   - annotation: CSRF Protection
     options:
       - key: WTF_CSRF_ENABLED
+        flask: true
         type: bool
         default: True
         description: Set to False to disable all CSRF protection.
 
       - key: WTF_CSRF_CHECK_DEFAULT
+        flask: true
         type: bool
         default: True
         description: |
@@ -671,6 +723,7 @@ groups:
           this controls whether every view is protected by default.
 
       - key: WTF_CSRF_SECRET_KEY
+        flask: true
         placeholder: string:%(SECRET_KEY)s
         validators: configured_default("SECRET_KEY",None)
         description: |
@@ -678,6 +731,7 @@ groups:
           If not provided, the value of ``SECRET_KEY`` will be used.
 
       - key: WTF_CSRF_METHODS
+        flask: true
         type: list
         default:
           - POST
@@ -688,10 +742,12 @@ groups:
         description: HTTP methods to protect from CSRF.
 
       - key: WTF_CSRF_FIELD_NAME
+        flask: true
         default: _csrf_token
         description: Name of the form field and session key that holds the CSRF token.
 
       - key: WTF_CSRF_HEADERS
+        flask: true
         type: list
         default:
           - X-CSRFToken
@@ -700,13 +756,15 @@ groups:
           HTTP headers to search for CSRF token when it is not provided in the form.
 
       - key: WTF_CSRF_TIME_LIMIT
+        flask: true
         type: int
-        default: 3600
+        default: 31536000
         description: |
           Max age in seconds for CSRF tokens.
           This value is capped by the lifetime of the session.
 
       - key: WTF_CSRF_SSL_STRICT
+        flask: true
         type: bool
         default: True
         description: |
@@ -714,33 +772,29 @@ groups:
           Only applies to HTTPS requests. Default is True.
 
       - key: WTF_I18N_ENABLED
+        flask: true
         type: bool
         default: True
         description: |
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
 
-      - key: ckan.csrf_protection.ignore_extensions
-        type: bool
-        default: true
-        description: |
-          Exempt plugins blueprints from CSRF protection.
-
-          .. warning:: This feature will be deprecated in future versions.
-
   - annotation: Flask-Login Remember me cookie settings
     options:
       - key: REMEMBER_COOKIE_NAME
+        flask: true
         default: remember_token
         description: The name of the cookie to store the “remember me” information in.
 
       - key: REMEMBER_COOKIE_DURATION
+        flask: true
         default: 31_536_000
         type: int
         description: |
           The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
 
       - key: REMEMBER_COOKIE_DOMAIN
+        flask: true
         placeholder: .example.com
         commented: true
         description: |
@@ -748,20 +802,24 @@ groups:
           (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
 
       - key: REMEMBER_COOKIE_PATH
+        flask: true
         default: /
         description: Limits the “Remember Me” cookie to a certain path.
 
       - key: REMEMBER_COOKIE_SECURE
+        flask: true
         type: bool
         default: False
         description: Restricts the “Remember Me” cookie's scope to secure channels (typically HTTPS).
 
       - key: REMEMBER_COOKIE_HTTPONLY
+        flask: true
         type: bool
         default: True
         description: Prevents the “Remember Me” cookie from being accessed by client-side scripts.
 
       - key: REMEMBER_COOKIE_REFRESH_EACH_REQUEST
+        flask: true
         type: bool
         default: False
         description: |
@@ -769,6 +827,7 @@ groups:
           Works like Flask's SESSION_REFRESH_EACH_REQUEST.
 
       - key: REMEMBER_COOKIE_SAMESITE
+        flask: true
         default: None
         description: Restricts the “Remember Me” cookie to first-party or same-site context.
 
@@ -891,6 +950,15 @@ groups:
           this to false if on solr 4.0 and you have automatic (soft)commits
           enabled to improve dataset update/create speed (however there may be
           a slight delay before dataset gets seen in results).
+
+      - key: ckan.search.solr_allowed_query_parsers
+        type: list
+        default: []
+        example: ["bool", "knn"]
+        description: |
+          Local parameters are not allowed when passing queries to Solr. An exception to this is when passing local parameters for special query parsers, that need to be enabled explicitly using this config option. For instance, the example provided would allow sending queries like the following::
+            search_params["q"] = "{!bool must=test}..."
+            search_params["q"] = "{!knn field=vector topK=10}..."
 
       - key: ckan.search.show_all_types
         default: dataset
@@ -1049,10 +1117,14 @@ groups:
               they're given in the config file, regardless of which Python modules
               they're implemented in.
 
-      - key: ckan.resource_proxy.timeout
-        type: int
-        default: 5
-        description: Timeout in seconds to use on Resource Proxy requests.
+      - key: ckan.download_proxy
+        example: http://proxy:3128
+        description: |
+          Specifies a HTTP proxy to be used by extensions such as Resource Proxy, XLoader or Archiver
+          when downloading remote files. This may be useful for enabling access to
+          restricted network locations, or restricting access to privileged ones, eg
+          preventing `Server Side Request Forgery <https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/>`_.
+          It will not be used by CKAN core.
 
   - annotation: Front-End Settings
     options:
@@ -1185,6 +1257,13 @@ groups:
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
 
+      - key: ckan.default_collapse_facets
+        type: bool
+        default: False
+        description: |
+          This controls the default view of the facet accordions, i.e. whether the accordions are expanded or collapsed
+          by default.
+
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
@@ -1296,10 +1375,21 @@ groups:
 
   - annotation: Storage Settings
     options:
+      - key: ckan.uploads_enabled
+        validators: ignore_missing boolean_validator
+        example: false
+        description: |
+          Defines file uploads are enabled or not.
+
+          If enabled also set :ref:`ckan.storage_path` if you want to use internal storage.
+
       - key: ckan.storage_path
         placeholder: /var/lib/ckan/default
         example: /var/lib/ckan/default
-        description: This defines the location of where CKAN will store all uploaded data.
+        description: |
+          This defines the location of where CKAN will store all uploaded data.
+
+          If set to some directory, also set :ref:`ckan.uploads_enabled` to true to enable uploads in the UI.
 
       - key: ckan.max_resource_size
         type: int
@@ -1319,25 +1409,36 @@ groups:
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as user's avatar. No restrictions applied when empty
+        description: File types allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.mimetypes`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended). Note also that ``text/svg`` can contain embedded
+          javascript code so it only should be used in trusted environments.
 
       - key: ckan.upload.user.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+        example: image/png
+        description: File MIMETypes allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.types`
+          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
+          options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.types
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as group image. No restrictions applied when empty
+        description: File types allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
 
       - key: ckan.upload.group.mimetypes
         type: list
         default: image/png image/gif image/jpeg
-        example: image/png text/svg
-        description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
+        example: image/png
+        description: File MIMEtypes allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.types` is also empty, no uploads are allowed. To allow any kind of
+          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
+          Note also that ``text/svg`` can contain embedded javascript code so it only should be used in
+          trusted environments.
 
   - annotation: Webassets Settings
     options:
@@ -1358,7 +1459,7 @@ groups:
         type: bool
         example: true
         description: |
-          When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+          When serving static files, if this setting is ``True``, the application will set the ``X-Sendfile`` header instead of
           serving the files directly with Flask. This will increase performance when serving the assets, but it
           requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 
@@ -1377,6 +1478,28 @@ groups:
         description: |
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
+
+      - key: ckan.user.unique_email_states
+        type: list
+        default: [active]
+        example: [pending, active]
+        description: |
+          When a new user created, uniqueness of its email is checked among
+          users with specified statuses.
+
+          Using `active` is appropriate if users are created on portal only
+          through original user registration form and always have active
+          status. When user is deleted, his email can be reused by a new
+          account.
+
+          Using `pending active` is suitable for workflows with user approval
+          or invitations. In such scenario, user is created with `pending`
+          status initially and activated at some point in future.
+
+          Adding `deleted` to this option makes sense if email of removed users
+          must not be reused. In other words, when user is deleted, he is not
+          able to create a new account with the same email and is virtually
+          blocked on the portal.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings
@@ -1574,11 +1697,6 @@ groups:
 
           .. seealso::
               The host of your CKAN installation can be set via :ref:`ckan.site_url`.
-
-          The CKAN repoze config file ``who.ini`` file will also need to be edited
-          by adding the path prefix to the options in the ``[plugin:friendlyform]``
-          section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
-          Do not change the login/logout_handler_path options.
 
       - key: ckan.resource_formats
         example: /path/to/resource_formats

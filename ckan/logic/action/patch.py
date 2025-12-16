@@ -2,11 +2,13 @@
 
 '''API functions for partial updates of existing data in CKAN'''
 
+from ckan import model
 from ckan.logic import (
     get_action as _get_action,
     check_access as _check_access,
     get_or_bust as _get_or_bust,
-    fresh_context as _fresh_context
+    fresh_context as _fresh_context,
+    NotFound,
 )
 from ckan.types import Context, DataDict
 from ckan.types.logic import ActionResult
@@ -24,12 +26,10 @@ def package_patch(
     parameters unchanged, whereas the update methods deletes all parameters
     not explicitly provided in the data_dict.
 
-    You are able to partially update and/or create resources with
-    package_patch. If you are updating existing resources be sure to provide
-    the resource id. Existing resources excluded from the package_patch
-    data_dict will be removed. Resources in the package data_dict without
-    an id will be treated as new resources and will be added. New resources
-    added with the patch method do not create the default views.
+    To partially update resources or other metadata not at the top level
+    of a package use
+    :py:func:`~ckan.logic.action.update.package_revise` instead to maintain
+    existing nested values.
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
@@ -37,7 +37,6 @@ def package_patch(
     _check_access('package_patch', context, data_dict)
 
     show_context: Context = {
-        'model': context['model'],
         'session': context['session'],
         'user': context['user'],
         'auth_user_obj': context['auth_user_obj'],
@@ -50,9 +49,14 @@ def package_patch(
         {'id': _get_or_bust(data_dict, 'id')})
 
     patched = dict(package_dict)
+    # allow metadata_modified to be updated if data has changed
+    patched.pop('metadata_modified', None)
+
     patched.update(data_dict)
     patched['id'] = package_dict['id']
-    return _get_action('package_update')(context, patched)
+    update_context = Context(context)
+    update_context['original_package'] = package_dict
+    return _get_action('package_update')(update_context, patched)
 
 
 def resource_patch(context: Context,
@@ -69,16 +73,28 @@ def resource_patch(context: Context,
     '''
     _check_access('resource_patch', context, data_dict)
 
+    resource = model.Resource.get(_get_or_bust(data_dict, 'id'))
+    if not resource:
+        raise NotFound('Resource was not found.')
+
     show_context: Context = _fresh_context(context)
     show_context.update({'for_update': True})
 
-    resource_dict = _get_action('resource_show')(
+    package_dict = _get_action('package_show')(
         show_context,
-        {'id': _get_or_bust(data_dict, 'id')})
+        {'id': resource.package_id})
 
-    patched = dict(resource_dict)
+    if package_dict['resources'][resource.position]['id'] != resource.id:
+        raise NotFound('Resource was not found.')
+
+    patched = dict(package_dict['resources'][resource.position])
+    # allow metadata_modified to be updated if data has changed
+    patched.pop('metadata_modified', None)
+
     patched.update(data_dict)
-    return _get_action('resource_update')(context, patched)
+    update_context = Context(context)
+    update_context['original_package'] = package_dict
+    return _get_action('resource_update')(update_context, patched)
 
 
 def group_patch(context: Context,
@@ -106,7 +122,6 @@ def group_patch(context: Context,
     patched.update(data_dict)
 
     patch_context = context.copy()
-    patch_context['allow_partial_update'] = True
     return _get_action('group_update')(patch_context, patched)
 
 
@@ -136,7 +151,6 @@ def organization_patch(
     patched.update(data_dict)
 
     patch_context = context.copy()
-    patch_context['allow_partial_update'] = True
     return _get_action('organization_update')(patch_context, patched)
 
 

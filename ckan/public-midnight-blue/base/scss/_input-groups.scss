@@ -1,0 +1,34 @@
+.input-group {
+  .form-control,
+  > .form-control:focus {
+    z-index: 0;
+  }
+}
+
+.input-group-btn {
+  &:last-child {
+    > .btn {
+      z-index: 0;
+    }
+  }
+}
+
+.input-group {
+  &:not(.has-validation) {
+    > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating),
+    > .dropdown-toggle:nth-last-child(n + 3),
+    > .form-floating:not(:last-child) > .form-control,
+    > .form-floating:not(:last-child) > .form-select {
+      @include border-end-radius($input-border-radius-lg);
+    }
+  }
+
+  &.has-validation {
+    > :nth-last-child(n + 3):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating),
+    > .dropdown-toggle:nth-last-child(n + 4),
+    > .form-floating:nth-last-child(n + 3) > .form-control,
+    > .form-floating:nth-last-child(n + 3) > .form-select {
+      @include border-end-radius($input-border-radius-lg);
+    }
+  }
+}

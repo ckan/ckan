@@ -22,7 +22,6 @@ import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
 from ckan.lib.webassets_tools import webassets_init, register_core_assets
-from ckan.lib.i18n import build_js_translations
 
 from ckan.common import CKANConfig, config, config_declaration
 from ckan.exceptions import CkanConfigurationException
@@ -41,7 +40,7 @@ def load_environment(conf: Union[Config, CKANConfig]):
     """
     os.environ['CKAN_CONFIG'] = cast(str, conf['__file__'])
 
-    valid_base_public_folder_names = ['public']
+    valid_base_public_folder_names = ['public', 'public-midnight-blue']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
 
@@ -51,7 +50,7 @@ def load_environment(conf: Union[Config, CKANConfig]):
             'Possible value is: "public".'
         )
 
-    log.info('Loading static files from %s' % static_files)
+    log.info('Loading static files from %s', static_files)
 
     # Initialize main CKAN config object
     config.update(conf)
@@ -65,18 +64,14 @@ def load_environment(conf: Union[Config, CKANConfig]):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
-    # load all CKAN plugins
-    p.load_all()
+    # load all CKAN plugins and force call to environment.update_config()
+    p.load_all(force_update=True)
 
     # Check Redis availability
     if not is_redis_available():
         log.critical('Could not connect to Redis.')
 
     app_globals.reset()
-
-    # Build JavaScript translations. Must be done after plugins have
-    # been loaded.
-    build_js_translations()
 
 
 # A mapping of config settings that can be overridden by env vars.
@@ -193,7 +188,7 @@ def update_config() -> None:
     helpers.load_plugin_helpers()
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates']
+    valid_base_templates_folder_names = ['templates', 'templates-midnight-blue']
     templates = config.get('ckan.base_templates_folder')
     config['ckan.base_templates_folder'] = templates
 
@@ -204,7 +199,7 @@ def update_config() -> None:
         )
 
     jinja2_templates_path = os.path.join(root, templates)
-    log.info('Loading templates from %s' % jinja2_templates_path)
+    log.info('Loading templates from %s', jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
     extra_template_paths = config.get('extra_template_paths')
@@ -219,7 +214,7 @@ def update_config() -> None:
     # to eliminate database errors due to stale pooled connections
     config.setdefault('sqlalchemy.pool_pre_ping', True)
     # Initialize SQLAlchemy
-    engine = engine_from_config(config)
+    engine = engine_from_config(dict(config))
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):

@@ -6,7 +6,7 @@
     {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)',
       new_activities)
     %}
-    <a href="{{ h.url_for('activity.dashboard') }}" title="{{ notifications_tooltip }}">
+    <a href="{{ h.url_for('activity.dashboard') }}" aria-label="{{ notifications_tooltip }}" data-bs-title="{{ notifications_tooltip }}" data-bs-toggle="tooltip">
       <i class="fa fa-tachometer" aria-hidden="true"></i>
       <span class="text">{{ _('Dashboard') }}</span>
       <span class="badge">{{ new_activities }}</span>

@@ -1,0 +1,3 @@
+Logging configuration no longer needs to be defined in the configuration ini 
+file when extending a base configuration file. Base logging settings will be
+used unless the overridden by a higher level configuration file.
