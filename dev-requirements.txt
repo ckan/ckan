@@ -17,7 +17,7 @@ pytest-cov==7.0.0
 pytest-factoryboy==2.8.1
 pytest-freezegun==0.4.2
 pytest-split==0.10.0
-pytest==9.0.2
+pytest==8.4.2
 responses==0.25.8
 sphinx-rtd-theme==3.0.2
 sphinx==8.1.3
