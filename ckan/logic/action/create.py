@@ -909,7 +909,7 @@ def user_create(context: Context,
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
-    :param image_url: the URL to an image to be displayed on the group's page
+    :param image_url: the URL to an image to be displayed on the user's page
         (optional)
     :type image_url: string
     :param plugin_extras: private extra user data belonging to plugins.

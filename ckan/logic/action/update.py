@@ -854,7 +854,7 @@ def group_update(context: Context, data_dict: DataDict) -> ActionResult.GroupUpd
 
 def organization_update(
         context: Context, data_dict: DataDict) -> ActionResult.OrganizationUpdate:
-    '''Update a organization.
+    '''Update an organization.
 
     You must be authorized to edit the organization.
 
