@@ -22,7 +22,6 @@ from ckan import plugins
 import ckan.model as model
 import ckan.lib.helpers as h
 from ckan.lib.base import render
-from ckan.types import Validator
 
 log = logging.getLogger(__name__)
 AttachmentWithType = Union[
