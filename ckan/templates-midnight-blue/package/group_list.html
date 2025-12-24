@@ -24,7 +24,7 @@
       {% snippet 'group/snippets/group_list.html', groups=pkg_dict.groups %}
     </form>
   {% else %}
-    <p class="empty">{{ h.humanize_entity_type('group', default_group_type, 'no associated label') or _('There are no groups associated with this dataset') }}</p>
+    <p class="empty">{{ h.humanize_entity_type('group', default_group_type, 'no associated label') or _('There are no groups associated with this dataset.') }}</p>
   {% endif %}
 
 {% endblock %}

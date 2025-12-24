@@ -19,21 +19,30 @@
 
       {% set select_list1 = h.activity_list_select(group_activity_list, activity_diffs[-1].activities[0].id) %}
       {% set select_list2 = h.activity_list_select(group_activity_list, activity_diffs[0].activities[1].id) %}
-      <form id="range_form" action="{{ h.url_for('activity.group_changes_multiple') }}" data-module="select-switch" data-module-target="">
-        <input type="hidden" name="current_old_id" value="{{ activity_diffs[-1].activities[0].id }}">
-        <input type="hidden" name="current_new_id" value="{{ activity_diffs[0].activities[1].id }}">
-      View changes from
+
+      {# HTML select macro for use below #}
+      {% set old_select %}
         <select class="form-control select-time" form="range_form" name="old_id">
           <pre>
             {{ select_list1[1:]|join }}
           </pre>
-        </select> to
+        </select>
+      {% endset %}
+
+      {% set new_select %}
         <select class="form-control select-time" form="range_form" name="new_id">
           <pre>
             {{ select_list2|join }}
           </pre>
         </select>
-        </form>
+      {% endset %}
+
+      <form id="range_form" action="{{ h.url_for('activity.group_changes_multiple') }}" data-module="select-switch" data-module-target="">
+        <input type="hidden" name="current_old_id" value="{{ activity_diffs[-1].activities[0].id }}">
+        <input type="hidden" name="current_new_id" value="{{ activity_diffs[0].activities[1].id }}">
+        {# TRANSLATORS: old_select and new_select are placeholders for HTML select elements for choosing the range of changes to view #}
+        {% trans %}View changes from {{ old_select }} to {{ new_select }}{% endtrans %}
+      </form>
 
         <br>
 
@@ -45,7 +54,7 @@
         {# TODO: display metadata for more than most recent change #}
         {% if i == 0 %}
           {# button to show JSON metadata diff for the most recent change - not shown by default #}
-          <input type="button" data-module="metadata-button" data-module-target="" class="btn" value="Show metadata diff" id="metadata_button"></input>
+          <input type="button" data-module="metadata-button" data-module-target="" class="btn" value="{{ _('Show metadata diff') }}" id="metadata_button" data-show-text="{{ _('Show metadata diff') }}" data-hide-text="{{ _('Hide metadata diff') }}"></input>
           <div id="metadata_diff" style="display:none;">
           {% block group_changes_diff %}
             <pre>

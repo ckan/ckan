@@ -1090,12 +1090,12 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'my label': _(u"My {object_type}s"),
         u'view label': _("View {object_type}"),
         u'name placeholder': _(u"My {object_type}"),
-        u'no any objects': _(
-            u"There are currently no {object_type}s for this site"),
-        u'no associated label': _(
-            u'There are no {object_type}s associated with this dataset'),
-        u'no description': _(
-            u'There is no description for this {object_type}'),
+        'no any objects': _(
+            "There are currently no {object_type}s for this site."),
+        'no associated label': _(
+            'There are no {object_type}s associated with this dataset.'),
+        'no description': _(
+            'There is no description for this {object_type}.'),
         u'no label': _(u"No {object_type}"),
         u'page title': _(u"{object_type}s"),
         u'save label': _(u"Save {object_type}"),

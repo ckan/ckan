@@ -6,8 +6,9 @@
     {% endblock %}
     {% block social_nav %}
       <ul class="nav nav-simple">
-        <li class="nav-item"><a href="https://x.com/share?url={{ current_url }}" target="_blank"><i class="fa-brands fa-square-x-twitter"></i> X</a></li>
-        <li class="nav-item"><a href="https://www.facebook.com/sharer.php?u={{ current_url }}" target="_blank"><i class="fa-brands fa-facebook-square"></i> Facebook</a></li>
+        {# TRANSLATORS: This is a link to the social network service X, formally known as Twitter. #}
+        <li class="nav-item"><a href="https://x.com/share?url={{ current_url }}" target="_blank"><i class="fa-brands fa-square-x-twitter"></i> {{ _('X') }}</a></li>
+        <li class="nav-item"><a href="https://www.facebook.com/sharer.php?u={{ current_url }}" target="_blank"><i class="fa-brands fa-facebook-square"></i> {{ _('Facebook') }}</a></li>
       </ul>
     {% endblock %}
   </section>
