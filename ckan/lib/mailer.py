@@ -22,6 +22,7 @@ from ckan import plugins
 import ckan.model as model
 import ckan.lib.helpers as h
 from ckan.lib.base import render
+from ckan.types import Validator
 
 log = logging.getLogger(__name__)
 AttachmentWithType = Union[
@@ -98,7 +99,9 @@ def _mail_recipient(
     smtp_user = config.get('smtp.user')
     smtp_password = config.get('smtp.password')
 
-    host, port = parse_smtp_server(smtp_server)
+    host, port = _parse_smtp_server(smtp_server)
+    if not host:
+        raise MailerException('SMTP server hostname is not configured')
 
     try:
         smtp_connection = smtplib.SMTP(host, port)
@@ -315,11 +318,11 @@ def verify_reset_link(user: model.User, key: Optional[str]) -> bool:
     return key.strip() == user.reset_key
 
 
-def parse_smtp_server(smtp_server: str) -> tuple[str, int]:
+def _parse_smtp_server(smtp_server: str) -> tuple[str | None, int]:
     """Parse SMTP server that may include port.
 
     Examples:
-        'smtp.example.com' -> ('smtp.example.com', 25)
+        'smtp.example.com' -> ('smtp.example.com', 0)
         'smtp.example.com:587' -> ('smtp.example.com', 587)
         '[::1]:587' -> ('::1', 587)
     """
@@ -331,8 +334,5 @@ def parse_smtp_server(smtp_server: str) -> tuple[str, int]:
     parsed = urlparse(smtp_server)
     host = parsed.hostname
     port = parsed.port or default_port
-
-    if not host:
-        raise ValueError(f"Invalid SMTP server: {smtp_server}")
 
     return host, port
