@@ -410,3 +410,48 @@ class TestMailer(MailerBase):
             "goals.png", "image/png",
         ]:
             assert item in msg[3]
+
+    @pytest.mark.ckan_config("smtp.server", ":")
+    def test_invalid_smtp_server_colon_only(self):
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": "b@example.com",
+            "subject": "Meeting",
+            "body": "Test",
+            "headers": {},
+        }
+
+        with pytest.raises(mailer.MailerException) as exc:
+            mailer.mail_recipient(**test_email)
+
+        assert "SMTP server hostname is not configured" in str(exc.value)
+
+    @pytest.mark.ckan_config("smtp.server", "localhost:1025")
+    def test_smtp_server_with_port(self, mail_server):
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": "b@example.com",
+            "subject": "Meeting",
+            "body": "Test",
+            "headers": {},
+        }
+
+        mailer.mail_recipient(**test_email)
+
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
+
+    @pytest.mark.ckan_config("smtp.server", "[::1]:1025")
+    def test_smtp_server_ipv6_with_port(self, mail_server):
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": "b@example.com",
+            "subject": "Meeting",
+            "body": "Test",
+            "headers": {},
+        }
+
+        mailer.mail_recipient(**test_email)
+
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
