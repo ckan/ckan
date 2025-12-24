@@ -1,15 +1,12 @@
 {
-    "emptyTable": "表格中沒有可用資料",
-    "info": "顯示 _START_ 至 _END_，共 _TOTAL_ 項結果",
-    "infoEmpty": "顯示 0 至 0，共 0 項結果",
-    "infoFiltered": "（從 _MAX_ 項結果中篩選）",
-    "infoThousands": ",",
+    "processing": "處理中...",
+    "loadingRecords": "載入中...",
     "lengthMenu": "顯示 _MENU_ 項結果",
-    "loadingRecords": "載入中…",
-    "processing": "處理中…",
-    "search": "搜尋：",
     "zeroRecords": "沒有符合的結果",
-    "thousands": ",",
+    "info": "顯示第 _START_ 至 _END_ 項結果，共 _TOTAL_ 項",
+    "infoEmpty": "顯示第 0 至 0 項結果，共 0 項",
+    "infoFiltered": "(從 _MAX_ 項結果中過濾)",
+    "search": "搜尋:",
     "paginate": {
         "first": "第一頁",
         "previous": "上一頁",
@@ -17,162 +14,7 @@
         "last": "最後一頁"
     },
     "aria": {
-        "sortAscending": "：升冪排列",
-        "sortDescending": "：降冪排列"
-    },
-    "autoFill": {
-        "cancel": "取消",
-        "fill": "用 <i>%d<\/i> 填入所有儲存格",
-        "fillHorizontal": "水平填入儲存格",
-        "fillVertical": "垂直填入儲存格"
-    },
-    "buttons": {
-        "collection": "集合 <span class='ui-button-icon-primary ui-icon ui-icon-triangle-1-s'\/>",
-        "colvis": "欄位可見性",
-        "colvisRestore": "恢復可見性",
-        "copy": "複製",
-        "copyKeys": "按 Ctrl + C 或 ⌘ + C 將表格資料複製系統剪貼簿。<br><br>若要取消，請點擊此訊息或按 Esc 鍵。",
-        "copySuccess": {
-            "1": "已複製 1 列到剪貼簿",
-            "_": "已複製 %d 列到剪貼簿"
-        },
-        "copyTitle": "複製到剪貼簿",
-        "csv": "CSV",
-        "excel": "Excel",
-        "pageLength": {
-            "-1": "顯示所有列",
-            "1": "顯示 1 列",
-            "_": "顯示 %d 列"
-        },
-        "pdf": "PDF",
-        "print": "列印"
-    },
-    "searchBuilder": {
-        "add": "新增條件",
-        "button": {
-            "0": "搜尋建構器",
-            "_": "搜尋建構器（%d）"
-        },
-        "clearAll": "全部清除",
-        "condition": "條件",
-        "conditions": {
-            "date": {
-                "after": "之後",
-                "before": "之前",
-                "between": "介於",
-                "empty": "空白",
-                "equals": "等於",
-                "not": "不是",
-                "notBetween": "不在…之間",
-                "notEmpty": "非空白"
-            },
-            "number": {
-                "between": "介於",
-                "empty": "空白",
-                "equals": "等於",
-                "gt": "大於",
-                "gte": "大於或等於",
-                "lt": "小於",
-                "lte": "小於或等於",
-                "not": "不是",
-                "notBetween": "不在…之間",
-                "notEmpty": "非空白"
-            },
-            "string": {
-                "contains": "包含",
-                "empty": "空白",
-                "endsWith": "結尾為",
-                "equals": "等於",
-                "not": "不是",
-                "notEmpty": "非空白",
-                "startsWith": "開頭為"
-            },
-            "array": {
-                "without": "不含",
-                "notEmpty": "非空白",
-                "not": "不是",
-                "contains": "包含",
-                "empty": "空白",
-                "equals": "等於"
-            }
-        },
-        "data": "資料",
-        "deleteTitle": "刪除篩選規則",
-        "leftTitle": "減少縮排",
-        "logicAnd": "且",
-        "logicOr": "或",
-        "rightTitle": "增加縮排",
-        "title": {
-            "0": "搜尋建構器",
-            "_": "搜尋建構器（%d）"
-        },
-        "value": "值"
-    },
-    "searchPanes": {
-        "clearMessage": "全部清除",
-        "collapse": {
-            "0": "搜尋面板",
-            "_": "搜尋面板（%d）"
-        },
-        "count": "{total}",
-        "countFiltered": "{shown}（{total}）",
-        "emptyPanes": "無搜尋面板",
-        "loadMessage": "載入搜尋面板中…",
-        "title": "生效中的篩選條件 - %d"
-    },
-    "select": {
-        "1": "已選取 %d 列",
-        "_": "已選取 %d 列",
-        "cells": {
-            "1": "已選取 1 個儲存格",
-            "_": "已選取 %d 個儲存格"
-        },
-        "columns": {
-            "1": "已選取 1 欄",
-            "_": "已選取 %d 欄"
-        }
-    },
-    "datetime": {
-        "previous": "上一個",
-        "next": "下一個",
-        "hours": "小時",
-        "minutes": "分鐘",
-        "seconds": "秒",
-        "unknown": "-",
-        "amPm": [
-            "上午",
-            "下午"
-        ]
-    },
-    "editor": {
-        "close": "關閉",
-        "create": {
-            "button": "新增",
-            "title": "建立新項目",
-            "submit": "建立"
-        },
-        "edit": {
-            "button": "編輯",
-            "title": "編輯項目",
-            "submit": "更新"
-        },
-        "remove": {
-            "button": "刪除",
-            "title": "刪除",
-            "submit": "刪除",
-            "confirm": {
-                "_": "確定要刪除 %d 列嗎？",
-                "1": "確定要刪除 1 列嗎？"
-            }
-        },
-        "error": {
-            "system": "發生系統錯誤（<a target=\"\\\" rel=\"nofollow\" href=\"\\\">更多資訊<\/a>）。"
-        },
-        "multi": {
-            "title": "多個值",
-            "info": "選取的項目包含此輸入欄位的不同值。如要編輯並將所有項目的這一欄設定為相同值，請點擊此處，否則它們將保留各自的值。",
-            "restore": "復原變更",
-            "noMulti": "此輸入欄位可單獨編輯，但不能作為群組的一部分編輯。"
-        }
+        "sortAscending": ": 升冪排列",
+        "sortDescending": ": 降冪排列"
     }
 }
