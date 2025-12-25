@@ -1,0 +1,1 @@
+Added a database migration to change the unique user email index to be case insensitive. This will prevent duplicate user emails that use different cases. Be sure to use the `ckan db duplicate_emails` command to confirm any duplicate users you may have in your site.
