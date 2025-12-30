@@ -2,25 +2,40 @@
 
 <div class="module-stats">
   <div class="card box">
-    <h3>{{ _('{0} statistics').format(g.site_title) }}</h3>
+    {# TRANSLATORS: site_title is the name of the CKAN site #}
+    <h3>{{ _('{site_title} statistics').format(site_title=g.site_title) }}</h3>
     <ul>
       {% block stats_group %}
+      {% set dataset_num = h.SI_number_span(stats.dataset_count) %}
       <li>
         <a href="{{ h.url_for('dataset.search') }}">
-          <strong>{{ h.SI_number_span(stats.dataset_count) }}</strong>
-          {{ _('dataset') if stats.dataset_count == 1 else _('datasets') }}
+          {% trans count=stats.dataset_count, num=dataset_num %}
+            <strong>{{ num }}</strong> dataset
+          {% pluralize count %}
+            <strong>{{ num }}</strong> datasets
+          {% endtrans %}
         </a>
       </li>
+
+      {% set org_num = h.SI_number_span(stats.organization_count) %}
       <li>
         <a href="{{ h.url_for('organization.index') }}">
-          <strong>{{ h.SI_number_span(stats.organization_count) }}</strong>
-          {{ _('organization') if stats.organization_count == 1 else _('organizations') }}
+          {% trans count=stats.organization_count, num=org_num %}
+            <strong>{{ num }}</strong> organization
+          {% pluralize count %}
+            <strong>{{ num }}</strong> organizations
+          {% endtrans %}
         </a>
       </li>
+
+      {% set grp_num = h.SI_number_span(stats.group_count) %}
       <li>
         <a href="{{ h.url_for('group.index') }}">
-          <strong>{{ h.SI_number_span(stats.group_count) }}</strong>
-          {{ _('group') if stats.group_count == 1 else _('groups') }}
+          {% trans count=stats.group_count, num=grp_num %}
+            <strong>{{ num }}</strong> group
+          {% pluralize count %}
+            <strong>{{ num }}</strong> groups
+          {% endtrans %}
         </a>
       </li>
       {% endblock %}
