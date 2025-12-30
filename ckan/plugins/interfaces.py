@@ -634,7 +634,7 @@ class IResourceController(Interface):
         pass
 
     def after_resource_delete(
-            self, context: Context,
+            self, context: Context, resource: dict[str, Any],
             resources: list[dict[str, Any]]) -> None:
         u'''
         Extensions will receive this after a resource is deleted.
@@ -642,6 +642,9 @@ class IResourceController(Interface):
         :param context: The context object of the current request, this
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
+        :param resource: An object representing the resource that is 
+            deleted. This is a dictionary with one key: ``id`` which
+            holds the id ``string`` of the resource that is deleted.
         :param resources: A list of objects representing the remaining
             resources after a resource has been removed.
         :type resource: list
