@@ -37,8 +37,8 @@ def is_valid_field_name(name: str):
     return (name and name == name.strip() and
             not name.startswith('_') and
             '"' not in name
-            and True not in [
-                unicodedata.category(char).startswith('C') for char in name])
+            and not any(
+                unicodedata.category(char).startswith('C') for char in name))
 
 
 def is_valid_table_name(name: str):
