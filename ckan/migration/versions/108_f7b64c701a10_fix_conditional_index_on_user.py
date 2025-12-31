@@ -21,7 +21,7 @@ depends_on = None
 def upgrade():
     op.create_index(
         "idx_only_one_active_email_no_case", "user",
-        [sa.func.lower(sa.Column('email')), "state"],
+        [sa.func.lower(sa.Column('email'))],
         unique=True, postgresql_where=sa.text('"user".state=\'active\''))
     print('Created "idx_only_one_active_email_no_case" index')
     op.drop_index("idx_only_one_active_email")
