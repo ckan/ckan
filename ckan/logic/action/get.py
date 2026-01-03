@@ -505,8 +505,8 @@ def organization_list(context: Context,
     :param offset: when ``limit`` is given, the offset to start
         returning organizations from
     :type offset: int
-    :param organizations: a list of names of the groups to return,
-        if given only groups whose names are in this list will be
+    :param organizations: a list of names of the organizations to return,
+        if given only organizations whose names are in this list will be
         returned (optional)
     :type organizations: list of strings
     :param all_fields: return group dictionaries instead of just names. Only
@@ -522,7 +522,7 @@ def organization_list(context: Context,
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: bool
-    :param include_groups: if all_fields, include the organizations the
+    :param include_groups: if all_fields, include the groups the
         organizations are in
         (optional, default: ``False``)
     :type include_groups: bool
@@ -747,7 +747,7 @@ def tag_list(context: Context,
     :param query: a tag name query to search for, if given only tags whose
         names contain this string will be returned (optional)
     :type query: string
-    :param vocabulary_id: the id or name of a vocabulary, if give only tags
+    :param vocabulary_id: the id or name of a vocabulary, if given only tags
         that belong to this vocabulary will be returned (optional)
     :type vocabulary_id: string
     :param all_fields: return full tag dictionaries instead of just names
@@ -1238,7 +1238,7 @@ def group_show(context: Context, data_dict: DataDict) -> ActionResult.GroupShow:
 
 
 def organization_show(context: Context, data_dict: DataDict) -> ActionResult.OrganizationShow:
-    '''Return the details of a organization.
+    '''Return the details of an organization.
 
     :param id: the id or name of the organization
     :type id: string
@@ -1452,7 +1452,7 @@ def package_autocomplete(
 
     :param q: the string to search for
     :type q: string
-    :param limit: the maximum number of resource formats to return (optional,
+    :param limit: the maximum number of datasets to return (optional,
         default: ``10``)
     :type limit: int
 
