@@ -4,7 +4,7 @@ from __future__ import annotations
 import cgi
 import json
 import logging
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -25,7 +25,7 @@ from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
 
-from ckan.types import Context, Response, ErrorDict
+from ckan.types import Context, Response
 
 Blueprint = flask.Blueprint
 NotFound = logic.NotFound
