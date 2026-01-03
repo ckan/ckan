@@ -260,10 +260,8 @@ class CreateView(MethodView):
                     {'id': id, 'state': 'active'}
                 )
             except ValidationError as e:
-                errors = cast(
-                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
                 error_summary = e.error_summary
-                return self.get(package_type, id, data, errors, error_summary)
+                return self.get(package_type, id, {}, e.error_dict, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
         elif save_action == u'go-metadata-preview':
             data_dict = get_action(u'package_show')(context, {u'id': id})
