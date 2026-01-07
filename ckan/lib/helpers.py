@@ -1781,11 +1781,6 @@ def dump_json(obj: Any, **kw: Any) -> str:
 
 
 @core_helper
-def load_json(obj: str, **kw: Any) -> dict[Any, Any]:
-    return json.loads(obj, **kw)
-
-
-@core_helper
 def snippet(template_name: str, **kw: Any) -> str:
     '''
     Use {% snippet %} tag instead for better performance.
