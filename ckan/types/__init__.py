@@ -54,7 +54,7 @@ CKANApp = Any
 DataDict: TypeAlias = "dict[str, Any]"
 # dictionary passed to the ValidationError
 ErrorDict: TypeAlias = (
-    "dict[str, Union[int, str, list[Union[str, dict[str, Any]]]]]"
+    "dict[str, Union[int, str, list[str], list[Union[str, dict[str, Any]]]]]"
 )
 
 FlattenKey: TypeAlias = "tuple[Any, ...]"
