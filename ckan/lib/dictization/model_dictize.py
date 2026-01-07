@@ -35,7 +35,7 @@ import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
 from ckan.types import Context
-from ckan.common import config
+from ckan.common import config, json
 from ckan.lib.helpers import helper_functions as h
 
 ## package save
@@ -516,7 +516,7 @@ def tag_dictize(tag: model.Tag, context: Context,
         q: dict[str, Any] = {
             'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
 
-        package_dicts = [h.load_json(result['data_dict'])
+        package_dicts = [json.loads(result['data_dict'])
                          for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the
