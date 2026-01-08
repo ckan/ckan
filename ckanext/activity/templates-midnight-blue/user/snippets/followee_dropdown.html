@@ -34,7 +34,7 @@
         <li class="nav-item everything {% if context.selected_id == False %} active{% endif %}">
           <a class="nav-link" href="{{ h.url_for('activity.dashboard') }}">
             <i class="fa fa-star"></i>
-            <span>Everything</span>
+            <span>{{ _('Everything') }}</span>
           </a>
         </li>
         {% for followee in followees %}

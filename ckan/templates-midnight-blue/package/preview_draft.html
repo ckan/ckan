@@ -19,7 +19,7 @@
 {% block form %}
 <form id="resource-edit" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
     {{ h.csrf_input() }}
-   
+
 
     <div class="package-metadata-field rounded-10 container">
       <div class="row justify-content-center">
@@ -29,7 +29,7 @@
 
               <input name="id" value="{{ data.id }}" type="hidden"/>
               <div class="preview-text">
-                <span class="label">Name</span>
+                <span class="label">{{ _('Name') }}</span>
                 <h2 class="value">{{pkg_dict.title}}</h2>
               </div>
 
@@ -42,41 +42,33 @@
 
               {% if pkg_dict.get("resources") %}
 
-              <h1>Resources:</h1>
+              <h1>{{ _('Resources:') }}</h1>
                 {% for resource in pkg_dict.resources %}
                   <div class="preview-text">
-                    <span class="label">Resource</span>
+                    <span class="label">{{ _('Resource') }}</span>
                     <h2 class="value">{{resource.get("name")}}</h2>
                   </div>
-                  
+
                   {% if resource.get("format") %}
                     <div class="preview-text">
-                      <span class="label">Format</span>
+                      <span class="label">{{ _('Format') }}</span>
                       <h2 class="value">{{resource.get("format")}}</h2>
                     </div>
                   {% endif %}
 
                   {% if resource.get("url") %}
                     <div class="preview-text">
-                      <span class="label">Url</span>
+                      <span class="label">{{ _('URL') }}</span>
                       <h2 class="value">{{resource.get("url")}}</h2>
                     </div>
                   {% endif %}
-
                 {% endfor %}
               {% endif %}
-
-        
-
-
-              
-
             </div>
         </div>
     </div>
 
     <div class="form-actions">
-        
         {% if stage %}
           {% block previous_button %}
             <button class="btn btn-secondary" name="save" value="go-resources" type="submit">{{ _('Previous') }}</button>
