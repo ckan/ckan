@@ -1353,3 +1353,116 @@ def config_option_update(
     log.info('Updated config options: %s', data)
 
     return data
+
+
+def bulk_api_call(context: Context, data_dict: DataDict):
+    ''' Delegates multiple calls to other APIs, in a single round trip
+    and with the same authentication.
+
+    :param calls: A list of dictionaries that each describe an API call.
+        Each call dictionary should contain 'action' and 'data_dict' keys.
+
+        Eg:
+        "calls": [
+            {"action": "group_create",
+             "data_dict": {
+                "name": "silly-walks",
+                "title": "Silly Walks",
+                "description": "The Ministry of Silly Walks"
+             }
+            },
+            {"action: "organization_create",
+             "data_dict": {
+                "name": "jetsons",
+                "title": "Jetsons",
+                "description": "The Jetsons"
+             }
+            }
+        ]
+
+        Optionally, the call can also contain 'save_results', a dictionary
+        defining parts of the call's return value that should be saved.
+
+        Each key in 'save_results' is the name by which to refer to a value,
+        while the corresponding value is the dotted path that should be saved.
+        Eg if a call definition contains:
+        "save_results": {"user_id": "id"}
+        and the call returns:
+        {"id": "12345", "name": "Foo", "description": "Baz"}
+        then the value '12345' would be saved under the name 'user_id'.
+
+        Saved values can then be applied to further calls, by including a
+        'load_results' key. This should contain a dictionary whose keys
+        are the extra keys to add to 'data_dict', and whose values are the
+        names of saved values. Eg "load_results": {"username": "user_id"}
+        would add a 'username' entry to 'data_dict', using the value saved
+        under 'user_id' (ie '12345').
+
+        Eg to create an organization and a member of that organization:
+
+        "calls": [
+            {"action": "organization_create",
+             "data_dict": {
+                "name": "silly-walks",
+                "title": "Silly Walks",
+                "description": "Ministry of Silly Walks"
+             },
+             "save_results": {
+                "silly_walks_id": "id"
+             }
+            },
+            {"action": "user_create",
+             "data_dict": {
+                "name": "walker",
+                "email": "walker@sillywalks.gov.uk",
+                "password": "password"
+             },
+             "save_results": {
+                "walker_id": "id"
+             }
+            },
+            {"action": "organization_member_create",
+             "data_dict": {
+                "role": "member"
+             },
+             "load_results": {
+                "id": "silly_walks_id",
+                "username": "walker_id"
+             }
+            }
+        ]
+
+    :return A dictionary of the saved return values, if any.
+    '''
+    _check_access('bulk_api_call', context, data_dict)
+    saved_results: dict[str, Any] = {}
+    calls = cast("list[dict[str, Any]]", data_dict.get('calls', []))
+    for call in calls:
+        action_name: str = call.get('action', '')
+        if not action_name:
+            raise ValidationError({'action': _('Missing value')})
+        action_data_dict: dict[str, Any] = cast(
+            "dict[str, Any]", call.get('data_dict', {}))
+        if 'load_results' in call:
+            # apply any saved values
+            load_results = cast("dict[str, Any]", call['load_results'])
+            for key, value in load_results.items():
+                action_data_dict[key] = saved_results[value]
+
+        _check_access(action_name, context, action_data_dict)
+        result: Any = _get_action(action_name)(context, action_data_dict)
+
+        # store result(s) if wanted
+        if 'save_results' in call:
+            save_results = cast("dict[str, str]", call.get('save_results', {}))
+            for name, path in save_results.items():
+                value_to_save = result
+                for path_element in path.split('.'):
+                    if not isinstance(value_to_save, dict) \
+                            or path_element not in value_to_save:
+                        raise ValidationError(
+                            {'save_results': 'Path not found'}
+                        )
+                    value_to_save = value_to_save.get(path_element)
+                saved_results[name] = value_to_save
+    return saved_results
