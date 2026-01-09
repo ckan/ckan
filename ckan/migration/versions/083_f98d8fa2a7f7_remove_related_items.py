@@ -7,7 +7,7 @@ Create Date: 2018-09-04 18:49:17.615242
 
 """
 from __future__ import print_function
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
@@ -32,13 +32,16 @@ tables using:
 def upgrade():
     if skip_based_on_legacy_engine_version(op, __name__):
         return
-    conn = op.get_bind()
-    existing = conn.execute(
-        sa.text("SELECT COUNT(*) FROM related;")
-    ).fetchone()
-    if existing[0] > 0:
-        print(WARNING)
-        return
+
+    if not context.is_offline_mode():
+        conn = op.get_bind()
+        existing = conn.execute(
+            sa.text("SELECT COUNT(*) FROM related;")
+        ).fetchone()
+        if existing[0] > 0:
+            print(WARNING)
+            return
+
     op.drop_table('related_dataset')
     op.drop_table('related')
 
