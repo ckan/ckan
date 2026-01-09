@@ -262,7 +262,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     csrf.init_app(app)
 
     if config.get("ckan.csrf_protection.ignore_extensions"):
-        log.warn(csrf_warn_extensions)
+        log.warning(csrf_warn_extensions)
         _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
