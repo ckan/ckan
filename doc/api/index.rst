@@ -493,6 +493,14 @@ ckan.logic.action.delete
    :members:
 
 
+ckan.logic.action.file
+========================
+
+.. automodule:: ckan.logic.action.file
+   :members:
+   :exclude-members: file_search
+
+
 ckanext.activity.logic.action
 =============================
 
