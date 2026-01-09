@@ -20,7 +20,7 @@ blinker==1.8.2
     #   flask
 cachelib==0.13.0
     # via flask-session
-certifi==2024.7.4
+certifi==2026.1.4
     # via
     #   -r requirements.in
     #   requests
@@ -107,7 +107,7 @@ python-dateutil==2.9.0.post0
     #   feedgen
 python-magic==0.4.27
     # via -r requirements.in
-pytz==2024.1
+pytz==2025.2
     # via
     #   -r requirements.in
     #   flask-babel
@@ -134,7 +134,7 @@ sqlalchemy[mypy]==1.4.52
     #   sqlalchemy
 sqlalchemy2-stubs==0.0.2a38
     # via sqlalchemy
-sqlparse==0.5.0
+sqlparse==0.5.4
     # via -r requirements.in
 tomli==2.0.1
     # via mypy
@@ -146,7 +146,7 @@ typing-extensions==4.12.2
     #   sqlalchemy2-stubs
 tzlocal==5.2
     # via -r requirements.in
-urllib3==2.2.2
+urllib3==2.6.3
     # via requests
 watchdog==4.0.1
     # via werkzeug
