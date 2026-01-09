@@ -144,7 +144,7 @@ sqlalchemy[mypy]==1.4.41
     #   sqlalchemy
 sqlalchemy2-stubs==0.0.2a27
     # via sqlalchemy
-sqlparse==0.5.0
+sqlparse==0.5.4
     # via -r requirements.in
 tomli==2.0.1
     # via mypy
@@ -157,7 +157,7 @@ tzdata==2022.1
     # via pytz-deprecation-shim
 tzlocal==4.2
     # via -r requirements.in
-urllib3==1.26.19
+urllib3==2.6.3
     # via requests
 watchdog==2.1.6
     # via werkzeug
