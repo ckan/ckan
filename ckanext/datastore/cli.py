@@ -160,18 +160,19 @@ def purge(list: bool = False, yes: bool = False):
             if not list:
                 click.echo("Resource '%s' orphaned - queued for drop" %
                            resid)
+            continue
         except KeyError:
             continue
         if res['state'] == 'deleted':
-                resource_id_list.append(resid)
-                if not list:
-                    click.echo("Resource '%s' deleted - queued for drop" %
-                               resid)
+            resource_id_list.append(resid)
+            if not list:
+                click.echo("Resource '%s' deleted - queued for drop" %
+                           resid)
         if pkg['state'] == 'deleted':
             resource_id_list.append(resid)
             if not list:
                 click.echo("Package '%s' deleted - queued for drop" %
-                            pkg['id'])
+                           pkg['id'])
 
     if list:
         click.echo('\n'.join(resource_id_list))
