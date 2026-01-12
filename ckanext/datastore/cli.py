@@ -131,27 +131,51 @@ def _parse_db_config(config_key: str = u'sqlalchemy.url'):
 
 @datastore.command(
     'purge',
-    short_help='purge orphaned resources from the datastore.'
+    short_help='purge orphaned or deleted resources from the datastore.'
 )
-def purge():
-    '''Purge orphaned resources from the datastore using the datastore_delete
-    action, which drops tables when called without filters.'''
+@click.option('-l', '--list', is_flag=True,
+              type=click.BOOL,
+              help='Only output the list of oprhaned or deleted Resource IDs.')
+@click.option('-y', '--yes', is_flag=True,
+              type=click.BOOL, help='Purge without asking for confirmation.')
+def purge(list: bool = False, yes: bool = False):
+    '''Purge orphaned or deleted resources from the datastore using the
+    datastore_delete action, which drops tables when called without filters.'''
 
     site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
 
     resource_id_list = []
     for resid in get_all_resources_ids_in_datastore():
         try:
-            logic.get_action('resource_show')(
+            res = logic.get_action('resource_show')(
                 {'user': site_user['name']},
                 {'id': resid}
             )
+            pkg = logic.get_action('package_show')(
+                {'user': site_user['name']},
+                {'id': res['package_id']}
+            )
         except logic.NotFound:
             resource_id_list.append(resid)
-            click.echo("Resource '%s' orphaned - queued for drop" %
-                       resid)
+            if not list:
+                click.echo("Resource '%s' orphaned - queued for drop" %
+                           resid)
         except KeyError:
             continue
+        if res['state'] == 'deleted':
+                resource_id_list.append(resid)
+                if not list:
+                    click.echo("Resource '%s' deleted - queued for drop" %
+                               resid)
+        if pkg['state'] == 'deleted':
+            resource_id_list.append(resid)
+            if not list:
+                click.echo("Package '%s' deleted - queued for drop" %
+                            pkg['id'])
+
+    if list:
+        click.echo('\n'.join(resource_id_list))
+        return
 
     orphaned_table_count = len(resource_id_list)
     click.echo('%d orphaned tables found.' % orphaned_table_count)
@@ -159,7 +183,8 @@ def purge():
     if not orphaned_table_count:
         return
 
-    click.confirm('Proceed with purge?', abort=True)
+    if not yes:
+        click.confirm('Proceed with purge?', abort=True)
 
     # Drop the orphaned datastore tables. When datastore_delete is called
     # without filters, it does a drop table cascade
