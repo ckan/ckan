@@ -16,7 +16,7 @@
   <table
     id="dtprv"
     width="100%"
-    class="table table-striped table-bordered table-condensed table-hover datatables-pre-render-hidden"
+    class="table table-striped table-striped-reverse table-bordered table-condensed table-hover datatables-pre-render-hidden"
     data-module="datatables_view"
     data-module-state-save-flag='{{ state_saving|tojson }}'
     data-module-state-duration="{{ state_duration }}"
@@ -39,7 +39,7 @@
     <thead>
       <tr>
         <th class="all" data-name="_id">_id</th>
-        {% for field in datadictionary -%}
+        {% for field in data_dictionary -%}
           <th scope="col">
             {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
               {{ field.info.label|replace(" ", nbspval) }}
@@ -77,16 +77,25 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.min.css" integrity="sha384-seyUnB//1QOFEqox9uI7YTLBgz9jBwFRqZvsEPFrTw6NAsFEo70nhBWsQfODqiYA" crossorigin="anonymous">{# Responsive Extension #}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/3.0.0/css/select.bootstrap5.min.css" integrity="sha384-TlxQ7BelG5MWHP/TbW8dDV3/3kwuo6rinsUsoQdbLGPvurwx/DA2Z49RVLIOxVrG" crossorigin="anonymous">{# Select Extension #}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/2.2.2/features/searchHighlight/dataTables.searchHighlight.css" integrity="sha384-3FGcHDS9wKlVV/Pu4y1kojpLsNxlE3jQjdm1N0p7RC9f6xPdRAj78js3ELGiGP/j" crossorigin="anonymous">{# Highlight Extension #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/colreorder/2.1.2/css/colReorder.bootstrap5.min.css" integrity="sha384-GbOIUvtTgiwI6/J1RPbHEigVcEHKQ5rwIoEmihz+slAsiIn6KTkzPQbdMneBryUS" crossorigin="anonymous">{# Column Reorder Extension #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/5.0.5/css/fixedColumns.bootstrap5.min.css" integrity="sha384-9xxs0IRJtzVlkHp1DM7mUKoe2F7Uu1i1aWVBR2wt2lmHUQHHcOsQXUx0aay6BoLS" crossorigin="anonymous">{# Fixed Columns Extension #}
 
     <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" integrity="sha384-AenwROccLjIcbIsJuEZmrLlBzwrhvO94q+wm9RwETq4Kkqv9npFR2qbpdMhsehX3" crossorigin="anonymous" defer></script>{# Core #}
     <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.min.js" integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W" crossorigin="anonymous" defer></script>{# Core #}
     <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.2.2/js/dataTables.buttons.min.js" integrity="sha384-DmaAfo+/+UjRKHPidNNswlNqd9ybuE6yx9zKHyMY+vYy9SZhQEu4nauMVgwSx4Z/" crossorigin="anonymous" defer></script>{# Buttons Extension #}
     <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.2.2/js/buttons.bootstrap5.min.js" integrity="sha384-BdedgzbgcQH1hGtNWLD56fSa7LYUCzyRMuDzgr5+9etd1/W7eT0kHDrsADMmx60k" crossorigin="anonymous" defer></script>{# Buttons Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.2.6/js/buttons.html5.min.js" integrity="sha384-OFL+acRxgxRUKgJTHEQrtuwzydyoSE/AN10JClRMQjjfnXKoF89juO7p8HyCYxxO" crossorigin="anonymous" defer></script>{# Export Buttons Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.2.6/js/buttons.print.min.js" integrity="sha384-xz689SnmbcYldwmnoN4kscmH+O4a+pWUfd1SAWx53AO+Q3dkr6em2TRj0wdrFY52" crossorigin="anonymous" defer></script>{# Print Button Extension #}
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.min.js" integrity="sha384-A6In5tKqlvPZKDpH+ei4A3A4TZrEsyvvN2Fe+oCB1IaQfGD5HNqDIxwjztNKSGDd" crossorigin="anonymous" defer></script>{# Responsive Extension #}
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.4/js/responsive.bootstrap5.min.js" integrity="sha384-VdUZen/UKzp4O+wnInvMeDymYoESBoFxn8hXwJcu+3QTKXC0Ewzr1Wj+17lPUrtn" crossorigin="anonymous" defer></script>{# Responsive Extension #}
     <script type="text/javascript" src="https://cdn.datatables.net/select/3.0.0/js/dataTables.select.min.js" integrity="sha384-Y/112jU1UJsyj7J/WhficUVfFZTLF2TgmBuDHBvJmYS8f+dGaz3ZNKxgwcg4YgP9" crossorigin="anonymous" defer></script>{# Select Extension #}
     <script type="text/javascript" src="https://cdn.datatables.net/select/3.0.0/js/select.bootstrap5.min.js" integrity="sha384-Ttfoqnculm18lypWoer93HIDnzUXrznwNRvE6iuz4TQZoWnKUb7xO3wPdnRrSFu+" crossorigin="anonymous" defer></script>{# Select Extension #}
     <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/2.2.2/features/searchHighlight/dataTables.searchHighlight.min.js" integrity="sha384-XDdmvsWg5e1/POTILjMFvB3KtrBqRk5W1CG9aoi1+K6bBMPHQAvlKEiekndU6CTp" crossorigin="anonymous" defer></script>{# Highlight Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.2.6/js/buttons.colVis.min.js" integrity="sha384-6PvleYLDrhaHXPEEDa5bIibZ1NDrdrUVDjfXgYJ25vmQFDwJ/CebbAIuZnebzXRO" crossorigin="anonymous" defer></script>{# Column Visibility Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/colreorder/2.1.2/js/dataTables.colReorder.min.js" integrity="sha384-P0Gr2+sRNEqaGVmrmdXZZNDHYIsOJdvWwCvHLu3MkQHy7AtRBWn5nBGUpSZRyLMi" crossorigin="anonymous" defer></script>{# Column Reorder Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/colreorder/2.1.2/js/colReorder.bootstrap5.min.js" integrity="sha384-QCQp/e/jaXHhBCAclOZDYXgZAq60M+DLj+mnF98xZPjiKGt72rSNs3eU7N3mxGfY" crossorigin="anonymous" defer></script>{# Column Reorder Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/5.0.5/js/dataTables.fixedColumns.min.js" integrity="sha384-snbynrvB6Hq5gwo20rFwR3sUhSWtWsNgU6zSa1ta13Yf7u6ic/lZEmbq6uY4zZGe" crossorigin="anonymous" defer></script>{# Fixed Columns Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/5.0.5/js/fixedColumns.bootstrap5.min.js" integrity="sha384-Ejuk6FrDTcABybV7rodVXns5f0OJu2zLkNYq3fYUtL23MBF4NL/deKJmtnwbl2hP" crossorigin="anonymous" defer></script>{# Fixed Columns Extension #}
   {% endblock %}
 
   {# NOTE: need inline visibility to fully prevent load flashing in datatables #}

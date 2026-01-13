@@ -1,0 +1,9 @@
+.datatable-id-col .dt-column-order{
+  left: 2px !important;
+}
+
+tr#dt-row-histogram{
+  min-height: 65px !important;
+  max-height: 65px !important;
+  height: 65px !important;
+}

@@ -16,6 +16,7 @@ from ckan.plugins.toolkit import (
     NotAuthorized,
     ObjectNotFound,
     request,
+    config,
 )
 import re
 
@@ -139,6 +140,10 @@ def ajax(resource_view_id: str):
         status = 400
     else:
         data = []
+        if config.get('ckan.datatables.show_histograms', True):
+            # TODO: backend for flat histogram data!!!
+            data = [dict({f['id']: '' for f in response['fields']},
+                         DT_RowId='dt-row-histogram')]
         null_label = h.datatablesview_null_label()
         for row in response[u'records']:
             record = {colname: escape(str(null_label if row.get(colname, u'')
