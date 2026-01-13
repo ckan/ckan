@@ -1,102 +1,103 @@
 {% extends "base.html" %}
 
 {% block title %}{{ h.dataset_display_name(package)}}&mdash;{{ h.resource_display_name(resource)}} - {{ super() }}{% endblock %}
+
 {% block bodytag %}
   {{- super() -}}
   class="dt-view"
 {%- endblock -%}
 
 {%- block page -%}
-{#- pass the datadictionary to javascript, so we can init columns there -#}
-{%- set datadictionary = h.datastore_dictionary(resource.id, resource_view.get('show_fields')) -%}
-{%- set nbspval = "&nbsp;"|safe -%}
-{%- set current_language = h.lang() -%}
 
-<script type=text/javascript>
-    const gdataDict = {{ datadictionary|tojson }}
-    const gresviewId = '{{ resource_view.id }}'
-</script>
+  {%- set nbspval = "&nbsp;"|safe -%}
+  {% set can_edit = h.check_access('resource_update', {'id': resource_id}) %}
+  {%- set data_dictionary = h.datastore_dictionary(resource.id, resource_view.get('show_fields')) -%}
 
-<div id="resize_wrapper">
-  <table id="dtprv" width="100%"
-      class="table table-striped table-bordered table-condensed table-hover"
-      data-module="datatables_view"
-      data-state-save-flag="{{ state_saving|lower }}"
-      data-state-duration="{{ state_duration }}"
-      data-ellipsis-length="{{ resource_view.ellipsis_length if resource_view.ellipsis_length is defined else ellipsis_length }}"
-      data-date-format="{{ resource_view.date_format  if resource_view.date_format is defined else date_format }}"
-      data-package-name="{{ package.name }}"
-      data-resource-name="{{ h.resource_display_name(resource) }}"
-      data-languagecode="{{ current_language }}"
-      data-languagefile="{{ h.datatablesview_get_language_file_path(current_language) }}"
-      data-ajaxurl="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
-      data-ckanfilters="{{ request.args.get('filters', '')|e }}"
-      data-responsive-flag="{{ resource_view.get('responsive')|lower }}"
-      data-page-length-choices="{{ page_length_choices }}"
-      data-responsive-modal="{{ responsive_modal|lower }}"
-      data-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id ) }}">
+  <table
+    id="dtprv"
+    width="100%"
+    class="table table-striped table-bordered table-condensed table-hover datatables-pre-render-hidden"
+    data-module="datatables_view"
+    data-module-state-save-flag='{{ state_saving|tojson }}'
+    data-module-state-duration="{{ state_duration }}"
+    data-module-ellipsis-length="{{ resource_view.ellipsis_length if resource_view.ellipsis_length is defined else ellipsis_length }}"
+    data-module-date-format="{{ resource_view.date_format if resource_view.date_format is defined else date_format }}"
+    data-module-package-name="{{ package.name }}"
+    data-module-resource-name="{{ h.resource_display_name(resource) }}"
+    data-module-view-id="{{ resource_view.id }}"
+    data-module-languagecode="{{ h.lang() }}"
+    data-module-languagefile='{{ h.datatablesview_get_language_file_path(h.lang()) or "null" }}'
+    data-module-ajaxurl="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
+    data-module-ckanfilters='{{ request.args.get("filters", "")|e or "null" }}'
+    data-module-responsive-flag="{{ resource_view.get('responsive')|lower }}"
+    data-module-page-length-choices="{{ page_length_choices }}"
+    data-module-responsive-modal="{{ responsive_modal|lower }}"
+    data-module-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id ) }}"
+    data-module-data-dictionary='{{- data_dictionary|tojson -}}'
+    data-module-editable='{{ can_edit|tojson }}'
+  >
     <thead>
       <tr>
         <th class="all" data-name="_id">_id</th>
         {% for field in datadictionary -%}
           <th scope="col">
-          {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
-            {{ field.info.label|replace(" ", nbspval) }}
-          {%- else -%}
-            {{ field.id|replace(" ", nbspval) }}
-          {%- endif -%}
-          &nbsp;
-          {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}
-            <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
-          {%- endif -%}
-          &nbsp;</th>
-        {% endfor -%}
-       <th id="_colspacer">colspacer</th>
-      </tr>
-      <tr>
-        <th><button id="refit-button" class="btn btn-secondary" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
-        {% for field in datadictionary -%}
-          <th id="cdx{{ loop.index }}" class="fhead" data-type="{{ field.type }}">
-              {{- field.id -}}
+            {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
+              {{ field.info.label|replace(" ", nbspval) }}
+            {%- else -%}
+              {{ field.id|replace(" ", nbspval) }}
+            {%- endif -%}
+            &nbsp;
+            {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}
+              <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
+            {%- endif -%}
+            &nbsp;
           </th>
         {% endfor -%}
-       <th id="_colspacerfilter" class="none"></th>
       </tr>
     </thead>
-    <tbody>
-    </tbody>
+    <tbody id="dtprv-body-main"></tbody>
+    <tfoot id="dtprv-foot-main"></tfoot>
   </table>
-  <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
-                                                                  'datatablesview.filtered_download',
-                                                                  resource_view_id=resource_view.id) -}}">
-    {{ h.csrf_input() }}
-    <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e -}}" />
-  </form>
-</div>
 
-{#- we do this macro instead of the snippet because the snippet pollutes the output with comments/whitespaces which #}
-{# may be invisible for regular html, but not for tooltips -#}
-{%- macro local_friendly_datetime(dt_obj) -%}
-   <span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(dt_obj, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
-    {{- h.render_datetime(dt_obj, with_hours=True) -}}
-   </span>
-{%- endmacro -%}
-
-{#- we create tooltip here instead of javascript so we can leverage the automatic-local-datetime class date conversion CKAN does -#}
-{%- set res = resource %}
-<div id="dtv-resource-info" style="display: none;">
-  {{- _('Data last updated') }}: {{ local_friendly_datetime(res.last_modified) }}&#10;
-  {{- _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
-  {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
-  {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') -}}&nbsp;
-  {%- if res.size and res.size|int != 0 -%}
-   ( {{ h.localised_filesize(res.size)}} )
-  {%- endif -%}
-</div>
 {%- endblock -%}
+
 {%- block styles -%}
   {{- super() -}}
+
+  {%- block datatables_scripts -%}
+    {# https://github.com/markedjs/marked #}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked@15.0.7/lib/marked.umd.min.js" integrity="sha384-EjL6IeH3KCXB9dkBQaYqnb/m6V3TOBP++kooL0bl43Vt6eCFJ2Pxck/B/dU4PB8d" crossorigin="anonymous" defer></script>
+
+    {# https://github.com/knownasilya/jquery-highlight | https:////bartaz.github.io/sandbox.js/jquery.highlight.js #}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-highlight@3.5.0/jquery.highlight.js" integrity="sha384-iHYAoCetx95M8Rp57MEkmPOf1LLUXm7Tc/xjsmVejTGEHjR4ePBbRFp+c0v6U43v" crossorigin="anonymous" defer></script>
+
+    {# https://datatables.net/download/release | https://cdn.datatables.net/ #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.min.css" integrity="sha384-BDXgFqzL/EpYeT/J5XTrxR+qDB4ft42notjpwhZDEjDIzutqmXeImvKS3YPH/WJX" crossorigin="anonymous">{# Core #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.2.2/css/buttons.bootstrap5.min.css" integrity="sha384-DJhypeLg79qWALC844KORuTtaJcH45J+36wNgzj4d1Kv1vt2PtRuV2eVmdkVmf/U" crossorigin="anonymous">{# Buttons Extension #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.min.css" integrity="sha384-seyUnB//1QOFEqox9uI7YTLBgz9jBwFRqZvsEPFrTw6NAsFEo70nhBWsQfODqiYA" crossorigin="anonymous">{# Responsive Extension #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/3.0.0/css/select.bootstrap5.min.css" integrity="sha384-TlxQ7BelG5MWHP/TbW8dDV3/3kwuo6rinsUsoQdbLGPvurwx/DA2Z49RVLIOxVrG" crossorigin="anonymous">{# Select Extension #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/2.2.2/features/searchHighlight/dataTables.searchHighlight.css" integrity="sha384-3FGcHDS9wKlVV/Pu4y1kojpLsNxlE3jQjdm1N0p7RC9f6xPdRAj78js3ELGiGP/j" crossorigin="anonymous">{# Highlight Extension #}
+
+    <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" integrity="sha384-AenwROccLjIcbIsJuEZmrLlBzwrhvO94q+wm9RwETq4Kkqv9npFR2qbpdMhsehX3" crossorigin="anonymous" defer></script>{# Core #}
+    <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.min.js" integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W" crossorigin="anonymous" defer></script>{# Core #}
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.2.2/js/dataTables.buttons.min.js" integrity="sha384-DmaAfo+/+UjRKHPidNNswlNqd9ybuE6yx9zKHyMY+vYy9SZhQEu4nauMVgwSx4Z/" crossorigin="anonymous" defer></script>{# Buttons Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.2.2/js/buttons.bootstrap5.min.js" integrity="sha384-BdedgzbgcQH1hGtNWLD56fSa7LYUCzyRMuDzgr5+9etd1/W7eT0kHDrsADMmx60k" crossorigin="anonymous" defer></script>{# Buttons Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.min.js" integrity="sha384-A6In5tKqlvPZKDpH+ei4A3A4TZrEsyvvN2Fe+oCB1IaQfGD5HNqDIxwjztNKSGDd" crossorigin="anonymous" defer></script>{# Responsive Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.4/js/responsive.bootstrap5.min.js" integrity="sha384-VdUZen/UKzp4O+wnInvMeDymYoESBoFxn8hXwJcu+3QTKXC0Ewzr1Wj+17lPUrtn" crossorigin="anonymous" defer></script>{# Responsive Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/select/3.0.0/js/dataTables.select.min.js" integrity="sha384-Y/112jU1UJsyj7J/WhficUVfFZTLF2TgmBuDHBvJmYS8f+dGaz3ZNKxgwcg4YgP9" crossorigin="anonymous" defer></script>{# Select Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/select/3.0.0/js/select.bootstrap5.min.js" integrity="sha384-Ttfoqnculm18lypWoer93HIDnzUXrznwNRvE6iuz4TQZoWnKUb7xO3wPdnRrSFu+" crossorigin="anonymous" defer></script>{# Select Extension #}
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/2.2.2/features/searchHighlight/dataTables.searchHighlight.min.js" integrity="sha384-XDdmvsWg5e1/POTILjMFvB3KtrBqRk5W1CG9aoi1+K6bBMPHQAvlKEiekndU6CTp" crossorigin="anonymous" defer></script>{# Highlight Extension #}
+  {% endblock %}
+
+  {# NOTE: need inline visibility to fully prevent load flashing in datatables #}
+  <style>
+    body .datatables-pre-render-hidden{
+      visibility: hidden;
+    }
+  </style>
+
   {% asset 'ckanext-datatablesview/main-css' %}
   {% asset 'ckanext-datatablesview/main-js' %}
 {% endblock %}
+
 {% block custom_styles %}{% endblock %}
