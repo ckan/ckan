@@ -57,6 +57,11 @@ def datastore_search(context: Context, data_dict: DataDict):
     return datastore_auth(context, data_dict, 'resource_show')
 
 
+def datastore_search_flat(context: Context, data_dict: DataDict):
+    '''sysadmin-only:  flat data queries can be large'''
+    return {'success': False}
+
+
 @p.toolkit.auth_allow_anonymous_access
 def datastore_search_sql(context: Context, data_dict: DataDict) -> AuthResult:
     '''need access to view all tables in query'''

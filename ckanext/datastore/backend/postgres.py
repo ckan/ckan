@@ -1617,6 +1617,78 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     return data_dict
 
 
+def search_data_flat(context: Context, data_dict: dict[str, Any]):
+    # TODO: implement code for flat search...
+    validate(context, data_dict)
+    fields_types = _get_fields_types(
+        context['connection'], data_dict['resource_id'])
+
+    query_dict: dict[str, Any] = {
+        'select': [],
+        'sort': [],
+        'where': []
+    }
+
+    backend = DatastorePostgresqlBackend.get_active_backend()
+    query_dict = backend.datastore_search(
+        context, data_dict, fields_types, query_dict)
+
+    where_clause, where_values = _where(query_dict['where'])
+
+    # FIXME: Remove duplicates on select columns
+    select_columns = ', '.join(query_dict['select'])
+    ts_query = cast(str, query_dict['ts_query'])
+    resource_id = data_dict['resource_id']
+
+    # TODO: add num_buckets schema...
+
+    sql_fmt = '''
+        WITH data_stats AS (
+            SELECT
+                min("AAPL_y") AS min_val,
+                max("AAPL_y") AS max_val
+            FROM
+                {resource} {ts_query} {where}
+        ),
+        flat_data AS (
+            SELECT
+                width_bucket("AAPL_y", min_val, max_val, 10) AS bucket,
+                int4range(
+                    min("AAPL_y")::int,
+                    max("AAPL_y")::int,
+                    '[]'
+                ) AS range,
+                count(*) AS freq
+            FROM
+                {resource},
+                data_stats
+            {ts_query}
+            {where}
+            GROUP BY
+                bucket
+            ORDER BY
+                bucket
+        )
+        SELECT
+            bucket,
+            (lower(range),upper(range)) as range,
+            freq
+        FROM
+            flat_data;'''
+
+    sql_string = sql_fmt.format(
+        select=select_columns,
+        resource=identifier(resource_id),
+        ts_query=ts_query,
+        where=where_clause)
+
+    data = _execute_single_statement(context, sql_string, where_values).fetchall()
+
+    data_dict['flat_data'] = data
+
+    return data_dict
+
+
 def _execute_single_statement_copy_to(
         context: Context, sql_string: str,
         where_values: list[dict[str, Any]], buf: Any):
@@ -1818,6 +1890,35 @@ def search(context: Context, data_dict: dict[str, Any]):
             f"SET LOCAL statement_timeout TO {timeout}"
         ))
         return search_data(context, data_dict)
+    except DBAPIError as e:
+        if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
+            raise ValidationError({
+                'query': ['Search took too long']
+            })
+        raise ValidationError(cast(ErrorDict, {
+            'query': ['Invalid query'],
+            'info': {
+                'statement': [e.statement],
+                'params': [e.params],
+                'orig': [str(e.orig)]
+            }
+        }))
+    finally:
+        context['connection'].close()
+
+
+def search_flat(context: Context, data_dict: dict[str, Any]):
+    backend = DatastorePostgresqlBackend.get_active_backend()
+    engine = backend._get_read_engine()  # type: ignore
+    _cache_types(engine)
+    context['connection'] = engine.connect()
+    timeout = context.get('query_timeout', _TIMEOUT)
+
+    try:
+        context['connection'].execute(sa.text(
+            f"SET LOCAL statement_timeout TO {timeout}"
+        ))
+        return search_data_flat(context, data_dict)
     except DBAPIError as e:
         if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
@@ -2256,6 +2357,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def search(self, context: Context, data_dict: dict[str, Any]):
         data_dict['connection_url'] = self.write_url
         return search(context, data_dict)
+
+    def search_flat(self, context: Context, data_dict: dict[str, Any]):
+        return search_flat(context, data_dict)
 
     def search_sql(self, context: Context, data_dict: dict[str, Any]):
         sql = toolkit.get_or_bust(data_dict, 'sql')

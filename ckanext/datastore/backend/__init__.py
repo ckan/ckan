@@ -169,6 +169,26 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
+    def search_flat(self, context: Context, data_dict: dict[str, Any]) -> Any:
+        """Flat data search.
+
+        Called by `datastore_search_flat`.
+
+        :param data_dict: See `ckanext.datastore.logic.action.datastore_search_flat`
+        :rtype: dictonary with following keys
+
+        :param fields: fields/columns and their extra metadata
+        :type fields: list of dictionaries
+        :param filters: query filters
+        :type filters: list of dictionaries
+        :param total: number of total matching records
+        :type total: int
+        :param flat_data: records as flat data
+        :type flat_data: string
+
+        """
+        raise NotImplementedError()
+
     def search_sql(self, context: Context, data_dict: dict[str, Any]) -> Any:
         """Advanced search.
 

@@ -44,6 +44,18 @@
   justify-content: end;
 }
 
+#dtprv_wrapper .dt-paging li.dt-paging-button:not(:last-of-type):not(:first-of-type) button{
+  border-radius: 0 !important;
+}
+
+#dtprv_wrapper .dt-paging li.dt-paging-button:first-of-type button{
+  border-radius: var(--bs-pagination-border-radius) 0 0 var(--bs-pagination-border-radius);
+}
+
+#dtprv_wrapper .dt-paging li.dt-paging-button:last-of-type button{
+  border-radius: 0 var(--bs-pagination-border-radius) var(--bs-pagination-border-radius) 0;
+}
+
 @media all and (max-width: 768px){
   #dtprv_wrapper .dt-length,
   #dtprv_wrapper .dt-search,

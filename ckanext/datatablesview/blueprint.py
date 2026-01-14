@@ -66,7 +66,7 @@ def ajax(resource_view_id: str):
     user_filters = decode_view_request_filters()
     filters = merge_filters(view_filters, user_filters)
 
-    datastore_search = get_action(u'datastore_search')
+    datastore_search = get_action('datastore_search')
     try:
         unfiltered_response = datastore_search(
             {}, {
@@ -132,6 +132,10 @@ def ajax(resource_view_id: str):
                 "total_estimation_threshold": ESTIMATION_THRESHOLD,
             }
         )
+        if config.get('ckan.datatables.show_histograms') and response['records']:
+            # TODO: get flat data
+            # get_action('datastore_search_flat')
+            flat_data = ''
     except Exception:
         query_error = 'Invalid search query... ' + search_text
         dtdata = {'error': query_error}

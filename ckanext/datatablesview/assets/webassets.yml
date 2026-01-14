@@ -1,6 +1,7 @@
 main-css:
   output: ckanext-datatablesview/%(version)s_datatablesview.css
   contents:
+    - vendor/chartist/chartist.min.css
     - vendor/DataTables/datatables.min.css
     - datatablesview.css
 main-js:
@@ -9,6 +10,7 @@ main-js:
     preload:
       - base/main
   contents:
+    - vendor/chartist/chartist.min.js
     - vendor/DataTables/datatables.min.js
     - vendor/DataTables/datatables.datetime-moment.js
     - vendor/DataTables/datatables.mark.min.js

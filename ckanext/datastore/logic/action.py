@@ -723,6 +723,92 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
 
 @logic.side_effect_free
+def datastore_search_flat(context: Context, data_dict: dict[str, Any]):
+    '''Search a DataStore resource, returning data back as flat data.
+    This will always query all data in the table.
+
+    A DataStore resource that belongs to a private CKAN resource can only be
+    read by you if you have access to the CKAN resource and send the
+    appropriate authorization.
+
+    :param resource_id: id or alias of the resource to be searched against
+    :type resource_id: string
+    :param filters: :ref:`filters` for matching conditions to select, e.g
+                    {"key1": "a", "key2": "b"} (optional)
+    :type filters: dictionary
+    :param q: full text query. If it's a string, it'll search on all fields on
+              each row. If it's a dictionary as {"key1": "a", "key2": "b"},
+              it'll search on each specific field (optional)
+    :type q: string or dictionary
+    :param full_text: full text query. It search on all fields on each row.
+                      This should be used in replace of ``q`` when performing
+                      string search accross all fields
+    :type full_text: string
+    :param plain: treat as plain text query (optional, default: true)
+    :type plain: bool
+    :param language: language of the full text query
+                     (optional, default: english)
+    :type language: string
+    :param fields: fields to return
+                   (optional, default: all fields in original order)
+    :type fields: list or comma separated string
+
+    Setting the ``plain`` flag to false enables the entire PostgreSQL
+    `full text search query language`_.
+
+    A listing of all available resources can be found at the
+    alias ``_table_metadata``.
+
+    .. _full text search query language: http://www.postgresql.org/docs/9.1/static/datatype-textsearch.html#DATATYPE-TSQUERY
+
+    If you need to download the full resource, read :ref:`dump`.
+
+    **Results:**
+
+    The result of this action is a dictionary with the following keys:
+
+    :rtype: A dictionary with the following keys
+    :param fields: fields/columns and their extra metadata
+    :type fields: list of dictionaries
+    :param filters: query filters
+    :type filters: list of dictionaries
+    :param total: number of total matching records
+    :type total: int
+    :param flat_data: records as flat data
+    :type flat_data: string
+
+    '''
+    backend = DatastoreBackend.get_active_backend()
+    schema = context.get('schema', dsschema.datastore_search_flat_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+
+    res_id = data_dict['resource_id']
+
+    if data_dict['resource_id'] not in WHITELISTED_RESOURCES:
+        res_exists, real_id = backend.resource_id_from_alias(res_id)
+        # Resource only has to exist in the datastore (because it could be an
+        # alias)
+
+        if not res_exists:
+            raise p.toolkit.ObjectNotFound(p.toolkit._(
+                'Resource "{0}" was not found.'.format(res_id)
+            ))
+
+        # Replace potential alias with real id to simplify access checks
+        if real_id:
+            data_dict['resource_id'] = real_id
+
+        p.toolkit.check_access('datastore_search_flat', context, data_dict)
+
+    result = backend.search_flat(context, data_dict)
+    result.pop('id', None)
+    result.pop('connection_url', None)
+    return result
+
+
+@logic.side_effect_free
 def datastore_search_sql(context: Context, data_dict: dict[str, Any]):
     '''Execute SQL queries on the DataStore.
 
