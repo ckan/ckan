@@ -1,5 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
+import json
 
 from ckan.common import CKANConfig
 from typing import Any, cast
@@ -12,6 +13,12 @@ default = cast(ValidatorFactory, toolkit.get_validator('default'))
 boolean_validator = toolkit.get_validator('boolean_validator')
 natural_number_validator = toolkit.get_validator('natural_number_validator')
 ignore_missing = toolkit.get_validator('ignore_missing')
+
+LANGUAGE_MAP = {
+    "zh_Hant_TW": "zh_Hant",
+    "zh_Hans_CN": "zh_CN",
+    "nb_NO": "no",
+}
 
 
 @toolkit.blanket.config_declarations
@@ -43,6 +50,8 @@ class DataTablesView(p.SingletonPlugin):
 
         self.page_length_choices = [int(i) for i in self.page_length_choices]
         self.state_saving = config.get('ckan.datatables.state_saving')
+        self.request_timeout = config.get('ckan.datatables.request_timeout')
+        null_label = config.get('ckan.datatables.null_label')
 
         # https://datatables.net/reference/option/stateDuration
         self.state_duration = config.get(
@@ -57,7 +66,6 @@ class DataTablesView(p.SingletonPlugin):
 
         toolkit.add_template_directory(config, 'templates')
         toolkit.add_resource('assets', 'ckanext-datatablesview')
-        toolkit.add_public_directory(config, 'public')
 
     # IResourceView
 
@@ -67,6 +75,13 @@ class DataTablesView(p.SingletonPlugin):
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> dict[str, Any]:
+        language_object = None
+        lang = LANGUAGE_MAP.get(toolkit.h.lang(), toolkit.h.lang())
+        try:
+            with open(f'assets/vendor/DataTables/i18n/{lang}.json', 'r') as f:
+                language_object = json.load(f)
+        except (FileNotFoundError, TypeError, json.JSONDecodeError):
+            pass
         return {
             'page_length_choices': self.page_length_choices,
             'state_saving': self.state_saving,
@@ -76,6 +91,8 @@ class DataTablesView(p.SingletonPlugin):
             'date_format': self.date_format,
             'default_view': self.default_view,
             'responsive_modal': self.responsive_modal,
+            'request_timeout': self.request_timeout,
+            'language_object': language_object,
         }
 
     def view_template(self, context: Context, data_dict: dict[str, Any]):

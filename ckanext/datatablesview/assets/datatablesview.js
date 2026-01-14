@@ -8,16 +8,17 @@ this.ckan.module('datatables_view', function($){
       packageName: null,
       resourceName: null,
       viewId: null,
-      languagecode: 'en',
-      languagefile: null,
-      ajaxurl: null,
-      ckanfilters: null,
+      languageCode: 'en',
+      languageObject: null,
+      ajaxUrl: null,
+      ckanFilters: null,
       responsiveFlag: false,
       pageLengthChoices: [20, 50, 100, 500, 1000],
       responsiveModal: false,
       resourceUrl: null,
       dataDictionary: null,
       editable: false,
+      timeout: 60000,
     },
     initialize: function(){
       load_datatable(this);
@@ -35,19 +36,33 @@ function load_datatable(CKAN_MODULE){
   const packageName = CKAN_MODULE.options.packageName;
   const resourceName = CKAN_MODULE.options.resourceName;
   const viewID = CKAN_MODULE.options.viewId;
-  const languageCode = CKAN_MODULE.options.languagecode;
-  const languageFile = CKAN_MODULE.options.languagefile;
-  const ajaxURI = CKAN_MODULE.options.ajaxurl;
-  const ckanFilters = CKAN_MODULE.options.ckanfilters;
+  const languageCode = CKAN_MODULE.options.languageCode;
+  const tableLanguage = CKAN_MODULE.options.languageObject;
+  const ajaxURI = CKAN_MODULE.options.ajaxUrl;
+  const ckanFilters = CKAN_MODULE.options.ckanFilters;
   const defaultCompactView = CKAN_MODULE.options.responsiveFlag;
   const pageLengthChoices = CKAN_MODULE.options.pageLengthChoices;
   const useCompactViewModal = CKAN_MODULE.options.responsiveModal;
   const resourceURI = CKAN_MODULE.options.resourceUrl;
   const dataDictionary = CKAN_MODULE.options.dataDictionary;
   const isEditable = CKAN_MODULE.options.editable;
+  const requestTimeout = CKAN_MODULE.options.timeout;
   const csrfTokenName = $('meta[name="csrf_field_name"]').attr('content');
 
   const ajaxErrorMessage = _('Error: Could not query records. Please try again.');
+  const downloadFileErrorMessage = _('Error: Could not download rows to {TYPE} file. Please try again.');
+  const fullTableButtonLabel = _('Full Table');
+  const compactTableButtonLabel = _('Compact Table');
+  const copyButtonLabel = _('Copy to clipboard');
+  const colvisButtonLabel = _('Toggle column visibility');
+  const colvisRestoreLabel = _('Restore visibility');
+  const colvisAllLabel = _('Show all');
+  const colvisNoneLabel = _('Show none');
+  const colvisFilteredLabel = _('Filtered');
+  const downloadButtonLabel = _('Filtered download');
+  const resetButtonLabel = _('Reset');
+  const printButtonLabel = _('Print');
+  const shareButtonLabel = _('Share current view');
   const readLessLabel = _('less');
   const colSearchLabel = _('Search:');
   const colSortLabel = _('Sorting by:');
@@ -73,33 +88,8 @@ function load_datatable(CKAN_MODULE){
   const dateTypes = [
     'timestamp'
   ]
-  const tableLanguage = {
-    decimal: "",
-    emptyTable:  '<span id="datatable-no-records">' + _('No data available in table') + '</span>',
-    info: _('Showing _START_ to _END_ of _TOTAL_ entries'),
-    infoEmpty: _('Showing 0 to 0 of 0 entries'),
-    infoFiltered: _('(filtered from _MAX_ total entries)'),
-    infoPostFix: "",
-    thousands: ",",
-    lengthMenu: _('_MENU_ Show number of entries'),
-    loadingRecords: _('Loading...'),
-    processing: "",
-    search: _('Full Text Search'),
-    zeroRecords: '<span id="datatable-no-records">' + _('No matching records found') + '</span>',
-    paginate: {
-      first: "«",
-      last: "»",
-      next: "›",
-      previous: "‹"
-    },
-    aria: {
-      orderable: _('Order by this column'),
-      orderableReverse: _('Reverse order this column')
-    }
-  };
   const colOffset = 1;  // _id col
   const defaultSortOrder = [[0, "asc"]];  // _id col
-  sortOrder = defaultSortOrder;
 
   let table;
   let tableState;
@@ -109,14 +99,15 @@ function load_datatable(CKAN_MODULE){
   }
   let isCompactView = typeof tableState != 'undefined' && typeof tableState.compact_view != 'undefined' ? tableState.compact_view : defaultCompactView;
   let pageLength = typeof tableState != 'undefined' && typeof tableState.page_length != 'undefined' ? tableState.page_length : pageLengthChoices[0];
+  let sortOrder = typeof tableState != 'undefined' && typeof tableState.sort_order != 'undefined' ? tableState.sort_order : defaultSortOrder;
 
   let availableColumns = [{
-    data: '_id',
-    name: '_id',
-    searchable: false,
-    type: 'num',
-    className: 'dt-body-right datatable-id-col',
-    width: isCompactView ? '28px' : '50px',
+    "name": '_id',
+    "data": '_id',
+    "searchable": false,
+    "type": 'num',
+    "className": 'dt-body-right datatable-id-col',
+    "width": isCompactView ? '28px' : '50px',
   }];
 
   for( let i = 0; i < dataDictionary.length; i++ ){
@@ -168,10 +159,25 @@ function load_datatable(CKAN_MODULE){
     };
   };
 
+  function download_filtered_file(_params, _format) {
+    let form = $('#filtered-datatables-download');
+    let p = $('<input name="params" type="hidden"/>');
+    p.attr('value', JSON.stringify(_params));
+    form.append(p);
+    let f = $('<input name="format" type="hidden"/>');
+    f.attr('value', _format);
+    form.append(f);
+    form.submit();
+    p.remove();
+    f.remove();
+  }
+
   function cell_renderer(_data, _type, _row, _meta, _dictionary_field){
+    if( typeof _row.DT_RowId != 'undefined' && _row.DT_RowId == 'dt-row-histogram' ){
+      return;
+    }
     if( _type == 'display' ){
       if( _data == null ){
-        // TODO: handle configed blank cell value...
         return '';  // blank cell for None/null values
       }
       if( _dictionary_field.type == '_text' ){
@@ -183,211 +189,197 @@ function load_datatable(CKAN_MODULE){
           displayList += '<li>' + _val + '</li>';
         });
         displayList += '</ul>';
-        _data = displayList;
+        return displayList;
       }
       if( _data === true ){
-        _data = 'TRUE';
+        return 'TRUE';
       }
       if( _data === false ){
-        _data = 'FALSE';
+        return 'FALSE';
       }
       if( numberTypes.includes(_dictionary_field.type) ){
-        // TODO: add number format configs/options
-        _data = DataTable.render.number(null, null, null, null).display(_data, _type, _row);
+        // TODO: add number format configs/options ??
+        return DataTable.render.number(null, null, null, null).display(_data, _type, _row);
       }
-      // TODO: add money formatting??
+      // TODO: add money formatting ??
       if( dateTypes.includes(_dictionary_field.type) ){
         if( ! _data.toString().includes('+0000') ){
           _data = _data.toString() + '+0000';  // add UTC offset if not present
         }
-        // TODO: use configed date format
-        // TODO: add locale date configs/options
-        _data = new Date(_data).toLocaleString(localeString, {timeZone: "America/Montreal"}) + ' ' + timezoneString;
+        return DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(_data, _type, _row, _meta);
       }
-      _data = DataTable.render.ellipsis(ellipsisLength, _meta.row, _dictionary_field.id)(_data, _type, _row, _meta);
-      return _data;
+      return DataTable.render.ellipsis(ellipsisLength, _meta.row, _dictionary_field.id)(_data, _type, _row, _meta);
     }
     return _data;
   }
 
   function get_available_buttons(){
-    let availableButtons = [];
-
-    availableButtons.push({
-      name: 'viewToggleButton',
-      text: isCompactView ? '<i class="fa fa-table"></i>' : '<i class="fa fa-list"></i>',
-      titleAttr: _('Table/List toggle'),
-      className: 'btn-secondary',
-      action: function(e, dt, node, config){
-        if( isCompactView ){
-          dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>');
-          isCompactView = false;
-          tableState.compact_view = false;
-        } else {
-          dt.button('viewToggleButton:name').text('<i class="fa fa-list"></i>');
-          isCompactView = true;
-          tableState.compact_view = true;
-        }
-        tableState.selected = table.rows({ selected: true })[0];
-        // TODO: need to save more stuff to local var???
-        set_state_change_visibility();
-        dt.clear().destroy();
-        initialize_datatable();
-      }
-    });
-
-    // FIXME: copy button not working
-    availableButtons.push({
-      extend: 'copy',
-      text: '<i class="fa fa-copy"></i>',
-      titleAttr: _('Copy to clipboard'),
-      className: 'btn-secondary',
-      title: function(){
-        // const filternohtml = filterInfo(datatable, true)
-        // TODO: better filterInfo...
-        return resourceName;
-      },
-      exportOptions: {
-        rows: ':not(#dt-row-histogram)',
-        columns: ':visible',
-        orthogonal: 'filter'
-      }
-    });
-
-    availableButtons.push({
-      extend: 'colvis',
-      text: '<i class="fa fa-eye-slash"></i>',
-      titleAttr: _('Toggle column visibility'),
-      className: 'btn-secondary',
-      columns: 'th:gt(0)',
-      collectionLayout: 'fixed',
-      postfixButtons: [
-        {
-          extend: 'colvisRestore',
-          text: '<i class="fa fa-undo"></i> ' + _('Restore visibility')
-        },
-        {
-          extend: 'colvisGroup',
-          text: '<i class="fa fa-eye"></i> ' + _('Show all'),
-          show: ':hidden'
-        },
-        {
-          extend: 'colvisGroup',
-          text: '<i class="fa fa-eye-slash"></i> ' + _('Show none'),
-          action: function(e, dt, node, config){
-            dt.columns().every(function(){
-              if( this.index() ){ // always show _id col, index 0
-                this.visible(false);
-              }
-            });
+    return [
+      {
+        name: 'viewToggleButton',
+        text: isCompactView ? '<i class="fa fa-table"></i>' : '<i class="fa fa-list"></i>',
+        titleAttr: isCompactView ? fullTableButtonLabel : compactTableButtonLabel,
+        className: 'btn-secondary',
+        action: function(e, dt, node, config){
+          if( isCompactView ){
+            dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>');
+            isCompactView = false;
+            tableState.compact_view = false;
+          } else {
+            dt.button('viewToggleButton:name').text('<i class="fa fa-list"></i>');
+            isCompactView = true;
+            tableState.compact_view = true;
           }
+          dt.state.save();
+          set_state_change_visibility();
+          dt.clear().destroy();
+          initialize_datatable();
+        }
+      },
+      {
+        extend: 'copy',
+        text: '<i class="fa fa-copy"></i>',
+        titleAttr: copyButtonLabel,
+        className: 'btn-secondary',
+        title: function(){
+          // const filternohtml = filterInfo(datatable, true)
+          // TODO: better filterInfo...
+          return resourceName;
         },
-        {
-          extend: 'colvisGroup',
-          text: '<i class="fa fa-filter"></i> ' + _('Filtered'),
-          action: function(e, dt, node, config){
-            dt.columns().every(function(){
-              if( this.index() ){  // always show _id col, index 0
-                if( this.search() ){
-                  this.visible(true);
-                }else{
+        exportOptions: {
+          rows: ':not(#dt-row-histogram)',
+          columns: ':visible',
+          orthogonal: 'filter'
+        }
+      },
+      {
+        extend: 'colvis',
+        text: '<i class="fa fa-eye-slash"></i>',
+        titleAttr: colvisButtonLabel,
+        className: 'btn-secondary',
+        columns: 'th:gt(0)',
+        collectionLayout: 'fixed dt-popup-colvis',
+        postfixButtons: [
+          {
+            extend: 'colvisRestore',
+            text: '<i class="fa fa-undo"></i> ' + colvisRestoreLabel,
+          },
+          {
+            extend: 'colvisGroup',
+            text: '<i class="fa fa-eye"></i> ' + colvisAllLabel,
+            show: ':hidden'
+          },
+          {
+            extend: 'colvisGroup',
+            text: '<i class="fa fa-eye-slash"></i> ' + colvisNoneLabel,
+            action: function(e, dt, node, config){
+              dt.columns().every(function(){
+                if( this.index() ){ // always show _id col, index 0
                   this.visible(false);
                 }
-              }
-            });
+              });
+            }
+          },
+          {
+            extend: 'colvisGroup',
+            text: '<i class="fa fa-filter"></i> ' + colvisFilteredLabel,
+            action: function(e, dt, node, config){
+              dt.columns().every(function(){
+                if( this.index() ){  // always show _id col, index 0
+                  if( this.search() ){
+                    this.visible(true);
+                  }else{
+                    this.visible(false);
+                  }
+                }
+              });
+            }
           }
-        }
-      ]
-    });
-
-    availableButtons.push({
-      text: '<i class="fa fa-download"></i>',
-      titleAttr: _('Filtered download'),
-      className: 'btn-secondary',
-      autoClose: true,
-      extend: 'collection',
-      buttons: [{
-        text: 'CSV',
-        action: function (e, dt, button, config) {
-          let params = dt.ajax.params();
-          params.visible = dt.columns().visible().toArray();
-          // TODO: execute promise
-          // run_query(params, 'csv');
-        }
-      }, {
-        text: 'TSV',
-        action: function (e, dt, button, config) {
-          let params = dt.ajax.params();
-          params.visible = dt.columns().visible().toArray();
-          // TODO: execute promise
-          // run_query(params, 'tsv');
-        }
-      }, {
-        text: 'JSON',
-        action: function (e, dt, button, config) {
-          let params = dt.ajax.params();
-          params.visible = dt.columns().visible().toArray();
-          // TODO: execute promise
-          // run_query(params, 'json');
-        }
-      }, {
-        text: 'XML',
-        action: function (e, dt, button, config) {
-          let params = dt.ajax.params();
-          params.visible = dt.columns().visible().toArray();
-          // TODO: execute promise
-          // run_query(params, 'xml');
-        }
-      }]
-    });
-
-    availableButtons.push({
-      name: 'resetButton',
-      text: '<i class="fa fa-repeat"></i>',
-      titleAttr: _('Reset'),
-      className: 'btn-secondary resetButton',
-      action: function (e, dt, node, config) {
-        set_state_change_visibility();
-        dt.state.clear();
-        dt.clear().destroy();
-        initialize_datatable();
-      }
-    });
-
-    availableButtons.push({
-      extend: 'print',
-      text: '<i class="fa fa-print"></i>',
-      titleAttr: _('Print'),
-      className: 'btn-secondary',
-      title: packageName + ' — ' + resourceName,
-      messageTop: function () {
-        return 'TODO: better filterInfo';
-        // return filterInfo(datatable);
+        ]
       },
-      messageBottom: function () {
-        return 'TODO: better filterInfo';
-        // return filterInfo(datatable)
+      {
+        text: '<i class="fa fa-download"></i>',
+        titleAttr: downloadButtonLabel,
+        className: 'btn-secondary',
+        autoClose: true,
+        extend: 'collection',
+        buttons: [{
+          text: 'CSV',
+          action: function (e, dt, button, config) {
+            let params = dt.ajax.params();
+            params.visible = dt.columns().visible().toArray();
+            download_filtered_file(params, 'csv');
+          }
+        }, {
+          text: 'TSV',
+          action: function (e, dt, button, config) {
+            let params = dt.ajax.params();
+            params.visible = dt.columns().visible().toArray();
+            download_filtered_file(params, 'tsv');
+          }
+        }, {
+          text: 'JSON',
+          action: function (e, dt, button, config) {
+            let params = dt.ajax.params();
+            params.visible = dt.columns().visible().toArray();
+            download_filtered_file(params, 'json');
+          }
+        }, {
+          text: 'XML',
+          action: function (e, dt, button, config) {
+            let params = dt.ajax.params();
+            params.visible = dt.columns().visible().toArray();
+            download_filtered_file(params, 'xml');
+          }
+        }]
       },
-      exportOptions: {
-        columns: ':visible',
-        stripHtml: false
+      {
+        name: 'resetButton',
+        text: '<i class="fa fa-repeat"></i>',
+        titleAttr: resetButtonLabel,
+        className: 'btn-secondary disabled resetButton',
+        action: function (e, dt, node, config) {
+          set_state_change_visibility();
+          if( $('.dt-buttons button.resetButton').hasClass('btn-warning') ){
+            $('.dt-buttons button.resetButton').removeClass('btn-warning').addClass('btn-secondary');
+          }
+          dt.state.clear();
+          dt.clear().destroy();
+          initialize_datatable();
+        }
+      },
+      {
+        extend: 'print',
+        text: '<i class="fa fa-print"></i>',
+        titleAttr: printButtonLabel,
+        className: 'btn-secondary',
+        title: packageName + ' — ' + resourceName,
+        messageTop: function () {
+          return 'TODO: better filterInfo';
+          // return filterInfo(datatable);
+        },
+        messageBottom: function () {
+          return 'TODO: better filterInfo';
+          // return filterInfo(datatable)
+        },
+        exportOptions: {
+          columns: ':visible',
+          stripHtml: false
+        }
+      },
+      {
+        name: 'shareButton',
+        text: '<i class="fa fa-share"></i>',
+        titleAttr: shareButtonLabel,
+        className: 'btn-secondary',
+        action: function (e, dt, node, config) {
+          dt.state.save();
+          let sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()));
+          // TODO: do copy state link stuffs...
+          // copyLink(dt, sharelink, that._('Share current view'), that._('Copied deeplink to clipboard'));
+        }
       }
-    });
-
-    availableButtons.push({
-      name: 'shareButton',
-      text: '<i class="fa fa-share"></i>',
-      titleAttr: _('Share current view'),
-      className: 'btn-secondary',
-      action: function (e, dt, node, config) {
-        dt.state.save();
-        let sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()));
-        // TODO: do copy state link stuffs...
-        // copyLink(dt, sharelink, that._('Share current view'), that._('Copied deeplink to clipboard'));
-      }
-    });
-
-    return availableButtons;
+    ];
   }
 
   function _render_failure(_consoleMessage, _message, _type){
@@ -400,6 +392,16 @@ function load_datatable(CKAN_MODULE){
 
   function render_ajax_failure(_message){
     _render_failure(_message, ajaxErrorMessage, 'warning');
+  }
+
+  function render_download_file_failure(_message, _format){
+    _render_failure(_message, downloadFileErrorMessage.replace('{TYPE}', _format), 'warning');
+  }
+
+  function set_row_selects(){
+    if( typeof tableState != 'undefined' && typeof tableState.selected != 'undefined' ){
+      table.rows(tableState.selected).select();
+    }
   }
 
   function set_table_visibility(){
@@ -434,28 +436,15 @@ function load_datatable(CKAN_MODULE){
     set_table_visibility();
     // render_expand_buttons();
     // render_human_sorting();
-    // set_button_states();
   }
 
   function init_callback(){
     set_table_visibility();
     // render_table_footer();
-    // set_row_selects();
-    // set_button_states();
+    set_row_selects();
   }
 
   function initialize_datatable(){
-    let languageSettings = {
-      url: languageFile,
-      paginate: {
-        previous: '&lt;',
-        next: '&gt;',
-      },
-    }
-    if( languageCode == 'en' ){
-      languageSettings = tableLanguage;
-    }
-
     table = $('#dtprv').DataTable({
       paging: true,
       serverSide: true,
@@ -485,23 +474,23 @@ function load_datatable(CKAN_MODULE){
         return: true,
       },
       searching: true,
-      searchHighlight: true,
+      mark: true,
       order: sortOrder,
       columns: availableColumns,
       dom: "Blfrtip",
       lengthMenu: pageLengthChoices,
-      language: languageSettings,
+      language: tableLanguage,
       ajax: {
         "url": ajaxURI,
         "type": "POST",
-        timeout: 60000, // TODO: make configurable...
+        "timeout": requestTimeout,
         "data": function(_data){
           if( ckanFilters != null ){
             _data.filters = ckanFilters;
           }
         },
         "headers": {
-          'X-CSRF-Token': $('meta[name="' + csrfTokenName + '"]').attr('content')
+          'X-CSRF-Token': $('meta[name="' + csrfTokenName + '"]').attr('content'),
         },
         "complete": function(_data){
           if( _data.responseJSON ){
@@ -516,32 +505,58 @@ function load_datatable(CKAN_MODULE){
       initComplete: init_callback,
       drawCallback: draw_callback,
       fnStateSave: function(_settings, _data){
+        if( ! doStateSave ){
+          return;
+        }
         // custom local storage name for multiple table views and fullscreen views
         window.localStorage.setItem('DataTables_dtprv_' + viewID, JSON.stringify(_data));
       },
       fnStateLoad: function(_settings){
+        if( ! doStateSave ){
+          return;
+        }
         return JSON.parse(window.localStorage.getItem('DataTables_dtprv_' + viewID));
       },
       stateSaveParams: function(_settings, _data){
+        if( ! doStateSave ){
+          return;
+        }
+
         _data.page_number = this.api().page();
         _data.page_length = this.api().page.len();
         _data.selected = this.api().rows({selected: true})[0];
+        _data.sort_order = this.api().order();
         _data.compact_view = isCompactView;
+
         let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
         tableState = _data;
+
         tableState.page_number = localInstanceState.page_number;
         tableState.page_length = localInstanceState.page_length;
         tableState.selected = localInstanceState.selected;
+        tableState.sort_order = localInstanceState.sort_order;
         tableState.compact_view = localInstanceState.compact_view;
 
+        $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
         // TODO: reset button control
+        // if( typeof tableState != 'undefined' && tableState != _data ){
+        //   $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
+        // }else{
+        //   $('.dt-buttons button.resetButton').removeClass('btn-warning').addClass('btn-secondary').addClass('disabled');
+        // }
       },
       stateLoadParams: function(_settings, _data){
+        if( ! doStateSave ){
+          return;
+        }
+
         let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
         tableState = _data;
+
         tableState.page_number = localInstanceState.page_number;
         tableState.page_length = localInstanceState.page_length;
         tableState.selected = localInstanceState.selected;
+        tableState.sort_order = localInstanceState.sort_order;
         tableState.compact_view = localInstanceState.compact_view;
 
         // TODO: check URL params for base64 decode...

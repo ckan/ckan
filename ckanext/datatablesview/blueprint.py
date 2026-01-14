@@ -55,16 +55,14 @@ def merge_filters(view_filters: dict[str, Any],
 
 
 def ajax(resource_view_id: str):
-    resource_view = get_action(u'resource_view_show'
-                               )({}, {
-                                   u'id': resource_view_id
-                               })
+    resource_view = get_action('resource_view_show')(
+        {}, {'id': resource_view_id})
 
-    draw = int(request.form[u'draw'])
-    search_text = str(request.form[u'search[value]'])
-    offset = int(request.form[u'start'])
-    limit = int(request.form[u'length'])
-    view_filters = resource_view.get(u'filters', {})
+    draw = int(request.form['draw'])
+    search_text = str(request.form['search[value]'])
+    offset = int(request.form['start'])
+    limit = int(request.form['length'])
+    view_filters = resource_view.get('filters', {})
     user_filters = decode_view_request_filters()
     filters = merge_filters(view_filters, user_filters)
 
@@ -72,7 +70,7 @@ def ajax(resource_view_id: str):
     try:
         unfiltered_response = datastore_search(
             {}, {
-                "resource_id": resource_view[u'resource_id'],
+                "resource_id": resource_view['resource_id'],
                 "limit": 0,
                 "filters": view_filters,
                 "total_estimation_threshold": ESTIMATION_THRESHOLD,
@@ -83,19 +81,19 @@ def ajax(resource_view_id: str):
     except NotAuthorized:
         return json.dumps({'error': 'Not Authorized'}), 403
 
-    cols = [f[u'id'] for f in unfiltered_response[u'fields']]
-    if u'show_fields' in resource_view:
-        cols = [c for c in cols if c in resource_view[u'show_fields']]
+    cols = [f['id'] for f in unfiltered_response['fields']]
+    if 'show_fields' in resource_view:
+        cols = [c for c in cols if c in resource_view['show_fields']]
 
     sort_list = []
     i = 0
     while True:
-        if u'order[%d][column]' % i not in request.form:
+        if 'order[%d][column]' % i not in request.form:
             break
-        sort_by_num = int(request.form[u'order[%d][column]' % i])
+        sort_by_num = int(request.form['order[%d][column]' % i])
         sort_order = (
-            u'desc' if request.form[u'order[%d][dir]' %
-                                    i] == u'desc' else u'asc'
+            'desc' if request.form['order[%d][dir]' %
+                                   i] == 'desc' else 'asc'
         )
         sort_list.append(cols[sort_by_num] + u' ' + sort_order)
         i += 1
@@ -103,15 +101,15 @@ def ajax(resource_view_id: str):
     colsearch_dict = {}
     i = 0
     while True:
-        if u'columns[%d][search][value]' % i not in request.form:
+        if 'columns[%d][search][value]' % i not in request.form:
             break
-        v = str(request.form[u'columns[%d][search][value]' % i])
+        v = str(request.form['columns[%d][search][value]' % i])
         if v:
-            k = str(request.form[u'columns[%d][name]' % i])
+            k = str(request.form['columns[%d][name]' % i])
             # replace non-alphanumeric characters with FTS wildcard (_)
             v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
             # append ':*' so we can do partial FTS searches
-            colsearch_dict[k] = v + u':*'
+            colsearch_dict[k] = v + ':*'
         i += 1
 
     if colsearch_dict:
@@ -124,33 +122,36 @@ def ajax(resource_view_id: str):
         response = datastore_search(
             {}, {
                 "q": search_text,
-                "resource_id": resource_view[u'resource_id'],
+                "resource_id": resource_view['resource_id'],
                 'plain': False,
-                'language': u'simple',
+                'language': 'simple',
                 "offset": offset,
                 "limit": limit,
-                "sort": u', '.join(sort_list),
+                "sort": ', '.join(sort_list),
                 "filters": filters,
                 "total_estimation_threshold": ESTIMATION_THRESHOLD,
             }
         )
     except Exception:
-        query_error = u'Invalid search query... ' + search_text
-        dtdata = {u'error': query_error}
+        query_error = 'Invalid search query... ' + search_text
+        dtdata = {'error': query_error}
         status = 400
     else:
         data = []
-        if config.get('ckan.datatables.show_histograms', True):
+        if config.get('ckan.datatables.show_histograms') and response['records']:
             # TODO: backend for flat histogram data!!!
             data = [dict({f['id']: '' for f in response['fields']},
                          DT_RowId='dt-row-histogram')]
         null_label = h.datatablesview_null_label()
-        for row in response[u'records']:
-            record = {colname: escape(str(null_label if row.get(colname, u'')
-                                          is None else row.get(colname, u'')))
+        for row in response['records']:
+            # NOTE: do null_label in backend for None, as front-end would
+            #       also do blank values, and we want to show empty values
+            #       as it could be considered data.
+            record = {colname: escape(str(null_label if row.get(colname, '')
+                                          is None else row.get(colname, None)))
                       for colname in cols}
             # the DT_RowId is used in DT to set an element id for each record
-            record['DT_RowId'] = 'row' + str(row.get(u'_id', u''))
+            record['DT_RowId'] = 'row' + str(row.get('_id', ''))
             data.append(record)
 
         dtdata = {

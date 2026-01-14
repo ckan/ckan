@@ -1,6 +1,7 @@
 main-css:
   output: ckanext-datatablesview/%(version)s_datatablesview.css
   contents:
+    - vendor/DataTables/datatables.min.css
     - datatablesview.css
 main-js:
   output: ckanext-datatablesview/%(version)s_datatablesview.js
@@ -8,6 +9,9 @@ main-js:
     preload:
       - base/main
   contents:
+    - vendor/DataTables/datatables.min.js
+    - vendor/DataTables/datatables.datetime-moment.js
+    - vendor/DataTables/datatables.mark.min.js
     - datatablesview.js
 form-js:
   output: ckanext-datatablesview/%(version)s_datatablesview_form.js

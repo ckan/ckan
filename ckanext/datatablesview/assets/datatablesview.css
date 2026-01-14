@@ -1,9 +1,152 @@
-.datatable-id-col .dt-column-order{
-  left: 2px !important;
+/* START: Histograms :START */
+#dtprv_wrapper tr#dt-row-histogram{
+  min-height: 65px;
+  max-height: 65px;
+  height: 65px;
+}
+/* END: Histograms :END */
+
+/* START: Layout :START */
+#dtprv_wrapper .datatable-id-col .dt-column-order{
+  left: 2px;
 }
 
-tr#dt-row-histogram{
-  min-height: 65px !important;
-  max-height: 65px !important;
-  height: 65px !important;
+#dtprv_wrapper .dt-buttons{
+  width: 100%;
+  justify-content: end;
 }
+
+#dtprv_wrapper .dt-buttons > .btn,
+#dtprv_wrapper .dt-buttons > .btn-group{
+  flex-shrink: 1;
+  flex-grow: 0;
+}
+
+#dtprv_wrapper .dt-length label::after,
+#dtprv_wrapper .dt-search label::after{
+  content: none;
+}
+
+#dtprv_wrapper .dt-length,
+#dtprv_wrapper .dt-search,
+#dtprv_wrapper .dt-info,
+#dtprv_wrapper .dt-paging{
+  min-width: 50%;
+  max-width: 50%;
+  width: 50%;
+  display: inline-block;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+#dtprv_wrapper .dt-paging{
+  display: inline-flex;
+  justify-content: end;
+}
+
+@media all and (max-width: 768px){
+  #dtprv_wrapper .dt-length,
+  #dtprv_wrapper .dt-search,
+  #dtprv_wrapper .dt-info,
+  #dtprv_wrapper .dt-paging{
+    min-width: 100%;
+    max-width: 100%;
+    width: 100%;
+    display: block;
+    text-align: left;
+  }
+
+  #dtprv_wrapper .dt-buttons,
+  #dtprv_wrapper .dt-paging ul.pagination{
+    justify-content: start !important;
+  }
+}
+/* END: Layout :END */
+
+/* START: Mark Plugin :START */
+#dtprv_wrapper mark{
+  background:orange;
+  color:black;
+}
+/* END: Mark Plugin :END */
+
+/* START: QoL Column Vis :START */
+.dt-button-background{
+  background-color: rgba(0, 0, 0, 0.325);
+}
+
+.dt-button-collection.fixed.dt-popup-colvis{
+  max-width: 75%;
+  top: 10% !important;
+  margin-top: 0 !important;
+  transform: translateX(-50%);
+  margin-left: 0;
+  padding: 18px !important;
+  max-height: 80% !important;
+  overflow-y: scroll !important;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis .dropdown-menu{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  max-height: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis a{
+  word-break: break-all;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li.buttons-columnVisibility{
+  max-width: 50%;
+  min-width: 50%;
+  width: 50%;
+  margin-bottom: 5px;
+  padding-left: 24px;
+  padding-right: 10px;
+  position: relative;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li.buttons-columnVisibility a::after{
+  content: none;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li.buttons-columnVisibility a::before{
+  content: '\f096';
+  font: normal normal normal 14px/1 FontAwesome;
+  position: absolute;
+  left: 6px;
+  top: 6px;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li.buttons-columnVisibility.dt-button-active-a a::before{
+  content: '\f046';
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li:not(.buttons-columnVisibility){
+  flex-basis: 100%;
+  margin-top: 8px;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li:not(.buttons-columnVisibility).buttons-colvisRestore{
+  max-width: 51%;
+  min-width: 51%;
+  width: 51%;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li:not(.buttons-columnVisibility).buttons-colvisGroup{
+  max-width: 50%;
+  min-width: 50%;
+  width: 50%;
+}
+
+.dt-button-collection.fixed.dt-popup-colvis li:not(.buttons-columnVisibility).buttons-colvisGroup:nth-last-of-type(3){
+  max-width: 49%;
+  min-width: 49%;
+  width: 49%;
+  margin-left: -1%;
+}
+/* END: QoL Column Vis :END */
