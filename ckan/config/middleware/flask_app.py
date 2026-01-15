@@ -276,7 +276,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_plugins_blueprints(app)
 
     if config.get("ckan.csrf_protection.ignore_extensions"):
-        log.warn(csrf_warn_extensions)
+        log.warning(csrf_warn_extensions)
         _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
@@ -525,8 +525,10 @@ class CKANFlask(MultiStaticFlask):
             origin = 'core'
             if not getattr(rule, 'ckan_core', True):
                 origin = 'extension'
-            log.debug('Flask route match, endpoint: {0}, args: {1}, '
-                      'origin: {2}'.format(rule.endpoint, args, origin))
+            log.debug(
+                'Flask route match, endpoint: %s, args: %s, origin: %s',
+                rule.endpoint, args, origin
+            )
 
             # Disable built-in flask's ability to prepend site root to
             # generated url, as we are going to use locale and existing

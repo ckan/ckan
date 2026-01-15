@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-import six
-
 from urllib.parse import quote
 from flask.wrappers import Response
 
