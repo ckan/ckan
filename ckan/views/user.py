@@ -705,8 +705,7 @@ class RequestResetView(MethodView):
                      .format(id))
 
         for user_obj in user_objs:
-            log.info(u'Emailing reset link to user: {}'
-                     .format(user_obj.name))
+            log.info('Emailing reset link to user: %s', user_obj.name)
             try:
                 # FIXME: How about passing user.id instead? Mailer already
                 # uses model and it allow to simplify code above

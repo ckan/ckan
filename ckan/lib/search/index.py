@@ -79,11 +79,11 @@ class SearchIndex(object):
 
     def update_dict(self, data: dict[str, Any], defer_commit: bool = False) -> None:
         """ Update data from a dictionary. """
-        log.debug("NOOP Index: %s" % ",".join(data.keys()))
+        log.debug("NOOP Index: %s", ",".join(data.keys()))
 
     def remove_dict(self, data: dict[str, Any]) -> None:
         """ Delete an index entry uniquely identified by ``data``. """
-        log.debug("NOOP Delete: %s" % ",".join(data.keys()))
+        log.debug("NOOP Delete: %s", ",".join(data.keys()))
 
     def clear(self) -> None:
         """ Delete the complete index. """
@@ -313,7 +313,7 @@ class PackageSearchIndex(SearchIndex):
             raise SearchIndexError(err)
 
         commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
-        log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
+        log.debug('Updated index for %s [%s]', pkg_dict.get('name'), commit_debug_msg)
 
     def commit(self) -> None:
         try:

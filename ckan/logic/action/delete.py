@@ -365,8 +365,8 @@ def package_collaborator_delete(context: Context, data_dict: DataDict) -> Action
     model.Session.delete(collaborator)
     model.repo.commit()
 
-    log.info('User {} removed as collaborator from package {}'.format(
-        user_id, package.id))
+    log.info('User %s removed as collaborator from package %s',
+        user_id, package.id)
 
 
 def _group_or_org_delete(
@@ -788,7 +788,7 @@ def job_clear(context: Context, data_dict: DataDict) -> list[str]:
     names = [jobs.remove_queue_name_prefix(queue.name) for queue in queues]
     for queue, name in zip(queues, names):
         queue.empty()
-        log.info(u'Cleared background job queue "{}"'.format(name))
+        log.info('Cleared background job queue "%s"', name)
     return names
 
 
@@ -805,7 +805,7 @@ def job_cancel(context: Context, data_dict: DataDict) -> None:
     id = _get_or_bust(data_dict, u'id')
     try:
         jobs.job_from_id(id).delete()
-        log.info(u'Cancelled background job {}'.format(id))
+        log.info('Cancelled background job %s', id)
     except KeyError:
         raise NotFound
 

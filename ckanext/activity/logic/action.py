@@ -112,7 +112,7 @@ def activity_create(
     if not context.get("defer_commit"):
         model.repo.commit()
 
-    log.debug("Created '%s' activity" % activity.activity_type)
+    log.debug("Created '%s' activity", activity.activity_type)
     return model_activity.activity_dictize(activity, context)
 
 
