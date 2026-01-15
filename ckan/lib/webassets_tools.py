@@ -65,7 +65,7 @@ def webassets_init() -> None:
 
     add_public_path(base_path, u'/base/')
 
-    logger.debug(u'Base path {0}'.format(base_path))
+    logger.debug('Base path %s', base_path)
     create_library(u'vendor', os.path.join(
         base_path, u'vendor'))
 
@@ -94,7 +94,7 @@ def include_asset(name: str) -> None:
     try:
         bundle: Any = env[name]
     except KeyError:
-        logger.error(u'Trying to include unknown asset: <{}>'.format(name))
+        logger.error('Trying to include unknown asset: <%s>', name)
         return
 
     deps: list[str] = bundle.extra.get(u'preload', [])
@@ -120,7 +120,7 @@ def include_asset(name: str) -> None:
             type_ = u'script'
             break
     else:
-        logger.warn(u'Undefined asset type: {}'.format(urls))
+        logger.warning('Undefined asset type: %s', urls)
         return
     g.webassets[type_].extend(urls)
     g.webassets[u'included'].add(name)

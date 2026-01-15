@@ -701,8 +701,7 @@ class RequestResetView(MethodView):
         if not user_objs:
             log.info(u'User requested reset link for unknown user: %s',
                      repr_untrusted(id))
-            log.info(u'User requested reset link for unknown user: {}'
-                     .format(id))
+            log.info(u'User requested reset link for unknown user: %s', id)
 
         for user_obj in user_objs:
             log.info('Emailing reset link to user: %s', user_obj.name)
