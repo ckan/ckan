@@ -137,7 +137,7 @@ def ajax(resource_view_id: str):
         if config.get('ckan.datatables.show_histograms') and response['records']:
             # TODO: get flat data
             # datastore_search w/ buckets=
-            histogram_data = get_action('datastore_search_buckets',
+            histogram_response = get_action('datastore_search_buckets')(
                 {'ignore_auth': True},
                 {"q": search_text,
                  "resource_id": resource_view['resource_id'],
@@ -145,16 +145,17 @@ def ajax(resource_view_id: str):
                  "language": "simple",
                  "filters": filters})
     except Exception:
-        raise
         query_error = 'Invalid search query... ' + search_text
         dtdata = {'error': query_error}
         status = 400
     else:
         data = []
+        histogram_data = {}
         if config.get('ckan.datatables.show_histograms') and response['records']:
             # TODO: backend for flat histogram data!!!
             data = [dict({f['id']: '' for f in response['fields']},
                          DT_RowId='dt-row-histogram')]
+            histogram_data = histogram_response.get('buckets', {})
         null_label = h.datatablesview_null_label()
         for row in response['records']:
             # NOTE: do null_label in backend for None, as front-end would
