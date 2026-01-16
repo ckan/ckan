@@ -174,6 +174,7 @@ function load_datatable(CKAN_MODULE){
 
   function cell_renderer(_data, _type, _row, _meta, _dictionary_field){
     if( typeof _row.DT_RowId != 'undefined' && _row.DT_RowId == 'dt-row-histogram' ){
+      // TODO: render historgams here...
       return;
     }
     if( _type == 'display' ){
@@ -199,7 +200,8 @@ function load_datatable(CKAN_MODULE){
       }
       if( numberTypes.includes(_dictionary_field.type) ){
         // TODO: add number format configs/options ??
-        return DataTable.render.number(null, null, null, null).display(_data, _type, _row);
+        // number(THOUSAND, DECIMAL, PRECISION, PREFIX, POSTFIX)
+        return DataTable.render.number(null, null, 2, null, null).display(_data, _type, _row);
       }
       // TODO: add money formatting ??
       if( dateTypes.includes(_dictionary_field.type) ){
@@ -497,6 +499,7 @@ function load_datatable(CKAN_MODULE){
             if( ! _data.responseJSON.data ){
               render_ajax_failure('DataTables error - ' + _data.status + ': ' + _data.statusText);
             }
+            console.log(_data.responseJSON);
           }else{
             render_ajax_failure('DataTables error - ' + _data.status + ': ' + _data.statusText);
           }

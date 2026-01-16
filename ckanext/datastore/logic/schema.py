@@ -219,11 +219,12 @@ def datastore_search_schema() -> Schema:
     return schema
 
 
-def datastore_search_flat_schema() -> Schema:
+def datastore_search_buckets_schema() -> Schema:
     schema = {
         'resource_id': [not_missing, not_empty, unicode_safe],
         'id': [ignore_missing],
         'q': [ignore_missing, unicode_or_json_validator],
+        'buckets': [default(12), int_validator],
         'plain': [ignore_missing, boolean_validator],
         'filters': [ignore_missing, json_validator],
         'language': [ignore_missing, unicode_safe],

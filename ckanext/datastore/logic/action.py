@@ -723,9 +723,13 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
 
 @logic.side_effect_free
-def datastore_search_flat(context: Context, data_dict: dict[str, Any]):
-    '''Search a DataStore resource, returning data back as flat data.
-    This will always query all data in the table.
+def datastore_search_buckets(context: Context, data_dict: dict[str, Any]):
+    '''Search a DataStore resource and bucket all
+    of the data into ranges and frequencies.
+
+    The datastore_search_buckets action allows you to search data in a resource.
+    Number and Date type fields will return their ranges and frequencies, where
+    Text type fields will return an empty list.
 
     A DataStore resource that belongs to a private CKAN resource can only be
     read by you if you have access to the CKAN resource and send the
@@ -736,6 +740,9 @@ def datastore_search_flat(context: Context, data_dict: dict[str, Any]):
     :param filters: :ref:`filters` for matching conditions to select, e.g
                     {"key1": "a", "key2": "b"} (optional)
     :type filters: dictionary
+    :param buckets: return all data in bucket ranges
+                    for each column/field (optional, sysadmin only)
+    :type buckets: int
     :param q: full text query. If it's a string, it'll search on all fields on
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},
               it'll search on each specific field (optional)
@@ -772,14 +779,12 @@ def datastore_search_flat(context: Context, data_dict: dict[str, Any]):
     :type fields: list of dictionaries
     :param filters: query filters
     :type filters: list of dictionaries
-    :param total: number of total matching records
-    :type total: int
-    :param flat_data: records as flat data
-    :type flat_data: string
+    :param buckets: dict of matching results
+    :type buckets: dict of field ids and bucketed data
 
     '''
     backend = DatastoreBackend.get_active_backend()
-    schema = context.get('schema', dsschema.datastore_search_flat_schema())
+    schema = context.get('schema', dsschema.datastore_search_buckets_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise p.toolkit.ValidationError(errors)
@@ -800,9 +805,9 @@ def datastore_search_flat(context: Context, data_dict: dict[str, Any]):
         if real_id:
             data_dict['resource_id'] = real_id
 
-        p.toolkit.check_access('datastore_search_flat', context, data_dict)
+        p.toolkit.check_access('datastore_search_buckets', context, data_dict)
 
-    result = backend.search_flat(context, data_dict)
+    result = backend.search_buckets(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
     return result

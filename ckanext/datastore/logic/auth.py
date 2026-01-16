@@ -57,8 +57,8 @@ def datastore_search(context: Context, data_dict: DataDict):
     return datastore_auth(context, data_dict, 'resource_show')
 
 
-def datastore_search_flat(context: Context, data_dict: DataDict):
-    '''sysadmin-only:  flat data queries can be large'''
+def datastore_search_buckets(context: Context, data_dict: DataDict):
+    '''sysadmin-only: bucketing queries can get expensive'''
     return {'success': False}
 
 

@@ -1617,8 +1617,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     return data_dict
 
 
-def search_data_flat(context: Context, data_dict: dict[str, Any]):
-    # TODO: implement code for flat search...
+def search_data_buckets(context: Context, data_dict: dict[str, Any]):
     validate(context, data_dict)
     fields_types = _get_fields_types(
         context['connection'], data_dict['resource_id'])
@@ -1629,62 +1628,124 @@ def search_data_flat(context: Context, data_dict: dict[str, Any]):
         'where': []
     }
 
-    backend = DatastorePostgresqlBackend.get_active_backend()
-    query_dict = backend.datastore_search(
-        context, data_dict, fields_types, query_dict)
+    for plugin in p.PluginImplementations(interfaces.IDatastore):
+        query_dict = plugin.datastore_search(context, data_dict,
+                                             fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
 
-    # FIXME: Remove duplicates on select columns
-    select_columns = ', '.join(query_dict['select'])
     ts_query = cast(str, query_dict['ts_query'])
     resource_id = data_dict['resource_id']
 
-    # TODO: add num_buckets schema...
-
-    sql_fmt = '''
-        WITH data_stats AS (
+    sql_number_fmt = '''
+        data_stats_{index} AS (
             SELECT
-                min("AAPL_y") AS min_val,
-                max("AAPL_y") AS max_val
+                min({column}) AS min_val,
+                max({column}) AS max_val
             FROM
                 {resource} {ts_query} {where}
         ),
-        flat_data AS (
+        data_{index} AS (
             SELECT
-                width_bucket("AAPL_y", min_val, max_val, 10) AS bucket,
-                int4range(
-                    min("AAPL_y")::int,
-                    max("AAPL_y")::int,
-                    '[]'
-                ) AS range,
+                width_bucket({column}, data_stats_{index}.min_val, data_stats_{index}.max_val, {num_buckets}) AS bucket,
                 count(*) AS freq
             FROM
                 {resource},
-                data_stats
+                data_stats_{index}
             {ts_query}
             {where}
             GROUP BY
                 bucket
             ORDER BY
                 bucket
-        )
-        SELECT
-            bucket,
-            (lower(range),upper(range)) as range,
-            freq
-        FROM
-            flat_data;'''
+        )'''
 
-    sql_string = sql_fmt.format(
-        select=select_columns,
-        resource=identifier(resource_id),
-        ts_query=ts_query,
-        where=where_clause)
+    sql_datetime_fmt = '''
+        data_stats_{index} AS (
+            SELECT
+                min(EXTRACT(EPOCH FROM {column})) AS min_val,
+                max(EXTRACT(EPOCH FROM {column})) AS max_val
+            FROM
+                {resource} {ts_query} {where}
+        ),
+        data_{index} AS (
+            SELECT
+                width_bucket(EXTRACT(EPOCH FROM {column}), data_stats_{index}.min_val, data_stats_{index}.max_val, {num_buckets}) AS bucket,
+                count(*) AS freq
+            FROM
+                {resource},
+                data_stats_{index}
+            {ts_query}
+            {where}
+            GROUP BY
+                bucket
+            ORDER BY
+                bucket
+        )'''
 
-    data = _execute_single_statement(context, sql_string, where_values).fetchall()
+    data_dict['records'] = {}
+    with_queries = []
+    select_queries = []
+    params = {}
+    fid_map = []
 
-    data_dict['flat_data'] = data
+    index = 0
+    for fid, ftype in fields_types.items():
+        index += 1
+
+        if fid == '_id':
+            continue
+
+        sql_string = None
+
+        if ftype in ['int', 'int4',
+                     'bigint', 'int8',
+                     'decimal', 'numeric']:
+            sql_string = sql_number_fmt
+        elif ftype in ['datetime', 'date',
+                       'timestamp', 'timestamptz']:
+            sql_string = sql_datetime_fmt
+
+        if not sql_string:
+            continue
+
+        with_queries.append(
+            sql_string.format(
+                index=index,
+                column=identifier(fid),
+                resource=identifier(resource_id),
+                ts_query=ts_query,
+                where=where_clause,
+                num_buckets=data_dict['buckets']))
+
+        # FIXME: can datastore have multiple columns with same name??
+        select_queries.append('''
+            array(SELECT freq FROM data_{index}) AS {column}'''.format(
+                index=index,
+                column=identifier(fid)))
+
+        fid_map.append(fid)
+
+        for chunk in where_values:
+            params.update(chunk)
+
+    aggregated_sql_string = '''
+        WITH {with_statements}
+        SELECT {array_statments};'''.format(
+            with_statements=','.join(with_queries),
+            array_statments=','.join(select_queries))
+
+    results = context['connection'].execute(
+        sa.text(aggregated_sql_string),
+        params
+    ).mappings().all()[0]
+
+    data_dict['buckets'] = dict(results)
+
+    data_dict['fields'] = _result_fields(
+        fields_types,
+        _get_field_info(context['connection'], data_dict['resource_id']),
+        datastore_helpers.get_list(data_dict.get('fields')))
 
     return data_dict
 
@@ -1907,7 +1968,7 @@ def search(context: Context, data_dict: dict[str, Any]):
         context['connection'].close()
 
 
-def search_flat(context: Context, data_dict: dict[str, Any]):
+def search_buckets(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
     engine = backend._get_read_engine()  # type: ignore
     _cache_types(engine)
@@ -1918,8 +1979,9 @@ def search_flat(context: Context, data_dict: dict[str, Any]):
         context['connection'].execute(sa.text(
             f"SET LOCAL statement_timeout TO {timeout}"
         ))
-        return search_data_flat(context, data_dict)
+        return search_data_buckets(context, data_dict)
     except DBAPIError as e:
+        raise
         if _get_pgcode(e) == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
@@ -2358,8 +2420,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         data_dict['connection_url'] = self.write_url
         return search(context, data_dict)
 
-    def search_flat(self, context: Context, data_dict: dict[str, Any]):
-        return search_flat(context, data_dict)
+    def search_buckets(self, context: Context, data_dict: dict[str, Any]):
+        data_dict['connection_url'] = self.write_url
+        return search_buckets(context, data_dict)
 
     def search_sql(self, context: Context, data_dict: dict[str, Any]):
         sql = toolkit.get_or_bust(data_dict, 'sql')

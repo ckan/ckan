@@ -118,6 +118,8 @@ def ajax(resource_view_id: str):
         search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
                              search_text) + u':*' if search_text else u''
 
+    histogram_data = {}
+
     try:
         response = datastore_search(
             {}, {
@@ -134,9 +136,16 @@ def ajax(resource_view_id: str):
         )
         if config.get('ckan.datatables.show_histograms') and response['records']:
             # TODO: get flat data
-            # get_action('datastore_search_flat')
-            flat_data = ''
+            # datastore_search w/ buckets=
+            histogram_data = get_action('datastore_search_buckets',
+                {'ignore_auth': True},
+                {"q": search_text,
+                 "resource_id": resource_view['resource_id'],
+                 "plain": False,
+                 "language": "simple",
+                 "filters": filters})
     except Exception:
+        raise
         query_error = 'Invalid search query... ' + search_text
         dtdata = {'error': query_error}
         status = 400
@@ -163,6 +172,7 @@ def ajax(resource_view_id: str):
             'recordsTotal': unfiltered_response.get('total', 0),
             'recordsFiltered': response.get('total', 0),
             'data': data,
+            'histogram_data': histogram_data,
             'total_was_estimated': unfiltered_response.get(
                 'total_was_estimated', False),
         }
