@@ -13985,7 +13985,8 @@ td.diff_header {
   margin: 0;
   overflow: auto;
 }
-.context-info h1.heading, .context-info .heading.h1 {
+.context-info h1.heading, .context-info .heading.h1,
+.context-info h2.heading, .context-info .heading.h2 {
   margin: 0 0 5px 0;
   font-size: 18px;
   line-height: 1.3;
