@@ -73,6 +73,32 @@
     justify-content: start !important;
   }
 }
+
+#dtprv_wrapper .datatable-id-col .dtcc-search{
+  display: none !important;
+  pointer-events: none !important;
+}
+
+#dtprv_wrapper .dtcc-search .dtcc-search-type-icon,
+#dtprv_wrapper .dtcc-search select{
+  display: none !important;
+  pointer-events: none !important;
+}
+
+table.dataTable span.dtcc div.dtcc-searchNumber .dtcc-search-clear{
+  left: 5px !important;
+}
+
+table.dataTable span.dtcc div.dtcc-searchNumber input{
+  padding-left: 26px;
+}
+
+table.dataTable span.dtcc div.dtcc-searchText .dtcc-search-clear{
+  right: 5px !important;
+}
+table.dataTable span.dtcc div.dtcc-searchText input{
+  padding-right: 26px;
+}
 /* END: Layout :END */
 
 /* START: Mark Plugin :START */

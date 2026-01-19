@@ -50,7 +50,6 @@ function load_datatable(CKAN_MODULE){
   const csrfTokenName = $('meta[name="csrf_field_name"]').attr('content');
 
   const ajaxErrorMessage = _('Error: Could not query records. Please try again.');
-  const downloadFileErrorMessage = _('Error: Could not download rows to {TYPE} file. Please try again.');
   const fullTableButtonLabel = _('Full Table');
   const compactTableButtonLabel = _('Compact Table');
   const copyButtonLabel = _('Copy to clipboard');
@@ -396,8 +395,31 @@ function load_datatable(CKAN_MODULE){
     _render_failure(_message, ajaxErrorMessage, 'warning');
   }
 
-  function render_download_file_failure(_message, _format){
-    _render_failure(_message, downloadFileErrorMessage.replace('{TYPE}', _format), 'warning');
+  function bind_column_filter(_column, _index){
+    if( ! _index >= colOffset ){
+      return;  // _id col
+    }
+    let searchFilterInput = $(_column.header()).find('input');
+    $(searchFilterInput).off('keyup.filterCol');
+    $(searchFilterInput).on('keyup.filterCol', function(_event){
+      $(searchFilterInput).off('input');
+      let _fVal = $(searchFilterInput).val();
+      if( _event.keyCode == 13 && _column.search() !== _fVal ){
+        _column.search(_fVal).draw();
+      }
+    });
+    $(searchFilterInput).off('keypress');
+    $(searchFilterInput).on('keypress.preventDefault', function(_event){
+      _event.stopPropagation();
+      _event.stopImmediatePropagation();
+      $(searchFilterInput).off('input');
+    });
+  }
+
+  function bind_custom_events(){
+    $('#dtprv').dataTable().api().columns().every(function(_i){
+      bind_column_filter(this, _i);
+    });
   }
 
   function set_row_selects(){
@@ -442,8 +464,8 @@ function load_datatable(CKAN_MODULE){
 
   function init_callback(){
     set_table_visibility();
-    // render_table_footer();
     set_row_selects();
+    bind_custom_events();
   }
 
   function initialize_datatable(){
@@ -455,9 +477,19 @@ function load_datatable(CKAN_MODULE){
       autoWidth: true,
       stateSave: doStateSave,
       stateDuration: stateSaveDuration,
+      // TODO: disallow moving the _id col
       colReorder: {
         fixedColumnsLeft: 1
       },
+      columnControl: [{
+        "target": "thead",
+        "content": ["order", "search"]
+      }],
+      ordering: {
+        indicators: false,
+        handler: false
+      },
+      // TODO: disallow moving the _id col
       fixedColumns: ! isCompactView,
       orderCellsTop: true,
       mark: true,
