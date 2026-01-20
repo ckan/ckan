@@ -1150,15 +1150,23 @@ def get_facet_items_dict(
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    # Sort descendingly by count and ascendingly by case-sensitive display name
-    sort_facets: Callable[[Any], tuple[int, str]] = lambda it: (
-        -it['count'], it['display_name'].lower())
+
+    if limit is None and getattr(g, 'search_facets_limits', None):
+        limit = g.search_facets_limits.get(facet)
+
+    # zero or negative limit treated as infinite for historical reasons
+    has_limit: bool = limit is not None and limit > 0
+
+    # Follow Solr default behaviour:
+    # If limiting results, sort descendingly by count
+    # and ascendingly by case-insensitive display name;
+    # else sort by display name only.
+    sort_facets: Callable[[Any], tuple[int, str]] = lambda it: \
+        (-it['count'], it['display_name'].lower()) if has_limit \
+        else (it['display_name'].lower())
     facets.sort(key=sort_facets)
-    if hasattr(g, 'search_facets_limits'):
-        if g.search_facets_limits and limit is None:
-            limit = g.search_facets_limits.get(facet)
-    # zero treated as infinite for hysterical raisins
-    if limit is not None and limit > 0:
+
+    if has_limit:
         return facets[:limit]
     return facets
 
