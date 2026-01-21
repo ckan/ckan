@@ -43,7 +43,7 @@ this.ckan.module('autocomplete', function (jQuery) {
       this.setupAutoComplete();
     },
 
-    /* Sets up the auto complete plugin. 
+    /* Sets up the auto complete plugin.
      *
      * Returns nothing.
      */
@@ -53,6 +53,7 @@ this.ckan.module('autocomplete', function (jQuery) {
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
         formatInputTooShort: this.formatInputTooShort,
+        formatSearching: this.formatSearching,
         dropdownCssClass: this.options.dropdownClass,
         containerCssClass: this.options.containerClass,
         tokenSeparators: this.options.tokensep.split(''),
@@ -230,6 +231,15 @@ this.ckan.module('autocomplete', function (jQuery) {
         'Input is too short, must be at least %(num)d characters',
         min
       );
+    },
+
+    /* Formatter used by the select2 plugin that returns a string when
+     * XHR is being performed.
+     *
+     * Returns a string.
+     */
+    formatSearching: function () {
+      return this._('Searching...');
     },
 
     formatTerm: function (term) {

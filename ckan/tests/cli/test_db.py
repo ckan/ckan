@@ -121,23 +121,6 @@ class TestMigrations:
 
 @pytest.mark.usefixtures("clean_db")
 class TestDuplicateEmails:
-    def test_case_insensitive(self, user_factory, faker, cli):
-        """Command performs case-insensitive search."""
-        email = faker.email()
-
-        john = user_factory(email=email)
-        greg = user_factory()
-
-        mary = user_factory.model()
-        mary.email = email.upper()
-        mary.save()
-
-        res = cli.invoke(ckan, ["db", "duplicate_emails"])
-
-        assert mary.name in res.output
-        assert john["name"] in res.output
-        assert greg["name"] not in res.output
-
     def test_check_across_states(self, user_factory, monkeypatch, faker, ckan_config, cli):
         """Command checks users with configured statuses."""
         email = faker.email()

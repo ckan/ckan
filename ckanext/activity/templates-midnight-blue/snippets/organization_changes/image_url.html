@@ -3,39 +3,37 @@
     {% set org_link = (h.url_for('organization.read', id=change.pkg_id)) %}
     {% if change.method == "change" %}
 
-      {{ _('Changed the image URL of') }}
-      <a href="{{org_link}}">
-        {{change.title}}
-      </a>
+      {% set old_img_url = 'http://' + change.old_image_url if not change.old_image_url[0:4] == 'http' else change.old_image_url %}
+      {% set new_img_url = 'http://' + change.new_image_url if not change.new_image_url[0:4] == 'http' else change.new_image_url %}
 
-      {{ _('from') }}
-      <a href="{{'http://' + change.old_image_url if not change.old_image_url[0:4] == 'http' else change.old_image_url}}">
-        {{change.old_image_url}}
-      </a>
-
-      {{ _('to') }}
-      <a href="{{'http://' + change.new_image_url if not change.new_image_url[0:4] == 'http' else change.new_image_url}}">
-        {{change.new_image_url}}
-      </a>
+      {% trans
+        title=change.title, old_url=old_img_url, new_url=new_img_url
+      %}
+      Changed the image URL of
+      <a href="{{ org_link }}">{{ title }}</a> from
+      <a href="{{ old_url }}">{{ old_url }}</a> to
+      <a href="{{ new_url }}">{{ new_url }}</a>.
+      {% endtrans %}
 
     {% elif change.method == "remove" %}
 
-      {{ _('Removed the image URL from') }}
-      <a href="{{org_link}}">
-        {{change.title}}
-      </a>
+      {% trans
+        title=change.title
+      %}
+      Removed the image URL from
+      <a href="{{ org_link }}">{{ title }}</a>.
+      {% endtrans %}
 
     {% elif change.method == "add" %}
 
-      {{ _('Changed the image URL of') }}
-      <a href="{{org_link}}">
-        {{change.title}}
-      </a>
-
-      {{ _('to') }}
-      <a href="{{'http://' + change.new_image_url if not change.new_image_url[0:4] == 'http' else change.new_image_url}}">
-        {{change.new_image_url}}
-      </a>
+      {% set new_img_url = 'http://' + change.new_image_url if not change.new_image_url[0:4] == 'http' else change.new_image_url %}
+      {% trans
+        title=change.title, new_url=new_img_url
+      %}
+      Changed the image URL of
+      <a href="{{ org_link }}">{{ title }}</a> to
+      <a href="{{ new_url }}">{{ new_url }}</a>.
+      {% endtrans %}
 
     {% else %}
 
