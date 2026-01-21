@@ -21,6 +21,10 @@ this.ckan.module('datatables_view', function($){
       timeout: 60000,
     },
     initialize: function(){
+      /**
+       * Call functional code so we can destory and re-initialize the objects
+       * we need to, instead of the entire module object (or requiring page reload).
+       */
       load_datatable(this);
     }
   }
@@ -121,13 +125,17 @@ function load_datatable(CKAN_MODULE){
   }
 
   DataTable.ext.errMode = function( _settings, _techNote, _message ){
-    // console log errors instead of window.alert
+    /**
+     * Console log all DataTable errors instead of the default window.alert
+     */
     console.warn(_message);
   };
 
   DataTable.Api.registerPlural('columns().names()', 'column().name()', function(_setter){
-    // register column.name() DataTables API helper so we can refer
-    // to columns by name instead of just column index number
+    /**
+     * Register a Plural for DataTables so we can refer to columns by
+     * names (DataStore IDs) instead of just column index number.
+     */
     // FIXME: is it possible to have multiple columns of the same name??? PROBABLY in psql right???
     return this.iterator('column', function (_settings, _column) {
       let col = _settings.aoColumns[_column]
@@ -141,6 +149,9 @@ function load_datatable(CKAN_MODULE){
   })
 
   DataTable.render.ellipsis = function(_cutoff, _rowIndex, _datatoreID){
+    /**
+     * Custom DataTable render function for ellipsis.
+     */
     return function(_data, _type, _row, _meta){
       if( _type == 'display' ){
         let str = _data.toString();
@@ -158,7 +169,19 @@ function load_datatable(CKAN_MODULE){
     };
   };
 
+  DataTable.ColumnControl.SearchInput.prototype.runSearch = function(){
+    /**
+     * NOTE: ColumnControl plugin does not have options for searching on
+     *       ENTER keypress. Override the method here, and call column.search()
+     *       on ENTER keypress in our custom event handlers.
+     */
+    return;
+  }
+
   function download_filtered_file(_params, _format) {
+    /**
+     * Execute the form POST to download the Filtered DataStore Dump file.
+     */
     let form = $('#filtered-datatables-download');
     let p = $('<input name="params" type="hidden"/>');
     p.attr('value', JSON.stringify(_params));
@@ -172,6 +195,9 @@ function load_datatable(CKAN_MODULE){
   }
 
   function cell_renderer(_data, _type, _row, _meta, _dictionary_field){
+    /**
+     * Our custom Cell renderer for all cells in the table.
+     */
     if( typeof _row.DT_RowId != 'undefined' && _row.DT_RowId == 'dt-row-histogram' ){
       // TODO: render historgams here...
       return;
@@ -215,6 +241,11 @@ function load_datatable(CKAN_MODULE){
   }
 
   function get_available_buttons(){
+    /**
+     * Get buttons available to the DataTable.
+     *
+     * NOTE: this is done in a function so the table view mode can change faster & better.
+     */
     return [
       {
         name: 'viewToggleButton',
@@ -376,7 +407,7 @@ function load_datatable(CKAN_MODULE){
         action: function (e, dt, node, config) {
           dt.state.save();
           let sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()));
-          // TODO: do copy state link stuffs...
+          // TODO: do copy state link stuffs... ONLY NEEDED vars
           // copyLink(dt, sharelink, that._('Share current view'), that._('Copied deeplink to clipboard'));
         }
       }
@@ -384,6 +415,9 @@ function load_datatable(CKAN_MODULE){
   }
 
   function _render_failure(_consoleMessage, _message, _type){
+    /**
+     * Render UI alert at the top of the table for warning and error messages.
+     */
     console.warn(_consoleMessage);
     table.processing(false);
     $('#dtprv_processing').css({'display': 'none'});
@@ -392,43 +426,112 @@ function load_datatable(CKAN_MODULE){
   }
 
   function render_ajax_failure(_message){
+    /**
+     * Render the AJAX failures in console log and UI.
+     */
     _render_failure(_message, ajaxErrorMessage, 'warning');
   }
 
   function bind_column_filter(_column, _index){
+    /**
+     * Bind event handling for the column filters/search inputs.
+     */
     if( ! _index >= colOffset ){
       return;  // _id col
     }
-    let searchFilterInput = $(_column.header()).find('input');
-    $(searchFilterInput).off('keyup.filterCol');
-    $(searchFilterInput).on('keyup.filterCol', function(_event){
-      $(searchFilterInput).off('input');
-      let _fVal = $(searchFilterInput).val();
-      if( _event.keyCode == 13 && _column.search() !== _fVal ){
-        _column.search(_fVal).draw();
+
+    function _bind_column_filter(_inputObj){
+      if( _inputObj.length == 0 ){
+        // TODO: unable to bind...fallback??
+        return;
       }
-    });
-    $(searchFilterInput).off('keypress');
-    $(searchFilterInput).on('keypress.preventDefault', function(_event){
-      _event.stopPropagation();
-      _event.stopImmediatePropagation();
-      $(searchFilterInput).off('input');
-    });
+      let clearButton = $(_inputObj).parent().find('.dtcc-search-clear');
+      $(clearButton).off('click.clearFilter');
+      $(clearButton).on('click.clearFilter', function(_event){
+        $(_inputObj).val('').focus().blur();
+        _column.search(null).draw();
+        $(clearButton).hide();
+      });
+
+      if( $(_inputObj).val().length > 0 ){
+        // show button on initial paint if column search
+        $(clearButton).show();
+      }
+
+      $(_inputObj).off('keyup.filterCol');
+      $(_inputObj).on('keyup.filterCol', function(_event){
+        let _fVal = $(_inputObj).val();
+        if( _event.keyCode == 13 && _column.search() !== _fVal ){
+          _column.search(_fVal).draw();
+          if( _fVal.length > 0 ){
+            $(clearButton).show();
+          }else{
+            $(clearButton).hide();
+          }
+        }
+      });
+    }
+
+    let searchFilterInput = $(_column.header()).find('input');
+    if( searchFilterInput.length > 0 ){
+      _bind_column_filter(searchFilterInput);
+      return;
+    }else{
+      const maxTries = 35;
+      let interval = false;
+      let tries = 0;
+      interval = setInterval(function(){
+        searchFilterInput = $(_column.header()).find('input');
+        if( searchFilterInput.length > 0 || tries > maxTries ){
+          clearInterval(interval);
+          interval = false;
+          _bind_column_filter(searchFilterInput);
+        }
+        tries++;
+      }, 150);
+    }
   }
 
   function bind_custom_events(){
+    /**
+     * Bind custom jQuery events.
+     */
     $('#dtprv').dataTable().api().columns().every(function(_i){
       bind_column_filter(this, _i);
     });
   }
 
   function set_row_selects(){
+    /**
+     * Set selected rows based on table saved state.
+     */
+    // FIXME: row selects state...
     if( typeof tableState != 'undefined' && typeof tableState.selected != 'undefined' ){
       table.rows(tableState.selected).select();
     }
   }
 
+  function set_button_states(){
+    /**
+     * Modify table buttons based on table interaction.
+     */
+    let buttons = $('#dtprv_wrapper').find('.dt-buttons').find('.btn.disabled');
+    if( buttons.length > 0 ){
+      $(buttons).each(function(_index, _button){
+        $(_button).attr('disabled', true);
+      });
+    }
+
+    let tableModified = false;
+
+
+  }
+
   function set_table_visibility(){
+    /**
+     * Set various visibilities to help with table flashing
+     * layout changes when DataTables initializes.
+     */
     $('#dtprv').css({'visibility': 'visible'});
     $('table.dataTable').css({'visibility': 'visible'});
     $('.dt-scroll-head').css({'visibility': 'visible'});
@@ -446,6 +549,10 @@ function load_datatable(CKAN_MODULE){
   }
 
   function set_state_change_visibility(){
+    /**
+     * Set various visibilities to help with table flashing
+     * layout changes when we switch from Compact view to Table view.
+     */
     $('#dtprv').css({'visibility': 'hidden'});
     $('.dt-scroll-head').css({'visibility': 'hidden'});
     $('.dt-scroll-head').find('th.expanders').css({'visibility': 'hidden'});
@@ -456,19 +563,33 @@ function load_datatable(CKAN_MODULE){
   }
 
   function draw_callback(_settings){
+    /**
+     * Executes whenever the DataTable draws.
+     */
     $('#dtprv_wrapper').find('#dtprv_failure_message').remove();
     set_table_visibility();
     // render_expand_buttons();
     // render_human_sorting();
+    set_button_states();
   }
 
   function init_callback(){
+    /**
+     * Executes once the DataTable initializes.
+     */
     set_table_visibility();
     set_row_selects();
     bind_custom_events();
+    set_button_states();
   }
 
   function initialize_datatable(){
+    /**
+     * Initializes the DataTable object.
+     *
+     * NOTE: this is done functionaly so we can destroy and
+     *       re-initialize the table without page reloading.
+    */
     table = $('#dtprv').DataTable({
       paging: true,
       serverSide: true,
@@ -539,6 +660,13 @@ function load_datatable(CKAN_MODULE){
       initComplete: init_callback,
       drawCallback: draw_callback,
       fnStateSave: function(_settings, _data){
+        /**
+         * Callback for actually saving the state object to local storage.
+         *
+         * NOTE: we save it by the Resource View ID instead of the default
+         *       page pathname so multiple DataTables work on the same page,
+         *       and using the Fullscreen view respects the state saves.
+         */
         if( ! doStateSave ){
           return;
         }
@@ -546,12 +674,25 @@ function load_datatable(CKAN_MODULE){
         window.localStorage.setItem('DataTables_dtprv_' + viewID, JSON.stringify(_data));
       },
       fnStateLoad: function(_settings){
+        /**
+         * Callback for actually loading the state object from local storage.
+         *
+         * NOTE: we load it by the Resource View ID instead of the default
+         *       page pathname so multiple DataTables work on the same page,
+         *       and using the Fullscreen view respects the state saves.
+         */
         if( ! doStateSave ){
           return;
         }
         return JSON.parse(window.localStorage.getItem('DataTables_dtprv_' + viewID));
       },
       stateSaveParams: function(_settings, _data){
+        /**
+         * Callback for saving variables to the local storage state object.
+         *
+         * NOTE: we set the local tableState values here so we can access
+         *       tableState easily throughout the functional code.
+         */
         if( ! doStateSave ){
           return;
         }
@@ -580,6 +721,12 @@ function load_datatable(CKAN_MODULE){
         // }
       },
       stateLoadParams: function(_settings, _data){
+        /**
+         * Callback for loading variables to the local storage state object.
+         *
+         * NOTE: we set the local tableState values here so we can access
+         *       tableState easily throughout the functional code.
+         */
         if( ! doStateSave ){
           return;
         }
