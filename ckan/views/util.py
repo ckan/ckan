@@ -27,7 +27,7 @@ def internal_redirect() -> Response:
         try:
             response = h.redirect_to(url)
         except FlaskRouteBuildError:
-            log.error(f'Error building redirect URL: {url}')
+            log.error('Error building redirect URL: %s', url)
             base.abort(400, _('Invalid URL'))
         return response
 
