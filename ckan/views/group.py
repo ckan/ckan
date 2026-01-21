@@ -358,9 +358,10 @@ def _update_facet_titles(
     else:
         del facets['groups']
     for plugin in plugins.PluginImplementations(plugins.IFacets):
+        registered_groups = [h.default_group_type("group")]
         facets = (
             plugin.group_facets(facets, group_type, None)
-            if group_type == "group"
+            if group_type in registered_groups
             else plugin.organization_facets(facets, group_type, None)
         )
     return facets
