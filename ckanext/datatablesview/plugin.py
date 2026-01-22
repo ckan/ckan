@@ -1,6 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 import json
+from flask import has_request_context
 
 from ckan.common import CKANConfig
 from typing import Any, cast
@@ -81,6 +82,13 @@ class DataTablesView(p.SingletonPlugin):
                 language_object = json.load(f)
         except (FileNotFoundError, TypeError, json.JSONDecodeError):
             pass
+
+        fullscreen = False
+        if (has_request_context() and
+            hasattr(toolkit.request, 'view_args') and
+            toolkit.request.view_args.get('view_id')):
+                fullscreen = True
+
         return {
             'page_length_choices': self.page_length_choices,
             'state_saving': self.state_saving,
@@ -92,6 +100,7 @@ class DataTablesView(p.SingletonPlugin):
             'responsive_modal': self.responsive_modal,
             'request_timeout': self.request_timeout,
             'language_object': language_object,
+            'fullscreen': fullscreen,
         }
 
     def view_template(self, context: Context, data_dict: dict[str, Any]):

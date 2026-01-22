@@ -1,18 +1,23 @@
-{% extends "base.html" %}
+{# NOTE: need inline visibility to fully prevent load flashing in datatables #}
+<style>
+  body .datatables-pre-render-hidden{
+    visibility: hidden;
+  }
+  body #dtv-resource-info,
+  body #dtv-resource-info .dtv-resource-info-content{
+    display: none;
+  }
+</style>
 
-{% block title %}{{ h.dataset_display_name(package)}}&mdash;{{ h.resource_display_name(resource)}} - {{ super() }}{% endblock %}
+{% asset 'ckanext-datatablesview/main-css' %}
+{% asset 'ckanext-datatablesview/main-js' %}
 
-{% block bodytag %}
-  {{- super() -}}
-  class="dt-view"
-{%- endblock -%}
+{%- set nbspval = "&nbsp;"|safe -%}
+{% set can_edit = h.check_access('resource_update', {'id': resource_id}) %}
+{%- set data_dictionary = h.datastore_dictionary(resource.id, resource_view.get('show_fields')) -%}
 
-{%- block page -%}
-
-  {%- set nbspval = "&nbsp;"|safe -%}
-  {% set can_edit = h.check_access('resource_update', {'id': resource_id}) %}
-  {%- set data_dictionary = h.datastore_dictionary(resource.id, resource_view.get('show_fields')) -%}
-
+<div class="dt-view-wrapper" data-fullscreen='{{ fullscreen|tojson }}'>
+  {# NOTE: tojson filters and json objects need single quotes! #}
   <table
     id="dtprv"
     width="100%"
@@ -24,14 +29,20 @@
     data-module-date-format="{{ resource_view.date_format if resource_view.date_format is defined else date_format }}"
     data-module-package-name="{{ package.name }}"
     data-module-resource-name="{{ h.resource_display_name(resource) }}"
+    data-module-created-date="{{ h.render_datetime(resource.created, date_format='%Y-%m-%dT%H:%M:%S%z') }}"
+    data-module-data-updated-date="{{ h.render_datetime(resource.last_modified, date_format='%Y-%m-%dT%H:%M:%S%z') }}"
+    data-module-metadata-updated-date="{{ h.render_datetime(resource.metadata_modified, date_format='%Y-%m-%dT%H:%M:%S%z') }}"
+    data-module-resource-format="{{ resource.format or resource.mimetype_inner or resource.mimetype or _('unknown') }}"
+    data-module-resource-file-size="{{ resource.size }}"
+    data-module-resource-file-size-humanized='{{ h.localised_filesize(resource.size) or "null" }}'
     data-module-view-id="{{ resource_view.id }}"
     data-module-language-code="{{ h.lang() }}"
     data-module-language-object='{{ language_object or "null" }}'
     data-module-ajax-url="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
     data-module-ckan-filters='{{ request.args.get("filters", "")|e or "null" }}'
-    data-module-responsive-flag="{{ resource_view.get('responsive')|lower }}"
+    data-module-responsive-flag='{{ resource_view.get('responsive')|tojson }}'
     data-module-page-length-choices="{{ page_length_choices }}"
-    data-module-responsive-modal="{{ responsive_modal|lower }}"
+    data-module-responsive-modal='{{ responsive_modal|tojson }}'
     data-module-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id ) }}"
     data-module-data-dictionary='{{- data_dictionary|tojson -}}'
     data-module-editable='{{ can_edit|tojson }}'
@@ -39,9 +50,9 @@
   >
     <thead>
       <tr>
-        <th class="all" data-name="_id">_id</th>
+        <th class="all" data-name="_id" data-ds-type="int">_id</th>
         {% for field in data_dictionary -%}
-          <th scope="col">
+          <th scope="col" data-name="{{- field.id -}}" data-ds-type="{{- field.type -}}">
             {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
               {{ field.info.label|replace(" ", nbspval) }}
             {%- else -%}
@@ -66,20 +77,28 @@
     <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e -}}" />
   </form>
 
-{%- endblock -%}
+  {#- we do this macro instead of the snippet because the snippet pollutes the output with comments/whitespaces which #}
+  {# may be invisible for regular html, but not for tooltips -#}
+  {%- macro local_friendly_datetime(dt_obj) -%}
+    <span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(dt_obj, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
+      {{- h.render_datetime(dt_obj, with_hours=True) -}}
+    </span>
+  {%- endmacro -%}
 
-{%- block styles -%}
-  {{- super() -}}
-
-  {# NOTE: need inline visibility to fully prevent load flashing in datatables #}
-  <style>
-    body .datatables-pre-render-hidden{
-      visibility: hidden;
-    }
-  </style>
-
-  {% asset 'ckanext-datatablesview/main-css' %}
-  {% asset 'ckanext-datatablesview/main-js' %}
-{% endblock %}
-
-{% block custom_styles %}{% endblock %}
+  {#- we create tooltip here instead of javascript so we can leverage the automatic-local-datetime class date conversion CKAN does -#}
+  {%- set res = resource %}
+  <div id="dtv-resource-info">
+    <a href="{{- h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id ) -}}">
+      {{ package.name }} &mdash; {{ h.resource_display_name(resource) }}
+    </a>&nbsp;<i class="fa fa-info-circle"></i>
+    <div class="dtv-resource-info-content">
+      {{- _('Data last updated:') }} {{ local_friendly_datetime(res.last_modified) }}&#10;
+      {{- _('Metadata last updated:') }} {{ local_friendly_datetime(res.metadata_modified) }}&#10;
+      {{- _('Created:') }} {{ local_friendly_datetime(res.created) }}&#10;
+      {{- _('Format:') }} {{ res.format or res.mimetype_inner or res.mimetype or _('unknown') -}}&#10;
+      {%- if res.size and res.size|int != 0 -%}
+        {{- _('File size:') }} {{ h.localised_filesize(res.size)}}
+      {%- endif -%}
+    </div>
+  </div>
+</div>

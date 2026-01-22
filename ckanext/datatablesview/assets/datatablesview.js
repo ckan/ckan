@@ -7,6 +7,12 @@ this.ckan.module('datatables_view', function($){
       dateFormat: 'llll',
       packageName: null,
       resourceName: null,
+      createdDate: null,
+      dataUpdatedDate: null,
+      metadataUpdatedDate: null,
+      resourceFormat: null,
+      resourceFileSize: null,
+      resourceFileSizeHumanized: null,
       viewId: null,
       languageCode: 'en',
       languageObject: null,
@@ -39,6 +45,12 @@ function load_datatable(CKAN_MODULE){
   const dateFormat = CKAN_MODULE.options.dateFormat;
   const packageName = CKAN_MODULE.options.packageName;
   const resourceName = CKAN_MODULE.options.resourceName;
+  const createdDate = CKAN_MODULE.options.createdDate;
+  const dataUpdatedDate = CKAN_MODULE.options.dataUpdatedDate;
+  const metadataUpdatedDate = CKAN_MODULE.options.metadataUpdatedDate;
+  const resourceFormat = CKAN_MODULE.options.resourceFormat;
+  const resourceFileSize = CKAN_MODULE.options.resourceFileSize;
+  const resourceFileSizeHumanized = CKAN_MODULE.options.resourceFileSizeHumanized;
   const viewID = CKAN_MODULE.options.viewId;
   const languageCode = CKAN_MODULE.options.languageCode;
   const tableLanguage = CKAN_MODULE.options.languageObject;
@@ -176,6 +188,20 @@ function load_datatable(CKAN_MODULE){
      *       on ENTER keypress in our custom event handlers.
      */
     return;
+  }
+
+  function clean_for_html_attr(_v){
+    /**
+     * Cleans passed value to be used in HTML attributes.
+     */
+    _v = _v.toLowerCase();
+    // Make alphanumeric (removes all other characters)
+    _v = _v.replace(/[^a-z0-9_\s-]/g, '');
+    // Convert whitespaces and underscore to #
+    _v = _v.replace(/[\s_]/g, '#');
+    // Convert multiple # to hyphen
+    _v = _v.replace(/[#]+/g, '-');
+    return _v
   }
 
   function download_filtered_file(_params, _format) {
@@ -432,6 +458,54 @@ function load_datatable(CKAN_MODULE){
     _render_failure(_message, ajaxErrorMessage, 'warning');
   }
 
+  function render_table_info(){
+    /**
+     * Render table and resource info for the current table state.
+     *
+     * Also save non HTML versions for use throughout functional code.
+     */
+    // TODO: save table info into object...
+
+    let resourceInfo = $('#dtv-resource-info');
+    let content = $(resourceInfo).find('.dtv-resource-info-content');
+    $(resourceInfo).find('i').attr('title', content.text());
+    $(resourceInfo).show();
+
+    let pagingWrapper = $('#dtprv_wrapper').find('.dt-paging');
+    if( pagingWrapper.length > 0 ){
+      $('#dtprv_wrapper').find('.dt-sorting-info').remove();
+      let sortInfo = table.order();
+      let sortingText = '<span class="info-label">' + colSortLabel + '&nbsp;</span>';
+      if( sortInfo.length > 0 ){
+        for( let i = 0; i < sortInfo.length; i++ ){
+          let column = table.column(sortInfo[i][0]);
+          let labelText = $(column.header()).find('.dt-column-title').text().trim();
+          let ds_type = $(column.header()).attr('data-ds-type');
+          sortingText += '<span class="info-value"><em>' + labelText + '&nbsp;';
+          let downIcon = 'fas fa-sort-amount-down';
+          let upIcon = 'fas fa-sort-amount-up';
+          if( numberTypes.includes(ds_type) ){
+            downIcon = 'fas fa-sort-numeric-down-alt';
+            upIcon = 'fas fa-sort-numeric-up-alt';
+          }else if( alphaTypes.includes(ds_type) ){
+            downIcon = 'fas fa-sort-alpha-down-alt';
+            upIcon = 'fas fa-sort-alpha-up-alt';
+          }
+          if( sortInfo[i][1] == 'asc' ){
+            sortingText += '<sup><i title="' + colSortAscLabel + '" aria-label="' + colSortAscLabel + '" class="' + upIcon + '"></i></sup>';
+          }else if( sortInfo[i][1] == 'desc' ){
+            sortingText += '<sup><i title="' + colSortDescLabel + '" aria-label="' + colSortDescLabel + '" class="' + downIcon + '"></i></sup>';
+          }else{
+            sortingText += '<sup><i title="' + colSortAnyLabel + '" aria-label="' + colSortAnyLabel + '" class="fas fa-random"></i></sup>';
+          }
+          sortingText += '</em></span>';
+        }
+      }
+      let sortDisplay = '<div class="dt-sorting-info">' + sortingText + '</div>';
+      $(pagingWrapper).after(sortDisplay);
+    }
+  }
+
   function bind_column_filter(_column, _index){
     /**
      * Bind event handling for the column filters/search inputs.
@@ -533,6 +607,7 @@ function load_datatable(CKAN_MODULE){
      * layout changes when DataTables initializes.
      */
     $('#dtprv').css({'visibility': 'visible'});
+    $('#dtv-resource-info').css({'visibility': 'visible'});
     $('table.dataTable').css({'visibility': 'visible'});
     $('.dt-scroll-head').css({'visibility': 'visible'});
     $('.dt-scroll-head').find('th.expanders').css({'visibility': 'visible'});
@@ -554,6 +629,7 @@ function load_datatable(CKAN_MODULE){
      * layout changes when we switch from Compact view to Table view.
      */
     $('#dtprv').css({'visibility': 'hidden'});
+    $('#dtv-resource-info').css({'visibility': 'hidden'});
     $('.dt-scroll-head').css({'visibility': 'hidden'});
     $('.dt-scroll-head').find('th.expanders').css({'visibility': 'hidden'});
     $('.dt-length').css({'visibility': 'hidden'});
@@ -569,7 +645,7 @@ function load_datatable(CKAN_MODULE){
     $('#dtprv_wrapper').find('#dtprv_failure_message').remove();
     set_table_visibility();
     // render_expand_buttons();
-    // render_human_sorting();
+    render_table_info();
     set_button_states();
   }
 
