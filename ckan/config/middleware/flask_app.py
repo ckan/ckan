@@ -39,7 +39,6 @@ from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (
-    HostHeaderMiddleware,
     RootPathMiddleware,
     CKANSecureCookieSessionInterface,
     CKANRedisSessionInterface,
@@ -317,9 +316,6 @@ def make_flask_stack() -> CKANApp:
     flask_config_keys = set(flask_app.config.keys()) - set(config.keys())
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
-
-    # Prevent the host from request to be added to the new header location.
-    app = HostHeaderMiddleware(app)
 
     app = I18nMiddleware(app)
 

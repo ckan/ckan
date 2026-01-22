@@ -81,19 +81,27 @@ in a terminal::
 
     curl https://demo.ckan.org/api/3/action/group_list
 
+Alternatively, for Python users, we recommend using the `ckanapi <https://github.com/ckan/ckanapi>`_ 
+library which provides a simpler and more robust way to interact with CKAN APIs. 
+To install it, run::
+
+    pip install ckanapi
+
+Then you can make the same API call with just a few lines of Python code::
+
+    from ckanapi import RemoteCKAN
+
+    ckan = RemoteCKAN('https://demo.ckan.org')
+    result = ckan.action.group_list()
+    print(result)
+
+
 The response from CKAN will look like this::
 
     {
-        "help": "...",
-        "result": [
-            "data-explorer",
-            "department-of-ricky",
-            "geo-examples",
-            "geothermal-data",
-            "reykjavik",
-            "skeenawild-conservation-trust"
-        ],
-        "success": true
+        "help": "https://demo.ckan.org/api/3/action/help_show?name=group_list",
+        "success": true,
+        "result": ["david", "roger"]
     }
 
 The response is a JSON dictionary with three keys:
@@ -117,7 +125,7 @@ The response is a JSON dictionary with three keys:
 2. ``"result"``: the returned result from the function you called. The type
    and value of the result depend on which function you called. In the case of
    the ``group_list`` function it's a list of strings, the names of all the
-   datasets that belong to the group.
+   groups on the site.
 
    If there was an error responding to your request, the dictionary will
    contain an ``"error"`` key with details of the error instead of the
@@ -135,27 +143,18 @@ The response is a JSON dictionary with three keys:
 
 3. ``"help"``: the documentation string for the function you called.
 
-The same HTTP request can be made using Python's standard ``urllib2`` module,
-with this Python code::
+The same HTTP request can be made using Python with the ``ckanapi`` package::
 
     #!/usr/bin/env python
-    import urllib2
-    import urllib
-    import json
-    import pprint
+    from ckanapi import RemoteCKAN
 
-    # Make the HTTP request.
-    response = urllib2.urlopen('http://demo.ckan.org/api/3/action/group_list',
-            data_string)
-    assert response.code == 200
+    # Create a connection to the CKAN site
+    ckan = RemoteCKAN('https://demo.ckan.org')
 
-    # Use the json module to load CKAN's response into a dictionary.
-    response_dict = json.loads(response.read())
+    # Make the API request using the action shortcut
+    result = ckan.action.group_list()
 
-    # Check the contents of the response.
-    assert response_dict['success'] is True
-    result = response_dict['result']
-    pprint.pprint(result)
+    print(result)
 
 
 ---------------------------------------------
@@ -163,9 +162,9 @@ Example: Importing datasets with the CKAN API
 ---------------------------------------------
 
 You can add datasets using CKAN's web interface, but when importing many
-datasets it's usually more efficient to automate the process in some way.  In
-this example, we'll show you how to use the CKAN API to write a Python script
-to import datasets into CKAN.
+datasets it's usually more efficient to automate the process in some way.
+Here's an example of a Python script that uses the ``ckanapi`` package to import
+datasets into CKAN.
 
 .. todo::
 
@@ -175,10 +174,12 @@ to import datasets into CKAN.
 ::
 
     #!/usr/bin/env python
-    import urllib2
-    import urllib
-    import json
     import pprint
+    from ckanapi import RemoteCKAN
+
+    # Create a connection to the CKAN site with your API token
+    # Replace 'your-api-token' with your actual API token
+    ckan = RemoteCKAN('http://www.my_ckan_site.com', apikey='your-api-token')
 
     # Put the details of the dataset we're going to create into a dict.
     dataset_dict = {
@@ -187,28 +188,10 @@ to import datasets into CKAN.
         'owner_org': 'org_id_or_name'
     }
 
-    # Use the json module to dump the dictionary to a string for posting.
-    data_string = urllib.quote(json.dumps(dataset_dict))
+    # Use the ckanapi action shortcut to create a new dataset
+    created_package = ckan.action.package_create(**dataset_dict)
 
-    # We'll use the package_create function to create a new dataset.
-    request = urllib2.Request(
-        'http://www.my_ckan_site.com/api/action/package_create')
-
-    # Creating a dataset requires an authorization header.
-    # Replace *** with your API key, from your user account on the CKAN site
-    # that you're creating the dataset on.
-    request.add_header('Authorization', '***')
-
-    # Make the HTTP request.
-    response = urllib2.urlopen(request, data_string)
-    assert response.code == 200
-
-    # Use the json module to load CKAN's response into a dictionary.
-    response_dict = json.loads(response.read())
-    assert response_dict['success'] is True
-
-    # package_create returns the created package as its result.
-    created_package = response_dict['result']
+    # See the result
     pprint.pprint(created_package)
 
 For more examples, see :ref:`api-examples`.
@@ -275,9 +258,12 @@ For example, to ask whether or not you're currently following the user
 Or, to get the list of activities from your user dashboard on demo.ckan.org,
 run this Python code::
 
-    request = urllib2.Request('https://demo.ckan.org/api/3/action/dashboard_activity_list')
-    request.add_header('Authorization', 'XXX')
-    response_dict = json.loads(urllib2.urlopen(request, '{}').read())
+    from ckanapi import RemoteCKAN
+    
+    # Create a connection with your API token
+    # Replace 'XXX' with your actual API token
+    ckan = RemoteCKAN('https://demo.ckan.org', apikey='XXX')
+    result = ckan.action.dashboard_activity_list()
 
 
 ----------------------
@@ -332,6 +318,57 @@ http://demo.ckan.org/api/3/action/package_show?id=adur_district_spending&callbac
 API Examples
 ------------
 
+Python API Examples
+====================
+
+These examples show how to use the `ckanapi Python library <https://github.com/ckan/ckanapi>`_
+to interact with CKAN APIs from Python code.
+
+Basic Usage
+-----------
+
+First, install the ckanapi library::
+
+    pip install ckanapi
+
+Simple data retrieval (no authentication required)::
+
+    from ckanapi import RemoteCKAN
+    
+    # Connect to any CKAN site
+    ckan = RemoteCKAN('https://demo.ckan.org')
+    
+    # Get a list of all datasets
+    datasets = ckan.action.package_list()
+    print(f"Found {len(datasets)} datasets")
+
+Working with authentication::
+
+    from ckanapi import RemoteCKAN
+    
+    # Connect with your API token for authenticated requests
+    ckan = RemoteCKAN('https://your-ckan-site.com', apikey='your-api-token')
+    
+    # Create a new dataset (requires authentication)
+    new_dataset = ckan.action.package_create(
+        name='my-new-dataset',
+        title='My New Dataset',
+        notes='A description of my dataset'
+    )
+
+File uploads using ckanapi::
+
+    from ckanapi import RemoteCKAN
+    
+    ckan = RemoteCKAN('https://your-ckan-site.com', apikey='your-api-token')
+    
+    # Upload a file and attach it to a dataset
+    resource = ckan.action.resource_create(
+        package_id='my-dataset-id',
+        name='My Data File',
+        upload=open('/path/to/my/file.csv', 'rb')
+    )
+
 
 Tags (not in a vocabulary)
 ==========================
@@ -381,6 +418,18 @@ new version of a resource file. This requires a ``multipart/form-data``
 request, with curl you can do this using the ``@file.csv``::
 
     curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_patch
+
+The same operation can be done with ``ckanapi``::
+
+    from ckanapi import RemoteCKAN
+    
+    ckan = RemoteCKAN('https://demo.ckan.org', apikey='XXXX')
+    
+    with open('updated_file.csv', 'rb') as f:
+        result = ckan.action.resource_patch(
+            id='<resource_id>',
+            upload=('updated_file.csv', f)
+        )
 
 
 .. _api-reference:

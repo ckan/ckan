@@ -1669,6 +1669,27 @@ class TestUserCreateDb():
         user = helpers.call_action("user_create", context=context, **user_dict)
         assert user["id"] == _id
 
+    def test_unique_emails(self):
+        """
+        Active users can only have one unique associated email address.
+        This should be case insensitive.
+        """
+        factories.User(email="example_email@example.com")
+
+        bad_emails = [
+            'example_email@example.com',
+            'ExAmPlE_eMaIl@example.com',
+            'EXAMPLE_EMAIL@EXAMPLE.COM'
+        ]
+
+        for bad_email in bad_emails:
+            with pytest.raises(logic.ValidationError) as err:
+                factories.User(email=bad_email)
+            assert err.value.error_dict == {
+                "email": ["The email address 'example_email@example.com' belongs to a registered user."]
+            }
+
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFollowCommon(object):

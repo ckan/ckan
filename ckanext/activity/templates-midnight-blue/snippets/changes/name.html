@@ -1,23 +1,16 @@
 <li>
   <p>
+    {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id)) %}
     {% set old_url = h.url_for('dataset.read', qualified=True, id=change.old_name) %}
     {% set new_url = h.url_for('dataset.read', qualified=True, id=change.new_name) %}
 
-    {{ _('Moved')}}
-    <a href="{{ h.url_for('dataset.read', id=change.pkg_id) }}">
-      {{change.title}}
-    </a>
+    {% trans
+      title=change.title
+    %}
+    Moved <a href="{{ pkg_link }}">{{ title }}</a>
+    from <a href="{{ old_url }}">{{ old_url }}</a>
+    to <a href="{{ new_url }}">{{ new_url }}</a>.
+    {% endtrans %}
 
-    {{ _('from') }}
-    <a href="{{old_url}}">
-      {{old_url}}
-    </a>
-
-    {{ _('to') }}
-    <a href="{{new_url}}">
-      {{new_url}}
-    </a>
-    
-    
   </p>
 </li>
