@@ -1405,11 +1405,18 @@ groups:
 
       - key: ckan.use_classic_uploader
         type: bool
+        default: true
         description: |
             Do not use configurable storages for Uploader and ResourceUploader,
             keeping previous implementation of these classes. Enable this
             option to keep backward compatibility with extensions that extend
             storage logic.
+
+          .. warning:: This option must be enabled if portal uses extensions
+            that implement IUploader interface. Otherwise, depending on the
+            implementation details, uploads may fail or be stored in wrong
+            location.
+
 
       - key: ckan.files.inline_content_types
         example: application/pdf image video
