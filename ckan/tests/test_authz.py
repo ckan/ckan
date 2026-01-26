@@ -68,7 +68,7 @@ def test_no_attributes_set_on_imported_auth_members():
 
 
 @pytest.mark.ckan_config("ckan.site_lockdown", True)
-def test_site_lockdown():
+def test_site_lockdown():  # noqa: C901
     """
     When the site is in lockdown mode, only sysadmins should be able to:
         - *_create actions
