@@ -526,7 +526,22 @@ def maintain():
 @storage_option
 @click.option("--remove", is_flag=True, help="Remove files")
 def empty_owner(storage_name: str | None, remove: bool):
-    """Manage files that have no owner."""
+    """Manage files that have no owner.
+
+    There are three main cases when a file may have no owner:
+    1. The file was uploaded, but never attached to any entity (dataset,
+       resource, etc). This may happen when upload was performed via API, but
+       the subsequent action attaching the file failed. You may want to attach
+       the file to an entity instead of removing it.
+    2. The file was attached to an entity, but later the entity or the
+       attachment was deleted, and the file record was not cleaned up. Such
+       files just occupy storage space without any benefit, so it's usually
+       safe to remove them.
+    3. File was intentionally uploaded for temporary use, e.g. for processing
+       and later removal. Such files are usually managed by one of CKAN
+       extensions and it's better to check the extension's documentation on how
+       to handle them.
+    """
     storage_name = storage_name or config["ckan.files.default_storages.default"]
     try:
         storage = files.get_storage(storage_name)
