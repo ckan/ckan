@@ -58,7 +58,9 @@ def resource_dict_save(
         obj.url_changed = True
 
     any_change = changed or obj.extras != skipped
-    if any_change:
+    if res_dict.get('metadata_modified'):
+        obj.metadata_modified = res_dict['metadata_modified']
+    elif any_change:
         obj.metadata_modified = datetime.datetime.utcnow()
         session.add(obj)
     obj.state = u'active'
@@ -307,9 +309,6 @@ def package_dict_save(
     '''
 
     Package = model.Package
-
-    if 'metadata_created' in pkg_dict:
-        del pkg_dict['metadata_created']
 
     plugin_data = pkg_dict.pop('plugin_data', None)
     if include_plugin_data:

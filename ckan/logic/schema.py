@@ -47,7 +47,8 @@ def default_resource_schema(
         isodate: Validator, int_validator: Validator,
         extras_valid_json: Validator, keep_extras: Validator,
         uuid_validator: Validator,
-        resource_id_does_not_exist: Validator) -> Schema:
+        resource_id_does_not_exist: Validator,
+        ignore_not_sysadmin: Validator) -> Schema:
     return {
         'id': [ignore_empty, uuid_validator,
                resource_id_does_not_exist, unicode_safe],
@@ -68,6 +69,7 @@ def default_resource_schema(
         'size': [ignore_missing, int_validator],
         'created': [ignore_missing, isodate],
         'last_modified': [ignore_missing, isodate],
+        'metadata_modified': [ignore_not_sysadmin, ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
         'datastore_active': [ignore_missing],
         '__extras': [ignore_missing, extras_valid_json, keep_extras],
@@ -177,6 +179,7 @@ def default_create_package_schema(
             '__extras': [ignore],
         },
         'metadata_modified': [ignore_not_sysadmin, ignore_missing, isodate],
+        'metadata_created': [ignore_not_sysadmin, ignore_missing, isodate],
     }
 
 
@@ -230,6 +233,7 @@ def default_show_package_schema(keep_extras: Validator,
         'created': [ignore_missing],
         'position': [not_empty],
         'last_modified': [],
+        'metadata_modified': [],
         'cache_last_updated': [],
         'package_id': [],
         'size': [],
