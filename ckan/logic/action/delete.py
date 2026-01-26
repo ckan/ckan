@@ -644,13 +644,8 @@ def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
 
-    if not context.get('user'):
-        raise ckan.logic.NotAuthorized(
-                _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])
-    if not userobj:
-        raise ckan.logic.NotAuthorized(
-                _("You must be logged in to unfollow something."))
+
     follower_id = userobj.id
 
     validated_data_dict, errors = validate(data_dict, schema, context)
@@ -677,6 +672,7 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
+    _check_access('unfollow_user', context, data_dict)
     _unfollow(context, data_dict, schema, model.UserFollowingUser)
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
@@ -688,6 +684,7 @@ def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
+    _check_access('unfollow_dataset', context, data_dict)
     _unfollow(context, data_dict, schema,
             model.UserFollowingDataset)
 
@@ -750,6 +747,7 @@ def unfollow_group(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema',
             ckan.logic.schema.default_follow_group_schema())
+    _check_access('unfollow_group', context, data_dict)
     _unfollow(context, data_dict, schema,
             model.UserFollowingGroup)
 
