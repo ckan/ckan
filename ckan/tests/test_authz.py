@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import pytest
+import re
 
 from ckan import authz as auth, model, logic
 
@@ -64,6 +65,107 @@ def test_no_attributes_set_on_imported_auth_members():
     logic.check_access("package_search", {})
     assert hasattr(auth_get.package_search, "auth_allow_anonymous_access")
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
+
+
+@pytest.mark.ckan_config("ckan.site_lockdown", True)
+def test_site_lockdown():
+    """
+    When the site is in lockdown mode, only sysadmins should be able to:
+        - *_create actions
+        - *_updated actions
+        - *_patch actions
+        - *_delete actions
+
+    NOTE: we except ValueError due to missing auth functions from
+          the followee type actions.
+    TODO: remove exceptions after merging followee authz
+          (https://github.com/ckan/ckan/pull/9229)
+    """
+    sysadmin = factories.Sysadmin()
+    org_admin = factories.User()
+    editor = factories.User()
+    member = factories.User()
+    factories.Organization(users=[{
+        'name': sysadmin['name'],
+        'capacity': 'admin'},
+        {'name': org_admin['name'],
+        'capacity': 'admin'},
+        {'name': editor['name'],
+        'capacity': 'editor'},
+        {'name': member['name'],
+        'capacity': 'member'}])
+
+    name_patterns = [
+        '_create',
+        '_patch',
+        '_update',
+        '_delete',
+        '_purge',
+        '_revise',
+        '_clear',
+        '_cancel',
+        '_revoke',
+        '_reorder',
+        '_invite',
+        '_upsert',
+        '_insert',
+    ]
+    name_match = '.*(%s).*' % '|'.join(name_patterns)
+
+    # org admins cannot do things
+    for action_func_name, action_func in logic._actions.items():
+        if getattr(action_func, 'side_effect_free', False):
+            continue
+        try:
+            logic.check_access(action_func_name, {'user': org_admin['name']}, {})
+        except ValueError:  # TODO: remove after followee auth PR merge
+            continue
+        except logic.NotAuthorized as e:
+            assert re.match(name_match, action_func_name) is not None
+            assert e.message == 'Site is in read only mode'
+
+    # editors cannot do things
+    for action_func_name, action_func in logic._actions.items():
+        if getattr(action_func, 'side_effect_free', False):
+            continue
+        try:
+            logic.check_access(action_func_name, {'user': editor['name']}, {})
+        except ValueError:  # TODO: remove after followee auth PR merge
+            continue
+        except logic.NotAuthorized as e:
+            assert re.match(name_match, action_func_name) is not None
+            assert e.message == 'Site is in read only mode'
+
+    # members cannot do things
+    for action_func_name, action_func in logic._actions.items():
+        if getattr(action_func, 'side_effect_free', False):
+            continue
+        try:
+            logic.check_access(action_func_name, {'user': member['name']}, {})
+        except ValueError:  # TODO: remove after followee auth PR merge
+            continue
+        except logic.NotAuthorized as e:
+            assert re.match(name_match, action_func_name) is not None
+            assert e.message == 'Site is in read only mode'
+
+    # sysadmins can do anything still
+    for action_func_name, action_func in logic._actions.items():
+        if getattr(action_func, 'side_effect_free', False):
+            continue
+        try:
+            logic.check_access(action_func_name, {'user': sysadmin['name']}, {})
+        except ValueError:  # TODO: remove after followee auth PR merge
+            continue
+
+    # using ignore_auth can do anything still
+    for action_func_name, action_func in logic._actions.items():
+        if getattr(action_func, 'side_effect_free', False):
+            continue
+        try:
+            logic.check_access(action_func_name, {'user': member['name'],
+                                                  'ignore_auth': True}, {})
+        except ValueError:  # TODO: remove after followee auth PR merge
+            continue
 
 
 @pytest.mark.usefixtures("non_clean_db")
