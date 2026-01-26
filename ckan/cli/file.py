@@ -173,12 +173,12 @@ def storage_list(verbose: bool):
 @storage.command("scan")
 @storage_option
 @click.option(
-    "--unknown-mark",
+    "--not-registered-in-db-mark",
     help="Mark unknown files with specified symbol",
     default="❓",
 )
 @click.option(
-    "--known-mark",
+    "--present-in-db-mark",
     help="Mark known files with specified symbol",
     default="✅",
 )
@@ -196,8 +196,8 @@ def storage_list(verbose: bool):
 )
 def storage_scan(
     storage_name: str | None,
-    known_mark: str,
-    unknown_mark: str,
+    present_in_db_mark: str,
+    not_registered_in_db_mark: str,
     verbose: int,
     unknown_only: bool,
 ):
@@ -223,7 +223,7 @@ def storage_scan(
         if unknown_only and file:
             continue
 
-        mark = known_mark if file else unknown_mark
+        mark = present_in_db_mark if file else not_registered_in_db_mark
         click.echo(f"{mark} {name}")
         if verbose:
             if file:
