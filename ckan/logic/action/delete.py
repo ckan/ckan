@@ -654,6 +654,8 @@ def _unfollow(
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
 
     userobj = model.User.get(context['user'])
+    if not userobj:
+        raise NotFound(_("User not found"))
 
     follower_id = userobj.id
 
