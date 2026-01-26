@@ -174,32 +174,31 @@ def storage_list(verbose: bool):
 @storage_option
 @click.option(
     "--not-registered-in-db-mark",
-    help="Mark unknown files with specified symbol",
+    help="Mark files not registered in DB with specified symbol",
     default="❓",
 )
 @click.option(
     "--present-in-db-mark",
-    help="Mark known files with specified symbol",
+    help="Mark files registered in DB with specified symbol",
     default="✅",
 )
 @click.option(
     "-v",
     "--verbose",
     count=True,
-    help="Show file details. Repeat to include details of unknown files",
+    help="Show file details. Repeat to include details of files not registered in DB",
 )
 @click.option(
-    "-u",
-    "--unknown-only",
+    "--not-registered-only",
     is_flag=True,
-    help="Show only unknown files, that are not registered in DB",
+    help="Show only files, that are not registered in DB",
 )
 def storage_scan(
     storage_name: str | None,
     present_in_db_mark: str,
     not_registered_in_db_mark: str,
     verbose: int,
-    unknown_only: bool,
+    not_registered_only: bool,
 ):
     """Iterate over all files available in storage."""
     storage_name = cast(
@@ -220,7 +219,7 @@ def storage_scan(
 
     for name in names:
         file = model.Session.scalar(model.File.by_location(name, storage_name))
-        if unknown_only and file:
+        if not_registered_only and file:
             continue
 
         mark = present_in_db_mark if file else not_registered_in_db_mark
@@ -341,12 +340,12 @@ def storage_transfer(  # noqa: C901
                     model.Session.commit()
 
 
-@storage.command("clean")
+@storage.command("remove-files")
 @storage_option
 @click.option("--remove-registered", help="", is_flag=True)
-@click.option("--remove-unknown", help="", is_flag=True)
-def storage_clean(
-    storage_name: str | None, remove_registered: bool, remove_unknown: bool
+@click.option("--remove-not-registered", help="", is_flag=True)
+def storage_remove_files(
+    storage_name: str | None, remove_registered: bool, remove_not_registered: bool
 ):
     """Remove all files from the storage."""
     user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
@@ -378,9 +377,11 @@ def storage_clean(
             )
 
     if storage.supports(files.Capability.SCAN) and (names := list(storage.scan())):
-        click.echo(f"Storage {storage_name} contains {len(names)} unknown files.")
+        click.echo(
+            f"Storage {storage_name} contains {len(names)} files not registered in DB."
+        )
 
-        if remove_unknown:
+        if remove_not_registered:
             bar = click.progressbar(names)
             with bar:
                 for name in bar:
@@ -389,8 +390,8 @@ def storage_clean(
 
         else:
             click.echo(
-                "Skipping unknown files removal."
-                + " Enable with `--remove-unknown` flag"
+                "Skipping removal of files not registered in DB."
+                + " Enable with `--remove-not-registered` flag"
             )
 
 
