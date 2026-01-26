@@ -95,8 +95,8 @@ class TestStorageScan:
                 "scan",
                 "-s",
                 "resources",
-                "--known-mark=+",
-                "--unknown-mark=-",
+                "--present-in-db-mark=+",
+                "--not-registered-in-db-mark=-",
             ],
         )
         assert f"+ {known}" in result.output
@@ -236,7 +236,7 @@ class TestStorageTransfer:
 
 
 @pytest.mark.usefixtures("with_temporal_storage")
-class TestStorageClean:
+class TestStorageRemoveFiles:
     @pytest.mark.usefixtures("non_clean_db")
     def test_clean_registered(
         self,
@@ -249,7 +249,17 @@ class TestStorageClean:
         storage = files.get_storage("resources")
         assert list(storage.scan())
 
-        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--remove-registered"])
+        cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "remove-files",
+                "-s",
+                "resources",
+                "--remove-registered",
+            ],
+        )
         assert not list(storage.scan())
 
         with pytest.raises(logic.NotFound):
@@ -263,5 +273,15 @@ class TestStorageClean:
             files.make_upload(faker.binary(100)),
         )
 
-        cli.invoke(ckan, ["file", "storage", "clean", "-s", "resources", "--remove-unknown"])
+        cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "remove-files",
+                "-s",
+                "resources",
+                "--remove-not-registered",
+            ],
+        )
         assert not list(storage.scan())

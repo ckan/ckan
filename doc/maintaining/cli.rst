@@ -768,7 +768,7 @@ Usage
  ckan file storage list [-v]                                     - show all configured storages
  ckan file storage scan                                          - iterate over all files available in storage
  ckan file storage transfer SRC DEST [--location ...] [--remove] - move files between storages
- ckan file storage clean                                         - remove all files from the storage
+ ckan file storage remove-files                                  - remove all files from the storage
  ckan file stats overview                                        - general information about storage usage
  ckan file stats types                                           - files distribution by MIME type
  ckan file stats owner                                           - files distribution by owner
