@@ -1209,6 +1209,8 @@ def follow_user(context: Context,
     _check_access('follow_user', context, data_dict)
 
     userobj = model.User.get(context['user'])
+    if not userobj:
+        raise NotFound(_("User not found"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_user_schema())
@@ -1260,6 +1262,8 @@ def follow_dataset(context: Context,
     _check_access('follow_dataset', context, data_dict)
 
     userobj = model.User.get(context['user'])
+    if not userobj:
+        raise NotFound(_("User not found"))
 
     schema = (context.get('schema') or
               ckan.logic.schema.default_follow_dataset_schema())
@@ -1391,6 +1395,8 @@ def follow_group(context: Context,
     _check_access('follow_group', context, data_dict)
 
     userobj = model.User.get(context['user'])
+    if not userobj:
+        raise NotFound(_("User not found"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_group_schema())
