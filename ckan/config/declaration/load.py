@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List
 from typing_extensions import TypedDict
 import msgspec
 
+from ckan import types
 from .key import Key
 from .option import Flag, Option
 from .utils import FormatHandler
@@ -172,11 +173,7 @@ def load_files(declaration: "Declaration", /, config: Any = None):
     if config is None:
         config = default_config
 
-    storages = files.collect_storage_configuration(
-        config,
-        files.STORAGE_PREFIX,
-        flat=True,
-    )
+    storages = config_tree(config, files.STORAGE_PREFIX, depth=1)
 
     # add config declarations for configured storages. In this way user can
     # print all available options for every storage via `ckan config
@@ -210,3 +207,63 @@ def load_files(declaration: "Declaration", /, config: Any = None):
             continue
 
         adapter.declare_config_options(declaration, storage_key)
+
+
+def config_tree(
+    config: types.CKANConfig,
+    prefix: str = "",
+    depth: int = 0,
+    keep_prefix: bool = False,
+) -> dict[str, Any]:
+    """Extract subtree from configuration.
+
+    Select config options that match the prefix and split options by ``.``
+    character, transform result into nested dictionary. The maximum depth
+    of the result is controlled by ``depth`` argument. Option `a.b.c = 1`
+    transforms into ``{"a.b.c": 1}`` with depth 0, ``{"a": {"b.c": 1}}``
+    with depth 1, ``{"a": {"b": {"c": 1}}}`` with depth 2, etc.
+
+    Examples::
+
+        >>> cfg = CKANConfig({
+        >>>     "a.b.c": 1,
+        >>>     "a.b.d": 2,
+        >>>     "x.y.z": 3,
+        >>>     "x.x.x": 4,
+        >>> })
+        >>>
+        >>> assert config_tree(cfg, "a.b.") == {"c": 1, "d": 2}
+        >>> assert config_tree(cfg, "x.", depth=1) == {"x": {"y.z": 3, "x.x": 4}}
+        >>> assert config_tree(cfg, "x.x", keep_prefix=True) == {"x.x.x": 4}
+
+    :param prefix: common prefix for selected options
+    :param depth: branch depth for extracted configuration
+
+    :returns: extracted configuration
+
+    """
+    result = {}
+    strip_len = 0 if keep_prefix else len(prefix)
+
+    for k, v in config.items():
+        if not k.startswith(prefix):
+            continue
+
+        path = k[strip_len:].split(".", depth)
+        if not path:
+            continue
+
+        here = result
+        for segment in path[:-1]:
+            here = here.setdefault(segment, {})
+            if not isinstance(here, dict):
+                log.warning(
+                    "Cannot build tree for %s at branch %s",
+                    path,
+                    segment,
+                )
+                break
+        else:
+            here[path[-1]] = v
+
+    return result

@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import logging
 import os
-from collections.abc import Mapping
-from typing import Any, cast
+from typing import cast
 
 import file_keeper as fk
 from file_keeper import Registry, Upload, adapters, exc, ext, make_storage, make_upload
 from file_keeper.core.utils import ensure_setup
 
-from ckan import types
 from ckan.common import config
 from ckan.exceptions import CkanConfigurationException
 
@@ -90,29 +88,16 @@ def get_storage(name: str | None = None) -> fk.Storage:
     return storage
 
 
-def collect_storage_configuration(
-    config: types.CKANConfig, prefix: str = STORAGE_PREFIX, /, flat: bool = False
-) -> Mapping[str, Any]:
-    """Return settings of every storage located in the config.
-
-    :param config: mapping with configuration
-    :param prefix: common prefix for storage options
-    :param flat: do not transform nested keys into dictionaries
-
-    :returns: dictionary with configuration of all storages
-
-    """
-    return config.subtree(prefix, depth=1 if flat else -1)
-
-
 def collect_storages() -> dict[str, fk.Storage]:
     """Initialize configured storages.
 
     :returns: mapping with storages
     """
+    from ckan.config.declaration.load import config_tree
+
     result = {}
 
-    mapping = collect_storage_configuration(config)
+    mapping = config_tree(config, prefix=STORAGE_PREFIX, depth=-1)
 
     for name, settings in mapping.items():
         try:

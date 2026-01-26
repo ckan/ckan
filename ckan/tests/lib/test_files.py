@@ -7,7 +7,6 @@ import pytest
 from faker import Faker
 
 import ckan.plugins as p
-from ckan.common import CKANConfig
 from ckan.lib import files
 
 
@@ -50,7 +49,9 @@ class TestGetStorage:
         tmp_path: Path,
     ):
         """Default storage can be configured and initialized."""
-        prefix = "ckan.files.storage." + ckan_config["ckan.files.default_storages.default"]
+        prefix = (
+            "ckan.files.storage." + ckan_config["ckan.files.default_storages.default"]
+        )
         monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
         monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path)
 
@@ -76,56 +77,6 @@ class TestGetStorage:
         reset_storages()
         assert files.get_storage("test")
         assert files.get_storage("another")
-
-
-class TestCollectStorageConfiguration:
-    def test_empty(self):
-        """Application does not break without storage configuration."""
-        result = files.collect_storage_configuration(CKANConfig())
-        assert result == {}
-
-    def test_mixed(self, faker: Faker):
-        """Storage configuration is filtered using prefix."""
-        prefix = faker.domain_name() + "."
-        name = faker.word()
-
-        config = CKANConfig(
-            **{
-                f"{prefix}{name}.a": 42,
-                f"{prefix}{name}.b": None,
-                f"{faker.domain_name()}.{name}.other": True,
-            }
-        )
-        assert files.collect_storage_configuration(config) == {}
-
-        result = files.collect_storage_configuration(config, prefix)
-        assert result == {name: {"a": 42, "b": None}}
-
-    def test_nested(self, faker: Faker):
-        """Storage configuration can be parsed as flat dictionary."""
-        name = faker.word()
-
-        config = CKANConfig(
-            **{
-                f"{name}.nested.a": 1,
-                f"{name}.nested.b": 2,
-                f"{name}.c": 3,
-                f"{name}.other.d": 4,
-            }
-        )
-
-        nested = files.collect_storage_configuration(config, "")
-        assert nested == {name: {"nested": {"a": 1, "b": 2}, "c": 3, "other": {"d": 4}}}
-
-        flat = files.collect_storage_configuration(config, "", flat=True)
-        assert flat == {
-            name: {
-                "nested.a": 1,
-                "nested.b": 2,
-                "c": 3,
-                "other.d": 4,
-            }
-        }
 
 
 class CustomAdapterPlugin(p.IFiles, p.SingletonPlugin):

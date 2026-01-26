@@ -16,6 +16,7 @@ from werkzeug.utils import secure_filename
 from ckan import logic, model
 from ckan.common import config
 from ckan.config.declaration import Declaration, Key
+from ckan.config.declaration.load import config_tree
 from ckan.lib import files
 
 from . import error_shout
@@ -158,7 +159,9 @@ def storage():
 @click.option("-v", "--verbose", is_flag=True, help="Show storage's details")
 def storage_list(verbose: bool):
     """Show all configured storages."""
-    for name, settings in files.collect_storage_configuration(config).items():
+    for name, settings in config_tree(
+        config, prefix=files.STORAGE_PREFIX, depth=-1
+    ).items():
         click.secho("{}: {}".format(click.style(name, bold=True), settings["type"]))
         if verbose:
             storage_obj = files.get_storage(name)

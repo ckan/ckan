@@ -2,7 +2,53 @@ from __future__ import annotations
 
 from ckan.common import CKANConfig
 from ckan.config.declaration import Key, Declaration
-from ckan.config.declaration.load import loader
+from ckan.config.declaration.load import loader, config_tree
+
+
+class TestConfigTree:
+    def test_empty(self):
+        result = config_tree(CKANConfig())
+        assert result == {}
+
+    def test_noop(self):
+        data = {"a.b.c": 1}
+        config = CKANConfig(data)
+        assert config_tree(config) == data
+
+    def test_prefix_filter(self):
+        data = {"a.b.c": 1, "x.y.z": 2, "aaa": 3}
+        config = CKANConfig(data)
+
+        assert config_tree(config, prefix="a") == {".b.c": 1, "aa": 3}
+        assert config_tree(config, prefix="a.") == {"b.c": 1}
+        assert config_tree(config, prefix="x.y.z") == {"": 2}
+
+    def test_depth(self):
+        data = {"a.b.c": 1, "x.y.z": 2, "aaa": 3}
+        config = CKANConfig(data)
+
+        assert config_tree(config, depth=1) == {
+            "a": {"b.c": 1},
+            "x": {"y.z": 2},
+            "aaa": 3,
+        }
+
+        assert config_tree(config, depth=2) == {
+            "a": {"b": {"c": 1}},
+            "x": {"y": {"z": 2}},
+            "aaa": 3,
+        }
+
+    def test_keep_prefix(self):
+        data = {"a.b.c": 1, "x.y.z": 2, "aaa": 3}
+        config = CKANConfig(data)
+
+        assert config_tree(config, prefix="a.", keep_prefix=True) == {"a.b.c": 1}
+
+        assert config_tree(config, prefix="a.", depth=-1) == {"b": {"c": 1}}
+        assert config_tree(config, prefix="a.", depth=-1, keep_prefix=True) == {
+            "a": {"b": {"c": 1}}
+        }
 
 
 class TestFilesLoader:
