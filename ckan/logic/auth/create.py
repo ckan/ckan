@@ -279,7 +279,6 @@ def api_token_create(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': user.name == context['user']}
 
 
-
 def package_collaborator_create(context: Context,
                                 data_dict: DataDict) -> AuthResult:
     '''Checks if a user is allowed to add collaborators to a dataset
@@ -299,3 +298,47 @@ def package_collaborator_create(context: Context,
                      ' collaborators to this dataset') % user}
 
     return {'success': True}
+
+
+def _check_follow_auth(context: Context) -> bool:
+    if not context.get('user'):
+        return False
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        return False
+
+    return True
+
+
+def follow_group(context: Context,
+                 data_dict: DataDict) -> AuthResult:
+    """
+    Only logged in users can follow a group.
+    """
+    if _check_follow_auth(context):
+        return {'success': True}
+    return {'success': False,
+            'msg': _("You must be logged in to follow groups")}
+
+
+def follow_dataset(context: Context,
+                   data_dict: DataDict) -> AuthResult:
+    """
+    Only logged in users can follow a dataset.
+    """
+    if _check_follow_auth(context):
+        return {'success': True}
+    return {'success': False,
+            'msg': _("You must be logged in to follow datasets")}
+
+
+def follow_user(context: Context,
+                data_dict: DataDict) -> AuthResult:
+    """
+    Only logged in users can follow a dataset.
+    """
+    if _check_follow_auth(context):
+        return {'success': True}
+    return {'success': False,
+            'msg': _("You must be logged in to follow users")}

@@ -1237,14 +1237,11 @@ def follow_user(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_user', context, data_dict)
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
-    if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_user_schema())
@@ -1293,14 +1290,11 @@ def follow_dataset(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_dataset', context, data_dict)
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
-    if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = (context.get('schema') or
               ckan.logic.schema.default_follow_dataset_schema())
@@ -1430,14 +1424,11 @@ def follow_group(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_group', context, data_dict)
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
-    if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_group_schema())
