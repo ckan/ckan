@@ -126,6 +126,19 @@ c. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
+   If you're planning to use cloud storage, add ``azure-storage``,
+   ``gcs-storage``, ``s3-storage``, or ``libcloud-storage`` according to the
+   target storage provider. :ref:`using-configured-storages` contains more
+   details:
+
+   .. parsed-literal::
+
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,azure-storage]'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,gcs-storage]'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,libcloud-storage]'
+       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,s3-storage]'
+
+
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``ckan`` rather than any system-wide
    installed copies:

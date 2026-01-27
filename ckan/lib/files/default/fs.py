@@ -101,7 +101,7 @@ class PublicFsStorage(FsStorage):
     def declare_config_options(cls, declaration: Declaration, key: Key):
         super().declare_config_options(declaration, key)
 
-        declaration.declare(key.public_prefix).set_description(
+        declaration.declare(key.public_prefix, "").set_description(
             "URL prefix to use when builing public file's URL.\nFor example,"
             " if storage has path `/var/data/storage/location`,\nand the directory"
             " `/var/data` is registered as Flask static directory,\nthe correct"

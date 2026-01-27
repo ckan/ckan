@@ -181,6 +181,17 @@ custom types get registered on startup::
 Using configured storages
 -------------------------
 
+.. note:: Filesystem storage works out of the box, but certain cloud storages
+   require CKAN installed with extra dependencies::
+
+          pip install ckan[libcloud-storage]
+          pip install ckan[azure-storage]
+          pip install ckan[gcs-storage]
+          pip install ckan[s3-storage]
+
+   Refere documentation of specific storage adapters below to find the name of
+   required dependency.
+
 In CKAN, a "storage" represents a logical container for specific set of
 files. Each storage is configured separately and serves a distinct purpose:
 
@@ -243,9 +254,10 @@ function::
 
   storage = get_storage("my_storage")
 
-To create a new file in the storage use its ``upload`` method and
-the ``ckan.lib.files.make_upload`` function, which can transform a variety of objects into an
-uploadable structure::
+To create a new file in the storage use its
+:py:meth:`~ckan.lib.files.Storage.upload` method and the
+:py:func:`~ckan.lib.files.make_upload` function, which can transform a variety
+of objects into an uploadable structure::
 
   upload = make_upload(b"hello world")
   info = storage.upload("file.txt", upload)
@@ -256,8 +268,9 @@ to read the file back from the storage::
 
   content = storage.content(info)
 
-When the object with the file details is not available, it can usually be created
-manually using the location of the file and the ``ckan.lib.files.FileData`` class::
+When the object with the file details is not available, it can usually be
+created manually using the location of the file and the
+:py:class:`~ckan.lib.files.FileData` class::
 
   path = "path/to/file/inside/the/storage.txt"
   info = FileData(path)
@@ -289,6 +302,12 @@ built-in storage types:
 ckan:fs
 ^^^^^^^
 
+Example::
+
+  ckan.files.storage.my_storage.type = ckan:fs
+  ckan.files.storage.my_storage.initialize = true
+  ckan.files.storage.my_storage.path = /var/lib/storage/my_storage
+
 Keeps files inside the local filesystem. Files are uploaded into a directory
 specified by the required ``path`` option. The directory must exist and be
 writable by the CKAN process. If directory does not exist, it's created when
@@ -297,6 +316,15 @@ is raised during initialization of the storage.
 
 ckan:fs:public
 ^^^^^^^^^^^^^^
+Example::
+
+  ckan.files.storage.my_public_storage.type = ckan:fs:public
+  ckan.files.storage.my_public_storage.initialize = true
+  ckan.files.storage.my_public_storage.path = /var/lib/storage/my_public_storage
+
+  # make storage folder available at application root
+  extra_public_paths = /var/lib/storage/my_public_storage
+
 
 Extended version of ``ckan:fs`` type. It assumes that ``path`` is registered as
 CKAN public folder and all files from it are accessible directly from the
@@ -308,8 +336,111 @@ specify static segment that must be added to file's location in order to build
 valid public URL. In the given example, ``public_prefix`` must be set to
 ``nested/path/inside``.
 
+ckan:s3
+^^^^^^^
+
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:s3
+  ckan.files.storage.my_cloud.bucket = my_bucket
+  ckan.files.storage.my_cloud.key = ABC123
+  ckan.files.storage.my_cloud.secret = 321CBA
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``s3-storage`` extra to use it::
+
+     pip install 'ckan[s3-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[s3-storage]'
+
+Keeps files inside AWS S3 bucket.
+
+Only ``bucket`` option is required as all other parameters can be read from
+environment variables:
+
+* ``bucket``: name of the storage bucket
+* ``key``: the AWS Access Key
+* ``secret``: the AWS Secret Key
+* ``region``:  the AWS Region of the bucket
+
+
+ckan:azure_blob
+^^^^^^^^^^^^^^^
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:azure_blob
+  ckan.files.storage.my_cloud.container_name = my_container
+  ckan.files.storage.my_cloud.account_name = ABC123
+  ckan.files.storage.my_cloud.account_key = 321CBA
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``azure-storage`` extra to use it::
+
+     pip install 'ckan[azure-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[azure-storage]'
+
+Keeps files inside Microsoft Azure Blob Storage.
+
+Recommended options:
+
+* ``container_name``: name of the storage container
+* ``account_name``: name of the Azure account
+* ``account_key``: key for the Azure account
+
+
+ckan:gcs
+^^^^^^^^
+
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:gcs
+  ckan.files.storage.my_cloud.bucket_name = my_bucket
+  ckan.files.storage.my_cloud.project_id = my-project
+  ckan.files.storage.my_cloud.credentials_file = /etc/ckan/default/google-cloud-credentials.json
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``gcs-storage`` extra to use it::
+
+     pip install 'ckan[gcs-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[gcs-storage]'
+
+Keeps files inside Google Cloud Storage.
+
+Recommended options:
+
+* ``bucket_name``: name of the storage bucket
+* ``credentials_files``: path to the JSON with cloud credentials
+* ``project_id``: the project which the client acts on behalf of
+
+
+.. _mimetypes: https://docs.python.org/3/library/mimetypes.html
+.. _file-keeper: https://pypi.org/project/file-keeper/
+.. _Apache Libcloud: https://libcloud.apache.org/
+.. _Apache Libcloud providers: https://libcloud.readthedocs.io/en/stable/storage/supported_providers.html#provider-matrix
+
 ckan:libcloud
 ^^^^^^^^^^^^^
+
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:libcloud
+  ckan.files.storage.my_cloud.provider = S3
+  ckan.files.storage.my_cloud.container_name = my_bucket
+  ckan.files.storage.my_cloud.key = ABC123
+  ckan.files.storage.my_cloud.secret = 321CBA
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``libcloud-storage`` extra to use it::
+
+     pip install 'ckan[libcloud-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[libcloud-storage]'
 
 Keeps files inside the cloud using `Apache Libcloud`_. Requires
 `apache-libcloud <https://pypi.org/project/apache-libcloud/>`_ library and is
@@ -333,50 +464,6 @@ uploads, use ``path`` option.
 
 Any other provider specific option can be added inside ``params`` option which
 expects a valid JSON object
-
-ckan:s3
-^^^^^^^
-
-Keeps files inside AWS S3 bucket.
-
-Only ``bucket`` option is required as all other parameters can be read from
-environment variables. But it's recommended to set all the options through CKAN
-config file:
-
-* ``bucket``: name of the storage bucket
-* ``key``: the AWS Access Key
-* ``secret``: the AWS Secret Key
-* ``region``:  the AWS Region of the bucket
-
-
-ckan:azure_blob
-^^^^^^^^^^^^^^^
-
-Keeps files inside Microsoft Azure Blob Storage.
-
-Recommended options:
-
-* ``container_name``: name of the storage container
-* ``account_name``: name of the Azure account
-* ``account_name``: key for the Azure account
-
-
-ckan:gcs
-^^^^^^^^
-
-Keeps files inside Google Cloud Storage.
-
-Recommended options:
-
-* ``bucket_name``: name of the storage bucket
-* ``credentials_files``: path to the JSON with cloud credentials
-* ``project_id``: the project which the client acts on behalf of
-
-
-.. _mimetypes: https://docs.python.org/3/library/mimetypes.html
-.. _file-keeper: https://pypi.org/project/file-keeper/
-.. _Apache Libcloud: https://libcloud.apache.org/
-.. _Apache Libcloud providers: https://libcloud.readthedocs.io/en/stable/storage/supported_providers.html#provider-matrix
 
 -----------------
 Storage utilities
@@ -409,8 +496,23 @@ Storage utilities
       :no-value:
       :no-index:
 
-   .. automethod:: prepare_location
+   .. method:: prepare_location(location: str, sample: Upload | None = None) -> Location
 
+      Transform and sanitize location using configured functions.
+
+      This method applies all transformations configured in
+      :py:attr:`~ckan.lib.files.Settings.location_transformers` setting to the
+      provided location. Each transformer is called in the order they are
+      listed in the setting. The output of the previous transformer is passed
+      as an input to the next one.
+
+      Example:
+
+      >>> location = storage.prepare_location(untrusted_location)
+
+      :param location: initial location provided by user
+      :param sample: optional Upload object that can be used by transformers.
+      :returns: transformed location
 
 .. autoclass:: ckan.lib.files.Settings
 .. autoclass:: ckan.lib.files.Uploader

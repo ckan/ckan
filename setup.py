@@ -7,7 +7,12 @@ from setuptools import setup
 if os.environ.get("USER", "") == "vagrant":
     del os.link
 
-extras_require = {}
+extras_require = {
+    's3-storage': ["file-keeper[s3]"],
+    'gcs-storage': ["file-keeper[gcs]"],
+    'azure-storage': ["file-keeper[azure]"],
+    'libcloud-storage': ["file-keeper[libcloud]"],
+}
 _extras_groups = [
     ("requirements", "requirements.txt"),
     ("dev", "dev-requirements.txt"),
