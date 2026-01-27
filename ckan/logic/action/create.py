@@ -909,7 +909,7 @@ def user_create(context: Context,
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
-    :param image_url: the URL to an image to be displayed on the group's page
+    :param image_url: the URL to an image to be displayed on the user's page
         (optional)
     :type image_url: string
     :param plugin_extras: private extra user data belonging to plugins.
@@ -1073,7 +1073,17 @@ def user_invite(context: Context,
         context, {'id': data['group_id']})
 
     try:
-        mailer.send_invite(user, group_dict, data['role'])
+        notification_sent = False
+        for plugin in plugins.PluginImplementations(plugins.INotifier):
+            notification_sent = plugin.notify_about_topic(
+                notification_sent,
+                'user_invited',
+                {'user': user,
+                 'group': group_dict,
+                 'role': data['role']}
+            )
+        if not notification_sent:
+            mailer.send_invite(user, group_dict, data['role'])
     except (socket_error, mailer.MailerException) as error:
         # Email could not be sent, delete the pending user
 
@@ -1196,12 +1206,11 @@ def follow_user(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_user', context, data_dict)
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
+        raise NotFound(_("User not found"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_user_schema())
@@ -1250,12 +1259,11 @@ def follow_dataset(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_dataset', context, data_dict)
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
+        raise NotFound(_("User not found"))
 
     schema = (context.get('schema') or
               ckan.logic.schema.default_follow_dataset_schema())
@@ -1384,12 +1392,11 @@ def follow_group(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_group', context, data_dict)
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
+        raise NotFound(_("User not found"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_group_schema())
@@ -1432,7 +1439,7 @@ def api_token_create(context: Context,
     :type name: string
 
     :returns: Returns a dict with the key "token" containing the
-              encoded token value. Extensions can privide additional
+              encoded token value. Extensions can provide additional
               fields via `add_extra` method of
               :py:class:`~ckan.plugins.interfaces.IApiToken`
     :rtype: dictionary

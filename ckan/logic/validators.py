@@ -97,8 +97,9 @@ def package_id_not_changed(value: Any, context: Context) -> Any:
 
     package = context.get('package')
     if package and value != package.id:
-        raise Invalid('Cannot change value of key from %s to %s. '
-                      'This key is read-only' % (package.id, value))
+        raise Invalid(_(
+            'Cannot change value of key from %(old)s to %(new)s. This key is read-only'
+        ) % {'old': package.id, 'new': value})
     return value
 
 def int_validator(value: Any, context: Context) -> Any:
@@ -192,7 +193,7 @@ def package_id_exists(value: str, context: Context) -> Any:
 
     result = session.get(model.Package, value)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+        raise Invalid(_('Dataset not found'))
     return value
 
 def package_id_does_not_exist(value: str, context: Context) -> Any:
@@ -272,7 +273,7 @@ def package_name_exists(value: str, context: Context) -> Any:
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Not found') + ': %s' % value)
+        raise Invalid(_('Dataset not found: %s') % value)
     return value
 
 def package_id_or_name_exists(
@@ -293,7 +294,7 @@ def package_id_or_name_exists(
             name=package_id_or_name).first()
 
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+        raise Invalid(_('Dataset not found'))
 
     return package_id_or_name
 
@@ -304,7 +305,7 @@ def resource_id_exists(value: Any, context: Context) -> Any:
 
     session = context['session']
     if not session.get(model.Resource, value):
-        raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
+        raise Invalid(_('Resource not found: %s') % value)
     return value
 
 
@@ -325,7 +326,7 @@ def user_id_exists(user_id: str, context: Context) -> Any:
 
     result = session.get(model.User, user_id)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('User not found: %s') % user_id)
     return user_id
 
 def user_id_or_name_exists(user_id_or_name: str, context: Context) -> Any:
@@ -341,7 +342,7 @@ def user_id_or_name_exists(user_id_or_name: str, context: Context) -> Any:
         return user_id_or_name
     result = session.query(model.User).filter_by(name=user_id_or_name).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('User not found'))
     return user_id_or_name
 
 def group_id_exists(group_id: str, context: Context) -> Any:
@@ -353,7 +354,7 @@ def group_id_exists(group_id: str, context: Context) -> Any:
 
     result = session.get(model.Group, group_id)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Group')))
+        raise Invalid(_('Group not found: %s') % group_id)
     return group_id
 
 def group_id_or_name_exists(reference: str, context: Context) -> Any:
@@ -510,7 +511,7 @@ def tag_not_uppercase(value: Any, context: Context) -> Any:
     """
     tagname_uppercase = re.compile('[A-Z]')
     if tagname_uppercase.search(value):
-        raise Invalid(_('Tag "%s" must not be uppercase' % (value)))
+        raise Invalid(_('Tag "%s" must not be uppercase') % value)
     return value
 
 
@@ -785,8 +786,9 @@ def vocabulary_id_not_changed(value: Any, context: Context) -> Any:
     """
     vocabulary = context.get('vocabulary')
     if vocabulary and value != vocabulary.id:
-        raise Invalid(_('Cannot change value of key from %s to %s. '
-                        'This key is read-only') % (vocabulary.id, value))
+        raise Invalid(_(
+            'Cannot change value of key from %(old)s to %(new)s. This key is read-only'
+        ) % {'old': vocabulary.id, 'new': value})
     return value
 
 def vocabulary_id_exists(value: Any, context: Context) -> Any:
@@ -876,7 +878,7 @@ def user_name_exists(user_name: str, context: Context) -> Any:
     session = context['session']
     result = session.query(model.User).filter_by(name=user_name).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('User not found: %s') % user_name)
     return result.name
 
 
@@ -927,7 +929,7 @@ def list_of_strings(key: FlattenKey, data: FlattenDataDict,
         raise Invalid(_('Not a list'))
     for x in value:
         if not isinstance(x, str):
-            raise Invalid('%s: %s' % (_('Not a string'), x))
+            raise Invalid(_('Not a string: %s') % x)
 
 
 def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
@@ -1132,14 +1134,14 @@ def email_is_unique(key: FlattenKey, data: FlattenDataDict,
                 return
 
     raise Invalid(
-        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key]))
+        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key].lower()))
 
 
 def one_of(list_of_value: Container[Any]) -> Validator:
     ''' Checks if the provided value is present in a list or is an empty string'''
     def callable(value: Any):
         if value != "" and value not in list_of_value:
-            raise Invalid(_('Value must be one of {}'.format(list_of_value)))
+            raise Invalid(_('Value must be one of %s') % list_of_value)
         return value
     return callable
 

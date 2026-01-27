@@ -34,13 +34,30 @@ a.open-data {
     overflow: hidden;
     span {
         padding: .25rem .5rem;
+        color: $black;
         &.prefix {
             background-color: #e8eaf3;
-            color: $black;
         }
         &.suffix {
             background-color: #3395FF;
-            color: $white;
         }
+    }
+}
+#organization-info {
+    float: left;
+}
+
+.add-new-res {
+    border-top: 1px solid $gray-200;
+}
+
+.dropdown-toggle::after {
+    margin-left: 0;
+}
+
+.icon-stage {
+    margin: auto 6px;
+    .fa-check-circle {
+        color: $green;
     }
 }

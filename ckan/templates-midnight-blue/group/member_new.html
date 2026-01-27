@@ -34,7 +34,7 @@
               <input id="username" name="username" type="text" value="{{ user.name }}"
               disabled="True" class="form-control control-medium">
             {% else %}
-              <input id="username" type="text" name="username" placeholder="Username"
+              <input id="username" type="text" name="username" placeholder="{{ _('Username') }}"
               value="" class="control-medium" data-module="autocomplete"
               data-module-source="/api/2/util/user/autocomplete?ignore_self=true&q=?">
             {% endif %}

@@ -14,9 +14,7 @@ main:
     - plugins/jquery.date-helpers.js
     - plugins/jquery.slug.js
     - plugins/jquery.slug-preview.js
-    - plugins/jquery.masonry.js
     - plugins/jquery.form-warning.js
-    - plugins/jquery.images-loaded.js
     - sandbox.js
     - module.js
     - pubsub.js
@@ -52,7 +50,6 @@ ckan:
     - modules/resource-view-filters.js
     - modules/table-toggle-more.js
     - modules/dataset-visibility.js
-    - modules/media-grid.js
     - modules/image-upload.js
     - modules/metadata-button.js
     - modules/copy-into-buffer.js

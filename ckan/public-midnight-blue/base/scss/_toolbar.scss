@@ -5,10 +5,6 @@
     padding: 5px 0;
 }
 
-.page_primary_action {
-    margin-bottom: 20px;
-}
-
 .toolbar .breadcrumb {
     @include clearfix;
     @include box-shadow(none);
@@ -64,7 +60,6 @@
     @include list-unstyled;
     position: absolute;
     top: 10px;
-    right: 10px;
     z-index: 1;
 }
 
@@ -113,9 +108,6 @@
 .content_action {
     display: flex;
     justify-content: flex-end;
-    .btn {
-        margin-bottom: 1rem;
-    }
 }
 
 .no-nav .page-header {
@@ -153,5 +145,12 @@
     .page-header .nav-tabs>.active>a:hover,
     .page-header .nav-tabs>.active>a:focus {
         border-bottom-color: #dddddd;
+    }
+}
+
+// Page Primary Action
+@include media-breakpoint-down(sm) {
+    .page_primary_action {
+        width: 100%;
     }
 }

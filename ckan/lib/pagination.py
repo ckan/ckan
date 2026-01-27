@@ -200,7 +200,7 @@ class BasePage(List[Any]):
             # We subclassed "list" so we need to call its init() method
             # and fill the new list with the items to be displayed on the page.
             # We use list() so that the items on the current page are retrieved
-            # only once. Otherwise it would run the actual SQL query everytime
+            # only once. Otherwise it would run the actual SQL query every time
             # .items would be accessed.
             if presliced_list:
                 self.items = self.collection
@@ -410,7 +410,7 @@ class BasePage(List[Any]):
             Default: { 'class':'pager_dotdot' }
 
         onclick (optional)
-            This paramter is a string containing optional Javascript
+            This parameter is a string containing optional Javascript
             code that will be used as the 'onclick' action of each
             pager link.  It can be used to enhance your pager with
             AJAX actions loading another page into a DOM object.
@@ -554,7 +554,7 @@ class BasePage(List[Any]):
             nav_items.append(text)
 
         for thispage in range(leftmost_page, rightmost_page + 1):
-            # Hilight the current page number and do not use a link
+            # Highlight the current page number and do not use a link
             if thispage == self.page:
                 text = u"%s" % (thispage,)
                 # Wrap in a SPAN tag if nolink_attr is set
