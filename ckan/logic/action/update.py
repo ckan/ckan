@@ -10,7 +10,6 @@ import time
 from copy import deepcopy
 from typing import Any, Union, TYPE_CHECKING, cast
 
-import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema as schema_
@@ -22,6 +21,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
+from ckan.lib import files
 
 from ckan import model
 from ckan.common import _, config
@@ -1331,9 +1331,15 @@ def config_option_update(
         # Set full Logo url
         if key == 'ckan.site_logo' and value and not value.startswith('http')\
                 and not value.startswith('/'):
-            image_path = 'uploads/admin/'
-
-            value = h.url_for_static('{0}{1}'.format(image_path, value))
+            try:
+                storage = files.get_storage(config["ckan.files.default_storages.admin"])
+            except files.exc.UnknownStorageError:
+                pass
+            else:
+                if link := storage.permanent_link(files.FileData(
+                    files.Location(value)
+                )):
+                    value = link
 
         # Save value in database
         model.set_system_info(key, value)

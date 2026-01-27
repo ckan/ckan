@@ -507,7 +507,7 @@ class TestResourceCreate:
 
         assert not stored_resource["url"]
 
-    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir):
+    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir, reset_storages):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -521,6 +521,7 @@ class TestResourceCreate:
             "name": "A nice resource",
         }
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        reset_storages()
         result = helpers.call_action("resource_create", context, **params)
 
         mimetype = result.pop("mimetype")
