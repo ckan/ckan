@@ -283,11 +283,18 @@ def cascade_storage_access(value: Any) -> dict[str, set[str]]:
             cascade.setdefault(type, set()).update(rest)
         value = cascade
 
-    if isinstance(value, dict):
-        return value
+    if not isinstance(value, dict):
+        msg = f"Wrong cascade rules: {value}"
+        raise df.Invalid(msg)
 
-    msg = f"Wrong cascade rules: {value}"
-    raise df.Invalid(msg)
+    if "user" in value and not value["user"]:
+        msg = (
+            "Cascade access to files owned by user requires specific storage,"
+            + " e.g. `user:storage_name` instead of `user`"
+        )
+        raise df.Invalid(msg)
+
+    return value
 
 
 def into_upload(

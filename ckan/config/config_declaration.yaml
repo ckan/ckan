@@ -1482,10 +1482,14 @@ groups:
           ``public`` storage owned by a package and files uploaded to the
           storage ``images`` owned by a group.
 
-          .. note: Do not add ``user`` without specific storage to this
-            list. Files may be temporarily owned by user during resource
-            creation. Using cascade access rules with ``user`` exposes such
-            temporal files to anyone who can read user's profile.
+          .. note: Using ``user`` without specific storage will cause a
+            configuration exception during startup because it is too broad and
+            may lead to unintentional data leaks. Files may be temporarily
+            owned by user during resource creation and cascade access rules
+            with global ``user`` exposes such temporal files to anyone who can
+            read user's profile. It's still allowed to grant cascade access to
+            user's files using specific storage. For example, ``user:avatars``
+            or ``user:public_files``.
 
       - key: ckan.files.owner.transfer_as_update
         type: bool
