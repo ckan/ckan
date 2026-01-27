@@ -115,8 +115,19 @@ table.dataTable span.dtcc div.dtcc-searchNumber input{
 table.dataTable span.dtcc div.dtcc-searchText .dtcc-search-clear{
   right: 5px !important;
 }
+
 table.dataTable span.dtcc div.dtcc-searchText input{
   padding-right: 26px;
+}
+
+table.dataTable span.dtcc input::placeholder{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#dtprv_wrapper .datatable-id-col{
+  background: white;
 }
 /* END: Layout :END */
 

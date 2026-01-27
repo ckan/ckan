@@ -36,6 +36,36 @@ this.ckan.module('datatables_view', function($){
   }
 });
 
+function _clean_for_html_attr(_v){
+  /**
+   * Cleans passed value to be used in HTML attributes.
+   */
+  _v = _v.toLowerCase();
+  // Make alphanumeric (removes all other characters)
+  _v = _v.replace(/[^a-z0-9_\s-]/g, '');
+  // Convert whitespaces and underscore to #
+  _v = _v.replace(/[\s_]/g, '#');
+  // Convert multiple # to hyphen
+  _v = _v.replace(/[#]+/g, '-');
+  return _v
+}
+
+function _download_filtered_file(_params, _format) {
+  /**
+   * Execute the form POST to download the Filtered DataStore Dump file.
+   */
+  let form = $('#filtered-datatables-download');
+  let p = $('<input name="params" type="hidden"/>');
+  p.attr('value', JSON.stringify(_params));
+  form.append(p);
+  let f = $('<input name="format" type="hidden"/>');
+  f.attr('value', _format);
+  form.append(f);
+  form.submit();
+  p.remove();
+  f.remove();
+}
+
 function load_datatable(CKAN_MODULE){
   const _ = CKAN_MODULE._;
   const searchParams = new URLSearchParams(document.location.search);
@@ -106,6 +136,7 @@ function load_datatable(CKAN_MODULE){
   const colOffset = 1;  // _id col
   const defaultSortOrder = [[0, "asc"]];  // _id col
 
+  let keyedDataDictionary = {};
   let table;
   let tableState;
   let _savedState = window.localStorage.getItem('DataTables_dtprv_' + viewID);
@@ -134,6 +165,8 @@ function load_datatable(CKAN_MODULE){
         return cell_renderer(_data, _type, _row, _meta, dataDictionary[i]);
       }
     });
+    // use id for key so we can get info easier
+    keyedDataDictionary[dataDictionary[i].id] = dataDictionary[i];
   }
 
   DataTable.ext.errMode = function( _settings, _techNote, _message ){
@@ -190,34 +223,20 @@ function load_datatable(CKAN_MODULE){
     return;
   }
 
-  function clean_for_html_attr(_v){
+  function _get_translated(_obj, _key){
     /**
-     * Cleans passed value to be used in HTML attributes.
+     * Get the value of a possibly translated object
      */
-    _v = _v.toLowerCase();
-    // Make alphanumeric (removes all other characters)
-    _v = _v.replace(/[^a-z0-9_\s-]/g, '');
-    // Convert whitespaces and underscore to #
-    _v = _v.replace(/[\s_]/g, '#');
-    // Convert multiple # to hyphen
-    _v = _v.replace(/[#]+/g, '-');
-    return _v
-  }
-
-  function download_filtered_file(_params, _format) {
-    /**
-     * Execute the form POST to download the Filtered DataStore Dump file.
-     */
-    let form = $('#filtered-datatables-download');
-    let p = $('<input name="params" type="hidden"/>');
-    p.attr('value', JSON.stringify(_params));
-    form.append(p);
-    let f = $('<input name="format" type="hidden"/>');
-    f.attr('value', _format);
-    form.append(f);
-    form.submit();
-    p.remove();
-    f.remove();
+    if( typeof _obj[_key] == 'undefined' ){
+      return null;
+    }
+    if( typeof _obj[_key + '_' + languageCode] != 'undefined' ){
+      return _obj[_key + '_' + languageCode];
+    }
+    if( typeof _obj[_key][languageCode] != 'undefined' ){
+      return _obj[_key][languageCode];
+    }
+    return _obj[_key];
   }
 
   function cell_renderer(_data, _type, _row, _meta, _dictionary_field){
@@ -366,28 +385,28 @@ function load_datatable(CKAN_MODULE){
           action: function (e, dt, button, config) {
             let params = dt.ajax.params();
             params.visible = dt.columns().visible().toArray();
-            download_filtered_file(params, 'csv');
+            _download_filtered_file(params, 'csv');
           }
         }, {
           text: 'TSV',
           action: function (e, dt, button, config) {
             let params = dt.ajax.params();
             params.visible = dt.columns().visible().toArray();
-            download_filtered_file(params, 'tsv');
+            _download_filtered_file(params, 'tsv');
           }
         }, {
           text: 'JSON',
           action: function (e, dt, button, config) {
             let params = dt.ajax.params();
             params.visible = dt.columns().visible().toArray();
-            download_filtered_file(params, 'json');
+            _download_filtered_file(params, 'json');
           }
         }, {
           text: 'XML',
           action: function (e, dt, button, config) {
             let params = dt.ajax.params();
             params.visible = dt.columns().visible().toArray();
-            download_filtered_file(params, 'xml');
+            _download_filtered_file(params, 'xml');
           }
         }]
       },
@@ -400,6 +419,15 @@ function load_datatable(CKAN_MODULE){
           set_state_change_visibility();
           if( $('.dt-buttons button.resetButton').hasClass('btn-warning') ){
             $('.dt-buttons button.resetButton').removeClass('btn-warning').addClass('btn-secondary');
+          }
+          if( ! defaultCompactView ){
+            dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>');
+            isCompactView = false;
+            tableState.compact_view = false;
+          } else {
+            dt.button('viewToggleButton:name').text('<i class="fa fa-list"></i>');
+            isCompactView = true;
+            tableState.compact_view = true;
           }
           dt.state.clear();
           dt.clear().destroy();
@@ -519,6 +547,12 @@ function load_datatable(CKAN_MODULE){
         // TODO: unable to bind...fallback??
         return;
       }
+
+      // set placeholder content
+      let dsID = $(_column.header()).attr('data-name');
+      let colLabel = _get_translated(keyedDataDictionary[dsID]['info'], 'label');
+      $(_inputObj).attr('placeholder', colSearchLabel + ' ' + colLabel);
+
       let clearButton = $(_inputObj).parent().find('.dtcc-search-clear');
       $(clearButton).off('click.clearFilter');
       $(clearButton).on('click.clearFilter', function(_event){
@@ -546,7 +580,7 @@ function load_datatable(CKAN_MODULE){
       });
     }
 
-    let searchFilterInput = $(_column.header()).find('input');
+    let searchFilterInput = $(_column.footer()).find('input');
     if( searchFilterInput.length > 0 ){
       _bind_column_filter(searchFilterInput);
       return;
@@ -555,7 +589,7 @@ function load_datatable(CKAN_MODULE){
       let interval = false;
       let tries = 0;
       interval = setInterval(function(){
-        searchFilterInput = $(_column.header()).find('input');
+        searchFilterInput = $(_column.footer()).find('input');
         if( searchFilterInput.length > 0 || tries > maxTries ){
           clearInterval(interval);
           interval = false;
@@ -678,10 +712,16 @@ function load_datatable(CKAN_MODULE){
       colReorder: {
         fixedColumnsLeft: 1
       },
-      columnControl: [{
-        "target": "thead",
-        "content": ["order", "search"]
-      }],
+      columnControl: [
+        {
+          "target": "thead",
+          "content": ["order"]
+        },
+        {
+          "target": "tfoot",
+          "content": ["search"]
+        }
+      ],
       ordering: {
         indicators: false,
         handler: false

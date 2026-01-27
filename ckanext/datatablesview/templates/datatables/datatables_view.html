@@ -54,15 +54,15 @@
         {% for field in data_dictionary -%}
           <th scope="col" data-name="{{- field.id -}}" data-ds-type="{{- field.type -}}">
             {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
-              {{ field.info.label|replace(" ", nbspval) }}
+              {{- field.info.label|replace(" ", nbspval) -}}
             {%- else -%}
-              {{ field.id|replace(" ", nbspval) }}
+              {{- field.id|replace(" ", nbspval) -}}
             {%- endif -%}
-            &nbsp;
-            {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}
+            {{- nbspval -}}
+            {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length) -%}
               <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
             {%- endif -%}
-            &nbsp;
+            {{- nbspval -}}
           </th>
         {% endfor -%}
       </tr>
