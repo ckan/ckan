@@ -285,10 +285,9 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
     filename = secure_filename(data_dict["name"])
 
-    sess = context["session"]
     location = storage.prepare_location(filename, data_dict["upload"])
     stmt = model.File.by_location(location, data_dict["storage"])
-    if fileobj := sess.scalar(stmt):
+    if fileobj := context["session"].scalar(stmt):
         raise logic.ValidationError({"upload": ["File already exists"]})
 
     try:
@@ -305,14 +304,14 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
         storage=data_dict["storage"],
         **storage_data.as_dict(),
     )
-    sess.add(fileobj)
+    context["session"].add(fileobj)
 
     _set_user_owner(context, "file", fileobj.id)
 
     # TODO: add hook to set plugin_data using extras
 
     if not context.get("defer_commit"):
-        sess.commit()
+        context["session"].commit()
 
     logic.ContextCache(context).set("file", fileobj.id, fileobj)
 
@@ -346,9 +345,8 @@ def file_register(
     if not storage.supports(files.Capability.ANALYZE):
         raise logic.ValidationError({"storage": ["Operation is not supported"]})
 
-    sess = context["session"]
     stmt = model.File.by_location(data_dict["location"], data_dict["storage"])
-    if fileobj := sess.scalar(stmt):
+    if fileobj := context["session"].scalar(stmt):
         raise logic.ValidationError({"location": ["File is already registered"]})
 
     try:
@@ -361,12 +359,12 @@ def file_register(
         storage=data_dict["storage"],
         **storage_data.as_dict(),
     )
-    sess.add(fileobj)
+    context["session"].add(fileobj)
 
     _set_user_owner(context, "file", fileobj.id)
 
     if not context.get("defer_commit"):
-        sess.commit()
+        context["session"].commit()
 
     logic.ContextCache(context).set("file", fileobj.id, fileobj)
 
@@ -423,7 +421,6 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     """
     logic.check_access("file_search", context, data_dict)
 
-    sess = context["session"]
     columns = dict(**model.File.__table__.c, **model.Owner.__table__.c)
 
     stmt = (
@@ -438,9 +435,9 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     )
 
     try:
-        total: int = sess.scalar(stmt.with_only_columns(sa.func.count()))  # pyright: ignore[reportAssignmentType]
+        total: int = context["session"].scalar(stmt.with_only_columns(sa.func.count()))  # pyright: ignore[reportAssignmentType]
     except ProgrammingError:
-        sess.rollback()
+        context["session"].rollback()
         msg = "Invalid file search request"
         log.exception(msg)
         raise logic.ValidationError({"filters": [msg]})
@@ -451,7 +448,9 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     stmt = stmt.limit(data_dict["rows"]).offset(data_dict["start"])
 
     cache = logic.ContextCache(context)
-    results: list[model.File] = [cache.set("file", f.id, f) for f in sess.scalars(stmt)]
+    results: list[model.File] = [
+        cache.set("file", f.id, f) for f in context["session"].scalars(stmt)
+    ]
     return {"count": total, "results": [f.dictize(context) for f in results]}
 
 
@@ -497,11 +496,10 @@ def file_delete(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     except files.exc.PermissionError as err:
         raise logic.ValidationError({"storage": [str(err)]}) from err
 
-    sess = context["session"]
-    sess.delete(fileobj)
+    context["session"].delete(fileobj)
 
     if not context.get("defer_commit"):
-        sess.commit()
+        context["session"].commit()
 
     logic.ContextCache(context).invalidate("file", fileobj.id)
 
@@ -595,9 +593,8 @@ def file_pin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FilePi
 
     owner.pinned = True
 
-    sess = context["session"]
     if not context.get("defer_commit"):
-        sess.commit()
+        context["session"].commit()
 
     return fileobj.dictize(context)
 
@@ -623,9 +620,8 @@ def file_unpin(context: Context, data_dict: dict[str, Any]) -> ActionResult.File
     if owner := fileobj.owner:
         owner.pinned = False
 
-    sess = context["session"]
     if not context.get("defer_commit"):
-        sess.commit()
+        context["session"].commit()
 
     return fileobj.dictize(context)
 
@@ -686,7 +682,6 @@ def file_ownership_transfer(
 
     """
     logic.check_access("file_ownership_transfer", context, data_dict)
-    sess = context["session"]
 
     cache = logic.ContextCache(context)
 
@@ -706,7 +701,7 @@ def file_ownership_transfer(
             data_dict["owner_id"],
         ):
             archive = model.OwnerTransferHistory.from_owner(owner, context["user"])
-            sess.add(archive)
+            context["session"].add(archive)
 
         owner.owner_id = data_dict["owner_id"]
         owner.owner_type = data_dict["owner_type"]
@@ -719,15 +714,15 @@ def file_ownership_transfer(
             owner_id=data_dict["owner_id"],
             owner_type=data_dict["owner_type"],
         )
-        sess.add(owner)
+        context["session"].add(owner)
 
     owner.pinned = data_dict["pin"]
 
     # without expiration SQLAlchemy fails to synchronize owner value during
     # transfer of unowned files
-    sess.expire(fileobj, ["owner"])
+    context["session"].expire(fileobj, ["owner"])
     if not context.get("defer_commit"):
-        sess.commit()
+        context["session"].commit()
 
     return fileobj.dictize(context)
 
