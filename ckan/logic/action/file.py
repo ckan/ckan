@@ -708,7 +708,6 @@ def file_ownership_transfer(
 
         owner.owner_id = data_dict["owner_id"]
         owner.owner_type = data_dict["owner_type"]
-        owner.pinned = data_dict["pin"]
 
     else:
         owner = model.Owner(

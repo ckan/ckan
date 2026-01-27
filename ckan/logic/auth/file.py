@@ -92,7 +92,6 @@ def _get_file(context: Context, file_id: str) -> model.File | None:
 # Permissions #################################################################
 
 
-@logic.auth_allow_anonymous_access
 def permission_manage_files(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if user is allowed to manage any file.
 
@@ -128,7 +127,6 @@ def permission_owns_file(context: Context, data_dict: dict[str, Any]) -> AuthRes
     }
 
 
-@logic.auth_allow_anonymous_access
 def permission_edit_file(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if user is allowed to edit a file.
 
@@ -145,7 +143,6 @@ def permission_edit_file(context: Context, data_dict: dict[str, Any]) -> AuthRes
     return {"success": result, "msg": "Not allowed to edit file"}
 
 
-@logic.auth_allow_anonymous_access
 def permission_delete_file(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if user is allowed to delete the file.
 
@@ -192,7 +189,6 @@ def permission_download_file(context: Context, data_dict: dict[str, Any]) -> Aut
 # API #########################################################################
 
 
-@logic.auth_allow_anonymous_access
 def file_create(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if user can upload a file.
 
@@ -211,7 +207,6 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     return authz.is_authorized("permission_manage_files", context, data_dict)
 
 
-@logic.auth_allow_anonymous_access
 def file_register(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if user can register files from storage in DB.
 
@@ -233,7 +228,6 @@ def file_search(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     return authz.is_authorized("permission_manage_files", context, data_dict)
 
 
-@logic.auth_allow_anonymous_access
 def file_delete(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if file can be deleted."""
     return authz.is_authorized("permission_delete_file", context, data_dict)
@@ -245,25 +239,21 @@ def file_show(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     return authz.is_authorized("permission_read_file", context, data_dict)
 
 
-@logic.auth_allow_anonymous_access
 def file_rename(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if file can be renamed."""
     return authz.is_authorized("permission_edit_file", context, data_dict)
 
 
-@logic.auth_allow_anonymous_access
 def file_pin(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if file can be pinned to the current owner."""
     return authz.is_authorized("permission_edit_file", context, data_dict)
 
 
-@logic.auth_allow_anonymous_access
 def file_unpin(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if file can be unpinned from the current owner."""
     return authz.is_authorized("permission_edit_file", context, data_dict)
 
 
-@logic.auth_allow_anonymous_access
 def file_ownership_transfer(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if file ownership can be transfered to a different owner."""
     file = _get_file(context, data_dict["id"])
