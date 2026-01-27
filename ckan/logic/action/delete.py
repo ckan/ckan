@@ -15,7 +15,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
-from ckan import authz
+from ckan import authz, model
 from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
 
@@ -683,12 +683,8 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
-<<<<<<< HEAD
-    _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
-=======
     _check_access('unfollow_user', context, data_dict)
-    _unfollow(context, data_dict, schema, model.UserFollowingUser)
->>>>>>> 33555fea09 (feat(auth,logic): auth for follow;)
+    _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     '''Stop following a dataset.

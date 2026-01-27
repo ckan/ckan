@@ -304,6 +304,7 @@ def _check_follow_auth(context: Context) -> bool:
     if not context.get('user'):
         return False
 
+    model = context['model']
     userobj = model.User.get(context['user'])
     if not userobj:
         return False
