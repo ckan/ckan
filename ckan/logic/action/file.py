@@ -61,7 +61,7 @@ def _set_user_owner(context: Context, item_type: str, item_id: str):
 
 def _process_filters(  # noqa: C901
     filters: dict[str, Any], columns: Mapping[str, Column[Any]]
-) -> ColumnElement[bool]:
+) -> ColumnElement[bool] | None:
     """Transform `{"$and":[{"field":{"$eq":"value"}}]}` filters into SQL filters."""
 
     items = []
@@ -72,11 +72,14 @@ def _process_filters(  # noqa: C901
                 raise logic.ValidationError(
                     {"filters": [f"Only lists are allowed inside {k}"]}
                 )
-            nested_items = [
-                _process_filters(sub_filters, columns)
-                for sub_filters in v
-                if isinstance(sub_filters, dict)
-            ]
+            nested_items: list[ColumnElement[bool]] = []
+            for sub_filters in v:
+                if not isinstance(sub_filters, dict):
+                    continue
+                item = _process_filters(sub_filters, columns)
+                if item is not None:
+                    nested_items.append(item)
+
             if len(nested_items) > 1:
                 wrapper = sa.and_ if k == "$and" else sa.or_
                 items.append(wrapper(*nested_items).self_group())
@@ -91,6 +94,9 @@ def _process_filters(  # noqa: C901
 
         else:
             raise logic.ValidationError({"filters": [f"Unknown filter: {k}"]})
+
+    if not items:
+        return
 
     if len(items) == 1:
         return items[0]
@@ -423,16 +429,13 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
 
     columns = dict(**model.File.__table__.c, **model.Owner.__table__.c)
 
-    stmt = (
-        sa.select(model.File)
-        .outerjoin(
-            model.Owner,
-            sa.and_(
-                model.File.id == model.Owner.item_id, model.Owner.item_type == "file"
-            ),
-        )
-        .where(_process_filters(data_dict["filters"], columns))
+    stmt = sa.select(model.File).outerjoin(
+        model.Owner,
+        sa.and_(model.File.id == model.Owner.item_id, model.Owner.item_type == "file"),
     )
+    where = _process_filters(data_dict["filters"], columns)
+    if where is not None:
+        stmt = stmt.where(where)
 
     try:
         total: int = context["session"].scalar(stmt.with_only_columns(sa.func.count()))  # pyright: ignore[reportAssignmentType]
