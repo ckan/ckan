@@ -421,8 +421,8 @@ def stats_overview(storage_name: str | None):
     stmt = sa.select(
         sa.func.sum(model.File.size),
         sa.func.count(model.File.id),
-        sa.func.max(model.File.ctime),
-        sa.func.min(model.File.ctime),
+        sa.func.max(model.File.created),
+        sa.func.min(model.File.created),
     ).where(model.File.storage == storage_name)
     row = model.Session.execute(stmt).fetchone()
     size, count, newest, oldest = row if row else (0, 0, _now(), _now())

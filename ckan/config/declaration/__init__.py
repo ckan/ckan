@@ -206,9 +206,19 @@ class Declaration:
         # static information from config_declaration.yaml
         loader(self, "core")
 
-        # dynamic information computed depending on the list of registered
-        # storages. It's still a part of core declarations and must remain in
-        # this method to be discoverable via config CLI.
+        # dynamic declarations computed depending on the list of registered
+        # storages. Load such declarations here to make them discoverable via
+        # config CLI. Any other declarations, that cannot be statically defined
+        # inside config_declaration.yaml, must be loaded here in a similar
+        # manner. If common pattern for dynamic declarations will be detected
+        # in the future, it has sense to introduce special method to load
+        # them. For now, files are the only example of this use-case, so they
+        # will be loaded directly.
+        #
+        # Note, plugins do not need similar logic, because
+        # :py:class:`~ckan.plugins.interfaces.IConfigDeclaration` already
+        # supports dynamic declarations via `declare_config_options`.  In case
+        # of core declarations, current method serves similar purpose.
         loader(self, "files")
 
         self._core_loaded = True

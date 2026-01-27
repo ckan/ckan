@@ -41,9 +41,7 @@ class File:
         content_type (str): MIMEtype
         size (int): size in bytes
         hash (str): checksum
-        ctime (datetime): date of creation
-        mtime (datetime | None): date of the last update
-        atime (datetime | None): date of last access(unstable)
+        created (datetime): date of creation
         storage_data (dict[str, Any]): additional data set by storage
         plugin_data (dict[str, Any]): additional data set by plugins
 
@@ -76,11 +74,9 @@ class File:
     size: Mapped[bigint] = mapped_column(default=0)
     hash: Mapped[text] = mapped_column(default="")
 
-    ctime: Mapped[datetime_tz] = mapped_column(
+    created: Mapped[datetime_tz] = mapped_column(
         default=None, insert_default=sa.func.now()
     )
-    mtime: Mapped[datetime_tz | None] = mapped_column(default=None)
-    atime: Mapped[datetime_tz | None] = mapped_column(default=None)
 
     storage_data: Mapped[dict[str, Any]] = mapped_column(JSONB, default_factory=dict)
     plugin_data: Mapped[dict[str, Any]] = mapped_column(JSONB, default_factory=dict)
@@ -118,21 +114,6 @@ class File:
             result["plugin_data"] = copy.deepcopy(plugin_data)
 
         return result
-
-    def touch(
-        self,
-        access: bool = True,
-        modification: bool = False,
-        moment: datetime | None = None,
-    ):
-        if not moment:
-            moment = now()
-
-        if access:
-            self.atime = moment
-
-        if modification:
-            self.mtime = moment
 
     def patch_data(
         self,

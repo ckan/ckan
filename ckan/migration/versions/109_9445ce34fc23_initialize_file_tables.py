@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "9445ce34fc23"
-down_revision = "4eaa5fcf3092"
+down_revision = "f7b64c701a10"
 branch_labels = None
 depends_on = None
 
@@ -35,13 +35,11 @@ def upgrade():
         ),
         sa.Column("hash", sa.TEXT(), server_default=sa.text("''"), nullable=False),
         sa.Column(
-            "ctime",
+            "created",
             postgresql.TIMESTAMP(timezone=True),
             server_default=sa.func.now(),
             nullable=False,
         ),
-        sa.Column("mtime", postgresql.TIMESTAMP(timezone=True)),
-        sa.Column("atime", postgresql.TIMESTAMP(timezone=True)),
         sa.Column(
             "storage_data",
             postgresql.JSONB,
