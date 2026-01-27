@@ -225,6 +225,11 @@ def is_authorized(action: str, context: Context,
                 if not getattr(auth_function, 'auth_sysadmins_check', False):
                     return {'success': True}
 
+        if config['ckan.site_lockdown']:
+            if not getattr(p.toolkit.get_action(action), 'side_effect_free', False):
+                return {'success': False,
+                        'msg': _('Site is in read only mode')}
+
         # If the auth function is flagged as not allowing anonymous access,
         # and an existing user object is not provided in the context, deny
         # access straight away
