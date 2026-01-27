@@ -35,9 +35,6 @@ def register_adapters(registry: fk.Registry[type[fk.Storage]]):
     if adapter := getattr(default, "LibCloudStorage", None):
         registry.register("ckan:libcloud", adapter)
 
-    if adapter := getattr(default, "OpenDalStorage", None):
-        registry.register("ckan:opendal", adapter)
-
     if adapter := getattr(default, "AzureBlobStorage", None):
         registry.register("ckan:azure_blob", adapter)
 
