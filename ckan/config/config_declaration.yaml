@@ -1412,10 +1412,10 @@ groups:
             option to keep backward compatibility with extensions that extend
             storage logic.
 
-          .. warning:: This option must be enabled if portal uses extensions
-            that implement IUploader interface. Otherwise, depending on the
-            implementation details, uploads may fail or be stored in wrong
-            location.
+            .. warning:: This option must be enabled if portal uses extensions
+              that implement IUploader interface. Otherwise, depending on the
+              implementation details, uploads may fail or be stored in wrong
+              location.
 
 
       - key: ckan.files.inline_content_types
