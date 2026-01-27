@@ -14914,3 +14914,12 @@ td.diff_header {
   gap: 0.5rem;
   align-items: center;
 }
+
+@keyframes reverseProgress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
