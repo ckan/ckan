@@ -507,9 +507,13 @@ function load_datatable(CKAN_MODULE){
       if( sortInfo.length > 0 ){
         for( let i = 0; i < sortInfo.length; i++ ){
           let column = table.column(sortInfo[i][0]);
-          let labelText = $(column.header()).find('.dt-column-title').text().trim();
           let ds_type = $(column.header()).attr('data-ds-type');
-          sortingText += '<span class="info-value"><em>' + labelText + '&nbsp;';
+          let dsID = $(column.header()).attr('data-name');
+          let colLabel = dsID;
+          if( colLabel != '_id' ){
+            colLabel = _get_translated(keyedDataDictionary[dsID]['info'], 'label');
+          }
+          sortingText += '<span class="info-value"><em>' + colLabel + '&nbsp;';
           let downIcon = 'fas fa-sort-amount-down';
           let upIcon = 'fas fa-sort-amount-up';
           if( numberTypes.includes(ds_type) ){
@@ -688,6 +692,9 @@ function load_datatable(CKAN_MODULE){
      * Executes once the DataTable initializes.
      */
     set_table_visibility();
+    if( ! isCompactView ){
+      table.columns.adjust();
+    }
     set_row_selects();
     bind_custom_events();
     set_button_states();
@@ -775,7 +782,7 @@ function load_datatable(CKAN_MODULE){
       },
       initComplete: init_callback,
       drawCallback: draw_callback,
-      fnStateSave: function(_settings, _data){
+      stateSaveCallback: function(_settings, _data){
         /**
          * Callback for actually saving the state object to local storage.
          *
@@ -789,7 +796,7 @@ function load_datatable(CKAN_MODULE){
         // custom local storage name for multiple table views and fullscreen views
         window.localStorage.setItem('DataTables_dtprv_' + viewID, JSON.stringify(_data));
       },
-      fnStateLoad: function(_settings){
+      stateLoadCallback: function(_settings){
         /**
          * Callback for actually loading the state object from local storage.
          *

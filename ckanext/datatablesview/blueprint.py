@@ -100,6 +100,8 @@ def ajax(resource_view_id: str):
     colsearch_dict = {}
     i = 0
     while True:
+        # TODO: implement DataTables JS ColumnControl key/values with:
+        #       https://github.com/ckan/ckan/pull/9028
         if 'columns[%d][search][value]' % i not in request.form:
             break
         v = str(request.form['columns[%d][search][value]' % i])
@@ -199,6 +201,8 @@ def filtered_download(resource_view_id: str):
     colsearch_dict = {}
     columns = params[u'columns']
     for column in columns:
+        # TODO: implement DataTables JS ColumnControl key/values with:
+        #       https://github.com/ckan/ckan/pull/9028
         if column[u'search'][u'value']:
             v = column[u'search'][u'value']
             if v:

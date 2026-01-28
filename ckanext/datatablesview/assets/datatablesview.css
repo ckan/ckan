@@ -94,12 +94,14 @@
 }
 
 #dtprv_wrapper .datatable-id-col .dtcc-search{
+  /* no search for _id col */
   display: none !important;
   pointer-events: none !important;
 }
 
 #dtprv_wrapper .dtcc-search .dtcc-search-type-icon,
 #dtprv_wrapper .dtcc-search select{
+  /* disabled for now. TODO: implement with https://github.com/ckan/ckan/pull/9028 */
   display: none !important;
   pointer-events: none !important;
 }
@@ -121,13 +123,38 @@ table.dataTable span.dtcc div.dtcc-searchText input{
 }
 
 table.dataTable span.dtcc input::placeholder{
+  /* ellipsis for col filter placeholder overflow */
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
 #dtprv_wrapper .datatable-id-col{
+  /* no transparent bg for fixed column */
   background: white;
+}
+
+#dtprv_wrapper table.collapsed td.datatable-id-col{
+  /* better positioned chevrons */
+  position: relative;
+}
+
+#dtprv_wrapper table.collapsed td.datatable-id-col::before{
+  /* better positioned chevrons */
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+#dtprv_wrapper table.collapsed tr:not(.dtr-expanded) td.datatable-id-col::before{
+  /* smaller chevrons */
+  border-left: 8px solid rgba(0, 0, 0, 0.5);
+}
+
+#dtprv_wrapper table.collapsed tr.dtr-expanded td.datatable-id-col::before{
+  /* smaller chevrons */
+  border-top: 8px solid rgba(0, 0, 0, 0.5);
 }
 /* END: Layout :END */
 
