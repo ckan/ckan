@@ -1141,10 +1141,7 @@ def _group_or_org_show(
         packages_field = None
 
     try:
-        if config.get('ckan.auth.public_user_details'):
-            include_users = asbool(data_dict.get('include_users', True))
-        else:
-            include_users = asbool(data_dict.get('include_users', False))
+        include_users = asbool(data_dict.get('include_users', False))
         include_groups = asbool(data_dict.get('include_groups', True))
         include_extras = asbool(data_dict.get('include_extras', True))
         include_followers = asbool(data_dict.get('include_followers', True))
