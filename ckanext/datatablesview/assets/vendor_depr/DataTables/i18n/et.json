@@ -1,0 +1,15 @@
+{
+    "processing": "Palun oodake, koostan kuvamiseks nimekirja!",
+    "lengthMenu": "N&auml;ita kirjeid _MENU_ kaupa",
+    "zeroRecords": "Otsitavat vastet ei leitud.",
+    "info": "Kuvatud: _TOTAL_ kirjet (_START_-_END_)",
+    "infoEmpty": "Otsinguvasteid ei leitud",
+    "infoFiltered": " - filteeritud _MAX_ kirje seast.",
+    "search": "Otsi k&otilde;ikide tulemuste seast:",
+    "paginate": {
+        "first": "Algus",
+        "previous": "Eelmine",
+        "next": "J&auml;rgmine",
+        "last": "Viimane"
+    }
+}

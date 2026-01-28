@@ -1,0 +1,22 @@
+{
+    "emptyTable": "Tiada data",
+    "info": "Paparan dari _START_ hingga _END_ dari _TOTAL_ rekod",
+    "infoEmpty": "Paparan 0 hingga 0 dari 0 rekod",
+    "infoFiltered": "(Ditapis dari jumlah _MAX_ rekod)",
+    "infoThousands": ",",
+    "lengthMenu": "Papar _MENU_ rekod",
+    "loadingRecords": "Diproses...",
+    "processing": "Sedang diproses...",
+    "search": "Carian:",
+    "zeroRecords": "Tiada padanan rekod yang dijumpai.",
+    "paginate": {
+        "first": "Pertama",
+        "previous": "Sebelum",
+        "next": "Seterusnya",
+        "last": "Akhir"
+    },
+    "aria": {
+        "sortAscending": ": diaktifkan kepada susunan lajur menaik",
+        "sortDescending": ": diaktifkan kepada susunan lajur menurun"
+    }
+}

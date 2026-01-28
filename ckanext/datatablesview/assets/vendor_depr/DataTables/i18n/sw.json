@@ -1,0 +1,22 @@
+{
+    "emptyTable": "Hakuna data iliyo patikana",
+    "info": "Inaonyesha _START_ mpaka _END_ ya matokeo _TOTAL_",
+    "infoEmpty": "Inaonyesha 0 hadi 0 ya matokeo 0",
+    "infoFiltered": "(uschujo kutoka matokeo idadi _MAX_)",
+    "infoThousands": ",",
+    "lengthMenu": "Onyesha _MENU_ matokeo",
+    "loadingRecords": "Inapakia...",
+    "processing": "Processing...",
+    "search": "Tafuta:",
+    "zeroRecords": "Rekodi vinavyolingana haziku patikana",
+    "paginate": {
+        "first": "Mwanzo",
+        "last": "Mwisho",
+        "next": "Ijayo",
+        "previous": "Kabla"
+    },
+    "aria": {
+        "sortAscending": ": seti kulainisha sanjari kwa mtindo wa upandaji",
+        "sortDescending": ": seti kulainisha sanjari kwa mtindo wa mteremko"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "emptyTable": "Cədvəldə heç bir məlumat yoxdur",
+    "info": " _TOTAL_ Nəticədən _START_ - _END_ Arası Nəticələr",
+    "infoEmpty": "Nəticə Yoxdur",
+    "infoFiltered": "( _MAX_ Nəticə İçindən Tapılanlar)",
+    "infoThousands": ",",
+    "lengthMenu": "Səhifədə _MENU_ Nəticə Göstər",
+    "loadingRecords": "Yüklənir...",
+    "processing": "Gözləyin...",
+    "search": "Axtarış:",
+    "zeroRecords": "Nəticə Tapılmadı.",
+    "paginate": {
+        "first": "İlk",
+        "last": "Axırıncı",
+        "next": "Sonraki",
+        "previous": "Öncəki"
+    },
+    "aria": {
+        "sortAscending": ": sütunu artma sırası üzərə aktiv etmək",
+        "sortDescending": ": sütunu azalma sırası üzərə aktiv etmək"
+    }
+}

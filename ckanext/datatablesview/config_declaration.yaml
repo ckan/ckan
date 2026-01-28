@@ -112,3 +112,17 @@ groups:
       and the user clicks on the first cell, use a modal dialog to  display the
       complete row contents instead of expanding the missing columns
       in the table itself. Prior to CKAN 2.12 the default setting was "true".
+
+  - key: ckan.datatables.show_histograms
+    default: true
+    type: bool
+    example: 'false'
+    description: |
+      Render histograms in the Datatables in the first row.
+
+  - key: ckan.datatables.request_timeout
+    default: 60000
+    type: int
+    example: 30000
+    description: |
+      Request timeout for the Datatables AJAX request in milliseconds.
