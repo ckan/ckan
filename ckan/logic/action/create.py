@@ -751,7 +751,7 @@ def _group_or_org_create(context: Context,
     action = 'organization_show' if is_org else 'group_show'
 
     output = context['id'] if return_id_only \
-        else _get_action(action)(context, {'id': group.id})
+        else _get_action(action)(context, {'id': group.id, 'include_users': True})
     return output
 
 

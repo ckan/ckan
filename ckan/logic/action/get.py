@@ -1252,8 +1252,7 @@ def organization_show(context: Context, data_dict: DataDict) -> ActionResult.Org
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the organization's users
-         (optional, default: ``True`` if ``ckan.auth.public_user_details``
-         is ``True`` otherwise ``False``)
+         (optional, default: ``False``)
     :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
