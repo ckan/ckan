@@ -1190,11 +1190,24 @@ class TestGroupCreate(object):
             "group_create", context=context, name=factories.Group.stub().name
         )
 
-        assert len(group["users"]) == 1
         assert group["display_name"] == group["name"]
         assert group["package_count"] == 0
         assert not group["is_organization"]
         assert group["type"] == "group"
+
+        group_users = helpers.call_action(
+            "group_show",
+            context=context,
+            id=group['id'],
+            include_users=True,
+        )
+        assert group_users["users"] == [{
+            "capacity": "admin",
+            **{
+                k:v for k,v in user.items()
+                if k not in ('apikey', 'email')
+            }
+        }]
 
     def test_create_group_validation_fail(self):
         user = factories.User()
