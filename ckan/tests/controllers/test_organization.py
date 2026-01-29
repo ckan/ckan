@@ -660,7 +660,9 @@ class TestOrganizationMembership(object):
                 url_for("organization.member_delete", id=org["id"], user=user["id"]),
                 headers=headers,
             )
-            org = helpers.call_action('organization_show', id=org['id'])
+            org = helpers.call_action(
+                'organization_show', id=org['id'], include_users=True,
+            )
 
             # only test.ckan.net
             assert len(org['users']) == 1

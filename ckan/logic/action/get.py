@@ -1141,10 +1141,7 @@ def _group_or_org_show(
         packages_field = None
 
     try:
-        if config.get('ckan.auth.public_user_details'):
-            include_users = asbool(data_dict.get('include_users', True))
-        else:
-            include_users = asbool(data_dict.get('include_users', False))
+        include_users = asbool(data_dict.get('include_users', False))
         include_groups = asbool(data_dict.get('include_groups', True))
         include_extras = asbool(data_dict.get('include_extras', True))
         include_followers = asbool(data_dict.get('include_followers', True))
@@ -1252,8 +1249,7 @@ def organization_show(context: Context, data_dict: DataDict) -> ActionResult.Org
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the organization's users
-         (optional, default: ``True`` if ``ckan.auth.public_user_details``
-         is ``True`` otherwise ``False``)
+         (optional, default: ``False``)
     :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
