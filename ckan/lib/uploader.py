@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-import cgi
 import datetime
 import logging
 import magic
@@ -19,7 +18,7 @@ import ckan.plugins as plugins
 from ckan.common import config
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
-ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
+ALLOWED_UPLOAD_TYPES = (FlaskFileStorage,)
 MB = 1 << 20
 
 log = logging.getLogger(__name__)
@@ -41,10 +40,8 @@ def _copy_file(input_file: IO[bytes],
             raise logic.ValidationError({'upload': ['File upload too large']})
 
 
-def _get_underlying_file(wrapper: Union[FlaskFileStorage, cgi.FieldStorage]):
-    if isinstance(wrapper, FlaskFileStorage):
-        return wrapper.stream
-    return wrapper.file
+def _get_underlying_file(wrapper: FlaskFileStorage):
+    return wrapper.stream
 
 
 def get_uploader(upload_to: str,
