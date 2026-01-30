@@ -7,7 +7,7 @@ import logging
 import magic
 import mimetypes
 from pathlib import Path
-from typing import Any, IO, Optional, Union
+from typing import Any, IO, Optional
 from urllib.parse import urlparse
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
