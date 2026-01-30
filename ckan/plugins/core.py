@@ -285,7 +285,7 @@ def _get_service(plugin_name: str) -> Plugin:
         try:
             eps = list(entry_points(group=group, name=plugin_name))     # type: ignore
 
-            ep = eps[0][plugin_name] if eps else None
+            ep = eps[0] if eps else None
         except TypeError:
             # Python 3.9
             eps = entry_points().get(group, [])
