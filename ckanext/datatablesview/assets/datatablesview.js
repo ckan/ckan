@@ -50,6 +50,16 @@ function _clean_for_html_attr(_v){
   return _v
 }
 
+function _escape_html(_v){
+  /**
+   * Escape basic HTML tagging characters.
+   */
+  return _v.replace(/&/g, '&amp;')
+           .replace(/</g, '&lt;')
+           .replace(/>/g, '&gt;')
+           .replace(/"/g, '&quot;');
+}
+
 function _download_filtered_file(_params, _format) {
   /**
    * Execute the form POST to download the Filtered DataStore Dump file.
@@ -114,6 +124,7 @@ function load_datatable(CKAN_MODULE){
   const colSortAscLabel = _('Ascending');
   const colSortDescLabel = _('Descending');
   const colSortAnyLabel = _('Any');
+  const estimatedLabel = _('(estimated)');
   const numberTypes = [
     'year',
     'month',
@@ -135,6 +146,9 @@ function load_datatable(CKAN_MODULE){
   ]
   const colOffset = 1;  // _id col
   const defaultSortOrder = [[0, "asc"]];  // _id col
+  const defaultDidEstimatedTotal = false;
+  let ajaxStartTime = 0;
+  let ajaxElapsedTime;
 
   let keyedDataDictionary = {};
   let table;
@@ -146,6 +160,7 @@ function load_datatable(CKAN_MODULE){
   let isCompactView = typeof tableState != 'undefined' && typeof tableState.compact_view != 'undefined' ? tableState.compact_view : defaultCompactView;
   let pageLength = typeof tableState != 'undefined' && typeof tableState.page_length != 'undefined' ? tableState.page_length : pageLengthChoices[0];
   let sortOrder = typeof tableState != 'undefined' && typeof tableState.sort_order != 'undefined' ? tableState.sort_order : defaultSortOrder;
+  let didEstimatedTotal = typeof tableState != 'undefined' && typeof tableState.did_estimated_total != 'undefined' ? tableState.did_estimated_total : defaultDidEstimatedTotal;
 
   let availableColumns = [{
     "name": '_id',
@@ -494,6 +509,15 @@ function load_datatable(CKAN_MODULE){
      */
     // TODO: save table info into object...
 
+    // TODO: add or remove estimatedLabel
+    console.log(didEstimatedTotal);
+    if( didEstimatedTotal ){
+      // $('#dtprv_info')
+    }
+
+    // TODO: output ajaxElapsedTime somewhere...
+    console.log(ajaxElapsedTime);
+
     let resourceInfo = $('#dtv-resource-info');
     let content = $(resourceInfo).find('.dtv-resource-info-content');
     $(resourceInfo).find('i').attr('title', content.text());
@@ -636,7 +660,13 @@ function load_datatable(CKAN_MODULE){
 
     let tableModified = false;
 
-
+    $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
+    // TODO: reset button control
+    // if( typeof tableState != 'undefined' && tableState != _data ){
+    //   $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
+    // }else{
+    //   $('.dt-buttons button.resetButton').removeClass('btn-warning').addClass('btn-secondary').addClass('disabled');
+    // }
   }
 
   function set_table_visibility(){
@@ -698,6 +728,99 @@ function load_datatable(CKAN_MODULE){
     set_row_selects();
     bind_custom_events();
     set_button_states();
+  }
+
+  function state_save_callback(_settings, _data){
+    /**
+     * Executes whenever the DataTable tries to save the state.
+     *
+     * NOTE: we save it by the Resource View ID instead of the default
+     *       page pathname so multiple DataTables work on the same page,
+     *       and using the Fullscreen view respects the state saves.
+     *
+     * NOTE: we set the local tableState values here so we can access
+     *       tableState easily throughout the functional code.
+     */
+    if( ! doStateSave ){
+      return;
+    }
+
+    _data.page_number = this.api().page();
+    _data.page_length = this.api().page.len();
+    _data.selected = this.api().rows({selected: true})[0];
+    _data.sort_order = this.api().order();
+    _data.compact_view = isCompactView;
+
+    let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
+    tableState = _data;
+
+    tableState.page_number = localInstanceState.page_number;
+    tableState.page_length = localInstanceState.page_length;
+    tableState.selected = localInstanceState.selected;
+    tableState.sort_order = localInstanceState.sort_order;
+    tableState.compact_view = localInstanceState.compact_view;
+
+    // custom local storage name for multiple table views and fullscreen views
+    window.localStorage.setItem('DataTables_dtprv_' + viewID, JSON.stringify(_data));
+  }
+
+  function state_load_callback(_settings){
+    /**
+     * Executes whenever the DataTable tries to load the state.
+     *
+     * NOTE: we load it by the Resource View ID instead of the default
+     *       page pathname so multiple DataTables work on the same page,
+     *       and using the Fullscreen view respects the state saves.
+     *
+     * NOTE: we set the local tableState values here so we can access
+     *       tableState easily throughout the functional code.
+     */
+    if( ! doStateSave ){
+      return;
+    }
+
+    let _data = JSON.parse(window.localStorage.getItem('DataTables_dtprv_' + viewID));
+
+    let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
+    tableState = _data;
+
+    tableState.page_number = localInstanceState.page_number;
+    tableState.page_length = localInstanceState.page_length;
+    tableState.selected = localInstanceState.selected;
+    tableState.sort_order = localInstanceState.sort_order;
+    tableState.compact_view = localInstanceState.compact_view;
+
+    // TODO: check URL params for base64 decode...
+
+    return _data;
+  }
+
+  function apply_ajax_ckan_filters(_data){
+    /**
+     * Modify the data sent via AJAX.
+     */
+    ajaxStartTime = window.performance.now();  // track ajax performance time
+
+    if( ckanFilters != null ){
+      _data.filters = ckanFilters;
+    }
+  }
+
+  function ajax_complete_callback(_data){
+    /**
+     * Callback to the AJAX completion.
+     */
+    ajaxElapsedTime = window.performance.now() - ajaxStartTime;  // track ajax performance time
+
+    if( _data.responseJSON ){
+      if( ! _data.responseJSON.data ){
+        render_ajax_failure('DataTables error - ' + _data.status + ': ' + _data.statusText);
+        return;
+      }
+      didEstimatedTotal = _data.responseJSON.total_was_estimated;
+    }else{
+      render_ajax_failure('DataTables error - ' + _data.status + ': ' + _data.statusText);
+    }
   }
 
   function initialize_datatable(){
@@ -762,109 +885,16 @@ function load_datatable(CKAN_MODULE){
         "url": ajaxURI,
         "type": "POST",
         "timeout": requestTimeout,
-        "data": function(_data){
-          if( ckanFilters != null ){
-            _data.filters = ckanFilters;
-          }
-        },
+        "data": apply_ajax_ckan_filters,
         "headers": {
           'X-CSRF-Token': $('meta[name="' + csrfTokenName + '"]').attr('content'),
         },
-        "complete": function(_data){
-          if( _data.responseJSON ){
-            if( ! _data.responseJSON.data ){
-              render_ajax_failure('DataTables error - ' + _data.status + ': ' + _data.statusText);
-            }
-          }else{
-            render_ajax_failure('DataTables error - ' + _data.status + ': ' + _data.statusText);
-          }
-        }
+        "complete": ajax_complete_callback,
       },
       initComplete: init_callback,
       drawCallback: draw_callback,
-      stateSaveCallback: function(_settings, _data){
-        /**
-         * Callback for actually saving the state object to local storage.
-         *
-         * NOTE: we save it by the Resource View ID instead of the default
-         *       page pathname so multiple DataTables work on the same page,
-         *       and using the Fullscreen view respects the state saves.
-         */
-        if( ! doStateSave ){
-          return;
-        }
-        // custom local storage name for multiple table views and fullscreen views
-        window.localStorage.setItem('DataTables_dtprv_' + viewID, JSON.stringify(_data));
-      },
-      stateLoadCallback: function(_settings){
-        /**
-         * Callback for actually loading the state object from local storage.
-         *
-         * NOTE: we load it by the Resource View ID instead of the default
-         *       page pathname so multiple DataTables work on the same page,
-         *       and using the Fullscreen view respects the state saves.
-         */
-        if( ! doStateSave ){
-          return;
-        }
-        return JSON.parse(window.localStorage.getItem('DataTables_dtprv_' + viewID));
-      },
-      stateSaveParams: function(_settings, _data){
-        /**
-         * Callback for saving variables to the local storage state object.
-         *
-         * NOTE: we set the local tableState values here so we can access
-         *       tableState easily throughout the functional code.
-         */
-        if( ! doStateSave ){
-          return;
-        }
-
-        _data.page_number = this.api().page();
-        _data.page_length = this.api().page.len();
-        _data.selected = this.api().rows({selected: true})[0];
-        _data.sort_order = this.api().order();
-        _data.compact_view = isCompactView;
-
-        let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
-        tableState = _data;
-
-        tableState.page_number = localInstanceState.page_number;
-        tableState.page_length = localInstanceState.page_length;
-        tableState.selected = localInstanceState.selected;
-        tableState.sort_order = localInstanceState.sort_order;
-        tableState.compact_view = localInstanceState.compact_view;
-
-        $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
-        // TODO: reset button control
-        // if( typeof tableState != 'undefined' && tableState != _data ){
-        //   $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
-        // }else{
-        //   $('.dt-buttons button.resetButton').removeClass('btn-warning').addClass('btn-secondary').addClass('disabled');
-        // }
-      },
-      stateLoadParams: function(_settings, _data){
-        /**
-         * Callback for loading variables to the local storage state object.
-         *
-         * NOTE: we set the local tableState values here so we can access
-         *       tableState easily throughout the functional code.
-         */
-        if( ! doStateSave ){
-          return;
-        }
-
-        let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
-        tableState = _data;
-
-        tableState.page_number = localInstanceState.page_number;
-        tableState.page_length = localInstanceState.page_length;
-        tableState.selected = localInstanceState.selected;
-        tableState.sort_order = localInstanceState.sort_order;
-        tableState.compact_view = localInstanceState.compact_view;
-
-        // TODO: check URL params for base64 decode...
-      },
+      stateSaveCallback: state_save_callback,
+      stateLoadCallback: state_load_callback,
       buttons: get_available_buttons(),
     });
   }
