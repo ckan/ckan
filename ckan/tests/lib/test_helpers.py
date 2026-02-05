@@ -930,3 +930,130 @@ class TestUploadsEnabled:
     @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
     def test_uploads_enabled_when_iuploader_plugin_exists(self):
         assert h.uploads_enabled() is True
+
+
+def test_remove_locale_from_url(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.remove_locale_from_url("/ca/dataset") == "/dataset"
+        assert h.remove_locale_from_url("/ca") == "/"
+        assert h.remove_locale_from_url("/ca/dataset/some-dataset") == "/dataset/some-dataset"
+        assert h.remove_locale_from_url("/ca/group/some-group") == "/group/some-group"
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "en"}):
+
+        assert h.remove_locale_from_url("/en/dataset") == "/dataset"
+        assert h.remove_locale_from_url("/en") == "/"
+        assert h.remove_locale_from_url("/dataset") == "/dataset"  # no locale to remove
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_remove_locale_from_url_with_root_path(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/dataset") == "/my/custom/path/foo/dataset"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo") == "/my/custom/path/foo/"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/dataset/some-dataset") == "/my/custom/path/foo/dataset/some-dataset"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/group/some-group") == "/my/custom/path/foo/group/some-group"
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_remove_root_path_from_url(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        # With locale in root path
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo") == "/"
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo/dataset/some-dataset") == "/dataset/some-dataset"
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo/group/some-group") == "/group/some-group"
+
+        # Without locale (fallback)
+        assert h.remove_root_path_from_url("/my/custom/path/foo") == "/"
+        assert h.remove_root_path_from_url("/my/custom/path/foo/dataset/some-dataset") == "/dataset/some-dataset"
+
+
+def test_page_is_active(app):
+
+    with app.flask_app.test_request_context("/"):
+
+        assert h.page_is_active("home.index") is True
+
+        assert h.page_is_active("/") is True
+
+    with app.flask_app.test_request_context("/dataset"):
+
+        assert h.page_is_active("dataset.search") is True
+        assert h.page_is_active("group.index") is False
+
+        assert h.page_is_active("/dataset") is True
+
+    with app.flask_app.test_request_context("/dataset/some-dataset"):
+
+        assert h.page_is_active("dataset.search", active_blueprints=["dataset"]) is True
+        assert h.page_is_active("/dataset", active_blueprints=["dataset"]) is True
+
+        assert h.page_is_active("group.index", active_blueprints=["group"]) is False
+        assert h.page_is_active("/group", active_blueprints=["group"]) is False
+
+    with app.flask_app.test_request_context("/group/some-group"):
+
+        assert (
+            h.page_is_active("dataset.search", active_blueprints=["dataset"]) is False
+        )
+        assert h.page_is_active("/dataset", active_blueprints=["dataset"]) is False
+
+        assert h.page_is_active("group.index", active_blueprints=["group"]) is True
+        assert h.page_is_active("/group", active_blueprints=["group"]) is True
+
+
+def test_page_is_active_with_locale(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.page_is_active("/ca") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/dataset") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset/some-dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/dataset", active_blueprints=["dataset"]) is True
+
+    with app.flask_app.test_request_context(
+        "/group/some-group", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/group", active_blueprints=["group"]) is True
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_page_is_active_with_locale_and_root_path(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.page_is_active("/my/custom/path/ca/foo") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/dataset") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset/some-dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/dataset", active_blueprints=["dataset"]) is True
+
+    with app.flask_app.test_request_context(
+        "/group/some-group", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/group", active_blueprints=["group"]) is True
