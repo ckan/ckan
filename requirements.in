@@ -13,14 +13,15 @@ Flask-Babel==4.0.0
 Flask-Login==0.6.3
 Flask-Session==0.8.0
 Flask-WTF==1.2.1
+greenlet==3.3.1
 Jinja2==3.1.6
 lxml==6.0.2
 Markdown==3.6
-msgspec==0.18.6
+msgspec==0.20.0
 packaging==24.1
 passlib==1.7.4
 polib==1.2.0
-psycopg2==2.9.9
+psycopg2==2.9.11
 PyJWT==2.8.0
 pyparsing==3.1.2
 python-magic==0.4.27
