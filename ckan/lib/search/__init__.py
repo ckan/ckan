@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import logging
 import sys
-import cgitb
-import warnings
 import traceback
 
 import xml.dom.minidom
@@ -39,21 +37,7 @@ log = logging.getLogger(__name__)
 
 
 def text_traceback() -> str:
-    info = sys.exc_info()
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        try:
-            text = cgitb.text(info)
-        except RuntimeError:
-            # there is werkzeug.local.LocalProxy object inside traceback, that
-            # cannot be printed out by the cgitb
-            res = "".join(traceback.format_tb(info[-1]))
-        else:
-            res = 'the original traceback:'.join(
-                text.split('the original traceback:')[1:]
-            ).strip()
-
-    return res
+    return "".join(traceback.format_exception(*sys.exc_info()))
 
 
 SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
