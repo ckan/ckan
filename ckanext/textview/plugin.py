@@ -5,7 +5,7 @@ from ckan.types import Context
 import logging
 from typing import Any
 
-from ckan.common import CKANConfig, json
+from ckan.common import CKANConfig, aslist, json
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
 import ckan.lib.datapreview as datapreview
@@ -16,16 +16,16 @@ log = logging.getLogger(__name__)
 def get_formats(config: CKANConfig) -> dict[str, list[str]]:
     out = {}
 
-    out["text_formats"] = config.get(
+    out["text_formats"] = aslist(config.get(
         "ckan.preview.text_formats"
-    ).split()
-    out["xml_formats"] = config.get("ckan.preview.xml_formats").split()
-    out["json_formats"] = config.get(
+    ))
+    out["xml_formats"] = aslist(config.get("ckan.preview.xml_formats"))
+    out["json_formats"] = aslist(config.get(
         "ckan.preview.json_formats"
-    ).split()
-    out["jsonp_formats"] = config.get(
+    ))
+    out["jsonp_formats"] = aslist(config.get(
         "ckan.preview.jsonp_formats"
-    ).split()
+    ))
 
     return out
 
