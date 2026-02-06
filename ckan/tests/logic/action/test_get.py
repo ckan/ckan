@@ -326,8 +326,8 @@ class TestGroupList(object):
         group_list = helpers.call_action("group_list", all_fields=True)
 
         expected_group = dict(group)
-        for field in ("users", "extras", "groups"):
-            del expected_group[field]
+        del expected_group["extras"]
+        del expected_group["groups"]
 
         assert group_list[0] == expected_group
         assert "extras" not in group_list[0]
@@ -2059,7 +2059,7 @@ class TestUserAutocomplete(object):
         result = helpers.call_action("user_autocomplete", q="compl", limit=1)
         assert len(result) == 1
 
-    def test_autcomplete_email(self):
+    def test_autocomplete_email(self):
         user = factories.Sysadmin()
         context = {"user": user["name"]}
         factories.User(name="user1234", email="joe@doe.com")
@@ -2069,7 +2069,7 @@ class TestUserAutocomplete(object):
         assert result[0]["name"] == "user1234"
 
         # test when user is not sysadmin
-        result = helpers.call_action("user_autocomplete", q="joe")
+        result = helpers.call_action("user_autocomplete", q="joe@doe.com")
         assert len(result) == 0
 
 
