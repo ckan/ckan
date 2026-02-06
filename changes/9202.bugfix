@@ -1,0 +1,2 @@
+display correct errors and leave resource form empty when dataset validation errors
+are triggered by publishing a dataset (setting state=active)
