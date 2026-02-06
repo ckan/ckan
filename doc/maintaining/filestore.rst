@@ -16,6 +16,10 @@ organization.
    :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
    to give CKAN more control over the files and make access control possible.
 
+.. versionchanged:: 2.12
+   Add support for configurable storages. Cloud uploads are supported via
+   correspoinding storage adapters, such as ``ckan:libcloud``.
+
 .. seealso::
 
    :doc:`datastore`
@@ -61,7 +65,6 @@ To setup CKAN's FileStore with local file storage:
 
     sudo supervisorctl restart ckan-uwsgi:*
 
-
 -------------
 FileStore API
 -------------
@@ -80,9 +83,10 @@ The extra key ``upload`` is used to actually post the binary data.
 For example, to create a new CKAN resource and upload a file to it using
 `curl <http://curl.haxx.se/>`_:
 
-.. parsed-literal::
+::
 
- curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_create' --form upload=@filetoupload --form package_id=my_dataset
+   curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_create' \
+       --form upload=@filetoupload --form package_id=my_dataset
 
 (Curl automatically sends a ``multipart-form-data`` heading with you use the
 ``--form`` option.)
@@ -105,12 +109,14 @@ To overwrite an uploaded file with a new version of the file, post to the
 :py:func:`~ckan.logic.action.update.resource_update` action and use the
 ``upload`` field::
 
-    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form upload=@newfiletoupload --form id=resourceid
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' \
+        --form upload=@newfiletoupload --form id=resourceid
 
 To replace an uploaded file with a link to a file at a remote URL, use the
 ``clear_upload`` field::
 
-    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form url=http://expample.com --form clear_upload=true --form id=resourceid
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' \
+        --form url=http://expample.com --form clear_upload=true --form id=resourceid
 
 
 .. _filestore_21_to_22_migration:
@@ -169,5 +175,401 @@ custom types get registered on startup::
             # ...
 
 
+.. _using-configured-storages:
+
+-------------------------
+Using configured storages
+-------------------------
+
+.. note:: Filesystem storage works out of the box, but certain cloud storages
+   require CKAN installed with extra dependencies::
+
+          pip install ckan[libcloud-storage]
+          pip install ckan[azure-storage]
+          pip install ckan[gcs-storage]
+          pip install ckan[s3-storage]
+
+   Refere documentation of specific storage adapters below to find the name of
+   required dependency.
+
+In CKAN, a "storage" represents a logical container for specific set of
+files. Each storage is configured separately and serves a distinct purpose:
+
+- **Resource Storage**: Handles data files uploaded to CKAN resources
+- **User Storage**: Manages user avatars
+- **Group Storage**: Manages logo images for organizations/groups
+- **Custom Storages**: can be configured for application-specific files
+
+Each storage operates independently with its own configuration, but they all
+use the same interface. This allows different types of files to be stored in
+different locations (local filesystem, cloud storage, etc.) while maintaining a
+consistent API.
+
+For example, you might configure:
+
+- Resource files to be stored in `/var/lib/ckan/resources`
+- Organization logos in `/var/lib/ckan/logos`
+- Plugin assets in an S3 bucket
+
+All these storages will be accessible through
+:py:func:`~ckan.lib.files.get_storage` function and from user's perspective
+they will behave identically.
+
+CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
+the file storages. It exposes classes that provide a standard storage interface
+regardless of the underlying system. As a result, saving files into the local
+files ystem, a cloud provider or a database looks exactly the same from the
+code perspective.
+
+Storages are initialized during application startup and must be configured in
+advance. The exact settings depend on the type of the storage, but in general they
+look like this::
+
+  ckan.files.storage.my_storage.type = ckan:fs
+  ckan.files.storage.my_storage.path = /tmp/my_storage
+  ckan.files.storage.my_storage.initialize = true
+
+Any option that starts with ``ckan.files.storage.`` is a storage
+configuration. After the prefix follows the name of the storage,
+``my_storage``, and everything after the name is an option that will be
+consumed by the storage.
+
+In the example above, storage ``my_storage`` is detected with configuration
+``{"type": "ckan:fs", "path": "/tmp/my_storage", "initialize":
+true}``. Configuration for storages is grouped by the name, and that allows
+multiple storages to be configured at the same time::
+
+  ckan.files.storage.a.type = xxx
+  ckan.files.storage.b.type = yyy
+  ckan.files.storage.c.type = zzz
+
+It results in three storages:
+
+* ``a`` with configuration ``{"type": "xxx"}``
+* ``b`` with configuration ``{"type": "yyy"}``
+* ``c`` with configuration ``{"type": "zzz"}``
+
+To get the instance of the storage, use the``ckan.lib.files.get_storage``
+function::
+
+  storage = get_storage("my_storage")
+
+To create a new file in the storage use its
+:py:meth:`~ckan.lib.files.Storage.upload` method and the
+:py:func:`~ckan.lib.files.make_upload` function, which can transform a variety
+of objects into an uploadable structure::
+
+  upload = make_upload(b"hello world")
+  info = storage.upload("file.txt", upload)
+
+When the storage instance uploads the file, it returns an object with the file details, namely
+its location, size, content type and content hash. This information is required
+to read the file back from the storage::
+
+  content = storage.content(info)
+
+When the object with the file details is not available, it can usually be
+created manually using the location of the file and the
+:py:class:`~ckan.lib.files.FileData` class::
+
+  path = "path/to/file/inside/the/storage.txt"
+  info = FileData(path)
+  content = storage.content(info)
+
+
+Additional information about storage functionality is available in the
+`file-keeper`_ documentation.
+
+-------------
+Storage types
+-------------
+
+Configuring a storage requires defining its ``type`` of the storage. Apart from
+the type, there is a number of common options that are supported by all storage
+types.
+
+* ``max_size``: The maximum size of a single upload
+* ``supported_types``: Space-separated list of allowed MIME types
+* ``override_existing``: If file already exists, replace it with new content
+* ``location_transformers``: List of transformations applied to the file
+  location. Transformations are not applied automatically - call
+  :py:meth:`~ckan.lib.files.Storage.prepare_location` to get the transformed version
+  of the filename.
+
+The rest of options depends on the specific storage type. CKAN provides the following
+built-in storage types:
+
+ckan:fs
+^^^^^^^
+
+Example::
+
+  ckan.files.storage.my_storage.type = ckan:fs
+  ckan.files.storage.my_storage.initialize = true
+  ckan.files.storage.my_storage.path = /var/lib/storage/my_storage
+
+Keeps files inside the local filesystem. Files are uploaded into a directory
+specified by the required ``path`` option. The directory must exist and be
+writable by the CKAN process. If directory does not exist, it's created when
+``initialize`` option is enabled. If ``initialize`` is not enabled, exception
+is raised during initialization of the storage.
+
+ckan:fs:public
+^^^^^^^^^^^^^^
+Example::
+
+  ckan.files.storage.my_public_storage.type = ckan:fs:public
+  ckan.files.storage.my_public_storage.initialize = true
+  ckan.files.storage.my_public_storage.path = /var/lib/storage/my_public_storage
+
+  # make storage folder available at application root
+  extra_public_paths = /var/lib/storage/my_public_storage
+
+
+Extended version of ``ckan:fs`` type. It assumes that ``path`` is registered as
+CKAN public folder and all files from it are accessible directly from the
+browser. Can be used for non-private uploads, such as user avatars or group
+images. If ``path`` points to the subfolder of the public directory, i.e, CKAN
+registers ``/data/storage`` as public directory, but storage's ``path`` is set
+to ``/data/storage/nested/path/inside``, use ``public_prefix`` option to
+specify static segment that must be added to file's location in order to build
+valid public URL. In the given example, ``public_prefix`` must be set to
+``nested/path/inside``.
+
+ckan:s3
+^^^^^^^
+
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:s3
+  ckan.files.storage.my_cloud.bucket = my_bucket
+  ckan.files.storage.my_cloud.key = ABC123
+  ckan.files.storage.my_cloud.secret = 321CBA
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``s3-storage`` extra to use it::
+
+     pip install 'ckan[s3-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[s3-storage]'
+
+Keeps files inside AWS S3 bucket.
+
+Only ``bucket`` option is required as all other parameters can be read from
+environment variables:
+
+* ``bucket``: name of the storage bucket
+* ``key``: the AWS Access Key
+* ``secret``: the AWS Secret Key
+* ``region``:  the AWS Region of the bucket
+
+
+ckan:azure_blob
+^^^^^^^^^^^^^^^
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:azure_blob
+  ckan.files.storage.my_cloud.container_name = my_container
+  ckan.files.storage.my_cloud.account_name = ABC123
+  ckan.files.storage.my_cloud.account_key = 321CBA
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``azure-storage`` extra to use it::
+
+     pip install 'ckan[azure-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[azure-storage]'
+
+Keeps files inside Microsoft Azure Blob Storage.
+
+Recommended options:
+
+* ``container_name``: name of the storage container
+* ``account_name``: name of the Azure account
+* ``account_key``: key for the Azure account
+
+
+ckan:gcs
+^^^^^^^^
+
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:gcs
+  ckan.files.storage.my_cloud.bucket_name = my_bucket
+  ckan.files.storage.my_cloud.project_id = my-project
+  ckan.files.storage.my_cloud.credentials_file = /etc/ckan/default/google-cloud-credentials.json
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``gcs-storage`` extra to use it::
+
+     pip install 'ckan[gcs-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[gcs-storage]'
+
+Keeps files inside Google Cloud Storage.
+
+Recommended options:
+
+* ``bucket_name``: name of the storage bucket
+* ``credentials_files``: path to the JSON with cloud credentials
+* ``project_id``: the project which the client acts on behalf of
+
 
 .. _mimetypes: https://docs.python.org/3/library/mimetypes.html
+.. _file-keeper: https://pypi.org/project/file-keeper/
+.. _Apache Libcloud: https://libcloud.apache.org/
+.. _Apache Libcloud providers: https://libcloud.readthedocs.io/en/stable/storage/supported_providers.html#provider-matrix
+
+ckan:libcloud
+^^^^^^^^^^^^^
+
+Example::
+
+  ckan.files.storage.my_cloud.type = ckan:libcloud
+  ckan.files.storage.my_cloud.provider = S3
+  ckan.files.storage.my_cloud.container_name = my_bucket
+  ckan.files.storage.my_cloud.key = ABC123
+  ckan.files.storage.my_cloud.secret = 321CBA
+
+.. note:: This storage type is not available by default. Install CKAN with
+   ``libcloud-storage`` extra to use it::
+
+     pip install 'ckan[libcloud-storage]'
+
+     ## or, if using source CKAN installation, switch to repository folder and
+     pip install -e '.[libcloud-storage]'
+
+Keeps files inside the cloud using `Apache Libcloud`_. Requires
+`apache-libcloud <https://pypi.org/project/apache-libcloud/>`_ library and is
+not available when this library is missing. Requires following options:
+
+* ``provider``: one of `Apache Libcloud providers`_
+* ``key``: API key or username
+* ``secret``: Secret password
+* ``container_name``: Name of the container/bucket
+
+Majority of providers do not support permanent links out of the box. But if the
+container supports public anonymous access and all files are available at URL
+``https://<PROVIDER>/<CONTAINER>/<FILENAME>``, this shared
+``https://<PROVIDER>/<CONTAINER>`` part can be specified as ``public_prefix``
+of the storage. In this case, CKAN will append file's location to the
+configured ``public_prefix`` whenever it needs a permanent public link for the
+file.
+
+Files are uploaded to the root of container. To specify nested location for all
+uploads, use ``path`` option.
+
+Any other provider specific option can be added inside ``params`` option which
+expects a valid JSON object
+
+-----------------
+Storage utilities
+-----------------
+
+.. autofunction:: ckan.lib.files.get_storage
+.. autoattribute:: ckan.lib.files.make_upload(value: Any) -> Upload
+
+   Convert value into Upload object.
+
+   Works with binary objects, ``io.BytesIO``, file-objects, and file-fields
+   from submitted forms.
+
+   Use this function for simple and reliable initialization of Upload
+   object. Avoid creating Upload manually, unless you are 100% sure you can
+   provide correct MIMEtype, size and stream.
+
+   >>> upload = make_upload(b"hello world")
+   >>> file_data = storage.upload("file.txt", upload)
+
+   :param value: content of the file
+   :returns: upload object with specified content
+   :raises TypeError: content has unsupported type
+
+.. autoclass:: ckan.lib.files.Storage
+   :members:
+   :exclude-members: SettingsFactory, UploaderFactory, ReaderFactory, ManagerFactory, capabilities
+
+   .. autoattribute:: capabilities
+      :no-value:
+      :no-index:
+
+   .. method:: prepare_location(location: str, sample: Upload | None = None) -> Location
+
+      Transform and sanitize location using configured functions.
+
+      This method applies all transformations configured in
+      :py:attr:`~ckan.lib.files.Settings.location_transformers` setting to the
+      provided location. Each transformer is called in the order they are
+      listed in the setting. The output of the previous transformer is passed
+      as an input to the next one.
+
+      Example:
+
+      >>> location = storage.prepare_location(untrusted_location)
+
+      :param location: initial location provided by user
+      :param sample: optional Upload object that can be used by transformers.
+      :returns: transformed location
+
+.. autoclass:: ckan.lib.files.Settings
+.. autoclass:: ckan.lib.files.Uploader
+.. autoclass:: ckan.lib.files.Reader
+.. autoclass:: ckan.lib.files.Manager
+
+.. autoattribute:: ckan.lib.files.Upload
+
+   Standard upload details produced by :py:func:`make_upload`.
+
+   .. autoattribute:: ckan.lib.files.Upload.stream
+   .. autoattribute:: ckan.lib.files.Upload.filename
+   .. autoattribute:: ckan.lib.files.Upload.size
+   .. autoattribute:: ckan.lib.files.Upload.content_type
+
+
+.. autoattribute:: ckan.lib.files.FileData
+
+   Information required by storage to operate the file.
+
+   >>> info = FileData("local/path.txt", 123, "text/plain", md5_of_content)
+
+   Location of the file usually requires sanitization and as a reminder about
+   this step, typechecker produces warning whenever plain string is passed to
+   the :py:class:`FileData`. The proper way of initializing file data is
+   using already sanitized path wrapped into :py:class:`Location`.
+
+   >>> safe_path = Location("sanitized/local/path.txt")
+   >>> info = FileData(location)
+
+   Logic of the process is not changed when :py:class:`Location` comes into a
+   play, because it's a mere alias for ``str`` class. This flow exists to help
+   detecting security issues. If any value can be safely used as a location(for
+   example, file is kept in DB and location will be sanitized during execution
+   of SQL statement), typechecker warnings can be ignored.
+
+   As sanitization rules depend on storage, the recommended way to sanitize the
+   location is to configure :py:attr:`Settings.location_transformers` and apply
+   them to path by calling :py:meth:`~ckan.lib.files.Storage.prepare_location`.
+
+   >>> unsafe_path = "local/path.txt"
+   >>> safe_path = storage.prepare_location(unsafe_path)
+
+   :param location: filepath, filename or any other type of unique identifier
+   :param size: size of the file in bytes
+   :param content_type: MIMEtype of the file
+   :param hash: checksum of the file
+   :param storage_data: additional details set by storage adapter
+
+.. autoattribute:: ckan.lib.files.Capability
+
+   Enumeration of operations supported by the storage.
+
+   >>> read_and_write = Capability.STREAM | Capability.CREATE
+   >>> if storage.supports(read_and_write)
+   >>>     ...
+
+.. autoattribute:: ckan.lib.files.Location
+
+   Alias of ``str`` that represents sanitized location of the file
