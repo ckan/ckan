@@ -90,7 +90,7 @@ Bugfixes
 - Fix ``EXPLAIN JSON`` output sometimes being auto-decoded in multithreaded
   environments by setting json_deserializer at engine level. (`#8929 <https://github.com/ckan/ckan/pull/8929>`_)
 - Catch ``NotAuthorized`` exception raised by ``datastore_search`` (`#8989 <https://github.com/ckan/ckan/pull/8989>`_)
-- Remove override of group_dict['package_count'] to display the correct dataset count (`#8252 <https://github.com/ckan/ckan/pull/8252>`_
+- Remove override of group_dict['package_count'] to display the correct dataset count (`#8252 <https://github.com/ckan/ckan/pull/8252>')
 
 
 
