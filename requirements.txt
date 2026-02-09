@@ -103,7 +103,7 @@ pyjwt==2.8.0
     # via -r requirements.in
 pyparsing==3.1.2
     # via -r requirements.in
-pysolr==3.9.0
+pysolr==3.11.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
