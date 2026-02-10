@@ -1,3 +1,13 @@
+"""In-memory storage adapter for CKAN's file storage system.
+
+This adapter stores files in memory, which is useful for testing and
+development purposes. It implements the necessary interfaces defined by CKAN's
+file storage system, allowing it to be used as a drop-in replacement for other
+storage backends. Note that this adapter is not suitable for production use due
+to its limitations in terms of scalability and persistence.
+
+Available only when `testing` config option is enabled.
+"""
 from __future__ import annotations
 
 import dataclasses

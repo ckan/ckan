@@ -3,6 +3,7 @@ from __future__ import annotations
 import file_keeper as fk
 
 import ckan.plugins as p
+from ckan.common import config, asbool
 
 from . import default
 
@@ -29,8 +30,10 @@ def register_adapters(registry: fk.Registry[type[fk.Storage]]):
     """
     registry.register("ckan:fs", default.FsStorage)
     registry.register("ckan:fs:public", default.PublicFsStorage)
-    registry.register("ckan:null", default.NullStorage)
-    registry.register("ckan:memory", default.MemoryStorage)
+
+    if asbool(config.get("testing")):
+        registry.register("ckan:null", default.NullStorage)
+        registry.register("ckan:memory", default.MemoryStorage)
 
     for plugin in p.PluginImplementations(p.IFiles):
         for k, v in plugin.files_get_storage_adapters().items():

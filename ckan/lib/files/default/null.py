@@ -1,3 +1,13 @@
+"""Null storage adapter for CKAN.
+
+This adapter does not actually store files, making it useful for testing and
+development purposes where file persistence is not required. It implements the
+necessary interfaces defined by CKAN's file storage system, allowing it to be
+used as a drop-in replacement for other storage backends. Note that this
+adapter is not suitable for production use.
+
+Available only when `testing` config option is enabled.
+"""
 from __future__ import annotations
 
 import dataclasses
