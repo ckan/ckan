@@ -318,6 +318,12 @@ delete or view files. By default, only sysadmin can upload files unless
 :ref:`ckan.files.authenticated_uploads.allow` config option is enabled, which
 grants every authenticated user with permission to upload files.
 
+.. note:: When :ref:`ckan.files.authenticated_uploads.allow` is enabled, users
+          are allowed to upload files into storages specified by
+          :ref:`ckan.files.authenticated_uploads.storages`. By default this
+          option is empty and must be also updated when authenticated uploads
+          are enabled.
+
 Once file is created, the user who called ``file_create`` action is set as
 file's *owner*. Owner of the file is used by file permissions system, to decide
 whether user is allowed to access the file or intract with it in other way. By

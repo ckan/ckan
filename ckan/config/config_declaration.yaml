@@ -1417,7 +1417,6 @@ groups:
               implementation details, uploads may fail or be stored in wrong
               location.
 
-
       - key: ckan.files.inline_content_types
         example: application/pdf image video
         type: list

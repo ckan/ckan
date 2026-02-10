@@ -377,15 +377,11 @@ def file_register(
     return fileobj.dictize(context)
 
 
-@logic.side_effect_free
-@logic.validate(schema.file_search)
-def file_search(  # noqa: C901, PLR0912, PLR0915
+def _file_search(  # noqa: C901, PLR0912, PLR0915
     context: Context,
     data_dict: dict[str, Any],
 ) -> ActionResult.FileSearch:
     """Search files.
-
-    .. warning:: This action is not stabilized yet and will change in future.
 
     Provides an ability to search files according to [the future CKAN's search
     spec](https://github.com/ckan/ckan/discussions/8444).
@@ -394,18 +390,6 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     of column and type of filter value are compared. If they are the same,
     original values are used in search. If type different, column value and
     filter value are casted to string.
-
-    This request produces ``size = 10`` SQL expression:
-
-    .. code-block:: sh
-
-        $ ckanapi action file_search filters:'{"size": 10}'
-
-    This request produces ``size::text = '10'`` SQL expression:
-
-    .. code-block:: sh
-
-        $ ckanapi action file_search filters:'{"size": "10"}'
 
     Even though results are usually not changed, using correct types leads to
     more efficient search.
@@ -423,15 +407,20 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     :param filters: dict
 
     :returns: dictionary with `count` and `results`
-
     """
-    logic.check_access("file_search", context, data_dict)
-
+    context.setdefault("session", model.Session)
+    data_dict.setdefault("sort", "name")
+    data_dict.setdefault("filters", {})
+    data_dict.setdefault("rows", 10)
+    data_dict.setdefault("start", 0)
     columns = dict(**model.File.__table__.c, **model.FileOwner.__table__.c)
 
     stmt = sa.select(model.File).outerjoin(
         model.FileOwner,
-        sa.and_(model.File.id == model.FileOwner.item_id, model.FileOwner.item_type == "file"),
+        sa.and_(
+            model.File.id == model.FileOwner.item_id,
+            model.FileOwner.item_type == "file",
+        ),
     )
     where = _process_filters(data_dict["filters"], columns)
     if where is not None:
@@ -769,4 +758,4 @@ def file_owner_scan(
         "owner_id": data_dict.pop("owner_id"),
         "owner_type": data_dict.pop("owner_type"),
     }
-    return logic.get_action("file_search")({"ignore_auth": True}, data_dict)
+    return _file_search(context, data_dict)

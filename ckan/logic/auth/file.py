@@ -215,19 +215,6 @@ def file_register(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     return authz.is_authorized("permission_manage_files", context, data_dict)
 
 
-@logic.auth_allow_anonymous_access
-def file_search(context: Context, data_dict: dict[str, Any]) -> AuthResult:
-    """Check if user can use global file search.
-
-    Only file manager can search files. Publicly available files are exposed
-    via combination of ownership and cascade access. There are no reasons to
-    search through all the files for common visitor and this action should
-    remain restricted.
-
-    """
-    return authz.is_authorized("permission_manage_files", context, data_dict)
-
-
 def file_delete(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     """Check if file can be deleted."""
     return authz.is_authorized("permission_delete_file", context, data_dict)

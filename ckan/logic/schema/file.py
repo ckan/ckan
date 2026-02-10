@@ -41,21 +41,6 @@ def file_register(
 
 
 @validator_args
-def file_search(
-    default: ValidatorFactory,
-    int_validator: Validator,
-    dict_only: Validator,
-    convert_to_json_if_string: Validator,
-) -> Schema:
-    return {
-        "start": [default(0), int_validator],
-        "rows": [default(10), int_validator],
-        "sort": [default("name")],
-        "filters": [default("{}"), convert_to_json_if_string, dict_only],
-    }
-
-
-@validator_args
 def file_delete(not_empty: Validator, unicode_only: Validator) -> Schema:
     return {"id": [not_empty, unicode_only]}
 
@@ -98,12 +83,14 @@ def ownership_transfer(
 
 @validator_args
 def owner_scan(
-    default: ValidatorFactory, unicode_only: Validator, ignore_missing: Validator
+    default: ValidatorFactory,
+    unicode_only: Validator,
+    int_validator: Validator,
 ) -> Schema:
     return {
         "owner_id": [default(""), unicode_only],
         "owner_type": [default("user"), unicode_only],
-        "start": [ignore_missing],
-        "rows": [ignore_missing],
-        "sort": [ignore_missing],
+        "start": [default(0), int_validator],
+        "rows": [default(10), int_validator],
+        "sort": [default("name")],
     }
