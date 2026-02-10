@@ -32,18 +32,6 @@ def register_adapters(registry: fk.Registry[type[fk.Storage]]):
     registry.register("ckan:null", default.NullStorage)
     registry.register("ckan:memory", default.MemoryStorage)
 
-    if adapter := getattr(default, "LibCloudStorage", None):
-        registry.register("ckan:libcloud", adapter)
-
-    if adapter := getattr(default, "AzureBlobStorage", None):
-        registry.register("ckan:azure_blob", adapter)
-
-    if adapter := getattr(default, "GoogleCloudStorage", None):
-        registry.register("ckan:gcs", adapter)
-
-    if adapter := getattr(default, "S3Storage", None):
-        registry.register("ckan:s3", adapter)
-
     for plugin in p.PluginImplementations(p.IFiles):
         for k, v in plugin.files_get_storage_adapters().items():
             registry.register(k, v)
