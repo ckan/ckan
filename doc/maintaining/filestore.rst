@@ -280,6 +280,177 @@ created manually using the location of the file and the
 Additional information about storage functionality is available in the
 `file-keeper`_ documentation.
 
+
+--------
+File API
+--------
+
+:py:class:`~ckan.lib.files.Storage` exposes low-level methods for dealing with
+files, but generally it's expected that files are managed through API. There is
+a set of API actions aimed at file management and here's the list of the most
+important ones:
+
+* :py:func:`~ckan.logic.action.file.file_create`
+* :py:func:`~ckan.logic.action.file.file_delete`
+* :py:func:`~ckan.logic.action.file.file_show`
+* :py:func:`~ckan.logic.action.file.file_ownership_transfer`
+
+The main difference between file created directly using
+:py:meth:`~ckan.lib.files.Storage.upload` and file created via
+:py:func:`~ckan.logic.action.file.file_create` is that the latter is registered
+in the database and has a corresponding record in the files table. This means
+that file created via API is tracked by CKAN, works with permissions system,
+and can be accessed using generic download URL, while file created directly via
+storage is not registered in DB and can be accessed only via code if its
+location is known.
+
+API is build around safe assumptions, making it the recommended way to manage
+files in CKAN. For example, there is no API method to override or modify file's
+content. Once file is created via API, its content is immutable and can be
+deleted, but not changed. To update the file, it must be deleted and created
+again with new content. This approach allows CKAN to maintain integrity of the
+files and avoid potential security issues related to file
+modifications. Because every file has unique ID, if file once referenced from a
+different entity (for example, a resource), there is guarantee that a content,
+hash, size, and type of the file will remain the same as long as the file
+exists in the system. If file gets deleted and new file will be created in the
+same location, this new file will have different ID and will not be referenced
+from the entities that pointed to the previous file, so there is no risk of
+unintentional content change for the users of the system. For example, it means
+that it's impossible to upload an image as a user avatar and then replace it
+with an HTML page(known way of hacking portals without upload restrictions).
+
+File API has built-in permission checks, so only authorized users can create,
+delete or view files. By default, only sysadmin can upload files unless
+:ref:`ckan.files.authenticated_uploads.allow` config option is enabled, which
+grants every authenticated user with permission to upload files.
+
+Once file is created, the user who called ``file_create`` action is set as
+file's *owner*. Owner of the file is used by file permissions system, to decide
+whether user is allowed to access the file or intract with it in other way. By
+default, only user who owns the file and sysadmin have permissions to access
+the it. But these permissions can be extended both through configuration and
+plugins.
+
+To extend permissions via configuration, use
+:ref:`ckan.files.owner.cascade_access` config option. This option expects space
+separated list of entities that can be assigned as a file
+owner(e.g. ``resource``, ``package``, ``group``, ``something-else``) and it
+allows user to perform operation with file as long as user is allowed to
+perform corresponding operation with the owner of the file. For example, if
+file transfered to resource using
+:py:func:`~ckan.logic.action.file.file_ownership_transfer` API action, then any
+user who has permission to call ``resource_show`` for the given resource is
+also allowed to call ``file_show`` for the any file owned by this resource. To
+be more precise, when file is ownedy by anything that has type ``XXX``, and this
+``XXX`` is listed among :ref:`ckan.files.owner.cascade_access` values, then
+``XXX_show`` auth function is called whenever user tries to call ``file_show``.
+
+If file owned by ``package``, ``package_show`` is called. If file owned by
+``group``, ``group_show`` is called. If file is called by ``anything_else``,
+``anything_else_show`` is called. As long as corresponding auth function
+exists, it will be used to decide whether user is allowed to read file's
+details. If auth function does not exist, user is not allowed to read file's
+details.
+
+There are 3 types of operations that mapped in this way:
+
+* ``show``: any action that reads file's data is mapped to ``OWNER_TYPE_show``
+* ``delete``: any action that removes the file is mapped to ``OWNER_TYPE_delete``
+* ``update``: any action that modifies file's data(``file_rename``,
+  ``file_transfer_ownership``) is mapped to ``OWNER_TYPE_update``
+
+And these operations cover basic usage scenarios, such as uploading file to
+resource and then allowing users who can read the resource to read the file, or
+allowing users who can delete the resource to delete the file, etc.
+
+For more complex scenarios, such as preventing user who can read file's
+metadata via ``file_show`` from downloading the file, custom permissions can be
+implemented in plugins, by overriding auth functions.
+
+When overriding auth functions, consider hierarchy of permissions. For example,
+to override permissions of ``file_show`` action that returns file's metadata:
+
+* override ``file_show`` auth function that is used by action directly. Or
+* override ``permission_read_file`` auth function that is internally called by
+  ``file_show`` and can be potentially used by other actions related to
+  obtaining file's details. Or
+* override ``permission_owns_file`` that is internally called by any action
+  that works with existing file(accepts ``id`` of the file). Or
+* override ``permission_manage_files`` that is internally called by every
+  action, including ``file_create``.
+
+Methods mentioned lower in the list have wider scope and they should be
+overriden only if global modification of all corresponding permissions is
+intended. The ideal solution is to override auth function with the name that
+matches the name of the API action that will be affected, but there are
+situations, where it's not possible. For example, file cannot be downloaded via
+API, that's why downloads are controlled by ``permission_download_file``.
+
+Here's the full hierarchy of auth functions related to files::
+
+  permission_manage_files              # Root permission: file management
+  ├─ permission_owns_file              # Actions available to file owner
+  │  ├─ permission_edit_file           # Editing capabilities
+  │  │  ├─ file_rename                 # Rename file
+  │  │  ├─ file_pin                    # Pin file
+  │  │  ├─ file_unpin                  # Unpin file
+  │  │  └─ file_ownership_transfer     # Transfer ownership
+  │  ├─ permission_delete_file         # Deletion rights
+  │  │  └─ file_delete                 # Delete file
+  │  └─ permission_read_file           # Read access
+  │     ├─ permission_download_file    # Download rights
+  │     └─ file_show                   # View file
+  ├─ file_create                       # Create new file
+  ├─ file_register                     # Register file in system
+  └─ file_owner_scan                   # See all files of the given owner
+
+--------------
+Download files
+--------------
+
+While :py:class:`~ckan.lib.files.Storage` has
+:py:meth:`~ckan.lib.files.Storage.stream` and
+:py:meth:`~ckan.lib.files.Storage.content` methods that return file content,
+it's not the only way to access files. Any file registered in DB(i.e., created
+via ``file_create`` or similar API action and tracked via DB record in the
+files table) can be accessed using generic download URL. To build the URL for
+the file, generate a link to ``file.download`` endpoint, providing file's ID as
+an ``id`` parameter of the URL::
+
+  download_url = h.url_for("file.download", id=FILE_ID)
+
+This endpoint performs generic access check before sending file to user. It
+calls ``permission_download_file`` auth function, which can be overriden to
+implement custom access rules, like restricted downloads even if user has
+access to file's metadata.
+
+.. note:: By default file is accessible only by sysadmin and user who owns the
+          file. To extend download permissions, consider transfering file
+          ownership to organization/package/resource via
+          :py:func:`~ckan.logic.action.file.file_ownership_transfer` and then
+          enable cascade access to the given owner via
+          :ref:`ckan.files.owner.cascade_access`.
+
+As an alternative, when writing custom view functions,
+:py:meth:`ckan.lib.files.Storage.as_response` method can be used to create
+Flask's response object with the file content. Depending on the storage
+backend, it can be either a response with the actual file content, or a
+redirect response to the external public file location. Such response can be
+returned from the view function as is::
+
+    @my_blueprint.route("/my/custom/download/<id>")
+    def download(id: str) -> Response:
+        try:
+            item: dict[str, Any] = logic.get_action("file_show")({}, {"id": id})
+        except logic.NotFound:
+            return base.abort(404)
+
+        file_data: FileData = files.FileData.from_dict(item)
+        storage: Storage = files.get_storage(item["storage"])
+
+        return storage.as_response(data)
+
 -------------
 Storage types
 -------------
