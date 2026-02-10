@@ -167,9 +167,11 @@ def boolean_validator(value: Any, context: Context) -> Any:
     '''
     if value is missing or value is None:
         return False
-    if isinstance(value, bool):
-        return value
-    if value.lower() in ['true', 'yes', 't', 'y', '1']:
+    if isinstance(value, (bool, int)):
+        return bool(value)
+    if isinstance(value, str) and value.lower() in [
+        'true', 'yes', 't', 'y', '1'
+    ]:
         return True
     return False
 
@@ -1143,6 +1145,35 @@ def one_of(list_of_value: Container[Any]) -> Validator:
         if value != "" and value not in list_of_value:
             raise Invalid(_('Value must be one of %s') % list_of_value)
         return value
+    return callable
+
+
+def one_of_or_boolean(list_of_value: Container[Any]) -> Validator:
+    """
+    Checks if the provided value is present in a list, is an empty string
+    or a boolean-appearing value including:
+    True, False, "true", "false", "t", "f", "y", "n", "1", "0", 1, 0
+    (these choices align with boolean_validator)
+
+    Boolean values are converted to True/False, empty strings or matching
+    values are returned as-is. Other values are treated as invalid.
+
+    Note: this validator is more strict than boolean_validator which
+    treats any unrecognized input as False.
+    """
+    def callable(value: Any):
+        if isinstance(value, (bool, int)):
+            return bool(value)
+        if value == "" or value in list_of_value:
+            return value
+        if isinstance(value, str):
+            if value.lower() in ['true', 'yes', 't', 'y', '1']:
+                return True
+            if value.lower() in ['false', 'no', 'f', 'n', '0']:
+                return False
+
+        raise Invalid(_('Value must be boolean or one of: %s') %
+            ', '.join(list_of_value))
     return callable
 
 

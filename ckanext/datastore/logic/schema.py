@@ -20,6 +20,7 @@ empty = get_validator('empty')
 boolean_validator = get_validator('boolean_validator')
 int_validator = get_validator('int_validator')
 one_of = cast(ValidatorFactory, get_validator('one_of'))
+one_of_or_boolean = cast(ValidatorFactory, get_validator('one_of_or_boolean'))
 unicode_only = get_validator('unicode_only')
 dict_only = get_validator('dict_only')
 default = cast(ValidatorFactory, get_validator('default'))
@@ -136,8 +137,8 @@ def datastore_create_schema() -> Schema:
             'function': [not_empty, unicode_only],
         },
         'include_records': [default(False), boolean_validator],
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -152,8 +153,8 @@ def datastore_upsert_schema() -> Schema:
         'method': [ignore_missing, unicode_safe, one_of(
             ['upsert', 'insert', 'update'])],
         'include_records': [default(False), boolean_validator],
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         'dry_run': [ignore_missing, boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
@@ -167,8 +168,8 @@ def datastore_delete_schema() -> Schema:
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'include_deleted_records': [default(False), boolean_validator],
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -182,8 +183,8 @@ def datastore_records_delete_schema() -> Schema:
         'filters': [not_missing, dict_only],
         'id': [ignore_missing],
         'include_deleted_records': [default(False), boolean_validator],
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
