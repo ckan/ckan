@@ -185,7 +185,12 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         storage_key = Key().from_string(files.STORAGE_PREFIX + name)
 
         available_adapters = msgspec.json.encode(
-            [item for item in files.adapters if not files.adapters[item].hidden],
+            [
+                item
+                for item in files.adapters
+                if not files.adapters[item].hidden
+                and issubclass(files.adapters[item], files.Storage)
+            ],
         ).decode()
 
         # this option reports unrecognized type of the storage and shows all
