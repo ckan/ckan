@@ -449,7 +449,7 @@ class FkUpload(object):
         if not self.storage:
             return
 
-        if isinstance(self.upload_field_storage, ALLOWED_UPLOAD_TYPES):
+        if isinstance(self.upload_field_storage, FlaskFileStorage):
             if self.upload_field_storage.filename:
                 self.filename = self.upload_field_storage.filename
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
@@ -580,7 +580,7 @@ class FkResourceUpload(object):
         self.clear = resource.pop('clear_upload', None)
 
         if bool(upload_field_storage) and \
-                isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
+                isinstance(upload_field_storage, FlaskFileStorage):
 
             self.upload_file = files.make_upload(upload_field_storage)
             self.filesize = self.upload_file.size
