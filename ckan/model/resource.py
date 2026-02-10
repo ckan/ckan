@@ -59,6 +59,9 @@ resource_table = Table(
     Index('idx_package_resource_id', 'id'),
     Index('idx_package_resource_package_id', 'package_id'),
     Index('idx_package_resource_url', 'url'),
+    Index('idx_package_resource_unique_position',
+          Column('package_id'), Column('position'),
+          unique=True, postgresql_where="(state = 'active'::text)")
 )
 
 

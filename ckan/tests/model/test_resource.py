@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -60,3 +61,20 @@ class TestResource(object):
         model.repo.commit_and_remove()
 
         assert model.Resource.active().count() == initial
+
+    def test_resource_unique_positions(self):
+        """
+        Position values should be unique per dataset.
+        """
+        parent = factories.Dataset()
+        factories.Resource(package_id=parent["id"])
+        res2 = factories.Resource(package_id=parent["id"])
+
+        res2.position = 0
+
+        with pytest.raises(IntegrityError) as e:
+            model.Session.add(res2)
+            model.Session.commit()
+
+        err = e.value
+        assert 'duplicate key value violates unique constraint "idx_package_resource_unique_position"' in str(err)
