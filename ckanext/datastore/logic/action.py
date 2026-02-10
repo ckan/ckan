@@ -173,10 +173,23 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    result = backend.create(context, data_dict, plugin_data)
+    ccount = data_dict['calculate_record_count']
+    ccancel = False
+    if ccount:
+        ccancel = _cancel_calculate_record_count(res['id'])
 
-    if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
+    try:
+        result = backend.create(context, data_dict, plugin_data)
+    except:
+        # if we canceled an earlier count job, reschedule before failing
+        if ccancel:
+            _schedule_calculate_record_count(res['id'])
+        raise
+
+    if ccount == 'background':
+        _schedule_calculate_record_count(res['id'])
+    elif ccount:
+        backend.calculate_record_count(res['id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
     resobj = model.Resource.get(data_dict['resource_id'])
@@ -363,7 +376,19 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
             u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
-    result = backend.upsert(context, data_dict)
+    ccount = data_dict['calculate_record_count']
+    ccancel = False
+    if ccount:
+        ccancel = _cancel_calculate_record_count(resource_id)
+
+    try:
+        result = backend.upsert(context, data_dict)
+    except:
+        # if we canceled an earlier count job, reschedule before failing
+        if ccancel:
+            _schedule_calculate_record_count(resource_id)
+        raise
+
     p.toolkit.signals.datastore_upsert.send(resource_id, records=records)
 
     result.pop('id', None)
@@ -371,8 +396,10 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     if not data_dict.pop('include_records', False):
         result.pop('records', None)
 
-    if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
+    if ccount == 'background':
+        _schedule_calculate_record_count(res['id'])
+    elif ccount:
+        backend.calculate_record_count(res['id'])  # type: ignore
 
     if res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
         _schedule_patch_resource_last_modified(resource_id)
@@ -527,10 +554,25 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
             u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
-    result = backend.delete(context, data_dict)
+    ccount = data_dict.pop('calculate_record_count')
+    ccancel = False
+    if ccount:
+        ccancel = _cancel_calculate_record_count(resource_id)
+
+    try:
+        result = backend.delete(context, data_dict)
+    except:
+        # if we canceled an earlier count job, reschedule before failing
+        if ccancel:
+            _schedule_calculate_record_count(resource_id)
+        raise
+
     p.toolkit.signals.datastore_delete.send(
         resource_id, result=result, data_dict=data_dict)
-    if data_dict.get('calculate_record_count', False):
+
+    if ccount == 'background':
+        _schedule_calculate_record_count(resource_id)
+    elif ccount:
         backend.calculate_record_count(resource_id)  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
@@ -846,6 +888,31 @@ def _patch_resource_last_modified(resource_id: str, last_modified: datetime):
         {'user': site_user['name'], 'ignore_auth': True},
         {'id': resource_id, 'last_modified': last_modified},
     )
+
+def _cancel_calculate_record_count(resource_id: str) -> bool:
+    job_id = f'{resource_id} calculate record count'
+    try:
+        existing_job = p.toolkit.job_from_id(job_id)
+    except KeyError:
+        return False
+    existing_job.delete()
+    return True
+
+def _schedule_calculate_record_count(resource_id: str):
+    job_id = f'{resource_id} calculate record count'
+    delay = timedelta(seconds=p.toolkit.config[
+        'ckan.datastore.background_calculate_record_count_delay'])
+
+    p.toolkit.get_job_queue().enqueue_in(
+        delay,
+        _calculate_record_count,
+        resource_id,
+        job_id=job_id,
+    )
+
+def _calculate_record_count(resource_id: str):
+    backend = DatastoreBackend.get_active_backend()
+    backend.calculate_record_count(resource_id)
 
 
 @logic.validate(dsschema.datastore_function_create_schema)
