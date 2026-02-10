@@ -311,13 +311,20 @@ class Declaration:
         option.set_validators("boolean_validator")
         return option
 
-    def declare_int(self, key: Key, default: int | None = None) -> Option[int]:
-        """Declare numeric option.
+    def declare_int(self, key: Key, default: Optional[int]) -> Option[int]:
+        """Declare integer option.
         """
         if default is None:
             default = 0
         option = self.declare(key, default)
         option.set_validators("convert_int")
+        return option
+
+    def declare_float(self, key: Key, default: Optional[float]) -> Option[float]:
+        """Declare float option.
+        """
+        option = self.declare(key, default)
+        option.set_validators("convert_float")
         return option
 
     def declare_list(
