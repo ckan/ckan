@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import cgi
 import json
 import logging
 from typing import Any, Optional, Union, cast
+
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -225,7 +226,7 @@ class CreateView(MethodView):
         data_provided = False
         for key, value in data.items():
             if (
-                    (value or isinstance(value, cgi.FieldStorage))
+                    (value or isinstance(value, FlaskFileStorage))
                     and key != u'resource_type'):
                 data_provided = True
                 break

@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import contextlib
 import os
-import cgi
 import datetime
 import logging
 import magic
 import mimetypes
 from pathlib import Path
-from typing import Any, IO, Optional, Union
+from typing import Any, IO, Optional
 from urllib.parse import urlparse
 
 import file_keeper as fk
@@ -21,7 +20,6 @@ from ckan.common import config
 from ckan.lib import files
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
-ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
 MB = 1 << 20
 
 log = logging.getLogger(__name__)
@@ -41,12 +39,6 @@ def _copy_file(input_file: IO[bytes],
         output_file.write(data)
         if current_size > max_size:
             raise logic.ValidationError({'upload': ['File upload too large']})
-
-
-def _get_underlying_file(wrapper: Union[FlaskFileStorage, cgi.FieldStorage]):
-    if isinstance(wrapper, FlaskFileStorage):
-        return wrapper.stream
-    return wrapper.file
 
 
 def get_uploader(upload_to: str,
@@ -162,14 +154,13 @@ class Upload(object):
         if not self.storage_path:
             return
 
-        if isinstance(self.upload_field_storage, ALLOWED_UPLOAD_TYPES):
+        if isinstance(self.upload_field_storage, FlaskFileStorage):
             if self.upload_field_storage.filename:
                 self.filename = self.upload_field_storage.filename
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
                 self.filename = munge.munge_filename_legacy(self.filename)
                 self.filepath = os.path.join(self.storage_path, self.filename)
-                self.upload_file = _get_underlying_file(
-                    self.upload_field_storage)
+                self.upload_file = self.upload_field_storage.stream
                 self.tmp_filepath = self.filepath + '~'
 
                 self.verify_type()
@@ -307,7 +298,7 @@ class ResourceUpload(object):
             self.mimetype = mimetypes.guess_type(url)[0]
 
         if bool(upload_field_storage) and \
-                isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
+                isinstance(upload_field_storage, FlaskFileStorage):
             self.filesize = 0  # bytes
 
             self.filename = upload_field_storage.filename
@@ -316,7 +307,7 @@ class ResourceUpload(object):
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
-            self.upload_file = _get_underlying_file(upload_field_storage)
+            self.upload_file = upload_field_storage.stream
             assert self.upload_file is not None
             self.upload_file.seek(0, os.SEEK_END)
             self.filesize = self.upload_file.tell()
