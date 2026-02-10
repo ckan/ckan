@@ -757,7 +757,8 @@ def remove_root_path_from_url(url: str) -> str:
     """
     Remove the root path (i.e. config["ckan.root_path"]) from a url.
 
-    Note: the
+    Note: the locale is also removed if present. See ckan/tests/lib/test_helpers.py
+    for examples.
 
     """
     root_path = config["ckan.root_path"]
