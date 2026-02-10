@@ -50,7 +50,7 @@ def _set_user_owner(context: Context, item_type: str, item_id: str):
     cache = logic.ContextCache(context)
     user = cache.get("user", context["user"], lambda: model.User.get(context["user"]))
     if user:
-        owner = model.Owner(
+        owner = model.FileOwner(
             item_id=item_id,
             item_type=item_type,
             owner_id=user.id,
@@ -427,11 +427,11 @@ def file_search(  # noqa: C901, PLR0912, PLR0915
     """
     logic.check_access("file_search", context, data_dict)
 
-    columns = dict(**model.File.__table__.c, **model.Owner.__table__.c)
+    columns = dict(**model.File.__table__.c, **model.FileOwner.__table__.c)
 
     stmt = sa.select(model.File).outerjoin(
-        model.Owner,
-        sa.and_(model.File.id == model.Owner.item_id, model.Owner.item_type == "file"),
+        model.FileOwner,
+        sa.and_(model.File.id == model.FileOwner.item_id, model.FileOwner.item_type == "file"),
     )
     where = _process_filters(data_dict["filters"], columns)
     if where is not None:
@@ -703,14 +703,14 @@ def file_ownership_transfer(
             data_dict["owner_type"],
             data_dict["owner_id"],
         ):
-            archive = model.OwnerTransferHistory.from_owner(owner, context["user"])
+            archive = model.FileOwnerTransferHistory.from_owner(owner, context["user"])
             context["session"].add(archive)
 
         owner.owner_id = data_dict["owner_id"]
         owner.owner_type = data_dict["owner_type"]
 
     else:
-        owner = model.Owner(
+        owner = model.FileOwner(
             item_id=fileobj.id,
             item_type="file",
             owner_id=data_dict["owner_id"],

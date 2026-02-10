@@ -56,7 +56,7 @@ def upgrade():
     )
 
     op.create_table(
-        "owner",
+        "file_owner",
         sa.Column("item_type", sa.TEXT(), nullable=False, primary_key=True),
         sa.Column("item_id", sa.TEXT(), nullable=False, primary_key=True),
         sa.Column("owner_type", sa.TEXT(), nullable=False),
@@ -68,7 +68,7 @@ def upgrade():
     )
 
     op.create_table(
-        "owner_transfer_history",
+        "file_owner_transfer_history",
         sa.Column("id", sa.TEXT(), nullable=False, primary_key=True),
         sa.Column("item_id", sa.TEXT(), nullable=False),
         sa.Column("item_type", sa.TEXT(), nullable=False),
@@ -86,8 +86,8 @@ def upgrade():
     )
     op.create_foreign_key(
         "owner_transfer_history_item_id_item_type_fkey",
-        "owner_transfer_history",
-        "owner",
+        "file_owner_transfer_history",
+        "file_owner",
         ["item_id", "item_type"],
         ["item_id", "item_type"],
         ondelete="CASCADE",
@@ -95,6 +95,6 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table("owner_transfer_history")
-    op.drop_table("owner")
+    op.drop_table("file_owner_transfer_history")
+    op.drop_table("file_owner")
     op.drop_table("file")

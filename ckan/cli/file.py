@@ -483,9 +483,9 @@ def stats_owner(storage_name: str | None, verbose: bool):
     """Files distribution by owner."""
     storage_name = storage_name or config["ckan.files.default_storages.default"]
     owner_col = (
-        sa.func.concat(model.Owner.owner_type, " ", model.Owner.owner_id)
+        sa.func.concat(model.FileOwner.owner_type, " ", model.FileOwner.owner_id)
         if verbose
-        else model.Owner.owner_type
+        else model.FileOwner.owner_type
     )
 
     stmt = (
@@ -495,10 +495,10 @@ def stats_owner(storage_name: str | None, verbose: bool):
         )
         .where(model.File.storage == storage_name)
         .outerjoin(
-            model.Owner,
+            model.FileOwner,
             sa.and_(
-                model.Owner.item_id == model.File.id,
-                model.Owner.item_type == "file",
+                model.FileOwner.item_id == model.File.id,
+                model.FileOwner.item_type == "file",
             ),
         )
         .group_by(owner_col)
@@ -559,7 +559,7 @@ def empty_owner(storage_name: str | None, remove: bool):
     stmt = (
         sa.select(model.File)
         .outerjoin(model.File.owner)
-        .where(model.File.storage == storage_name, model.Owner.owner_id.is_(None))
+        .where(model.File.storage == storage_name, model.FileOwner.owner_id.is_(None))
     )
 
     total = model.Session.scalar(stmt.with_only_columns(sa.func.count()))

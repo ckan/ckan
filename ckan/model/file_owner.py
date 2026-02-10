@@ -22,7 +22,7 @@ text = Annotated[str, mapped_column(sa.TEXT)]
 
 
 @registry.mapped_as_dataclass
-class Owner:
+class FileOwner:
     """Model with details about current owner of an item.
 
     Args:
@@ -34,7 +34,7 @@ class Owner:
 
     Example:
         ```py
-        owner = Owner(
+        owner = FileOwner(
             item_id=smth.id,
             item_type=smth_type,
             owner_id=user.id,
@@ -44,7 +44,7 @@ class Owner:
     """
     __table__: ClassVar[sa.Table]
 
-    __tablename__ = "owner"
+    __tablename__ = "file_owner"
 
     __table_args__ = (
         sa.Index("idx_owner_owner", "owner_type", "owner_id", unique=False),
@@ -60,11 +60,11 @@ class Owner:
     def select_history(self):
         """Returns a select statement to fetch ownership history."""
         return (
-            sa.select(OwnerTransferHistory)
-            .join(Owner)
+            sa.select(FileOwnerTransferHistory)
+            .join(FileOwner)
             .where(
-                OwnerTransferHistory.item_id == self.item_id,
-                OwnerTransferHistory.item_type == self.item_type,
+                FileOwnerTransferHistory.item_id == self.item_id,
+                FileOwnerTransferHistory.item_type == self.item_type,
             )
         )
 
@@ -73,7 +73,7 @@ class Owner:
 
 
 @registry.mapped_as_dataclass
-class OwnerTransferHistory:
+class FileOwnerTransferHistory:
     """Model for tracking ownership history of the file.
 
     Args:
@@ -86,20 +86,20 @@ class OwnerTransferHistory:
 
     Example:
         ```py
-        record = TransferHistory(
+        record = FileOwnerTransferHistory(
             prev_owner.item_id, prev_owner.item_type,
             prev_owner.owner_id, prev_owner.owner_type,
         )
         ```
     """
 
-    __tablename__ = "owner_transfer_history"
+    __tablename__ = "file_owner_transfer_history"
 
     __table_args__ = (
         sa.Index("idx_owner_transfer_item", "item_id", "item_type", unique=False),
         sa.ForeignKeyConstraint(
             ["item_id", "item_type"],
-            ["owner.item_id", "owner.item_type"],
+            ["file_owner.item_id", "file_owner.item_type"],
             "owner_transfer_history_item_id_item_type_fkey",
             ondelete="CASCADE",
         ),
@@ -112,7 +112,7 @@ class OwnerTransferHistory:
 
     actor: Mapped[text]
 
-    current_owner: Mapped[Owner] = relationship(init=False)
+    current_owner: Mapped[FileOwner] = relationship(init=False)
 
     id: Mapped[text] = mapped_column(primary_key=True, default_factory=make_uuid)
     at: Mapped[datetime_tz] = mapped_column(default=None, insert_default=sa.func.now())
@@ -122,7 +122,7 @@ class OwnerTransferHistory:
         return table_dictize(self, context)
 
     @classmethod
-    def from_owner(cls, owner: Owner, actor: str = ""):
+    def from_owner(cls, owner: FileOwner, actor: str = ""):
         return cls(
             item_id=owner.item_id,
             item_type=owner.item_type,

@@ -18,7 +18,7 @@ from ckan.lib.dictization import table_dictize
 from ckan.model.types import make_uuid
 
 from .meta import registry
-from .owner import Owner
+from .file_owner import FileOwner
 
 
 def now():
@@ -83,10 +83,10 @@ class File:
 
     id: Mapped[text] = mapped_column(primary_key=True, default_factory=make_uuid)
 
-    owner: Mapped[Owner | None] = relationship(
+    owner: Mapped[FileOwner | None] = relationship(
         primaryjoin=sa.and_(
-            Owner.item_id == foreign(id),
-            Owner.item_type == "file",
+            FileOwner.item_id == foreign(id),
+            FileOwner.item_type == "file",
         ),
         single_parent=True,
         cascade="delete, delete-orphan",

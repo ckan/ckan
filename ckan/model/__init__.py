@@ -106,7 +106,7 @@ from ckan.model.api_token import (
 )
 
 from ckan.model.file import File
-from ckan.model.owner import Owner, OwnerTransferHistory
+from ckan.model.file_owner import FileOwner, FileOwnerTransferHistory
 
 import ckan.migration
 from ckan.common import config
@@ -131,7 +131,7 @@ __all__ = [
     "DomainObjectOperation", "DomainObject", "Dashboard", "ApiToken",
     "init_model", "Repository",
     "repo", "is_id", "parse_db_config",
-    "File", "Owner", "OwnerTransferHistory",
+    "File", "FileOwner", "FileOwnerTransferHistory",
 ]
 
 log = logging.getLogger(__name__)

@@ -125,8 +125,7 @@ class Settings(fk.Settings):
     """Storage settings definition.
 
     Any configurable parameter must be defined here, as this dataclass accepts options
-    collected from CKAN config file and it will raise an exception whenever it sees an
-    unknown option.
+    collected from CKAN config file and exposes them to storage and its services.
 
     Generally, Settings should not validate configuration, because validation is
     provided by the config declarations. Settings object just holds static options and

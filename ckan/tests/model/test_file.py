@@ -17,7 +17,7 @@ class TestFile:
             location=faker.file_name(),
         )
 
-        owner = model.Owner(
+        owner = model.FileOwner(
             item_id=file.id,
             item_type="file",
             owner_id=user["id"],
@@ -34,7 +34,7 @@ class TestFile:
 
         assert model.Session.get(model.File, file.id)
 
-        owner = model.Owner(
+        owner = model.FileOwner(
             item_id=file.id,
             item_type="file",
             owner_id=user["id"],
@@ -48,4 +48,4 @@ class TestFile:
 
         model.Session.delete(file)
         model.Session.commit()
-        assert not model.Session.get(model.Owner, (owner.item_id, owner.item_type))
+        assert not model.Session.get(model.FileOwner, (owner.item_id, owner.item_type))
