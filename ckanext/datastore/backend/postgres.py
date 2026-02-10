@@ -1563,42 +1563,20 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
     _insert_links(data_dict, limit, offset)
 
-    if data_dict.get('include_total', True):
-        total_estimation_threshold = \
-            data_dict.get('total_estimation_threshold')
-        estimated_total = None
-        if total_estimation_threshold is not None and \
-                not (where_clause or distinct):
-            # there are no filters, so we can try to use the estimated table
-            # row count from pg stats
-            # See: https://wiki.postgresql.org/wiki/Count_estimate
-            # (We also tried using the EXPLAIN to estimate filtered queries but
-            #  it didn't estimate well in tests)
-            analyze_count_sql = sa.text('''
-            SELECT reltuples::BIGINT AS approximate_row_count
-            FROM pg_class
-            WHERE relname=:resource;
-            ''')
-            count_result = context['connection'].execute(
-                analyze_count_sql,
-                {"resource": resource_id},
-            )
-            try:
-                estimated_total = count_result.fetchall()[0][0]
-            except ValueError:
-                # the table doesn't have the stats calculated yet. (This should
-                # be done by xloader/datapusher at the end of loading.)
-                # We could provoke their creation with an ANALYZE, but that
-                # takes 10x the time to run, compared to SELECT COUNT(*) so
-                # we'll just revert to the latter. At some point the autovacuum
-                # will run and create the stats so we can use an estimate in
-                # future.
-                pass
-
-        if estimated_total is not None \
-                and estimated_total >= total_estimation_threshold:
-            data_dict['total'] = estimated_total
-            data_dict['total_was_estimated'] = True
+    if data_dict["include_total"]:
+        if not (where_clause or distinct):
+            row_count, exact = context['connection'].execute(
+                sa.text("""
+                SELECT row_count, exact
+                FROM fast_table_row_count(:resource, :exact_below)
+                """),
+                {
+                    "resource": resource_id,
+                    "exact_below": data_dict["total_estimation_threshold"],
+                }
+            ).one()
+            data_dict['total'] = row_count
+            data_dict['total_was_estimated'] = not exact
         else:
             # this is slow for large results
             count_sql_string = u'''SELECT count(*) FROM (
@@ -1611,7 +1589,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 where=where_clause)
             count_result = _execute_single_statement(
                 context, count_sql_string, where_values)
-            data_dict['total'] = count_result.fetchall()[0][0]
+            data_dict['total'] = count_result.one()[0]
             data_dict['total_was_estimated'] = False
 
     return data_dict

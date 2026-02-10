@@ -76,12 +76,13 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
         {"function": "trigger_clean_reference"},
         {"function": "trigger_check_codes"}]
     :type triggers: list of dictionaries
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the existing aliases or constraints. Setting ``records`` appends
@@ -317,12 +318,13 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
                    Possible options are: upsert, insert, update
                    (optional, default: upsert)
     :type method: string
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
     :param dry_run: set to True to abort transaction instead of committing,
                     e.g. to check for validation or type errors.
     :type dry_run: bool (optional, default: False)
@@ -472,12 +474,13 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     :param include_deleted_records: return the full values of deleted records
                                     (optional, default: False)
     :type include_deleted_records: bool
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
 
     For writable tables the resource ``last_modified`` value will be updated
     by a scheduled background job. See :ref:`background jobs` for more
@@ -569,12 +572,13 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :param include_deleted_records: return the full values of deleted records
                                     (optional, default: False)
     :type include_deleted_records: bool
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
 
     For writable tables the resource ``last_modified`` value will be updated
     by a scheduled background job. See :ref:`background jobs` for more

@@ -106,3 +106,22 @@ DO $body$
     END;
 $body$;
 
+CREATE OR REPLACE FUNCTION fast_table_row_count(table_name name, exact_below bigint)
+    RETURNS TABLE (row_count bigint, exact bool)
+AS $body$
+    DECLARE
+        row_count bigint;
+    BEGIN
+        SELECT reltuples INTO row_count FROM pg_class
+            WHERE relnamespace = (
+                SELECT oid FROM pg_namespace WHERE nspname='public')
+            AND relname = table_name;
+        IF row_count >= exact_below THEN
+            RETURN QUERY SELECT row_count, false;
+        ELSE
+            EXECUTE format('SELECT count(*) FROM public.%I', table_name)
+                INTO row_count;
+            RETURN QUERY SELECT row_count, true;
+        END IF;
+    END;
+$body$ LANGUAGE plpgsql STABLE;

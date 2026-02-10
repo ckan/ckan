@@ -117,3 +117,23 @@ groups:
 
       Indexes increase the time and disk space required to load data
       into the DataStore.
+
+  - key: ckan.datastore.default_total_estimation_threshold
+    type: int
+    default: 20000
+    example: 1000000
+    description: |
+      For any table with more than this number of rows the stored count of
+      rows will be returned when possible instead of calculating the exact
+      value. 20k was chosen as a default because exact values for tables
+      this size can be calculated in about 20ms.
+
+  - key: ckan.datastore.background_calculate_record_count_delay
+    type: float
+    default: 5
+    example: 0.5
+    description: |
+      This is the delay in seconds used when scheduling a background job to
+      recalculate and store the number of rows in a table after the table's
+      content is updated. If another update happens within this time the
+      first background job is canceled and a new one is scheduled.
