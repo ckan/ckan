@@ -9,7 +9,7 @@ from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-from sqlalchemy import types, Column, Table, ForeignKey, Index
+from sqlalchemy import types, Column, Table, ForeignKey, Index, UniqueConstraint
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -59,9 +59,9 @@ resource_table = Table(
     Index('idx_package_resource_id', 'id'),
     Index('idx_package_resource_package_id', 'package_id'),
     Index('idx_package_resource_url', 'url'),
-    Index('idx_package_resource_unique_position',
-          Column('package_id'), Column('position'),
-          unique=True, postgresql_where="(state = 'active'::text)")
+    UniqueConstraint(Column('package_id'), Column('position'),
+        name='con_package_resource_unique_position',
+        deferrable=True, initially='deferred')
 )
 
 

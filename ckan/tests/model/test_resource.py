@@ -77,4 +77,4 @@ class TestResource(object):
             model.Session.commit()
 
         err = e.value
-        assert 'duplicate key value violates unique constraint "idx_package_resource_unique_position"' in str(err)
+        assert 'duplicate key value violates unique constraint "con_package_resource_unique_position"' in str(err)
