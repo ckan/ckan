@@ -5,7 +5,7 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 20.04 or 22.04 64-bit**. If
+and easiest way to install CKAN, but it requires **Ubuntu 22.04 or 24.04 64-bit**. If
 you're not using any of these Ubuntu versions, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
@@ -13,7 +13,7 @@ At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
 importing data to CKAN's :doc:`/maintaining/datastore`. Additionally, there will be a process running the worker for running :doc:`/maintaining/background-tasks`. All these processes will be managed by `Supervisor <https://supervisord.org/>`_.
 
-For Python 3 installations, the minimum Python version required is 3.9.
+For Python 3 installations, the minimum Python version required is 3.10.
 
 Host ports requirements:
 

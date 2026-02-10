@@ -9,6 +9,15 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.11.5 XXXX-XX-XX
+===================
+
+Migration notes
+---------------
+
+- Added support for Python 3.13 and 3.14. Dropped support for Python 3.9.
+
+
 v.2.11.4 2025-10-29
 ===================
 
