@@ -9,7 +9,6 @@ Create Date: 2026-02-10 18:26:31.122945
 
 """
 from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
@@ -29,7 +28,7 @@ def upgrade():
         constraint_name='con_package_resource_unique_position',
         table_name='resource', columns=['package_id', 'position'],
         deferrable=True, initially="DEFERRED")
-    print('Created "con_package_resource_unique_position"' \
+    print('Created "con_package_resource_unique_position"'
           ' constraint on resource table')
 
 
@@ -38,5 +37,5 @@ def downgrade():
         constraint_name='con_package_resource_unique_position',
         table_name='resource',
         type_='unique')
-    print('Dropped "con_package_resource_unique_position"' \
+    print('Dropped "con_package_resource_unique_position"'
           ' constraint from resource table')

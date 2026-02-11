@@ -70,6 +70,7 @@ class TestResource(object):
         factories.Resource(package_id=parent["id"])
         res2 = factories.Resource(package_id=parent["id"])
 
+        res2 = model.Resource.get(res2['id'])
         res2.position = 0
 
         with pytest.raises(IntegrityError) as e:

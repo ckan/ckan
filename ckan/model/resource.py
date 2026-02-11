@@ -175,7 +175,8 @@ class Resource(core.StatefulObjectMixin,
 ## Mappers
 
 def _get_stately_resource_position(
-        index: int, resources: List[Resource]) -> Optional[int]:
+        # type_ignore_reason: incomplete typing
+        index: int, resources: List[Resource]) -> Optional[int]:  # type: ignore
     """
     Give state='deleted' resources null positions.
 
@@ -193,12 +194,14 @@ meta.registry.map_imperatively(Resource, resource_table, properties={
         Package,
         # all resources including deleted
         # formally package_resources_all
-        backref=orm.backref('resources_all',
-                            collection_class=ordering_list(
-                                'position',
-                                ordering_func=_get_stately_resource_position),
-                            cascade='all, delete'
-                            ),
+        backref=orm.backref(
+            'resources_all',
+            collection_class=ordering_list(
+                'position',
+                # type_ignore_reason: incomplete typing
+                ordering_func=_get_stately_resource_position),  # type: ignore
+            cascade='all, delete'
+        ),
     )
 })
 
