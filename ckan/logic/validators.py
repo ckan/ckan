@@ -9,7 +9,7 @@ import mimetypes
 import string
 import json
 import uuid
-from typing import Any, Container, Optional, Union
+from typing import Any, Container, Optional, Union, Iterable
 from urllib.parse import urlparse
 
 from sqlalchemy.exc import NoResultFound
@@ -1148,7 +1148,7 @@ def one_of(list_of_value: Container[Any]) -> Validator:
     return callable
 
 
-def one_of_or_boolean(list_of_value: Container[Any]) -> Validator:
+def one_of_or_boolean(list_of_value: Iterable[Any]) -> Validator:
     """
     Checks if the provided value is present in a list, is an empty string
     or a boolean-appearing value including:
