@@ -1173,7 +1173,7 @@ def one_of_or_boolean(list_of_value: Container[Any]) -> Validator:
                 return False
 
         raise Invalid(_('Value must be boolean or one of: %s') %
-            ', '.join(list_of_value))
+            ', '.join(str(v) for v in list_of_value))
     return callable
 
 
