@@ -33,6 +33,7 @@ class TestDelete:
         # It is still there but with state=deleted
         res_obj = model.Resource.get(resource["id"])
         assert res_obj.state == "deleted"
+        assert res_obj.position is None
 
     def test_resource_delete_for_delete(self):
 

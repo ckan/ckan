@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, ClassVar, Optional, cast
+from typing import Any, Callable, ClassVar, Optional, List, cast
 
 
 from collections import OrderedDict
@@ -174,13 +174,29 @@ class Resource(core.StatefulObjectMixin,
 
 ## Mappers
 
+def _get_stately_resource_position(
+        index: int, resources: List[Resource]) -> Optional[int]:
+    """
+    Give state='deleted' resources null positions.
+
+    Required for con_package_resource_unique_position
+    unique constraint when deleting resources.
+    """
+    if resources[index].state != 'deleted':
+        return index
+    else:
+        return None
+
+
 meta.registry.map_imperatively(Resource, resource_table, properties={
     'package': orm.relationship(
         Package,
         # all resources including deleted
         # formally package_resources_all
         backref=orm.backref('resources_all',
-                            collection_class=ordering_list('position'),
+                            collection_class=ordering_list(
+                                'position',
+                                ordering_func=_get_stately_resource_position),
                             cascade='all, delete'
                             ),
     )
