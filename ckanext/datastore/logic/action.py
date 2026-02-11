@@ -189,7 +189,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     if ccount == 'background':
         _schedule_calculate_record_count(res['id'])
     elif ccount:
-        backend.calculate_record_count(res['id'])  # type: ignore
+        backend.calculate_record_count(res['id'])
 
     # Set the datastore_active flag on the resource if necessary
     resobj = model.Resource.get(data_dict['resource_id'])
@@ -399,7 +399,7 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     if ccount == 'background':
         _schedule_calculate_record_count(res['id'])
     elif ccount:
-        backend.calculate_record_count(res['id'])  # type: ignore
+        backend.calculate_record_count(res['id'])
 
     if res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
         _schedule_patch_resource_last_modified(resource_id)
@@ -573,7 +573,7 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     if ccount == 'background':
         _schedule_calculate_record_count(resource_id)
     elif ccount:
-        backend.calculate_record_count(resource_id)  # type: ignore
+        backend.calculate_record_count(resource_id)
 
     # Set the datastore_active flag on the resource if necessary
     if data_dict.get('filters', None) is None and res.get('datastore_active'):

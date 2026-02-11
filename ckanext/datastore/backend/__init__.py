@@ -235,3 +235,6 @@ class DatastoreBackend:
 
     def resource_plugin_data(self, resource_id: str) -> dict[str, Any]:
         raise NotImplementedError()
+
+    def calculate_record_count(self, resource_id: str):
+        raise NotImplementedError()
