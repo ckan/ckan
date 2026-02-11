@@ -175,8 +175,7 @@ class Resource(core.StatefulObjectMixin,
 ## Mappers
 
 def _get_stately_resource_position(
-        # type_ignore_reason: incomplete typing
-        index: int, resources: List[Resource]) -> Optional[int]:  # type: ignore
+        index: int, resources: List[Resource]) -> Optional[int]:
     """
     Give state='deleted' resources null positions.
 
