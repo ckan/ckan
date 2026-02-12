@@ -209,7 +209,10 @@ def datastore_search_schema() -> Schema:
         'sort': [ignore_missing, list_of_strings_or_string],
         'distinct': [ignore_missing, boolean_validator],
         'include_total': [default(True), boolean_validator],
-        'total_estimation_threshold': [default(None), int_validator],
+        'total_estimation_threshold': [
+            configured_default('ckan.datastore.default_total_estimation_threshold',
+                               20000),
+            int_validator],
         'records_format': [
             default(u'objects'),
             one_of([u'objects', u'lists', u'csv', u'tsv'])],
