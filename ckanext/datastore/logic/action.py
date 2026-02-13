@@ -186,6 +186,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
             _schedule_calculate_record_count(res['id'])
         raise
 
+    if not ccount or ccount == 'background':
+        backend.clear_table_stats(res['id'])
     if ccount == 'background':
         _schedule_calculate_record_count(res['id'])
     elif ccount:
@@ -396,6 +398,8 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     if not data_dict.pop('include_records', False):
         result.pop('records', None)
 
+    if not ccount or ccount == 'background':
+        backend.clear_table_stats(res['id'])
     if ccount == 'background':
         _schedule_calculate_record_count(res['id'])
     elif ccount:
@@ -570,6 +574,8 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     p.toolkit.signals.datastore_delete.send(
         resource_id, result=result, data_dict=data_dict)
 
+    if not ccount or ccount == 'background':
+        backend.clear_table_stats(resource_id)
     if ccount == 'background':
         _schedule_calculate_record_count(resource_id)
     elif ccount:

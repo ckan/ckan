@@ -1564,20 +1564,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     _insert_links(data_dict, limit, offset)
 
     if data_dict["include_total"]:
-        if not (where_clause or distinct):
-            row_count, exact = context['connection'].execute(
-                sa.text("""
-                SELECT row_count, exact
-                FROM fast_table_row_count(:resource, :exact_below)
-                """),
-                {
-                    "resource": resource_id,
-                    "exact_below": data_dict["total_estimation_threshold"],
-                }
-            ).one()
-            data_dict['total'] = row_count
-            data_dict['total_was_estimated'] = not exact
-        else:
+        if where_clause or distinct:
             # this is slow for large results
             count_sql_string = u'''SELECT count(*) FROM (
                 SELECT {distinct} {select}
@@ -1590,7 +1577,14 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             count_result = _execute_single_statement(
                 context, count_sql_string, where_values)
             data_dict['total'] = count_result.one()[0]
-            data_dict['total_was_estimated'] = False
+        else:
+            row_count = context['connection'].execute(
+                sa.text("""
+                SELECT row_count FROM cached_table_row_count(:resource)
+                """),
+                {"resource": resource_id}
+            ).one()
+            data_dict['total'] = row_count
 
     return data_dict
 
@@ -2429,14 +2423,23 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def calculate_record_count(self, resource_id: str):
         '''
-        Calculate an estimate of the record/row count and store it in
-        Postgresql's pg_stat_user_tables. This number will be used when
-        specifying `total_estimation_threshold`
+        Update the record count cache if it is not already present.
         '''
-        sql = f'ANALYZE {identifier(resource_id)}'
+        sql = sa.text('SELECT rows FROM cached_table_row_count(:resource_id)')
         with get_write_engine().connect() as conn:
             try:
-                conn.execute(sa.text(sql))
+                conn.execute(sql, {"resource": resource_id})
+            except DatabaseError as err:
+                raise DatastoreException(err)
+
+    def clear_table_stats(self, resource_id: str):
+        '''
+        Remove cached record count and any other stats stored for a table.
+        '''
+        sql = sa.text('DELETE FROM _table_stats WHERE resource_id = :resource_id')
+        with get_write_engine().connect() as conn:
+            try:
+                conn.execute(sql, {"resource": resource_id})
             except DatabaseError as err:
                 raise DatastoreException(err)
 
