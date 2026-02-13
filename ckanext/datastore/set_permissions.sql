@@ -107,7 +107,7 @@ DO $body$
 $body$;
 
 -- _table_stats for caching row counts and other useful table statistics
-CREATE TABLE IF NOT EXISTS "_table_stats" (
+CREATE UNLOGGED TABLE IF NOT EXISTS "_table_stats" (
     "resource_id" name PRIMARY KEY,
     "stats" jsonb NOT NULL
 );
