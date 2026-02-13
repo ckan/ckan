@@ -30,7 +30,7 @@ def ipython(namespace: Mapping[str, Any], banner: str) -> None:
     c = Config()
     setattr(c.TerminalInteractiveShell, "banner2", banner)
 
-    IPython.start_ipython([], user_ns=namespace, config=c)      # type: ignore
+    IPython.start_ipython([], user_ns=namespace, config=c)
 
 
 def python(namespace: Mapping[str, Any], banner: str) -> None:
