@@ -1634,12 +1634,15 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 context, count_sql_string, where_values)
             data_dict['total'] = count_result.one()[0]
         else:
-            row_count = context['connection'].execute(
-                sa.text("""
-                SELECT row_count FROM cached_table_row_count(:resource)
-                """),
-                {"resource": resource_id}
-            ).one()
+            backend = DatastorePostgresqlBackend.get_active_backend()
+            wengine = backend._get_write_engine()  # type: ignore
+            with wengine.begin() as conn:
+                row_count = conn.execute(
+                    sa.text("""
+                    SELECT cached_table_row_count(:resource)
+                    """),
+                    {"resource": resource_id}
+                ).one()
             data_dict['total'] = row_count
 
     if last_id is not None:
@@ -2489,10 +2492,13 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         '''
         Update the record count cache if it is not already present.
         '''
-        sql = sa.text('SELECT rows FROM cached_table_row_count(:resource_id)')
+        sql = sa.text(f'''
+            ANALYZE {identifier(resource_id)};
+            SELECT cached_table_row_count(:resource_id)
+        ''')
         with get_write_engine().connect() as conn:
             try:
-                conn.execute(sql, {"resource": resource_id})
+                conn.execute(sql, {"resource_id": resource_id})
             except DatabaseError as err:
                 raise DatastoreException(err)
 
@@ -2503,7 +2509,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         sql = sa.text('DELETE FROM _table_stats WHERE resource_id = :resource_id')
         with get_write_engine().connect() as conn:
             try:
-                conn.execute(sql, {"resource": resource_id})
+                conn.execute(sql, {"resource_id": resource_id})
             except DatabaseError as err:
                 raise DatastoreException(err)
 
