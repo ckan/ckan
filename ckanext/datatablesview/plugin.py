@@ -62,7 +62,6 @@ class DataTablesView(p.SingletonPlugin):
             "ckan.datatables.ellipsis_length")
         self.date_format = config.get("ckan.datatables.date_format")
         self.default_view = config.get("ckan.datatables.default_view")
-        self.responsive_modal = config.get("ckan.datatables.responsive_modal")
 
         toolkit.add_template_directory(config, 'templates')
         toolkit.add_resource('assets', 'ckanext-datatablesview')
@@ -97,7 +96,6 @@ class DataTablesView(p.SingletonPlugin):
             'ellipsis_length': self.ellipsis_length,
             'date_format': self.date_format,
             'default_view': self.default_view,
-            'responsive_modal': self.responsive_modal,
             'request_timeout': self.request_timeout,
             'language_object': language_object,
             'fullscreen': fullscreen,

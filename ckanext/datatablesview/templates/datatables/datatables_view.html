@@ -42,7 +42,6 @@
     data-module-ckan-filters='{{ request.args.get("filters", "")|e or "null" }}'
     data-module-responsive-flag='{{ resource_view.get('responsive')|tojson }}'
     data-module-page-length-choices="{{ page_length_choices }}"
-    data-module-responsive-modal='{{ responsive_modal|tojson }}'
     data-module-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id ) }}"
     data-module-data-dictionary='{{- data_dictionary|tojson -}}'
     data-module-editable='{{ can_edit|tojson }}'

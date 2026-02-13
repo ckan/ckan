@@ -156,8 +156,8 @@ def ajax(resource_view_id: str):
             'recordsTotal': unfiltered_response.get('total', 0),
             'recordsFiltered': response.get('total', 0),
             'data': data,
-            'total_was_estimated': False  #unfiltered_response.get(
-                # 'total_was_estimated', False),
+            'total_was_estimated': unfiltered_response.get(
+                'total_was_estimated', False),
         }
         status = 200
 

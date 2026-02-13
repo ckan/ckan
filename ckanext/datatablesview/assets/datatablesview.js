@@ -20,7 +20,6 @@ this.ckan.module('datatables_view', function($){
       ckanFilters: null,
       responsiveFlag: false,
       pageLengthChoices: [20, 50, 100, 500, 1000],
-      responsiveModal: false,
       resourceUrl: null,
       dataDictionary: null,
       editable: false,
@@ -98,7 +97,6 @@ function load_datatable(CKAN_MODULE){
   const ckanFilters = CKAN_MODULE.options.ckanFilters;
   const defaultCompactView = CKAN_MODULE.options.responsiveFlag;
   const pageLengthChoices = CKAN_MODULE.options.pageLengthChoices;
-  const useCompactViewModal = CKAN_MODULE.options.responsiveModal;
   const resourceURI = CKAN_MODULE.options.resourceUrl;
   const dataDictionary = CKAN_MODULE.options.dataDictionary;
   const isEditable = CKAN_MODULE.options.editable;
@@ -124,7 +122,9 @@ function load_datatable(CKAN_MODULE){
   const colSortAscLabel = _('Ascending');
   const colSortDescLabel = _('Descending');
   const colSortAnyLabel = _('Any');
-  const estimatedLabel = _('(estimated)');
+  const estimatedLabel = _('Total was estimated');
+  const exactLabel = _('Total is exact');
+  const elapsedTimeLabel = _('seconds');
   const numberTypes = [
     'year',
     'month',
@@ -146,7 +146,6 @@ function load_datatable(CKAN_MODULE){
   ]
   const colOffset = 1;  // _id col
   const defaultSortOrder = [[0, "asc"]];  // _id col
-  const defaultDidEstimatedTotal = false;
   let ajaxStartTime = 0;
   let ajaxElapsedTime;
 
@@ -160,7 +159,7 @@ function load_datatable(CKAN_MODULE){
   let isCompactView = typeof tableState != 'undefined' && typeof tableState.compact_view != 'undefined' ? tableState.compact_view : defaultCompactView;
   let pageLength = typeof tableState != 'undefined' && typeof tableState.page_length != 'undefined' ? tableState.page_length : pageLengthChoices[0];
   let sortOrder = typeof tableState != 'undefined' && typeof tableState.sort_order != 'undefined' ? tableState.sort_order : defaultSortOrder;
-  let didEstimatedTotal = typeof tableState != 'undefined' && typeof tableState.did_estimated_total != 'undefined' ? tableState.did_estimated_total : defaultDidEstimatedTotal;
+  let didEstimatedTotal;
 
   let availableColumns = [{
     "name": '_id',
@@ -468,18 +467,23 @@ function load_datatable(CKAN_MODULE){
           stripHtml: false
         }
       },
-      {
-        name: 'shareButton',
-        text: '<i class="fa fa-share"></i>',
-        titleAttr: shareButtonLabel,
-        className: 'btn-secondary',
-        action: function (e, dt, node, config) {
-          dt.state.save();
-          let sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()));
-          // TODO: do copy state link stuffs... ONLY NEEDED vars
-          // copyLink(dt, sharelink, that._('Share current view'), that._('Copied deeplink to clipboard'));
-        }
-      }
+      // FIXME: Base64ing the entire table state is way too large.
+      //        We could add normal URI params for the only required things
+      //        like "sort, col_filters, query, compact, page, length";
+      //        However, we cannot reliably add column reordering,
+      //        column visibility, and view filters to the URI as they can
+      //        be almost infinite for a URI. Network middlewares and proxies
+      //        may also set max lengths and parameters, so those would break.
+      // {
+      //   name: 'shareButton',
+      //   text: '<i class="fa fa-share"></i>',
+      //   titleAttr: shareButtonLabel,
+      //   className: 'btn-secondary',
+      //   action: function (e, dt, node, config) {
+      //     dt.state.save();
+      //     let sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()));
+      //   }
+      // }
     ];
   }
 
@@ -501,6 +505,41 @@ function load_datatable(CKAN_MODULE){
     _render_failure(_message, ajaxErrorMessage, 'warning');
   }
 
+  function render_timing_info(){
+    /**
+     * Render timing and estimated total info.
+     *
+     * Also save non HTML versions for use throughout functional code.
+     *
+     * NOTE: this is done separate from render_table_info
+     *       due to how ajax complete callbacks and draw callbacks
+     *       work in DataTables.
+     */
+    let countInfo = $('#dtprv_info');
+    let info = '';
+    if( typeof didEstimatedTotal != 'undefined' && didEstimatedTotal != null ){
+      if( didEstimatedTotal ){
+        info += estimatedLabel;
+      }else{
+        info += exactLabel;
+      }
+    }
+    if( typeof ajaxElapsedTime != 'undefined' && ajaxElapsedTime != null ){
+      if( info.length > 0 ){
+        info += '\n';
+      }
+      info += (ajaxElapsedTime / 1000).toFixed(2) + ' ' + elapsedTimeLabel;
+    }
+    if( info.length == 0 ){
+      $(countInfo).find('#timing-info').remove();
+      return;
+    }
+    if( $(countInfo).find('#timing-info').length == 0 ){
+      $(countInfo).append('&nbsp;<i class="fa fa-info-circle" id="timing-info"></i>');
+    }
+    $(countInfo).find('#timing-info').attr('title', info);
+  }
+
   function render_table_info(){
     /**
      * Render table and resource info for the current table state.
@@ -508,15 +547,6 @@ function load_datatable(CKAN_MODULE){
      * Also save non HTML versions for use throughout functional code.
      */
     // TODO: save table info into object...
-
-    // TODO: add or remove estimatedLabel
-    console.log(didEstimatedTotal);
-    if( didEstimatedTotal ){
-      // $('#dtprv_info')
-    }
-
-    // TODO: output ajaxElapsedTime somewhere...
-    console.log(ajaxElapsedTime);
 
     let resourceInfo = $('#dtv-resource-info');
     let content = $(resourceInfo).find('.dtv-resource-info-content');
@@ -712,12 +742,12 @@ function load_datatable(CKAN_MODULE){
      */
     $('#dtprv_wrapper').find('#dtprv_failure_message').remove();
     set_table_visibility();
-    // render_expand_buttons();
     render_table_info();
+    render_timing_info();
     set_button_states();
   }
 
-  function init_callback(){
+  function init_callback(_setting, _data){
     /**
      * Executes once the DataTable initializes.
      */
@@ -725,6 +755,9 @@ function load_datatable(CKAN_MODULE){
     if( ! isCompactView ){
       table.columns.adjust();
     }
+    ajaxElapsedTime = window.performance.now() - ajaxStartTime;  // track ajax performance time
+    didEstimatedTotal = _data.total_was_estimated;
+    render_timing_info();
     set_row_selects();
     bind_custom_events();
     set_button_states();
@@ -789,8 +822,6 @@ function load_datatable(CKAN_MODULE){
     tableState.selected = localInstanceState.selected;
     tableState.sort_order = localInstanceState.sort_order;
     tableState.compact_view = localInstanceState.compact_view;
-
-    // TODO: check URL params for base64 decode...
 
     return _data;
   }
