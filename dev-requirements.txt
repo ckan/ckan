@@ -9,7 +9,7 @@ flask-debugtoolbar==0.15.1
 freezegun==1.5.1
 ipdb==0.13.13
 pip-tools==7.4.1
-Pillow==10.4.0
+Pillow==12.0.0
 responses==0.25.3
 sphinx-rtd-theme==2.0.0
 sphinx==7.3.7

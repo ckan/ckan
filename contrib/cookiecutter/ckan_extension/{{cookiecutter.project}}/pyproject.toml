@@ -14,9 +14,10 @@ license = {text = "AGPL"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 {% set keywords = cookiecutter.keywords.split() %}
 keywords = [ {% for keyword in keywords %}"{{ keyword }}", {% endfor %}]
@@ -30,7 +31,7 @@ Homepage = "https://github.com/{{ cookiecutter.github_user_name }}/{{ cookiecutt
 
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools<82"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
