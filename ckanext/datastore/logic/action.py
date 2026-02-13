@@ -692,17 +692,6 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :param include_total: True to return total matching record count
                           (optional, default: true)
     :type include_total: bool
-    :param total_estimation_threshold: If "include_total" is True and
-        "total_estimation_threshold" is not None and the estimated total
-        (matching record count) is above the "total_estimation_threshold" then
-        this datastore_search will return an *estimate* of the total, rather
-        than a precise one. This is often good enough, and saves
-        computationally expensive row counting for larger results (e.g. >100000
-        rows). The estimated total comes from the PostgreSQL table statistics,
-        generated when Express Loader or DataPusher finishes a load, or by
-        autovacuum. NB Currently estimation can't be done if the user specifies
-        'filters' or 'distinct' options. (optional, default: None)
-    :type total_estimation_threshold: int or None
     :param records_format: the format for the records return value:
         'objects' (default) list of {fieldname1: value1, ...} dicts,
         'lists' list of [value1, value2, ...] lists,

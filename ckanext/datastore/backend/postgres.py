@@ -1422,7 +1422,6 @@ def validate(context: Context, data_dict: dict[str, Any]):
 
     data_dict_copy.pop('id', None)
     data_dict_copy.pop('include_total', None)
-    data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('include_records', None)
     data_dict_copy.pop('include_deleted_records', None)
@@ -1576,7 +1575,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 where=where_clause)
             count_result = _execute_single_statement(
                 context, count_sql_string, where_values)
-            data_dict['total'] = count_result.one()[0]
+            data_dict['total'] = count_result.scalar()
         else:
             backend = DatastorePostgresqlBackend.get_active_backend()
             wengine = backend._get_write_engine()  # type: ignore
@@ -1586,7 +1585,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                     SELECT cached_table_row_count(:resource)
                     """),
                     {"resource": resource_id}
-                ).one()
+                ).scalar()
             data_dict['total'] = row_count
 
     return data_dict
@@ -2432,7 +2431,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             ANALYZE {identifier(resource_id)};
             SELECT cached_table_row_count(:resource_id)
         ''')
-        with get_write_engine().connect() as conn:
+        with get_write_engine().connect().execution_options(
+                isolation_level='AUTOCOMMIT') as conn:
             try:
                 conn.execute(sql, {"resource_id": resource_id})
             except DatabaseError as err:
@@ -2443,7 +2443,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         Remove cached record count and any other stats stored for a table.
         '''
         sql = sa.text('DELETE FROM _table_stats WHERE resource_id = :resource_id')
-        with get_write_engine().connect() as conn:
+        with get_write_engine().connect().execution_options(
+                isolation_level='AUTOCOMMIT') as conn:
             try:
                 conn.execute(sql, {"resource_id": resource_id})
             except DatabaseError as err:
