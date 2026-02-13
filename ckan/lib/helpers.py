@@ -1156,12 +1156,12 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'my label': _(u"My {object_type}s"),
         u'view label': _("View {object_type}"),
         u'name placeholder': _(u"My {object_type}"),
-        u'no any objects': _(
-            u"There are currently no {object_type}s for this site"),
-        u'no associated label': _(
-            u'There are no {object_type}s associated with this dataset'),
-        u'no description': _(
-            u'There is no description for this {object_type}'),
+        'no any objects': _(
+            "There are currently no {object_type}s for this site."),
+        'no associated label': _(
+            'There are no {object_type}s associated with this dataset.'),
+        'no description': _(
+            'There is no description for this {object_type}.'),
         u'no label': _(u"No {object_type}"),
         u'page title': _(u"{object_type}s"),
         u'save label': _(u"Save {object_type}"),
@@ -1187,7 +1187,7 @@ def get_facet_items_dict(
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
-    Returns the list of unselected facet contraints or facet items (e.g. tag
+    Returns the list of unselected facet constraints or facet items (e.g. tag
     names like "russian" or "tolstoy") for the given search facet (e.g.
     "tags"), sorted by facet item count (i.e. the number of search results that
     match each facet item).
@@ -1372,11 +1372,7 @@ def linked_user(user: Union[str, model.User],
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return literal(u'{icon} {link}'.format(
-            icon=user_image(
-                user.id,
-                size=avatar
-            ),
+        return literal(u'{link}'.format(
             link=link_to(
                 displayname,
                 url_for('user.read', id=name)
@@ -1401,7 +1397,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = RE_MD_HTML_TAGS.sub('', markdown(text))
+    plain = bleach_clean(markdown(text), tags=(), strip=True)
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(
@@ -1862,7 +1858,7 @@ def snippet(template_name: str, **kw: Any) -> str:
 @core_helper
 def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     ''' This is a helper function for converting lists of objects into
-    lists of dicts. It is for backwards compatability only. '''
+    lists of dicts. It is for backwards compatibility only. '''
 
     import ckan.lib.dictization.model_dictize as md
     converters = {'package': md.package_dictize}
@@ -1969,7 +1965,7 @@ def add_url_param(alternative_url: Optional[str] = None,
     :py:func:`~ckan.lib.helpers.url_for` controller & action default to the
     current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
     '''
 
@@ -2007,7 +2003,7 @@ def remove_url_param(key: Union[list[str], str],
     via :py:func:`~ckan.lib.helpers.url_for`
     controller & action default to the current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
 
     '''
@@ -2203,10 +2199,6 @@ RE_MD_EXTERNAL_LINK = re.compile(
     flags=re.UNICODE
 )
 
-# find all tags but ignore < in the strings so that we can use it correctly
-# in markdown
-RE_MD_HTML_TAGS = re.compile('<[^><]*>')
-
 
 @core_helper
 def html_auto_link(data: str) -> str:
@@ -2266,7 +2258,6 @@ def render_markdown(data: str,
     if allow_html:
         data = markdown(data.strip())
     else:
-        data = RE_MD_HTML_TAGS.sub('', data.strip())
         data = bleach_clean(
             markdown(data), strip=True,
             tags=MARKDOWN_TAGS,

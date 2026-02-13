@@ -4,6 +4,7 @@ import json
 import pytest
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
+from time import sleep
 
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
@@ -296,7 +297,6 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is None
 
-    @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         # how datapusher loads data (send_resource_to_datastore)
         resource = factories.Resource()
@@ -314,8 +314,10 @@ class TestDatastoreCreateNewTests(object):
             "force": True,
         }
         helpers.call_action("datastore_create", **data)
-        last_analyze = when_was_last_analyze(resource["id"])
-        assert last_analyze is not None
+        def has_la():
+            return when_was_last_analyze(resource["id"]) is not None
+        # retry because analyze is sometimes delayed
+        assert has_la() or sleep(.5) or has_la()
 
     def test_delete_fields(self):
         resource = factories.Resource()
@@ -1297,9 +1299,9 @@ class TestDatastoreFunctionCreate(object):
 
 
 
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
 class TestDatastoreCreateTriggers(object):
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_with_missing_trigger(self, app):
         ds = factories.Dataset()
 
@@ -1318,8 +1320,6 @@ class TestDatastoreCreateTriggers(object):
             ]
         }
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_trigger_applies_to_records(self, app):
         ds = factories.Dataset()
 
@@ -1351,8 +1351,6 @@ class TestDatastoreCreateTriggers(object):
             {u"spam": u"spam spam EGGS spam"},
         ]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_trigger_applies_to_records(self, app):
         ds = factories.Dataset()
 
@@ -1389,8 +1387,6 @@ class TestDatastoreCreateTriggers(object):
             {u"spam": u"spam spam SPAM spam"},
         ]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_trigger_exception(self, app):
         ds = factories.Dataset()
 
@@ -1420,8 +1416,6 @@ class TestDatastoreCreateTriggers(object):
             "records_row": 1,
         }
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_trigger_exception(self, app):
         ds = factories.Dataset()
 
@@ -1455,3 +1449,34 @@ class TestDatastoreCreateTriggers(object):
                 "records": ['"BEANS"? Yeeeeccch!'],
                 "records_row": 1,
             }
+
+    def test_create_does_not_include_records_by_default(self):
+        package = factories.Dataset()
+        data = {
+            "resource": {"package_id": package["id"]},
+            "fields": [
+                {"id": "movie", "type": "text"},
+                {"id": "director", "type": "text"},
+            ],
+            "force": True,
+            "records": [{"movie": "Cats", "director": "Tom Hooper"}],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        assert 'records' not in result
+
+    def test_create_include_records_return(self):
+        package = factories.Dataset()
+        data = {
+            "resource": {"package_id": package["id"]},
+            "fields": [
+                {"id": "movie", "type": "text"},
+                {"id": "directors", "type": "text"},
+            ],
+            "force": True,
+            "records": [{"movie": "Cats", "director": "Tom Hooper"}],
+            "include_records": True
+        }
+        result = helpers.call_action("datastore_create", **data)
+        assert 'records' in result
+        for r in result['records']:
+            assert '_id' in r

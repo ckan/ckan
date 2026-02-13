@@ -260,8 +260,8 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<h1>moo</h1>", "<h1>moo</h1>", True),
-            ("<h1>moo</h1>", "<p>moo</p>", False),
+            ("<script>moo</script>", "<script>moo</script>", True),
+            ("<script>moo</script>", "moo", False),
             (
                 "http://example.com",
                 '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
@@ -285,7 +285,7 @@ class TestHelpersRenderMarkdown(object):
             (u"[text](javascript: alert(1))", u"<p><a>text</a></p>", False),
             (
                 u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
-                u"<p>and text</p>",
+                '<p><img src="image.png"> and text</p>',
                 False,
             ),
             (u"#heading", u"<h1>heading</h1>", False),
@@ -381,8 +381,8 @@ class TestHelpersRenderMarkdown(object):
                 False,
             ),
             (
-                u"<a href=\u201dsomelink\u201d>somelink</a>",
-                "<p>somelink</p>",
+                "<a href=\u201dsomelink\u201d>somelink</a>",
+                '<p><a href="\u201dsomelink\u201d">somelink</a></p>',
                 False,
             ),
         ],
@@ -725,7 +725,7 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    with_html = u"""Data exposed: &mdash;
+    with_html = u"""<i>Data</i> *exposed*: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """

@@ -63,7 +63,7 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
 }
 
 
-# A place to store the origional config options of we override them
+# A place to store the original config options of we override them
 _CONFIG_CACHE: dict[str, Any] = {}
 
 def set_theme(asset: str) -> None:
@@ -197,7 +197,7 @@ class _Globals(object):
         self._mutex = Lock()
 
     def _check_uptodate(self):
-        ''' check the config is uptodate needed when several instances are
+        ''' check the config is up-to-date needed when several instances are
         running '''
         value = model.get_system_info('ckan.config_update')
         if self._config_update != value:

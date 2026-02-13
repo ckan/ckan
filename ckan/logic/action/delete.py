@@ -38,7 +38,7 @@ def user_delete(context: Context, data_dict: DataDict) -> ActionResult.UserDelet
 
     Only sysadmins can delete users.
 
-    :param id: the id or usernamename of the user to delete
+    :param id: the id or name of the user to delete
     :type id: string
     '''
 
@@ -116,7 +116,7 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
 
     .. warning:: Purging a dataset cannot be undone!
 
-    Purging a database completely removes the dataset from the CKAN database,
+    Purging a dataset completely removes the dataset from the CKAN database,
     whereas deleting a dataset simply marks the dataset as deleted (it will no
     longer show up in the front-end, but is still in the db).
 
@@ -493,7 +493,7 @@ def _group_or_org_purge(
         dataset_ids = model.Session.query(model.Package.id) \
                         .filter_by(owner_org=group.id) \
                         .filter(model.Package.state != 'deleted')
-        if dataset_ids:
+        if dataset_ids.count():
             if not authz.check_config_permission(
                     'ckan.auth.create_unowned_dataset'):
                 raise ValidationError({
@@ -535,7 +535,7 @@ def group_purge(context: Context, data_dict: DataDict) -> None:
     whereas deleting a group simply marks the group as deleted (it will no
     longer show up in the frontend, but is still in the db).
 
-    Datasets in the organization will remain, just not in the purged group.
+    Datasets in the group will remain, just not in the purged group.
 
     You must be authorized to purge the group.
 
@@ -556,7 +556,7 @@ def organization_purge(context: Context, data_dict: DataDict) -> None:
     db).
 
     Datasets owned by the organization will remain, just not in an
-    organization any more.
+    organization anymore.
 
     You must be authorized to purge the organization.
 
@@ -644,13 +644,10 @@ def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
 
-    if not context.get('user'):
-        raise ckan.logic.NotAuthorized(
-                _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise ckan.logic.NotAuthorized(
-                _("You must be logged in to unfollow something."))
+        raise NotFound(_("User not found"))
+
     follower_id = userobj.id
 
     validated_data_dict, errors = validate(data_dict, schema, context)
@@ -677,6 +674,7 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
+    _check_access('unfollow_user', context, data_dict)
     _unfollow(context, data_dict, schema, model.UserFollowingUser)
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
@@ -688,6 +686,7 @@ def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
+    _check_access('unfollow_dataset', context, data_dict)
     _unfollow(context, data_dict, schema,
             model.UserFollowingDataset)
 
@@ -750,6 +749,7 @@ def unfollow_group(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema',
             ckan.logic.schema.default_follow_group_schema())
+    _check_access('unfollow_group', context, data_dict)
     _unfollow(context, data_dict, schema,
             model.UserFollowingGroup)
 
@@ -802,8 +802,8 @@ def job_cancel(context: Context, data_dict: DataDict) -> None:
 def api_token_revoke(context: Context, data_dict: DataDict) -> ActionResult.ApiTokenRevoke:
     """Delete API Token.
 
-    :param string token: Token to remove(required if `jti` not specified).
-    :param string jti: Id of the token to remove(overrides `token` if
+    :param string token: Token to remove (required if `jti` not specified).
+    :param string jti: ID of the token to remove (overrides `token` if
         specified).
 
     .. versionadded:: 3.0

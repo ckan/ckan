@@ -3,6 +3,7 @@
     <i class="fa fa-circle fa-stack-2x icon"></i>
     <i class="fa fa-briefcase fa-stack-1x fa-inverse"></i>
   </span>
+  <span>
     {{ _('{actor} deleted the organization {organization}').format(
       actor=ah.actor(activity),
       organization=ah.organization(activity)
@@ -11,4 +12,5 @@
     <span class="date" aria-label="{{ _('Activity occurred on: {time}').format(time=h.render_datetime(activity.timestamp, with_hours=True)) }}">
       {{ h.time_ago_from_timestamp(activity.timestamp) }}
     </span>
+  </span>
 </li>

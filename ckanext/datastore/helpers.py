@@ -14,6 +14,8 @@ import ckan.common as converters
 import ckan.plugins.toolkit as tk
 from ckan.types import Context
 
+import unicodedata
+
 
 log = logging.getLogger(__name__)
 
@@ -30,10 +32,13 @@ def is_valid_field_name(name: str):
     * can't start with underscore
     * can't contain double quote (")
     * can't be empty
+    * can't contain control characters
     '''
     return (name and name == name.strip() and
             not name.startswith('_') and
-            '"' not in name)
+            '"' not in name
+            and not any(
+                unicodedata.category(char).startswith('C') for char in name))
 
 
 def is_valid_table_name(name: str):
@@ -249,3 +254,12 @@ def datastore_rw_resource_url_types() -> list[str]:
     datastore_delete
     """
     return ["datastore"]
+
+
+def datastore_show_resource_actions():
+    """
+    Extensions should not show action buttons (i.e.) next to the Manage
+    / Data API core ones
+    """
+
+    return "midnight-blue" not in tk.config.get("ckan.base_templates_folder")

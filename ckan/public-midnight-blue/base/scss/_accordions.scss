@@ -3,24 +3,15 @@
 //
 
 .accordion-button {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
   padding: $accordion-button-padding-y 0.9em;
-  @include font-size($font-size-base);
   color: $accordion-button-color;
-  text-align: left; // Reset button style
   background-color: $accordion-button-bg;
-  border: 0;
-  @include border-radius(0);
-  overflow-anchor: none;
   @include transition($accordion-transition);
 
   &:not(.collapsed) {
     color: $accordion-button-color;
-    background-color: $gray-100;
-    box-shadow: inset 0 ($accordion-border-width * -1) 0 $accordion-border-color;
+    background-color: $gray-50;
+    box-shadow: none;
 
     &::after {
       background-image: escape-svg($accordion-button-icon);
@@ -30,25 +21,16 @@
 
   // Accordion icon
   &::after {
-    flex-shrink: 0;
     width: $accordion-icon-width;
     height: $accordion-icon-width;
-    margin-left: auto;
-    content: "";
     background-image: escape-svg($accordion-button-icon);
     background-repeat: no-repeat;
     background-size: $accordion-icon-width;
     @include transition($accordion-icon-transition);
   }
 
-  &:hover {
-    z-index: 2;
-  }
-
   &:focus {
-    z-index: 3;
     border-color: $accordion-button-focus-border-color;
-    outline: 0;
     box-shadow: $accordion-button-focus-box-shadow;
   }
 }
@@ -61,6 +43,13 @@
 .accordion-item {
   border-bottom: $accordion-border-width solid $gray-300;
   background-color: $accordion-bg;
+  &:last-of-type {
+    @include border-bottom-radius(var(--#{$prefix}accordion-border-radius));
+
+    > .accordion-header .accordion-button {
+      @include border-bottom-radius(var(--#{$prefix}accordion-inner-border-radius));
+    }
+  }
 }
 
 .accordion-body {

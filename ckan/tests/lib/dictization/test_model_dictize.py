@@ -821,8 +821,8 @@ class TestPackageSchema(object):
         )
         assert errors == {
             "packages": [
-                {"id": [u"Not found: Dataset"]},
-                {"id": [u"Missing value"]},
+                {"id": ["Dataset not found"]},
+                {"id": ["Missing value"]},
             ]
         }, pformat(errors)
 

@@ -39,7 +39,6 @@ from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (
-    HostHeaderMiddleware,
     RootPathMiddleware,
     CKANSecureCookieSessionInterface,
     CKANRedisSessionInterface,
@@ -318,9 +317,6 @@ def make_flask_stack() -> CKANApp:
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
-    # Prevent the host from request to be added to the new header location.
-    app = HostHeaderMiddleware(app)
-
     app = I18nMiddleware(app)
 
     # Add a reference to the actual Flask app so it's easier to access
@@ -429,7 +425,7 @@ class CKANFlask(MultiStaticFlask):
 
 
 def _register_plugins_blueprints(app: CKANApp):
-    """ Resgister all blueprints defined in plugins by IBlueprint
+    """ Register all blueprints defined in plugins by IBlueprint
     """
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()

@@ -61,7 +61,7 @@ class TestExampleIDatastoreBackendPlugin():
         fetchall = execute().fetchall
         execute.reset_mock()
 
-        COLUMN = "a;\"\' x"
+        COLUMN = "a;\\' x"
         DatastoreExampleSqliteBackend.resource_fields = Mock(
             return_value={u"meta": {}, u"schema": {COLUMN: u"text"}}
         )
