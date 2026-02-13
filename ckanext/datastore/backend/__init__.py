@@ -241,3 +241,9 @@ class DatastoreBackend:
         new number of records for future calls to search.
         """
         raise NotImplementedError()
+
+    def clear_table_stats(self, resource_id: str) -> None:
+        """Remove number or records and any other stats cached for
+        a resource.
+        """
+        raise NotImplementedError()
