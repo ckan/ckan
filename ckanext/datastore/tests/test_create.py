@@ -358,6 +358,28 @@ class TestDatastoreCreateNewTests(object):
         info = helpers.call_action("datastore_info", id=resource["id"])
         assert [f['id'] for f in info['fields']] == ['col_a', 'col_c']
 
+    def test_create_system_columns_invalid(self):
+        resource = factories.Resource(url_type='datastore')
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "xmin", "type": "text"},
+                {"id": "ctid", "type": "text"},
+                {"id": "tableoid", "type": "text"},
+                {"id": "cmax", "type": "text"},
+            ],
+        }
+        with pytest.raises(ValidationError) as error:
+            helpers.call_action("datastore_create", **data)
+        assert error.value.error_dict == {
+            "fields": [
+                {"id": ['"xmin" conflicts with a system column name']},
+                {"id": ['"ctid" conflicts with a system column name']},
+                {"id": ['"tableoid" conflicts with a system column name']},
+                {"id": ['"cmax" conflicts with a system column name']},
+            ]
+        }
+
 
 class TestDatastoreCreate(object):
     sysadmin_user = None
