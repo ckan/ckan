@@ -1,0 +1,3 @@
+After CKAN 2.12 the include_users parameter to organization_show and group_show
+actions will default to False regardless of the ckan.auth.public_user_details
+configuration setting.
