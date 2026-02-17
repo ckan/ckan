@@ -2,12 +2,14 @@
 """Unit tests for ckan/logic/action/update.py."""
 import datetime
 import uuid
+import re
 
 import unittest.mock as mock
 import pytest
 import sqlalchemy as sa
 
 import ckan.lib.app_globals as app_globals
+import ckan.lib.uploader as uploader
 import ckan.logic as logic
 from ckan.logic.action.get import package_show as core_package_show
 import ckan.plugins as p
@@ -1249,6 +1251,128 @@ class TestResourceUpdate(object):
         upd_size = int(res_update.pop("size"))  # 358 bytes
 
         assert org_size > upd_size
+
+    def test_resource_uploads_after_reorder(self, create_with_upload):
+        """
+        Having different resource positions in the database
+        should still allow for proper Resource uploads when
+        updating a resource/package.
+
+        Specifically tests the resources_all backref's order_by=position
+
+        NOTE: this flaky error is based on db object return of resources
+              in the package orm object. So we close and open db sessions
+              inside of this test to emulate browser request sessions.
+              Because of the flakiness, we update every resource w/ upload
+              in a new db session.
+        """
+        content_1 = b"This is some raw text content..."
+        content_2 = b"This is some COMPLETELY DIFFERENT raw text content..."
+
+        dataset = factories.Dataset()
+        original_order = []
+
+        # create a bunch of resources, check uploaded content
+        for i in range(0,6):
+            model.Session.commit()
+            model.Session.remove()
+            _session = model.Session  # noqa: F841
+            resource = create_with_upload(
+                content_1,
+                'test_1.txt',
+                package_id=dataset['id'],
+                url='http://localhost',
+            )
+            original_order.append(resource['id'])
+            assert resource['position'] == i
+            assert re.match(rf'.*/dataset/{dataset["id"]}/resource/{resource["id"]}/download/test_1.txt$', resource['url']) is not None
+            upload = uploader.get_resource_uploader(resource)
+            filepath = upload.get_path(resource['id'])
+            with open(filepath, 'rb') as current_file:
+                current_file_data = current_file.read()
+                assert current_file_data == content_1
+                assert current_file_data != content_2
+
+        dataset = model.Package.get(dataset['id'])
+        for i, r in enumerate(dataset.resources):
+            assert r.position == i
+
+        # rearrange them
+        assert len(original_order) == 6
+        new_order = [
+            original_order[4],
+            original_order[5],
+            original_order[0],
+            original_order[2],
+            original_order[3],
+            original_order[1],
+        ]
+        helpers.call_action(
+            'package_resource_reorder',
+            id=dataset.id, order=new_order)
+
+        dataset = model.Package.get(dataset.id)
+        for i, r in enumerate(dataset.resources):
+            assert r.position == i
+
+        # update all resources with new file, check content
+        for rid in original_order:
+            model.Session.commit()
+            model.Session.remove()
+            _session = model.Session  # noqa: F841
+            resource = create_with_upload(
+                content_2,
+                "test_2.txt",
+                package_id=dataset.id,
+                action='resource_update',
+                id=rid,
+                url='http://localhost',
+            )
+            assert re.match(rf'.*/dataset/{dataset.id}/resource/{resource["id"]}/download/test_2.txt$', resource['url']) is not None
+            upload = uploader.get_resource_uploader(resource)
+            filepath = upload.get_path(resource['id'])
+            with open(filepath, 'rb') as current_file:
+                current_file_data = current_file.read()
+                assert current_file_data != content_1
+                assert current_file_data == content_2
+
+        # make a new resource after the reorder, check content
+        model.Session.commit()
+        model.Session.remove()
+        _session = model.Session  # noqa: F841
+        resource = create_with_upload(
+            content_1,
+            'test_1.txt',
+            package_id=dataset.id,
+            url='http://localhost',
+        )
+        assert re.match(rf'.*/dataset/{dataset.id}/resource/{resource["id"]}/download/test_1.txt$', resource['url']) is not None
+        upload = uploader.get_resource_uploader(resource)
+        filepath = upload.get_path(resource['id'])
+        with open(filepath, 'rb') as current_file:
+            current_file_data = current_file.read()
+            assert current_file_data == content_1
+            assert current_file_data != content_2
+
+        # update the new resource, check content
+        model.Session.commit()
+        model.Session.remove()
+        _session = model.Session  # noqa: F841
+        resource = create_with_upload(
+            content_2,
+            "test_2.txt",
+            package_id=dataset.id,
+            action='resource_update',
+            id=resource['id'],
+            url='http://localhost',
+        )
+        assert re.match(rf'.*/dataset/{dataset.id}/resource/{resource["id"]}/download/test_2.txt$', resource['url']) is not None
+        upload = uploader.get_resource_uploader(resource)
+        filepath = upload.get_path(resource['id'])
+        with open(filepath, 'rb') as current_file:
+            current_file_data = current_file.read()
+            assert current_file_data != content_1
+            assert current_file_data == content_2
 
     def test_extras(self):
         user = factories.User()
