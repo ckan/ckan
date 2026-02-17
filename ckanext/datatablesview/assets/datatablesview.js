@@ -75,6 +75,25 @@ function _download_filtered_file(_params, _format) {
   f.remove();
 }
 
+function _linkify(_data){
+  const linksFound = _data.match(/(\b(https?)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig);
+  let links = [];
+  let output;
+  if( linksFound != null ){
+    if( linksFound.length === 1 && _data.match(/\.(jpeg|jpg|gif|png|svg|apng|webp|avif)$/) ){
+      // the whole text is just one link and its a picture, create a thumbnail
+      output = '<div class="thumbnail zoomthumb"><a href="' + linksFound[0] + '" target="_blank"><img src="' + linksFound[0] + '"></a></div>';
+      return {text: output, links: linksFound};
+    }
+    for( let i = 0; i < linksFound.length; i++ ){
+      links.push('<a href="' + linksFound[i] + '" target="_blank">' + linksFound[i] + '</a>');
+      output = _data.split(linksFound[i]).map(function(item){return item}).join(links[i]);
+    }
+    return {text: output, links: linksFound};
+  }
+  return {text: _data, links: []};
+}
+
 function load_datatable(CKAN_MODULE){
   const _ = CKAN_MODULE._;
   const searchParams = new URLSearchParams(document.location.search);
@@ -210,18 +229,48 @@ function load_datatable(CKAN_MODULE){
   DataTable.render.ellipsis = function(_cutoff, _rowIndex, _datatoreID){
     /**
      * Custom DataTable render function for ellipsis.
+     *
+     * Links will be rendered into possible image thumbnails
+     * and HTML achor tags. Ellipsis text will split before any anchor elements.
      */
     return function(_data, _type, _row, _meta){
       if( _type == 'display' ){
         let str = _data.toString();
-        let htmlStr = $($.parseHTML(str)).text();
-        if( str.length < _cutoff || htmlStr.length < _cutoff ){
-          return _data;
+        let linkifiedData = _linkify(str);
+        let strippedData = linkifiedData.text.replace(/(<([^>]+)>)/gi, '');
+        if( strippedData.length <= _cutoff ){
+          return linkifiedData.text;
+        }
+        let preview;
+        let remaining;
+        if( linkifiedData.links.length > 0 ){
+          // cutoff before anchor element
+          let linkpos = _cutoff;
+          let lastpos = _cutoff;
+          let lastlink = '';
+          let addLen = 0;
+          // check if truncation point is in the middle of a link
+          for( const aLink of linkifiedData.links ){
+            linkpos = str.indexOf(aLink);
+            if( linkpos + aLink.length >= _cutoff ){
+              // truncation point is in the middle of a link, truncate to where the link started
+              break
+            }else{
+              addLen = addLen + lastlink.length ? (lastlink.length) + 31 : 0;  // 31 is the number of other chars in the full anchor tag
+              lastpos = linkpos;
+              lastlink = aLink;
+            }
+          }
+          preview = linkifiedData.text.substr(0, lastpos + addLen).trimEnd();
+          // TODO: get remaining...
+          remaining = linkifiedData.text.substr(lastpos + addLen).trimEnd();
+        }else{
+          preview = str.substr(0, _cutoff - 1);
+          remaining = str.substr(_cutoff - 1);
         }
         let _elementID = 'datatableReadMore_' + _rowIndex + '_' + _datatoreID;
         let expander = '<a class="datatable-readmore-expander" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="false" aria-controls="' + _elementID + '">&#8230;</a>';
-        let preview = str.substr(0, _cutoff - 1) + expander;
-        let remaining = str.substr(_cutoff - 1);
+        preview += expander;
         return '<div class="datatable-readmore"><span>' + preview + '</span><span class="collapse" id="' + _elementID + '">' + remaining + '<a class="datatable-readmore-minimizer" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="true" aria-controls="' + _elementID + '"><small>[' + readLessLabel + ']</small></a><span></div>';
       }
       return _data;
