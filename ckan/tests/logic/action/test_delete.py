@@ -35,6 +35,97 @@ class TestDelete:
         assert res_obj.state == "deleted"
         assert res_obj.position is None
 
+    def test_mass_auto_resource_delete(self):
+        """
+        Patching/updating a dataset with a new list of resources
+        should mark the old ones as deleted. All resources should get
+        proper positions set.
+
+        Updating the dataset's resources again should purge the deleted resources.
+        There has to be an actual change to said resources.
+        """
+        dataset = factories.Dataset()
+        for _i in range(0,6):
+            factories.Resource(package_id=dataset['id'])
+
+        pkg = helpers.call_action("package_show", id=dataset['id'])
+        assert len(pkg['resources']) == 6
+        assert pkg['resources'][0]['position'] == 0
+        assert pkg['resources'][1]['position'] == 1
+        assert pkg['resources'][2]['position'] == 2
+        assert pkg['resources'][3]['position'] == 3
+        assert pkg['resources'][4]['position'] == 4
+        assert pkg['resources'][5]['position'] == 5
+
+        # test single delete resource
+        deleted_res_id = pkg['resources'][2]['id']
+        helpers.call_action("resource_delete", id=deleted_res_id)
+        pkg = helpers.call_action("package_show", id=dataset['id'])
+
+        assert len(pkg['resources']) == 5
+        assert pkg['resources'][0]['position'] == 0
+        assert pkg['resources'][1]['position'] == 1
+        assert pkg['resources'][2]['position'] == 2
+        assert pkg['resources'][3]['position'] == 3
+        assert pkg['resources'][4]['position'] == 4
+        for r in pkg['resources']:
+            assert r['id'] != deleted_res_id
+
+        res = model.Resource.get(deleted_res_id)
+
+        assert res.id == deleted_res_id
+        assert res.position is None
+
+        # test mass soft delete resources
+        old_resource_ids = []
+        for r in pkg['resources']:
+            old_resource_ids.append(r['id'])
+
+        new_resource_list = []
+        for _i in range(0,6):
+            new_resource_list.append(
+                factories.Resource(package_id=dataset['id']))
+        pkg = helpers.call_action("package_patch", id=dataset['id'],
+                                  resources=new_resource_list)
+
+        assert len(pkg['resources']) == 6
+        assert pkg['resources'][0]['position'] == 0
+        assert pkg['resources'][1]['position'] == 1
+        assert pkg['resources'][2]['position'] == 2
+        assert pkg['resources'][3]['position'] == 3
+        assert pkg['resources'][4]['position'] == 4
+        assert pkg['resources'][5]['position'] == 5
+
+        pkg = helpers.call_action("package_show", id=dataset['id'])
+
+        for r in pkg['resources']:
+            assert r['id'] not in old_resource_ids
+
+        for rid in old_resource_ids:
+            res = model.Resource.get(rid)
+            assert res.state == 'deleted'
+            assert res.position is None
+
+        # test mass purge/hard delete resources
+        new_resource_list = []
+        for _i in range(0,6):
+            new_resource_list.append(
+                factories.Resource(package_id=dataset['id']))
+        pkg = helpers.call_action("package_patch", id=dataset['id'],
+                                  resources=new_resource_list)
+
+        assert len(pkg['resources']) == 6
+        assert pkg['resources'][0]['position'] == 0
+        assert pkg['resources'][1]['position'] == 1
+        assert pkg['resources'][2]['position'] == 2
+        assert pkg['resources'][3]['position'] == 3
+        assert pkg['resources'][4]['position'] == 4
+        assert pkg['resources'][5]['position'] == 5
+
+        for rid in old_resource_ids:
+            res = model.Resource.get(rid)
+            assert res is None
+
     def test_resource_delete_for_delete(self):
 
         dataset = factories.Dataset()
