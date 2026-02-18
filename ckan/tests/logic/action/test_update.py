@@ -1374,6 +1374,8 @@ class TestResourceUpdate(object):
             assert current_file_data != content_1
             assert current_file_data == content_2
 
+        helpers.call_action('package_delete', id=dataset.id)
+
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(
