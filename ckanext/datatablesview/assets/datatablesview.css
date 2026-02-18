@@ -6,7 +6,7 @@
 }
 /* END: Histograms :END */
 
-/* START: Layout :START */
+/* START: Custom Layout :START */
 .dt-view-wrapper[data-fullscreen="true"]{
   margin: 20px;
 }
@@ -156,7 +156,34 @@ table.dataTable span.dtcc input::placeholder{
   /* smaller chevrons */
   border-top: 8px solid rgba(0, 0, 0, 0.5);
 }
-/* END: Layout :END */
+
+.dt-view-wrapper i.fa-info-circle{
+  cursor: help;
+  color: darkblue;
+}
+
+#dtprv_processing{
+  z-index: 100;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.325);
+  border: none !important;
+  outline: none !important;
+  cursor: wait;
+}
+
+#dtprv_processing > div{
+  margin-top: 175px;
+}
+/* END: Custom Layout :END */
 
 /* START: Mark Plugin :START */
 #dtprv_wrapper mark{
@@ -245,3 +272,11 @@ table.dataTable span.dtcc input::placeholder{
   margin-left: -1%;
 }
 /* END: QoL Column Vis :END */
+
+/* START: QoL Image Thumbnails :START */
+#dtprv_wrapper .dt-thumbnail img{
+  display: inline-block;
+  max-width: 150px;
+  height: auto;
+}
+/* END: QoL Image Thumbnails :END */

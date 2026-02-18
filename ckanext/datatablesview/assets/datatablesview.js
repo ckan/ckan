@@ -80,9 +80,9 @@ function _linkify(_data){
   let links = [];
   let output;
   if( linksFound != null ){
-    if( linksFound.length === 1 && _data.match(/\.(jpeg|jpg|gif|png|svg|apng|webp|avif)$/) ){
+    if( linksFound.length === 1 && _data.match(/\.(jpeg|jpg|gif|png|svg|apng|webp|avif)$/i) ){
       // the whole text is just one link and its a picture, create a thumbnail
-      output = '<div class="thumbnail zoomthumb"><a href="' + linksFound[0] + '" target="_blank"><img src="' + linksFound[0] + '"></a></div>';
+      output = '<div class="dt-thumbnail"><a href="' + linksFound[0] + '" target="_blank"><img alt="" src="' + linksFound[0] + '"></a></div>';
       return {text: output, links: linksFound};
     }
     for( let i = 0; i < linksFound.length; i++ ){
@@ -165,6 +165,8 @@ function load_datatable(CKAN_MODULE){
   ]
   const colOffset = 1;  // _id col
   const defaultSortOrder = [[0, "asc"]];  // _id col
+  const defaultPageNumber = 0;
+  const defaultSelectedRows = [];
   let ajaxStartTime = 0;
   let ajaxElapsedTime;
 
@@ -178,12 +180,16 @@ function load_datatable(CKAN_MODULE){
   let isCompactView = typeof tableState != 'undefined' && typeof tableState.compact_view != 'undefined' ? tableState.compact_view : defaultCompactView;
   let pageLength = typeof tableState != 'undefined' && typeof tableState.page_length != 'undefined' ? tableState.page_length : pageLengthChoices[0];
   let sortOrder = typeof tableState != 'undefined' && typeof tableState.sort_order != 'undefined' ? tableState.sort_order : defaultSortOrder;
+  let startPageNumber = typeof tableState != 'undefined' && typeof tableState.page_number != 'undefined' ? tableState.page_number : defaultPageNumber;
+  let selectedRows = typeof tableState != 'undefined' && typeof tableState.selected != 'undefined' ? tableState.selected : defaultSelectedRows;
   let didEstimatedTotal;
 
   let availableColumns = [{
+    "targets": 0,
     "name": '_id',
     "data": '_id',
     "searchable": false,
+    "colReorder": false,
     "type": 'num',
     "className": 'dt-body-right datatable-id-col',
     "width": isCompactView ? '28px' : '50px',
@@ -214,7 +220,6 @@ function load_datatable(CKAN_MODULE){
      * Register a Plural for DataTables so we can refer to columns by
      * names (DataStore IDs) instead of just column index number.
      */
-    // FIXME: is it possible to have multiple columns of the same name??? PROBABLY in psql right???
     return this.iterator('column', function (_settings, _column) {
       let col = _settings.aoColumns[_column]
       if( _setter !== undefined ){
@@ -290,7 +295,7 @@ function load_datatable(CKAN_MODULE){
     /**
      * Get the value of a possibly translated object
      */
-    if( typeof _obj[_key] == 'undefined' ){
+    if( typeof _obj == 'undefined' || typeof _obj[_key] == 'undefined' ){
       return null;
     }
     if( typeof _obj[_key + '_' + languageCode] != 'undefined' ){
@@ -615,6 +620,9 @@ function load_datatable(CKAN_MODULE){
           let colLabel = dsID;
           if( colLabel != '_id' ){
             colLabel = _get_translated(keyedDataDictionary[dsID]['info'], 'label');
+            if( colLabel == null ){
+              colLabel = dsID;
+            }
           }
           sortingText += '<span class="info-value"><em>' + colLabel + '&nbsp;';
           let downIcon = 'fas fa-sort-amount-down';
@@ -658,6 +666,9 @@ function load_datatable(CKAN_MODULE){
       // set placeholder content
       let dsID = $(_column.header()).attr('data-name');
       let colLabel = _get_translated(keyedDataDictionary[dsID]['info'], 'label');
+      if( colLabel == null ){
+        colLabel = dsID;
+      }
       $(_inputObj).attr('placeholder', colSearchLabel + ' ' + colLabel);
 
       let clearButton = $(_inputObj).parent().find('.dtcc-search-clear');
@@ -833,7 +844,7 @@ function load_datatable(CKAN_MODULE){
     _data.sort_order = this.api().order();
     _data.compact_view = isCompactView;
 
-    let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
+    let localInstanceState = typeof tableState != 'undefined' && tableState != null ? tableState : _data;
     tableState = _data;
 
     tableState.page_number = localInstanceState.page_number;
@@ -863,7 +874,11 @@ function load_datatable(CKAN_MODULE){
 
     let _data = JSON.parse(window.localStorage.getItem('DataTables_dtprv_' + viewID));
 
-    let localInstanceState = typeof tableState != 'undefined' ? tableState : _data;
+    if( _data == null ){
+      return null;  // no saved state
+    }
+
+    let localInstanceState = typeof tableState != 'undefined' && tableState != null ? tableState : _data;
     tableState = _data;
 
     tableState.page_number = localInstanceState.page_number;
@@ -918,9 +933,9 @@ function load_datatable(CKAN_MODULE){
       autoWidth: true,
       stateSave: doStateSave,
       stateDuration: stateSaveDuration,
-      // TODO: disallow moving the _id col
       colReorder: {
-        fixedColumnsLeft: 1
+        fixedColumnsLeft: 1,
+        columns: ':not(:first-child)'
       },
       columnControl: [
         {
@@ -936,14 +951,14 @@ function load_datatable(CKAN_MODULE){
         indicators: false,
         handler: false
       },
-      // TODO: disallow moving the _id col
-      fixedColumns: ! isCompactView,
+      fixedColumns: isCompactView ? false : {leftColumns: 1},
       orderCellsTop: true,
       mark: true,
       select: {
         style: 'os',
         blurable: true,
-        selector: 'tr:not(#dt-row-histogram)'
+        // TODO: clicking on links should stop propogation into selecting a row...
+        selector: 'td:not(.dt-cell-histogram)' + (isCompactView ? ':not(.datatable-id-col)' : '')
       },
       scrollX: ! isCompactView,
       scrollY: 400,
@@ -951,6 +966,7 @@ function load_datatable(CKAN_MODULE){
       scrollCollapse: false,
       deferRender: true,
       pageLength: pageLength,
+      displayStart: startPageNumber * pageLength,
       search: {
         return: true,
       },
