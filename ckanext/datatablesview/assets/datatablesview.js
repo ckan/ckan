@@ -154,14 +154,15 @@ function load_datatable(CKAN_MODULE){
     'numeric',
     'float',
     'double',
-    'money'
+    'money',
   ];
   const alphaTypes = [
     'text',
-    '_text'
+    '_text',
   ];
   const dateTypes = [
-    'timestamp'
+    'timestamp',
+    'date',
   ]
   const colOffset = 1;  // _id col
   const defaultSortOrder = [[0, "asc"]];  // _id col
@@ -196,10 +197,25 @@ function load_datatable(CKAN_MODULE){
   }];
 
   for( let i = 0; i < dataDictionary.length; i++ ){
+    /**
+     * Available data types for DataTables JS found here:
+     * https://datatables.net/reference/option/columns.type
+     *
+     * TODO: make this pluggable with CKAN_MODULE.options
+     *       somehow to allow for extensions that use more
+     *       specific DataStore types???
+     */
+    let _colType = 'string';
+    if( numberTypes.includes(dataDictionary[i].type) ){
+      _colType = 'num';
+    }else if( dateTypes.includes(dataDictionary[i].type) ){
+      _colType = 'date';
+    }
     availableColumns.push({
       "name": dataDictionary[i].id,
       "data": dataDictionary[i].id,
       "searchable": true,
+      "type": _colType,
       "render": function(_data, _type, _row, _meta){
         return cell_renderer(_data, _type, _row, _meta, dataDictionary[i]);
       }
@@ -732,9 +748,11 @@ function load_datatable(CKAN_MODULE){
      * Set selected rows based on table saved state.
      */
     // FIXME: row selects state...
-    if( typeof tableState != 'undefined' && typeof tableState.selected != 'undefined' ){
-      table.rows(tableState.selected).select();
+    if( typeof tableState == 'undefined' || tableState == null ){
+      return;
     }
+
+    table.rows(tableState.selected).select();
   }
 
   function set_button_states(){
@@ -748,15 +766,34 @@ function load_datatable(CKAN_MODULE){
       });
     }
 
+    if( typeof tableState == 'undefined' || tableState == null ){
+      return;  // nothing changed
+    }
+
     let tableModified = false;
 
-    $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
-    // TODO: reset button control
-    // if( typeof tableState != 'undefined' && tableState != _data ){
-    //   $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning');
-    // }else{
-    //   $('.dt-buttons button.resetButton').removeClass('btn-warning').addClass('btn-secondary').addClass('disabled');
-    // }
+    if( tableState.page_number != 0 ){
+      tableModified = true;
+    }
+    if( tableState.page_length != pageLengthChoices[0] ){
+      tableModified = true;
+    }
+    if( tableState.selected.length > 0 ){
+      tableModified = true;
+    }
+    if( tableState.sort_order != defaultSortOrder ){
+      tableModified = true;
+    }
+    if( tableState.compact_view != defaultCompactView ){
+      tableModified = true;
+    }
+
+    if( ! tableModified ){
+      $('.dt-buttons button.resetButton').addClass('btn-secondary').addClass('disabled').removeClass('btn-warning').attr('disabled', true);
+      return;  // state is same as default state
+    }
+
+    $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning').attr('disabled', false);
   }
 
   function set_table_visibility(){

@@ -157,6 +157,10 @@ table.dataTable span.dtcc input::placeholder{
   border-top: 8px solid rgba(0, 0, 0, 0.5);
 }
 
+#dtprv_wrapper .dt-column-header .dt-column-title{
+  white-space: nowrap !important;
+}
+
 .dt-view-wrapper i.fa-info-circle{
   cursor: help;
   color: darkblue;
