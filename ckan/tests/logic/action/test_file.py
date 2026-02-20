@@ -227,7 +227,7 @@ class TestFileSearch:
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFileDelete:
-    def test_delete_missing(self, faker: Faker):
+    def test_delete_non_existing(self, faker: Faker):
         """Attempt to remove non-existing file causes an error."""
         with pytest.raises(tk.NotFound):
             call_action("file_delete", id=faker.uuid4())
@@ -237,14 +237,25 @@ class TestFileDelete:
     )
     def test_missing_remove_capability(
         self,
-        file: dict[str, Any],
+        file_factory: types.TestFactory,
     ):
         """Missing REMOVE capability is reported via validation error."""
+        file = file_factory()
         with pytest.raises(tk.ValidationError):
             call_action("file_delete", id=file["id"])
 
-    def test_delete_real(self, file: dict[str, Any]):
+    def test_delete_real(self, file_factory: types.TestFactory):
         """File can be removed."""
+        file = file_factory()
+        call_action("file_delete", id=file["id"])
+        existing = model.Session.get(model.File, file["id"])
+        assert not existing
+
+    def test_delete_missing(self, file_factory: types.TestFactory):
+        """File that does not exist in storage but exist in DB can be removed."""
+        file = file_factory()
+        storage = files.get_storage()
+        storage.remove(files.FileData(file["location"]))
         call_action("file_delete", id=file["id"])
         existing = model.Session.get(model.File, file["id"])
         assert not existing
