@@ -479,14 +479,27 @@ def file_delete(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     if not fileobj:
         raise logic.NotFound("file")
 
+    file_data = files.FileData.from_object(fileobj)
     storage = files.get_storage(fileobj.storage)
-    if not storage.supports(files.Capability.REMOVE):
-        raise logic.ValidationError({"storage": ["Operation is not supported"]})
 
-    try:
-        storage.remove(files.FileData.from_object(fileobj))
-    except files.exc.PermissionError as err:
-        raise logic.ValidationError({"storage": [str(err)]}) from err
+    # If storage does not support EXISTS, we don't know whether file is present
+    # in storage and have to try removal. If file exists in the storage,
+    # removal it required.
+    #
+    # If neither of these is True(i.e., if we are sure, that file does not
+    # exist in the storage because it was already removed), we can safely skip
+    # removal from the storage and go directly to removal of the DB
+    # record. Ideally, this should never happend, but to avoid locked records
+    # in DB that point to non-existing file, because someone manually removed
+    # it or formatted the drive, we are doing this check.
+    if not storage.supports(files.Capability.EXISTS) or storage.exists(file_data):
+        if not storage.supports(files.Capability.REMOVE):
+            raise logic.ValidationError({"storage": ["Operation is not supported"]})
+
+        try:
+            storage.remove(file_data)
+        except files.exc.PermissionError as err:
+            raise logic.ValidationError({"storage": [str(err)]}) from err
 
     context["session"].delete(fileobj)
 

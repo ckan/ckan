@@ -602,10 +602,6 @@ def missing_files(storage_name: str | None, remove: bool):
         )
         raise click.Abort
 
-    if remove and not storage.supports(files.Capability.REMOVE):
-        error_shout(f"Storage {storage_name} does not support file removal")
-        raise click.Abort
-
     stmt = sa.select(model.File).where(model.File.storage == storage_name)
     total = model.Session.scalar(stmt.with_only_columns(sa.func.count()))
     missing: list[model.File] = []
