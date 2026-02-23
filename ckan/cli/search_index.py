@@ -137,7 +137,6 @@ def list_orphans_command():
 @click.pass_context
 def clear_orphans(ctx: click.Context, verbose: bool = False):
     for orphaned_package_id in get_orphans():
-        breakpoint()
         if verbose:
             click.echo("Clearing search index for dataset {}...".format(
                 orphaned_package_id

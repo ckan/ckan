@@ -10,6 +10,7 @@ import ckanext.example_database_migrations.plugin as example_plugin
 
 import ckan.model as model
 import ckan.cli.db as db
+from ckan.cli.cli import ckan
 
 
 @pytest.fixture
@@ -151,7 +152,6 @@ class TestDBCleanSearchIndex:
         """Test that db clean automatically clears search index"""
         import ckan.tests.factories as factories
         from ckan.lib.search import make_connection
-        import ckan.model as model
 
         # Create a dataset
         factories.Dataset(name='test-dataset')
