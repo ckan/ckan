@@ -1,1 +1,0 @@
-``ckan db clean`` and ``ckan search-index rebuild`` now remove orphaned entries from search index

@@ -352,7 +352,7 @@ db: Manage databases
 
 .. parsed-literal::
 
- ckan db clean               - Clean the database and search index
+ ckan db clean               - Clean the database
  ckan db downgrade           - Downgrade the database
  ckan db duplicate_emails    - Check users email for duplicate
  ckan db init                - Initialize the database
@@ -639,11 +639,11 @@ computer to reindex faster
 
  ckan -c |ckan.ini| search-index rebuild-fast
 
-.. note::
+There is also an option to clear the whole index first and then rebuild it with all datasets:
 
-   As of CKAN 2.12, the ``--clear`` option has been removed from 
-   ``search-index rebuild``. The command now automatically clears orphaned 
-   packages after rebuilding instead of clearing the entire index beforehand.
+.. parsed-literal::
+
+ ckan -c |ckan.ini| search-index rebuild --clear
 
 There are other search related commands, mostly useful for debugging purposes
 
@@ -652,7 +652,6 @@ There are other search related commands, mostly useful for debugging purposes
  ckan search-index check                  - checks for datasets not indexed
  ckan search-index show DATASET_NAME      - shows index of a dataset
  ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
- ckan search-index clear-orphans          - clears orphaned packages from the search index
 
 
 sysadmin: Give sysadmin rights

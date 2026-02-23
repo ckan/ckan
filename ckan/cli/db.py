@@ -38,6 +38,7 @@ def init(
         ctx: click.Context, version: str, plugin: str,
         skip_core: bool, skip_plugins: bool
 ):
+
     """Initialize the database (alias of `ckan db upgrade`)
     """
     ctx.forward(upgrade)
@@ -58,8 +59,7 @@ def create_from_model():
             with _repo_for_plugin(plugin) as repo:
                 print(plugin, repo)
                 repo.stamp_alembic_head()
-    except Exception as e:
-        error_shout(f"Failed to create database from model: {e}")
+    except Exception:
         raise
     else:
         click.secho('Create DB from model: SUCCESS', fg='green', bold=True)
@@ -73,13 +73,12 @@ PROMPT_MSG = u'This will delete all of your data!\nDo you want to continue?'
 def clean():
     """Clean the database.
     """
-    model.repo.clean_db()
-
-    from ckan.lib.search import clear_all
-    clear_all()
-
-    click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
-    click.secho(u'Clearing search index: SUCCESS', fg=u'green')
+    try:
+        model.repo.clean_db()
+    except Exception as e:
+        error_shout(e)
+    else:
+        click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
 
 
 @db.command()
