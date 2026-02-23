@@ -1221,6 +1221,8 @@ def group_show(context: Context, data_dict: DataDict) -> ActionResult.GroupShow:
     :param include_users: include the group's users
          (optional, default: ``True`` if ``ckan.auth.public_user_details``
          is ``True`` otherwise ``False``)
+         NOTE: after CKAN 2.12 this parameter will default to ``False``
+         regardless of the ``ckan.auth.public_user_details`` setting
     :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
@@ -1254,6 +1256,8 @@ def organization_show(context: Context, data_dict: DataDict) -> ActionResult.Org
     :param include_users: include the organization's users
          (optional, default: ``True`` if ``ckan.auth.public_user_details``
          is ``True`` otherwise ``False``)
+         NOTE: after CKAN 2.12 this parameter will default to ``False``
+         regardless of the ``ckan.auth.public_user_details`` setting
     :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
