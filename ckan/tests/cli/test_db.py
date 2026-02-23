@@ -10,7 +10,6 @@ import ckanext.example_database_migrations.plugin as example_plugin
 
 import ckan.model as model
 import ckan.cli.db as db
-from ckan.cli.cli import ckan
 
 
 @pytest.fixture

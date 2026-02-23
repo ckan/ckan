@@ -36,9 +36,10 @@ def search_index():
               help='Keep orphaned packages in search index after rebuild. '
                    'By default, orphaned packages are automatically cleared.')
 @click.argument(u'package_id', required=False)
-def rebuild(  #noqa: C901
-        verbose: bool, force: bool, only_missing: bool, quiet: bool,
-        commit_each: bool, keep_orphans: bool, package_id: str
+@click.pass_context
+def rebuild(
+        ctx: click.Context, verbose: bool, force: bool, only_missing: bool,
+        quiet: bool, commit_each: bool, keep_orphans: bool, package_id: str
 ):
     u''' Rebuild search index '''
     errors = 0
@@ -53,23 +54,7 @@ def rebuild(  #noqa: C901
                 clear=False)  # Never clear before rebuild
 
         if not keep_orphans:
-            if verbose:
-                click.echo(
-                    "Clearing orphaned packages from search index...")
-            orphaned_package_ids = get_orphans()
-            if orphaned_package_ids:
-                from ckan.lib.search import clear
-                for orphaned_id in orphaned_package_ids:
-                    if verbose:
-                        click.echo(
-                            f"Clearing orphaned package: {orphaned_id}")
-                    clear(orphaned_id)
-                click.secho(
-                    f'Cleared {len(orphaned_package_ids)} '
-                    'orphaned package(s) from search index',
-                    fg='green')
-            elif verbose:
-                click.echo("No orphaned packages found in search index")
+            ctx.invoke(clear_orphans)
 
     except logic.NotFound:
         error_shout("Couldn't find package %s" % package_id)
@@ -152,6 +137,7 @@ def list_orphans_command():
 @click.pass_context
 def clear_orphans(ctx: click.Context, verbose: bool = False):
     for orphaned_package_id in get_orphans():
+        breakpoint()
         if verbose:
             click.echo("Clearing search index for dataset {}...".format(
                 orphaned_package_id
