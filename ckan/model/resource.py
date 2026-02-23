@@ -199,6 +199,7 @@ meta.registry.map_imperatively(Resource, resource_table, properties={
                 'position',
                 # type_ignore_reason: incomplete typing
                 ordering_func=_get_stately_resource_position),  # type: ignore
+            order_by=resource_table.c.position,
             cascade='all, delete'
         ),
     )
