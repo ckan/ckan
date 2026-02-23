@@ -151,16 +151,16 @@ class TestDBCleanSearchIndex:
     def test_db_clean_clears_search_index(self, cli):
         """Test that db clean automatically clears search index"""
         import ckan.tests.factories as factories
-        from ckan.lib.search import index_for
+        from ckan.lib.search import make_connection
         import ckan.model as model
 
         # Create a dataset
-        dataset = factories.Dataset(name='test-dataset')
+        factories.Dataset(name='test-dataset')
 
         # Verify dataset is in search index
-        package_index = index_for(model.Package)
+        package_index = make_connection()
         indexed_packages = package_index.search('*:*')
-        assert len(indexed_packages['results']) > 0
+        assert len(indexed_packages) > 0
 
         # Clean database (with confirmation bypassed in test)
         result = cli.invoke(ckan, ['db', 'clean'], input='y\n')
@@ -173,7 +173,7 @@ class TestDBCleanSearchIndex:
         # Note: This test may require mocking if search backend is not available
         try:
             indexed_packages_after = package_index.search('*:*')
-            assert len(indexed_packages_after['results']) == 0
+            assert len(indexed_packages_after) == 0
             assert 'Clearing search index: SUCCESS' in result.output
         except Exception:
             # If search backend not available, at least verify the warning appears

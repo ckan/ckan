@@ -7,6 +7,8 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.cli.cli import ckan
 
+import datetime
+
 
 @pytest.mark.usefixtures(u"clean_db", u"clean_index")
 class TestSearchIndex(object):
@@ -190,7 +192,7 @@ class TestSearchIndex(object):
     def test_rebuild_clears_orphans_by_default(self, cli):
         """Test that rebuild automatically clears orphans by default (issue #8347)"""
         # Create a dataset
-        dataset = factories.Dataset(title="Test Dataset")
+        factories.Dataset(title="Test Dataset")
 
         # Manually add an orphaned entry to search index
         from ckan.lib.search import index_for
@@ -203,8 +205,14 @@ class TestSearchIndex(object):
             'id': 'fake-orphaned-package-id',
             'name': 'fake-orphaned-package',
             'title': 'Fake Orphaned Package',
-            'state': 'active'
+            'state': 'active',
+            'private': False,
+            "type": "dataset",
+            "owner_org": None,
+            "metadata_created": datetime.datetime.now().isoformat(),
+            "metadata_modified": datetime.datetime.now().isoformat(),
         }
+        fake_package_dict['with_custom_schema'] = dict(fake_package_dict)
 
         try:
             package_index.index_package(fake_package_dict)
@@ -232,7 +240,7 @@ class TestSearchIndex(object):
     def test_rebuild_keep_orphans_option(self, cli):
         """Test that --keep-orphans option preserves orphaned packages (issue #8347)"""
         # Create a dataset
-        dataset = factories.Dataset(title="Test Dataset")
+        factories.Dataset(title="Test Dataset")
 
         # Manually add an orphaned entry to search index
         from ckan.lib.search import index_for
@@ -245,8 +253,14 @@ class TestSearchIndex(object):
             'id': 'fake-orphaned-package-id-2',
             'name': 'fake-orphaned-package-2',
             'title': 'Fake Orphaned Package 2',
-            'state': 'active'
+            'state': 'active',
+            'private': False,
+            "type": "dataset",
+            "owner_org": None,
+            "metadata_created": datetime.datetime.now().isoformat(),
+            "metadata_modified": datetime.datetime.now().isoformat(),
         }
+        fake_package_dict['with_custom_schema'] = dict(fake_package_dict)
 
         try:
             package_index.index_package(fake_package_dict)
