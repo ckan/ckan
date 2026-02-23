@@ -98,7 +98,7 @@ def get_orphans() -> list[str]:
     search = None
     indexed_package_ids = []
     while search is None or len(indexed_package_ids) < search['count']:
-        search = logic.get_action('package_search')({}, {
+        search = logic.get_action('package_search')({"ignore_auth":True}, {
             'q': '*:*',
             'fl': 'id',
             'start': len(indexed_package_ids),
