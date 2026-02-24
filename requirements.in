@@ -5,7 +5,7 @@ Babel==2.18.0
 bleach==6.3.0
 blinker==1.9.0
 certifi>=2026.1.4
-click==8.3.1
+click==8.1.8
 dominate==2.9.1
 feedgen==1.0.0
 Flask==3.1.3
