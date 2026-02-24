@@ -798,7 +798,6 @@ class TestUser(object):
         assert userobj.is_deleted(), userobj
 
     def test_deleted_user_reactivated_by_sysadmin_ui(self, app):
-
         sysadmin = factories.SysadminWithToken(password="correct123")
         deleted_user = factories.User(state="deleted")
 
@@ -818,6 +817,21 @@ class TestUser(object):
 
         user = model.User.get(deleted_user["name"])
         assert user.state == "active"
+
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    def test_request_reset_public_user_details(self, app):
+        user = factories.User()
+        user_obj = helpers.model.User.by_name(user["name"])
+        create_reset_key(user_obj)
+        key = user_obj.reset_key
+        offset = url_for(
+            controller="user",
+            action="perform_reset",
+            id=user_obj.id,
+            key=key,
+        )
+        response = app.get(offset)
+        assert "Reset Your Password" in response
 
 
 @pytest.mark.usefixtures("non_clean_db")
