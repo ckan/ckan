@@ -1,12 +1,15 @@
-# encoding: utf-8
+from __future__ import annotations
 
 import json
 from typing import Any
+
+import file_keeper as fk
 
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 from ckan.lib.navl.validators import unicode_safe
+from ckan.lib.files import make_upload
 
 from ckan.common import _, aslist
 from ckan.types import (
@@ -254,3 +257,62 @@ def remove_whitespace(value: Any, context: Context) -> Any:
     if isinstance(value, str):
         return value.strip()
     return value
+
+
+def parse_filesize(value: str | int):
+    """Convert human-readable filesize into an integer."""
+    if isinstance(value, int):
+        return value
+
+    try:
+        return fk.parse_filesize(value)
+    except ValueError as err:
+        msg = f"Wrong filesize string: {value}"
+        raise df.Invalid(msg) from err
+
+
+def cascade_storage_access(value: Any) -> dict[str, set[str]]:
+    """Parse cascade rules for files."""
+    if isinstance(value, str):
+        value = value.split()
+
+    if isinstance(value, list):
+        cascade: dict[str, set[str]] = {}
+        for item in value:
+            type, *rest = item.split(":", 1)
+            cascade.setdefault(type, set()).update(rest)
+        value = cascade
+
+    if not isinstance(value, dict):
+        msg = f"Wrong cascade rules: {value}"
+        raise df.Invalid(msg)
+
+    if "user" in value and not value["user"]:
+        msg = (
+            "Cascade access to files owned by user requires specific storage,"
+            + " e.g. `user:storage_name` instead of `user`"
+        )
+        raise df.Invalid(msg)
+
+    return value
+
+
+def into_upload(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+):
+    """Convert value into :py:class:`ckan.lib.files.Upload` object."""
+    try:
+        data[key] = make_upload(data[key])
+
+    except TypeError as err:
+        msg = f"Unsupported source type: {err}"
+        errors[key].append(msg)
+        raise df.StopOnError from err
+
+    except ValueError as err:
+        msg = f"Wrong file: {err}"
+        errors[key].append(msg)
+        raise df.StopOnError from err

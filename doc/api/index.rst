@@ -81,8 +81,8 @@ in a terminal::
 
     curl https://demo.ckan.org/api/3/action/group_list
 
-Alternatively, for Python users, we recommend using the `ckanapi <https://github.com/ckan/ckanapi>`_ 
-library which provides a simpler and more robust way to interact with CKAN APIs. 
+Alternatively, for Python users, we recommend using the `ckanapi <https://github.com/ckan/ckanapi>`_
+library which provides a simpler and more robust way to interact with CKAN APIs.
 To install it, run::
 
     pip install ckanapi
@@ -259,7 +259,7 @@ Or, to get the list of activities from your user dashboard on demo.ckan.org,
 run this Python code::
 
     from ckanapi import RemoteCKAN
-    
+
     # Create a connection with your API token
     # Replace 'XXX' with your actual API token
     ckan = RemoteCKAN('https://demo.ckan.org', apikey='XXX')
@@ -334,10 +334,10 @@ First, install the ckanapi library::
 Simple data retrieval (no authentication required)::
 
     from ckanapi import RemoteCKAN
-    
+
     # Connect to any CKAN site
     ckan = RemoteCKAN('https://demo.ckan.org')
-    
+
     # Get a list of all datasets
     datasets = ckan.action.package_list()
     print(f"Found {len(datasets)} datasets")
@@ -345,10 +345,10 @@ Simple data retrieval (no authentication required)::
 Working with authentication::
 
     from ckanapi import RemoteCKAN
-    
+
     # Connect with your API token for authenticated requests
     ckan = RemoteCKAN('https://your-ckan-site.com', apikey='your-api-token')
-    
+
     # Create a new dataset (requires authentication)
     new_dataset = ckan.action.package_create(
         name='my-new-dataset',
@@ -359,9 +359,9 @@ Working with authentication::
 File uploads using ckanapi::
 
     from ckanapi import RemoteCKAN
-    
+
     ckan = RemoteCKAN('https://your-ckan-site.com', apikey='your-api-token')
-    
+
     # Upload a file and attach it to a dataset
     resource = ckan.action.resource_create(
         package_id='my-dataset-id',
@@ -422,9 +422,9 @@ request, with curl you can do this using the ``@file.csv``::
 The same operation can be done with ``ckanapi``::
 
     from ckanapi import RemoteCKAN
-    
+
     ckan = RemoteCKAN('https://demo.ckan.org', apikey='XXXX')
-    
+
     with open('updated_file.csv', 'rb') as f:
         result = ckan.action.resource_patch(
             id='<resource_id>',
@@ -490,6 +490,13 @@ ckan.logic.action.delete
 ========================
 
 .. automodule:: ckan.logic.action.delete
+   :members:
+
+
+ckan.logic.action.file
+========================
+
+.. automodule:: ckan.logic.action.file
    :members:
 
 

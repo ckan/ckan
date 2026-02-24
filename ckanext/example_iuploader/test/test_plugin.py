@@ -23,13 +23,13 @@ CONTENT = "data"
 # open)
 @pytest.mark.ckan_config("ckan.plugins", "example_iuploader")
 @pytest.mark.ckan_config("ckan.webassets.path", "/tmp/webassets")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
-@patch.object(flask, "send_file", side_effect=[CONTENT])
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@patch.object(flask, "send_file", side_effect=[flask.Response(CONTENT)])
 def test_resource_download_iuploader_called(
-        send_file, app, monkeypatch, tmpdir, ckan_config
+        send_file, app, monkeypatch, tmpdir, ckan_config, reset_storages
 ):
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-
+    reset_storages()
     user = factories.User()
     user_token = factories.APIToken(user=user["name"])
     headers = {"Authorization": user_token["token"]}

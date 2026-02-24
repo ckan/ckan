@@ -11,6 +11,7 @@ from typing import (
     Optional,
     Union,
     Generic,
+    Literal,
 )
 
 from typing_extensions import Protocol, TypeAlias, TypedDict, TypeVar
@@ -24,16 +25,18 @@ from sqlalchemy.orm.query import Query
 from .logic import ActionResult
 
 if TYPE_CHECKING:
+    from ckan.common import CKANConfig
     import ckan.model as model
     from ckan.tests.helpers import CKANTestApp
     from ckanext.activity.model import Activity
-
+    from file_keeper.core.types import LocationTransformer
 
 __all__ = [
     "Response", "Request",
     "ActionResult",
     "AlchemySession", "Query",
     "Config", "CKANApp",
+    "CKANConfig",
     "DataDict", "ErrorDict",
     "FlattenKey", "FlattenErrorDict", "FlattenDataDict",
     "SignalMapping", "Context",
@@ -43,6 +46,7 @@ __all__ = [
     "AuthResult",
     "Action", "ChainedAction", "AuthFunction", "ChainedAuthFunction",
     "PFeed", "PFeedFactory", "PResourceUploader", "PUploader",
+    "LocationTransformer", "FileOperation", "FileOwnerOperation",
 ]
 
 AlchemySession = ScopedSession[Any]
@@ -86,6 +90,8 @@ class Context(TypedDict, total=False):
 
     connection: Any
     check_access: Callable[..., Any]
+
+    context_cache: dict[str, Any]
 
     id: str | None
     user_id: str
@@ -281,4 +287,11 @@ FixtureResetRedis = Callable[[], None]
 FixtureResetDb = Callable[[], None]
 FixtureResetQueues = Callable[[], None]
 FixtureResetIndex = Callable[[], None]
+FixtureResetStorages = Callable[[], None]
 FixtureTestRequestContext = Callable[..., RequestContext]
+
+FileOperation = Literal["show", "update", "delete"]
+"""Operation performed on file."""
+
+FileOwnerOperation = Literal["file_transfer", "file_scan"]
+"""Operation performed on file owner."""

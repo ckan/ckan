@@ -37,6 +37,8 @@ dominate==2.9.1
     # via -r requirements.in
 feedgen==1.0.0
     # via -r requirements.in
+file-keeper==0.1.0
+    # via -r requirements.in
 flask==3.1.2
     # via
     #   -r requirements.in
@@ -86,6 +88,8 @@ packaging==25.0
     # via -r requirements.in
 passlib==1.7.4
     # via -r requirements.in
+pluggy==1.5.0
+    # via file-keeper
 polib==1.2.0
     # via -r requirements.in
 psycopg2==2.9.11
@@ -102,7 +106,9 @@ python-dateutil==2.9.0.post0
     #   croniter
     #   feedgen
 python-magic==0.4.27
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   file-keeper
 pytz==2025.2
     # via
     #   -r requirements.in
@@ -136,6 +142,7 @@ typing-extensions==4.15.0
     # via
     #   -r requirements.in
     #   alembic
+    #   file-keeper
     #   sqlalchemy
 tzlocal==5.3.1
     # via -r requirements.in
@@ -152,7 +159,6 @@ werkzeug[watchdog]==3.1.4
     #   -r requirements.in
     #   flask
     #   flask-login
-    #   werkzeug
 wtforms==3.2.1
     # via flask-wtf
 zope-dottedname==7.0

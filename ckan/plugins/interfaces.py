@@ -14,6 +14,7 @@ from typing import (
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
+from ckan import types
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
     PUploader, PResourceUploader, Schema, SignalMapping, Validator,
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
+    from ckan.lib.files import Storage
 
 
 AttachmentWithType = Union[
@@ -40,38 +42,39 @@ Attachment = Union[AttachmentWithType, AttachmentWithoutType]
 
 
 __all__ = [
-    u'Interface',
-    u'IMiddleware',
-    u'IAuthFunctions',
-    u'IDomainObjectModification',
-    u'IFeed',
-    u'IGroupController',
-    u'IOrganizationController',
-    u'IPackageController',
-    u'IPluginObserver',
-    u'IConfigurable',
-    u'IConfigDeclaration',
-    u'IConfigurer',
-    u'IActions',
-    u'IResourceUrlChange',
-    u'IDatasetForm',
-    u'IValidators',
-    u'IResourceView',
-    u'IResourceController',
-    u'IGroupForm',
-    u'ITagController',
-    u'ITemplateHelpers',
-    u'IFacets',
-    u'IAuthenticator',
-    u'ITranslation',
-    u'IUploader',
-    u'IBlueprint',
-    u'IPermissionLabels',
-    u'IForkObserver',
-    u'IApiToken',
-    u'IClick',
-    u'ISignal',
-    u'INotifier',
+    "Interface",
+    "IMiddleware",
+    "IAuthFunctions",
+    "IDomainObjectModification",
+    "IFeed",
+    "IGroupController",
+    "IOrganizationController",
+    "IPackageController",
+    "IPluginObserver",
+    "IConfigurable",
+    "IConfigDeclaration",
+    "IConfigurer",
+    "IActions",
+    "IResourceUrlChange",
+    "IDatasetForm",
+    "IValidators",
+    "IResourceView",
+    "IResourceController",
+    "IGroupForm",
+    "ITagController",
+    "ITemplateHelpers",
+    "IFacets",
+    "IAuthenticator",
+    "ITranslation",
+    "IUploader",
+    "IBlueprint",
+    "IPermissionLabels",
+    "IForkObserver",
+    "IApiToken",
+    "IClick",
+    "ISignal",
+    "INotifier",
+    "IFiles",
 ]
 
 
@@ -2252,6 +2255,128 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class IFiles(Interface):
+    """Extension point for files.
+
+    This interface is not stabilized. Implement it with `inherit=True`.
+
+    Example::
+
+        class MyPlugin(p.SingletonPlugin):
+            p.implements(p.IFiles, inherit=True)
+    """
+
+    def files_get_storage_adapters(self) -> dict[str, type[Storage]]:
+        """Return mapping of storage type to adapter class.
+
+        Example::
+
+            def files_get_storage_adapters(self):
+                return {
+                    "my_ext:dropbox": DropboxStorage,
+                }
+
+        :returns: adapters provided by the implementation
+        """
+        return {}
+
+    def files_get_location_transformers(self) -> dict[str, types.LocationTransformer]:
+        """Return additional location transformers.
+
+        Example::
+
+            def files_get_location_transformers(self):
+                def lower_transformer(location, upload, extras):
+                    returnlocation.lower()
+
+                return {
+                    "my_ext:lowercase": lower_transformer,
+                }
+
+        :returns: location transformers provided by the implementation
+        """
+        return {}
+
+    def files_file_allows(
+        self,
+        context: types.Context,
+        file: model.File,
+        operation: types.FileOperation,
+    ) -> bool | None:
+        """Decide if user is allowed to perform specified operation on the file.
+
+        Return True/False if user allowed/not allowed. Return None to rely on
+        other plugins.
+
+        Default implementation relies on ``ckan.files.owner.cascade_access``
+        config option. When owner of file is included into cascade access, user
+        can perform operation on file if he can perform the same operation with
+        file's owner.
+
+        If current owner is not affected by cascade access, user can perform
+        operation on file only if user owns the file.
+
+        Example::
+
+            def files_file_allows(
+                    self, context,
+                    file: model.File,
+                    operation: FileOperation
+            ) -> bool | None:
+                if file.owner_info and file.owner_info.owner_type == "resource":
+                    return is_authorized_boolean(
+                        f"resource_{operation}",
+                        context,
+                        {"id": file.owner_info.id}
+                    )
+
+                return None
+
+        :param context: API context
+        :param file: accessed file object
+        :param operation: performed operation
+        :returns: decision whether operation is allowed for the file
+        """
+        return None
+
+    def files_owner_allows(
+        self,
+        context: types.Context,
+        owner_type: str,
+        owner_id: str,
+        operation: types.FileOwnerOperation,
+    ) -> bool | None:
+        """Decide if user is allowed to perform operation on the owner.
+
+        Return True/False if user allowed/not allowed. Return None to rely on
+        other plugins.
+
+        Example::
+
+            def files_owner_allows(
+                    self, context,
+                    owner_type: str, owner_id: str,
+                    operation: FileOwnerOperation
+            ) -> bool | None:
+                if owner_type == "resource" and operation == "file_transfer":
+                    return is_authorized_boolean(
+                        f"resource_update",
+                        context,
+                        {"id": owner_id}
+                    )
+
+                return None
+
+        :param context: API context
+        :param owner_type: type of the tested owner
+        :param owner_id: type of the tested owner
+        :param operation: performed operation
+        :returns: decision whether operation is allowed for the owner
+
+        """
+        return None
 
 
 class INotifier(Interface):

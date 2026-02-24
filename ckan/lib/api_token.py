@@ -79,12 +79,7 @@ def decode(encoded: str, **kwargs: Any) -> Optional[Mapping[str, Any]]:
             break
     else:
         try:
-            data = jwt.decode(
-                encoded,
-                _get_secret(encode=False),
-                algorithms=[_get_algorithm()],
-                **kwargs
-            )
+            data = decode_token(encoded, **kwargs)
         except jwt.InvalidTokenError as e:
             # TODO: add signal for performing extra work, like removing
             # expired tokens
@@ -93,20 +88,43 @@ def decode(encoded: str, **kwargs: Any) -> Optional[Mapping[str, Any]]:
     return data
 
 
+def decode_token(token: str, **kwargs: Any) -> dict[str, Any]:
+    """Retrive data from JWT-token.
+
+    :param token: JWT-token with encoded data
+
+    :returns: decoded data
+    """
+    return jwt.decode(
+        token,
+        _get_secret(encode=False),
+        algorithms=[_get_algorithm()],
+        **kwargs,
+    )
+
+
 def encode(data: dict[str, Any], **kwargs: Any) -> str:
     for plugin in _get_plugins():
         token = plugin.encode_api_token(data, **kwargs)
         if token:
             break
     else:
-        token = jwt.encode(
-            data,
-            _get_secret(encode=True),
-            algorithm=_get_algorithm(),
-            **kwargs
-        )
+        token = encode_token(data, **kwargs)
 
     return token
+
+
+def encode_token(data: dict[str, Any], **kwargs: Any) -> str:
+    """Encode JSON-serializable data into JWT token.
+
+    :returns: JWT-token
+    """
+    return jwt.encode(
+        data,
+        _get_secret(encode=True),
+        algorithm=_get_algorithm(),
+        **kwargs,
+    )
 
 
 def add_extra(result: dict[str, Any]) -> dict[str, Any]:

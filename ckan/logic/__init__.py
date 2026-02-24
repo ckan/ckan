@@ -15,6 +15,7 @@ from typing_extensions import Literal
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import exc
 
+from ckan import types
 import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
@@ -28,12 +29,14 @@ from ckan.types import (
     FlattenKey, Schema, Validator, ValidatorFactory
 )
 
+T = TypeVar("T")
 Decorated = TypeVar("Decorated")
 
 log = logging.getLogger(__name__)
 _validate = df.validate
 
 _PG_ERR_CODE = {'unique_violation': '23505'}
+DEFAULT_CACHE_KEY = "context_cache"
 
 
 class NameConflict(Exception):
@@ -502,7 +505,10 @@ def get_action(action: str) -> Action:
     # than writing them out in full will use importlib.import_module
     # to load anything from ckan.logic.action that looks like it might
     # be an action
-    for action_module_name in ['get', 'create', 'update', 'delete', 'patch']:
+    for action_module_name in [
+            'get', 'create', 'update', 'delete', 'patch',
+            'file',
+    ]:
         module = importlib.import_module(
             '.' + action_module_name, 'ckan.logic.action')
         for k, v in authz.get_local_functions(module):
@@ -914,7 +920,7 @@ def fresh_context(
     new_context = {
         k: context[k] for k in (
             'session', 'user', 'auth_user_obj',
-            'ignore_auth', 'defer_commit',
+            'ignore_auth', 'defer_commit', DEFAULT_CACHE_KEY
         ) if k in context
     }
     new_context.update(kwargs)
@@ -1000,3 +1006,50 @@ def index_remove_package(id_: str):
     from ckan.lib import search
     index = search.index_for('Package')
     index.remove_dict({'id': id_})
+
+
+class ContextCache:
+    """Cache for storing and retrieving values in the context."""
+
+    cache: dict[str, Any]
+
+    def __init__(self, context: types.Context, key: str = DEFAULT_CACHE_KEY):
+        self.session = context.get("session", model.Session)
+        self.cache = context.setdefault(key, {})  # pyright: ignore[reportArgumentType, reportCallIssue]
+
+    def invalidate(self, type: str, id: str):
+        """Invalidate a specific entry in the cache.
+
+        Args:
+            type (str): The type of the cached item.
+            id (str): The identifier of the cached item.
+        """
+        self.bucket(type).pop(id, None)
+
+    def bucket(self, type: str) -> dict[str, Any]:
+        """Get or create a bucket for a specific type in the cache."""
+        return self.cache.setdefault(type, {})
+
+    def set(self, type: str, id: str, value: T) -> T:
+        """Set a value in the bucket for specific id."""
+        bucket = self.bucket(type)
+        bucket[id] = value
+        return value
+
+    def get(self, type: str, id: str, compute: Callable[[], T]) -> T:
+        """Retrieve a value from the cache or compute it if not present.
+
+        :param type: The type of the cached item.
+        :param id: The identifier of the cached item.
+        :param compute: A function to compute the value if not cached.
+        :returns: The cached value or the computed value.
+        """
+        bucket = self.bucket(type)
+        if id not in bucket:
+            bucket[id] = compute()
+
+        return bucket[id]
+
+    def get_model(self, type: str, id: str, model_class: type[T]) -> T | None:
+        """Retrieve a model instance from the cache or the session."""
+        return self.get(type, id, lambda: self.session.get(model_class, id))

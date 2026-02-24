@@ -41,8 +41,8 @@ rst_epilog = '''
 .. |production.ini| replace:: |config_dir|/production.ini
 .. |development.ini| replace:: |config_dir|/development.ini
 .. |ckan.ini| replace:: |config_dir|/ckan.ini
-.. |git_url| replace:: \https://github.com/ckan/ckan.git
-.. |raw_git_url| replace:: \https://raw.githubusercontent.com/ckan/ckan
+.. |git_url| replace:: https://github.com/ckan/ckan.git
+.. |raw_git_url| replace:: https://raw.githubusercontent.com/ckan/ckan
 .. |postgres| replace:: PostgreSQL
 .. |database| replace:: ckan_default
 .. |database_user| replace:: ckan_default

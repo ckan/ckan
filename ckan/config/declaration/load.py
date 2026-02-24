@@ -19,6 +19,7 @@ This mechanism allows you to re-define default loaders, though it should be
 avoided unless you have an irresistible desire to hack into CKAN core.
 
 """
+
 from __future__ import annotations
 
 import logging
@@ -27,6 +28,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List
 from typing_extensions import TypedDict
 import msgspec
 
+from ckan import types
 from .key import Key
 from .option import Flag, Option
 from .utils import FormatHandler
@@ -79,8 +81,7 @@ DeclarationDict = DeclarationDictV1
 
 @handler.register("plugin")
 def load_plugin(declaration: "Declaration", name: str):
-    """Load declarations from CKAN plugin.
-    """
+    """Load declarations from CKAN plugin."""
     from ckan.plugins import IConfigDeclaration, PluginNotFoundException
     from ckan.plugins.core import _get_service
 
@@ -99,8 +100,7 @@ def load_plugin(declaration: "Declaration", name: str):
 
 @handler.register("dict")
 def load_dict(declaration: "Declaration", definition: DeclarationDict):
-    """Load declarations from dictionary.
-    """
+    """Load declarations from dictionary."""
     from ckan.logic.schema import config_declaration_v1
     from ckan.logic import ValidationError
     from ckan.lib.navl.dictization_functions import validate
@@ -113,9 +113,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
         for group in data["groups"]:
             if group["annotation"]:
-                declaration.annotate(group["annotation"]).set_section(
-                    group["section"]
-                )
+                declaration.annotate(group["annotation"]).set_section(group["section"])
 
             for details in group["options"]:
                 factory = option_types[details["type"]]
@@ -153,9 +151,124 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
 @handler.register("core")
 def load_core(declaration: "Declaration"):
-    """Load core declarations.
-    """
+    """Load core declarations."""
     source = pathlib.Path(__file__).parent / ".." / "config_declaration.yaml"
     with source.open("rb") as stream:
         data = msgspec.yaml.decode(stream.read())
         load_dict(declaration, data)
+
+
+@handler.register("files")
+def load_files(declaration: "Declaration", /, config: Any = None):
+    """Generate declarations for configured storages.
+
+    Every uniques storage in the config will produce declarations depending on
+    its type. These declarations will be used to discover possible
+    configuration and validate settings specific for the selected storage
+    adapter.
+    """
+    from ckan.common import config as default_config
+    from ckan.lib import files
+
+    if config is None:
+        config = default_config
+
+    storages = config_tree(config, files.STORAGE_PREFIX, depth=1)
+
+    # add config declarations for configured storages. In this way user can
+    # print all available options for every storage via `ckan config
+    # declaration --core`
+    for name, settings in storages.items():
+        # make base key so that storage can declare options by extending. I.e.,
+        # `storage_key.option_name`, instead of logner form
+        # `key.ckanext.files.storage.STORAGE_NAME.option_name`
+        storage_key = Key().from_string(files.STORAGE_PREFIX + name)
+
+        available_adapters = msgspec.json.encode(
+            [
+                item
+                for item in files.adapters
+                if not files.adapters[item].hidden
+                and issubclass(files.adapters[item], files.Storage)
+            ],
+        ).decode()
+
+        # this option reports unrecognized type of the storage and shows all
+        # available correct types
+        declaration.declare(
+            storage_key.type,
+            settings.get("type"),
+        ).append_validators(
+            f"one_of({available_adapters})",
+        ).set_description(
+            "Adapter used by the storage",
+        ).required()
+
+        # obviously, adapter must be specified. But at this point validation
+        # hasn't happened yet, and settings can include anything. If `type` is
+        # missing, it will be reported after the validation.
+        adapter = files.adapters.get(settings.get("type", ""))
+        if not adapter or not issubclass(adapter, files.Storage):
+            continue
+
+        adapter.declare_config_options(declaration, storage_key)
+
+
+def config_tree(
+    config: types.CKANConfig,
+    prefix: str = "",
+    depth: int = 0,
+    keep_prefix: bool = False,
+) -> dict[str, Any]:
+    """Extract subtree from configuration.
+
+    Select config options that match the prefix and split options by ``.``
+    character, transform result into nested dictionary. The maximum depth
+    of the result is controlled by ``depth`` argument. Option `a.b.c = 1`
+    transforms into ``{"a.b.c": 1}`` with depth 0, ``{"a": {"b.c": 1}}``
+    with depth 1, ``{"a": {"b": {"c": 1}}}`` with depth 2, etc.
+
+    Examples::
+
+        >>> cfg = CKANConfig({
+        >>>     "a.b.c": 1,
+        >>>     "a.b.d": 2,
+        >>>     "x.y.z": 3,
+        >>>     "x.x.x": 4,
+        >>> })
+        >>>
+        >>> assert config_tree(cfg, "a.b.") == {"c": 1, "d": 2}
+        >>> assert config_tree(cfg, "x.", depth=1) == {"x": {"y.z": 3, "x.x": 4}}
+        >>> assert config_tree(cfg, "x.x", keep_prefix=True) == {"x.x.x": 4}
+
+    :param prefix: common prefix for selected options
+    :param depth: branch depth for extracted configuration
+
+    :returns: extracted configuration
+
+    """
+    result = {}
+    strip_len = 0 if keep_prefix else len(prefix)
+
+    for k, v in config.items():
+        if not k.startswith(prefix):
+            continue
+
+        path = k[strip_len:].split(".", depth)
+        if not path:
+            continue
+
+        here = result
+        for segment in path[:-1]:
+            here = here.setdefault(segment, {})
+            if not isinstance(here, dict):
+                log.warning(
+                    "Cannot build tree for %s at branch %s",
+                    path,
+                    segment,
+                )
+                break
+        else:
+            here[path[-1]] = v
+
+    return result
