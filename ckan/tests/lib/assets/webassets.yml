@@ -1,0 +1,51 @@
+test_js_basic:
+  output: test/rendered_test.js
+  contents:
+    - test.js
+
+test_css_basic:
+  output: test/rendered_test.css
+  contents:
+    - test.css
+
+test_js_attr_key:
+  output: test/rendered_test.js
+  extra:
+    attrs:
+      defer:
+  contents:
+    - test.js
+
+test_js_attr_key_value:
+  output: test/rendered_test.js
+  extra:
+    attrs:
+      crossorigin: anonymous
+  contents:
+    - test.js
+
+test_js_attr_both:
+  output: test/rendered_test.js
+  extra:
+    attrs:
+      async:
+      crossorigin: anonymous
+  contents:
+    - test.js
+
+test_css_attr_key_value:
+  output: test/rendered_test.css
+  extra:
+    attrs:
+      fetchpriority: high
+  contents:
+    - test.css
+
+test_js_attr_preload:
+  output: test/rendered_test.js
+  extra:
+    attrs:
+      rel: preload
+      as: script
+  contents:
+    - test.js
