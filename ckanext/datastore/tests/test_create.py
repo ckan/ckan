@@ -1299,9 +1299,9 @@ class TestDatastoreFunctionCreate(object):
 
 
 
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
 class TestDatastoreCreateTriggers(object):
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_with_missing_trigger(self, app):
         ds = factories.Dataset()
 
@@ -1320,8 +1320,6 @@ class TestDatastoreCreateTriggers(object):
             ]
         }
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_trigger_applies_to_records(self, app):
         ds = factories.Dataset()
 
@@ -1353,8 +1351,6 @@ class TestDatastoreCreateTriggers(object):
             {u"spam": u"spam spam EGGS spam"},
         ]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_trigger_applies_to_records(self, app):
         ds = factories.Dataset()
 
@@ -1391,8 +1387,6 @@ class TestDatastoreCreateTriggers(object):
             {u"spam": u"spam spam SPAM spam"},
         ]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_trigger_exception(self, app):
         ds = factories.Dataset()
 
@@ -1422,8 +1416,6 @@ class TestDatastoreCreateTriggers(object):
             "records_row": 1,
         }
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_trigger_exception(self, app):
         ds = factories.Dataset()
 
@@ -1458,8 +1450,6 @@ class TestDatastoreCreateTriggers(object):
                 "records_row": 1,
             }
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_does_not_include_records_by_default(self):
         package = factories.Dataset()
         data = {
@@ -1474,8 +1464,6 @@ class TestDatastoreCreateTriggers(object):
         result = helpers.call_action("datastore_create", **data)
         assert 'records' not in result
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_include_records_return(self):
         package = factories.Dataset()
         data = {

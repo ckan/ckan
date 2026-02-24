@@ -21,6 +21,7 @@ main:
     - client.js
     - i18n.js
     - notify.js # produces UI elements
+    - toast.js
     - confirm.js # produces UI elements
     - main.js
     - htmx-ckan.js
