@@ -11,7 +11,7 @@
     "htmx.org": "^2.0.4",
     "jquery": "^3.7.1",
     "moment": "^2.30.1",
-    "qs": "^6.14.0",
+    "qs": "^6.15",
     "select2": "^4.1.0-rc.0"
   },
   "devDependencies": {
