@@ -12,7 +12,11 @@ import ckan.plugins.toolkit as tk
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-from ckanext.activity.model.activity import Activity, package_activity_list
+from ckanext.activity.model.activity import (
+    Activity,
+    ActivityDetail,
+    package_activity_list,
+)
 from ckanext.activity.tests.conftest import ActivityFactory
 
 
@@ -2901,3 +2905,33 @@ class TestActivityDeleteByDateRangeOrOffset:
             # Using get_action instead of call_action to bypass the default
             # ignore_auth=True behavior.
             tk.get_action("activity_delete")(context, data_dict)
+
+    @pytest.mark.freeze_time
+    def test_delete_removes_related_activity_detail_rows(self, freezer):
+        freezer.move_to("2023-01-01")
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        activity_dict = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        detail = ActivityDetail(
+            activity_id=activity_dict["id"],
+            object_id=dataset["id"],
+            object_type="Package",
+            activity_type="changed package",
+        )
+        model.Session.add(detail)
+        model.Session.commit()
+        assert model.Session.query(ActivityDetail).count() == 1
+
+        freezer.move_to("2023-02-01")
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            offset_days=30,
+        )
+        assert "Deleted" in result["message"]
+        assert model.Session.query(Activity).count() == 0
+        assert model.Session.query(ActivityDetail).count() == 0
