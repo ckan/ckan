@@ -319,3 +319,87 @@ class TestPatch(object):
         new_sysadmin = model.User.get(user["id"])
 
         assert new_sysadmin.sysadmin is True
+
+    def test_package_patch_sysadmin_can_set_date_fields(self):
+        """
+        Sysadmins can patch metadata_created and metadata_modified field.
+        """
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        dataset = factories.Dataset(user=user)
+        dataset = helpers.call_action(
+            "package_patch", id=dataset["id"],
+            context=context,
+            metadata_modified='1994-01-01T00:00:01',
+            metadata_created='1994-01-01T00:00:01',
+        )
+
+        dataset = helpers.call_action("package_show", id=dataset["id"])
+
+        assert dataset["metadata_modified"] == "1994-01-01T00:00:01"
+        assert dataset["metadata_created"] == "1994-01-01T00:00:01"
+
+    def test_package_patch_normal_user_can_not_set_date_fields(self):
+        """
+        Normal users can NOT patch metadata_created and metadata_modified field.
+        """
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        dataset = factories.Dataset(user=user)
+        dataset = helpers.call_action(
+            "package_patch", id=dataset["id"],
+            context=context,
+            metadata_modified='1994-01-01T00:00:01',
+            metadata_created='1994-01-01T00:00:01',
+        )
+
+        dataset = helpers.call_action("package_show", id=dataset["id"])
+
+        assert dataset["metadata_modified"] != "1994-01-01T00:00:01"
+        assert dataset["metadata_created"] != "1994-01-01T00:00:01"
+
+    def test_resource_patch_sysadmin_can_set_date_fields(self):
+        """
+        Sysadmins can set metadata_modified field.
+        """
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        resource = factories.Resource(
+            package_id=factories.Dataset()["id"], user=user,
+            name="A nice resource")
+
+        resource = helpers.call_action(
+            "resource_patch", id=resource["id"],
+            context=context,
+            created='1994-01-01T00:00:01',
+            last_modified='1994-01-01T00:00:01',
+            metadata_modified='1994-01-01T00:00:01',
+        )
+
+        resource = helpers.call_action("resource_show", id=resource["id"])
+        assert resource["created"] == "1994-01-01T00:00:01"
+        assert resource["last_modified"] == "1994-01-01T00:00:01"
+        assert resource["metadata_modified"] == "1994-01-01T00:00:01"
+
+    def test_resource_patch_normal_user_can_not_set_date_fields(self):
+        """
+        Normal users can set metadata_modified field.
+        """
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        resource = factories.Resource(
+            package_id=factories.Dataset()["id"], user=user,
+            name="A nice resource")
+
+        resource = helpers.call_action(
+            "resource_patch", id=resource["id"],
+            context=context,
+            created='1994-01-01T00:00:01',
+            last_modified='1994-01-01T00:00:01',
+            metadata_modified='1994-01-01T00:00:01',
+        )
+
+        resource = helpers.call_action("resource_show", id=resource["id"])
+        assert resource["created"] == "1994-01-01T00:00:01"
+        assert resource["last_modified"] == "1994-01-01T00:00:01"
+        assert resource["metadata_modified"] != "1994-01-01T00:00:01"
