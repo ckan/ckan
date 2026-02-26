@@ -708,6 +708,14 @@ def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
             model_activity.Activity.timestamp.between(start_date, end_date)
         )
 
+    else:
+        return {
+            "message": tk._(
+                "No activities found matching the specified criteria. "
+                "Please provide either start_date and end_date or offset_days."
+            )
+        }
+
     if query.count():
         deleted_count = query.delete(synchronize_session=False)
 
