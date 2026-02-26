@@ -780,6 +780,10 @@ def test_date_str_to_datetime_invalid(string: str):
     ({"string_basic": "peter"}, {"string basic": "peter"}),
     ({"string_empty": ""}, {}),  # empty strings are ignored
     ({"name": "hans"}, {}),  # blocked string
+    ({"string_large_number": "78599293762288737036487668342945"},
+     {"string large number": "78599293762288737036487668342945"}),  # too large for localised_number
+    ({"id": "hello"}, {}),  # id blocked
+    ({"id": "78599293762288737036487668342945"}, {}),  # id with large numeric blocked
 ])
 def test_format_resource_items_data_types(dict_in, dict_out, monkeypatch):
     # set locale to en (formatting of decimals)
