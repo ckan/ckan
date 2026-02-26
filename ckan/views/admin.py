@@ -173,7 +173,9 @@ class TrashView(MethodView):
 
         return base_results['results']
 
-    def _get_actions_and_entities(self) -> Tuple[Tuple[str, ...], Tuple[List[Any], ...]]:
+    def _get_actions_and_entities(
+        self,
+    ) -> Tuple[Tuple[str, ...], Tuple[List[Any], ...]]:
         actions = ('dataset_purge', 'group_purge', 'organization_purge')
         entities = tuple(self.deleted_entities.values())
         return actions, entities

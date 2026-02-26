@@ -1020,7 +1020,11 @@ class ActivityTrashView(TrashView):
 
     # TODO
     def _get_deleted_activities(self) -> list[Any]:
-        activities = model.Session.query(Activity).order_by(Activity.activity_type, sa.desc(Activity.timestamp)).all()
+        activities = (
+            model.Session.query(Activity)
+            .order_by(Activity.activity_type, sa.desc(Activity.timestamp))
+            .all()
+        )
 
         grouped_activities = {}
         for activity in activities:
