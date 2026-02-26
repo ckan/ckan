@@ -1810,3 +1810,21 @@ groups:
         type: int
         default: 180
         description: The option defines the timeout in seconds until giving up on a job
+
+
+  - annotation: Validation Settings
+    options:
+      - key: ckan.validation.tag_name.regex
+        default: '[\w \-.]*$'
+        example: '^[a-z_]+$'
+        description: |
+          This optional setting allows you to define a custom regular expression for validating tag names in CKAN.
+          By default, the regex is ``[\w \-.]*$``, which permits alphanumeric characters, spaces, hyphens, and periods.
+          You can customize this regex to enforce specific formats or constraints on tag names.
+          For example, to extend the default regex by allowing also colons, you can set it as follows::
+
+              ckan.validation.tag_name.regex = [\w \-.:]*$
+          
+          .. note::  Even though you might allow non-printable characters in your regex, tags containing such characters
+            will still be rejected by design.
+
