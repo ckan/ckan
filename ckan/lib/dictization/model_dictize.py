@@ -29,14 +29,14 @@ from sqlalchemy.sql import select, false
 
 import ckan.logic as logic
 import ckan.plugins as plugins
-import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.authz as authz
 import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
 from ckan.types import Context
-from ckan.common import config
+from ckan.common import config, json
+from ckan.lib.helpers import helper_functions as h
 
 ## package save
 
@@ -155,7 +155,6 @@ def _execute(q: Select[Any], table: Table, context: Context) -> Any:
     Analogous with _execute_with_revision, so takes the same params, even
     though it doesn't need the table.
     '''
-    model = context['model']
     session = model.Session
     result: Any = session.execute(q)
     return result
@@ -167,7 +166,6 @@ def package_dictize(
     '''
     Given a Package object, returns an equivalent dictionary.
     '''
-    model = context['model']
     assert not (context.get('revision_id') or
                 context.get('revision_date')), \
         'Revision functionality has been removed'
@@ -316,7 +314,6 @@ def _get_members(context: Context, group: model.Group,
 def _get_members(context: Context, group: model.Group,
                  member_type: str) -> list[tuple[Any, str]]:
 
-    model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
     q = model.Session.query(
         Entity, model.Member.capacity).\
@@ -461,7 +458,7 @@ def group_dictize(group: model.Group, context: Context,
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
     if image_url and not image_url.startswith('http'):
-        #munge here should not have an effect only doing it incase
+        #munge here should not have an effect only doing it in case
         #of potential vulnerability of dodgy api input
         image_url = munge.munge_filename_legacy(image_url)
         result_dict['image_display_url'] = h.url_for_static(
@@ -510,7 +507,6 @@ def tag_dictize(tag: model.Tag, context: Context,
         vocab_id = tag_dict.get('vocabulary_id')
 
         if vocab_id:
-            model = context['model']
             vocab = model.Vocabulary.get(vocab_id)
             assert vocab
             tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
@@ -520,7 +516,7 @@ def tag_dictize(tag: model.Tag, context: Context,
         q: dict[str, Any] = {
             'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
 
-        package_dicts = [h.json.loads(result['data_dict'])
+        package_dicts = [json.loads(result['data_dict'])
                          for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the
@@ -569,7 +565,6 @@ def user_dictize(
         user: Union[model.User, tuple[model.User, str]], context: Context,
         include_password_hash: bool=False,
         include_plugin_extras: bool=False) -> dict[str, Any]:
-    model = context['model']
 
     if context.get('with_capacity'):
         # Fix type: "User" is not iterable
@@ -667,7 +662,7 @@ def resource_view_dictize(resource_view: model.ResourceView,
     dictized.pop('order')
     config = dictized.pop('config', {})
     dictized.update(config)
-    resource = context['model'].Resource.get(resource_view.resource_id)
+    resource = model.Resource.get(resource_view.resource_id)
     assert resource
     package_id = resource.package_id
     dictized['package_id'] = package_id

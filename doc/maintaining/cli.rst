@@ -101,7 +101,7 @@ The main goal to execute a ckan shell command is IPython session with the applic
 There are three variables already populated into the namespace of the shell:
 
 •	**app** containing the Flask application
-•	**config** containing the CKAN config dictrionary
+•	**config** containing the CKAN config dictionary
 •	**model** module to access to the database using SQLAlchemy syntax
 
 **command:**
@@ -315,7 +315,7 @@ Usage
 
 .. parsed-literal::
 
- ckan datapusher resubmit    - Resubmit udated datastore resources
+ ckan datapusher resubmit    - Resubmit updated datastore resources
  ckan datapusher submit      - Submits resources from package
 
 
@@ -352,7 +352,7 @@ db: Manage databases
 
 .. parsed-literal::
 
- ckan db clean               - Clean the database
+ ckan db clean               - Clean the database and search index
  ckan db downgrade           - Downgrade the database
  ckan db duplicate_emails    - Check users email for duplicate
  ckan db init                - Initialize the database
@@ -639,11 +639,11 @@ computer to reindex faster
 
  ckan -c |ckan.ini| search-index rebuild-fast
 
-There is also an option to clear the whole index first and then rebuild it with all datasets:
+.. note::
 
-.. parsed-literal::
-
- ckan -c |ckan.ini| search-index rebuild --clear
+   As of CKAN 2.12, the ``--clear`` option has been removed from 
+   ``search-index rebuild``. The command now automatically clears orphaned 
+   packages after rebuilding instead of clearing the entire index beforehand.
 
 There are other search related commands, mostly useful for debugging purposes
 
@@ -652,6 +652,7 @@ There are other search related commands, mostly useful for debugging purposes
  ckan search-index check                  - checks for datasets not indexed
  ckan search-index show DATASET_NAME      - shows index of a dataset
  ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
+ ckan search-index clear-orphans          - clears orphaned packages from the search index
 
 
 sysadmin: Give sysadmin rights
@@ -698,9 +699,13 @@ Usage
 
 .. note::
 
-    Since version 2.7 the JavaScript translation files are automatically
-    regenerated if necessary when CKAN is started. Hence you usually do not
-    need to run ``ckan translation js`` manually.
+    Since version 2.11 on production installs the JavaScript translation
+    files from extensions must be combined and generated with the
+    ``ckan translation js`` command after any new plugins are enabled or
+    when new versions of ckan or its extensions are installed.
+
+    In development mode ``ckan run`` will combine and generate these
+    files automatically.
 
 
 .. _cli-user:

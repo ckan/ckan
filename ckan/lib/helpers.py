@@ -48,10 +48,8 @@ import ckan.config
 import ckan.exceptions
 import ckan.model as model
 import ckan.lib.formatters as formatters
-import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
@@ -741,6 +739,10 @@ def get_flashed_messages(**kwargs: Any):
 
 @core_helper
 def endpoint_from_url(url: str) -> str:
+
+    url = remove_locale_from_url(url)
+    url = remove_root_path_from_url(url)
+
     try:
         urls = current_app.url_map.bind("")
         match = urls.match(url)
@@ -748,6 +750,68 @@ def endpoint_from_url(url: str) -> str:
     except RuntimeError:
         endpoint = ""
     return endpoint
+
+
+@core_helper
+def remove_root_path_from_url(url: str) -> str:
+    """
+    Remove the root path (i.e. config["ckan.root_path"]) from a url.
+
+    Note: the locale is also removed if present. See ckan/tests/lib/test_helpers.py
+    for examples.
+
+    """
+    root_path = config["ckan.root_path"]
+    if not url or not root_path:
+        return url
+
+    # Try to match with current locale first
+    current_locale = request.environ.get("CKAN_LANG")
+    if current_locale:
+        locale_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(locale_root_path):
+            remaining_url = url[len(locale_root_path):]
+            return remaining_url if remaining_url else "/"
+
+    # Try to match without locale (fallback)
+    base_root_path = re.sub(r"/?\{\{LANG\}\}/?", "/", root_path)
+    if base_root_path and url.startswith(base_root_path):
+        remaining_url = url[len(base_root_path):]
+        return remaining_url if remaining_url else "/"
+
+    return url
+
+
+@core_helper
+def remove_locale_from_url(url: str) -> str:
+    """Remove the locale part from a URL based on current locale and root_path config.
+    """
+    current_locale = request.environ.get("CKAN_LANG")
+    if not url or not current_locale:
+        return url
+
+    root_path = config["ckan.root_path"]
+
+    if root_path and "{{LANG}}" in root_path:
+        # Root path defined
+        current_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(current_root_path):
+            # Remove current root path
+            url = url[len(current_root_path):]
+            # Remove lang bit from base root path
+            base_root_path = (
+                re.sub(r"/?\{\{LANG\}\}/?", "/", root_path).rstrip("/") + "/"
+            )
+            url = base_root_path + url.lstrip("/")
+    else:
+        # Default, no root path: locale is added as /<lang>/ at the beginning of the url
+        locale_prefix = f"/{current_locale}/"
+        if url.startswith(locale_prefix):
+            url = url[len(locale_prefix) - 1:]  # To preserve the slash
+        elif url == f"/{current_locale}":
+            url = "/"
+
+    return url
 
 
 @core_helper
@@ -1092,12 +1156,12 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'my label': _(u"My {object_type}s"),
         u'view label': _("View {object_type}"),
         u'name placeholder': _(u"My {object_type}"),
-        u'no any objects': _(
-            u"There are currently no {object_type}s for this site"),
-        u'no associated label': _(
-            u'There are no {object_type}s associated with this dataset'),
-        u'no description': _(
-            u'There is no description for this {object_type}'),
+        'no any objects': _(
+            "There are currently no {object_type}s for this site."),
+        'no associated label': _(
+            'There are no {object_type}s associated with this dataset.'),
+        'no description': _(
+            'There is no description for this {object_type}.'),
         u'no label': _(u"No {object_type}"),
         u'page title': _(u"{object_type}s"),
         u'save label': _(u"Save {object_type}"),
@@ -1123,7 +1187,7 @@ def get_facet_items_dict(
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
-    Returns the list of unselected facet contraints or facet items (e.g. tag
+    Returns the list of unselected facet constraints or facet items (e.g. tag
     names like "russian" or "tolstoy") for the given search facet (e.g.
     "tags"), sorted by facet item count (i.e. the number of search results that
     match each facet item).
@@ -1199,6 +1263,26 @@ def has_more_facets(facet: str,
     if limit is not None and len(facets) > limit:
         return True
     return False
+
+
+@core_helper
+def currently_active_facet(facet: str) -> bool:
+    params_items = request.args.keys()
+    expanded_facet = "_" + facet + "_limit"
+    if facet in params_items or expanded_facet in params_items:
+        return True
+    else:
+        return False
+
+
+@core_helper
+def default_collapse_facets():
+    '''Returns config option for `ckan.default_collapse_facets`.
+    If true, the facets in the secondary will be collapsed by default.
+    If false, the facets will all be open, unless closed by the user.
+    Default is false
+    '''
+    return config['ckan.default_collapse_facets']
 
 
 @core_helper
@@ -1288,11 +1372,7 @@ def linked_user(user: Union[str, model.User],
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return literal(u'{icon} {link}'.format(
-            icon=user_image(
-                user.id,
-                size=avatar
-            ),
+        return literal(u'{link}'.format(
             link=link_to(
                 displayname,
                 url_for('user.read', id=name)
@@ -1310,54 +1390,6 @@ def group_name_to_title(name: str) -> str:
 
 
 @core_helper
-@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "builtin jinja filter instead.",
-                     since="2.10.0")
-def truncate(text: str,
-             length: int = 30,
-             indicator: str = '...',
-             whole_word: bool = False) -> str:
-    """Truncate ``text`` with replacement characters.
-
-    ``length``
-        The maximum length of ``text`` before replacement
-    ``indicator``
-        If ``text`` exceeds the ``length``, this string will replace
-        the end of the string
-    ``whole_word``
-        If true, shorten the string further to avoid breaking a word in the
-        middle.  A word is defined as any string not containing whitespace.
-        If the entire text before the break is a single word, it will have to
-        be broken.
-
-    Example::
-
-        >>> truncate('Once upon a time in a world far far away', 14)
-        'Once upon a...'
-
-    Deprecated: please use jinja filter `truncate` instead
-    """
-    if not text:
-        return ""
-    if len(text) <= length:
-        return text
-    short_length = length - len(indicator)
-    if not whole_word:
-        return text[:short_length] + indicator
-    # Go back to end of previous word.
-    i = short_length
-    while i >= 0 and not text[i].isspace():
-        i -= 1
-    while i >= 0 and text[i].isspace():
-        i -= 1
-    if i <= 0:
-        # Entire text before break is one word, or we miscalculated.
-        return text[:short_length] + indicator
-    return text[:i + 1] + indicator
-
-
-@core_helper
 def markdown_extract(text: str,
                      extract_length: int = 190) -> Union[str, Markup]:
     ''' return the plain text representation of markdown encoded text.  That
@@ -1365,7 +1397,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = RE_MD_HTML_TAGS.sub('', markdown(text))
+    plain = bleach_clean(markdown(text), tags=(), strip=True)
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(
@@ -1826,13 +1858,13 @@ def snippet(template_name: str, **kw: Any) -> str:
 @core_helper
 def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     ''' This is a helper function for converting lists of objects into
-    lists of dicts. It is for backwards compatability only. '''
+    lists of dicts. It is for backwards compatibility only. '''
 
     import ckan.lib.dictization.model_dictize as md
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context: Context = {'model': model}
+    context: Context = {}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1933,7 +1965,7 @@ def add_url_param(alternative_url: Optional[str] = None,
     :py:func:`~ckan.lib.helpers.url_for` controller & action default to the
     current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
     '''
 
@@ -1971,7 +2003,7 @@ def remove_url_param(key: Union[list[str], str],
     via :py:func:`~ckan.lib.helpers.url_for`
     controller & action default to the current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
 
     '''
@@ -2167,10 +2199,6 @@ RE_MD_EXTERNAL_LINK = re.compile(
     flags=re.UNICODE
 )
 
-# find all tags but ignore < in the strings so that we can use it correctly
-# in markdown
-RE_MD_HTML_TAGS = re.compile('<[^><]*>')
-
 
 @core_helper
 def html_auto_link(data: str) -> str:
@@ -2230,7 +2258,6 @@ def render_markdown(data: str,
     if allow_html:
         data = markdown(data.strip())
     else:
-        data = RE_MD_HTML_TAGS.sub('', data.strip())
         data = bleach_clean(
             markdown(data), strip=True,
             tags=MARKDOWN_TAGS,
@@ -2464,7 +2491,14 @@ localised_filesize = formatters.localised_filesize
 
 @core_helper
 def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
+    upload_config = config.get('ckan.uploads_enabled')
+    if upload_config is not None:
+        return upload_config
+
+    if config['ckan.storage_path'] is not None:
+        return True
+
+    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
         return True
     return False
 
@@ -2883,4 +2917,8 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_input.html')
+    '''
+    Render a hidden CSRF input field.
+    '''
+    import ckan.lib.base as base
+    return literal(base.render('snippets/csrf_input.html'))

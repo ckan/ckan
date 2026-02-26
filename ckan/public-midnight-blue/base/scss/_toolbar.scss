@@ -5,10 +5,6 @@
     padding: 5px 0;
 }
 
-.page_primary_action {
-    margin-bottom: 20px;
-}
-
 .toolbar .breadcrumb {
     @include clearfix;
     @include box-shadow(none);
@@ -18,12 +14,12 @@
     padding: 0;
     border: none;
     background: none;
-    font-size: $font-size-lg;
+    font-size: $breadcrumb-font-size;
 }
 
 .toolbar .breadcrumb li {
-    padding-left: $breadcrumb-item-padding-x;
     &:not(:first-child) {
+        padding-left: $breadcrumb-item-padding-x;
         &::before {
             float: left; // Suppress inline spacings and underlining of the separator
             padding-right: $breadcrumb-item-padding-x;
@@ -33,9 +29,6 @@
     }
 }
 
-.toolbar .breadcrumb .active {
-    color: $breadcrumb-active-color;
-}
 
 
 .toolbar .home a {
@@ -43,7 +36,7 @@
 }
 
 .toolbar .home span {
-    display: none;
+    display: inline;
 }
 
 .toolbar .breadcrumb a {
@@ -60,13 +53,13 @@
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
     font-weight: bold;
+    color: $brand-700;
 }
 
 .actions {
     @include list-unstyled;
     position: absolute;
     top: 10px;
-    right: 10px;
     z-index: 1;
 }
 
@@ -83,9 +76,9 @@
     margin-right: 0;
 }
 
-.hide-heading {
-    display: none;
-}
+// .hide-heading {
+//     display: none;
+// }
 
 .page-header {
     &.module-content{
@@ -113,10 +106,8 @@
 }
 
 .content_action {
-    .btn {
-        float: right;
-        margin-bottom: 1rem;
-    }
+    display: flex;
+    justify-content: flex-end;
 }
 
 .no-nav .page-header {
@@ -154,5 +145,12 @@
     .page-header .nav-tabs>.active>a:hover,
     .page-header .nav-tabs>.active>a:focus {
         border-bottom-color: #dddddd;
+    }
+}
+
+// Page Primary Action
+@include media-breakpoint-down(sm) {
+    .page_primary_action {
+        width: 100%;
     }
 }

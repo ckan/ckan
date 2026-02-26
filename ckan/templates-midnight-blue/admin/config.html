@@ -5,6 +5,9 @@
 {% import 'macros/form.html' as form %}
 
 {% block primary_content_inner %}
+  <h1>
+    {% block page_heading %}{{ _('Edit Config') }}{% endblock %}
+  </h1>
 
   {{ form.errors(error_summary) }}
 
@@ -39,31 +42,33 @@
 
 {% block secondary_content %}
   <div class="module module-narrow module-shallow">
-    <h2 class="module-heading">
-      <i class="fa fa-info-circle"></i>
-      {{ _('CKAN config options') }}
-    </h2>
-    <div class="module-content">
-      {% block admin_form_help %}
-        {% set about_url = h.url_for('home.about') %}
-        {% set home_url = h.url_for('home.index') %}
-        {% set docs_url = "http://docs.ckan.org/en/{0}/theming".format(g.ckan_doc_version) %}
-        {% trans %}
-          <p><strong>Site Title:</strong> This is the title of this CKAN instance
-            It appears in various places throughout CKAN.</p>
-          <p><strong>Custom Stylesheet:</strong> Define an alternative main CSS file.</p>
-          <p><strong>Site Tag Logo:</strong> This is the logo that appears in the
-            header of all the CKAN instance templates.</p>
-          <p><strong>About:</strong> This text will appear on this CKAN instances
-            <a href="{{ about_url }}">about page</a>.</p>
-          <p><strong>Intro Text:</strong> This text will appear on this CKAN instances
-            <a href="{{ home_url }}">home page</a> as a welcome to visitors.</p>
-          <p><strong>Custom CSS:</strong> This is a block of CSS that appears in
-            <code>&lt;head&gt;</code> tag of every page. If you wish to customize
-            the templates more fully we recommend
-            <a href="{{ docs_url }}" target="_blank" rel="noreferrer">reading the documentation</a>.</p>
-      {% endtrans %}
-    {% endblock %}
+    <div class="module-group">
+      <h2 class="module-heading">
+        <i class="fa fa-info-circle"></i>
+        {{ _('CKAN config options') }}
+      </h2>
+      <div class="module-content">
+        {% block admin_form_help %}
+          {% set about_url = h.url_for('home.about') %}
+          {% set home_url = h.url_for('home.index') %}
+          {% set docs_url = "https://docs.ckan.org/en/{0}/theming".format(g.ckan_doc_version) %}
+          {% trans %}
+            <p><strong>Site Title:</strong> This is the title of this CKAN instance
+              It appears in various places throughout CKAN.</p>
+            <p><strong>Custom Stylesheet:</strong> Define an alternative main CSS file.</p>
+            <p><strong>Site Tag Logo:</strong> This is the logo that appears in the
+              header of all the CKAN instance templates.</p>
+            <p><strong>About:</strong> This text will appear on this CKAN instances
+              <a href="{{ about_url }}">about page</a>.</p>
+            <p><strong>Intro Text:</strong> This text will appear on this CKAN instances
+              <a href="{{ home_url }}">home page</a> as a welcome to visitors.</p>
+            <p><strong>Custom CSS:</strong> This is a block of CSS that appears in
+              <code>&lt;head&gt;</code> tag of every page. If you wish to customize
+              the templates more fully we recommend
+              <a href="{{ docs_url }}" target="_blank" rel="noreferrer">reading the documentation</a>.</p>
+          {% endtrans %}
+        {% endblock %}
+      </div>
     </div>
   </div>
 {% endblock %}

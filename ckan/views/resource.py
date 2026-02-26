@@ -1,10 +1,11 @@
 # encoding: utf-8
 from __future__ import annotations
 
-import cgi
 import json
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
+
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -25,7 +26,7 @@ from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
 
-from ckan.types import Context, Response
+from ckan.types import Context, Response, ErrorDict
 
 Blueprint = flask.Blueprint
 NotFound = logic.NotFound
@@ -202,18 +203,24 @@ class CreateView(MethodView):
         data_provided = False
         for key, value in data.items():
             if (
-                    (value or isinstance(value, cgi.FieldStorage))
+                    (value or isinstance(value, FlaskFileStorage))
                     and key != u'resource_type'):
                 data_provided = True
                 break
 
-        if not data_provided and save_action != u"go-dataset-complete":
-            if save_action == u'go-dataset':
+        if not data_provided and save_action != "go-dataset-complete":
+            if save_action == 'again':
+                errors: dict[str, Any] = {}
+                error_summary = {_('Error'): _('No resource data entered')}
+                return self.get(package_type, id, data, errors, error_summary)
+            if save_action == 'go-dataset':
                 # go to final stage of adddataset
                 return h.redirect_to(u'{}.edit'.format(package_type), id=id)
-            # see if we have added any resources
             try:
-                data_dict = get_action(u'package_show')(context, {u'id': id})
+                get_action('package_patch')(
+                    logic.fresh_context(context),
+                    {'id': id, 'state': 'active'}
+                )
             except NotAuthorized:
                 return base.abort(403, _(u'Unauthorized to update dataset'))
             except NotFound:
@@ -221,21 +228,11 @@ class CreateView(MethodView):
                     404,
                     _(u'The dataset {id} could not be found.').format(id=id)
                 )
-            if not len(data_dict[u'resources']):
-                # no data so keep on page
-                msg = _(u'You must add at least one data resource')
-                # On new templates do not use flash message
-
-                errors: dict[str, Any] = {}
-                error_summary = {_(u'Error'): msg}
+            except ValidationError as e:
+                errors = cast(
+                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
+                error_summary = e.error_summary
                 return self.get(package_type, id, data, errors, error_summary)
-
-            # XXX race condition if another user edits/deletes
-            data_dict = get_action(u'package_show')(context, {u'id': id})
-            get_action(u'package_update')(
-                Context(context, allow_state_change=True),
-                dict(data_dict, state=u'active')
-            )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
@@ -260,13 +257,33 @@ class CreateView(MethodView):
                 404, _(u'The dataset {id} could not be found.').format(id=id)
             )
         if save_action == u'go-metadata':
-            # XXX race condition if another user edits/deletes
+            try:
+                get_action('package_patch')(
+                    logic.fresh_context(context),
+                    {'id': id, 'state': 'active'}
+                )
+            except ValidationError as e:
+                errors = cast(
+                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
+                error_summary = e.error_summary
+                return self.get(package_type, id, data, errors, error_summary)
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+        elif save_action == u'go-metadata-preview':
+            data_dict = get_action(u'package_show')(context, {u'id': id})
+            get_action(u'package_update')(
+                Context(context, allow_state_change=True),
+                dict(data_dict, state=u'draft')
+            )
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
+        elif save_action == u'go-metadata-publish':
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
                 Context(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
+
         elif save_action == u'go-dataset':
             # go to first stage of add dataset
             return h.redirect_to(u'{}.edit'.format(package_type), id=id)
@@ -616,7 +633,7 @@ class EditResourceViewView(MethodView):
             u'auth_user_obj': current_user
         }
 
-        # update resource should tell us early if the user has privilages.
+        # update resource should tell us early if the user has privileges.
         try:
             check_access(u'resource_update', context, {u'id': resource_id})
         except NotAuthorized:
@@ -671,13 +688,12 @@ class EditResourceViewView(MethodView):
             )
         )
         data.pop(u'save', None)
-
         to_preview = data.pop(u'preview', False)
         if to_preview:
             context[u'preview'] = True
         to_delete = data.pop(u'delete', None)
         data[u'resource_id'] = resource_id
-        data[u'view_type'] = request.args.get(u'view_type')
+        data[u'view_type'] = view_type = request.form.get(u'view_type')
 
         try:
             if to_delete:
@@ -703,6 +719,8 @@ class EditResourceViewView(MethodView):
                     u'{}_resource.views'.format(package_type),
                     id=id, resource_id=resource_id
                 )
+
+        data[u'view_type'] = view_type
         extra_vars[u'data'] = data
         extra_vars[u'to_preview'] = to_preview
         return self.get(package_type, id, resource_id, view_id, extra_vars)
@@ -713,8 +731,9 @@ class EditResourceViewView(MethodView):
             resource_id: str,
             view_id: Optional[str] = None,
             post_extra: Optional[dict[str, Any]] = None) -> str:
+        to_preview = post_extra["to_preview"] if post_extra else False
         context, extra_vars = self._prepare(id, resource_id)
-        to_preview = extra_vars[u'to_preview']
+
         if post_extra:
             extra_vars.update(post_extra)
 

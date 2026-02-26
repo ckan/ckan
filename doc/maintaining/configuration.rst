@@ -65,7 +65,7 @@ features and providing new ones, which means that some new config options may be
 introduced, while other options no longer have any effect. In
 order to keep track of all valid config options, CKAN uses config declarations.
 
-CKAN itself declares all the config options that are used throught the
+CKAN itself declares all the config options that are used through the
 code base (You can see the core config declarations in
 the ``ckan/config/config_declaration.yaml`` file). This allows to validate the
 current configuration against the declaration, or check which config
@@ -164,7 +164,7 @@ only for explanation and you don't need them in the real file::
           # CKAN documentation, thus has no value for extensions.
           example: some-valid-value
 
-          # an explanation of the effect that option has. Don't hesistate to
+          # an explanation of the effect that option has. Don't hesitate to
           # put as much details here as possible
           description: |
               Nullam eu ante vel est convallis dignissim.  Fusce suscipit, wisi
@@ -172,7 +172,7 @@ only for explanation and you don't need them in the real file::
               ligula erat quis odio.  Nunc porta vulputate tellus.  Nunc rutrum
               turpis sed pede.  Sed bibendum.  Aliquam posuere.  Nunc aliquet,
               augue nec adipiscing interdum, lacus tellus malesuada massa, quis
-              varius mi purus non odio.  Pellentesque condimentum, magna ut
+              various mi purus non odio.  Pellentesque condimentum, magna ut
               suscipit hendrerit, ipsum augue ornare nulla, non luctus diam
               neque sit amet urna.  Curabitur vulputate vestibulum lorem.
               Fusce sagittis, libero non molestie mollis, magna orci ultrices
@@ -198,7 +198,7 @@ only for explanation and you don't need them in the real file::
 
           # boolean flag that marks config option as ignored. Can be used for options that are set
           # programmatically. This flag means that there is no sense in setting this option, because
-          # it will be overriden or won't be used at all.
+          # it will be overridden or won't be used at all.
           ignored: true
 
           # boolean flag that marks config option as hidden. Used for options that should not be set
@@ -408,13 +408,6 @@ file settings, for reference.
 
         [DEFAULT]
 
-        ...
-
-        [server:main]
-        use = egg:Paste#http
-        host = 0.0.0.0
-        port = 5000
-
         # This setting will not work, because it's outside of [app:main].
         ckan.site_logo = /images/masaq.png
 
@@ -422,9 +415,35 @@ file settings, for reference.
         # This setting will work.
         ckan.plugins = stats text_view datatables_view
 
-   If the same option is set more than once in your config file, exeption will
+   If the same option is set more than once in your config file, exception will
    be raised and CKAN application will not start
 
+.. _logging-settings:
+
+Logging settings
+----------------
+
+The logging settings control how CKAN outputs the log messages to the application logs, e.g.::
+
+  ckan run
+
+  2025-06-20 12:46:01,879 INFO  [ckan.cli] Using configuration file /home/adria/dev/projects/ckan-py310/ckan/ckan.ini
+  2025-06-20 12:46:01,880 INFO  [ckan.config.environment] Loading static files from public
+  2025-06-20 12:46:02,565 INFO  [ckan.config.environment] Loading templates from /home/adria/dev/projects/ckan-py310/ckan/ckan/templates
+  2025-06-20 12:46:02,874 INFO  [ckan.cli.server] Running CKAN on http://localhost:5310
+
+CKAN uses Python's standard `Configuration file format <https://docs.python.org/3/library/logging.config.html#configuration-file-format>`_ for the logging sections.
+You can refer to the Python documentation for all details but essentially there are
+three mandatory sections (``loggers``, ``handlers`` and ``formatters``) that contain the keys of
+the actual elements configured. Loggers allow you to define different debugging levels for
+different modules and libraries. By default CKAN only configures a console handler that
+outputs log message to *stderr* but you can configure any of the
+ones `included <https://docs.python.org/3/library/logging.handlers.html#module-logging.handlers>`_ in Python.
+
+If you are chaining configuration files using :ref:`use` you don't need to include the
+logging configuration in all the ini files contained in the chain. As with any regular
+configuration options base logging settings will take effect unless overridden by a higher
+level ini file.
 
 
 .. include:: ../_config_options.inc

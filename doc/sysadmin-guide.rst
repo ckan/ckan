@@ -109,7 +109,7 @@ Permanently deleting datasets, organizations and groups
 
 A dataset, organization or group which has been deleted is not permanently
 removed from CKAN; it is simply marked as 'deleted' and will no longer
-show up in search, etc. The assigned URL cannot be re-used for a new entity.
+show up in search, etc. The assigned URL cannot be reused for a new entity.
 
 To permanently delete ("purge") an entity:
 

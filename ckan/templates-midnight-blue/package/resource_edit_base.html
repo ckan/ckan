@@ -26,16 +26,11 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h1 class="hide-heading">{% block form_title %}{{ _('Edit resource') }}{% endblock %}</h1>
+  <h1>{% block form_title %}{{ _('Edit Resource') }}{% endblock %}</h1>
   {% block form %}{% endblock %}
 {% endblock %}
 
 {% block secondary_content %}
   {% snippet 'package/snippets/resource_info.html', res=res %}
   {% snippet 'package/snippets/resources.html', pkg=pkg, active=res.id %}
-{% endblock %}
-
-{% block scripts %}
-  {{ super() }}
-  {% asset 'vendor/fileupload' %}
 {% endblock %}

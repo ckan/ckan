@@ -186,7 +186,7 @@ def upgrade():
     count = 0
     skipped = 0
     noinfo = 0
-    read_connection = get_read_engine()
+    read_connection = get_read_engine().connect()
     for resid in get_all_resources_ids_in_datastore():
         raw_fields, old = _get_raw_field_info(read_connection, resid)
         if not old:
@@ -209,7 +209,9 @@ def upgrade():
                     raw_sql))
 
             if alter_sql:
-                connection.execute(sa.text(';'.join(alter_sql)))
+                connection.execute(sa.text(
+                    ';'.join(alter_sql).replace(':', r'\:')  # no bind params
+                ))
                 count += 1
             else:
                 noinfo += 1

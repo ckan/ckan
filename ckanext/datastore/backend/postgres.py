@@ -12,7 +12,7 @@ import copy
 import logging
 import sys
 from typing import (
-    Any, Callable, Container, Dict, Iterable, Optional, Set, Union,
+    Any, Container, Dict, Iterable, Optional, Set, Union,
     cast)
 import sqlalchemy as sa
 import os
@@ -28,6 +28,7 @@ from urllib.parse import (
     urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
+import msgspec
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -36,7 +37,7 @@ from ckan.lib.lazyjson import LazyJSONObject
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 
-from psycopg2.extras import register_default_json, register_composite
+from psycopg2.extras import register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError, DatabaseError,
@@ -124,26 +125,25 @@ def get_write_engine():
 
 
 def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
-    '''Get either read or write engine.'''
+    """Get either read or write engine."""
     engine = _engines.get(connection_url)
-    if not engine:
-        extras = {'url': connection_url}
-        config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
-        for key, value in kwargs.items():
-            config.setdefault(key, value)
-        engine = sa.engine_from_config(dict(config),
-                                       'ckan.datastore.sqlalchemy.',
-                                       **extras)
-        _engines[connection_url] = engine
 
-    # don't automatically convert to python objects
-    # when using native json types in 9.2+
-    # http://initd.org/psycopg/docs/extras.html#adapt-json
-    _loads: Callable[[Any], Any] = lambda x: x
-    register_default_json(
-        conn_or_curs=engine.raw_connection().connection,  # type: ignore
-        globally=False,
-        loads=_loads)
+    if engine:
+        return engine
+
+    config.setdefault("ckan.datastore.sqlalchemy.pool_pre_ping", True)
+
+    for key, value in kwargs.items():
+        config.setdefault(key, value)
+
+    engine = sa.engine_from_config(
+        dict(config),
+        "ckan.datastore.sqlalchemy.",
+        json_deserializer=lambda x: x,  # do not convert to python objects
+        url=connection_url,
+    )
+
+    _engines[connection_url] = engine
 
     return engine
 
@@ -434,8 +434,18 @@ def _where_clauses(
                 sa.column(field),
                 ','.join(f":{p}" for p in placeholders)
             ))
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = (str(v) for v in value)
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
+            if fields_types[field] == 'text':
+                # pSQL can do int_field = "10"
+                # but cannot do text_field = 10
+                # this fixes parity there.
+                value = str(value)
             placeholder = f"value_{next(idx_gen)}"
             clause: tuple[Any, ...] = (
                 f'{sa.column(field)} = :{placeholder}',
@@ -1195,6 +1205,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    return_columns = "_id, " + sql_columns
     if not sql_columns:
         # insert w/ no columns is a postgres error
         return
@@ -1217,16 +1228,21 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
             rows.append(row)
 
         sql_string = '''INSERT INTO {res_id} ({columns})
-            VALUES ({values});'''.format(
+            VALUES ({values}) {return_statement};'''.format(
             res_id=identifier(data_dict['resource_id']),
             columns=sql_columns,
+            return_statement='RETURNING {return_columns}'.format(
+                return_columns=return_columns) if data_dict[
+                    'include_records'] else '',
             values=', '.join([
                 f":val_{idx}" for idx in range(0, len(field_names))
             ])
         )
 
         try:
-            context['connection'].execute(sa.text(sql_string), rows)
+            results = context['connection'].execute(sa.text(sql_string), rows)
+            if data_dict['include_records']:
+                data_dict['records'] = [dict(r) for r in results.mappings().all()]
         except (DatabaseError, DataError) as err:
             raise ValidationError({
                 'records': [_programming_error_summary(err)],
@@ -1235,7 +1251,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
-
+        updated_records = {}
         for num, record in enumerate(records):
             if not unique_keys and '_id' not in record:
                 raise ValidationError({
@@ -1306,12 +1322,16 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 sql_string = u'''
                     UPDATE {res_id}
                     SET ({columns}, "_full_text") = ({values}, NULL)
-                    WHERE ({primary_key}) = ({primary_value});
+                    WHERE ({primary_key}) = ({primary_value})
+                    {return_statement};
                 '''.format(
                     res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
                          for field in used_field_names]),
+                    return_statement='RETURNING {return_columns}'.format(
+                        return_columns=return_columns) if data_dict[
+                            'include_records'] else '',
                     values=u', '.join(values),
                     primary_key=pk_sql,
                     primary_value=pk_values_sql,
@@ -1320,6 +1340,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     results = context['connection'].execute(
                         sa.text(sql_string),
                         {**used_values, **unique_values})
+                    if data_dict['include_records']:
+                        for r in results.mappings().all():
+                            updated_records[str(r._id)] = dict(r)
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
@@ -1335,42 +1358,43 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
             elif method == _UPSERT:
                 format_params = dict(
                     res_id=identifier(data_dict['resource_id']),
-                    columns=u', '.join(
+                    columns=('_id, ' if pk_sql == '"_id"' else '') + ', '.join(
                         [identifier(field)
                          for field in used_field_names]),
-                    values=u', '.join([
-                        f'cast(:{p} as nested)'
-                        if field['type'] == 'nested' else ":" + p
-                        for p, field in zip(value_placeholders, used_fields)
-                    ]),
-                    primary_key=pk_sql,
-                    primary_value=pk_values_sql,
+                    set_statement=', '.join(
+                        ['{col}=EXCLUDED.{col}'.format(col=identifier(field))
+                         for field in used_field_names]),
+                    return_statement='RETURNING {return_columns}'.format(
+                        return_columns=return_columns) if data_dict[
+                            'include_records'] else '',
+                    values=('%s, ' % pk_values_sql if pk_sql == '"_id"' else '') +
+                    ', '.join([f'cast(:{p} as nested)' if field['type'] == 'nested'
+                               else ":" + p
+                               for p, field in zip(value_placeholders, used_fields)]),
+                    primary_key=pk_sql
                 )
 
-                update_string = """
-                    UPDATE {res_id}
-                    SET ({columns}, "_full_text") = ({values}, NULL)
-                    WHERE ({primary_key}) = ({primary_value})
-                """.format(**format_params)
-
-                insert_string = """
-                    INSERT INTO {res_id} ({columns})
-                           SELECT {values}
-                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
-                                    WHERE ({primary_key}) = ({primary_value}))
+                sql_string = """
+                    INSERT INTO {res_id} ({columns}) VALUES ({values})
+                    ON CONFLICT ({primary_key}) DO UPDATE
+                    SET {set_statement}
+                    {return_statement}
                 """.format(**format_params)
 
                 values = {**used_values, **unique_values}
                 try:
-                    context['connection'].execute(
-                        sa.text(update_string), values)
-                    context['connection'].execute(
-                        sa.text(insert_string), values)
+                    results = context['connection'].execute(
+                        sa.text(sql_string), values)
+                    if data_dict['include_records']:
+                        for r in results.mappings().all():
+                            updated_records[str(r._id)] = dict(r)
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
                         'records_row': num,
                     })
+        if updated_records:
+            data_dict['records'] = list(updated_records.values())
 
 
 def validate(context: Context, data_dict: dict[str, Any]):
@@ -1400,6 +1424,8 @@ def validate(context: Context, data_dict: dict[str, Any]):
     data_dict_copy.pop('include_total', None)
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
+    data_dict_copy.pop('include_records', None)
+    data_dict_copy.pop('include_deleted_records', None)
     data_dict_copy.pop('calculate_record_count', None)
 
     for key, values in data_dict_copy.items():
@@ -1464,8 +1490,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
@@ -1475,29 +1503,34 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT * FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) AS j'''
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
         sql_fmt = u'''
             COPY (
                 SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
+                FROM (
+                    SELECT * FROM {resource} {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) as z
             ) TO STDOUT csv DELIMITER '\t' '''
     else:
         sql_fmt = u''
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
-        resource=resource_id,
+        resource=identifier(resource_id),
         ts_query=ts_query,
         where=where_clause,
         sort=sort_clause,
@@ -1513,8 +1546,12 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             context, sql_string, where_values))[0][0]
         if v is None or v == '[]':
             records = []
-        else:
+        elif 'api_version' in context:
+            # LazyJSONObject only for api view where it can be
+            # serialized with simplejson without decoding
             records = LazyJSONObject(v)
+        else:
+            records = msgspec.json.decode(v)
     data_dict['records'] = records
 
     data_dict['fields'] = _result_fields(
@@ -1588,8 +1625,15 @@ def _execute_single_statement_copy_to(
             'query': ['Query is not a single statement.']
         })
 
+    params = {}
+    for chunk in where_values:
+        params.update(chunk)
+
+    clause = sa.text(sql_string).bindparams(
+        **params).compile(compile_kwargs={"literal_binds": True})
+
     cursor = context['connection'].connection.cursor()
-    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
+    cursor.copy_expert(str(clause), buf)
     cursor.close()
 
 
@@ -1621,6 +1665,10 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
     validate(context, data_dict)
     fields_types = _get_fields_types(
         context['connection'], data_dict['resource_id'])
+    fields = _get_fields(context['connection'], data_dict['resource_id'])
+    sql_columns = ", ".join(
+        identifier(f['id']) for f in fields)
+    return_columns = "_id, " + sql_columns
 
     query_dict: dict[str, Any] = {
         'where': []
@@ -1631,12 +1679,28 @@ def delete_data(context: Context, data_dict: dict[str, Any]):
                                              fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
-    sql_string = u'DELETE FROM "{0}" {1}'.format(
-        data_dict['resource_id'],
-        where_clause
-    )
+    if data_dict['include_deleted_records']:
+        rows_max = config.get('ckan.datastore.search.rows_max')
+        sql_string = '''WITH deleted AS (
+                            DELETE FROM {0} {1} RETURNING {2}
+                        ) SELECT d.* FROM deleted as d LIMIT {3}
+                     '''.format(
+                        identifier(data_dict['resource_id']),
+                        where_clause,
+                        return_columns,
+                        rows_max
+                     )
+    else:
+        sql_string = u'DELETE FROM {0} {1}'.format(
+            identifier(data_dict['resource_id']),
+            where_clause)
 
-    _execute_single_statement(context, sql_string, where_values)
+    try:
+        results = _execute_single_statement(context, sql_string, where_values)
+        if data_dict['include_deleted_records']:
+            data_dict['deleted_records'] = [dict(r) for r in results.mappings().all()]
+    except ProgrammingError as pe:
+        raise ValidationError({'filters': [_programming_error_summary(pe)]})
 
 
 def _create_triggers(connection: Any, resource_id: str,
@@ -1879,7 +1943,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         ''' Returns True if the read engine is a Postgresql Database.
 
         According to
-        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        https://docs.sqlalchemy.org/en/20/core/engines.html#postgresql
         all Postgres driver names start with `postgres`.
         '''
         drivername = self._get_read_engine().engine.url.drivername
@@ -2056,7 +2120,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             if typ == 'nested':
                 fmt = "coalesce(({0}).json,'null')"
             elif typ == 'timestamp':
-                fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                fmt = (
+                    "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS.MS')"
+                    if config['ckan.datastore.ms_in_timestamp']
+                    else "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                )
                 if records_format == 'lists':
                     fmt = f"coalesce(to_json({fmt}), 'null')"
             elif typ.startswith('_') or typ.endswith('[]'):
@@ -2226,15 +2294,17 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             plugin_data, _old = _get_raw_field_info(conn, id)
             return plugin_data
 
-    def resource_fields(self, id: str) -> dict[str, Any]:
+    def resource_fields(
+            self, id: str, include_meta: bool = True,
+            include_fields_schema: bool = True) -> dict[str, Any]:
 
-        info: dict[str, Any] = {'meta': {}, 'fields': []}
+        info: dict[str, Any] = {'fields': []}
+        engine = self._get_read_engine()
 
-        try:
-            engine = self._get_read_engine()
-
+        if include_meta:
             # resource id for deferencing aliases
-            info['meta']['id'] = id
+            meta: dict[str, Any] = {'id': id}
+            info['meta'] = meta
 
             # count of rows in table
             meta_sql = sa.text(
@@ -2291,19 +2361,23 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             ''')
             with engine.connect() as conn:
                 alias_results = conn.execute(alias_sql)
-            aliases = []
+            aliases: list[str] = []
             for alias in alias_results.fetchall():
                 aliases.append(alias[0])
             info['meta']['aliases'] = aliases
 
-            # get the data dictionary for the resource
-            with engine.connect() as conn:
-                data_dictionary = _result_fields(
-                    _get_fields_types(conn, id),
-                    _get_field_info(conn, id),
-                    None
-                )
+        # get the data dictionary for the resource
+        with engine.connect() as conn:
+            data_dictionary = _result_fields(
+                _get_fields_types(conn, id),
+                _get_field_info(conn, id),
+                None
+            )
+        info['fields'] = [
+            f for f in data_dictionary if not f['id'].startswith('_')
+        ]
 
+        if include_fields_schema:
             schema_sql = sa.text(f'''
                 SELECT
                 f.attname AS column_name,
@@ -2351,10 +2425,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 if field['id'].startswith('_'):
                     continue
                 field.update({'schema': schemainfo[field['id']]})
-                info['fields'].append(field)
 
-        except Exception:
-            pass
         return info
 
     def get_all_ids(self) -> list[str]:

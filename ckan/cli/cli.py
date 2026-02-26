@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from typing import Optional
-from pkg_resources import iter_entry_points
+from importlib.metadata import entry_points
 
 import click
 import sys
@@ -102,7 +102,8 @@ class ExtendableGroup(click.Group):
                 formatter.write_dl(commands)
 
         for section, group in ext_commands.items():
-            with formatter.section(self._section_titles.get(section, section)):
+            section_title = self._section_titles.get(section) or section
+            with formatter.section(section_title):
                 for rows in group.values():
                     formatter.write_dl(rows)
 
@@ -164,7 +165,7 @@ def _add_external_commands(ctx: click.Context):
 
 
 def _command_with_ckan_meta(cmd: click.Command, name: str, type_: str):
-    """Mark command as one retrived from CKAN extension.
+    """Mark command as one retrieved from CKAN extension.
 
     This information is used when CLI help text is generated.
     """
@@ -186,7 +187,7 @@ def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
 
     """
     registered_entries = {}
-    for entry in iter_entry_points(entry_point):
+    for entry in entry_points(group=entry_point):
         if entry.name in registered_entries:
             error_shout((
                 u'Attempt to override entry_point `{name}`.\n'

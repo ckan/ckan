@@ -17,7 +17,6 @@ from werkzeug.datastructures import MultiDict
 import ckan.model as model
 from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
-from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config, get_js_translations_dir
 from ckan.lib.lazyjson import LazyJSONObject
 
@@ -132,7 +131,9 @@ def _finish_ok(response_data: Any = None,
 def _finish_bad_request(extra_msg: Optional[str] = None) -> Response:
     response_data = _(u'Bad request')
     if extra_msg:
-        response_data = u'%s - %s' % (response_data, extra_msg)
+        response_data = _('Bad request: %s') % extra_msg
+    else:
+        response_data = _('Bad request')
     return _finish(400, response_data, u'json')
 
 
@@ -221,7 +222,7 @@ def _get_request_data(try_url_params: bool = False) -> dict[str, Any]:
 def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     u'''Main endpoint for the action API (v3)
 
-    Creates a dict with the incoming request data and calls the appropiate
+    Creates a dict with the incoming request data and calls the appropriate
     logic function. Returns a JSON response with the following keys:
 
         * ``help``: A URL to the docstring for the specified action
@@ -293,19 +294,15 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         return_dict[u'success'] = False
         return _finish(400, return_dict, content_type=u'json')
     except NotAuthorized as e:
+        error_msg = _('Access denied: %s') % e if str(e) else _('Access denied')
         return_dict[u'error'] = {u'__type': u'Authorization Error',
-                                 u'message': _(u'Access denied')}
+                                 'message': error_msg}
         return_dict[u'success'] = False
-
-        if str(e):
-            return_dict[u'error'][u'message'] += u': %s' % e
-
         return _finish(403, return_dict, content_type=u'json')
     except NotFound as e:
+        error_msg = _('Not found: %s') % e if str(e) else _('Not found')
         return_dict[u'error'] = {u'__type': u'Not Found Error',
-                                 u'message': _(u'Not found')}
-        if str(e):
-            return_dict[u'error'][u'message'] += u': %s' % e
+                                 'message': error_msg}
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')
     except ValidationError as e:
@@ -468,20 +465,6 @@ def organization_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     return _finish_ok(organization_list)
 
 
-def snippet(snippet_path: str, ver: int = API_REST_DEFAULT_VERSION) -> str:
-    u'''Renders and returns a snippet used by ajax calls
-
-        We only allow snippets in templates/ajax_snippets and its subdirs
-    '''
-    snippet_path = u'ajax_snippets/' + snippet_path
-    # werkzeug.datastructures.ImmutableMultiDict.to_dict
-    # by default returns flattened dict with first occurences of each key.
-    # For retrieving multiple values per key, use named argument `flat`
-    # set to `False`
-    extra_vars = request.args.to_dict()
-    return render(snippet_path, extra_vars=extra_vars)
-
-
 def i18n_js_translations(
         lang: str,
         ver: int = API_REST_DEFAULT_VERSION) -> Union[str, Response]:
@@ -524,7 +507,6 @@ util_rules: list[tuple[str, Callable[..., Union[str, Response]]]] = [
     (u'/util/group/autocomplete', group_autocomplete),
     (u'/util/organization/autocomplete', organization_autocomplete),
     (u'/util/resource/format_autocomplete', format_autocomplete),
-    (u'/util/snippet/<snippet_path>', snippet),
     (u'/i18n/<lang>', i18n_js_translations),
 ]
 

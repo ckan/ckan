@@ -61,8 +61,8 @@ user_table = Table('user', meta.metadata,
         Column('plugin_extras', MutableDict.as_mutable(JSONB)),
         Index('idx_user_id', 'id'),
         Index('idx_user_name', 'name'),
-        Index('idx_only_one_active_email', 'email', 'state', unique=True,
-              postgresql_where="(state = 'active'::text)"),
+        Index('idx_only_one_active_email_no_case', func.lower(Column('email')),
+              unique=True, postgresql_where="(state = 'active'::text)"),
         )
 
 
@@ -355,7 +355,7 @@ class User(core.StatefulObjectMixin,
     def set_user_last_active(self) -> None:
         if self.last_active:
             if self.last_active < last_active_check():
-                session["last_active"] = self.last_active
+                session["last_active"] = self.last_active.isoformat()
                 self.last_active = datetime.datetime.utcnow()
                 meta.Session.commit()
         else:
