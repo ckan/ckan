@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
@@ -26,7 +26,7 @@ from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
 
-from ckan.types import Context, Response, ErrorDict
+from ckan.types import Context, Response
 
 Blueprint = flask.Blueprint
 NotFound = logic.NotFound
@@ -229,10 +229,8 @@ class CreateView(MethodView):
                     _(u'The dataset {id} could not be found.').format(id=id)
                 )
             except ValidationError as e:
-                errors = cast(
-                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
                 error_summary = e.error_summary
-                return self.get(package_type, id, data, errors, error_summary)
+                return self.get(package_type, id, {}, e.error_dict, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
@@ -263,10 +261,8 @@ class CreateView(MethodView):
                     {'id': id, 'state': 'active'}
                 )
             except ValidationError as e:
-                errors = cast(
-                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
                 error_summary = e.error_summary
-                return self.get(package_type, id, data, errors, error_summary)
+                return self.get(package_type, id, {}, e.error_dict, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
         elif save_action == u'go-metadata-preview':
             data_dict = get_action(u'package_show')(context, {u'id': id})
