@@ -1044,7 +1044,7 @@ class ActivityTrashView(TrashView):
         if "cancel" in tk.request.form:
             return tk.h.redirect_to("admin.trash")
 
-        req_action = tk.form.get("action", "")
+        req_action = tk.request.form.get("action", "")
         if req_action == "activity":
             return self.purge_entity()
         else:
