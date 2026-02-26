@@ -1,5 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
+import json
+from flask import has_request_context
 
 from ckan.common import CKANConfig
 from typing import Any, cast
@@ -8,16 +10,22 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
 
-default = cast(ValidatorFactory, toolkit.get_validator(u'default'))
-boolean_validator = toolkit.get_validator(u'boolean_validator')
-natural_number_validator = toolkit.get_validator(u'natural_number_validator')
-ignore_missing = toolkit.get_validator(u'ignore_missing')
+default = cast(ValidatorFactory, toolkit.get_validator('default'))
+boolean_validator = toolkit.get_validator('boolean_validator')
+natural_number_validator = toolkit.get_validator('natural_number_validator')
+ignore_missing = toolkit.get_validator('ignore_missing')
+
+LANGUAGE_MAP = {
+    "zh_Hant_TW": "zh_Hant",
+    "zh_Hans_CN": "zh_CN",
+    "nb_NO": "no",
+}
 
 
 @toolkit.blanket.config_declarations
 @toolkit.blanket.helpers
 class DataTablesView(p.SingletonPlugin):
-    u'''
+    '''
     DataTables table view plugin
     '''
     p.implements(p.IConfigurer, inherit=True)
@@ -32,41 +40,54 @@ class DataTablesView(p.SingletonPlugin):
     # IConfigurer
 
     def update_config(self, config: CKANConfig):
-        u'''
+        '''
         Set up the resource library, public directory and
         template directory for the view
         '''
 
         # https://datatables.net/reference/option/lengthMenu
         self.page_length_choices = config.get(
-            u'ckan.datatables.page_length_choices')
+            'ckan.datatables.page_length_choices')
 
         self.page_length_choices = [int(i) for i in self.page_length_choices]
-        self.state_saving = config.get(u'ckan.datatables.state_saving')
+        self.state_saving = config.get('ckan.datatables.state_saving')
+        self.request_timeout = config.get('ckan.datatables.request_timeout')
 
         # https://datatables.net/reference/option/stateDuration
         self.state_duration = config.get(
-            u"ckan.datatables.state_duration")
+            "ckan.datatables.state_duration")
         self.data_dictionary_labels = config.get(
-            u"ckan.datatables.data_dictionary_labels")
+            "ckan.datatables.data_dictionary_labels")
         self.ellipsis_length = config.get(
-            u"ckan.datatables.ellipsis_length")
-        self.date_format = config.get(u"ckan.datatables.date_format")
-        self.default_view = config.get(u"ckan.datatables.default_view")
-        self.responsive_modal = config.get("ckan.datatables.responsive_modal")
+            "ckan.datatables.ellipsis_length")
+        self.date_format = config.get("ckan.datatables.date_format")
+        self.default_view = config.get("ckan.datatables.default_view")
 
-        toolkit.add_template_directory(config, u'templates')
-        toolkit.add_resource(u'assets', u'ckanext-datatablesview')
-        toolkit.add_public_directory(config, u'public')
+        toolkit.add_template_directory(config, 'templates')
+        toolkit.add_resource('assets', 'ckanext-datatablesview')
 
     # IResourceView
 
     def can_view(self, data_dict: dict[str, Any]):
         resource = data_dict['resource']
-        return resource.get(u'datastore_active')
+        return resource.get('datastore_active')
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> dict[str, Any]:
+        language_object = None
+        lang = LANGUAGE_MAP.get(toolkit.h.lang(), toolkit.h.lang())
+        try:
+            with open(f'assets/vendor/DataTables/i18n/{lang}.json', 'r') as f:
+                language_object = json.load(f)
+        except (FileNotFoundError, TypeError, json.JSONDecodeError):
+            pass
+
+        fullscreen = False
+        if (has_request_context() and
+            hasattr(toolkit.request, 'view_args') and
+            toolkit.request.view_args.get('view_id')):
+                fullscreen = True
+
         return {
             'page_length_choices': self.page_length_choices,
             'state_saving': self.state_saving,
@@ -75,30 +96,33 @@ class DataTablesView(p.SingletonPlugin):
             'ellipsis_length': self.ellipsis_length,
             'date_format': self.date_format,
             'default_view': self.default_view,
-            'responsive_modal': self.responsive_modal,
+            'request_timeout': self.request_timeout,
+            'language_object': language_object,
+            'fullscreen': fullscreen,
         }
 
     def view_template(self, context: Context, data_dict: dict[str, Any]):
-        return u'datatables/datatables_view.html'
+        return 'datatables/datatables_view.html'
 
     def form_template(self, context: Context, data_dict: dict[str, Any]):
-        return u'datatables/datatables_form.html'
+        return 'datatables/datatables_form.html'
 
     def info(self) -> dict[str, Any]:
         return {
-            u'name': u'datatables_view',
-            u'title': u'Table',
-            u'filterable': True,
-            u'icon': u'table',
-            u'requires_datastore': True,
-            u'default_title': p.toolkit._(u'Table'),
-            u'preview_enabled': False,
-            u'schema': {
-                u'responsive': [default(False), boolean_validator],
-                u'ellipsis_length': [default(self.ellipsis_length),
+            'name': 'datatables_view',
+            'title': 'Table',
+            'filterable': True,
+            'icon': 'table',
+            'requires_datastore': True,
+            'default_title': p.toolkit._('Table'),
+            'preview_enabled': False,
+            'schema': {
+                'responsive': [default(False), boolean_validator],
+                'ellipsis_length': [default(self.ellipsis_length),
                                      natural_number_validator],
-                u'date_format': [default(self.date_format)],
-                u'show_fields': [ignore_missing],
-                u'filterable': [default(True), boolean_validator],
-            }
+                'date_format': [default(self.date_format)],
+                'show_fields': [ignore_missing],
+                'filterable': [default(True), boolean_validator],
+            },
+            'iframed': False,
         }
