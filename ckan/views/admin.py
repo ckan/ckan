@@ -206,7 +206,8 @@ class TrashView(MethodView):
         return h.redirect_to(u'admin.trash')
 
     def purge_all(self):
-        for action, deleted_entities in zip(self._get_actions_and_entities()):
+        actions, entities = self._get_actions_and_entities()
+        for action, deleted_entities in zip(actions, entities):
             for entity in deleted_entities:
                 ent_id = entity.id if hasattr(entity, 'id') \
                     else entity['id']  # type: ignore
