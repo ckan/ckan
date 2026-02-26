@@ -106,3 +106,42 @@ DO $body$
     END;
 $body$;
 
+-- _table_stats for caching row counts and other useful table statistics
+CREATE UNLOGGED TABLE IF NOT EXISTS "_table_stats" (
+    "resource_id" name PRIMARY KEY,
+    "stats" jsonb NOT NULL
+);
+ALTER TABLE "_table_stats" OWNER TO {writeuser};
+
+CREATE OR REPLACE FUNCTION update_cached_table_row_count(table_name name)
+    RETURNS BIGINT
+AS $body$
+    DECLARE
+        row_count BIGINT;
+    BEGIN
+        EXECUTE format('SELECT count(*) FROM public.%I', table_name)
+            INTO row_count;
+        INSERT INTO "_table_stats"
+            VALUES (table_name, jsonb_build_object('rows', row_count))
+            ON CONFLICT ("resource_id") DO UPDATE SET "stats" =
+                jsonb_set("_table_stats"."stats", array['rows'], to_jsonb(row_count));
+        RETURN row_count;
+    END;
+$body$ LANGUAGE plpgsql;
+ALTER FUNCTION update_cached_table_row_count() OWNER TO {writeuser};
+
+CREATE OR REPLACE FUNCTION cached_table_row_count(table_name name)
+    RETURNS BIGINT
+AS $body$
+    DECLARE
+        row_count BIGINT;
+    BEGIN
+        SELECT stats -> 'rows' INTO row_count FROM "_table_stats"
+            WHERE "resource_id" = table_name;
+        IF row_count IS NULL THEN
+            SELECT update_cached_table_row_count(table_name) INTO row_count;
+        END IF;
+        RETURN row_count;
+    END;
+$body$ LANGUAGE plpgsql;
+ALTER FUNCTION cached_table_row_count() OWNER TO {writeuser};
