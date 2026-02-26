@@ -59,8 +59,6 @@ _type_names: Set[str] = set()
 _engines: Dict[str, Engine] = {}
 WhereClauses: TypeAlias = "list[tuple[str, dict[str, Any]] | tuple[str]]"
 
-_TIMEOUT = 60000  # milliseconds
-
 # See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
 _PG_ERR_CODE = {
     'unique_violation': '23505',
@@ -570,6 +568,23 @@ def _build_query_and_rank_statements(
     rank_statement = u'ts_rank({0}, {1}, 32)'.format(
         rank_field, query_alias)
     return statement, rank_statement
+
+
+def _get_timeout(action: str = 'search') -> int:
+    """
+    Get the timeout for a specific datastore action.
+    :param action: The action for which to get the timeout.
+        Valid actions are 'upsert', 'create', 'search', and 'search_sql'.
+    :return: The timeout in milliseconds.
+    """
+    if action in ['upsert', 'create']:
+        timeout = config.get('ckan.datastore.upsert_timeout_ms')
+    elif action in ['search', 'search_sql']:
+        timeout = config.get('ckan.datastore.query_timeout_ms')
+    else:
+        raise ValueError(f"Unknown action: {action}")
+
+    return timeout
 
 
 def _fts_lang(lang: Optional[str] = None) -> str:
@@ -1762,7 +1777,8 @@ def upsert(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
     engine = backend._get_write_engine()  # type: ignore
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', _TIMEOUT)
+    default_timeout = _get_timeout(action='upsert')
+    timeout = context.get('query_timeout', default_timeout)
 
     trans: Any = context['connection'].begin()
     try:
@@ -1811,7 +1827,8 @@ def search(context: Context, data_dict: dict[str, Any]):
     engine = backend._get_read_engine()  # type: ignore
     _cache_types(engine)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', _TIMEOUT)
+    default_timeout = _get_timeout(action='search')
+    timeout = context.get('query_timeout', default_timeout)
 
     try:
         context['connection'].execute(sa.text(
@@ -1841,7 +1858,8 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
     _cache_types(engine)
 
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', _TIMEOUT)
+    default_timeout = _get_timeout(action='search_sql')
+    timeout = context.get('query_timeout', default_timeout)
 
     sql = data_dict['sql']
 
@@ -2189,7 +2207,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         _cache_types(engine)
 
         context['connection'] = engine.connect()
-        timeout = context.get('query_timeout', _TIMEOUT)
+        default_timeout = _get_timeout(action='create')
+        timeout = context.get('query_timeout', default_timeout)
 
         _rename_json_field(data_dict)
 
