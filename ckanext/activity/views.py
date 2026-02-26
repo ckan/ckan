@@ -1019,7 +1019,7 @@ class ActivityTrashView(TrashView):
         )
 
     # TODO
-    def _get_deleted_activities(self) -> list[Any]:
+    def _get_deleted_activities(self) -> dict[str, list[Any]]:
         activities = (
             model.Session.query(Activity)
             .order_by(Activity.activity_type, sa.desc(Activity.timestamp))
