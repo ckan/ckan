@@ -210,7 +210,7 @@ class TrashView(MethodView):
         for action, deleted_entities in zip(actions, entities):
             for entity in deleted_entities:
                 ent_id = entity.id if hasattr(entity, 'id') \
-                    else entity['id']  # type: ignore
+                    else entity['id']
                 logic.get_action(action)(
                     {u'user': current_user.name}, {u'id': ent_id}
                 )
