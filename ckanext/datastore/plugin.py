@@ -98,6 +98,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_delete': action.datastore_delete,
             'datastore_records_delete': action.datastore_records_delete,
             'datastore_search': action.datastore_search,
+            'datastore_search_buckets': action.datastore_search_buckets,
             'datastore_info': action.datastore_info,
             'datastore_function_create': action.datastore_function_create,
             'datastore_function_delete': action.datastore_function_delete,
@@ -120,6 +121,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_records_delete': auth.datastore_records_delete,
             'datastore_info': auth.datastore_info,
             'datastore_search': auth.datastore_search,
+            'datastore_search_buckets': auth.datastore_search_buckets,
             'datastore_search_sql': auth.datastore_search_sql,
             'datastore_change_permissions': auth.datastore_change_permissions,
             'datastore_function_create': auth.datastore_function_create,
@@ -228,6 +230,13 @@ class DatastorePlugin(p.SingletonPlugin):
                                                              non_negative=True)
             if is_positive_int:
                 del data_dict['offset']
+
+        buckets = data_dict.get('buckets')
+        if buckets:
+            is_positive_int = datastore_helpers.validate_int(buckets,
+                                                             non_negative=True)
+            if is_positive_int:
+                del data_dict['buckets']
 
         full_text = data_dict.get('full_text')
         if full_text:

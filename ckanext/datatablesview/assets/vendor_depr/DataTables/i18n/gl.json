@@ -1,0 +1,22 @@
+{
+    "processing": "Procesando...",
+    "lengthMenu": "Mostrar _MENU_ rexistros",
+    "zeroRecords": "Non se atoparon resultados",
+    "emptyTable": "Ningún dato dispoñible nesta táboa",
+    "info": "Mostrando rexistros do _START_ ao _END_ dun total de _TOTAL_ rexistros",
+    "infoEmpty": "Mostrando rexistros do 0 ao 0 dun total de 0 rexistros",
+    "infoFiltered": "(filtrado dun total de _MAX_ rexistros)",
+    "search": "Buscar:",
+    "infoThousands": ",",
+    "loadingRecords": "Cargando...",
+    "paginate": {
+        "first": "Primeiro",
+        "last": "Último",
+        "next": "Seguinte",
+        "previous": "Anterior"
+    },
+    "aria": {
+        "sortAscending": ": Activar para ordenar a columna de maneira ascendente",
+        "sortDescending": ": Activar para ordenar a columna de maneira descendente"
+    }
+}
