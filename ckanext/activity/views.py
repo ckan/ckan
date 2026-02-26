@@ -1046,7 +1046,7 @@ class ActivityTrashView(TrashView):
 
         req_action = tk.request.form.get("action", "")
         if req_action == "activity":
-            return self.purge_entity()
+            return self.purge_entity("activity")
         else:
             # Call the parent class's post method for other actions
             return super(ActivityTrashView, self).post()
