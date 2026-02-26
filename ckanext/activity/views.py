@@ -1053,7 +1053,7 @@ class ActivityTrashView(TrashView):
 
     def _get_actions_and_entities(
         self,
-    ) -> Tuple[Tuple[str, ...], Tuple[List[Any], ...]]:
+    ) -> Tuple[Tuple[str, ...], Tuple[Union[List[Any], dict[str, list[Any]]], ...]]:
         actions, entities = super(
             ActivityTrashView, self
         )._get_actions_and_entities()
