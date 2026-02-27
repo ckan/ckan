@@ -18,31 +18,34 @@
 {% endblock accordion_title %}
 
 {% block accordion_items %}
-{% if ent_type == "activity" %}
-    {% for date, activities in entities.items() %}
+  {% if ent_type == "activity" %}
+    {% for date_str, activities in entities|sort(attribute='date_str', reverse=True)|groupby('date_str') %}
     <div class="accordion-item">
         <h2 class="accordion-header" id="heading-{{ loop.index }}">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ loop.index }}" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
-                {{ date }} ({{ activities|length }} activities)
+                {{ date_str }} ({{ activities|length }} activities)
             </button>
         </h2>
         <div id="collapse-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ loop.index }}" data-bs-parent="#activitiesAccordion">
             <div class="accordion-body">
                 <ul>
-                    {% for activity in activities %}
+                    {% for entity in activities %}
+                    {% set title = entity['title'] or entity['name'] %}
+                    {% do items.append(title) %}
                         <li>
-                            <strong>Type:</strong> {{ activity.activity_type }} - 
-                            <strong>Timestamp:</strong> {{ activity.timestamp }} - 
-                            <strong>Data:</strong> {{ activity.data }}
+                            {{ title|truncate(80) }}
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
-    </div>
+    </div>  
+    {% else %}
+    <p>
+      {{ _(messages.empty[ent_type]) }}
+    </p>
     {% endfor %}
-
-{% else %}
-    {{ super()}}
-{% endif %}
+  {% else %}
+    {{ super() }}
+  {% endif %}
 {% endblock accordion_items %}

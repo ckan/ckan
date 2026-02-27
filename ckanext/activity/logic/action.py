@@ -683,6 +683,22 @@ def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
     tk.check_access("activity_delete", context, data_dict)
 
     session = context["session"]
+    activity_id = data_dict.get("id")
+
+    if activity_id:
+        activity = model_activity.Activity.get(activity_id)
+        if activity is None:
+            raise tk.ObjectNotFound(tk._("Activity not found"))
+        detail_table = model_activity.ActivityDetail.__table__
+        session.query(model_activity.ActivityDetail).filter(
+            detail_table.c.activity_id == activity_id
+        ).delete(synchronize_session=False)
+        session.query(model_activity.Activity).filter(
+            model_activity.Activity.id == activity_id
+        ).delete(synchronize_session=False)
+        if not context.get("defer_commit", False):
+            session.commit()
+        return {"message": tk._("Activity purged")}
 
     start_date = data_dict.get("start_date")
     end_date = data_dict.get("end_date")

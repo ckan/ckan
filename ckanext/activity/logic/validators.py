@@ -121,6 +121,19 @@ def ensure_date_range_or_offset_provided(
     raise tk.Invalid(tk._(error_msg))
 
 
+def ensure_id_or_date_criteria_provided(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+) -> Any:
+    """Pass if id is provided, otherwise require date range or offset_days."""
+    activity_id = data.get(("id",))
+    if activity_id and str(activity_id).strip():
+        return
+    ensure_date_range_or_offset_provided(key, data, errors, context)
+
+
 def convert_yyyy_mm_dd_format(value: Any, context: Context) -> Any:
     """
     Converts a string in 'YYYY-MM-DD' format to a datetime.date object.

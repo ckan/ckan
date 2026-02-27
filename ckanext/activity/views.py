@@ -999,6 +999,18 @@ def dashboard_testing() -> str:
     )
 
 
+def _activity_display_label(activity: "Activity") -> str:
+    """Label for an activity in the trash list (same shape as entity.title/name)."""
+    time_str = (
+        activity.timestamp.strftime("%H:%M - %d.%m.%Y")
+        if activity.timestamp
+        else ""
+    )
+    return f"{activity.activity_type} — {time_str}" if time_str else (
+        activity.activity_type or ""
+    )
+
+
 class ActivityTrashView(TrashView):
     def __init__(self):
         super(ActivityTrashView, self).__init__()
@@ -1012,33 +1024,33 @@ class ActivityTrashView(TrashView):
             "Are you sure you want to purge activities?"
         )
         self.messages["success"]["activity"] = tk._(
-            "{} activities have been purged"
+            "{number} activities have been purged"
         )
         self.messages["empty"]["activity"] = tk._(
             "There are no activities to purge"
         )
 
-    # TODO
-    def _get_deleted_activities(self) -> dict[str, list[Any]]:
+    def _get_deleted_activities(self) -> List[dict[str, Any]]:
+        """Return a flat list of dicts (id, type, title, name, date_str) for display and purge."""
         activities = (
             model.Session.query(Activity)
             .order_by(Activity.activity_type, sa.desc(Activity.timestamp))
             .all()
         )
-
-        grouped_activities = {}
-        for activity in activities:
-            # Extract the date part from the timestamp
-            date_str = activity.timestamp.strftime('%Y-%m-%d')
-
-            # Initialize the list if the date is not already in the dict
-            if date_str not in grouped_activities:
-                grouped_activities[date_str] = []
-
-            # Append the activity to the list for this date
-            grouped_activities[date_str].append(activity)
-
-        return grouped_activities
+        return [
+            {
+                "id": activity.id,
+                "type": "activity",
+                "title": _activity_display_label(activity),
+                "name": str(activity.id),
+                "date_str": (
+                    activity.timestamp.strftime("%Y-%m-%d")
+                    if activity.timestamp
+                    else ""
+                ),
+            }
+            for activity in activities
+        ]
 
     def post(self) -> Response:
         if "cancel" in tk.request.form:
@@ -1054,19 +1066,19 @@ class ActivityTrashView(TrashView):
 
     def _get_actions_and_entities(
         self,
-    ) -> Tuple[Tuple[str, ...], Tuple[Union[List[Any], dict[str, list[Any]]], ...]]:
+    ) -> Tuple[Tuple[str, ...], Tuple[List[Any], ...]]:
         actions, entities = super(
             ActivityTrashView, self
         )._get_actions_and_entities()
 
-        actions += ("activity_purge",)
+        actions += ("activity_delete",)
         entities += (self.deleted_activities,)
         return actions, entities
 
     @staticmethod
     def _get_purge_action(ent_type: str) -> str:
         if ent_type == "activity":
-            return "activity_purge"
+            return "activity_delete"
         return TrashView._get_purge_action(ent_type)
 
 

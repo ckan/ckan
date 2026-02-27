@@ -101,13 +101,16 @@ def default_activity_list_schema(
 
 @validator_args
 def default_activity_delete_schema(
-    ensure_date_range_or_offset_provided: Validator,
+    ensure_id_or_date_criteria_provided: Validator,
     ignore_empty: Validator,
+    ignore_missing: Validator,
+    unicode_safe: Validator,
     convert_yyyy_mm_dd_format: Validator,
     int_validator: Validator,
 ) -> Schema:
     return {
-        "__before": [ensure_date_range_or_offset_provided],
+        "__before": [ensure_id_or_date_criteria_provided],
+        "id": [ignore_missing, ignore_empty, unicode_safe],
         "start_date": [ignore_empty, convert_yyyy_mm_dd_format],
         "end_date": [ignore_empty, convert_yyyy_mm_dd_format],
         "offset_days": [ignore_empty, int_validator],
