@@ -869,6 +869,27 @@ class IValidators(Interface):
 
         These validator functions would then be available when a
         plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
+
+        .. note:: Custom config option may remain not normalized/valid at this
+            point. Manually normaize any custom option that affects the result
+            of this method::
+
+                validators = {}
+                use_fancy = tk.asbool(
+                    tk.config.get("my.ext.use_fancy_validator")
+                )
+                if use_fancy:
+                    validators["fancy_validator"] = fancy_validator
+                return validators
+
+            Config options declared by CKAN itself are normalized, so they can
+            be used without extra manipulations::
+
+                validators = {}
+                if tk.config["debug"]:
+                    validators["debug_validator"] = debug_validator
+                return validators
+
         '''
         return {}
 

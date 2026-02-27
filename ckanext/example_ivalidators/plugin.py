@@ -6,10 +6,11 @@ from typing import Any
 from ckan.types import Validator
 
 
-from ckan.plugins.toolkit import Invalid
+from ckan.plugins.toolkit import Invalid, blanket
 from ckan import plugins
 
 
+@blanket.config_declarations
 class ExampleIValidatorsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IValidators)
 
