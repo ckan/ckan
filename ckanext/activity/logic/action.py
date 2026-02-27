@@ -20,12 +20,11 @@ from ..model import activity as model_activity, activity_dict_save
 log = logging.getLogger(__name__)
 
 
-def _get_user_permission_labels(
-    context: Context
-):
-    if not authz.is_sysadmin(context.get('user')):
+def _get_user_permission_labels(context: Context):
+    if not authz.is_sysadmin(context.get("user")):
         return get_permission_labels().get_user_dataset_labels(
-            context['auth_user_obj'])
+            context["auth_user_obj"]
+        )
     else:
         return None
 
@@ -174,7 +173,7 @@ def user_activity_list(
         offset=offset,
         after=after,
         before=before,
-        user_permission_labels=_get_user_permission_labels(context)
+        user_permission_labels=_get_user_permission_labels(context),
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -259,7 +258,7 @@ def package_activity_list(
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types,
-        user_permission_labels=_get_user_permission_labels(context)
+        user_permission_labels=_get_user_permission_labels(context),
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -322,7 +321,7 @@ def group_activity_list(
         before=before,
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
-        user_permission_labels=_get_user_permission_labels(context)
+        user_permission_labels=_get_user_permission_labels(context),
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -382,7 +381,7 @@ def organization_activity_list(
         before=before,
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
-        user_permission_labels=_get_user_permission_labels(context)
+        user_permission_labels=_get_user_permission_labels(context),
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -411,9 +410,7 @@ def recently_changed_packages_activity_list(
     # authorized to read.
 
     tk.check_access(
-        "recently_changed_packages_activity_list",
-        context,
-        data_dict
+        "recently_changed_packages_activity_list", context, data_dict
     )
 
     offset = data_dict.get("offset", 0)
@@ -422,7 +419,7 @@ def recently_changed_packages_activity_list(
     activity_objects = model_activity.recently_changed_packages_activity_list(
         limit=limit,
         offset=offset,
-        user_permission_labels=_get_user_permission_labels(context)
+        user_permission_labels=_get_user_permission_labels(context),
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -472,7 +469,7 @@ def dashboard_activity_list(
         offset=offset,
         before=before,
         after=after,
-        user_permission_labels=_get_user_permission_labels(context)
+        user_permission_labels=_get_user_permission_labels(context),
     )
 
     activity_dicts = model_activity.activity_list_dictize(
@@ -662,4 +659,98 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
     return {
         "diff": diff,
         "activities": activities,
+    }
+
+
+@tk.validate(schema.default_activity_delete_schema)
+def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
+    """
+    Deletes activities from the database based on a specified date range or
+    offset days.
+
+    :param start_date: The start date in 'YYYY-MM-DD' format.
+    :type start_date: str
+    :param end_date: The end date in 'YYYY-MM-DD' format.
+    :type end_date: str
+    :param offset_days: Number of days from today. Activities older
+        than this will be deleted.
+    :type offset_days: int
+
+    Note: Either provide both start_date and end_date to specify a date range,
+    or provide offset_days to delete activities older than a specified number
+    of days.
+    """
+    tk.check_access("activity_delete", context, data_dict)
+
+    session = context["session"]
+    activity_id = data_dict.get("id")
+
+    if activity_id:
+        activity = model_activity.Activity.get(activity_id)
+        if activity is None:
+            raise tk.ObjectNotFound("Activity not found")
+        detail_table = model_activity.ActivityDetail.__table__
+        session.query(model_activity.ActivityDetail).filter(
+            detail_table.c.activity_id == activity_id
+        ).delete(synchronize_session=False)
+        session.query(model_activity.Activity).filter(
+            model_activity.Activity.id == activity_id
+        ).delete(synchronize_session=False)
+        if not context.get("defer_commit", False):
+            session.commit()
+        return {"message": tk._("Activity purged")}
+
+    start_date = data_dict.get("start_date")
+    end_date = data_dict.get("end_date")
+    offset_days = data_dict.get("offset_days")
+
+    if offset_days:
+        threshold_date = datetime.datetime.now() - datetime.timedelta(
+            days=offset_days
+        )
+
+        query = session.query(model_activity.Activity).filter(
+            model_activity.Activity.timestamp < threshold_date
+        )
+
+    elif start_date and end_date:
+        if start_date > end_date:
+            session.rollback()
+            raise tk.ValidationError(
+                tk._("start_date cannot be greater than end_date.")
+            )
+
+        query = session.query(model_activity.Activity).filter(
+            model_activity.Activity.timestamp.between(start_date, end_date)
+        )
+
+    else:
+        return {
+            "message": tk._(
+                "No activities found matching the specified criteria. "
+                "Please provide either start_date and end_date or offset_days."
+            )
+        }
+
+    if query.count():
+        activity_ids_subq = query.with_entities(model_activity.Activity.id)
+        detail_table = model_activity.ActivityDetail.__table__
+        session.query(model_activity.ActivityDetail).filter(
+            detail_table.c.activity_id.in_(activity_ids_subq)
+        ).delete(synchronize_session=False)
+        deleted_count = query.delete(synchronize_session=False)
+
+        if not context.get("defer_commit", False):
+            session.commit()
+            msg = tk._(
+                "Deleted {amount} rows from the activity table."
+            ).format(amount=deleted_count)
+
+        else:
+            msg = deleted_count
+
+        return {"message": msg}
+
+    return {
+        "message": tk._("No activities found matching the specified criteria.")
     }
