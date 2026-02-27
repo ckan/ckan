@@ -699,11 +699,14 @@ class EditResourceViewView(MethodView):
             if to_delete:
                 data[u'id'] = view_id
                 get_action(u'resource_view_delete')(context, data)
+                h.flash_notice(_('View deleted.'))
             elif view_id:
                 data[u'id'] = view_id
                 data = get_action(u'resource_view_update')(context, data)
+                h.flash_success(_('View updated.'))
             else:
                 data = get_action(u'resource_view_create')(context, data)
+                h.flash_success(_('View created.'))
         except ValidationError as e:
             # Could break preview if validation error
             to_preview = False

@@ -937,10 +937,17 @@ class BulkProcessView(MethodView):
             u'delete': u'bulk_update_delete',
         }
 
+        action_messages = {
+            'private': _('Made %s dataset(s) private.'),
+            'public': _('Made %s dataset(s) public.'),
+            'delete': _('Deleted %s dataset(s).')
+        }
+
         data_dict = {u'datasets': datasets, u'org_id': group_dict['id']}
 
         try:
             get_action(action_functions[action])(context, data_dict)
+            h.flash_notice(action_messages[action] % len(datasets))
         except NotAuthorized:
             base.abort(403, _(u'Not authorized to perform bulk update'))
         return h.redirect_to(u'{}.bulk_process'.format(group_type), id=id)
@@ -997,6 +1004,10 @@ class CreateGroupView(MethodView):
                 'organization_create' if is_organization else 'group_create'
             )
             group = get_action(action_name)(context, data_dict)
+            if is_organization:
+                h.flash_success(_('Organization created.'))
+            else:
+                h.flash_success(_('Group created.'))
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
@@ -1101,6 +1112,10 @@ class EditGroupView(MethodView):
             group = get_action(action_name)(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
+            if is_organization:
+                h.flash_success(_('Organization updated.'))
+            else:
+                h.flash_success(_('Group updated.'))
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
@@ -1283,6 +1298,11 @@ class MembersGroupView(MethodView):
                 'group_member_create'
             )
             group_dict = get_action(action_name)(context, data_dict)
+            messages = {'member': _('Assigned %s as a member.'),
+                        'editor': _('Assigned %s as an editor.'),
+                        'admin': _('Assigned %s as an admin.')}
+            h.flash_success(messages[data_dict['role']]
+                            % data_dict['username'])
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
