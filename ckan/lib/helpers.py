@@ -2922,3 +2922,8 @@ def csrf_input():
     '''
     import ckan.lib.base as base
     return literal(base.render('snippets/csrf_input.html'))
+
+
+@core_helper
+def resource_list_view_limit():
+    return config['ckan.resource_list_view_limit']
