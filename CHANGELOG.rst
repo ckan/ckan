@@ -698,6 +698,14 @@ Migration notes
   <https://github.com/ckan/ckan/pull/7627>`_)
 - The configuration option to customize the authorization header name has been
   renamed to :ref:`apitoken_header_name` from ``apikey_header_name``.
+- Value of :ref:`apitoken_header_name` (formerly ``apikey_header_name``)
+  determines the only allowed value of the header used for user
+  identification. Previously it was used as a falback header name if
+  ``Authorization`` header is not available. Config files generated with CKAN
+  v2.10 have its value set to ``X-CKAN-API-Key``, making authentication via
+  ``Authorization`` impossible. As result, its recommended to set this option
+  to ``Authorization`` instead of ``X-CKAN-API-Key``, unless such configuration
+  is intentional.
 - Only sysadmins can now set the ``id`` field of Datasets, Groups,
   Organizations, Users, Resource Views and Extras (`#8069 <https://github.com/ckan/ckan/pull/8069>`_)
 - If provided, the value of the ``id`` field needs to be a valid UUID string.
