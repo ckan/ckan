@@ -688,7 +688,7 @@ def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
     if activity_id:
         activity = model_activity.Activity.get(activity_id)
         if activity is None:
-            raise tk.ObjectNotFound(tk._("Activity not found"))
+            raise tk.ObjectNotFound("Activity not found")
         detail_table = model_activity.ActivityDetail.__table__
         session.query(model_activity.ActivityDetail).filter(
             detail_table.c.activity_id == activity_id
