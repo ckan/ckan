@@ -3032,9 +3032,11 @@ class TestActivityDeleteByDateRangeOrOffset:
             )
 
         remaining = model.Session.query(Activity).all()
+        remaining_ids = [a.id for a in remaining]
         remaining_dates = {
             a.timestamp.strftime("%Y-%m-%d") for a in remaining if a.timestamp
         }
+        assert act_jan["id"] not in remaining_ids
+        assert act_feb["id"] in remaining_ids
         assert jan_date_str not in remaining_dates
         assert feb_date_str in remaining_dates
-        assert any(a.id == act_feb["id"] for a in remaining)
