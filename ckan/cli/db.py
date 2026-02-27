@@ -10,6 +10,13 @@ from typing import Optional
 import click
 from itertools import groupby
 
+from alembic.command import (
+    upgrade as alembic_upgrade,
+    downgrade as alembic_downgrade,
+    history as alembic_history,
+)
+from alembic.util.exc import CommandError
+
 import ckan.migration as migration_repo
 import ckan.plugins as p
 import ckan.model as model
@@ -266,3 +273,72 @@ def _repo_for_plugin(plugin: str):
         yield model.repo
     finally:
         model.repo._alembic_ini = original
+
+
+@db.command()
+@click.argument("versions", required=False)
+@click.option("-d", "--downgrade", help="Produce downgrade script", is_flag=True)
+@applies_to_plugin
+def export_migration(versions: str | None, downgrade: bool, plugin: str):
+    """Generate SQL executed during DB migration.
+
+    Default SQL covers all migrations. The range can be restricted using
+    `versions` argument. `versions` expects the range in format `START:END`,
+    where both START and END can be either the actual revision hashes or
+    `head`, `base` and `current` to reffer the latest, the first and the
+    current version.
+
+    Range can be specified as `END`, without a colon. This is interpreted as
+    `base:END` and accepts relative positions, which generally are not allowed
+    in normal `START:END` form. For example:
+    * base+1 - SQL of the first migration
+    * base+10 - SQL of the first 10 migrations
+    * head-2 - SQL of all but the last two migrations
+    * 123abc-1 - SQL of migrations from first till the migration before the 123abc
+
+    Note, that relative revisions must point to real revisions. For example, if
+    there are only 3 migrations, `base+4` does not exist and causes an error.
+
+    Range syntax is processed directly by alembic. Any changes and unexpected
+    results should be verified with alembic documentation.
+
+    WARNING: Produced SQL is not guaranteed to be exactly the same as one,
+    executed by migration command. Because DB is not analyzed, any migration
+    commands that fetch data from DB and transform it will not be addedd to the
+    output. Basically, any `op.execute` is omitted, so it's recommended to
+    compare the result with the code of migrations.
+
+    """
+    if versions is None:
+        versions = "head:base" if downgrade else "base:head"
+    func = alembic_downgrade if downgrade else alembic_upgrade
+
+    with _repo_for_plugin(plugin) as repo:
+        repo.setup_migration_version_control()
+        current = (repo.current_version() or "base").removesuffix(" (head)")
+        versions = versions.replace("current", current)
+
+        try:
+            func(repo.alembic_config, versions, True)
+        except CommandError as err:
+            error_shout(err)
+        except AssertionError:
+            error_shout(f"Cannot compute revision {versions}")
+
+
+@db.command()
+@click.argument("versions", default="base:head")
+@applies_to_plugin
+def history(versions: str, plugin: str):
+    """Print list of migrations.
+
+    Versions parameter can be used to narrow down the list of printed
+    revisions. Like slice syntax for lists, it accepts `HASH:`(prints revisions
+    after HASH), `:HASH`(prints revisions before HASH), and `START:END`(prints
+    revisions between START and END).
+    """
+    with _repo_for_plugin(plugin) as repo:
+        repo.setup_migration_version_control()
+        alembic_history(repo.alembic_config, versions)
+        for line in reversed(repo.take_alembic_output()):
+            click.echo(line[0])

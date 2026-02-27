@@ -5,7 +5,7 @@ Revises: 9f33a0280c51
 Create Date: 2024-06-06 20:32:06.936114
 
 """
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
@@ -56,9 +56,15 @@ def downgrade():
     op.add_column('resource', sa.Column('webstore_last_updated',
                   postgresql.TIMESTAMP(), autoincrement=False,
                   nullable=True))
+
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        conn = op.get_bind()
+        execute = conn.execute
+
     # Drop unnamed resource.package_id->package.id foreignkey constraint
-    conn = op.get_bind()
-    conn.execute(sa.text(
+    execute(sa.text(
         '''
         DO $$
         DECLARE fk_name TEXT;

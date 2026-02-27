@@ -6,7 +6,7 @@ Revises: 6d8ffebcaf54
 Create Date: 2018-09-04 18:48:53.632517
 
 """
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
@@ -79,18 +79,23 @@ def upgrade():
     for table in combined_primary_keys:
         op.create_primary_key(table + '_pkey', table, ['id', 'revision_id'])
 
-    op.execute(
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
+    execute(
         sa.schema.DropSequence(sa.schema.Sequence('package_extra_id_seq'))
     )
-    op.execute(sa.schema.DropSequence(sa.schema.Sequence('package_id_seq')))
-    op.execute(
+    execute(sa.schema.DropSequence(sa.schema.Sequence('package_id_seq')))
+    execute(
         sa.schema.DropSequence(sa.schema.Sequence('package_tag_id_seq'))
     )
-    op.execute(
+    execute(
         sa.schema.DropSequence(sa.schema.Sequence('package_resource_id_seq'))
     )
-    op.execute(sa.schema.DropSequence(sa.schema.Sequence('tag_id_seq')))
-    op.execute(sa.schema.DropSequence(sa.schema.Sequence('revision_id_seq')))
+    execute(sa.schema.DropSequence(sa.schema.Sequence('tag_id_seq')))
+    execute(sa.schema.DropSequence(sa.schema.Sequence('revision_id_seq')))
 
 
 def downgrade():

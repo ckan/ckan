@@ -115,7 +115,7 @@ Example 1:
 .. parsed-literal::
 
  $ ckan shell
- Python 3.9.13 (main, Dec 11 2022, 15:23:12) 
+ Python 3.9.13 (main, Dec 11 2022, 15:23:12)
  Type 'copyright', 'credits' or 'license' for more information
 
  **In [1]:** model.User.all()
@@ -127,7 +127,7 @@ Example 1:
  **In [2]:** from ckan.logic.action.get import package_show
 
  **In [3]:** package_show({"model": model}, {"id": "api-package-1"})
- **Out[3]:** 
+ **Out[3]:**
  {'author': None,
  'author_email': None,
  'creator_user_id': 'f0c04c11-4369-4cf1-9da4-69d9aae06a2e',
@@ -359,6 +359,8 @@ db: Manage databases
  ckan db pending-migrations  - List all sources with unapplied migrations.
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
+ ckan db history             - Print list of migrations
+ ckan db export-migration    - Generate SQL executed during DB migration
 
 See :doc:`database-management`.
 
