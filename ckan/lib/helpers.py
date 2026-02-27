@@ -1443,7 +1443,7 @@ def gravatar(email_hash: str,
         default = quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="user-image" width="%s" height="%s" alt="Gravatar" />'''
+        class="user-image" width="%s" height="%s" alt="" />'''
                    % (email_hash, size, default, size, size)
                    )
 
@@ -1499,10 +1499,9 @@ def user_image(user_id: str, size: int = 100) -> Union[Markup, str]:
     if user_dict['image_display_url']:
         return literal('''<img src="{url}"
                        class="user-image"
-                       width="{size}" height="{size}" alt="{alt}" />'''.format(
+                       width="{size}" height="{size}" alt="" />'''.format(
             url=sanitize_url(user_dict['image_display_url']),
             size=size,
-            alt=user_dict['name']
         ))
     elif gravatar_default == 'disabled':
         return snippet(
