@@ -37,6 +37,17 @@
                         </li>
                     {% endfor %}
                 </ul>
+                <form method="POST" class="d-flex justify-content-end mt-2" action="{{ h.url_for('admin.trash') }}">
+                    {{ h.csrf_input() }}
+                    <input type="hidden" name="action" value="activity">
+                    <input type="hidden" name="date" value="{{ date_str }}">
+                    <button type="submit" class="btn btn-danger btn-sm purge-group"
+                        data-module="confirm-action"
+                        data-module-with-data="true"
+                        data-module-content="{{ _('Purge all activities from this date?') }}">
+                        {{ _('Purge this date') }}
+                    </button>
+                </form>
             </div>
         </div>
     </div>  

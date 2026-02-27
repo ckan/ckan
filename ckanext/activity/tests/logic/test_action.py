@@ -2935,3 +2935,106 @@ class TestActivityDeleteByDateRangeOrOffset:
         assert "Deleted" in result["message"]
         assert model.Session.query(Activity).count() == 0
         assert model.Session.query(ActivityDetail).count() == 0
+
+    def test_delete_single_activity_by_id(self):
+        """Deleting by id removes only that activity, leaves others."""
+        sysadmin = factories.Sysadmin()
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        act1 = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset1["id"],
+            user_id=sysadmin["id"],
+        )
+        act2 = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset2["id"],
+            user_id=sysadmin["id"],
+        )
+        model.Session.commit()
+        all_ids = [a.id for a in model.Session.query(Activity).all()]
+        assert len(all_ids) >= 2
+        target_id = act1["id"]
+
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            id=target_id,
+        )
+        assert result["message"] == "Activity purged"
+
+        remaining = model.Session.query(Activity).all()
+        remaining_ids = [a.id for a in remaining]
+        assert target_id not in remaining_ids
+        assert act2["id"] in remaining_ids
+
+    def test_delete_single_activity_by_id_removes_activity_detail(self):
+        """Deleting a single activity by id also removes its ActivityDetail rows."""
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        activity_dict = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        detail = ActivityDetail(
+            activity_id=activity_dict["id"],
+            object_id=dataset["id"],
+            object_type="Package",
+            activity_type="changed package",
+        )
+        model.Session.add(detail)
+        model.Session.commit()
+        assert model.Session.query(ActivityDetail).count() == 1
+
+        helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            id=activity_dict["id"],
+        )
+        assert model.Session.query(Activity).filter_by(id=activity_dict["id"]).count() == 0
+        assert model.Session.query(ActivityDetail).count() == 0
+
+    @pytest.mark.freeze_time
+    def test_purge_by_date_only_removes_activities_on_that_date(self, freezer):
+        """Simulates purge-by-date: deleting activities for one date leaves others."""
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+
+        freezer.move_to("2023-01-01 12:00:00")
+        act_jan = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+
+        freezer.move_to("2023-02-15 12:00:00")
+        act_feb = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+
+        model.Session.commit()
+        jan_date_str = "2023-01-01"
+        feb_date_str = "2023-02-15"
+
+        # Simulate purge by date: only delete activities on 2023-01-01
+        activities_jan = [
+            a for a in model.Session.query(Activity).all()
+            if a.timestamp and a.timestamp.strftime("%Y-%m-%d") == jan_date_str
+        ]
+        for act in activities_jan:
+            helpers.call_action(
+                "activity_delete",
+                context={"user": sysadmin["name"]},
+                id=act.id,
+            )
+
+        remaining = model.Session.query(Activity).all()
+        remaining_dates = {
+            a.timestamp.strftime("%Y-%m-%d") for a in remaining if a.timestamp
+        }
+        assert jan_date_str not in remaining_dates
+        assert feb_date_str in remaining_dates
+        assert any(a.id == act_feb["id"] for a in remaining)

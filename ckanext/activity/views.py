@@ -1031,7 +1031,10 @@ class ActivityTrashView(TrashView):
         )
 
     def _get_deleted_activities(self) -> List[dict[str, Any]]:
-        """Return a flat list of dicts (id, type, title, name, date_str) for display and purge."""
+        """Return a flat list of dicts (id, type, title, name, date_str)
+        for display and purge.
+        date_str is the date of the activity in the format YYYY-MM-DD.
+        """
         activities = (
             model.Session.query(Activity)
             .order_by(Activity.activity_type, sa.desc(Activity.timestamp))
@@ -1058,11 +1061,32 @@ class ActivityTrashView(TrashView):
 
         req_action = tk.request.form.get("action", "")
         if req_action == "activity":
-            self.purge_entity("activity")
+            purge_date = tk.request.form.get("date")
+            if purge_date is not None:
+                self._purge_activities_by_date(purge_date)
+            else:
+                self.purge_entity("activity")
             return tk.h.redirect_to("admin.trash")
         else:
             # Call the parent class's post method for other actions
             return super(ActivityTrashView, self).post()
+
+    def _purge_activities_by_date(self, date_str: str) -> None:
+        """Purge only activities with the given date_str."""
+        to_purge = [
+            e for e in self.deleted_activities
+            if e.get("date_str") == date_str
+        ]
+        user = getattr(tk.current_user, "name", None) or ""
+        for ent in to_purge:
+            tk.get_action("activity_delete")(
+                {"user": user},
+                {"id": ent["id"]},
+            )
+        model.Session.remove()
+        tk.h.flash_success(
+            self.messages["success"]["activity"].format(number=len(to_purge))
+        )
 
     def _get_actions_and_entities(
         self,
