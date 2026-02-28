@@ -374,6 +374,30 @@ def group_dictize(group: model.Group, context: Context,
     if packages_field:
         def get_packages_for_this_group(group_: model.Group,
                                         just_the_count: bool = False):
+            if just_the_count:
+                # Get dataset count from Member table
+                query = model.Session.query(model.Member.id).filter(
+                    model.Member.group_id == group_.id,
+                    model.Member.table_name == 'package',
+                    model.Member.state == 'active'
+                )
+
+                if group_.is_organization:
+                    is_group_member = (context.get('user') and
+                        authz.has_user_permission_for_group_or_org(
+                            group_.id, context.get('user'), 'read'))
+
+                    # Make sure not to show private datasets to non-members
+                    if not is_group_member and not config.get('ckan.auth.allow_dataset_collaborators'):
+                        query = query.join(
+                            model.Package,
+                            model.Member.table_id == model.Package.id
+                        ).filter(model.Package.private == False)
+
+                member_count = query.count()
+
+                return member_count, []
+
             # Ask SOLR for the list of packages for this org/group
             q: dict[str, Any] = {
                 'facet': 'false',
@@ -382,10 +406,7 @@ def group_dictize(group: model.Group, context: Context,
 
             if group_.is_organization:
                 q['fq'] = '+owner_org:"{0}"'.format(group_.id)
-            else:
-                q['fq'] = '+groups:"{0}"'.format(group_.name)
 
-            if group_.is_organization:
                 is_group_member = (context.get('user') and
                     authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
@@ -394,16 +415,17 @@ def group_dictize(group: model.Group, context: Context,
                 else:
                     if config.get('ckan.auth.allow_dataset_collaborators'):
                         q['include_private'] = True
+            else:
+                q['fq'] = '+groups:"{0}"'.format(group_.name)
 
-            if not just_the_count:
-                # package_search limits 'rows' anyway, so this is only if you
-                # want even fewer
-                try:
-                    packages_limit = context['limits']['packages']
-                except KeyError:
-                    del q['rows']  # leave it to package_search to limit it
-                else:
-                    q['rows'] = packages_limit
+            # package_search limits 'rows' anyway, so this is only if you
+            # want even fewer
+            try:
+                packages_limit = context['limits']['packages']
+            except KeyError:
+                del q['rows']  # leave it to package_search to limit it
+            else:
+                q['rows'] = packages_limit
 
             search_context = cast(
                 Context, dict((k, v) for (k, v) in context.items()
