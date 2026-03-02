@@ -1296,7 +1296,12 @@ def default_collapse_facets():
 
 
 @core_helper
-def get_param_int(name: str, default: int = 10) -> int:
+def get_param_int(name: str, default: int = 0) -> int:
+    """Get a query parameter from the request as an integer.
+
+    Return a default value if the parameter is not present or cannot be
+    converted to an integer.
+    """
     try:
         return int(request.args.get(name, default))
     except ValueError:
