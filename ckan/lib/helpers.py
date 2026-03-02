@@ -1232,37 +1232,41 @@ def get_facet_items_dict(
 @core_helper
 def has_more_facets(facet: str,
                     search_facets: dict[str, dict[str, Any]],
-                    limit: Optional[int] = None,
+                    limit: int | None = None,
                     exclude_active: bool = False) -> bool:
-    '''
-    Returns True if there are more facet items for the given facet than the
+    '''Returns True if there are more facet items for the given facet than the
     limit.
 
     Reads the complete list of facet items for the given facet from
-    search_facets, and filters out the facet items that the user has already
-    selected.
+    search_facets, and optionally filters out the facet items that the user has
+    already selected.
 
     Arguments:
     facet -- the name of the facet to filter.
     search_facets -- dict with search facets
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
-
     '''
-    facets = []
-    for facet_item in search_facets[facet]['items']:
-        if not len(facet_item['name'].strip()):
-            continue
+    items = search_facets[facet]['items']
+    if not items:
+        return False
+
+    if limit is None:
+        limit = getattr(g, 'search_facets_limits', {}).get(facet)
+    # missing limit, as well as limit=0 treated as no-limit
+    if not limit:
+        return False
+
+    count = 0
+    if exclude_active:
         params_items = request.args.items(multi=True)
-        if (facet, facet_item['name']) not in params_items:
-            facets.append(dict(active=False, **facet_item))
-        elif not exclude_active:
-            facets.append(dict(active=True, **facet_item))
-    if getattr(g, 'search_facets_limits', None) and limit is None:
-        limit = g.search_facets_limits.get(facet)
-    if limit is not None and len(facets) > limit:
-        return True
-    return False
+        for facet_item in items:
+            if not exclude_active or (facet, facet_item['name']) not in params_items:
+                count += 1
+    else:
+        count = len(items)
+
+    return count > limit
 
 
 @core_helper
