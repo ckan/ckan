@@ -349,26 +349,6 @@ def search(package_type: str) -> str:
         extra_vars[u'search_facets'] = {}
         extra_vars[u'page'] = Page(collection=[])
 
-    # FIXME: try to avoid using global variables
-    g.search_facets_limits = {}
-    default_limit: int = config.get(u'search.facets.default')
-    for facet in extra_vars[u'search_facets'].keys():
-        try:
-            limit = int(
-                request.args.get(
-                    u'_%s_limit' % facet,
-                    default_limit
-                )
-            )
-        except ValueError:
-            base.abort(
-                400,
-                _(u'Parameter u"{parameter_name}" is not '
-                  u'an integer').format(parameter_name=u'_%s_limit' % facet)
-            )
-
-        g.search_facets_limits[facet] = limit
-
     _setup_template_variables(context, {}, package_type=package_type)
 
     extra_vars[u'dataset_type'] = package_type
