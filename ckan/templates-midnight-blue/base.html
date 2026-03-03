@@ -4,8 +4,7 @@
 {# Allows custom attributes to be added to the <html> tag #}
 {%- block htmltag -%}
 {% set lang = h.lang() %}
-<!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="{{ lang }}" {% if h.is_rtl_language()  %} dir="rtl" {% endif %} > <!--<![endif]-->
+  <html lang="{{ lang }}" {% if h.is_rtl_language()  %} dir="rtl" {% endif %} class="js">
 {%- endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
@@ -26,6 +25,8 @@
       <meta charset="utf-8" />
       <meta name="csrf_field_name" content="{{ g.csrf_field_name }}" />
       <meta name="{{ g.csrf_field_name }}" content="{{ csrf_token() }}" />
+      <meta name="site-root" content="{{ h.url_for('home.index', locale='default', _external=true) }}" />
+      <meta name="locale-root" content="{{ h.url_for('home.index', _external=true) }}" />
 
       {% block meta_generator %}<meta name="generator" content="ckan {{ h.ckan_version() }}" />{% endblock %}
       {% block meta_viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0">{% endblock %}
@@ -90,7 +91,7 @@
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  <body{% block bodytag %} data-site-root="{{ h.url_for('home.index', locale='default', qualified=true) }}" data-locale-root="{{ h.url_for('home.index', qualified=true) }}" {% endblock %}>
+  <body{% block bodytag %}{% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is
