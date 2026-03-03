@@ -395,11 +395,12 @@ def group_dictize(group: model.Group, context: Context,
                         if config.get('ckan.auth.allow_dataset_collaborators'):
                             remove_private = False
 
-                    if remove_private:
-                        query = query.join(
-                            model.Package,
-                            model.Member.table_id == model.Package.id
-                        ).filter(model.Package.private == False)
+                # Remove for Groups all the time as per original code
+                if remove_private:
+                    query = query.join(
+                        model.Package,
+                        model.Member.table_id == model.Package.id
+                    ).filter(model.Package.private == False)
 
                 member_count = query.count()
 
