@@ -29,14 +29,14 @@ from sqlalchemy.sql import select, false
 
 import ckan.logic as logic
 import ckan.plugins as plugins
-import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.authz as authz
 import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
 from ckan.types import Context
-from ckan.common import config
+from ckan.common import config, json
+from ckan.lib.helpers import helper_functions as h
 
 ## package save
 
@@ -458,7 +458,7 @@ def group_dictize(group: model.Group, context: Context,
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
     if image_url and not image_url.startswith('http'):
-        #munge here should not have an effect only doing it incase
+        #munge here should not have an effect only doing it in case
         #of potential vulnerability of dodgy api input
         image_url = munge.munge_filename_legacy(image_url)
         result_dict['image_display_url'] = h.url_for_static(
@@ -516,7 +516,7 @@ def tag_dictize(tag: model.Tag, context: Context,
         q: dict[str, Any] = {
             'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
 
-        package_dicts = [h.json.loads(result['data_dict'])
+        package_dicts = [json.loads(result['data_dict'])
                          for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the

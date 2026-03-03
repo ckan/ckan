@@ -39,7 +39,6 @@ from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (
-    HostHeaderMiddleware,
     RootPathMiddleware,
     CKANSecureCookieSessionInterface,
     CKANRedisSessionInterface,
@@ -327,17 +326,11 @@ def make_flask_stack() -> CKANApp:
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
-    # Prevent the host from request to be added to the new header
-    # location. Here `wsgi_app` can be missing if IMiddleware plugin replaces
-    # app instead of adding before/after request callbacks.
-    app.wsgi_app = HostHeaderMiddleware(getattr(app, "wsgi_app", app))
-    app.wsgi_app = I18nMiddleware(app.wsgi_app)
+    app = I18nMiddleware(app)
 
-    # Add a reference to the actual Flask app so it's easier to access. It can
-    # be not required as CKAN does not replaces Flask app starting from
-    # v2.12. But some extensions still can do it due to incorrect
-    # implementation of IMiddleware.
-    setattr(app, "_wsgi_app", flask_app)
+    # Add a reference to the actual Flask app so it's easier to access
+    # type_ignore_reason: custom attribute
+    app._wsgi_app = flask_app  # type: ignore
 
     return app
 
@@ -504,7 +497,7 @@ class CKANFlask(MultiStaticFlask):
 
 
 def _register_plugins_blueprints(app: CKANApp):
-    """ Resgister all blueprints defined in plugins by IBlueprint
+    """ Register all blueprints defined in plugins by IBlueprint
     """
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()

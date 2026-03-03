@@ -16,7 +16,7 @@ Example:
         <div class="module-content">
           {% block package_info_inner %}
             {% block heading %}
-              <h1 class="heading">{{ h.dataset_display_name(pkg) }}</h1>
+              <h2 class="heading">{{ h.dataset_display_name(pkg) }}</h2>
             {% endblock %}
             {% block nums %}
               {% set num_followers = h.follow_count('dataset', pkg.id) %}

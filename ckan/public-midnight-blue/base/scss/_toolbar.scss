@@ -60,7 +60,6 @@
     @include list-unstyled;
     position: absolute;
     top: 10px;
-    right: 10px;
     z-index: 1;
 }
 
@@ -146,5 +145,12 @@
     .page-header .nav-tabs>.active>a:hover,
     .page-header .nav-tabs>.active>a:focus {
         border-bottom-color: #dddddd;
+    }
+}
+
+// Page Primary Action
+@include media-breakpoint-down(sm) {
+    .page_primary_action {
+        width: 100%;
     }
 }

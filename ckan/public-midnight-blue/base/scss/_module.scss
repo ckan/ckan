@@ -99,15 +99,25 @@
             border-radius: 8px 8px 0 0;
             border-bottom: 1px solid $gray-200;
         }
-        .nav-simple > li:not(:last-of-type), .nav-aside > li:not(:last-of-type) {
+        .nav-simple > li:not(:last-of-type),
+        .nav-aside > li:not(:last-of-type),
+        .nav-item > a,
+        .list-group-item {
             border-radius: 0;
         }
-        .nav-item > a, .list-group-item {
-            border-radius: 0;
-        }
-        .list-group-item > a.flex-fill {
-            max-width: 80%;
-            overflow-wrap: break-word;
+        .list-group-item {
+            border-left: none;
+            border-right: none;
+            &:last-of-type {
+                border-bottom: none;
+            }
+            &:last-child {
+                border-radius: 0 0 4px 4px;
+            }
+            > .flex-fill {
+                max-width: 80%;
+                overflow-wrap: anywhere;
+            }
         }
     }
     .module-heading,

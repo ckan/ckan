@@ -6,6 +6,7 @@ import os
 import json
 
 import click
+import sqlalchemy as sa
 
 from ckan.model import parse_db_config
 from ckan.common import config
@@ -208,7 +209,9 @@ def upgrade():
                     raw_sql))
 
             if alter_sql:
-                connection.exec_driver_sql(';'.join(alter_sql))
+                connection.execute(sa.text(
+                    ';'.join(alter_sql).replace(':', r'\:')  # no bind params
+                ))
                 count += 1
             else:
                 noinfo += 1

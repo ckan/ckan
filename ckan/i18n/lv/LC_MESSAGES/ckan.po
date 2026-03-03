@@ -2082,6 +2082,10 @@ msgid ""
 "bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
+"Šeit tu vari izmantot<a href=\"#markdown\" title=\"Markdown quick "
+"reference\" data-bs-toggle=\"popover\" data-bs-"
+"content=\"%(markdown_tooltip)s\" data-bs-html=\"true\">Markdown "
+"formatējumu</a> "
 
 #: ckan/templates/macros/form/required_message.html:11
 msgid "Required field"
@@ -2454,7 +2458,7 @@ msgstr "Lauks"
 #: ckan/templates/package/resource_read.html:151
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:85
 msgid "Data last updated"
-msgstr ""
+msgstr "Pēdējo reizi mainīts"
 
 #: ckan/templates/package/resource_read.html:152
 #: ckan/templates/package/resource_read.html:156
@@ -2470,7 +2474,7 @@ msgstr "nezināms"
 #: ckan/templates/package/resource_read.html:155
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:86
 msgid "Metadata last updated"
-msgstr ""
+msgstr "Metadati pēdējo reizi mainīti"
 
 #: ckan/templates/package/resource_read.html:159
 #: ckan/templates/package/snippets/additional_info.html:74
@@ -4779,13 +4783,13 @@ msgstr ""
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:24
 msgid "Type Override"
-msgstr ""
+msgstr "Datu tips (pārrakstāms)"
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:34
 #: ckanext/datastore/templates/datastore/snippets/dictionary_view.html:18
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:35
 msgid "Label"
-msgstr ""
+msgstr "Etiķete"
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_view.html:3
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
@@ -4793,7 +4797,7 @@ msgstr ""
 #: ckanext/datastore/templates/package/snippets/resource_item.html:6
 #: ckanext/datastore/templates/package/snippets/resources.html:6
 msgid "Data Dictionary"
-msgstr ""
+msgstr "Datu vārdnīca"
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_view.html:55
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:31
@@ -4802,7 +4806,7 @@ msgstr ""
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_view.html:56
 msgid "Type"
-msgstr ""
+msgstr "Datu tips"
 
 #: ckanext/datastore/templates/package/snippets/data_api_button.html:9
 msgid "Data API"

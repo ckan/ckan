@@ -238,7 +238,7 @@ when the second appears, and the popovers may overlap. If you click on all the
 info buttons on the page, popovers for all of them will be shown at once:
 
 .. image:: /images/example_theme_overlapping_popovers.png
-   :alt: Dataset info popovers overlapping with eachother
+   :alt: Dataset info popovers overlapping with each other
 
 To make one popover disappear when another appears, we can use CKAN's
 :js:func:`~this.sandbox.client.publish` and

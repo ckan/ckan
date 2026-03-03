@@ -46,3 +46,18 @@ a.open-data {
 #organization-info {
     float: left;
 }
+
+.add-new-res {
+    border-top: 1px solid $gray-200;
+}
+
+.dropdown-toggle::after {
+    margin-left: 0;
+}
+
+.icon-stage {
+    margin: auto 6px;
+    .fa-check-circle {
+        color: $green;
+    }
+}

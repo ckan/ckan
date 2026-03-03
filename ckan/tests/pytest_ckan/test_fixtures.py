@@ -65,8 +65,13 @@ class TestWithPlugins:
     @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")
     def test_provided_plugin_can_be_loaded_manually(self,):
         """Fake plugin can be loaded when provided via mark."""
-        plugin = plugins.load("fake_plugin")
-        assert isinstance(plugin, _FakePlugin)
+        try:
+            plugin = plugins.load("fake_plugin")
+            assert isinstance(plugin, _FakePlugin)
+        finally:
+            # manually loaded plugins need to be cleaned up
+            # or they will affect other tests
+            plugins.unload_all()
 
     @pytest.mark.provide_plugin("fake_plugin", _FakePlugin)
     @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")

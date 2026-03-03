@@ -132,7 +132,7 @@ def _pager_url(params_nopage: Params,
 
 
 def _tag_string_to_list(tag_string: str) -> list[dict[str, str]]:
-    """This is used to change tags from a sting to a list of dicts.
+    """This is used to change tags from a string to a list of dicts.
     """
     out: list[dict[str, str]] = []
     for tag in tag_string.split(u','):

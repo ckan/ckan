@@ -1,0 +1,1 @@
+Fixed an issue with Resources not uploading new files during `package_update` some of the time.
