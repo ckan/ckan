@@ -373,8 +373,9 @@ def group_dictize(group: model.Group, context: Context,
 
     if packages_field:
         def get_packages_for_this_group(group_: model.Group,
-                                        just_the_count: bool = False):
+                just_the_count: bool = False) -> tuple[int, list[dict[str, Any]]]:
             if just_the_count:
+                remove_private = True
                 # Get dataset count from Member table
                 query = model.Session.query(model.Member.id).filter(
                     model.Member.group_id == group_.id,
@@ -388,7 +389,13 @@ def group_dictize(group: model.Group, context: Context,
                             group_.id, context.get('user'), 'read'))
 
                     # Make sure not to show private datasets to non-members
-                    if not is_group_member and not config.get('ckan.auth.allow_dataset_collaborators'):
+                    if is_group_member:
+                        remove_private = False
+                    else:
+                        if config.get('ckan.auth.allow_dataset_collaborators'):
+                            remove_private = False
+
+                    if remove_private:
                         query = query.join(
                             model.Package,
                             model.Member.table_id == model.Package.id
