@@ -326,7 +326,8 @@ def make_flask_stack() -> CKANApp:
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
-    app = I18nMiddleware(app)
+    # TODO: convert to app.before_request
+    app: Any = I18nMiddleware(app)
 
     # Add a reference to the actual Flask app so it's easier to access
     # type_ignore_reason: custom attribute
@@ -373,11 +374,15 @@ def load_user_from_request(
         if user := p.identify_user():
             return user
 
+    # this flag is used to disable CSRF protection for users logged in via API
+    # token and **for anonymous users**. The name may be misleading, but it
+    # must be enabled even for anonymous user.
+    g.login_via_auth_header = True
+
     # similar lines are executed when user loaded from session. There they are
     # used to override session information using header. Here they are used as
     # fallback, when session does not exist.
     if user := _get_user_for_apitoken():
-        g.login_via_auth_header = True
         return user
 
 
