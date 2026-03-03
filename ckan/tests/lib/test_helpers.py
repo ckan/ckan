@@ -4,12 +4,13 @@ import datetime
 import hashlib
 import os
 import sys
+from typing import Any
 
 import pytz
 import tzlocal
 from babel import Locale
 import flask_babel
-
+from faker import Faker
 import pytest
 
 from ckan.config.middleware import flask_app
@@ -1057,3 +1058,46 @@ def test_page_is_active_with_locale_and_root_path(app):
     ):
 
         assert h.page_is_active("/my/custom/path/ca/foo/group", active_blueprints=["group"]) is True
+
+
+class TestHasMoreFacets:
+    @pytest.mark.parametrize(
+        ("size", "limit", "expected"),
+        [
+            [3, 3, False],
+            [3, 5, False],
+            [3, 1, True],
+            [3, 0, False],
+            [0, 0, False],
+            [0, 3, False],
+        ],
+    )
+    def test_has_more_facets(self, size: int, limit: int, expected: bool, faker: Faker):
+        """Tests that has_more_facets returns True if the number of facets exceeds the limit, and false otherwise."""
+        facets = [{"name": faker.word()} for _ in range(size)]
+        assert h.has_more_facets("test", {"test": {"items": facets}}, limit) is expected
+
+    def test_exclude_active(self, faker: Faker, test_request_context: Any):
+        """Tests the effect of the exclude_active parameter on
+        has_more_facets. If exclude_active is True, the active facet(s) should
+        be excluded from the count when determining if there are more facets
+        than the limit.
+        """
+        facets = [{"name": faker.word()} for _ in range(10)]
+        with test_request_context(
+            "/dataset?test={}&test={}".format(facets[0]["name"], facets[1]["name"])
+        ):
+            # by default, active facets are included in the count, so there are more than 8 facets
+            assert h.has_more_facets("test", {"test": {"items": facets}}, 8) is True
+
+            # with exclude_active=True, the 2 active facets should be excluded
+            # from the count, so there are not more than 8 facets
+            assert (
+                h.has_more_facets("test", {"test": {"items": facets}}, 8, True) is False
+            )
+
+            # with exclude_active=True and a limit of 7, there are more than 7
+            # facets excluding the active ones, so it should return True
+            assert (
+                h.has_more_facets("test", {"test": {"items": facets}}, 7, True) is True
+            )
