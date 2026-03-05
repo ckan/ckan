@@ -364,7 +364,8 @@ def _group_or_org_list(
     if sort_info and sort_info[0][0] == 'package_count':
         query = model.Session.query(model.Group.id,
                                     model.Group.name,
-                                    sqlalchemy.func.count(model.Group.id))
+                                    sqlalchemy.func.count(model.Group.id),
+                                    model.Group.is_organization)
 
         query = query.filter(model.Member.group_id == model.Group.id) \
                      .filter(model.Member.table_id == model.Package.id) \
@@ -372,7 +373,8 @@ def _group_or_org_list(
                      .filter(model.Package.state == 'active')
     else:
         query = model.Session.query(model.Group.id,
-                                    model.Group.name)
+                                    model.Group.name,
+                                    model.Group.is_organization)
 
     query = query.filter(model.Group.state == 'active')
 
@@ -414,6 +416,31 @@ def _group_or_org_list(
     groups = query.all()
 
     if all_fields:
+        is_org = groups[0].is_organization if groups else False
+        group_ids = [group.id for group in groups]
+        labels = ['public']
+        user_obj = context.get('auth_user_obj')
+        if user_obj and type(user_obj) is model.User:
+            if user_obj.sysadmin:
+                labels = None
+            else:
+                # Limiting to groups that we got previously
+                memberships_query = model.Session.query(model.Member.group_id) \
+                    .filter(model.Member.table_name == 'user') \
+                    .filter(model.Member.table_id == user_obj.id) \
+                    .filter(model.Member.group_id.in_(group_ids)) \
+                    .filter(model.Member.state == 'active') \
+
+                memberships = [
+                    'member-' + membership.group_id for membership in memberships_query.all()]
+                labels = labels + memberships
+
+        counts = model_dictize.get_group_dataset_counts(
+            fq='entity_type:package', permissions_labels=labels)
+
+        # won't call get_packages_for_this_group in group_dictize
+        context['dataset_counts'] = counts
+
         action = 'organization_show' if is_org else 'group_show'
         group_list = []
         for group in groups:
