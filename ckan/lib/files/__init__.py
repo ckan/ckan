@@ -102,10 +102,14 @@ def collect_storages() -> dict[str, fk.Storage]:
     for name, settings in mapping.items():
         try:
             storage = make_storage(name, settings)
-        except (
-            exc.UnknownAdapterError,
-            exc.InvalidStorageConfigurationError,
-        ) as err:
+        except exc.UnknownAdapterError:
+            log.warning(
+                "Storage '%s' uses unknown adapter '%s' and cannot be initialized.",
+                name,
+                settings["type"],
+            )
+            continue
+        except exc.InvalidStorageConfigurationError as err:
             raise CkanConfigurationException(str(err)) from err
 
         result[name] = storage

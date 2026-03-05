@@ -184,31 +184,39 @@ def load_files(declaration: "Declaration", /, config: Any = None):
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
         storage_key = Key().from_string(files.STORAGE_PREFIX + name)
 
-        available_adapters = msgspec.json.encode(
-            [
-                item
-                for item in files.adapters
-                if not files.adapters[item].hidden
-                and issubclass(files.adapters[item], files.Storage)
-            ],
-        ).decode()
-
         # this option reports unrecognized type of the storage and shows all
         # available correct types
         declaration.declare(
             storage_key.type,
             settings.get("type"),
-        ).append_validators(
-            f"one_of({available_adapters})",
         ).set_description(
             "Adapter used by the storage",
         ).required()
 
-        # obviously, adapter must be specified. But at this point validation
-        # hasn't happened yet, and settings can include anything. If `type` is
-        # missing, it will be reported after the validation.
-        adapter = files.adapters.get(settings.get("type", ""))
-        if not adapter or not issubclass(adapter, files.Storage):
+        adapter_type = settings.get("type", "")
+        # instead of failing on unknown storage, just report it and skip
+        # declarations. This follows CKAN's pattern of configuration: if plugin
+        # responsible for the config option(adapter type) is disabled, this
+        # option has no effect on application
+        adapter = files.adapters.get(adapter_type)
+        if not adapter:
+            log.warning(
+                "Unknown storage adapter '%s' used by the storage '%s'.",
+                adapter_type,
+                name,
+            )
+            continue
+
+        # `issubclass` check is performed to handle original file-keeper's
+        # adapters, that are not wrapped into CKAN's storage class and cannot
+        # declare settings. Generally, it's not recommended, but if you are
+        # doing it, you probably need it.
+        if not issubclass(adapter, files.Storage):
+            log.debug(
+                "Adapter '%s' used by the storage '%s' is not a CKAN adapter.",
+                adapter_type,
+                name,
+            )
             continue
 
         adapter.declare_config_options(declaration, storage_key)
