@@ -16,6 +16,7 @@ import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import model
+from ckan.lib import files
 from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
 
@@ -1289,11 +1290,11 @@ class TestResourceUpdate(object):
             assert resource['position'] == i
             assert re.match(rf'.*/dataset/{dataset["id"]}/resource/{resource["id"]}/download/test_1.txt$', resource['url']) is not None
             upload = uploader.get_resource_uploader(resource)
+
             filepath = upload.get_path(resource['id'])
-            with open(filepath, 'rb') as current_file:
-                current_file_data = current_file.read()
-                assert current_file_data == content_1
-                assert current_file_data != content_2
+            content = upload.storage.content(files.FileData(filepath))  # pyright: ignore[reportAttributeAccessIssue]
+            assert content == content_1
+            assert content != content_2
 
         dataset = model.Package.get(dataset['id'])
         for i, r in enumerate(dataset.resources):
@@ -1333,10 +1334,9 @@ class TestResourceUpdate(object):
             assert re.match(rf'.*/dataset/{dataset.id}/resource/{resource["id"]}/download/test_2.txt$', resource['url']) is not None
             upload = uploader.get_resource_uploader(resource)
             filepath = upload.get_path(resource['id'])
-            with open(filepath, 'rb') as current_file:
-                current_file_data = current_file.read()
-                assert current_file_data != content_1
-                assert current_file_data == content_2
+            content = upload.storage.content(files.FileData(filepath))  # pyright: ignore[reportAttributeAccessIssue]
+            assert content != content_1
+            assert content == content_2
 
         # make a new resource after the reorder, check content
         model.Session.commit()
@@ -1351,10 +1351,9 @@ class TestResourceUpdate(object):
         assert re.match(rf'.*/dataset/{dataset.id}/resource/{resource["id"]}/download/test_1.txt$', resource['url']) is not None
         upload = uploader.get_resource_uploader(resource)
         filepath = upload.get_path(resource['id'])
-        with open(filepath, 'rb') as current_file:
-            current_file_data = current_file.read()
-            assert current_file_data == content_1
-            assert current_file_data != content_2
+        content = upload.storage.content(files.FileData(filepath))  # pyright: ignore[reportAttributeAccessIssue]
+        assert content == content_1
+        assert content != content_2
 
         # update the new resource, check content
         model.Session.commit()
@@ -1371,10 +1370,9 @@ class TestResourceUpdate(object):
         assert re.match(rf'.*/dataset/{dataset.id}/resource/{resource["id"]}/download/test_2.txt$', resource['url']) is not None
         upload = uploader.get_resource_uploader(resource)
         filepath = upload.get_path(resource['id'])
-        with open(filepath, 'rb') as current_file:
-            current_file_data = current_file.read()
-            assert current_file_data != content_1
-            assert current_file_data == content_2
+        content = upload.storage.content(files.FileData(filepath))  # pyright: ignore[reportAttributeAccessIssue]
+        assert content != content_1
+        assert content == content_2
 
         helpers.call_action('package_delete', id=dataset.id)
 
