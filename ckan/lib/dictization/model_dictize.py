@@ -338,10 +338,7 @@ def get_group_dataset_counts(
           'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
           'facet.limit': -1, 'rows': 1}
 
-    if permissions_labels:
-        query.run(q, permission_labels=permissions_labels)
-    else:
-        query.run(q)
+    query.run(q, permission_labels=permissions_labels)
     return query.facets
 
 
