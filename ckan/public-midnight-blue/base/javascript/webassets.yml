@@ -4,25 +4,24 @@ main:
   extra:
     preload:
       - vendor/vendor
-      - vendor/bootstrap
       - vendor/htmx
   contents:
     - apply-html-class.js
-    - plugins/jquery.inherit.js
-    - plugins/jquery.proxy-all.js
-    - plugins/jquery.url-helpers.js
-    - plugins/jquery.date-helpers.js
-    - plugins/jquery.slug.js
-    - plugins/jquery.slug-preview.js
-    - plugins/jquery.form-warning.js
+    - plugins/jquery.inherit.js # used in ckan.module() method
+    - plugins/jquery.proxy-all.js # recommended way to bind this to `_on*` methods of the module
+    - plugins/jquery.url-helpers.js # used in jquery.slug and jquery.slug-preview plugins
+    - plugins/jquery.date-helpers.js # used by client.js
+    - plugins/jquery.slug.js # used by jquery.slug-preview plugin and slug-preview module
+    - plugins/jquery.slug-preview.js # used by slug-preview module
+    - plugins/jquery.form-warning.js # used by basic-form module
     - sandbox.js
     - module.js
     - pubsub.js
     - client.js
     - i18n.js
-    - notify.js
-    - toast.js
-    - confirm.js
+    - notify.js # produces UI elements
+    - toast.js # produces UI elements
+    - confirm.js # produces UI elements
     - main.js
     - htmx-ckan.js
 
@@ -32,7 +31,9 @@ ckan:
   extra:
     preload:
       - vendor/bootstrap
+      - base/main
   contents:
+    - init_tooltips.js
     - modules/select-switch.js
     - modules/slug-preview.js
     - modules/basic-form.js
