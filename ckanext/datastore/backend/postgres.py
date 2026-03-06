@@ -1792,10 +1792,10 @@ def search(context: Context, data_dict: dict[str, Any]):
                 'query': ['Search took too long']
             })
         if _get_pgcode(e) == _PG_ERR_CODE['undefined_table']:
-            raise toolkit.ObjectNotFound(toolkit._(
-                'Resource "{0}" was not found.'.format(
-                    data_dict.get('resource_id', ''))
-            ))
+            resource_id = data_dict.get('resource_id', '')
+            raise toolkit.ObjectNotFound(
+                f'Resource "{resource_id}" was not found.'
+            )
         raise ValidationError(cast(ErrorDict, {
             'query': ['Invalid query'],
             'info': {
