@@ -274,6 +274,72 @@ Additional information about storage functionality is available in the
 `file-keeper`_ documentation.
 
 
+---------------------------------------------------------------------
+Using configures storages for resource, group, admin and user uploads
+---------------------------------------------------------------------
+
+By default, CKAN does not uses configurable storages for these types of
+uploads. To enable them turn off the classic uploader::
+
+  ckan.use_classic_uploader = false
+
+.. note:: In CKAN v3.0 configurable storages will be used by default without
+   additional settings.
+
+Now CKAN initializes 4 storages that depends on :ref:`ckan.storage_path`:
+
+* ``resources``: points to ``resources`` subfolder of the storage path. Files
+  uploaded into resource are stored here.
+* ``group_uploads``: points to ``uploads/user`` subfolder of the storage
+  path. Images for groups and organizations are stored here.
+* ``user_uploads``: points to ``uploads/group`` subfolder of the storage
+  path. User avatars are stored here.
+* ``admin_uploads``: points to ``uploads/admin`` subfolder of the storage
+  path. Site logo is stored here.
+
+At this stage, there is no difference between CKAN running with or without
+classic uploaders. If there are no plugins that customize upload process via
+:py:class:`~ckan.plugins.interfaces.IUploader` interface, classic uploader can
+be enabled and disabled at any moment and there will be no difference for
+visitors.
+
+The main reason to disable classic uploader is a possibility to customize these
+4 uploaders mentioned above. If CKAN sees explicit configuration of the any of
+these storages, the default storage that depends on storage path will not be
+created. For example, to store resource data on cloud, using
+`ckanext-file-keeper-cloud
+<https://github.com/ckan/ckanext-file-keeper-cloud>`_ extension, define
+following configuration of the ``resources`` storage::
+
+  ckan.use_classic_uploader = false
+
+  ckan.files.storage.resources.type = ckan:s3
+  ckan.files.storage.resources.override_existing = true
+  ckan.files.storage.resources.bucket = test-ckan-xx
+  ckan.files.storage.resources.key = ABC123
+  ckan.files.storage.resources.secret = abc123
+
+.. note:: Every storage has a distinct name. In this way, files from the
+   ``default`` storage are not mixed with resources or group uploads.
+
+   If there is an existing storage that uses a name different from
+   ``resources``, it's possible to use it as resources storage using folowing
+   config option::
+
+     ckan.files.default_storages.resource = MY_EXISTING_STORAGE
+
+   Assuming there is a configuration for ``MY_EXISTING_STORAGE``
+   elsewhere(i.e. ``ckan.files.storage.MY_EXISTING_STORAGE.type = ckan:fs``,
+   etc.), this storage will hold all further resource uploads. Similar options
+   are available for other standard upload types. Check:
+
+   * :ref:`ckan.files.default_storages.admin`
+   * :ref:`ckan.files.default_storages.user`
+   * :ref:`ckan.files.default_storages.group`
+   * :ref:`ckan.files.default_storages.resource`
+
+
+
 --------
 File API
 --------
@@ -615,3 +681,8 @@ Storage utilities
 .. autoattribute:: ckan.lib.files.Location
 
    Alias of ``str`` that represents sanitized location of the file
+
+
+.. _mimetypes: https://docs.python.org/3/library/mimetypes.html
+
+.. _file-keeper: https://pypi.org/project/file-keeper/
