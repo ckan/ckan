@@ -177,7 +177,11 @@ def download(package_type: str,
             if mimetype:
                 overrides["content_type"] = mimetype
             location = files.Location(filepath)
-            file_data = files.FileData(location, size=storage.size(location), **overrides)
+            file_data = files.FileData(
+                location,
+                size=storage.size(location),
+                **overrides,
+            )
             if isinstance(storage, files.Storage):
                 resp = storage.as_response(file_data, filename)
             else:
