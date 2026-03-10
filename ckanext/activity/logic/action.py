@@ -665,9 +665,11 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
 @tk.validate(schema.default_activity_delete_schema)
 def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """
-    Deletes activities from the database based on a specified date range or
-    offset days.
+    Deletes activities from the database based on a specified id, 
+    date range or offset days.
 
+    :param id: The id of the activity to delete.
+    :type id: str
     :param start_date: The start date in 'YYYY-MM-DD' format.
     :type start_date: str
     :param end_date: The end date in 'YYYY-MM-DD' format.
