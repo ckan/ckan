@@ -105,13 +105,13 @@ def default_activity_delete_schema(
     ignore_empty: Validator,
     ignore_missing: Validator,
     unicode_safe: Validator,
-    convert_yyyy_mm_dd_format: Validator,
+    isodate: Validator,
     int_validator: Validator,
 ) -> Schema:
     return {
         "__before": [ensure_id_or_date_criteria_provided],
         "id": [ignore_missing, ignore_empty, unicode_safe],
-        "start_date": [ignore_empty, convert_yyyy_mm_dd_format],
-        "end_date": [ignore_empty, convert_yyyy_mm_dd_format],
+        "start_date": [ignore_empty, isodate],
+        "end_date": [ignore_empty, isodate],
         "offset_days": [ignore_empty, int_validator],
     }

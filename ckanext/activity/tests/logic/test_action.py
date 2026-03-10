@@ -2835,6 +2835,39 @@ class TestActivityDeleteByDateRangeOrOffset:
         activities = model.Session.query(Activity).all()
         assert len(activities) == 0
 
+    @pytest.mark.freeze_time
+    def test_delete_by_date_range_accepts_iso8601_datetime(self, freezer):
+        """start_date and end_date accept ISO 8601 with time (e.g. YYYY-MM-DDTHH:mm)."""
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        freezer.move_to("2023-01-15T09:00:00")
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        freezer.move_to("2023-01-15T14:30:00")
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        model.Session.commit()
+        # Delete only activities between 10:00 and 15:00 on 2023-01-15
+        data_dict = {
+            "start_date": "2023-01-15T10:00",
+            "end_date": "2023-01-15T15:00",
+        }
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+        # Only the 14:30 activity falls in [10:00, 15:00]; 09:00 is before range
+        assert result["message"] == "Deleted 1 rows from the activity table."
+        remaining = model.Session.query(Activity).count()
+        assert remaining == 3  # new user, new package, and 09:00 changed package
+
     def test_start_date_greater_than_end_date_raises_validation_error(self):
         sysadmin = factories.Sysadmin()
         start_date = "2023-02-01"

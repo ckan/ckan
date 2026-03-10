@@ -5,6 +5,9 @@ from typing import Any
 from ckan.cli.clean import clean
 from ckan import model, logic, types
 
+# ISO 8601 date and datetime formats (date-only and with time)
+_DATE_FORMATS = ["%Y-%m-%d", "%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"]
+
 
 @clean.command(
     "activities",
@@ -12,13 +15,13 @@ from ckan import model, logic, types
 )
 @click.option(
     "--start_date",
-    type=click.DateTime(formats=["%Y-%m-%d"]),
-    help="The start date in 'YYYY-MM-DD' format.",
+    type=click.DateTime(formats=_DATE_FORMATS),
+    help="Start of range (ISO 8601: YYYY-MM-DD or YYYY-MM-DDTHH:mm).",
 )
 @click.option(
     "--end_date",
-    type=click.DateTime(formats=["%Y-%m-%d"]),
-    help="The end date in 'YYYY-MM-DD' format.",
+    type=click.DateTime(formats=_DATE_FORMATS),
+    help="End of range (ISO 8601: YYYY-MM-DD or YYYY-MM-DDTHH:mm).",
 )
 @click.option(
     "--offset_days",

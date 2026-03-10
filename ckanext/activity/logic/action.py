@@ -670,10 +670,10 @@ def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
 
     :param id: The id of the activity to delete.
     :type id: str
-    :param start_date: The start date in 'YYYY-MM-DD' format.
-    :type start_date: str
-    :param end_date: The end date in 'YYYY-MM-DD' format.
-    :type end_date: str
+    :param start_date: Start of range (ISO 8601, e.g. YYYY-MM-DD or YYYY-MM-DDTHH:mm).
+    :type start_date: str or datetime
+    :param end_date: End of range (ISO 8601, e.g. YYYY-MM-DD or YYYY-MM-DDTHH:mm).
+    :type end_date: str or datetime
     :param offset_days: Number of days from today. Activities older
         than this will be deleted.
     :type offset_days: int
