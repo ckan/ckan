@@ -14,37 +14,37 @@ _DATE_FORMATS = ["%Y-%m-%d", "%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"]
     help="Deletes activities based on a specified date range or offset days.",
 )
 @click.option(
-    "--start_date",
+    "--start-date",
     type=click.DateTime(formats=_DATE_FORMATS),
     help="Start of range (ISO 8601: YYYY-MM-DD or YYYY-MM-DDTHH:mm).",
 )
 @click.option(
-    "--end_date",
+    "--end-date",
     type=click.DateTime(formats=_DATE_FORMATS),
     help="End of range (ISO 8601: YYYY-MM-DD or YYYY-MM-DDTHH:mm).",
 )
 @click.option(
-    "--offset_days",
+    "--offset-days",
     type=click.INT,
     help="Number of days from today. Activities older than this will "
     "be deleted",
 )
 @click.option(
-    "--quiet",
-    "-q",
+    "-f",
+    "--force",
     is_flag=True,
-    help="If set, do not prompt for confirmation before deleting activities.",
+    help="Do not ask for confirmation.",
 )
 def activities(
-    start_date: datetime, end_date: datetime, offset_days: int, quiet: bool
+    start_date: datetime, end_date: datetime, offset_days: int, force: bool
 ):
     """
     Delete activities based on a specified date range or offset days.
     You must provide either a start date and end date or an offset in days.
 
     Examples:
-        ckan clean activities --start_date 2023-01-01 --end_date 2023-01-31
-        ckan clean activities --offset_days 30
+        ckan clean activities --start-date 2023-01-01 --end-date 2023-01-31
+        ckan clean activities --offset-days 30
 
     """
     try:
@@ -53,7 +53,7 @@ def activities(
         )
         context: types.Context = {
             "user": site_user["name"],
-            "defer_commit": not quiet,
+            "defer_commit": not force,
         }
         data_dict: dict[str, Any] = {
             "start_date": start_date,
@@ -65,7 +65,7 @@ def activities(
             "message"
         ]
 
-        if not quiet:
+        if not force:
             confirm_text = (
                 f"Are you sure you want to delete {result} activities? "
                 "This action cannot be undone."
