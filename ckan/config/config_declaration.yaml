@@ -1430,19 +1430,19 @@ groups:
           Default storage used for uploads when no explicit storage specified.
 
       - key: ckan.files.default_storages.admin
-        default: admin_uploads
+        default: admins
         description: |
           Name of the storage for uploads from AdminUI, such as site logo. The
           storage must support LINK_PERMANENT capability.
 
       - key: ckan.files.default_storages.user
-        default: user_uploads
+        default: users
         description: |
           Name of the storage for public user uploads, such as user avatar. The
           storage must support LINK_PERMANENT capability.
 
       - key: ckan.files.default_storages.group
-        default: group_uploads
+        default: groups
         description: |
           Name of the storage for public group uploads, such as group
           image. The storage must support LINK_PERMANENT capability.

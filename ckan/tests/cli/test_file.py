@@ -134,38 +134,13 @@ class TestStorageScan:
 @pytest.mark.usefixtures("with_temporal_storage")
 class TestStorageTransfer:
     def test_copy_between_storages(
-        self,
-        cli: CKANCliRunner,
-        faker: Faker,
+        self, cli: CKANCliRunner, faker: Faker, ckan_config: dict[str, Any]
     ):
         """Files can be copied between storages."""
         name = faker.file_name()
 
-        group = files.get_storage("group_uploads")
-        user = files.get_storage("user_uploads")
-
-        info = group.upload(group.prepare_location(name), files.make_upload(b""))
-
-        assert group.exists(info)
-        assert not user.exists(info)
-
-        cli.invoke(
-            ckan, ["file", "storage", "transfer", "group_uploads", "user_uploads"]
-        )
-
-        assert group.exists(info)
-        assert user.exists(info)
-
-    def test_move_between_storages(
-        self,
-        cli: CKANCliRunner,
-        faker: Faker,
-    ):
-        """Files can be moved between storages."""
-        name = faker.file_name()
-
-        group = files.get_storage("group_uploads")
-        user = files.get_storage("user_uploads")
+        group = files.get_storage(ckan_config["ckan.files.default_storages.group"])
+        user = files.get_storage(ckan_config["ckan.files.default_storages.user"])
 
         info = group.upload(group.prepare_location(name), files.make_upload(b""))
 
@@ -174,7 +149,36 @@ class TestStorageTransfer:
 
         cli.invoke(
             ckan,
-            ["file", "storage", "transfer", "group_uploads", "user_uploads", "-r"],
+            ["file", "storage", "transfer", group.settings.name, user.settings.name],
+        )
+
+        assert group.exists(info)
+        assert user.exists(info)
+
+    def test_move_between_storages(
+        self, cli: CKANCliRunner, faker: Faker, ckan_config: dict[str, Any]
+    ):
+        """Files can be moved between storages."""
+        name = faker.file_name()
+
+        group = files.get_storage(ckan_config["ckan.files.default_storages.group"])
+        user = files.get_storage(ckan_config["ckan.files.default_storages.user"])
+
+        info = group.upload(group.prepare_location(name), files.make_upload(b""))
+
+        assert group.exists(info)
+        assert not user.exists(info)
+
+        cli.invoke(
+            ckan,
+            [
+                "file",
+                "storage",
+                "transfer",
+                group.settings.name,
+                user.settings.name,
+                "-r",
+            ],
         )
 
         assert not group.exists(info)
@@ -185,13 +189,13 @@ class TestStorageTransfer:
         self,
         cli: CKANCliRunner,
         file_factory: types.TestFactory,
-        faker: Faker,
+        ckan_config: dict[str, Any],
     ):
         """Storage details updated for registered files."""
-        group = files.get_storage("group_uploads")
-        user = files.get_storage("user_uploads")
+        group = files.get_storage(ckan_config["ckan.files.default_storages.group"])
+        user = files.get_storage(ckan_config["ckan.files.default_storages.user"])
 
-        result = file_factory(storage="group_uploads")
+        result = file_factory(storage=group.settings.name)
         info = files.FileData.from_dict(result)
 
         # file moved using location
@@ -201,8 +205,8 @@ class TestStorageTransfer:
                 "file",
                 "storage",
                 "transfer",
-                "group_uploads",
-                "user_uploads",
+                group.settings.name,
+                user.settings.name,
                 "-r",
                 "-l",
                 result["location"],
@@ -212,7 +216,7 @@ class TestStorageTransfer:
         assert not group.exists(info)
         assert user.exists(info)
         moved_result = call_action("file_show", id=result["id"])
-        assert moved_result["storage"] == "user_uploads"
+        assert moved_result["storage"] == user.settings.name
 
         # file moved back using ID
         cli.invoke(
@@ -221,8 +225,8 @@ class TestStorageTransfer:
                 "file",
                 "storage",
                 "transfer",
-                "user_uploads",
-                "group_uploads",
+                user.settings.name,
+                group.settings.name,
                 "-r",
                 "-i",
                 result["id"],
@@ -232,7 +236,7 @@ class TestStorageTransfer:
         assert group.exists(info)
         assert not user.exists(info)
         moved_result = call_action("file_show", id=result["id"])
-        assert moved_result["storage"] == "group_uploads"
+        assert moved_result["storage"] == group.settings.name
 
 
 @pytest.mark.usefixtures("with_temporal_storage")

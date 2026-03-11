@@ -290,11 +290,11 @@ Now CKAN initializes 4 storages that depends on :ref:`ckan.storage_path`:
 
 * ``resources``: points to ``resources`` subfolder of the storage path. Files
   uploaded into resource are stored here.
-* ``group_uploads``: points to ``uploads/user`` subfolder of the storage
+* ``groups``: points to ``uploads/user`` subfolder of the storage
   path. Images for groups and organizations are stored here.
-* ``user_uploads``: points to ``uploads/group`` subfolder of the storage
+* ``users``: points to ``uploads/group`` subfolder of the storage
   path. User avatars are stored here.
-* ``admin_uploads``: points to ``uploads/admin`` subfolder of the storage
+* ``admins``: points to ``uploads/admin`` subfolder of the storage
   path. Site logo is stored here.
 
 At this stage, there is no difference between CKAN running with or without
