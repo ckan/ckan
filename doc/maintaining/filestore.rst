@@ -314,7 +314,6 @@ following configuration of the ``resources`` storage::
   ckan.use_classic_uploader = false
 
   ckan.files.storage.resources.type = ckan:s3
-  ckan.files.storage.resources.override_existing = true
   ckan.files.storage.resources.bucket = test-ckan-xx
   ckan.files.storage.resources.key = ABC123
   ckan.files.storage.resources.secret = abc123
@@ -524,9 +523,9 @@ Configuring a storage requires defining its ``type`` of the storage. Apart from
 the type, there is a number of common options that are supported by all storage
 types.
 
-* ``max_size``: The maximum size of a single upload
-* ``supported_types``: Space-separated list of allowed MIME types
-* ``override_existing``: If file already exists, replace it with new content
+* ``max_size``: The maximum size of a single upload. No limits by default.
+* ``supported_types``: Space-separated list of allowed MIME types. No restrictions by default.
+* ``override_existing``: If file already exists, replace it with new content. Enabled by default.
 * ``location_transformers``: List of transformations applied to the file
   location. Transformations are not applied automatically - call
   :py:meth:`~ckan.lib.files.Storage.prepare_location` to get the transformed version

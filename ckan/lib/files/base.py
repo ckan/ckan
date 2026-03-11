@@ -230,7 +230,7 @@ class Storage(fk.Storage):
             "Space-separated list of full MIME types, or just type/subtype part."
         ).set_example("text/csv pdf application video jpeg")
 
-        declaration.declare_bool(key.override_existing).set_description(
+        declaration.declare_bool(key.override_existing, True).set_description(
             "If file already exists, replace it with new content."
             + "\nThis option can be ignored by certain adapters.",
         )

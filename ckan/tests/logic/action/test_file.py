@@ -82,14 +82,6 @@ class TestFileCreate:
         with pytest.raises(tk.ValidationError):
             file_factory(name=file["location"])
 
-    @pytest.mark.ckan_config("ckan.files.storage.test.override_existing", True)
-    def test_override_does_not_allow_rewriting_file(
-        self, file: dict[str, Any], file_factory: types.TestFactory
-    ):
-        """Even with enabled overrides, file is not replaced during creation."""
-        with pytest.raises(tk.ValidationError):
-            file_factory(name=file["location"])
-
     def test_owner(self, file_factory: types.TestFactory, user: dict[str, Any]):
         """Owner set to the current user."""
         file = file_factory(user="")
