@@ -1,0 +1,1 @@
+Improved organization_list/group_list API performance by ~50% when returning all_fields, resulting in ~30% faster load times for Organization/Group List Pages.
