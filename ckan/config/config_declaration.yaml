@@ -1376,12 +1376,23 @@ groups:
   - annotation: Storage Settings
     options:
       - key: ckan.uploads_enabled
-        validators: ignore_missing boolean_validator
+        type: bool
+        default: true
         example: false
         description: |
-          Defines file uploads are enabled or not.
+          This enables the upload of files for resources, group and user
+          images, and site logos. If set to false, all these uploads are
+          disabled, regardless of the storage configuration.
 
-          If enabled also set :ref:`ckan.storage_path` if you want to use internal storage.
+          This does not affect file API
+          uploads(:py:func:`~ckan.logic.action.file.file_create`), which are
+          still allowed when this setting is false, as long as a valid storage
+          is configured.
+
+          If you want to disable all uploads, both UI and API-based, set this
+          option to false and do not configure any storage (i.e. remove all
+          options that start with `ckan.files.storage.`) or only configure
+          storages that do not have CREATE capability.
 
       - key: ckan.storage_path
         placeholder: /var/lib/ckan/default

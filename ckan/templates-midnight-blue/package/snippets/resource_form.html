@@ -7,11 +7,11 @@
 
 <form id="resource-edit" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
   {{ h.csrf_input() }}
- 
+
 
   <div class="package-metadata-field rounded container">
     <div class="row ">
-      
+
       {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
       <input name="id" value="{{ data.id }}" type="hidden"/>
@@ -24,7 +24,7 @@
             errors=errors,
             is_url=data.url and not is_upload,
             is_upload=is_upload,
-            is_upload_enabled=h.uploads_enabled(),
+            is_upload_enabled=h.uploads_enabled("resource"),
             url_label=_('URL'),
             upload_label=_('File'),
             placeholder=_('http://example.com/external-data.csv') %}
@@ -86,12 +86,12 @@
       {% block save_button %}
         <button class="btn btn-primary" name="save" value="go-metadata-preview" type="submit">{% block save_button_text %}{{ _('Preview') }}{% endblock %}</button>
       {% endblock %}
-     
-     
+
+
       {% block publish_button %}
         <button class="btn btn-success" name="save" value="go-metadata-publish" type="submit">{% block publish_button_text %}{{ _('Publish') }}{% endblock %}</button>
       {% endblock %}
-    
+
     {% else %}
       {% block add_button %}
         <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>

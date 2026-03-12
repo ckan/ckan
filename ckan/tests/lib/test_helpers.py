@@ -911,26 +911,52 @@ def test_get_translated(data_dict, locale, result, monkeypatch):
 
 
 class TestUploadsEnabled:
-
-    @pytest.mark.ckan_config("ckan.uploads_enabled", True)
-    def test_uploads_enabled(self):
-        assert h.uploads_enabled() is True
+    def test_disabled_with_no_type(self):
+        """Without upload type, helper returns False."""
+        assert not h.uploads_enabled()
 
     @pytest.mark.ckan_config("ckan.uploads_enabled", False)
-    def test_uploads_disabled(self):
-        assert h.uploads_enabled() is False
+    def test_disabled(self):
+        """When uploads are disabled globally, they are disabled for all types."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
 
-    def test_uploads_disabled_on_default_configuration(self):
-        assert h.uploads_enabled() is False
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
+    def test_enabled_with_storage(self):
+        """Default storage implicitly enables uploads for all types."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert h.uploads_enabled(type)
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/some/path")
-    def test_uploads_enabled_with_only_storage_path(self):
-        assert h.uploads_enabled() is True
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.storage_path", "")
+    def test_disabled_without_storage_and_path(self):
+        """Without storages and storage_path uploads are disabled."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
 
-    @pytest.mark.usefixtures("with_plugins")
-    @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
-    def test_uploads_enabled_when_iuploader_plugin_exists(self):
-        assert h.uploads_enabled() is True
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.storage_path", "/any/path")
+    def test_enabled_with_path(self):
+        """With storage_path set, uploads are enabled - that's a classic behavior."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert h.uploads_enabled(type)
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.files.storage.groups.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.admins.type", "ckan:memory")
+    def test_enabled_for_specific_storages(self):
+        """When specific storages are configured, uploads are enabled for those types."""
+        assert not h.uploads_enabled("resource")
+        assert h.uploads_enabled("group")
+        assert h.uploads_enabled("admin")
+        assert not h.uploads_enabled("user")
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.test.disabled_capabilities", ["CREATE"])
+    def test_disabled_without_create_capability(self):
+        """Even with a storage configured, if it doesn't have the CREATE capability, uploads are disabled."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
 
 
 def test_remove_locale_from_url(app):
