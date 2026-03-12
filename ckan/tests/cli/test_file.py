@@ -18,7 +18,8 @@ def with_temporal_storage(
     tmpdir: Any,
     ckan_config: dict[str, Any],
 ):
-    monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.type", "ckan:fs")
+    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.path", str(tmpdir))
     reset_storages()
 
 
@@ -54,7 +55,7 @@ class TestFilesAdapters(object):
         assert "ckan.files.storage.NAME.initialize" in result.output
 
 
-@pytest.mark.usefixtures("with_temporal_storage")
+@pytest.mark.usefixtures("with_temporal_storage", "with_extended_cli")
 class TestStorageScan:
     def test_resources_scan(
         self,
@@ -131,7 +132,7 @@ class TestStorageScan:
         assert "Size: 42B" in result.output
 
 
-@pytest.mark.usefixtures("with_temporal_storage")
+@pytest.mark.usefixtures("with_temporal_storage", "with_extended_cli")
 class TestStorageTransfer:
     def test_copy_between_storages(
         self, cli: CKANCliRunner, faker: Faker, ckan_config: dict[str, Any]
@@ -239,7 +240,7 @@ class TestStorageTransfer:
         assert moved_result["storage"] == group.settings.name
 
 
-@pytest.mark.usefixtures("with_temporal_storage")
+@pytest.mark.usefixtures("with_temporal_storage", "with_extended_cli")
 class TestStorageRemoveFiles:
     @pytest.mark.usefixtures("non_clean_db")
     def test_clean_registered(

@@ -17,3 +17,15 @@ new ``storage`` attribute:
 
 ``upload_file`` attribute contains :py:class:`ckan.lib.files.Upload` instead of
 werkzeug's ``FileStorage``.
+
+Helper :py:func:`~ckan.lib.helpers.uploads_enabled` now requires the type of
+upload to check if uploads are enabled for that type.
+
+       # before
+       h.uploads_enabled()
+
+       # after
+       h.uploads_enabled("resource")
+       h.uploads_enabled("group")
+       h.uploads_enabled("user")
+       h.uploads_enabled("admin")

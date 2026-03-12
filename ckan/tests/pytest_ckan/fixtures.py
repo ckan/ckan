@@ -671,7 +671,8 @@ def create_with_upload(
             assert resource["size"] == 11
 
     """
-    monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.type", "ckan:fs")
+    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.path", str(tmpdir))
     reset_storages()
 
     def factory(
