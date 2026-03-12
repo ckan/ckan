@@ -1,14 +1,16 @@
 # encoding: utf-8
 
 import os
-import jinja2
+
 import cookiecutter.find as find
 import cookiecutter.generate as gen
+import jinja2
 from cookiecutter.config import DEFAULT_CONFIG as config
 from cookiecutter.environment import StrictEnvironment
 from cookiecutter.exceptions import NonTemplatedInputDirException
-from ckan.common import asbool
+
 from ckan.cli.generate import remove_code_examples
+from ckan.common import asbool
 
 
 def recut():
@@ -16,10 +18,17 @@ def recut():
     Recreate setup.py so that we can edit keywords
     Remove unnecessary code examples
     """
-    # template location
+    env = StrictEnvironment()
+    # get context
+    context = {}
+
+    {% for key, value in cookiecutter.items() %}
+    context["{{key}}"] = {{ value.__repr__() | safe }}
+    {% endfor %}
+
     try:
         # cutting cookie from directory with template
-        temp_dir = find.find_template('..')
+        temp_dir = find.find_template(context['_repo_dir'], env)
     except NonTemplatedInputDirException as e:
         # template coming from Github
         # Hooks are passed through jinja2. raw will
@@ -34,13 +43,6 @@ def recut():
     destination = os.getcwd()
     # name of template
     setup_template = 'setup.py'
-
-    # get context
-    context = {}
-
-{% for key, value in cookiecutter.items() %}
-    context["{{key}}"] = {{ value.__repr__() | safe }}
-{% endfor %}
 
     # Process keywords
     keywords = context['keywords'].strip().split()
@@ -59,12 +61,10 @@ def recut():
                         .title().replace('_', ''))
     if context['plugin_class_name'] != plugin_class_name:
         context['plugin_class_name'] = plugin_class_name
-    # Recut cookie
-    env = StrictEnvironment()
     env.loader = jinja2.FileSystemLoader(temp_dir)
     gen.generate_file(project_dir=destination,
-                      infile=setup_template,
                       context={'cookiecutter': context},
+                      infile=setup_template,
                       env=env)
     if not asbool(context['include_examples']):
         remove_code_examples(os.path.join(destination, 'ckanext', short_name))
