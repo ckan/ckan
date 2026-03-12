@@ -275,33 +275,31 @@ Additional information about storage functionality is available in the
 
 
 ---------------------------------------------------------------------
-Using configures storages for resource, group, admin and user uploads
+Using configured storages for resource, group, admin and user uploads
 ---------------------------------------------------------------------
 
 By default, CKAN does not uses configurable storages for these types of
-uploads. To enable them turn off the classic uploader::
+uploads. To enable them configure default storage::
 
-  ckan.use_classic_uploader = false
+  ckan.files.storage.default.type = ckan:fs
+  ckan.files.storage.default.path = |storage_path|
 
-.. note:: In CKAN v3.0 configurable storages will be used by default without
-   additional settings.
+Now CKAN initializes 4 storages that depends on the default storage:
 
-Now CKAN initializes 4 storages that depends on :ref:`ckan.storage_path`:
-
-* ``resources``: points to ``resources`` subfolder of the storage path. Files
+* ``resources``: points to ``resources`` subfolder. Files
   uploaded into resource are stored here.
-* ``groups``: points to ``uploads/user`` subfolder of the storage
-  path. Images for groups and organizations are stored here.
-* ``users``: points to ``uploads/group`` subfolder of the storage
-  path. User avatars are stored here.
-* ``admins``: points to ``uploads/admin`` subfolder of the storage
-  path. Site logo is stored here.
+* ``groups``: points to ``uploads/user`` subfolder. Images for groups and
+  organizations are stored here.
+* ``users``: points to ``uploads/group`` subfolder. User avatars are stored
+  here.
+* ``admins``: points to ``uploads/admin`` subfolder. Site logo is stored here.
 
-At this stage, there is no difference between CKAN running with or without
-classic uploaders. If there are no plugins that customize upload process via
-:py:class:`~ckan.plugins.interfaces.IUploader` interface, classic uploader can
-be enabled and disabled at any moment and there will be no difference for
-visitors.
+At this stage, there is no difference between CKAN running with the old
+ ``ckan.storage_path`` instead of configured storages. If there are no plugins
+ that customize upload process via
+ :py:class:`~ckan.plugins.interfaces.IUploader` switching between
+ ``ckan.storage_path`` and storages will not make any difference for the end
+ user.
 
 The main reason to disable classic uploader is a possibility to customize these
 4 uploaders mentioned above. If CKAN sees explicit configuration of the any of
@@ -310,8 +308,6 @@ created. For example, to store resource data on cloud, using
 `ckanext-file-keeper-cloud
 <https://github.com/ckan/ckanext-file-keeper-cloud>`_ extension, define
 following configuration of the ``resources`` storage::
-
-  ckan.use_classic_uploader = false
 
   ckan.files.storage.resources.type = ckan:s3
   ckan.files.storage.resources.bucket = test-ckan-xx

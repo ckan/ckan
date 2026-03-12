@@ -53,7 +53,9 @@ def get_uploader(upload_to: str,
 
     # default uploader
     if upload is None:
-        if config["ckan.use_classic_uploader"]:
+        try:
+            files.get_storage(config[f"ckan.files.default_storages.{upload_to}"])
+        except files.exc.UnknownStorageError:
             upload = Upload(upload_to, old_filename)
         else:
             upload = FkUpload(upload_to, old_filename)
@@ -71,7 +73,9 @@ def get_resource_uploader(data_dict: dict[str, Any]) -> PResourceUploader:
 
     # default uploader
     if upload is None:
-        if config["ckan.use_classic_uploader"]:
+        try:
+            files.get_storage(config["ckan.files.default_storages.resource"])
+        except files.exc.UnknownStorageError:
             upload = ResourceUpload(data_dict)
         else:
             upload = FkResourceUpload(data_dict)
@@ -423,14 +427,7 @@ class FkUpload(object):
         self.old_filename = old_filename
 
         storage_name: str = config[f"ckan.files.default_storages.{object_type}"]
-        try:
-            self.storage = files.get_storage(storage_name)
-        except files.exc.UnknownStorageError:
-            log.warning(
-            "Storage %s is not configured and upload of %s will be ignored",
-                storage_name,
-                object_type,
-            )
+        self.storage = files.get_storage(storage_name)
 
     def update_data_dict(self, data_dict: dict[str, Any], url_field: str,
                          file_field: str, clear_field: str) -> None:
@@ -563,13 +560,7 @@ class FkResourceUpload(object):
     storage: fk.Storage | None = None
 
     def __init__(self, resource: dict[str, Any]) -> None:
-        try:
-            self.storage = files.get_storage(
-                config["ckan.files.default_storages.resource"]
-            )
-        except files.exc.UnknownStorageError:
-            log.warning("Resource storage is not configured")
-            return
+        self.storage = files.get_storage(config["ckan.files.default_storages.resource"])
 
         config_mimetype_guess = config.get('ckan.mimetype_guess')
 

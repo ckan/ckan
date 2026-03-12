@@ -124,8 +124,6 @@ def collect_storages() -> dict[str, fk.Storage]:
                     "type": "ckan:fs",
                     "path": os.path.join(path, "resources"),
                     "initialize": True,
-                    "override_existing": True,
-                    "location_transformers": ["safe_relative_path"],
                     "max_size": config["ckan.max_resource_size"] * 1024 * 1024,
                 },
             )
