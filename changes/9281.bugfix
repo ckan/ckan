@@ -1,0 +1,3 @@
+`get_param_int` helper used to return `10` when the given parameter is not
+available or cannot be parsed as an integer. Now this default value is changed
+to `0`.

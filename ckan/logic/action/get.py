@@ -414,6 +414,20 @@ def _group_or_org_list(
     groups = query.all()
 
     if all_fields:
+        # enforce permission filter based on user
+        user = context.get('auth_user_obj')
+        if context.get('ignore_auth') or (user and authz.is_sysadmin(user.name)):
+            labels = None
+        else:
+            labels = lib_plugins.get_permission_labels(
+                ).get_user_dataset_labels(user)
+
+        counts = model_dictize.get_group_dataset_counts(
+            fq='entity_type:package', permissions_labels=labels)
+
+        # won't call get_packages_for_this_group in group_dictize
+        show_context = cast(Context, dict(context, dataset_counts=counts))
+
         action = 'organization_show' if is_org else 'group_show'
         group_list = []
         for group in groups:
@@ -423,7 +437,7 @@ def _group_or_org_list(
                 if key not in data_dict:
                     data_dict[key] = False
 
-            group_list.append(logic.get_action(action)(context, data_dict))
+            group_list.append(logic.get_action(action)(show_context, data_dict))
     else:
         group_list = [getattr(group, ref_group_by) for group in groups]
 
