@@ -1395,13 +1395,18 @@ groups:
         type: int
         default: 10
         example: 100
-        description: The maximum in megabytes a resources upload can be.
+        description: |
+          The maximum in megabytes a resources upload can be. Has no effect
+          when default storage or resource storage is configured.
 
       - key: ckan.max_image_size
         type: int
         default: 2
         example: 10
-        description: The maximum in megabytes an image upload can be.
+        description: |
+          The maximum in megabytes an image upload can be. Has no effect when
+          either default storage or user, admin and group storages are
+          configured.
 
       - key: ckan.files.inline_content_types
         example: application/pdf image video

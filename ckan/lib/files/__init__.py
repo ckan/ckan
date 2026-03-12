@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+
+import copy
 import logging
 import os
-from typing import cast
+from typing import cast, Any
 
 import file_keeper as fk
 from file_keeper import Registry, Upload, adapters, exc, ext, make_storage, make_upload
@@ -88,18 +90,20 @@ def get_storage(name: str | None = None) -> fk.Storage:
     return storage
 
 
-def collect_storages() -> dict[str, fk.Storage]:
-    """Initialize configured storages.
+def _storages_from_config(
+    settings: dict[str, dict[str, Any]],
+) -> dict[str, fk.Storage]:
+    """Initialize storages from configuration.
+
+    Storages are configured using options with prefix
+    ``ckan.files.storage.``. Each storage must have ``type`` option with
+    adapter name, and other options depending on adapter type.
 
     :returns: mapping with storages
     """
-    from ckan.config.declaration.load import config_tree
-
     result = {}
 
-    mapping = config_tree(config, prefix=STORAGE_PREFIX, depth=-1)
-
-    for name, settings in mapping.items():
+    for name, settings in settings.items():
         try:
             storage = make_storage(name, settings)
         except exc.UnknownAdapterError:
@@ -114,70 +118,61 @@ def collect_storages() -> dict[str, fk.Storage]:
 
         result[name] = storage
 
-    if path := config["ckan.storage_path"]:
+    return result
+
+
+def collect_storages() -> dict[str, fk.Storage]:
+    """Initialize storages.
+
+    :returns: mapping with storages
+    """
+    from ckan.config.declaration.load import config_tree
+
+    storage_config = config_tree(config, prefix=STORAGE_PREFIX, depth=-1)
+    result = _storages_from_config(storage_config)
+
+    default = config["ckan.files.default_storages.default"]
+    if default in result:
+        # use default storage to initialize resources storage. It will create
+        # `resources` folder inside the default storage and upload files there.
         name = config["ckan.files.default_storages.resource"]
-
         if name not in result:
-            result[name] = make_storage(
-                name,
-                {
-                    "type": "ckan:fs",
-                    "path": os.path.join(path, "resources"),
-                    "initialize": True,
-                    "max_size": config["ckan.max_resource_size"] * 1024 * 1024,
-                },
-            )
-        else:
-            if not result[name].supports(Capability.STREAM | Capability.CREATE):
-                msg = f"STREAM and CREATE capabilities are required for storage {name}"
-                raise CkanConfigurationException(msg)
+            # copy original configuration, not `default.settings`, because the
+            # latter may contain cloud connections, credential objects or other
+            # derivables from plain configuration.
+            settings = copy.deepcopy(storage_config[default])
+            settings["path"] = os.path.join(settings["path"], "resources")
+            settings["initialize"] = True
+            result[name] = make_storage(name, settings)
 
+        # use default storage to initialize storages for public files. These
+        # storages will create `storage/uploads/{object_type}` folder inside
+        # the default storage and upload files there.
         for object_type in ["user", "group", "admin"]:
             name = config[f"ckan.files.default_storages.{object_type}"]
 
-            if name in result:
-                if not result[name].supports(Capability.LINK_PERMANENT):
-                    msg = f"LINK_PERMANENT capability is required for storage {name}"
-                    raise CkanConfigurationException(msg)
-                continue
+            if name not in result:
+                settings = copy.deepcopy(storage_config[default])
+                settings["path"] = os.path.join(
+                    settings["path"], "storage", "uploads", object_type
+                )
+                settings["initialize"] = True
+                settings["public"] = True
+                storage = make_storage(name, settings)
+                result[name] = storage
 
-            prefix = os.path.join(os.path.join("uploads", object_type))
-            storage = make_storage(
-                name,
-                {
-                    "type": "ckan:fs:public",
-                    "path": os.path.join(path, "storage", prefix),
-                    "public_prefix": prefix,
-                    "initialize": True,
-                    "max_size": config["ckan.max_image_size"] * 1024 * 1024,
-                },
-            )
-            result[name] = storage
+    if (
+        all(
+            config[f"ckan.files.default_storages.{object_type}"] in result
+            for object_type in ["resource", "user", "group", "admin"]
+        )
+        and config["ckan.storage_path"]
+    ):
+        log.warning(
+            "All uploads are handled by storages. `ckan.storage_path` has no effect"
+        )
 
     return result
 
 
-# def get_owner(owner_type: str, owner_id: str):
-#     """Return owner object by type and ID."""
-#     from ckan import model
-
-#     if getter := owner_getters.get(owner_type):
-#         return getter(owner_id)
-
-#     owner_model = "group" if owner_type == "organization" else owner_type
-#     mappers = model.registry.mappers
-
-#     for mapper in mappers:
-#         cls = mapper.class_
-#         table = getattr(cls, "__table__", None)
-#         if table is None:
-#             table = getattr(mapper, "local_table", None)
-
-#         if table is not None and table.name == owner_model:
-#             return model.Session.get(cls, owner_id)
-
-#     log.warning("Unknown owner type %s with ID %s", owner_type, owner_id)
-
-
 storages = Registry[fk.Storage](collector=collect_storages)
-# owner_getters = Registry[Callable[[str], Any]]({})

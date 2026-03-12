@@ -92,6 +92,8 @@ class Reader(fk.Reader):
 
     """
 
+    storage: Storage
+
     def response(self, data: FileData, extras: dict[str, Any]) -> types.Response:
         if not self.storage.supports(Capability.STREAM):
             raise fk.exc.UnsupportedOperationError("stream", self)
