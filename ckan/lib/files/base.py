@@ -282,7 +282,7 @@ class Storage(fk.Storage):
         /,
         send_inline: bool = False,
         **kwargs: Any,
-    ) -> Any:
+    ) -> types.Response:
         """Make Flask response with file attachment.
 
         By default, files are served as attachments and are downloaded as

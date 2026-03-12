@@ -141,6 +141,7 @@ def collect_storages() -> dict[str, fk.Storage]:
             # latter may contain cloud connections, credential objects or other
             # derivables from plain configuration.
             settings = copy.deepcopy(storage_config[default])
+            settings["name"] = name
             settings["path"] = os.path.join(settings["path"], "resources")
             settings["initialize"] = True
             result[name] = make_storage(name, settings)
@@ -156,6 +157,7 @@ def collect_storages() -> dict[str, fk.Storage]:
                 settings["path"] = os.path.join(
                     settings["path"], "storage", "uploads", object_type
                 )
+                settings["name"] = name
                 settings["initialize"] = True
                 settings["public"] = True
                 storage = make_storage(name, settings)

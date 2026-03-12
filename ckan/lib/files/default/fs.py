@@ -4,13 +4,14 @@ import dataclasses
 import os
 from typing import Any
 
+
 import flask
 from file_keeper.default.adapters import fs
 from typing_extensions import override
 
 from ckan import types
 from ckan.config.declaration import Declaration, Key
-from ckan.lib.files import base
+from ckan.lib.files import base, exc
 
 
 @dataclasses.dataclass
@@ -22,6 +23,9 @@ class Reader(base.Reader, fs.Reader):
     @override
     def response(self, data: base.FileData, extras: dict[str, Any]) -> types.Response:
         filepath = os.path.join(self.storage.settings.path, data.location)
+        if not self.storage.exists(data):
+            raise exc.MissingFileError(self.storage, data.location)
+
         return flask.send_file(
             filepath,
             download_name=data.location,
