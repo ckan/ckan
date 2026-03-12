@@ -119,16 +119,16 @@ class CKANSession(Session):
         return interface
 
 
-class I18nMiddleware(object):
+class I18nMiddleware:
     def __init__(self, app: Any):
         self.app = app
 
-    def __call__(self, environ: Any, start_response: Any):
+    def __call__(self, environ: Any, start_response: Any) -> Any:
         handle_i18n(environ)
         return self.app(environ, start_response)
 
 
-def handle_i18n(base_environ: dict[str, Any] | None) -> None:
+def handle_i18n(environ: dict[str, Any]) -> None:
     '''
     Strips the locale code from the requested url
     (eg '/sk/about' -> '/about') and sets environ variables for the
@@ -138,7 +138,6 @@ def handle_i18n(base_environ: dict[str, Any] | None) -> None:
         * CKAN_LANG_IS_DEFAULT is set to True or False
         * CKAN_CURRENT_URL is set to the current application url
     '''
-    environ = base_environ or request.environ
     locale_list = get_locales_from_config()
     default_locale = config.get('ckan.locale_default')
 
@@ -236,6 +235,7 @@ def make_flask_stack() -> CKANApp:
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
     app.wsgi_app = RootPathMiddleware(app.wsgi_app)
+    app.wsgi_app = I18nMiddleware(app.wsgi_app)
     CKANSession(app)
 
     # Add Jinja2 extensions and filters
@@ -325,9 +325,6 @@ def make_flask_stack() -> CKANApp:
     flask_config_keys = set(flask_app.config.keys()) - set(config.keys())
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
-
-    # TODO: convert to app.before_request
-    app: Any = I18nMiddleware(app)
 
     # Add a reference to the actual Flask app so it's easier to access
     # type_ignore_reason: custom attribute
