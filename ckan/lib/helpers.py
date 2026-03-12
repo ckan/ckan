@@ -2531,8 +2531,11 @@ def uploads_enabled(object_type: str | None = None) -> bool:
         storage = files.get_storage(storage_name)
     except files.exc.UnknownStorageError:
         # if the storage is not found, then we are using old upload rules: when
-        # storage path is configured, uploads are allowed
-        return bool(config["ckan.storage_path"])
+        # storage path is configured or uploader is customized, uploads are allowed
+        return bool(
+            config["ckan.storage_path"]
+            or any(plugin for plugin in p.PluginImplementations(p.IUploader))
+        )
 
     return storage.supports(files.Capability.CREATE)
 

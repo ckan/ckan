@@ -85,12 +85,7 @@ def get_resource_uploader(data_dict: dict[str, Any]) -> PResourceUploader:
 
 def get_storage_path() -> str:
     '''Function to get the storage path from config file.'''
-    storage_path = config.get('ckan.storage_path')
-    if not storage_path:
-        log.critical('''Please specify a ckan.storage_path in your config
-                        for your uploads''')
-
-    return storage_path
+    return config['ckan.storage_path']
 
 
 def get_max_image_size() -> int:
@@ -470,7 +465,7 @@ class FkUpload(object):
         been validated and flushed to the db. This is so we do not store
         anything unless the request is actually good.
         max_size is size in MB maximum of the file'''
-        if not self.storage:
+        if not self.storage or not config["ckan.uploads_enabled"]:
             return
 
         if self.filename:
@@ -628,7 +623,7 @@ class FkResourceUpload(object):
         :rtype: ``string`` or ``None``
 
         '''
-        if not self.storage:
+        if not self.storage or not config["ckan.uploads_enabled"]:
             return
 
         # Get filepath on the system where the file for this resource will be
