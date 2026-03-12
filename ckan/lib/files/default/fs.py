@@ -54,9 +54,9 @@ class PublicReader(Reader):
 
     @override
     def permanent_link(self, data: base.FileData, extras: dict[str, Any]) -> str:
-        from ckan.lib.helpers import url_for_static
+        from ckan.lib.helpers import helper_functions as h
 
-        return url_for_static(
+        return h.url_for_static(
             os.path.join(
                 self.storage.settings.public_prefix,
                 data.location,

@@ -170,6 +170,8 @@ class Settings(fk.Settings):
     """Supported types of uploads"""
     max_size: int = 0
     """Max allowed size of the upload"""
+    public: bool = False
+    """Whether storage is public and allows unauthenticated access."""
 
 
 class Storage(fk.Storage):
@@ -231,6 +233,10 @@ class Storage(fk.Storage):
         declaration.declare_list(key.supported_types, None).set_description(
             "Space-separated list of full MIME types, or just type/subtype part."
         ).set_example("text/csv pdf application video jpeg")
+
+        declaration.declare_bool(key.public).set_description(
+            "Whether storage is public and allows unauthenticated access."
+        )
 
         declaration.declare_bool(key.override_existing, True).set_description(
             "If file already exists, replace it with new content."
@@ -351,3 +357,19 @@ class Storage(fk.Storage):
         self.validate_content_type(upload.content_type)
 
         return super().upload(location, upload, **kwargs)
+
+    @override
+    def permanent_link(self, data: FileData, /, **extras: dict[str, Any]) -> str | None:
+        """Generate permanent link for the file."""
+        from ckan.lib.helpers import helper_functions as h
+
+        if link := super().permanent_link(data, **extras):
+            return link
+
+        if self.settings.public:
+            return h.url_for(
+                "file.public_download",
+                storage_name=self.settings.name,
+                location=data.location,
+                _external=True,
+            )
