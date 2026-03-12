@@ -97,7 +97,7 @@ jobs:
       # retry the exact same tests, even if the cache has been updated in the meantime).
       - name: Upload test durations
         if: steps.restore-test-durations.outputs.cache-hit != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-durations-before
           path: /tmp/.test_durations
@@ -149,7 +149,7 @@ jobs:
       - run: |
           echo "${{ matrix.split }} of $SPLIT_COUNT"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1  # Fetch all history, including tags
 
@@ -157,7 +157,7 @@ jobs:
       # job is retried, it will reuse the same artifact, to execute the exact same split.
       - name: Download test durations
         if: needs.define-matrix.outputs.restored == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: test-durations-before
 
@@ -173,7 +173,7 @@ jobs:
           gunzip .test_durations.gz
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.PIP_CACHE_DIR }}
           key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
@@ -226,7 +226,7 @@ jobs:
       # within one final file in the "Merge all partial test durations" step below.
       - name: Upload test durations
         if: github.run_attempt == 1
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-durations-after-partial-${{ matrix.split }}
           path: ./.test_durations
@@ -239,7 +239,7 @@ jobs:
           mv .coverage coverage-${{ matrix.split }}
 
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: internal_coverage-${{ matrix.split }}
           path: coverage-${{ matrix.split }}
@@ -248,7 +248,7 @@ jobs:
           retention-days: 1
 
       - name: Store test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: internal_junit-results-${{ matrix.split }}
@@ -269,7 +269,7 @@ jobs:
         if: failure()
 
       - name: Store Test Summary results (If Failure)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: split-test-summary-${{ matrix.split }}.md
           path: "./junit/result/test-summary.md"
@@ -284,7 +284,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all partial test durations
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: test-durations-after-partial-*
 
@@ -301,7 +301,7 @@ jobs:
       # and use it to manually commit file gzip `.test_durations` from time to time,
       # to keep an up-to-date fallback:
       - name: Upload final test durations
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-durations-after
           path: /tmp/.test_durations
@@ -327,10 +327,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.PIP_CACHE_DIR }}
           key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
@@ -342,14 +342,14 @@ jobs:
           pip install -r dev-requirements.txt
 
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: internal_coverage-*
           path: coverage-data
           merge-multiple: 'true'
 
       - name: Download all JUnit XML results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: internal_junit-results-*
           merge-multiple: true
@@ -386,7 +386,7 @@ jobs:
           coverage report -m
 
       - name: Upload HTML coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: combined-test-coverage-reports
           path: results
