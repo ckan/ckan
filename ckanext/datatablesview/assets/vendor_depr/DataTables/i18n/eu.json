@@ -1,0 +1,22 @@
+{
+    "processing": "Prozesatzen...",
+    "lengthMenu": "Erakutsi _MENU_ erregistro",
+    "zeroRecords": "Ez da emaitzarik aurkitu",
+    "emptyTable": "Taula hontan ez dago inongo datu erabilgarririk",
+    "info": "_START_ -etik _END_ -erako erregistroak erakusten, guztira _TOTAL_ erregistro",
+    "infoEmpty": "0tik 0rako erregistroak erakusten, guztira 0 erregistro",
+    "infoFiltered": "(guztira _MAX_ erregistro iragazten)",
+    "search": "Aurkitu:",
+    "infoThousands": ",",
+    "loadingRecords": "Abiarazten...",
+    "paginate": {
+        "first": "Lehena",
+        "last": "Azkena",
+        "next": "Hurrengoa",
+        "previous": "Aurrekoa"
+    },
+    "aria": {
+        "sortAscending": ": Zutabea goranzko eran ordenatzeko aktibatu ",
+        "sortDescending": ": Zutabea beheranzko eran ordenatzeko aktibatu"
+    }
+}
