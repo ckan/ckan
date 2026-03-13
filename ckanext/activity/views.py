@@ -2,8 +2,9 @@
 from __future__ import annotations
 import logging
 
+import sqlalchemy as sa
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Tuple, List
 
 from flask import Blueprint
 
@@ -23,7 +24,6 @@ from ckan.views.user import _extra_template_variables
 
 # TODO: don't use hidden funcitons
 from ckan.views.dataset import _setup_template_variables
-
 from ckan.types import Context, Response
 from .model import Activity
 from .logic.validators import (
@@ -995,3 +995,113 @@ def dashboard_testing() -> str:
             ]
         }
     )
+
+
+def _activity_display_label(activity: "Activity") -> str:
+    """Label for an activity in the trash list (same shape as entity.title/name)."""
+    time_str = (
+        activity.timestamp.strftime("%H:%M - %d.%m.%Y")
+        if activity.timestamp
+        else ""
+    )
+    return f"{activity.activity_type} — {time_str}" if time_str else (
+        activity.activity_type or ""
+    )
+
+
+def _get_deleted_activities_list() -> List[dict[str, Any]]:
+    """Return a flat list of dicts (id, type, title, name, date_str) for display and purge."""
+    activities = (
+        model.Session.query(Activity)
+        .order_by(Activity.activity_type, sa.desc(Activity.timestamp))
+        .all()
+    )
+    return [
+        {
+            "id": activity.id,
+            "type": "activity",
+            "title": _activity_display_label(activity),
+            "name": str(activity.id),
+            "date_str": (
+                activity.timestamp.strftime("%Y-%m-%d")
+                if activity.timestamp
+                else ""
+            ),
+        }
+        for activity in activities
+    ]
+
+
+def _check_admin_activities_auth() -> None:
+    context: Context = {
+        "user": getattr(tk.current_user, "name", None),
+        "auth_user_obj": getattr(tk.current_user, "userobj", None),
+    }
+    tk.check_access("sysadmin", context)
+
+
+def admin_activities() -> Union[str, Response]:
+    """Admin tab view for listing and purging activities."""
+    _check_admin_activities_auth()
+
+    if tk.request.method == "POST":
+        if "cancel" in tk.request.form:
+            return tk.h.redirect_to("activity.admin_activities")
+
+        action = tk.request.form.get("action", "")
+        if action == "all":
+            deleted_activities = _get_deleted_activities_list()
+            user = getattr(tk.current_user, "name", None) or ""
+            for ent in deleted_activities:
+                tk.get_action("activity_delete")(
+                    {"user": user},
+                    {"id": ent["id"]},
+                )
+            model.Session.remove()
+            tk.h.flash_success(
+                tk._("{number} activities have been purged").format(
+                    number=len(deleted_activities)
+                )
+            )
+        elif action == "activity":
+            purge_date = tk.request.form.get("date")
+            if purge_date is not None:
+                deleted_activities = _get_deleted_activities_list()
+                to_purge = [
+                    e for e in deleted_activities if e.get("date_str") == purge_date
+                ]
+                user = getattr(tk.current_user, "name", None) or ""
+                for ent in to_purge:
+                    tk.get_action("activity_delete")(
+                        {"user": user},
+                        {"id": ent["id"]},
+                    )
+                model.Session.remove()
+                tk.h.flash_success(
+                    tk._("{number} activities have been purged").format(
+                        number=len(to_purge)
+                    )
+                )
+        return tk.h.redirect_to("activity.admin_activities")
+
+    deleted_activities = _get_deleted_activities_list()
+    messages = {
+        "confirm": tk._("Are you sure you want to purge all activities?"),
+        "success": tk._("{number} activities have been purged"),
+        "empty": tk._("There are no activities to purge"),
+    }
+    return tk.render(
+        "admin/activities.html",
+        extra_vars={
+            "deleted_activities": deleted_activities,
+            "messages": messages,
+        },
+    )
+
+
+bp.add_url_rule(
+    "/ckan-admin/activities",
+    view_func=admin_activities,
+    methods=["GET", "POST"],
+    endpoint="admin_activities",
+)
