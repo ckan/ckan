@@ -168,7 +168,11 @@ def download(package_type: str,
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
-        resp = flask.send_file(filepath, download_name=filename)
+        if config.get('ckan.downloads_use_x_accel_redirect'):
+            resp = flask.make_response()
+            resp.headers['X-Accel-Redirect'] = filepath
+        else:
+            resp = flask.send_file(filepath, download_name=filename)
 
         if rsc.get('mimetype'):
             resp.headers['Content-Type'] = rsc['mimetype']
