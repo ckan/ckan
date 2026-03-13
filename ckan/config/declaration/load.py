@@ -43,6 +43,7 @@ option_types = {
     "int": "declare_int",
     "dynamic": "declare_dynamic",
     "list": "declare_list",
+    "float": "declare_float",
 }
 
 handler: FormatHandler[Callable[..., None]] = FormatHandler()

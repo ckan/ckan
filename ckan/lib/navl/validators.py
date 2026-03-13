@@ -269,6 +269,12 @@ def convert_int(value: Any) -> int:
     except ValueError:
         raise Invalid(_('Please enter an integer value'))
 
+def convert_float(value: Any) -> float:
+    try:
+        return float(value)
+    except ValueError:
+        raise Invalid(_('Please enter a floating point value'))
+
 def unicode_only(value: Any) -> str:
     '''Accept only unicode values
 
