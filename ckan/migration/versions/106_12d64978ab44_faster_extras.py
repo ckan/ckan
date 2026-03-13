@@ -5,7 +5,7 @@ Revises: 4a5e3465beb6
 Create Date: 2024-06-17 18:16:48.398099
 
 """
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
@@ -29,7 +29,13 @@ def upgrade():
         ),
         nullable=True,
     ))
-    op.execute(
+
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
+    execute(
         """
         update "group" set extras = (
             select json_object(
@@ -52,7 +58,7 @@ def upgrade():
         ),
         nullable=True,
     ))
-    op.execute(
+    execute(
         """
         update package set extras = (
             select json_object(
@@ -71,6 +77,12 @@ def upgrade():
 
 
 def downgrade():
+
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
     op.create_table(
         'package_extra',
         sa.Column('id', sa.TEXT(), autoincrement=False, nullable=False),
@@ -83,7 +95,7 @@ def downgrade():
         sa.PrimaryKeyConstraint('id', name='package_extra_pkey')
     )
     # generate UUIDv8 based on package id + key
-    op.execute(
+    execute(
         """
         insert into package_extra(id, key, value, state, package_id)
         select
@@ -113,7 +125,7 @@ def downgrade():
                                 name='group_extra_group_id_fkey'),
         sa.PrimaryKeyConstraint('id', name='group_extra_pkey')
     )
-    op.execute(
+    execute(
         """
         insert into group_extra(id, key, value, state, group_id)
         select
