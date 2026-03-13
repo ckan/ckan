@@ -2148,7 +2148,7 @@ class TestUserPluginExtras(object):
         assert created_user["id"] == _id
 
 
-@pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.usefixtures("clean_db")
 class TestUserImageUrl(object):
     def test_external_picture(self):
         stub = factories.User.stub()

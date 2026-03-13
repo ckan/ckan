@@ -1,11 +1,25 @@
-# -*- coding: utf-8 -*-
-import pytest
+from __future__ import annotations
 
+import pytest
+from typing import Any
 from ckan.cli.cli import ckan
 from ckan.tests.helpers import call_action
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.fixture
+def with_temporal_storage(
+    reset_storages: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    tmpdir: Any,
+    ckan_config: dict[str, Any],
+):
+    name = ckan_config["ckan.files.default_storages.default"]
+    monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.type", "ckan:fs")
+    monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.path", tmpdir)
+    reset_storages()
+
+
+@pytest.mark.usefixtures("clean_db", "with_extended_cli", "with_temporal_storage")
 @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
 @pytest.mark.ckan_config("ckan.upload.user.types", "*")
 class TestUserClean:
@@ -14,8 +28,9 @@ class TestUserClean:
         assert "No users were found with invalid images." in result.output
 
     def test_confirm_dialog_if_no_force(
-        self, cli, monkeypatch, create_with_upload, faker, ckan_config
+            self, cli, monkeypatch, create_with_upload, faker, ckan_config, reset_storages
     ):
+
         fake_user = {
             "name": "fake-user",
             "email": "fake-user@example.com",
@@ -23,6 +38,7 @@ class TestUserClean:
             "action": "user_create",
             "upload_field_name": "image_upload",
         }
+
         fake_user = create_with_upload(
             "<html><body>hello world</body></html>", "index.html", **fake_user
         )
@@ -37,8 +53,9 @@ class TestUserClean:
         user = create_with_upload(faker.image(), "image.png", **user)
 
         monkeypatch.setitem(
-            ckan_config, "ckan.upload.user.mimetypes", "image/png"
+            ckan_config, "ckan.files.storage.test.supported_types", "image/png"
         )
+        reset_storages()
         result = cli.invoke(ckan, ["clean", "users"])
 
         assert (
@@ -55,7 +72,7 @@ class TestUserClean:
         assert len(users) == 2
 
     def test_correct_users_are_deleted(
-        self, cli, monkeypatch, create_with_upload, faker, ckan_config
+            self, cli, monkeypatch, create_with_upload, faker, ckan_config, reset_storages
     ):
         fake_user = {
             "name": "fake-user",
@@ -78,8 +95,10 @@ class TestUserClean:
         user = create_with_upload(faker.image(), "image.png", **user)
 
         monkeypatch.setitem(
-            ckan_config, "ckan.upload.user.mimetypes", "image/png"
+            ckan_config, "ckan.files.storage.test.supported_types", "image/png"
         )
+        reset_storages()
+
         result = cli.invoke(ckan, ["clean", "users", "--force"])
         users = call_action("user_list")
         assert f"Deleted user: {fake_user['name']}" in result.output

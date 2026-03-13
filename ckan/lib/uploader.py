@@ -144,7 +144,6 @@ class Upload(object):
         actually is). clear_field is the name of a boolean field which
         requests the upload to be deleted.  This needs to be called before
         it reaches any validators'''
-
         self.url = data_dict.get(url_field, '')
         self.clear = data_dict.pop(clear_field, None)
         self.file_field = file_field

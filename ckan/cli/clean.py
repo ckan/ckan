@@ -1,12 +1,14 @@
-import click
+from __future__ import annotations
 
-from typing import List
+import magic
+import os
+import click
 
 from ckan import model
 from ckan import logic
 from ckan.common import config
 from ckan.lib import files
-from ckan.lib.uploader import get_uploader
+from ckan.lib.uploader import get_uploader, FkUpload
 from ckan.types import Context
 
 
@@ -16,22 +18,35 @@ def clean():
     pass
 
 
-def _get_users_with_invalid_image(mimetypes: List[str]) -> List[model.User]:
+def _get_users_with_invalid_image() -> list[model.User]:
     """Returns a list of users containing images with mimetypes not supported.
     """
     users = model.User.all()
     users_with_img = [u for u in users if u.image_url]
     invalid = []
+
     for user in users_with_img:
         upload = get_uploader("user", old_filename=user.image_url)
-        filename = upload.old_filename  # type: ignore
+        if isinstance(upload, FkUpload):
+            filename = upload.old_filename
+            storage = upload.storage
+            if not isinstance(storage, files.Storage) or not filename:
+                continue
+            location = files.Location(filename)
+            if storage.exists(files.FileData.from_string(location)):
+                content_type = storage.content_type(location)
+                try:
+                    storage.validate_content_type(content_type)
+                except files.exc.WrongUploadTypeError:
+                    invalid.append(user)
+        else:
+            mimetypes = config["ckan.upload.user.mimetypes"]
+            filepath = upload.old_filepath  # pyright: ignore[reportAttributeAccessIssue]
+            if os.path.exists(filepath):
+                mimetype = magic.from_file(filepath, mime=True)
+                if mimetype not in mimetypes:
+                    invalid.append(user)
 
-        storage: files.Storage = upload.storage  # type: ignore
-        location = files.Location(filename)
-        if storage.exists(files.FileData(location)):
-            info = storage.analyze(location)
-            if info.content_type not in mimetypes:
-                invalid.append(user)
     return invalid
 
 
@@ -56,12 +71,7 @@ def users(force: bool):
       ckan clean users --force
 
     """
-    mimetypes = config.get("ckan.upload.user.mimetypes")
-    if not mimetypes:
-        click.echo("No mimetypes have been configured for user uploads.")
-        return
-
-    invalid = _get_users_with_invalid_image(mimetypes)
+    invalid = _get_users_with_invalid_image()
 
     if not invalid:
         click.echo("No users were found with invalid images.")
