@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{%- block title -%}{{ h.dataset_display_name(package)}} &mdash; {{ h.resource_display_name(resource)}} &mdash; {{ h.get_translated(resource_view, 'title') }} - {{ super() }}{%- endblock -%}
+
 {%- block styles %}
   {{ super() }}
 {% endblock %}
