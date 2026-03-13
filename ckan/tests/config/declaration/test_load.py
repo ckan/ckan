@@ -103,6 +103,7 @@ class TestFilesLoader:
                 prefix.name,
                 prefix.location_transformers,
                 prefix.path,
+                prefix.public,
                 prefix.initialize,
                 prefix.disabled_capabilities,
             ]

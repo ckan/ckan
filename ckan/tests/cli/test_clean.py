@@ -20,8 +20,8 @@ def with_temporal_storage(
 
 
 @pytest.mark.usefixtures("clean_db", "with_extended_cli", "with_temporal_storage")
-@pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
-@pytest.mark.ckan_config("ckan.upload.user.types", "*")
+@pytest.mark.ckan_config("ckan.upload.user.mimetypes", ["*"])
+@pytest.mark.ckan_config("ckan.upload.user.types", ["*"])
 class TestUserClean:
     def test_output_if_there_are_not_invalid_users(self, cli):
         result = cli.invoke(ckan, ["clean", "users"])

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fnmatch
 import dataclasses
 import logging
 from collections.abc import Iterable
@@ -51,7 +52,10 @@ def is_supported_type(content_type: str, supported: Iterable[str]) -> bool:
         return False
 
     desired = {content_type, *parts}
-    return any(st in desired for st in supported)
+    return any(
+        fnmatch.fnmatch(content_type, st) if "*" in st else (st in desired)
+        for st in supported
+    )
 
 
 class Uploader(fk.Uploader):

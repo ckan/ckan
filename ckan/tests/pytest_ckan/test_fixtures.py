@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-
-import os
-
 import pytest
-from urllib.parse import urlparse
 from sqlalchemy import inspect, Column, Integer
 
 import ckan.plugins as plugins

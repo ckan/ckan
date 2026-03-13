@@ -162,9 +162,17 @@ def ckan_config(
     # and after the test to restore original state of the storage.
     storage_changed = False
 
+    prefixes = (
+        files.STORAGE_PREFIX,
+        "ckan.files.default_storages.",
+        "ckan.upload.user.",
+        "ckan.upload.group.",
+        "ckan.max_image_size",
+        "ckan.max_resource_size",
+    )
     for mark in request.node.iter_markers(u"ckan_config"):
         key, value = mark.args
-        if key.startswith(files.STORAGE_PREFIX):
+        if key.startswith((prefixes)):
             storage_changed = True
         monkeypatch.setitem(config, key, value)
 

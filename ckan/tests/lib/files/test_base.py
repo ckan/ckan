@@ -18,6 +18,9 @@ from ckan.lib.files import base
         ("text/csv", ["application/csv"], False),
         ("text/csv", ["text/plain"], False),
         ("text/csv", ["non-csv"], False),
+        ("text/csv", ["*"], True),
+        ("text/csv", ["*/csv"], True),
+        ("text/csv", ["csv/*"], False),
     ],
 )
 def test_is_supported_type(type: str, supported: Iterable[str], outcome: bool):
