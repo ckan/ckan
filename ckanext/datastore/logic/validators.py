@@ -9,6 +9,9 @@ from ckan.plugins.toolkit import missing, Invalid, _
 from ckanext.datastore.helpers import is_valid_field_name
 
 
+SYSTEM_COLUMN_NAMES = ('tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid')
+
+
 def to_datastore_plugin_data(plugin_key: str):
     """
     Return a validator that will move values from data to
@@ -57,4 +60,6 @@ def datastore_field_name(value: Any, context: Context) -> Any:
     """
     if not is_valid_field_name(value):
         raise Invalid(_('"{0}" is not a valid field name').format(value))
+    if value in SYSTEM_COLUMN_NAMES:
+        raise Invalid(_('"{0}" conflicts with a system column name').format(value))
     return value
