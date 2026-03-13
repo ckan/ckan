@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  {{ super() }}
+  {{ h.build_nav_icon('activity.admin_activities', _('Activities'), icon='clock') }}
+{% endblock %}

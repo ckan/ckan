@@ -1,0 +1,73 @@
+{% extends "admin/base.html" %}
+
+{% block primary_content_inner %}
+  <h2>{{ _('Activities') }}</h2>
+
+  <form method="POST" action="{{ h.url_for('activity.admin_activities') }}" id="form-purge-all-activities">
+    {{ h.csrf_input() }}
+    <input type="hidden" name="action" value="all">
+    <div class="form-actions mb-3">
+      <button type="submit" class="btn btn-danger purge-all"
+         data-module="confirm-action"
+         data-module-with-data="true"
+         data-module-content="{{ messages.confirm }}">
+        {{ _('Purge all activities') }}
+      </button>
+    </div>
+  </form>
+
+  {% if deleted_activities %}
+    <div class="accordion" id="activitiesAccordion">
+      {% for date_str, activities in deleted_activities|sort(attribute='date_str', reverse=True)|groupby('date_str') %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-{{ loop.index }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ loop.index }}" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
+            <i class="fa fa-tasks p-2"></i>
+            {{ date_str }} ({{ activities|length }} {{ _('activities') }})
+          </button>
+        </h2>
+        <div id="collapse-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ loop.index }}" data-bs-parent="#activitiesAccordion">
+          <div class="accordion-body">
+            <ul class="activity-list">
+              {% for entity in activities %}
+              <li>
+                {{ (entity.title or entity.name)|truncate(80) }}
+              </li>
+              {% endfor %}
+            </ul>
+            <form method="POST" class="d-flex justify-content-end mt-2" action="{{ h.url_for('activity.admin_activities') }}">
+              {{ h.csrf_input() }}
+              <input type="hidden" name="action" value="activity">
+              <input type="hidden" name="date" value="{{ date_str }}">
+              <button type="submit" class="btn btn-danger btn-sm"
+                  data-module="confirm-action"
+                  data-module-with-data="true"
+                  data-module-content="{{ _('Purge all activities from this date?') }}">
+                {{ _('Purge this date') }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>{{ messages.empty }}</p>
+  {% endif %}
+{% endblock primary_content_inner %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="fa fa-clock-o"></i>
+      {{ _('Activities') }}
+    </h2>
+    <div class="module-content">
+      <p>
+        {% trans %}
+        View and purge activity stream entries. Purging is irreversible.
+        {% endtrans %}
+      </p>
+    </div>
+  </div>
+{% endblock secondary_content %}
