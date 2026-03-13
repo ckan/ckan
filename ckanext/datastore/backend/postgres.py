@@ -61,7 +61,7 @@ WhereClauses: TypeAlias = "list[tuple[str, dict[str, Any]] | tuple[str]]"
 
 _TIMEOUT = 60000  # milliseconds
 
-# See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
+# See https://www.postgresql.org/docs/current/errcodes-appendix.html
 _PG_ERR_CODE = {
     'unique_violation': '23505',
     'query_canceled': '57014',
@@ -70,6 +70,7 @@ _PG_ERR_CODE = {
     'permission_denied': '42501',
     'duplicate_table': '42P07',
     'duplicate_alias': '42712',
+    'undefined_table': '42P01',
 }
 
 _DATE_FORMATS = ['%Y-%m-%d',
@@ -1823,6 +1824,11 @@ def search(context: Context, data_dict: dict[str, Any]):
             raise ValidationError({
                 'query': ['Search took too long']
             })
+        if _get_pgcode(e) == _PG_ERR_CODE['undefined_table']:
+            resource_id = data_dict.get('resource_id', '')
+            raise toolkit.ObjectNotFound(
+                f'Resource "{resource_id}" was not found.'
+            )
         raise ValidationError(cast(ErrorDict, {
             'query': ['Invalid query'],
             'info': {
