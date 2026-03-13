@@ -18,8 +18,9 @@ def with_temporal_storage(
     tmpdir: Any,
     ckan_config: dict[str, Any],
 ):
-    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.type", "ckan:fs")
-    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.path", str(tmpdir))
+    name = ckan_config["ckan.files.default_storages.default"]
+    monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.type", "ckan:fs")
+    monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.path", tmpdir)
     reset_storages()
 
 

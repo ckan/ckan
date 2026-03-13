@@ -465,7 +465,6 @@ def group_dictize(group: model.Group, context: Context,
         #munge here should not have an effect only doing it incase
         #of potential vulnerability of dodgy api input
         image_url = munge.munge_filename_legacy(image_url)
-
         try:
             storage = files.get_storage(config["ckan.files.default_storages.group"])
         except files.exc.UnknownStorageError:

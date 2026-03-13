@@ -1400,7 +1400,9 @@ groups:
         description: |
           This defines the location of where CKAN will store all uploaded data.
 
-          If set to some directory, also set :ref:`ckan.uploads_enabled` to true to enable uploads in the UI.
+          .. note:: This option is ignored when using
+              :ref:`storages<using-configured-storages>` and will be removed in
+              future.
 
       - key: ckan.max_resource_size
         type: int
@@ -1484,7 +1486,7 @@ groups:
           ``public`` storage owned by a package and files uploaded to the
           storage ``images`` owned by a group.
 
-          .. note: Using ``user`` without specific storage will cause a
+          .. note:: Using ``user`` without specific storage will cause a
             configuration exception during startup because it is too broad and
             may lead to unintentional data leaks. Files may be temporarily
             owned by user during resource creation and cascade access rules
@@ -1710,7 +1712,7 @@ groups:
           offered, which is by default English (alter that with
           `ckan.locales_offered` and `ckan.locales_filtered_out`.
 
-          .. note: In versions of CKAN before 1.5, the settings used for this
+          .. note:: In versions of CKAN before 1.5, the settings used for this
             was variously `lang` or `ckan.locale`, which have now been
             deprecated in favour of `ckan.locale_default`.
 

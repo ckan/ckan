@@ -63,8 +63,6 @@ class TestStorage:
         faker: Faker,
         reset_storages: Any,
     ):
-        reset_storages()
-
         storage = files.get_storage("test")
         assert isinstance(storage, base.Storage)
 

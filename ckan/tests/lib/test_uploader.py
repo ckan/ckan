@@ -10,9 +10,8 @@ from ckan.lib.uploader import ResourceUpload, Upload
 @pytest.mark.ckan_config('ckan.uploads_enabled', True)
 class TestInitResourceUpload(object):
     def test_resource_without_upload_with_old_werkzeug(
-            self, ckan_config, monkeypatch, tmpdir, reset_storages):
+            self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        reset_storages()
 
         # this test data is based on real observation using a browser
         # and werkzeug 0.14.1
@@ -29,9 +28,8 @@ class TestInitResourceUpload(object):
         assert res_upload.filename is None
 
     def test_resource_without_upload(
-            self, ckan_config, monkeypatch, tmpdir, reset_storages):
+            self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        reset_storages()
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'true',
                u'format': u'PNG',
@@ -46,9 +44,8 @@ class TestInitResourceUpload(object):
         assert res_upload.filename is None
 
     def test_resource_with_upload(
-            self, ckan_config, monkeypatch, tmpdir, reset_storages):
+            self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        reset_storages()
 
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'',
@@ -65,9 +62,8 @@ class TestInitResourceUpload(object):
         assert res_upload.filename == u'data.csv'
 
     def test_resource_with_dodgy_id(
-            self, ckan_config, monkeypatch, tmpdir, reset_storages):
+            self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        reset_storages()
 
         resource_id = u'aaabbb/../../../../nope.txt'
         res = {u'clear_upload': u'',
@@ -93,7 +89,6 @@ class TestUpload(object):
 
         """
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        reset_storages()
 
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(

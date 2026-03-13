@@ -637,14 +637,8 @@ class FakeFileStorage(FlaskFileStorage):
         super(FakeFileStorage, self).__init__(stream, filename, "uplod")
 
 
-@pytest.fixture
-def create_with_upload(
-        clean_db: None,
-        ckan_config: types.FixtureCkanConfig,
-        monkeypatch: pytest.MonkeyPatch,
-        tmpdir: Any,
-        reset_storages: Any,
-):
+@pytest.fixture(scope="session")
+def create_with_upload():
     """Shortcut for creating resource/user/org with upload.
 
     Requires content and name for newly created object. By default is
@@ -671,10 +665,6 @@ def create_with_upload(
             assert resource["size"] == 11
 
     """
-    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.type", "ckan:fs")
-    monkeypatch.setitem(ckan_config, "ckan.files.storage.test.path", str(tmpdir))
-    reset_storages()
-
     def factory(
             data: str | bytes,
             filename: str,
@@ -704,15 +694,16 @@ def create_with_upload(
 def reset_storages():
     """Callable for resetting file storages.
 
-    Call this fixture after changing `ckan.storage_path` or any other option
-    that affects storage behavior.
+    Call this fixture after changing inside test body any option that affects
+    storage behavior, i.e. any option that starts with `ckan.files.storage.`.
 
     Example::
 
         def test_upload(self, ckan_config, monkeypatch, tmpdir, reset_storages):
-            monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+            monkeypatch.setitem(ckan_config, "ckan.files.storage.test.type", "invalid")
             reset_storages()
-            # now storages that rely on storage_path are available
+            # now storages that are derived from the default storage are not
+            # initialized
 
     """
     def cleaner():

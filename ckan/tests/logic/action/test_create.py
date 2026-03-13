@@ -16,6 +16,7 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
+from ckan.lib import files
 from ckan.lib.navl.dictization_functions import DataError
 
 from freezegun import freeze_time
@@ -507,7 +508,7 @@ class TestResourceCreate:
 
         assert not stored_resource["url"]
 
-    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir, reset_storages):
+    def test_mimetype_by_url(self):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -520,8 +521,6 @@ class TestResourceCreate:
             "url": "http://localhost/data.csv",
             "name": "A nice resource",
         }
-        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        reset_storages()
         result = helpers.call_action("resource_create", context, **params)
 
         mimetype = result.pop("mimetype")
@@ -779,27 +778,23 @@ class TestResourceCreate:
             assert m.call_args.args[3] == {0: 0}, 'copy existing resource 0'
 
     def test_upload_file_paths(self, create_with_upload):
-        from ckan.common import config
-        import os
-
-        storage_path = config["ckan.storage_path"]
-
+        storage = files.get_storage("resources")
         dataset = factories.Dataset()
         resource1 = create_with_upload(
             "hello world", "file1.txt", url="http://data1",
             package_id=dataset["id"])
 
-        assert os.path.exists(
-            os.path.join(storage_path, "resources", resource1["id"][:3])
-        )
+        id = resource1["id"]
+        location = f"{id[:3]}/{id[3:6]}/{id[6:]}"
+        assert storage.exists(files.FileData.from_string(location))
 
         resource2 = create_with_upload(
             "bye bye world", "file2.txt", url="http://data2",
             package_id=dataset["id"])
 
-        assert os.path.exists(
-            os.path.join(storage_path, "resources", resource2["id"][:3])
-        )
+        id = resource2["id"]
+        location = f"{id[:3]}/{id[3:6]}/{id[6:]}"
+        assert storage.exists(files.FileData.from_string(location))
 
 
 @pytest.mark.usefixtures("non_clean_db")

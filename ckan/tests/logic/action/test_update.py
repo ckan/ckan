@@ -1043,7 +1043,7 @@ class TestResourceUpdate(object):
 
         assert "datastore_active" not in res_returned
 
-    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir, reset_storages):
+    def test_mimetype_by_url(self):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -1052,9 +1052,6 @@ class TestResourceUpdate(object):
         """
         resource = factories.Resource(
             url="http://localhost/data.csv", name="Test")
-
-        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        reset_storages()
 
         res_update = helpers.call_action(
             "resource_update",
