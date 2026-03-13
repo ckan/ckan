@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import urlencode
+from urllib.parse import urlencode, unquote
 from html import escape
 
 from flask import Blueprint
@@ -23,48 +23,93 @@ ESTIMATION_THRESHOLD = 100000
 
 datatablesview = Blueprint(u'datatablesview', __name__)
 
+def get_user_filters() -> dict[str, Any]:
+    '''
+    Bypasses standard CKAN helpers to support DataStore comparison operators.
+    Correctly handles JSON values and avoids splitting on colons inside JSON.
+    '''
+    filter_string = request.form.get('filters') or request.args.get('filters')
+
+    user_filters = {}
+    if not filter_string:
+        return user_filters
+
+    for k_v in filter_string.split(u'|'):
+        k, _sep, v = k_v.partition(u':')
+        field = unquote(str(k))
+        val = unquote(str(v))
+
+        if val.startswith('{') and val.endswith('}'):
+            try:
+                user_filters[field] = json.loads(val)
+                continue
+            except (ValueError, TypeError):
+                pass
+
+        user_filters.setdefault(field, []).append(val)
+
+    return user_filters
+
 
 def merge_filters(view_filters: dict[str, Any],
                   user_filters: dict[str, Any] | None) -> dict[str, Any]:
     u'''
     view filters are built as part of the view, user filters
-    are selected by the user interacting with the view. Any filters
-    selected by user may only tighten filters set in the view,
-    others are ignored.
+    are selected by the user interacting with the view.
 
-    >>> merge_filters({
-    ...    u'Department': [u'BTDT'], u'OnTime_Status': [u'ONTIME']},
-    ...    u'CASE_STATUS:Open|CASE_STATUS:Closed|Department:INFO')
-    {u'Department': [u'BTDT'],
-     u'OnTime_Status': [u'ONTIME'],
-     u'CASE_STATUS': [u'Open', u'Closed']}
+    This implementation allows user filters to tighten existing view filters
+    by merging comparison dictionaries (gt, lt, etc.) or appending to filter lists.
+
+    >>> # Example 1: Standard CKAN list merging
+    >>> merge_filters({u'Department': [u'BTDT']}, {u'CASE_STATUS': [u'Open']})
+    {u'Department': [u'BTDT'], u'CASE_STATUS': [u'Open']}
+
+    >>> # Example 2: Merging range operators (tightening a view)
+    >>> merge_filters({u'_id': {u'gt': 0}}, {u'_id': {u'lt': 100}})
+    {u'_id': {u'gt': 0, u'lt': 100}}
     '''
+
     filters = dict(view_filters)
     if not user_filters:
         return filters
-    combined_user_filters = {}
-    for k in user_filters:
-        if k not in view_filters or user_filters[k] in view_filters[k]:
-            combined_user_filters[k] = user_filters[k]
+
+    for field, user_val in user_filters.items():
+        if field not in filters:
+            filters[field] = user_val
+            continue
+
+        view_val = filters[field]
+
+        if isinstance(view_val, dict) and isinstance(user_val, dict):
+            merged_dict = dict(view_val)
+            merged_dict.update(user_val)
+            filters[field] = merged_dict
+        elif isinstance(user_val, dict) and isinstance(view_val, list):
+            filters[field] = user_val
+        elif isinstance(view_val, list) and isinstance(user_val, list):
+            for item in user_val:
+                if item not in view_val:
+                    view_val.append(item)
         else:
-            combined_user_filters[k] = user_filters[k] + view_filters[k]
-    for k in combined_user_filters:
-        filters[k] = combined_user_filters[k]
+            if not isinstance(user_val, list) and not isinstance(user_val, dict):
+                filters[field] = [user_val]
+            else:
+                filters[field] = user_val
+
     return filters
 
 
 def ajax(resource_view_id: str):
-    resource_view = get_action(u'resource_view_show'
-                               )({}, {
-                                   u'id': resource_view_id
-                               })
+    resource_view = get_action(u'resource_view_show')(
+        {}, {u'id': resource_view_id}
+    )
 
     draw = int(request.form[u'draw'])
     search_text = str(request.form[u'search[value]'])
     offset = int(request.form[u'start'])
     limit = int(request.form[u'length'])
     view_filters = resource_view.get(u'filters', {})
-    user_filters = decode_view_request_filters()
+    user_filters = get_user_filters()
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
@@ -171,7 +216,7 @@ def filtered_download(resource_view_id: str):
 
     search_text = str(params[u'search'][u'value'])
     view_filters = resource_view.get(u'filters', {})
-    user_filters = decode_view_request_filters()
+    user_filters = get_user_filters()
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
