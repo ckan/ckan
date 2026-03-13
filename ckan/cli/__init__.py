@@ -6,6 +6,7 @@ from typing import Any, Optional
 
 import click
 import logging
+from pathlib import Path
 from logging.config import fileConfig as loggingFileConfig
 from configparser import ConfigParser, RawConfigParser, NoOptionError
 
@@ -34,6 +35,7 @@ class CKANConfigLoader(object):
         defaults['__file__'] = os.path.abspath(self.config_file)
         self._update_defaults(defaults)
         self._create_config_object()
+        self._sanity_check()
 
     def _update_defaults(self, new_defaults: dict[str, Any]) -> None:
         for key, value in new_defaults.items():
@@ -127,6 +129,20 @@ class CKANConfigLoader(object):
             u'Loaded configuration from the following files: %s',
             chain
         )
+
+    def _sanity_check(self) -> None:
+        """
+        Check for common config file errors.
+        """
+        # If storage isn't an absolute, then the webassets module will generate
+        # in a different root than the one the dev server will try to serve
+        # from.
+        storage = self.config.get('ckan.storage_path')
+        if storage:
+            if not Path(storage).is_absolute():
+                raise CkanConfigurationException(
+                    u'ckan.storage_path must be an absolute path'
+                )
 
     def get_config(self) -> Config:
         return self.config.copy()
