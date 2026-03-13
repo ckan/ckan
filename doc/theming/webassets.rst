@@ -82,4 +82,4 @@ in order to serve static files in a more efficient way. Static files
 served under the URI ``/webassets/<PATH_TO_STATIC_FILE>`` are stored
 in the file system under the path specified by :ref:`ckan.webassets.path` the config
 option. If ``ckan.webassets.path`` is not specified, static files are
-stored inside a ``webassests`` folder defined by the :ref:`ckan.storage_path` config option.
+stored inside a ``webassets`` folder defined by the :ref:`ckan.storage_path` config option.
