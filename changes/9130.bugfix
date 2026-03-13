@@ -1,0 +1,1 @@
+Add handling for ObjectNotFound to Datapusher: delete-datastore route

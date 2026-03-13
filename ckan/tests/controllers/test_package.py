@@ -1116,7 +1116,7 @@ class TestResourceView(object):
         response = app.post(
             url,
             headers={"Authorization": user["token"]},
-            data={"title": "Test Image View"}
+            data={"title": "Test Image View", "view_type": "image_view"}
         )
         assert helpers.body_contains(response, "Test Image View")
 

@@ -1,0 +1,8 @@
+The follow and unfollow actions now call their respective authentication methods:
+
+- `follow_group`
+- `follow_dataset`
+- `follow_user`
+- `unfollow_group`
+- `unfollow_dataset`
+- `unfollow_user`

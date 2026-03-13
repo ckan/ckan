@@ -12,13 +12,13 @@
 
 
 <div id="user-info" class="module context-info">
-    <section class="module-content">
+    <section class="module-narrow">
       {% block secondary_content_inner %}
         {% block user_image %}
         <div class="image">{{ h.user_image(user.id, size=270) }}</div>
         {% endblock %}
         {% block user_heading %}
-        <h1 class="heading">{{ user.display_name }}</h1>
+        <h2 class="heading">{{ user.display_name }}</h2>
         {% endblock %}
         {% block user_about %}
         {% if about_formatted %}
@@ -61,9 +61,9 @@
              <div class="alert alert-danger">{{ error_message }}</div>
           {% endif %}
           {% if am_following %}
-             <a class="btn btn-danger" hx-post="{{ h.url_for('user.unfollow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
+             <a class="btn btn-danger" hx-post="{{ h.url_for('user.unfollow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-minus"></i> {{ _('Unfollow') }}</a>
            {% else %}
-           <a class="btn btn-success" hx-post="{{ h.url_for('user.follow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
+           <a class="btn btn-success" hx-post="{{ h.url_for('user.follow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-plus"></i> {{ _('Follow') }}</a>
            {% endif %}
          {% endif %}
           {% endblock %}

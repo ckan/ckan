@@ -139,7 +139,7 @@ Adding a new dataset
 .. note::
 
     You may need to be a member of an organization in order to add and edit
-    datsets. See the section :ref:`creating_an_organization` below. On
+    datasets. See the section :ref:`creating_an_organization` below. On
     https://demo.ckan.org, you can add a dataset without being in an organization,
     but dataset features relating to authorization and organizations will not be
     available.
@@ -505,7 +505,7 @@ Simple search examples:
 * ``census`` will search for all the datasets containing the word "census" in
   the query fields.
 
-* ``census +2019`` will search for all the datasets contaning the word "census"
+* ``census +2019`` will search for all the datasets containing the word "census"
   and filter only those matching also "2019" as it is treated as mandatory.
 
 * ``census -2019`` will search for all the datasets containing the word
@@ -564,7 +564,7 @@ Advanced Search Examples:
     Field names used in advanced search may differ from Datasets Attributes,
     the mapping rules are defined in the ``schema.xml`` file. You can use ``title``
     to search by the dataset name and ``text`` to look in a catch-all field that
-    includes author, license, mantainer, tags, etc.
+    includes author, license, maintainer, tags, etc.
 
 .. note::
 

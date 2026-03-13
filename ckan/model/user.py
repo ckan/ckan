@@ -61,8 +61,8 @@ user_table = Table('user', meta.metadata,
         Column('plugin_extras', MutableDict.as_mutable(JSONB)),
         Index('idx_user_id', 'id'),
         Index('idx_user_name', 'name'),
-        Index('idx_only_one_active_email', 'email', 'state', unique=True,
-              postgresql_where="(state = 'active'::text)"),
+        Index('idx_only_one_active_email_no_case', func.lower(Column('email')),
+              unique=True, postgresql_where="(state = 'active'::text)"),
         )
 
 

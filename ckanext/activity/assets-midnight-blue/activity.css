@@ -4,29 +4,114 @@
 }
 .activity .item {
   position: relative;
-  margin: 0 0 15px 0;
-  padding: 0;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e4e7ec;
+  display: flex;
+}
+.activity .item:last-child {
+  border-bottom: none;
+}
+.activity .item .fa-stack {
+  flex: 0 0 auto;
+  margin-right: 5px;
 }
 .activity .item .user-image {
   border-radius: 100px;
 }
 .activity .item .date {
-  color: #999999;
+  color: #3B3B3B;
   font-size: 12px;
 }
 .activity .item.no-avatar p {
   margin-left: 40px;
 }
+.activity .item .icon {
+  color: #3B3B3B;
+}
+.activity .item.failure .icon {
+  color: #DA1E28;
+}
+.activity .item.success .icon {
+  color: #3A833A;
+}
+.activity .item.added-tag .icon {
+  color: #3a8383;
+}
+.activity .item.changed-group .icon {
+  color: #6f42c1;
+}
+.activity .item.changed-package .icon {
+  color: rgb(153.3333333333, 66, 193);
+}
+.activity .item.changed-package_extra .icon {
+  color: rgb(68.6666666667, 66, 193);
+}
+.activity .item.changed-resource .icon {
+  color: rgb(193, 66, 190.3333333333);
+}
+.activity .item.changed-user .icon {
+  color: rgb(66, 105.6666666667, 193);
+}
+.activity .item.changed-organization .icon {
+  color: rgb(58, 131, 118.8333333333);
+}
+.activity .item.deleted-group .icon {
+  color: #DA1E28;
+}
+.activity .item.deleted-package .icon {
+  color: rgb(218, 82.6666666667, 30);
+}
+.activity .item.deleted-package_extra .icon {
+  color: rgb(218, 30, 102.6666666667);
+}
+.activity .item.deleted-resource .icon {
+  color: rgb(218, 145.3333333333, 30);
+}
+.activity .item.deleted-organization .icon {
+  color: rgb(218, 30, 165.3333333333);
+}
+.activity .item.new-group .icon {
+  color: #3A833A;
+}
+.activity .item.new-package .icon {
+  color: rgb(58, 131, 82.3333333333);
+}
+.activity .item.new-package_extra .icon {
+  color: rgb(82.3333333333, 131, 58);
+}
+.activity .item.new-resource .icon {
+  color: rgb(106.6666666667, 131, 58);
+}
+.activity .item.new-user .icon {
+  color: rgb(58, 106.6666666667, 131);
+}
+.activity .item.new-organization .icon {
+  color: rgb(106.6666666667, 131, 58);
+}
+.activity .item.removed-tag .icon {
+  color: rgb(218, 30, 165.3333333333);
+}
+.activity .item.deleted-related-item .icon {
+  color: #dad01e;
+}
+.activity .item.follow-dataset .icon {
+  color: #767DCE;
+}
+.activity .item.follow-user .icon {
+  color: rgb(140.3333333333, 118, 206);
+}
+.activity .item.new-related-item .icon {
+  color: #83833a;
+}
+.activity .item.follow-group .icon {
+  color: rgb(118.8333333333, 131, 58);
+}
 .activity.activity-empty {
   background: none;
 }
-@media (min-width: 768px) {
-  .activity {
-    background: transparent url("/dotted.png") 21px 0 repeat-y;
-  }
-  .activity .item .date {
-    margin: 5px 0 0 80px;
-  }
+.activity .user {
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .activity_buttons {
@@ -57,88 +142,6 @@
   padding: 10px;
   color: #6E6E6E;
   font-style: italic;
-}
-
-.activity .item .icon {
-  color: #999999;
-}
-.activity .item.failure .icon {
-  color: #B95252;
-}
-.activity .item.success .icon {
-  color: #69A67A;
-}
-.activity .item.added-tag .icon {
-  color: #6995a6;
-}
-.activity .item.changed-group .icon {
-  color: #767DCE;
-}
-.activity .item.changed-package .icon {
-  color: #8c76ce;
-}
-.activity .item.changed-package_extra .icon {
-  color: #769ace;
-}
-.activity .item.changed-resource .icon {
-  color: #aa76ce;
-}
-.activity .item.changed-user .icon {
-  color: #76b8ce;
-}
-.activity .item.changed-organization .icon {
-  color: #699fa6;
-}
-.activity .item.deleted-group .icon {
-  color: #B95252;
-}
-.activity .item.deleted-package .icon {
-  color: #b97452;
-}
-.activity .item.deleted-package_extra .icon {
-  color: #b95274;
-}
-.activity .item.deleted-resource .icon {
-  color: #b99752;
-}
-.activity .item.deleted-organization .icon {
-  color: #b95297;
-}
-.activity .item.new-group .icon {
-  color: #69A67A;
-}
-.activity .item.new-package .icon {
-  color: #69a68e;
-}
-.activity .item.new-package_extra .icon {
-  color: #6ca669;
-}
-.activity .item.new-resource .icon {
-  color: #81a669;
-}
-.activity .item.new-user .icon {
-  color: #69a6a3;
-}
-.activity .item.new-organization .icon {
-  color: #81a669;
-}
-.activity .item.removed-tag .icon {
-  color: #b95297;
-}
-.activity .item.deleted-related-item .icon {
-  color: #b9b952;
-}
-.activity .item.follow-dataset .icon {
-  color: #767DCE;
-}
-.activity .item.follow-user .icon {
-  color: #8c76ce;
-}
-.activity .item.new-related-item .icon {
-  color: #95a669;
-}
-.activity .item.follow-group .icon {
-  color: #8ba669;
 }
 
 .select-time {

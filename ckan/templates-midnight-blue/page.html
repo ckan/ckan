@@ -52,7 +52,7 @@
             #}
             {% block pre_primary %}
               {% if self.content_action() | trim %}
-                <div class="content_action gap-1">
+                <div class="content_action gap-1 mb-md-3">
                   {% block content_action %}{% endblock %}
                 </div>
               {% endif %}
@@ -100,7 +100,7 @@
                     {% endblock %}
                     <div class="module-content">
                       {% if self.page_primary_action() | trim %}
-                        <div class="page_primary_action">
+                        <div class="page_primary_action mb-3 mb-md-0 ms-3 pull-right">
                           {% block page_primary_action %}{% endblock %}
                         </div>
                       {% endif %}

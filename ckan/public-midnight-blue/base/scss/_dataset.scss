@@ -78,6 +78,7 @@
     color: $layoutBoldColor;
     font-size: 14px;
     font-weight: bold;
+    overflow-wrap: anywhere;
 }
 
 .resource-item .format-label {
@@ -344,6 +345,50 @@
                 background-color: $layoutLinkColor;
             }
         }
+    }
+}
+
+// Package metadata field
+.package-metadata-field {
+    @media screen and (max-width: 768px) {
+      padding: 4px;
+      padding-top: 24px;
+    }
+}
+  
+// Preview text styles
+.preview-text {
+    margin-bottom: 24px;
+
+    > .value {
+        color: #101828;
+        font-family: $baseFontFamily;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 32px;
+    }
+
+    > .label {
+        color: #667085;
+        font-family: $baseFontFamily;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 120%;
+    }
+}
+
+// Slug preview
+.slug-preview-inner {
+    padding: 4px 8px;
+    background-color: white;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 18px;
+    margin-right: 8px;
+
+    @media screen and (max-width: 768px) {
+        letter-spacing: -0.6px;
+        font-size: 0.6rem;
     }
 }
 

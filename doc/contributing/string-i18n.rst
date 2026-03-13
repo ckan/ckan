@@ -258,13 +258,13 @@ Like ``_``, ``ngettext`` can take additional placeholders:
 
 .. note::
 
-    CKAN's JavaScript code automatically downloads the appropriate translations
-    at request time from the CKAN server. Since CKAN 2.7 the corresponding
-    translation files are regenerated automatically if necessary when CKAN
-    starts.
+    Since version 2.11 on production installs the JavaScript translation
+    files from extensions must be combined and generated with the
+    ``ckan translation js`` command after any new plugins are enabled or
+    when new versions of ckan or its extensions are installed.
 
-    You can also regenerate the translation files manually using
-    ``ckan translation js``:
+    In development mode ``ckan run`` will combine and generate these
+    files automatically.
 
     .. parsed-literal::
 

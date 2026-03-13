@@ -13985,7 +13985,8 @@ td.diff_header {
   margin: 0;
   overflow: auto;
 }
-.context-info h1.heading, .context-info .heading.h1 {
+.context-info h1.heading, .context-info .heading.h1,
+.context-info h2.heading, .context-info .heading.h2 {
   margin: 0 0 5px 0;
   font-size: 18px;
   line-height: 1.3;
@@ -14791,12 +14792,137 @@ td.diff_header {
   margin: -14px 0 0 -14px;
 }
 
+.format-label[data-format=parquet],
+.format-label[data-format*=parquet] {
+  width: 60px;
+  height: 65px;
+  background-position: -2320px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=md],
+.format-label[data-format*=md] {
+  width: 60px;
+  height: 65px;
+  background-position: -2420px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=tif],
+.format-label[data-format*=tif] {
+  width: 60px;
+  height: 65px;
+  background-position: -2520px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=pmtiles],
+.format-label[data-format*=pmtiles] {
+  width: 60px;
+  height: 65px;
+  background-position: -2620px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=atx],
+.format-label[data-format*=atx] {
+  width: 60px;
+  height: 65px;
+  background-position: -2720px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=fgb],
+.format-label[data-format*=fgb] {
+  width: 60px;
+  height: 65px;
+  background-position: -2820px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=shx],
+.format-label[data-format*=shx] {
+  width: 60px;
+  height: 65px;
+  background-position: -2920px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=shp],
+.format-label[data-format*=shp] {
+  width: 60px;
+  height: 65px;
+  background-position: -3020px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=gpkg],
+.format-label[data-format*=gpkg] {
+  width: 60px;
+  height: 65px;
+  background-position: -3120px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=dbf],
+.format-label[data-format*=dbf] {
+  width: 60px;
+  height: 65px;
+  background-position: -3220px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=py],
+.format-label[data-format*=py] {
+  width: 60px;
+  height: 65px;
+  background-position: -3320px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=ipynb],
+.format-label[data-format*=ipynb] {
+  width: 60px;
+  height: 65px;
+  background-position: -3420px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label[data-format=gz],
+.format-label[data-format*=gz] {
+  width: 60px;
+  height: 65px;
+  background-position: -3520px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
 .btn {
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
 }
 
+@keyframes reverseProgress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
 @media (min-width: 576px) {
   .wrapper:before {
     left: initial;

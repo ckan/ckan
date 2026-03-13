@@ -132,7 +132,7 @@ def _pager_url(params_nopage: Params,
 
 
 def _tag_string_to_list(tag_string: str) -> list[dict[str, str]]:
-    """This is used to change tags from a sting to a list of dicts.
+    """This is used to change tags from a string to a list of dicts.
     """
     out: list[dict[str, str]] = []
     for tag in tag_string.split(u','):
@@ -348,26 +348,6 @@ def search(package_type: str) -> str:
         extra_vars[u'query_error'] = True
         extra_vars[u'search_facets'] = {}
         extra_vars[u'page'] = Page(collection=[])
-
-    # FIXME: try to avoid using global variables
-    g.search_facets_limits = {}
-    default_limit: int = config.get(u'search.facets.default')
-    for facet in extra_vars[u'search_facets'].keys():
-        try:
-            limit = int(
-                request.args.get(
-                    u'_%s_limit' % facet,
-                    default_limit
-                )
-            )
-        except ValueError:
-            base.abort(
-                400,
-                _(u'Parameter u"{parameter_name}" is not '
-                  u'an integer').format(parameter_name=u'_%s_limit' % facet)
-            )
-
-        g.search_facets_limits[facet] = limit
 
     _setup_template_variables(context, {}, package_type=package_type)
 

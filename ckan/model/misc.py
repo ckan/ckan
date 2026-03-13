@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 """
-Contains miscelaneous set of DB-related functions
+Contains miscellaneous set of DB-related functions
 """
 
 

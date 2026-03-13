@@ -6,13 +6,12 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@highlightjs/cdn-assets": "^11.11.1",
     "@popperjs/core": "^2.11.8",
-    "blueimp-file-upload": "^10.32.0",
     "bootstrap": "^5.3.6",
     "dompurify": "^3.2.6",
     "htmx.org": "^2.0.4",
     "jquery": "^3.7.1",
     "moment": "^2.30.1",
-    "qs": "^6.14.0",
+    "qs": "^6.15",
     "select2": "^4.1.0-rc.0"
   },
   "devDependencies": {

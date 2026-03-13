@@ -719,13 +719,14 @@ class TestPackage:
     def test_read_dataset_as_it_used_to_be_after_deleting_resource(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"])
-        activity_list = (
+        # Get latest activity (creating the resource)
+        activity = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .all()
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
         )
-        # Get latest activity (creating the resource)
-        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_delete",
@@ -747,17 +748,17 @@ class TestPackage:
         assert helpers.body_contains(response, "Dataset title")
         assert helpers.body_contains(response, resource["name"])
 
-    @pytest.mark.flaky(retries=3, delay=1)
     def test_read_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"], name="Original name")
-        activity_list = (
+        # Get latest activity (creating the resource)
+        activity = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .all()
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
         )
-        # Get latest activity (creating the resource)
-        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_update",
@@ -779,18 +780,19 @@ class TestPackage:
             ),
             headers=headers,
         )
-        assert helpers.body_contains(response, "Original name")
+        assert "Original name" in response.body
 
     def test_read_deleted_resource_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Dataset title")
         resource = factories.Resource(package_id=dataset["id"])
-        activity_list = (
+        # Get latest activity (creating the resource)
+        activity = (
             model.Session.query(Activity)
             .filter_by(object_id=dataset["id"])
-            .all()
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
         )
-        # Get latest activity (creating the resource)
-        activity = activity_list[-1]
 
         helpers.call_action(
             "resource_delete",
@@ -810,7 +812,7 @@ class TestPackage:
             ),
             headers=headers,
         )
-        assert helpers.body_contains(response, resource["name"])
+        assert resource["name"] in response.body
 
     def test_changes(self, app):
         user = factories.UserWithToken()
@@ -831,6 +833,7 @@ class TestPackage:
 
     def test_changes_with_new_resource(self, app):
         user = factories.User()
+        token = factories.APIToken(user=user["name"])
         dataset = factories.Dataset(title="First title", user=user)
         resource_name = "Image 1"
         helpers.call_action(
@@ -849,10 +852,9 @@ class TestPackage:
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]
-        env = {"REMOTE_USER": user["name"]}
         response = app.get(
             url_for("activity.package_changes", id=activity.id),
-            extra_environ=env,
+            headers={"Authorization": token["token"]},
         )
         assert helpers.body_contains(response, "Added resource")
         assert helpers.body_contains(response, resource_name)

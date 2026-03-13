@@ -51,9 +51,9 @@ def test_sideeffect_action_is_not_get_able(app):
         status=400,
     )
     msg = (
-        "Bad request - JSON Error: Invalid request."
-        " Please use POST method for your request"
+        "Bad request: JSON Error: Invalid request. Please use POST method for your request"
     )
+
     assert msg in resp
 
 
@@ -337,48 +337,7 @@ def test_i18n_only_known_locales_are_accepted(app):
 
     url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
     r = app.get(url, status=400)
-    assert "Bad request - Unknown locale" in r.get_data(as_text=True)
-
-
-@pytest.mark.usefixtures("clean_db")
-def test_cookie_based_auth_default(app):
-
-    sysadmin = factories.Sysadmin()
-    org = factories.Organization()
-    dataset = factories.Dataset(private=True, owner_org=org["id"])
-
-    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
-
-    env = {"REMOTE_USER": sysadmin["name"]}
-
-    res = app.get(url, environ_overrides=env)
-
-    assert res.status_code == 200
-
-
-@pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config("ckan.auth.enable_cookie_auth_in_api", False)
-def test_cookie_based_auth_disabled(app):
-
-    sysadmin = factories.Sysadmin()
-    org = factories.Organization()
-    dataset = factories.Dataset(private=True, owner_org=org["id"])
-
-    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
-
-    env = {"REMOTE_USER": sysadmin["name"]}
-
-    res = app.get(url, environ_overrides=env)
-
-    assert res.status_code == 403
-
-    # Check that token auth still works
-    user_token = factories.APIToken(user=sysadmin["name"])
-    headers = {"Authorization": user_token["token"]}
-
-    res = app.get(url, headers=headers)
-
-    assert res.status_code == 200
+    assert "Bad request: Unknown locale" in r.get_data(as_text=True)
 
 
 @pytest.mark.usefixtures("clean_db")

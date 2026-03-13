@@ -24,8 +24,8 @@
 .table-bordered thead {
     border-bottom: 2px solid $black;
 }
-.table-header thead th {
-    background-color: $moduleHeadingBackgroundColor;
+.table thead th {
+    background-color: $gray-100;
 }
 
 .table-edit-hover {

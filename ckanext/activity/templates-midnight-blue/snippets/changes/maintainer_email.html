@@ -3,40 +3,34 @@
     {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id)) %}
     {% if change.method == "change" %}
 
-      {{ _('Set maintainer email of') }}
-      <a href="{{pkg_link}}">
-        {{change.title}}
-      </a>
-
-      {{ _('to') }}
-      <a href="{{'mailto:' + change.new_maintainer_email}}">
-        {{change.new_maintainer_email}}
-      </a>
-
-      {{ _('(previously') }}
-      <a href="{{'mailto:' + change.old_maintainer_email}}">
-        {{change.old_maintainer_email}}
-      </a>
-      {{ _(')') }}
+      {% trans
+        title=change.title, new_maintainer_email=change.new_maintainer_email,
+        old_maintainer_email=change.old_maintainer_email
+      %}
+      Set maintainer email of
+      <a href="{{ pkg_link }}">{{ title }}</a> to
+      <a href="mailto:{{ new_maintainer_email }}">{{ new_maintainer_email }}</a> (previously
+      <a href="mailto:{{ old_maintainer_email }}">{{ old_maintainer_email }}</a>).
+      {% endtrans %}
 
     {% elif change.method == "add" %}
 
-      {{ _('Set maintainer email of') }}
-      <a href="{{pkg_link}}">
-       {{change.title}}
-      </a>
-
-      {{ _('to') }}
-      <a href="{{'mailto:' + change.new_maintainer_email}}">
-        {{change.new_maintainer_email}}
-      </a>
+      {% trans
+        title=change.title, new_maintainer_email=change.new_maintainer_email
+      %}
+      Set maintainer email of
+      <a href="{{ pkg_link }}">{{ title }}</a> to
+      <a href="mailto:{{ new_maintainer_email }}">{{ new_maintainer_email }}</a>.
+      {% endtrans %}
 
     {% elif change.method == "remove" %}
 
-      {{ _('Removed maintainer email from') }}
-      <a href="{{pkg_link}}">
-       {{change.title}}
-      </a>
+      {% trans
+        title=change.title
+      %}
+      Removed maintainer email from
+      <a href="{{ pkg_link }}">{{ title }}</a>.
+      {% endtrans %}
 
     {% else %}
 

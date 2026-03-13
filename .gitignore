@@ -39,6 +39,7 @@ node_modules/
 # cypress
 cypress.env.json
 cypress/videos
+cypress/screenshots
 
 #testing
 junit

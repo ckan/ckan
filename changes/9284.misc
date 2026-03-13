@@ -1,0 +1,5 @@
+``data-site-root`` and ``data-locale-root`` moved to
+``site-root``/``locale-root`` meta elements inside ``head``. It means that code
+like ``$('body').data('site-root');`` must be replaced with
+``$('meta[name=site-root]').attr('content');`` or
+``document.head.querySelector(['meta[name=site-root]'])?.content``

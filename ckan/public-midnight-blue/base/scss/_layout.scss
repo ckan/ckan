@@ -167,7 +167,6 @@
         @include break-word();
     }
     .info {
-        margin-top: 15px;
         padding-top: 10px;
         word-break: break-word;
         dl dd {
@@ -176,11 +175,12 @@
         }
     }
     .nums {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        display: grid;
+        grid-auto-flow: row;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 15%;
         padding-top: 10px;
-        column-gap: 5%;
         clear: both;
         dl {
             color: $layoutTextColor;

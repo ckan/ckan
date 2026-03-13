@@ -8,9 +8,7 @@
     <div class="image-container">
       {% block image %}
       <div class="image">
-        <a href="{{ group.url }}">
-          <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.svg') }}" width="190" height="118" alt="{{ group.name }}" />
-        </a>
+        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.svg') }}" width="190" height="118" alt="{{ group.name }}" />
       </div>
       {% endblock %}
       <div class="heading-container">
@@ -58,9 +56,9 @@
             <div class="alert alert-danger">{{ error_message }}</div>
           {% endif %}
           {% if am_following %}
-            <a class="btn btn-danger" hx-post="{{ h.url_for('group.unfollow', id=group.id) }}" hx-target="#group-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
+            <a class="btn btn-danger" hx-post="{{ h.url_for('group.unfollow', id=group.id) }}" hx-target="#group-info"><i class="fa-solid fa-circle-minus"></i> {{ _('Unfollow') }}</a>
           {% else %}
-            <a class="btn btn-success" hx-post="{{ h.url_for('group.follow', id=group.id) }}" hx-target="#group-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
+            <a class="btn btn-success" hx-post="{{ h.url_for('group.follow', id=group.id) }}" hx-target="#group-info"><i class="fa-solid fa-circle-plus"></i> {{ _('Follow') }}</a>
           {% endif %}
         {% endif %}
       {% endblock %}

@@ -1,12 +1,12 @@
 {% import 'macros/form.html' as form %}
 
-<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form"
+<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form mb-3"
   autocomplete="off"
   {% if created %}hx-on:htmx:after-settle="document.getElementById('token-{{ created.id }}').scrollIntoView(false)"{% endif %}>
   {{ h.csrf_input() }}
   {% block base_fields %}
     <div class="form-group ">
-        {{ form.input('name', label='Name', is_required=True, value=data.name, error=errors.name) }}
+        {{ form.input('name', label==_('Name'), is_required=True, value=data.name, error=errors.name) }}
     </div>
   {% endblock base_fields %}
   {% block form_actions %}
