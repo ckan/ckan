@@ -1180,11 +1180,12 @@ def humanize_entity_type(entity_type: str, object_type: str,
 
 @core_helper
 def get_facet_items_dict(
-        facet: str,
-        search_facets: Union[dict[str, dict[str, Any]], Any] = None,
-        limit: Optional[int] = None,
-        exclude_active: bool = False) -> list[dict[str, Any]]:
-    '''Return the list of unselected facet items for the given facet, sorted
+    facet: str,
+    search_facets: dict[str, dict[str, Any]],
+    limit: int | None = None,
+    exclude_active: bool = False,
+) -> list[dict[str, Any]]:
+    """Return the list of unselected facet items for the given facet, sorted
     by count.
 
     Returns the list of unselected facet constraints or facet items (e.g. tag
@@ -1202,67 +1203,76 @@ def get_facet_items_dict(
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
 
-    '''
-    if not search_facets \
-       or not isinstance(search_facets, dict) \
-       or not search_facets.get(facet, {}).get('items'):
+    """
+    items = search_facets.get(facet, {}).get("items")
+    if not items:
         return []
+
+    params: list[tuple[str, str]] = request.args.items(multi=True)
     facets = []
-    for facet_item in search_facets[facet]['items']:
-        if not len(facet_item['name'].strip()):
-            continue
-        params_items = request.args.items(multi=True)
-        if (facet, facet_item['name']) not in params_items:
-            facets.append(dict(active=False, **facet_item))
-        elif not exclude_active:
-            facets.append(dict(active=True, **facet_item))
+
+    for facet_item in items:
+        active = (facet, facet_item["name"]) in params
+        if not active or not exclude_active:
+            facets.append(dict(facet_item, active=active))
+
     # Sort descendingly by count and ascendingly by case-sensitive display name
-    sort_facets: Callable[[Any], tuple[int, str]] = lambda it: (
-        -it['count'], it['display_name'].lower())
+    sort_facets = lambda it: (-it["count"], it["display_name"].lower())
     facets.sort(key=sort_facets)
-    if hasattr(g, 'search_facets_limits'):
-        if g.search_facets_limits and limit is None:
-            limit = g.search_facets_limits.get(facet)
+
+    if limit is None:
+        limit = helper_functions.get_param_int(
+            f"_{facet}_limit", config["search.facets.default"]
+        )
     # zero treated as infinite for hysterical raisins
-    if limit is not None and limit > 0:
-        return facets[:limit]
+    if limit:
+        facets = facets[:limit]
+
     return facets
 
 
 @core_helper
-def has_more_facets(facet: str,
-                    search_facets: dict[str, dict[str, Any]],
-                    limit: Optional[int] = None,
-                    exclude_active: bool = False) -> bool:
-    '''
-    Returns True if there are more facet items for the given facet than the
+def has_more_facets(
+    facet: str,
+    search_facets: dict[str, dict[str, Any]],
+    limit: int | None = None,
+    exclude_active: bool = False,
+) -> bool:
+    """Returns True if there are more facet items for the given facet than the
     limit.
 
     Reads the complete list of facet items for the given facet from
-    search_facets, and filters out the facet items that the user has already
-    selected.
+    search_facets, and optionally filters out the facet items that the user has
+    already selected.
 
     Arguments:
     facet -- the name of the facet to filter.
     search_facets -- dict with search facets
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
+    """
+    items = search_facets[facet]["items"]
+    if not items:
+        return False
 
-    '''
-    facets = []
-    for facet_item in search_facets[facet]['items']:
-        if not len(facet_item['name'].strip()):
-            continue
+    if limit is None:
+        limit = helper_functions.get_param_int(
+            f"_{facet}_limit", config["search.facets.default"]
+        )
+    # missing limit, as well as limit=0 treated as no-limit
+    if not limit:
+        return False
+
+    count = 0
+    if exclude_active:
         params_items = request.args.items(multi=True)
-        if (facet, facet_item['name']) not in params_items:
-            facets.append(dict(active=False, **facet_item))
-        elif not exclude_active:
-            facets.append(dict(active=True, **facet_item))
-    if getattr(g, 'search_facets_limits', None) and limit is None:
-        limit = g.search_facets_limits.get(facet)
-    if limit is not None and len(facets) > limit:
-        return True
-    return False
+        for facet_item in items:
+            if not exclude_active or (facet, facet_item["name"]) not in params_items:
+                count += 1
+    else:
+        count = len(items)
+
+    return count > limit
 
 
 @core_helper
@@ -1286,7 +1296,12 @@ def default_collapse_facets():
 
 
 @core_helper
-def get_param_int(name: str, default: int = 10) -> int:
+def get_param_int(name: str, default: int = 0) -> int:
+    """Get a query parameter from the request as an integer.
+
+    Return a default value if the parameter is not present or cannot be
+    converted to an integer.
+    """
     try:
         return int(request.args.get(name, default))
     except ValueError:
