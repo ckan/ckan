@@ -492,6 +492,16 @@ class FkUpload(object):
         if not self.upload_file:
             return
 
+        if isinstance(self.storage, files.Storage):
+            try:
+                self.storage.validate_content_type(self.upload_file.content_type)
+            except files.exc.WrongUploadTypeError as e:
+                    raise logic.ValidationError(
+                        {
+                            self.file_field: [str(e)]
+                        }
+                    )
+
         allowed_mimetypes = config.get(
             f"ckan.upload.{self.object_type}.mimetypes")
         allowed_types = config.get(f"ckan.upload.{self.object_type}.types")

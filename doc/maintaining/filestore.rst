@@ -7,18 +7,8 @@ resources, and to upload logo images for groups and organizations. Users will
 see an upload button when creating or updating a resource, group or
 organization.
 
-.. versionadded:: 2.2
-   Uploading logo images for groups and organizations was added in CKAN 2.2.
-
-.. versionchanged:: 2.2
-   Previous versions of CKAN used to allow uploads to remote cloud hosting but
-   we have simplified this to only allow local file uploads (see
-   :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
-   to give CKAN more control over the files and make access control possible.
-
-.. versionchanged:: 2.12
-   Add support for configurable storages. Cloud uploads are supported via
-   correspoinding storage adapters, such as ``ckan:libcloud``.
+.. versionadded:: 2.12 Add support for configurable storages. Cloud adapters
+   are available in `ckanext-file-keeper-cloud`_.
 
 .. seealso::
 
@@ -33,6 +23,10 @@ organization.
 Setup file uploads
 ------------------
 
+.. attention:: This is a classic way to setup filestore. Eventually it will be
+          replaced with the new approach described in
+          :ref:`setup-file-storages`
+
 To setup CKAN's FileStore with local file storage:
 
 1. Create the directory where CKAN will store uploaded files:
@@ -41,15 +35,7 @@ To setup CKAN's FileStore with local file storage:
 
      sudo mkdir -p |storage_path|
 
-2. Add the following lines to your CKAN config file, after the ``[app:main]``
-   line:
-
-   .. parsed-literal::
-
-      ckan.uploads_enabled = true
-      ckan.storage_path = |storage_path|
-
-3. Set the permissions of your :ref:`ckan.storage_path` directory.
+2. Set the permissions of your :ref:`ckan.storage_path` directory.
    For example if you're running CKAN with Nginx, then the Nginx's user
    (``www-data`` on Ubuntu) must have read, write and execute permissions for
    the :ref:`ckan.storage_path`:
@@ -59,11 +45,122 @@ To setup CKAN's FileStore with local file storage:
      sudo chown www-data |storage_path|
      sudo chmod u+rwx |storage_path|
 
+3. Add the following lines to your CKAN config file, after the ``[app:main]``
+   line:
+
+   .. parsed-literal::
+
+      ckan.storage_path = |storage_path|
+
 4. Restart your web server, for example to restart uWSGI on a package install:
 
    .. parsed-literal::
 
-    sudo supervisorctl restart ckan-uwsgi:*
+      sudo supervisorctl restart ckan-uwsgi:*
+
+.. _setup-file-storages:
+
+-------------------
+Setup file storages
+-------------------
+
+Starting from CKAN 2.12 there is an alternative way to configure
+FileStore. Instead of using a single directory in the local filesystem it's
+possible to configure a *storage* object that can keep files either in local
+filesystem, or on cloud, or in database, or somewhere else, depending on the
+configuration and installed storage adapters.
+
+CKAN is shipped with local filesystem adapter and it will be used for the
+folowing example:
+
+1. Just as in previous section, create a directory for uploaded files and set
+   up correct permissions for it:
+
+   .. parsed-literal::
+
+     sudo mkdir -p |storage_path|
+
+     sudo chown www-data |storage_path|
+     sudo chmod u+rwx |storage_path|
+
+2. Add *storage* configuration that points to the specified directory. As it
+   will store files in local filesystem, use ``ckan:fs`` adapter:
+
+   .. parsed-literal::
+
+      ckan.files.storage.default.type = ckan:fs
+      ckan.files.storage.default.path = |storage_path|
+
+3. Restart your web server, for example to restart uWSGI on a package install:
+
+   .. parsed-literal::
+
+      sudo supervisorctl restart ckan-uwsgi:*
+
+.. note:: You probably noticed, that this version is almost identical to the
+   configuation from the previous section. It's absolutely correct: storages
+   were desinged as a replacement for the previous implementation of filestore
+   and that's why migration happens with the minimal friction.
+
+   The key part of the storage configuration is
+   ``ckan.files.storage.default.type`` option. It specifies the adapter that
+   CKAN will use for this storage. By replacing ``ckan:fs`` with other
+   adapters, one can start using different types of persistence engine with no
+   code changes. It's even possible to use multiple different storage
+   simultaneously.
+
+
+.. tip:: Even though CKAN does not have built-in cloud adapter, it's still
+   available inside `ckanext-file-keeper-cloud`_. Check documentation of this
+   extension for detailed explanation of installation and usage.
+
+   Here's an example of setting up the storage using AWS S3 bucket:
+
+   1. Create AWS S3 bucket. This example assumes that the bucket has name
+      ``ckan_bucket``.
+
+   2. Install `ckanext-file-keeper-cloud`_::
+
+        pip install 'ckanext-file-keeper-cloud[s3]'
+
+   3. Add ``file_keeper_cloud`` to the list of enabled plugins::
+
+        ckan.plugins = file_keeper_cloud
+
+   4. Configure the storage using ``ckan:s3`` adapter::
+
+        ckan.files.storage.default.type = ckan:s3
+        ckan.files.storage.default.bucket = ckan_bucket
+
+        # specify region of the bucket or leave empty for default value
+        ckan.files.storage.default.region = us-east-1
+
+   5. Export key and secret as environment variables. These values can be
+      specified in the config file as well, but this is not
+      secure. Fortunately, ``ckan:s3`` adapter will check ``AWS_ACCESS_KEY_ID``
+      and ``AWS_SECRET_ACCESS_KEY`` environment variables and, if they are
+      defined, their value will be used for the storage. In addition, when
+      these variables are empty, CKAN will also check ``~/.aws/credentials``
+      and IAM Role available on the host machine. We will use environment
+      variable for the example, so there is no need to set credentials in the
+      config::
+
+        export AWS_ACCESS_KEY_ID=my-aws-key
+        export AWS_SECRET_ACCESS_KEY=my-aws-secret
+
+   6. Restart CKAN
+
+
+   Note, this example only shows the way to configure cloud storage, but it's
+   not suitable for the real world. If you leave things as is, the given
+   storage will be used for resource uploads and for user, group and
+   organization images. The former are private and latter are public. If the
+   bucket is private, organization images and user avatars will not be shown,
+   even though they will be uploaded to the bucket. If the bucket is public,
+   resources are available to everyone without any permission checks.
+
+   This problem can be solved by configuring separate storage for resoruces and
+   public images. Continue reading this documentation to find the details.
 
 -------------
 FileStore API
@@ -681,3 +778,5 @@ Storage utilities
 .. _mimetypes: https://docs.python.org/3/library/mimetypes.html
 
 .. _file-keeper: https://pypi.org/project/file-keeper/
+
+.. _ckanext-file-keeper-cloud: https://github.com/ckan/ckanext-file-keeper-cloud
