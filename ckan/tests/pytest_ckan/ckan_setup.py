@@ -1,4 +1,9 @@
+from __future__ import annotations
+
+from flask.ctx import RequestContext
+
 import pytest
+
 import ckan.plugins as plugins
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
@@ -6,7 +11,7 @@ from ckan.common import config
 
 # This is a test Flask request context to be used internally.
 # Do not use it!
-_tests_test_request_context = None
+_tests_test_request_context: RequestContext | None = None
 
 # Initial config snapshot that is used to restore config object before each
 # test. This allows us to keep tests independent while we are using global
