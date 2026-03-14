@@ -64,9 +64,7 @@ def decode_path(p: Union[bytes, Any]) -> str:
 def get_ckan_temp_directory() -> str:
     """
     Returns the path to a securely created temporary directory that can be used
-    to store internal generated files like webassets, i18n files, etc
-
-    It is used as fallback when `ckan.storage_path` is not defined.
+    to store internal generated files like webassets, i18n files, etc.
     """
 
     if not config.get("SECRET_KEY"):

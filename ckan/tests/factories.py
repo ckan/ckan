@@ -443,3 +443,12 @@ class SysadminWithToken(Sysadmin):
             return
         api_token = APIToken(user=obj["id"])
         obj["token"] = api_token["token"]
+
+
+class File(CKANFactory):
+    class Meta:
+        model = ckan.model.File
+        action = "file_create"
+
+    name = factory.LazyFunction(fake.unique.file_name)
+    upload = factory.Faker("binary", length=100)

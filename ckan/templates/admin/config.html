@@ -21,7 +21,7 @@
       {% set field_url = 'ckan.site_logo' %}
       {% set is_upload = data[field_url] and not data[field_url].startswith('http') %}
       {% set is_url = data[field_url] and data[field_url].startswith('http') %}
-      {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),  field_url=field_url, field_upload='logo_upload', field_clear='clear_logo_upload' )}}
+      {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled("admin"), is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),  field_url=field_url, field_upload='logo_upload', field_clear='clear_logo_upload' )}}
 
       {{ form.markdown('ckan.site_about', id='field-ckan-site-about', label=_('About'), value=data['ckan.site_about'], error=error, placeholder=_('About page text')) }}
 

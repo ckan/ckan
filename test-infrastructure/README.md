@@ -23,8 +23,6 @@ $ ./execute.sh
 2022-09-22 14:42:29,371 WARNI [ckan.common] Option ckan.plugins is not declared
 2022-09-22 14:42:29,618 INFO  [ckan.config.environment] Loading templates from /usr/src/ckan/templates
 2022-09-22 14:42:30,381 INFO  [ckan.config.environment] Loading templates from /usr/src/ckan/templates
-2022-09-22 14:42:30,534 CRITI [ckan.lib.uploader] Please specify a ckan.storage_path in your config
-                        for your uploads
 2022-09-22 14:42:30,708 WARNI [ckan.config.middleware.flask_app] Extensions are excluded from CSRF protection! We allow extensions to run without CSRF protection but it will be forced future releases. Read the documentation for more information on how to add CSRF protection to your extension.
 ============================================================================== test session starts ==============================================================================
 platform linux -- Python 3.7.14, pytest-7.1.3, pluggy-1.0.0 -- /usr/local/bin/python

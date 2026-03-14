@@ -37,7 +37,7 @@ from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
-from ckan.lib import i18n
+from ckan.lib import i18n, files
 from ckan.plugins.core import plugin_loaded
 
 from urllib.parse import (
@@ -2505,17 +2505,39 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def uploads_enabled() -> bool:
-    upload_config = config.get('ckan.uploads_enabled')
-    if upload_config is not None:
-        return upload_config
+def uploads_enabled(object_type: str | None = None) -> bool:
+    """Returns True if uploads are enabled for the given object type.
 
-    if config['ckan.storage_path'] is not None:
-        return True
+    :param object_type: the type of object to check uploads for, e.g. resource,
+        group, user or admin
+    :type object_type: string
+    """
+    if not object_type:
+        log.warning("h.uploads_enabled call without object_type is non supported")
+        return False
 
-    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
-        return True
-    return False
+    if not config["ckan.uploads_enabled"]:
+        return False
+
+    storage_name = config.get(f"ckan.files.default_storages.{object_type}")
+    if not storage_name:
+        log.warning(
+            "h.uploads_enabled call with an unexpected object_type '%s'",
+            object_type,
+        )
+        return False
+
+    try:
+        storage = files.get_storage(storage_name)
+    except files.exc.UnknownStorageError:
+        # if the storage is not found, then we are using old upload rules: when
+        # storage path is configured or uploader is customized, uploads are allowed
+        return bool(
+            config["ckan.storage_path"]
+            or any(plugin for plugin in p.PluginImplementations(p.IUploader))
+        )
+
+    return storage.supports(files.Capability.CREATE)
 
 
 @core_helper
