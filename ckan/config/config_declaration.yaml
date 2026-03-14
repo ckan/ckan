@@ -1410,7 +1410,7 @@ groups:
         example: 100
         description: |
           The maximum in megabytes a resources upload can be. Has no effect
-          when default storage or resource storage is configured.
+          when using explicit configuration for the resources storage.
 
       - key: ckan.max_image_size
         type: int
@@ -1418,8 +1418,7 @@ groups:
         example: 10
         description: |
           The maximum in megabytes an image upload can be. Has no effect when
-          either default storage or user, admin and group storages are
-          configured.
+          when using explicit configuration for the groups and users storages.
 
       - key: ckan.files.inline_content_types
         example: application/pdf image video
@@ -1529,36 +1528,59 @@ groups:
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.mimetypes`
-          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
-          options (this is dangerous and **not** recommended). Note also that ``text/svg`` can contain embedded
-          javascript code so it only should be used in trusted environments.
+        description: |
+
+          File types allowed to upload as user's avatar. If empty and
+          :ref:`ckan.upload.user.mimetypes` is also empty, no uploads are
+          allowed. To allow any kind of file upload, use the ``*`` string in
+          both options (this is dangerous and **not** recommended). Note also
+          that ``text/svg`` can contain embedded javascript code so it only
+          should be used in trusted environments.
+
+          Has no effect when when using explicit configuration for the users storage.
 
       - key: ckan.upload.user.mimetypes
         type: list
         default: image/png image/gif image/jpeg
         example: image/png
-        description: File MIMETypes allowed to upload as user's avatar. If empty and :ref:`ckan.upload.user.types`
-          is also empty, no uploads are allowed. To allow any kind of file upload, use the ``*`` string in both
-          options (this is dangerous and **not** recommended).
+        description: |
+
+          File MIMETypes allowed to upload as user's avatar. If empty and
+          :ref:`ckan.upload.user.types` is also empty, no uploads are
+          allowed. To allow any kind of file upload, use the ``*`` string in
+          both options (this is dangerous and **not** recommended).
+
+          Has no effect when when using explicit configuration for the users storage.
+
 
       - key: ckan.upload.group.types
         type: list
         default: image
         example: image text
-        description: File types allowed to upload as group or organization image. If empty
-          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are allowed. To allow any kind of
-          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
+        description: |
+
+          File types allowed to upload as group or organization image. If empty
+          and :ref:`ckan.upload.group.mimetypes` is also empty, no uploads are
+          allowed. To allow any kind of file upload, use the ``*`` string in
+          both options (this is dangerous and **not** recommended).
+
+          Has no effect when when using explicit configuration for the groups storage.
 
       - key: ckan.upload.group.mimetypes
         type: list
         default: image/png image/gif image/jpeg
         example: image/png
-        description: File MIMEtypes allowed to upload as group or organization image. If empty
-          and :ref:`ckan.upload.group.types` is also empty, no uploads are allowed. To allow any kind of
-          file upload, use the ``*`` string in both options (this is dangerous and **not** recommended).
-          Note also that ``text/svg`` can contain embedded javascript code so it only should be used in
-          trusted environments.
+        description: |
+
+          File MIMEtypes allowed to upload as group or organization image. If
+          empty and :ref:`ckan.upload.group.types` is also empty, no uploads
+          are allowed. To allow any kind of file upload, use the ``*`` string
+          in both options (this is dangerous and **not** recommended).  Note
+          also that ``text/svg`` can contain embedded javascript code so it
+          only should be used in trusted environments.
+
+          Has no effect when when using explicit configuration for the groups storage.
+
 
   - annotation: Webassets Settings
     options:
