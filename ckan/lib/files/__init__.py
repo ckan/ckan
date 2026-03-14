@@ -145,7 +145,7 @@ def collect_storages() -> dict[str, fk.Storage]:
             settings["name"] = name
             settings["path"] = os.path.join(settings["path"], "resources")
             settings["initialize"] = True
-            settings.setdefault("max_size", config["ckan.max_resource_size"] * 1024**2)
+            settings["max_size"] = config["ckan.max_resource_size"] * 1024**2
 
             result[name] = make_storage(name, settings)
 
@@ -164,14 +164,14 @@ def collect_storages() -> dict[str, fk.Storage]:
                 settings["initialize"] = True
                 settings["public"] = True
 
-                settings.setdefault("max_size", config["ckan.max_image_size"] * 1024**2)
+                settings["max_size"] = config["ckan.max_image_size"] * 1024**2
 
                 if object_type in ["user", "group"]:
-                    settings.setdefault(
-                        "supported_types",
+                    settings["supported_types"] = (
                         config[f"ckan.upload.{object_type}.mimetypes"]
-                        + config[f"ckan.upload.{object_type}.types"],
+                        + config[f"ckan.upload.{object_type}.types"]
                     )
+
                 storage = make_storage(name, settings)
                 result[name] = storage
 
