@@ -151,10 +151,12 @@ class TestStorageTransfer:
         assert group.exists(info)
         assert not user.exists(info)
 
-        cli.invoke(
+        result = cli.invoke(
             ckan,
             ["file", "storage", "transfer", group.settings.name, user.settings.name],
         )
+
+        assert not result.output.strip()
 
         assert group.exists(info)
         assert user.exists(info)
@@ -175,7 +177,7 @@ class TestStorageTransfer:
         assert group.exists(info)
         assert not user.exists(info)
 
-        cli.invoke(
+        result = cli.invoke(
             ckan,
             [
                 "file",
@@ -186,6 +188,8 @@ class TestStorageTransfer:
                 "-r",
             ],
         )
+
+        assert not result.output.strip()
 
         assert not group.exists(info)
         assert user.exists(info)

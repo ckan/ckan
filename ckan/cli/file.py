@@ -347,6 +347,10 @@ def storage_transfer(  # noqa: C901
                 if not skip_existing_files:
                     raise click.Abort
 
+            except files.exc.StorageError as err:
+                error_shout(f"Cannot transfer {item}: {err}")
+                raise click.Abort
+
             else:
                 if file := model.Session.scalar(model.File.by_location(item, src)):
                     info.into_object(file)
