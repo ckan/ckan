@@ -71,7 +71,7 @@ filesystem, or on cloud, or in database, or somewhere else, depending on the
 configuration and installed storage adapters.
 
 CKAN is shipped with local filesystem adapter and it will be used for the
-folowing example:
+following example:
 
 1. Just as in previous section, create a directory for uploaded files and set
    up correct permissions for it:
@@ -98,8 +98,8 @@ folowing example:
       sudo supervisorctl restart ckan-uwsgi:*
 
 .. note:: You probably noticed, that this version is almost identical to the
-   configuation from the previous section. It's absolutely correct: storages
-   were desinged as a replacement for the previous implementation of filestore
+   configuration from the previous section. It's absolutely correct: storages
+   were designed as a replacement for the previous implementation of filestore
    and that's why migration happens with the minimal friction.
 
    The key part of the storage configuration is
@@ -159,16 +159,12 @@ folowing example:
    even though they will be uploaded to the bucket. If the bucket is public,
    resources are available to everyone without any permission checks.
 
-   This problem can be solved by configuring separate storage for resoruces and
+   This problem can be solved by configuring separate storage for resources and
    public images. Continue reading this documentation to find the details.
 
 -------------
 FileStore API
 -------------
-
-.. versionchanged:: 2.2
-   The FileStore API was redesigned for CKAN 2.2.
-   The previous API has been deprecated.
 
 Files can be uploaded to the FileStore using the
 :py:func:`~ckan.logic.action.create.resource_create` and
@@ -216,46 +212,20 @@ To replace an uploaded file with a link to a file at a remote URL, use the
         --form url=http://expample.com --form clear_upload=true --form id=resourceid
 
 
-.. _filestore_21_to_22_migration:
-
---------------------------
-Migration from 2.1 to 2.2
---------------------------
-
-If you are using pairtree local file storage then you can keep your current settings
-without issue.  The pairtree and new storage can live side by side but you are still
-encouraged to migrate.  If you change your config options to the ones specified in
-this doc you will need to run the migration below.
-
-If you are running remote storage then all previous links will still be accessible
-but if you want to move the remote storage documents to the local storage you will
-run the migration also.
-
-In order to migrate make sure your CKAN instance is running as the script will
-request the data from the instance using APIs.  You need to run the following
-on the command line to do the migration::
-
-    ckan -c |ckan.ini| db migrate-filestore
-
-This may take a long time especially if you have a lot of files remotely.
-If the remote hosting goes down or the job is interrupted it is saved to run it again
-and it will try all the unsuccessful ones again.
-
-
 ----------------------------------------
 Custom Internet media types (MIME types)
 ----------------------------------------
 
-.. versionadded:: 2.2
+To detect the media type of an uploaded file, depending on the value of
+:ref:`ckan.mimetype_guess` config option, CKAN uses either the default Python
+library `mimetypes`_ or `python-magic
+<https://pypi.org/project/python-magic/>`_.
 
-CKAN uses the default Python library `mimetypes`_ to detect the media type of
-an uploaded file. If some particular format is not included in the ones guessed
-by the ``mimetypes`` library, a default ``application/octet-stream`` value will be
-returned.
-
-Users can still register a more appropriate media type by using the ``mimetypes``
-library. A good way to do so is to use the ``IConfigurer`` interface so the
-custom types get registered on startup::
+If some particular format is not included in the ones guessed by the
+``mimetypes`` library, a default ``application/octet-stream`` value will be
+returned. Users can still register a more appropriate media type by using the
+``mimetypes`` library. A good way to do so is to use the ``IConfigurer``
+interface so the custom types get registered on startup::
 
 
     import mimetypes
@@ -278,16 +248,20 @@ custom types get registered on startup::
 Using configured storages
 -------------------------
 
-.. note:: CKAN is shipped only with filesystem storage. Adapters for cloud
-          storage are available inside `ckanext-file-keeper-cloud
+.. note:: CKAN is shipped only with filesystem adapter. Adapters for cloud
+          providers are available inside `ckanext-file-keeper-cloud
           <https://github.com/ckan/ckanext-file-keeper-cloud>`_.
 
 In CKAN, a "storage" represents a logical container for specific set of
-files. Each storage is configured separately and serves a distinct purpose:
+files. Each storage can be configured separately and serves a distinct purpose:
 
 - **Resource Storage**: Handles data files uploaded to CKAN resources
 - **User Storage**: Manages user avatars
 - **Group Storage**: Manages logo images for organizations/groups
+- **Admin Storage**: Stores site logo
+- **Default Storage**: Used for generic uploads. Also, when resource, user,
+  group, or admin storage is not configured, CKAN uses default storage to
+  initialize corresponding derived storage with sensible configuration.
 - **Custom Storages**: can be configured for application-specific files
 
 Each storage operates independently with its own configuration, but they all
@@ -306,7 +280,7 @@ All these storages will be accessible through
 they will behave identically.
 
 CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
-the file storages. It exposes classes that provide a standard storage interface
+the file storages. It exposes classes with a standard storage interface
 regardless of the underlying system. As a result, saving files into the local
 files ystem, a cloud provider or a database looks exactly the same from the
 code perspective.
@@ -339,8 +313,8 @@ It results in three storages:
 * ``b`` with configuration ``{"type": "yyy"}``
 * ``c`` with configuration ``{"type": "zzz"}``
 
-To get the instance of the storage, use the``ckan.lib.files.get_storage``
-function::
+To get the instance of the storage, use the
+:py:func:`~ckan.lib.files.get_storage` function::
 
   storage = get_storage("my_storage")
 
@@ -351,6 +325,26 @@ of objects into an uploadable structure::
 
   upload = make_upload(b"hello world")
   info = storage.upload("file.txt", upload)
+
+.. tip:: The snippet above creates file in the storage, but this file will not
+   be tracked by CKAN and creating a reference to such file may require certain
+   efforts. Unless the file is created for internal purpose, it's recommended
+   to use File API:
+
+   .. parsed-literal::
+
+      import ckan.plugins.toolkit as tk
+      result = tk.get_action("file_create")({"ignore_auth": True}, {
+          "storage": "my_storage",
+          "name": "file.txt",
+          "upload": b"hello world",
+      })
+
+   :py:func:`~ckan.logic.action.file.file_create` creates in DB a record
+   tracking the file and returns a dictionary with file metadata. ID can be
+   later used to create permanent links to the file, manage file access or
+   remove it.
+
 
 When the storage instance uploads the file, it returns an object with the file details, namely
 its location, size, content type and content hash. This information is required
@@ -363,7 +357,7 @@ created manually using the location of the file and the
 :py:class:`~ckan.lib.files.FileData` class::
 
   path = "path/to/file/inside/the/storage.txt"
-  info = FileData(path)
+  info = FileData.from_string(path)
   content = storage.content(info)
 
 
@@ -375,47 +369,136 @@ Additional information about storage functionality is available in the
 Using configured storages for resource, group, admin and user uploads
 ---------------------------------------------------------------------
 
-By default, CKAN does not uses configurable storages for these types of
-uploads. To enable them configure default storage::
+CKAN config file does not initially include configuration for 4 internal
+storages. Instead, it contains following config options responsible for file
+uploads:
+
+.. code-block:: ini
+
+   ckan.uploads_enabled = true
+   ckan.storage_path = |storage_path|
+   ckan.max_resource_size = 10
+   ckan.max_image_size = 2
+
+   # ...
+   ckan.upload.user.types = image
+   ckan.upload.user.mimetypes = image/png image/gif image/jpeg
+   ckan.upload.group.types = image
+   ckan.upload.group.mimetypes = image/png image/gif image/jpeg
+
+
+This configuration means that CKAN expects that there will be writable
+``/var/lib/ckan/default`` folder available in the system. Inside this folder CKAN will keep:
+
+* resource files inside ``resources/`` sub-directory
+* group and organization images inside ``storage/uploads/group/`` sub-directory
+* user avatars inside ``storage/uploads/user/`` sub-directory
+* site logo inside ``storage/uploads/admin/`` sub-directory
+
+
+Also there are 10MiB limits on resource size and 2MiB limit on
+group/organization/user image size. Finally, this configuration allows only
+images to be uploaded as user avatars and group/organization images.
+
+Uploads can be globally disabled for the portal by disabling
+:ref:`ckan.uploads_enabled`.
+
+
+To start using storages, configure storage with the name ``default``:
+
+.. parsed-literal::
 
   ckan.files.storage.default.type = ckan:fs
   ckan.files.storage.default.path = |storage_path|
 
-Now CKAN initializes 4 storages that depends on the default storage:
+This configuration does a lot:
 
-* ``resources``: points to ``resources`` subfolder. Files
-  uploaded into resource are stored here.
-* ``groups``: points to ``uploads/user`` subfolder. Images for groups and
-  organizations are stored here.
-* ``users``: points to ``uploads/group`` subfolder. User avatars are stored
-  here.
-* ``admins``: points to ``uploads/admin`` subfolder. Site logo is stored here.
+* ``default`` storage initialized and it will be used by default for files
+  created with :py:func:`~ckan.logic.action.file.file_create`
+* implicit ``resources`` storage initialized automatically. It has its ``path`` option
+  is pointing at ``resources/`` subfolder of the default storage. It also has
+  ``max_size`` option that limits max allowed size of resource upload. The
+  value of this option is taken from :ref:`ckan.max_resource_size`
+* implicit ``groups``, ``users`` and ``admins`` storages initialized
+  automatically. Their ``path`` option is pointing at
+  ``storage/uploads/{group,user/admin}`` correspondingly. Their ``max_size``
+  option has the same value as :ref:`ckan.max_image_size` to reject big
+  images. ``users`` and ``groups`` storages also have ``supported_types`` that
+  limits upload types accepted by storages. The option inherits value values
+  from
+
+  * :ref:`ckan.upload.user.types`
+  * :ref:`ckan.upload.user.mimetypes`
+  * :ref:`ckan.upload.group.types`
+  * :ref:`ckan.upload.group.mimetypes`
+
+  And these storages have ``public`` flag enabled. It means that any file from
+  these storages can be accessed directly by the name, without any permission
+  checks.
+
 
 At this stage, there is no difference between CKAN running with the old
- ``ckan.storage_path`` instead of configured storages. If there are no plugins
- that customize upload process via
- :py:class:`~ckan.plugins.interfaces.IUploader` switching between
- ``ckan.storage_path`` and storages will not make any difference for the end
- user.
+:ref:`ckan.storage_path` instead of configured storages. If there are no
+plugins that customize upload process via
+:py:class:`~ckan.plugins.interfaces.IUploader` switching between
+:ref:`ckan.storage_path` and storages will not make any difference for the end
+user.
 
 The main reason to disable classic uploader is a possibility to customize these
 4 uploaders mentioned above. If CKAN sees explicit configuration of the any of
-these storages, the default storage that depends on storage path will not be
-created. For example, to store resource data on cloud, using
-`ckanext-file-keeper-cloud
-<https://github.com/ckan/ckanext-file-keeper-cloud>`_ extension, define
-following configuration of the ``resources`` storage::
+these storages, the implicit version of the corresponding storage path will not be
+created.
 
-  ckan.files.storage.resources.type = ckan:s3
-  ckan.files.storage.resources.bucket = test-ckan-xx
-  ckan.files.storage.resources.key = ABC123
-  ckan.files.storage.resources.secret = abc123
+Instead of configuring ``default`` storage, or in addition to it, explicit
+configuration for every internal storage can be provided.
 
-.. note:: Every storage has a distinct name. In this way, files from the
-   ``default`` storage are not mixed with resources or group uploads.
+Resources storage:
+
+.. parsed-literal::
+
+  ckan.files.storage.resources.type = ckan:fs
+  ckan.files.storage.resources.path = |storage_path|/resources
+  ckan.files.storage.resources.initialize = true
+  ckan.files.storage.resources.max_size = 10MiB
+
+
+Group and organizations storage:
+
+.. parsed-literal::
+
+  ckan.files.storage.groups.type = ckan:fs
+  ckan.files.storage.groups.path = |storage_path|/storage/uploads/group
+  ckan.files.storage.groups.initialize = true
+  ckan.files.storage.groups.max_size = 2MiB
+  ckan.files.storage.groups.supported_types = image/*
+  ckan.files.storage.groups.public = true
+
+User storage:
+
+.. parsed-literal::
+
+  ckan.files.storage.users.type = ckan:fs
+  ckan.files.storage.users.path = |storage_path|/storage/uploads/user
+  ckan.files.storage.users.initialize = true
+  ckan.files.storage.users.max_size = 2MiB
+  ckan.files.storage.users.supported_types = image/*
+  ckan.files.storage.users.public = true
+
+Admin storage(site logo):
+
+.. parsed-literal::
+
+  ckan.files.storage.users.type = ckan:fs
+  ckan.files.storage.users.path = |storage_path|/storage/uploads/admin
+  ckan.files.storage.users.initialize = true
+  ckan.files.storage.users.max_size = 2MiB
+  ckan.files.storage.users.public = true
+
+
+.. note::
 
    If there is an existing storage that uses a name different from
-   ``resources``, it's possible to use it as resources storage using folowing
+   ``resources``, it's possible to use it as resources storage using following
    config option::
 
      ckan.files.default_storages.resource = MY_EXISTING_STORAGE
@@ -430,16 +513,15 @@ following configuration of the ``resources`` storage::
    * :ref:`ckan.files.default_storages.group`
    * :ref:`ckan.files.default_storages.resource`
 
-
-
 --------
 File API
 --------
 
-:py:class:`~ckan.lib.files.Storage` exposes low-level methods for dealing with
-files, but generally it's expected that files are managed through API. There is
-a set of API actions aimed at file management and here's the list of the most
-important ones:
+:py:class:`~ckan.lib.files.Storage` object returned from
+:py:func:`~ckan.lib.files.get_storage` exposes low-level methods for dealing
+with files, but generally it's expected that files are managed through
+API. There is a set of API actions aimed at file management and here's the list
+of the most important ones:
 
 * :py:func:`~ckan.logic.action.file.file_create`
 * :py:func:`~ckan.logic.action.file.file_delete`
@@ -495,7 +577,7 @@ separated list of entities that can be assigned as a file
 owner(e.g. ``resource``, ``package``, ``group``, ``something-else``) and it
 allows user to perform operation with file as long as user is allowed to
 perform corresponding operation with the owner of the file. For example, if
-file transfered to resource using
+file transferred to resource using
 :py:func:`~ckan.logic.action.file.file_ownership_transfer` API action, then any
 user who has permission to call ``resource_show`` for the given resource is
 also allowed to call ``file_show`` for the any file owned by this resource. To
@@ -538,7 +620,7 @@ to override permissions of ``file_show`` action that returns file's metadata:
   action, including ``file_create``.
 
 Methods mentioned lower in the list have wider scope and they should be
-overriden only if global modification of all corresponding permissions is
+overridden only if global modification of all corresponding permissions is
 intended. The ideal solution is to override auth function with the name that
 matches the name of the API action that will be affected, but there are
 situations, where it's not possible. For example, file cannot be downloaded via
@@ -578,16 +660,65 @@ an ``id`` parameter of the URL::
   download_url = h.url_for("file.download", id=FILE_ID)
 
 This endpoint performs generic access check before sending file to user. It
-calls ``permission_download_file`` auth function, which can be overriden to
+calls ``permission_download_file`` auth function, which can be overridden to
 implement custom access rules, like restricted downloads even if user has
 access to file's metadata.
 
 .. note:: By default file is accessible only by sysadmin and user who owns the
-          file. To extend download permissions, consider transfering file
-          ownership to organization/package/resource via
-          :py:func:`~ckan.logic.action.file.file_ownership_transfer` and then
-          enable cascade access to the given owner via
-          :ref:`ckan.files.owner.cascade_access`.
+   file. To extend download permissions, consider transferring file ownership
+   to organization/package/resource via
+   :py:func:`~ckan.logic.action.file.file_ownership_transfer` and then enable
+   cascade access to the given owner via
+   :ref:`ckan.files.owner.cascade_access`.
+
+Permission checks can be bypassed when using another download view
+``trusted_download``. It works with JWT tokens and can be used to create
+temporal URL that gives unrestricted access to file.
+
+To use it, create a JWT token that contain file's ID inside ``sub`` claim and
+hardcoded value ``trusted_download`` inside ``aud`` claim. It's recommended to
+set expiration on the token using ``exp`` claim, or else it will give permanent
+access to the file that will work as long as file exists. Then generate a URL
+with it:
+
+.. code-block:: python
+
+   from datetime import datetime, timezone, timedelta
+   from ckan.lib.api_token import encode_token
+
+   expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+   token = encode_token({
+       "sub": FILE_ID,
+       "aud": "trusted_download",
+       "exp": expires_at,
+   })
+
+   trusted_download_url = h.url_for("file.trusted_download", token=token)
+
+Views above work for files registered in DB, but do not work for files uploaded
+directly to storage, bypassing the File API. To download these files, first
+make sure that storage has enabled ``public`` flag::
+
+  ckan.files.storage.my_storage.public = true
+
+Then, check the *location* of the file inside the storage. Location it's the
+fragment of the absolute path to the file, after stripping the part specified
+in the ``path`` setting of the storage. For example, if storage has
+``ckan.files.storage.my_storage.path = /var/data`` and the file's absolute path is
+``/var/data/my/folder/file.txt``, the *location* is ``my/folder/file.txt``.
+
+Use location and storage name to generate URL for the ``public_download`` view:
+
+.. code-block:: python
+
+   public_download_url = h.url_for(
+       "file.public_download",
+       storage_name="my_storage",
+       location="my/folder/file.txt",
+   )
+
+This URL can be accessed by anyone as long as storage is marked as
+``public``. Without ``public`` flag, the URL will cause 403 HTTP response.
 
 As an alternative, when writing custom view functions,
 :py:meth:`ckan.lib.files.Storage.as_response` method can be used to create
@@ -664,6 +795,14 @@ specify static segment that must be added to file's location in order to build
 valid public URL. In the given example, ``public_prefix`` must be set to
 ``nested/path/inside``.
 
+This storage type is similar to ``ckan:fs`` with ``public = true``. The main
+difference in the way files are served:
+
+* ``public = true`` uses generic logic implemented in the custom
+  view. Basically CKAN proxifies the content, which makes this flag compatible
+  with any storage type. But it's not efficient, especially for large files.
+* ``type = ckan:fs:public`` seves files via Flask's ``send_file`` function,
+  which is efficient, but works only with local filesystem.
 
 -----------------
 Storage utilities

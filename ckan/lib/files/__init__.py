@@ -62,9 +62,10 @@ def get_storage(name: str | None = None) -> fk.Storage:
     If no name specified, default storage is returned.
 
     Storages are initialized when application is loaded. As result, this
-    function always returns the same storage object for the given name. But if
-    configuration changes in runtime, storage registry must be updated
-    manually.
+    function always returns the same storage object for the given name.
+
+    Any changes configuration changes that happen after the application start
+    will be ignored.
 
     >>> default_storage = get_storage()
     >>> assert default_storage.settings.name == "default"
