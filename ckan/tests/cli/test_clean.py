@@ -21,7 +21,6 @@ def with_temporal_storage(
 
 @pytest.mark.usefixtures("clean_db", "with_extended_cli", "with_temporal_storage")
 @pytest.mark.ckan_config("ckan.upload.user.mimetypes", ["*"])
-@pytest.mark.ckan_config("ckan.upload.user.types", ["*"])
 class TestUserClean:
     def test_output_if_there_are_not_invalid_users(self, cli):
         result = cli.invoke(ckan, ["clean", "users"])
@@ -52,9 +51,7 @@ class TestUserClean:
         }
         user = create_with_upload(faker.image(), "image.png", **user)
 
-        monkeypatch.setitem(
-            ckan_config, "ckan.files.storage.test.supported_types", "image/png"
-        )
+        monkeypatch.setitem(ckan_config, "ckan.upload.user.mimetypes", "image/png")
         reset_storages()
         result = cli.invoke(ckan, ["clean", "users"])
 
@@ -94,9 +91,7 @@ class TestUserClean:
         }
         user = create_with_upload(faker.image(), "image.png", **user)
 
-        monkeypatch.setitem(
-            ckan_config, "ckan.files.storage.test.supported_types", "image/png"
-        )
+        monkeypatch.setitem(ckan_config, "ckan.upload.user.mimetypes", "image/png")
         reset_storages()
 
         result = cli.invoke(ckan, ["clean", "users", "--force"])

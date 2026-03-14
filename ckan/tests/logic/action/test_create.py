@@ -2187,7 +2187,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload("hello world", "file.txt", **params)
 
     def test_upload_non_picture_html_fails_without_extra_config(
@@ -2200,7 +2200,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload("<html><body>hello world</body></html>", "file.html", **params)
 
     def test_upload_svg_fails_without_extra_config(
@@ -2213,7 +2213,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.svg", **params)
 
     def test_upload_svg_wrong_extension_fails_without_extra_config(
@@ -2226,7 +2226,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.png", **params)
 
     @pytest.mark.ckan_config("ckan.upload.user.types", ["image"])
@@ -2240,13 +2240,12 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload("hello world", "file.png", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", [])
-    @pytest.mark.ckan_config("ckan.upload.user.types", [])
-    def test_uploads_not_allowed_when_empty_mimetypes_and_types(
-            self, create_with_upload, faker):
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", ["image/png"])
+    @pytest.mark.ckan_config("ckan.upload.user.types", ["*"])
+    def test_upload_mimetype_has_higher_priority(self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
             "email": faker.email(),
@@ -2255,21 +2254,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="No uploads allowed for object type"):
-            create_with_upload("hello world", "file.png", **params)
-
-    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", ["*"])
-    @pytest.mark.ckan_config("ckan.upload.user.types", ["image"])
-    def test_upload_all_types_allowed_needs_both_options(self, create_with_upload, faker):
-        params = {
-            "name": faker.user_name(),
-            "email": faker.email(),
-            "password": "12345678",
-            "action": "user_create",
-            "upload_field_name": "image_upload",
-        }
-        with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             assert create_with_upload(faker.json(), "file.json", **params)
 
     @pytest.mark.ckan_config("ckan.upload.user.mimetypes", ["*"])

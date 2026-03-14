@@ -321,15 +321,26 @@ def storage_transfer(  # noqa: C901
 
     with click.progressbar(targets) as bar:
         for item in bar:
-            data = files.FileData(files.Location(item))
+            filename = files.Location(item)
+            try:
+                # content_type must be specified, because synthetic copy and
+                # move rely on upload action, which validates content type
+                # according to the storage settings. We don't want to move into
+                # storage files with unsupported content type
+                data = files.FileData(
+                    filename,
+                    size=from_storage.size(filename),
+                    content_type=from_storage.content_type(filename),
+                )
+            except files.exc.MissingFileError as err:
+                error_shout(err)
+                if skip_missing_files:
+                    continue
+                else:
+                    raise click.Abort
 
             try:
                 info = op(data.location, data, to_storage)
-
-            except files.exc.MissingFileError as err:
-                error_shout(err)
-                if not skip_missing_files:
-                    raise click.Abort
 
             except files.exc.ExistingFileError as err:
                 error_shout(err)

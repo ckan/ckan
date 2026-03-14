@@ -502,58 +502,8 @@ class FkUpload(object):
                         }
                     )
 
-        allowed_mimetypes = config.get(
-            f"ckan.upload.{self.object_type}.mimetypes")
-        allowed_types = config.get(f"ckan.upload.{self.object_type}.types")
-        if not allowed_mimetypes and not allowed_types:
-            raise logic.ValidationError(
-                {
-                    self.file_field: [
-                        f"No uploads allowed for object type {self.object_type}"
-                    ]
-                }
-            )
-
-        # Check that the declared types in the request are supported
-        declared_mimetype_from_filename = mimetypes.guess_type(
-            self.upload_field_storage.filename
-        )[0]
-        declared_content_type = self.upload_field_storage.content_type
-        for declared_mimetype in (
-            declared_mimetype_from_filename,
-            declared_content_type,
-        ):
-            if (
-                declared_mimetype
-                and allowed_mimetypes
-                and allowed_mimetypes[0] != "*"
-                and declared_mimetype not in allowed_mimetypes
-            ):
-                raise logic.ValidationError(
-                    {
-                        self.file_field: [
-                            f"Unsupported upload type: {declared_mimetype}"
-                        ]
-                    }
-                )
-
-        # Check that the actual type guessed from the contents is supported
-        # (2KB required for detecting xlsx mimetype)
+        # fix extension according to the content type
         guessed_mimetype = self.upload_file.content_type
-
-        err: ErrorDict = {
-            self.file_field: [f"Unsupported upload type: {guessed_mimetype}"]
-        }
-
-        if (allowed_mimetypes
-                and allowed_mimetypes[0] != "*"
-                and guessed_mimetype not in allowed_mimetypes):
-            raise logic.ValidationError(err)
-
-        type_ = guessed_mimetype.split("/")[0]
-        if allowed_types and allowed_types[0] != "*" and type_ not in allowed_types:
-            raise logic.ValidationError(err)
-
         preferred_extension = mimetypes.guess_extension(guessed_mimetype)
         if preferred_extension and self.filename:
             self.filename = str(Path(self.filename).with_suffix(preferred_extension))

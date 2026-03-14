@@ -144,7 +144,9 @@ class TestStorageTransfer:
         group = files.get_storage(ckan_config["ckan.files.default_storages.group"])
         user = files.get_storage(ckan_config["ckan.files.default_storages.user"])
 
-        info = group.upload(group.prepare_location(name), files.make_upload(b""))
+        info = group.upload(
+            group.prepare_location(name), files.make_upload(faker.image((10, 10)))
+        )
 
         assert group.exists(info)
         assert not user.exists(info)
@@ -166,7 +168,9 @@ class TestStorageTransfer:
         group = files.get_storage(ckan_config["ckan.files.default_storages.group"])
         user = files.get_storage(ckan_config["ckan.files.default_storages.user"])
 
-        info = group.upload(group.prepare_location(name), files.make_upload(b""))
+        info = group.upload(
+            group.prepare_location(name), files.make_upload(faker.image((10, 10)))
+        )
 
         assert group.exists(info)
         assert not user.exists(info)
@@ -192,12 +196,15 @@ class TestStorageTransfer:
         cli: CKANCliRunner,
         file_factory: types.TestFactory,
         ckan_config: dict[str, Any],
+        faker: Faker,
     ):
         """Storage details updated for registered files."""
         group = files.get_storage(ckan_config["ckan.files.default_storages.group"])
         user = files.get_storage(ckan_config["ckan.files.default_storages.user"])
 
-        result = file_factory(storage=group.settings.name)
+        result = file_factory(
+            storage=group.settings.name, upload=files.make_upload(faker.image((10, 10)))
+        )
         info = files.FileData.from_dict(result)
 
         # file moved using location

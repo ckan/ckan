@@ -169,7 +169,7 @@ def collect_storages() -> dict[str, fk.Storage]:
                 if object_type in ["user", "group"]:
                     settings["supported_types"] = (
                         config[f"ckan.upload.{object_type}.mimetypes"]
-                        + config[f"ckan.upload.{object_type}.types"]
+                        or config[f"ckan.upload.{object_type}.types"]
                     )
 
                 storage = make_storage(name, settings)
