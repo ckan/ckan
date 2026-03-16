@@ -130,8 +130,8 @@ table.dataTable span.dtcc input::placeholder{
 }
 
 #dtprv_wrapper .datatable-id-col{
-  /* no transparent bg for fixed column */
-  background: white;
+  background: white;  /* no transparent bg for fixed column */
+  filter: brightness(0.875);  /* make _id column darker ala Excel */
 }
 
 #dtprv_wrapper table.collapsed td.datatable-id-col{
@@ -284,3 +284,49 @@ table.dataTable span.dtcc input::placeholder{
   height: auto;
 }
 /* END: QoL Image Thumbnails :END */
+
+/* START: Print Layout :START */
+@media screen{
+  body .dt-display-screen{
+    display: initial !important;
+  }
+  body .dt-display-print{
+    display: none !important;
+  }
+}
+
+@media print{
+  body .dt-display-screen{
+    display: none !important;
+  }
+  body .dt-display-print{
+    display: initial !important;
+  }
+  body .datatables-pre-render-hidden{
+    visibility: visible !important;
+  }
+  body #dtv-resource-info,
+  body #dtv-resource-info .dtv-resource-info-content{
+    display: block !important;
+  }
+  body #dtprv_wrapper table{
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
+  body #dtprv_wrapper table tr{
+    display: table-row !important;
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+  body #dtprv_wrapper table td,
+  body #dtprv_wrapper table th,
+  body #dtprv_wrapper .dt-column-header .dt-column-title{
+    white-space: pre-line !important;
+  }
+  body #dtprv_wrapper .dt-column-header .dt-column-title i.fa-info-circle{
+    display: none !important;
+  }
+}
+/* END: Print Layout :END */

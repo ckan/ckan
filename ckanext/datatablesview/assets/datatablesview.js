@@ -96,6 +96,8 @@ function _linkify(_data){
 
 function load_datatable(CKAN_MODULE){
   const _ = CKAN_MODULE._;
+  const hasEllipsisExpandFeat = false;  // TODO: make JS expand/hide remaining content for ellipses...
+
   const searchParams = new URLSearchParams(document.location.search);
   const doStateSave = CKAN_MODULE.options.stateSaveFlag;
   const stateSaveDuration = CKAN_MODULE.options.stateDuration;
@@ -144,6 +146,13 @@ function load_datatable(CKAN_MODULE){
   const estimatedLabel = _('Total was estimated');
   const exactLabel = _('Total is exact');
   const elapsedTimeLabel = _('seconds');
+  const printLanguage = {
+    data_updated: _('Data last updated:'),
+    metadata_updated: _('Metadata last updated:'),
+    created: _('Created:'),
+    format: _('Format:'),
+    file_size: _('File size:'),
+  }
   const numberTypes = [
     'year',
     'month',
@@ -170,6 +179,7 @@ function load_datatable(CKAN_MODULE){
   const defaultSelectedRows = [];
   let ajaxStartTime = 0;
   let ajaxElapsedTime;
+  let sortDisplay;
 
   let keyedDataDictionary = {};
   let table;
@@ -283,16 +293,23 @@ function load_datatable(CKAN_MODULE){
             }
           }
           preview = linkifiedData.text.substr(0, lastpos + addLen).trimEnd();
-          // TODO: get remaining...
-          remaining = linkifiedData.text.substr(lastpos + addLen).trimEnd();
+          if( hasEllipsisExpandFeat ){  // TODO: make JS expand/hide remaining content for ellipses...
+            remaining = linkifiedData.text.substr(lastpos + addLen).trimEnd();
+          }
         }else{
           preview = str.substr(0, _cutoff - 1);
-          remaining = str.substr(_cutoff - 1);
+          if( hasEllipsisExpandFeat ){  // TODO: make JS expand/hide remaining content for ellipses...
+            remaining = str.substr(_cutoff - 1);
+          }
         }
         let _elementID = 'datatableReadMore_' + _rowIndex + '_' + _datatoreID;
-        let expander = '<a class="datatable-readmore-expander" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="false" aria-controls="' + _elementID + '">&#8230;</a>';
+        let expander = '<span>&#8230;</span>';
+        if( hasEllipsisExpandFeat ){  // TODO: make JS expand/hide remaining content for ellipses...
+          expander = '<a class="datatable-readmore-expander" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="false" aria-controls="' + _elementID + '">&#8230;</a>';
+        }
         preview += expander;
-        return '<div class="datatable-readmore"><span>' + preview + '</span><span class="collapse" id="' + _elementID + '">' + remaining + '<a class="datatable-readmore-minimizer" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="true" aria-controls="' + _elementID + '"><small>[' + readLessLabel + ']</small></a><span></div>';
+        // TODO: make JS expand/hide remaining content for ellipses...
+        return hasEllipsisExpandFeat ? '<div class="datatable-readmore"><span>' + preview + '</span><span class="collapse" id="' + _elementID + '">' + remaining + '<a class="datatable-readmore-minimizer" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="true" aria-controls="' + _elementID + '"><small>[' + readLessLabel + ']</small></a><span></div>' : '<div class="datatable-readmore"><span>' + preview + '</span></div>';
       }
       return _data;
     };
@@ -524,17 +541,36 @@ function load_datatable(CKAN_MODULE){
         titleAttr: printButtonLabel,
         className: 'btn-secondary',
         title: packageName + ' — ' + resourceName,
-        messageTop: function () {
-          return 'TODO: better filterInfo';
-          // return filterInfo(datatable);
+        messageTop: function(){
+          let printInfo = '<div>';
+          // TODO: add info from render_timing_info func
+          printInfo += sortDisplay;
+          printInfo += '<span><a href="' + resourceURI + '">' + packageName + ' — ' + resourceName + '</a></span><br/>';
+          printInfo += '<span>' + printLanguage.data_updated + ' ' + dataUpdatedDate + '</span><br/>';
+          printInfo += '<span>' + printLanguage.metadata_updated + ' ' + metadataUpdatedDate + '</span><br/>';
+          printInfo += '<span>' + printLanguage.created + ' ' + createdDate + '</span><br/>';
+          printInfo += '<span>' + printLanguage.format + ' ' + resourceFormat + '</span><br/>';
+          let filesize = resourceFileSizeHumanized ? resourceFileSizeHumanized : resourceFileSize + ' bytes';
+          printInfo += '<span>' + printLanguage.file_size + ' ' + filesize + '</span><br/>';
+          printInfo += '</div>';
+          return printInfo;
         },
-        messageBottom: function () {
+        messageBottom: function(){
           return 'TODO: better filterInfo';
-          // return filterInfo(datatable)
         },
         exportOptions: {
           columns: ':visible',
-          stripHtml: false
+          stripHtml: false,
+          format: {
+            // workaround for <br> being filtered out in DataTables during printing
+            body: function (_d, _r, _c, _n){
+              let clone = _n.cloneNode(true);
+              clone.querySelectorAll('br').forEach(function(_e){
+                _e.replaceWith('\n');
+              });
+              return clone.innerHTML;
+            }
+          }
         }
       },
       // FIXME: Base64ing the entire table state is way too large.
@@ -616,8 +652,6 @@ function load_datatable(CKAN_MODULE){
      *
      * Also save non HTML versions for use throughout functional code.
      */
-    // TODO: save table info into object...
-
     let resourceInfo = $('#dtv-resource-info');
     let content = $(resourceInfo).find('.dtv-resource-info-content');
     $(resourceInfo).find('i').attr('title', content.text());
@@ -651,16 +685,16 @@ function load_datatable(CKAN_MODULE){
             upIcon = 'fas fa-sort-alpha-up-alt';
           }
           if( sortInfo[i][1] == 'asc' ){
-            sortingText += '<sup><i title="' + colSortAscLabel + '" aria-label="' + colSortAscLabel + '" class="' + upIcon + '"></i></sup>';
+            sortingText += '<span class="dt-display-print">(' + colSortAscLabel + ')</span><sup><i title="' + colSortAscLabel + '" aria-label="' + colSortAscLabel + '" class="dt-display-screen ' + upIcon + '"></i></sup>';
           }else if( sortInfo[i][1] == 'desc' ){
-            sortingText += '<sup><i title="' + colSortDescLabel + '" aria-label="' + colSortDescLabel + '" class="' + downIcon + '"></i></sup>';
+            sortingText += '<span class="dt-display-print">(' + colSortDescLabel + ')</span><sup><i title="' + colSortDescLabel + '" aria-label="' + colSortDescLabel + '" class="dt-display-screen ' + downIcon + '"></i></sup>';
           }else{
-            sortingText += '<sup><i title="' + colSortAnyLabel + '" aria-label="' + colSortAnyLabel + '" class="fas fa-random"></i></sup>';
+            sortingText += '<span class="dt-display-print">(' + colSortAnyLabel + ')</span><sup><i title="' + colSortAnyLabel + '" aria-label="' + colSortAnyLabel + '" class="dt-display-screen fas fa-random"></i></sup>';
           }
           sortingText += '</em></span>';
         }
       }
-      let sortDisplay = '<div class="dt-sorting-info">' + sortingText + '</div>';
+      sortDisplay = '<div class="dt-sorting-info">' + sortingText + '</div>';
       $(pagingWrapper).after(sortDisplay);
     }
   }

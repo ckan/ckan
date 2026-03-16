@@ -59,7 +59,7 @@
             {%- endif -%}
             {{- nbspval -}}
             {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length) -%}
-              <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
+              <i class="dt-display-screen fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
             {%- endif -%}
             {{- nbspval -}}
           </th>
