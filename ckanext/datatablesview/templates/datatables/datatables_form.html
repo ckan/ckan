@@ -7,6 +7,13 @@
   value='True',
   checked=data.responsive,
   ) }}
+{{ form.checkbox(
+  'show_summary_row',
+  id='field-show-summary-row',
+  label=_('Show Summary Row'),
+  value='True',
+  checked=data.show_summary_row,
+  ) }}
 {% call form.input(
   'ellipsis_length',
   id='field-ellipsis_length',

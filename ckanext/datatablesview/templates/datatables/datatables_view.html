@@ -41,6 +41,7 @@
     data-module-ajax-url="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
     data-module-ckan-filters='{{ request.args.get("filters", "")|e or "null" }}'
     data-module-responsive-flag='{{ resource_view.get('responsive')|tojson }}'
+    data-module-show-summary-row='{{ resource_view.get('show_summary_row')|tojson }}'
     data-module-page-length-choices="{{ page_length_choices }}"
     data-module-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id, _external=True ) }}"
     data-module-data-dictionary='{{- data_dictionary|tojson -}}'
@@ -67,7 +68,23 @@
       </tr>
     </thead>
     <tbody id="dtprv-body-main"></tbody>
-    <tfoot id="dtprv-foot-main"></tfoot>
+    <tfoot id="dtprv-foot-main">
+      {# NOTE: DataTables Footer only targets the first tr of the tfoot, so we need an explicit 1 prior to show_summary_row #}
+      <tr>
+        <td data-name="_id" data-ds-type="int"></td>
+        {% for field in data_dictionary -%}
+          <td data-name="{{- field.id -}}" data-ds-type="{{- field.type -}}"></td>
+        {% endfor -%}
+      </tr>
+      {% if resource_view.get('show_summary_row') %}
+        <tr id="dt-summary-row">
+          <td data-name="_id" data-ds-type="int"></td>
+          {% for field in data_dictionary -%}
+            <td data-name="{{- field.id -}}" data-ds-type="{{- field.type -}}"></td>
+          {% endfor -%}
+        </tr>
+      {% endif %}
+    </tfoot>
   </table>
 
   <form id="filtered-datatables-download" method="POST"

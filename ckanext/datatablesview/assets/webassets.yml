@@ -12,6 +12,7 @@ main-js:
     - vendor/DataTables/datatables.min.js
     - vendor/DataTables/datatables.datetime-moment.js
     - vendor/DataTables/datatables.mark.min.js
+    - vendor/DataTables/sum.js
     - datatablesview.js
 form-js:
   output: ckanext-datatablesview/%(version)s_datatablesview_form.js

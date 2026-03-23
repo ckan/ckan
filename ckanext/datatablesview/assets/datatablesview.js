@@ -19,6 +19,7 @@ this.ckan.module('datatables_view', function($){
       ajaxUrl: null,
       ckanFilters: null,
       responsiveFlag: false,
+      showSummaryRow: false,
       pageLengthChoices: [20, 50, 100, 500, 1000],
       resourceUrl: null,
       dataDictionary: null,
@@ -117,6 +118,7 @@ function load_datatable(CKAN_MODULE){
   const ajaxURI = CKAN_MODULE.options.ajaxUrl;
   const ckanFilters = CKAN_MODULE.options.ckanFilters;
   const defaultCompactView = CKAN_MODULE.options.responsiveFlag;
+  const showSummaryRow = CKAN_MODULE.options.showSummaryRow;
   const pageLengthChoices = CKAN_MODULE.options.pageLengthChoices;
   const resourceURI = CKAN_MODULE.options.resourceUrl;
   const dataDictionary = CKAN_MODULE.options.dataDictionary;
@@ -124,40 +126,63 @@ function load_datatable(CKAN_MODULE){
   const requestTimeout = CKAN_MODULE.options.timeout;
   const csrfTokenName = $('meta[name="csrf_field_name"]').attr('content');
 
-  const ajaxErrorMessage = _('Error: Could not query records. Please try again.');
-  const fullTableButtonLabel = _('Full Table');
-  const compactTableButtonLabel = _('Compact Table');
-  const copyButtonLabel = _('Copy to clipboard');
-  const colvisButtonLabel = _('Toggle column visibility');
-  const colvisRestoreLabel = _('Restore visibility');
-  const colvisAllLabel = _('Show all');
-  const colvisNoneLabel = _('Show none');
-  const colvisFilteredLabel = _('Filtered');
-  const downloadButtonLabel = _('Filtered download');
-  const resetButtonLabel = _('Reset');
-  const printButtonLabel = _('Print');
-  const shareButtonLabel = _('Share current view');
-  const readLessLabel = _('less');
-  const colSearchLabel = _('Search:');
-  const colSortLabel = _('Sorting by:');
-  const colSortAscLabel = _('Ascending');
-  const colSortDescLabel = _('Descending');
-  const colSortAnyLabel = _('Any');
-  const estimatedLabel = _('Total was estimated');
-  const exactLabel = _('Total is exact');
-  const elapsedTimeLabel = _('seconds');
-  const printLanguage = {
-    data_updated: _('Data last updated:'),
-    metadata_updated: _('Metadata last updated:'),
-    created: _('Created:'),
-    format: _('Format:'),
-    file_size: _('File size:'),
-    data_dictionary: _('Data Dictionary'),
-    id: _('ID'),
-    type: _('Type'),
-    label: _('Label'),
-    description: _('Description'),
+  const TABLE_LANGUAGE = {
+    errors: {
+      ajax: _('Error: Could not query records. Please try again.'),
+    },
+    buttons: {
+      full: _('Full Table'),
+      compact: _('Compact Table'),
+      copy: _('Copy to clipboard'),
+      colvis: {
+        toggle: _('Toggle column visibility'),
+        restore: _('Restore visibility'),
+        all: _('Show all'),
+        none: _('Show none'),
+        filtered: _('Filtered'),
+      },
+      download: _('Filtered download'),
+      reset: _('Reset'),
+      print: _('Print'),
+      share: _('Share current view'),
+    },
+    renderers: {
+      less: _('less'),
+    },
+    info: {
+      column: {
+        search: _('Search:'),
+        sort: _('Sorting by:'),
+        asc: _('Ascending'),
+        desc: _('Descending'),
+        any: _('Any'),
+      },
+      result: {
+        estimated: _('Total was estimated'),
+        exact: _('Total is exact'),
+        elapsed: _('seconds'),
+      },
+      summary: {
+        total: _('Total:'),
+        average: _('Average:'),
+        range: _('Range:'),
+        dateRange: _('Date Range:'),
+      }
+    },
+    print: {
+      dataUpdated: _('Data last updated:'),
+      metadataUpdated: _('Metadata last updated:'),
+      created: _('Created:'),
+      format: _('Format:'),
+      fileSize: _('File size:'),
+      dataDictionary: _('Data Dictionary'),
+      id: _('ID'),
+      type: _('Type'),
+      label: _('Label'),
+      description: _('Description'),
+    }
   }
+
   const numberTypes = [
     'year',
     'month',
@@ -317,7 +342,7 @@ function load_datatable(CKAN_MODULE){
         }
         preview += expander;
         // TODO: make JS expand/hide remaining content for ellipses...
-        return hasEllipsisExpandFeat ? '<div class="datatable-readmore"><span>' + preview + '</span><span class="collapse" id="' + _elementID + '">' + remaining + '<a class="datatable-readmore-minimizer" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="true" aria-controls="' + _elementID + '"><small>[' + readLessLabel + ']</small></a><span></div>' : '<div class="datatable-readmore"><span>' + preview + '</span></div>';
+        return hasEllipsisExpandFeat ? '<div class="datatable-readmore"><span>' + preview + '</span><span class="collapse" id="' + _elementID + '">' + remaining + '<a class="datatable-readmore-minimizer" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="true" aria-controls="' + _elementID + '"><small>[' + TABLE_LANGUAGE.renderers.less + ']</small></a><span></div>' : '<div class="datatable-readmore"><span>' + preview + '</span></div>';
       }
       return _data;
     };
@@ -420,7 +445,7 @@ function load_datatable(CKAN_MODULE){
       {
         name: 'viewToggleButton',
         text: isCompactView ? '<i class="fa fa-table"></i>' : '<i class="fa fa-list"></i>',
-        titleAttr: isCompactView ? fullTableButtonLabel : compactTableButtonLabel,
+        titleAttr: isCompactView ? TABLE_LANGUAGE.buttons.full : TABLE_LANGUAGE.buttons.compact,
         className: 'btn-secondary',
         action: function(e, dt, node, config){
           if( isCompactView ){
@@ -441,7 +466,7 @@ function load_datatable(CKAN_MODULE){
       {
         extend: 'copy',
         text: '<i class="fa fa-copy"></i>',
-        titleAttr: copyButtonLabel,
+        titleAttr: TABLE_LANGUAGE.buttons.copy,
         className: 'btn-secondary',
         messageTop: function(){
           /**
@@ -449,12 +474,12 @@ function load_datatable(CKAN_MODULE){
            */
           let copyInfo = packageName + ' — ' + resourceName + '\n' + resourceURI + '\n';
           copyInfo += countDisplayCopy + '\n' + sortDisplayCopy + '\n'
-          copyInfo += printLanguage.data_updated + ' ' + dataUpdatedDate + '\n'
-          copyInfo += printLanguage.metadata_updated + ' ' + metadataUpdatedDate + '\n';
-          copyInfo += printLanguage.created + ' ' + createdDate + '\n';
-          copyInfo += printLanguage.format + ' ' + resourceFormat + '\n';
+          copyInfo += TABLE_LANGUAGE.print.dataUpdated + ' ' + dataUpdatedDate + '\n'
+          copyInfo += TABLE_LANGUAGE.print.metadataUpdated + ' ' + metadataUpdatedDate + '\n';
+          copyInfo += TABLE_LANGUAGE.print.created + ' ' + createdDate + '\n';
+          copyInfo += TABLE_LANGUAGE.print.format + ' ' + resourceFormat + '\n';
           let filesize = resourceFileSizeHumanized ? resourceFileSizeHumanized : resourceFileSize + ' bytes';
-          copyInfo += printLanguage.file_size + ' ' + filesize + '\n';
+          copyInfo += TABLE_LANGUAGE.print.fileSize + ' ' + filesize + '\n';
           return copyInfo;
         },
         messageBottom: function(){
@@ -464,7 +489,7 @@ function load_datatable(CKAN_MODULE){
            * Only output info for the visible columns
            */
           let visibleColNames = _get_visible_col_ids();
-          let copyDictionary = printLanguage.data_dictionary;
+          let copyDictionary = TABLE_LANGUAGE.print.dataDictionary;
           let copyIndex = 1;
           for( let _i = 0; _i < dataDictionary.length; _i++ ){
             if( ! visibleColNames.includes(dataDictionary[_i]['id']) ){
@@ -476,12 +501,12 @@ function load_datatable(CKAN_MODULE){
             }
             copyDictionary += '\n\n' + (copyIndex) + '. ' + colLabel;
             if( colLabel != dataDictionary[_i]['id'] ){
-              copyDictionary += '\n' + printLanguage.id + '   ' + dataDictionary[_i]['id'];
+              copyDictionary += '\n' + TABLE_LANGUAGE.print.id + '   ' + dataDictionary[_i]['id'];
             }
-            copyDictionary += '\n' + printLanguage.type + '   ' + dataDictionary[_i]['type'];
+            copyDictionary += '\n' + TABLE_LANGUAGE.print.type + '   ' + dataDictionary[_i]['type'];
             let colNotes = _get_translated(dataDictionary[_i]['info'], 'notes');
             if( colNotes != null ){
-              copyDictionary += '\n' + printLanguage.description + '   ' + colNotes;
+              copyDictionary += '\n' + TABLE_LANGUAGE.print.description + '   ' + colNotes;
             }
             copyIndex++;
           }
@@ -496,23 +521,23 @@ function load_datatable(CKAN_MODULE){
       {
         extend: 'colvis',
         text: '<i class="fa fa-eye-slash"></i>',
-        titleAttr: colvisButtonLabel,
+        titleAttr: TABLE_LANGUAGE.buttons.colvis.toggle,
         className: 'btn-secondary',
         columns: 'th:gt(0)',
         collectionLayout: 'fixed dt-popup-colvis',
         postfixButtons: [
           {
             extend: 'colvisRestore',
-            text: '<i class="fa fa-undo"></i> ' + colvisRestoreLabel,
+            text: '<i class="fa fa-undo"></i> ' + TABLE_LANGUAGE.buttons.colvis.restore,
           },
           {
             extend: 'colvisGroup',
-            text: '<i class="fa fa-eye"></i> ' + colvisAllLabel,
+            text: '<i class="fa fa-eye"></i> ' + TABLE_LANGUAGE.buttons.colvis.all,
             show: ':hidden'
           },
           {
             extend: 'colvisGroup',
-            text: '<i class="fa fa-eye-slash"></i> ' + colvisNoneLabel,
+            text: '<i class="fa fa-eye-slash"></i> ' + TABLE_LANGUAGE.buttons.colvis.none,
             action: function(e, dt, node, config){
               dt.columns().every(function(){
                 if( this.index() ){ // always show _id col, index 0
@@ -523,7 +548,7 @@ function load_datatable(CKAN_MODULE){
           },
           {
             extend: 'colvisGroup',
-            text: '<i class="fa fa-filter"></i> ' + colvisFilteredLabel,
+            text: '<i class="fa fa-filter"></i> ' + TABLE_LANGUAGE.buttons.colvis.filtered,
             action: function(e, dt, node, config){
               dt.columns().every(function(){
                 if( this.index() ){  // always show _id col, index 0
@@ -540,7 +565,7 @@ function load_datatable(CKAN_MODULE){
       },
       {
         text: '<i class="fa fa-download"></i>',
-        titleAttr: downloadButtonLabel,
+        titleAttr: TABLE_LANGUAGE.buttons.download,
         className: 'btn-secondary',
         autoClose: true,
         extend: 'collection',
@@ -577,7 +602,7 @@ function load_datatable(CKAN_MODULE){
       {
         name: 'resetButton',
         text: '<i class="fa fa-repeat"></i>',
-        titleAttr: resetButtonLabel,
+        titleAttr: TABLE_LANGUAGE.buttons.reset,
         className: 'btn-secondary disabled resetButton',
         action: function (e, dt, node, config) {
           set_state_change_visibility();
@@ -601,7 +626,7 @@ function load_datatable(CKAN_MODULE){
       {
         extend: 'print',
         text: '<i class="fa fa-print"></i>',
-        titleAttr: printButtonLabel,
+        titleAttr: TABLE_LANGUAGE.buttons.print,
         className: 'btn-secondary',
         title: packageName + ' — ' + resourceName,
         messageTop: function(){
@@ -611,12 +636,12 @@ function load_datatable(CKAN_MODULE){
           let printInfo = '<div>';
           printInfo += countDisplay + sortDisplay;
           printInfo += '<span><a href="' + resourceURI + '">' + packageName + ' — ' + resourceName + '</a></span><br/>';
-          printInfo += '<span>' + printLanguage.data_updated + ' ' + dataUpdatedDate + '</span><br/>';
-          printInfo += '<span>' + printLanguage.metadata_updated + ' ' + metadataUpdatedDate + '</span><br/>';
-          printInfo += '<span>' + printLanguage.created + ' ' + createdDate + '</span><br/>';
-          printInfo += '<span>' + printLanguage.format + ' ' + resourceFormat + '</span><br/>';
+          printInfo += '<span>' + TABLE_LANGUAGE.print.dataUpdated + ' ' + dataUpdatedDate + '</span><br/>';
+          printInfo += '<span>' + TABLE_LANGUAGE.print.metadataUpdated + ' ' + metadataUpdatedDate + '</span><br/>';
+          printInfo += '<span>' + TABLE_LANGUAGE.print.created + ' ' + createdDate + '</span><br/>';
+          printInfo += '<span>' + TABLE_LANGUAGE.print.format + ' ' + resourceFormat + '</span><br/>';
           let filesize = resourceFileSizeHumanized ? resourceFileSizeHumanized : resourceFileSize + ' bytes';
-          printInfo += '<span>' + printLanguage.file_size + ' ' + filesize + '</span><br/>';
+          printInfo += '<span>' + TABLE_LANGUAGE.print.fileSize + ' ' + filesize + '</span><br/>';
           printInfo += '</div>';
           return printInfo;
         },
@@ -627,7 +652,7 @@ function load_datatable(CKAN_MODULE){
            * Only output info for the visible columns
            */
           let visibleColNames = _get_visible_col_ids();
-          let printDictionary = '<div><h2>' + printLanguage.data_dictionary + '</h2><ol>';
+          let printDictionary = '<div><h2>' + TABLE_LANGUAGE.print.dataDictionary + '</h2><ol>';
           for( let _i = 0; _i < dataDictionary.length; _i++ ){
             if( ! visibleColNames.includes(dataDictionary[_i]['id']) ){
               continue;
@@ -638,12 +663,12 @@ function load_datatable(CKAN_MODULE){
             }
             printDictionary += '<li><span>' + colLabel + '</span>';
             if( colLabel != dataDictionary[_i]['id'] ){
-              printDictionary += '<br/><strong>' + printLanguage.id + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['id'] + '</span>';
+              printDictionary += '<br/><strong>' + TABLE_LANGUAGE.print.id + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['id'] + '</span>';
             }
-            printDictionary += '<br/><strong>' + printLanguage.type + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['type'] + '</span>';
+            printDictionary += '<br/><strong>' + TABLE_LANGUAGE.print.type + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['type'] + '</span>';
             let colNotes = _get_translated(dataDictionary[_i]['info'], 'notes');
             if( colNotes != null ){
-              printDictionary += '<br/><strong>' + printLanguage.description + '</strong>&nbsp;&nbsp;&nbsp;<span>' + colNotes + '</span>';
+              printDictionary += '<br/><strong>' + TABLE_LANGUAGE.print.description + '</strong>&nbsp;&nbsp;&nbsp;<span>' + colNotes + '</span>';
             }
             printDictionary += '</li>';
           }
@@ -675,7 +700,7 @@ function load_datatable(CKAN_MODULE){
       // {
       //   name: 'shareButton',
       //   text: '<i class="fa fa-share"></i>',
-      //   titleAttr: shareButtonLabel,
+      //   titleAttr: TABLE_LANGUAGE.buttons.share,
       //   className: 'btn-secondary',
       //   action: function (e, dt, node, config) {
       //     dt.state.save();
@@ -700,7 +725,7 @@ function load_datatable(CKAN_MODULE){
     /**
      * Render the AJAX failures in console log and UI.
      */
-    _render_failure(_message, ajaxErrorMessage, 'warning');
+    _render_failure(_message, TABLE_LANGUAGE.errors.ajax, 'warning');
   }
 
   function render_timing_info(){
@@ -717,16 +742,16 @@ function load_datatable(CKAN_MODULE){
     let info = '';
     if( typeof didEstimatedTotal != 'undefined' && didEstimatedTotal != null ){
       if( didEstimatedTotal ){
-        info += estimatedLabel;
+        info += TABLE_LANGUAGE.info.result.estimated;
       }else{
-        info += exactLabel;
+        info += TABLE_LANGUAGE.info.result.exact;
       }
     }
     if( typeof ajaxElapsedTime != 'undefined' && ajaxElapsedTime != null ){
       if( info.length > 0 ){
         info += '\n';
       }
-      info += (ajaxElapsedTime / 1000).toFixed(2) + ' ' + elapsedTimeLabel;
+      info += (ajaxElapsedTime / 1000).toFixed(2) + ' ' + TABLE_LANGUAGE.info.result.elapsed;
     }
     if( info.length == 0 ){
       $(countInfo).find('#timing-info').remove();
@@ -761,8 +786,8 @@ function load_datatable(CKAN_MODULE){
     if( pagingWrapper.length > 0 ){
       $('#dtprv_wrapper').find('.dt-sorting-info').remove();
       let sortInfo = table.order();
-      let sortingText = '<span class="info-label">' + colSortLabel + '&nbsp;</span>';
-      let sortingTextCopy = colSortLabel + ' ';
+      let sortingText = '<span class="info-label">' + TABLE_LANGUAGE.info.column.sort + '&nbsp;</span>';
+      let sortingTextCopy = TABLE_LANGUAGE.info.column.sort + ' ';
       if( sortInfo.length > 0 ){
         for( let i = 0; i < sortInfo.length; i++ ){
           let column = table.column(sortInfo[i][0]);
@@ -787,14 +812,14 @@ function load_datatable(CKAN_MODULE){
             upIcon = 'fas fa-sort-alpha-up-alt';
           }
           if( sortInfo[i][1] == 'asc' ){
-            sortingText += '<span class="dt-display-print">(' + colSortAscLabel + ')</span><sup><i title="' + colSortAscLabel + '" aria-label="' + colSortAscLabel + '" class="dt-display-screen ' + upIcon + '"></i></sup>';
-            sortingTextCopy += '(' + colSortAscLabel + ')';
+            sortingText += '<span class="dt-display-print">(' + TABLE_LANGUAGE.info.column.asc + ')</span><sup><i title="' + TABLE_LANGUAGE.info.column.asc + '" aria-label="' + TABLE_LANGUAGE.info.column.asc + '" class="dt-display-screen ' + upIcon + '"></i></sup>';
+            sortingTextCopy += '(' + TABLE_LANGUAGE.info.column.asc + ')';
           }else if( sortInfo[i][1] == 'desc' ){
-            sortingText += '<span class="dt-display-print">(' + colSortDescLabel + ')</span><sup><i title="' + colSortDescLabel + '" aria-label="' + colSortDescLabel + '" class="dt-display-screen ' + downIcon + '"></i></sup>';
-            sortingTextCopy += '(' + colSortDescLabel + ')';
+            sortingText += '<span class="dt-display-print">(' + TABLE_LANGUAGE.info.column.desc + ')</span><sup><i title="' + TABLE_LANGUAGE.info.column.desc + '" aria-label="' + TABLE_LANGUAGE.info.column.desc + '" class="dt-display-screen ' + downIcon + '"></i></sup>';
+            sortingTextCopy += '(' + TABLE_LANGUAGE.info.column.desc + ')';
           }else{
-            sortingText += '<span class="dt-display-print">(' + colSortAnyLabel + ')</span><sup><i title="' + colSortAnyLabel + '" aria-label="' + colSortAnyLabel + '" class="dt-display-screen fas fa-random"></i></sup>';
-            sortingTextCopy += '(' + colSortAnyLabel + ')';
+            sortingText += '<span class="dt-display-print">(' + TABLE_LANGUAGE.info.column.any + ')</span><sup><i title="' + TABLE_LANGUAGE.info.column.any + '" aria-label="' + TABLE_LANGUAGE.info.column.any + '" class="dt-display-screen fas fa-random"></i></sup>';
+            sortingTextCopy += '(' + TABLE_LANGUAGE.info.column.any + ')';
           }
           sortingText += '</em></span>';
         }
@@ -803,6 +828,63 @@ function load_datatable(CKAN_MODULE){
       sortDisplayCopy = sortingTextCopy;
       $(pagingWrapper).after(sortDisplay);
     }
+  }
+
+  function render_summary_stats(){
+    /**
+     * Render the column summaries in their respective footer cell
+     */
+    // let summaryRow = table.footer()
+    table.columns().every(function(){
+      if( this.index() ){  // don't display for _id col
+        if( this.visible() ){  // don't stat hidden cols
+          let ds_type = $(this.header()).attr('data-ds-type');
+          let dsID = $(this.header()).attr('data-name');
+          let statCell = $('#dtprv_wrapper').find('tr#dt-summary-row').find('td[data-name="' + dsID + '"]');
+          if( numberTypes.includes(ds_type) ){
+            let sum = this.data().sum();
+            if( sum ){
+              let sumRounded = sum.toFixed(2);
+              let average = sum / tableState.page_length;
+              let averageRounded = average.toFixed(2);
+              let values = [];
+              $(this.data()).each(function(_index, _value){
+                if( _value ){  // ignore blanks
+                  values.push(_value);
+                }
+              });
+              let min = Math.min(...values);
+              let max = Math.max(...values);
+              let minRounded = min.toFixed(2);
+              let maxRounded = max.toFixed(2);
+              let stats = '<dl>';
+              stats += '<dt>' + TABLE_LANGUAGE.info.summary.total + '</dt>&nbsp;<dd title="' + sum + '">' + sumRounded + '</dd><br/>';
+              stats += '<dt>' + TABLE_LANGUAGE.info.summary.average + '</dt>&nbsp;<dd title="' + average + '">' + averageRounded + '</dd><br/>';
+              stats += '<dt>' + TABLE_LANGUAGE.info.summary.range + '</dt>&nbsp;<dd title="' + min + ' — ' + max + '">' + minRounded + ' — ' + maxRounded + '</dd>';
+              stats += '</dl>';
+              statCell.html(stats);
+            }
+          }else if( dateTypes.includes(ds_type) ){
+            let dates = [];
+            $(this.data()).each(function(_index, _value){
+              let parsedValue = _value;
+              if( ! parsedValue.toString().includes('+0000') ){
+                parsedValue = parsedValue.toString() + '+0000';  // add UTC offset if not present
+              }
+              dates.push(new Date(parsedValue));
+            });
+            let min = new Date(Math.min(...dates));
+            let max = new Date(Math.max(...dates));
+            min = DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(min, ds_type, 0, {});
+            max = DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(max, ds_type, 0, {});
+            let stats = '<dl>';
+            stats += '<dt>' + TABLE_LANGUAGE.info.summary.dateRange + '</dt>&nbsp;<dd>' + min + ' — ' + max + '</dd><br/>';
+            stats += '</dl>';
+            statCell.html(stats);
+          }
+        }
+      }
+    });
   }
 
   function bind_column_filter(_column, _index){
@@ -825,7 +907,7 @@ function load_datatable(CKAN_MODULE){
       if( colLabel == null ){
         colLabel = dsID;
       }
-      $(_inputObj).attr('placeholder', colSearchLabel + ' ' + colLabel);
+      $(_inputObj).attr('placeholder', TABLE_LANGUAGE.info.column.search + ' ' + colLabel);
 
       let clearButton = $(_inputObj).parent().find('.dtcc-search-clear');
       $(clearButton).off('click.clearFilter');
@@ -880,6 +962,13 @@ function load_datatable(CKAN_MODULE){
      */
     $('#dtprv').dataTable().api().columns().every(function(_i){
       bind_column_filter(this, _i);
+    });
+
+    // prevent selecting rows if clicking a link or image inside a cell
+    table.on('user-select', function(_event, _dt, _type, _cell, _originalEvent) {
+      if( $(_originalEvent.target).is('a') || $(_originalEvent.target).is('img') ){
+        _event.preventDefault();
+      }
     });
   }
 
@@ -982,6 +1071,9 @@ function load_datatable(CKAN_MODULE){
     render_table_info();
     render_timing_info();
     set_button_states();
+    if( showSummaryRow ){
+      render_summary_stats();
+    }
   }
 
   function init_callback(_setting, _data){

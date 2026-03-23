@@ -118,6 +118,7 @@ class DataTablesView(p.SingletonPlugin):
             'preview_enabled': False,
             'schema': {
                 'responsive': [default(False), boolean_validator],
+                'show_summary_row': [default(False), boolean_validator],
                 'ellipsis_length': [default(self.ellipsis_length),
                                      natural_number_validator],
                 'date_format': [default(self.date_format)],

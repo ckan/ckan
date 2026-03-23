@@ -129,7 +129,7 @@ table.dataTable span.dtcc input::placeholder{
   white-space: nowrap;
 }
 
-#dtprv_wrapper .datatable-id-col{
+#dtprv_wrapper #dtprv-body-main .datatable-id-col{
   background: white;  /* no transparent bg for fixed column */
   filter: brightness(0.875);  /* make _id column darker ala Excel */
 }
@@ -186,6 +186,22 @@ table.dataTable span.dtcc input::placeholder{
 
 #dtprv_processing > div{
   margin-top: 175px;
+}
+
+#dtprv_wrapper #dt-summary-row dl{
+  margin: 0 !important;
+  font-size: 13px !important;
+}
+
+#dtprv_wrapper #dt-summary-row dt,
+#dtprv_wrapper #dt-summary-row dd{
+  display: inline-block;
+  margin: 0 !important;
+}
+
+#dtprv_wrapper #dt-summary-row td{
+  background-color: #e9f0f3 !important;
+  color: #1d7075 !important;
 }
 /* END: Custom Layout :END */
 
