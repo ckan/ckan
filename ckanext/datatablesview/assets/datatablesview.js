@@ -152,6 +152,11 @@ function load_datatable(CKAN_MODULE){
     created: _('Created:'),
     format: _('Format:'),
     file_size: _('File size:'),
+    data_dictionary: _('Data Dictionary'),
+    id: _('ID'),
+    type: _('Type'),
+    label: _('Label'),
+    description: _('Description'),
   }
   const numberTypes = [
     'year',
@@ -180,6 +185,9 @@ function load_datatable(CKAN_MODULE){
   let ajaxStartTime = 0;
   let ajaxElapsedTime;
   let sortDisplay;
+  let countDisplay;
+  let sortDisplayCopy;
+  let countDisplayCopy;
 
   let keyedDataDictionary = {};
   let table;
@@ -340,6 +348,22 @@ function load_datatable(CKAN_MODULE){
     return _obj[_key];
   }
 
+  function _get_visible_col_ids(){
+    /**
+     * Return array of field IDs that have their columns visible
+     */
+    let visibleColIndices = table.columns(':visible').indexes().toArray();
+    let visibleIDs = [];
+    for( _i = 0; _i <= visibleColIndices.length; _i++ ){
+      let column = table.column(visibleColIndices[_i]);
+      if( $(column.header()).attr('data-name') == '_id' ){
+        continue;
+      }
+      visibleIDs.push($(column.header()).attr('data-name'));
+    }
+    return visibleIDs;
+  }
+
   function cell_renderer(_data, _type, _row, _meta, _dictionary_field){
     /**
      * Our custom Cell renderer for all cells in the table.
@@ -419,10 +443,49 @@ function load_datatable(CKAN_MODULE){
         text: '<i class="fa fa-copy"></i>',
         titleAttr: copyButtonLabel,
         className: 'btn-secondary',
-        title: function(){
-          // const filternohtml = filterInfo(datatable, true)
-          // TODO: better filterInfo...
-          return resourceName;
+        messageTop: function(){
+          /**
+           * Add all of the table filter info to the clipboard
+           */
+          let copyInfo = packageName + ' — ' + resourceName + '\n' + resourceURI + '\n';
+          copyInfo += countDisplayCopy + '\n' + sortDisplayCopy + '\n'
+          copyInfo += printLanguage.data_updated + ' ' + dataUpdatedDate + '\n'
+          copyInfo += printLanguage.metadata_updated + ' ' + metadataUpdatedDate + '\n';
+          copyInfo += printLanguage.created + ' ' + createdDate + '\n';
+          copyInfo += printLanguage.format + ' ' + resourceFormat + '\n';
+          let filesize = resourceFileSizeHumanized ? resourceFileSizeHumanized : resourceFileSize + ' bytes';
+          copyInfo += printLanguage.file_size + ' ' + filesize + '\n';
+          return copyInfo;
+        },
+        messageBottom: function(){
+          /**
+           * Add a simple Data Dictionary output to the clipboard
+           *
+           * Only output info for the visible columns
+           */
+          let visibleColNames = _get_visible_col_ids();
+          let copyDictionary = printLanguage.data_dictionary;
+          let copyIndex = 1;
+          for( let _i = 0; _i < dataDictionary.length; _i++ ){
+            if( ! visibleColNames.includes(dataDictionary[_i]['id']) ){
+              continue;
+            }
+            let colLabel = _get_translated(dataDictionary[_i]['info'], 'label');
+            if( colLabel == null ){
+              colLabel = dataDictionary[_i]['id'];
+            }
+            copyDictionary += '\n\n' + (copyIndex) + '. ' + colLabel;
+            if( colLabel != dataDictionary[_i]['id'] ){
+              copyDictionary += '\n' + printLanguage.id + '   ' + dataDictionary[_i]['id'];
+            }
+            copyDictionary += '\n' + printLanguage.type + '   ' + dataDictionary[_i]['type'];
+            let colNotes = _get_translated(dataDictionary[_i]['info'], 'notes');
+            if( colNotes != null ){
+              copyDictionary += '\n' + printLanguage.description + '   ' + colNotes;
+            }
+            copyIndex++;
+          }
+          return copyDictionary;
         },
         exportOptions: {
           rows: ':not(#dt-row-histogram)',
@@ -542,9 +605,11 @@ function load_datatable(CKAN_MODULE){
         className: 'btn-secondary',
         title: packageName + ' — ' + resourceName,
         messageTop: function(){
+          /**
+           * Add all of the table filter info to the print head
+           */
           let printInfo = '<div>';
-          // TODO: add info from render_timing_info func
-          printInfo += sortDisplay;
+          printInfo += countDisplay + sortDisplay;
           printInfo += '<span><a href="' + resourceURI + '">' + packageName + ' — ' + resourceName + '</a></span><br/>';
           printInfo += '<span>' + printLanguage.data_updated + ' ' + dataUpdatedDate + '</span><br/>';
           printInfo += '<span>' + printLanguage.metadata_updated + ' ' + metadataUpdatedDate + '</span><br/>';
@@ -556,7 +621,34 @@ function load_datatable(CKAN_MODULE){
           return printInfo;
         },
         messageBottom: function(){
-          return 'TODO: better filterInfo';
+          /**
+           * Add a simple Data Dictionary output to the print footer
+           *
+           * Only output info for the visible columns
+           */
+          let visibleColNames = _get_visible_col_ids();
+          let printDictionary = '<div><h2>' + printLanguage.data_dictionary + '</h2><ol>';
+          for( let _i = 0; _i < dataDictionary.length; _i++ ){
+            if( ! visibleColNames.includes(dataDictionary[_i]['id']) ){
+              continue;
+            }
+            let colLabel = _get_translated(dataDictionary[_i]['info'], 'label');
+            if( colLabel == null ){
+              colLabel = dataDictionary[_i]['id'];
+            }
+            printDictionary += '<li><span>' + colLabel + '</span>';
+            if( colLabel != dataDictionary[_i]['id'] ){
+              printDictionary += '<br/><strong>' + printLanguage.id + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['id'] + '</span>';
+            }
+            printDictionary += '<br/><strong>' + printLanguage.type + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['type'] + '</span>';
+            let colNotes = _get_translated(dataDictionary[_i]['info'], 'notes');
+            if( colNotes != null ){
+              printDictionary += '<br/><strong>' + printLanguage.description + '</strong>&nbsp;&nbsp;&nbsp;<span>' + colNotes + '</span>';
+            }
+            printDictionary += '</li>';
+          }
+          printDictionary += '</ol></div>';
+          return printDictionary;
         },
         exportOptions: {
           columns: ':visible',
@@ -641,9 +733,17 @@ function load_datatable(CKAN_MODULE){
       return;
     }
     if( $(countInfo).find('#timing-info').length == 0 ){
-      $(countInfo).append('&nbsp;<i class="fa fa-info-circle" id="timing-info"></i>');
+      $(countInfo).append('&nbsp;<i class="fa fa-info-circle dt-display-screen" id="timing-info"></i><span class="dt-display-print" id="timing-info-print"></span>');
     }
     $(countInfo).find('#timing-info').attr('title', info);
+    $(countInfo).find('#timing-info-print').html('<br/>' + info.replace('\n', '<br/>'));
+    countDisplay = $(countInfo).html();
+    let countInfoText = $(countInfo).clone();
+    $(countInfoText).find('#timing-info').remove();
+    $(countInfoText).find('#timing-info-print').remove();
+    countInfoText = $(countInfoText).text();
+    countInfoText += '\n' + info;
+    countDisplayCopy = countInfoText;
   }
 
   function render_table_info(){
@@ -662,6 +762,7 @@ function load_datatable(CKAN_MODULE){
       $('#dtprv_wrapper').find('.dt-sorting-info').remove();
       let sortInfo = table.order();
       let sortingText = '<span class="info-label">' + colSortLabel + '&nbsp;</span>';
+      let sortingTextCopy = colSortLabel + ' ';
       if( sortInfo.length > 0 ){
         for( let i = 0; i < sortInfo.length; i++ ){
           let column = table.column(sortInfo[i][0]);
@@ -675,6 +776,7 @@ function load_datatable(CKAN_MODULE){
             }
           }
           sortingText += '<span class="info-value"><em>' + colLabel + '&nbsp;';
+          sortingTextCopy += colLabel + ' ';
           let downIcon = 'fas fa-sort-amount-down';
           let upIcon = 'fas fa-sort-amount-up';
           if( numberTypes.includes(ds_type) ){
@@ -686,15 +788,19 @@ function load_datatable(CKAN_MODULE){
           }
           if( sortInfo[i][1] == 'asc' ){
             sortingText += '<span class="dt-display-print">(' + colSortAscLabel + ')</span><sup><i title="' + colSortAscLabel + '" aria-label="' + colSortAscLabel + '" class="dt-display-screen ' + upIcon + '"></i></sup>';
+            sortingTextCopy += '(' + colSortAscLabel + ')';
           }else if( sortInfo[i][1] == 'desc' ){
             sortingText += '<span class="dt-display-print">(' + colSortDescLabel + ')</span><sup><i title="' + colSortDescLabel + '" aria-label="' + colSortDescLabel + '" class="dt-display-screen ' + downIcon + '"></i></sup>';
+            sortingTextCopy += '(' + colSortDescLabel + ')';
           }else{
             sortingText += '<span class="dt-display-print">(' + colSortAnyLabel + ')</span><sup><i title="' + colSortAnyLabel + '" aria-label="' + colSortAnyLabel + '" class="dt-display-screen fas fa-random"></i></sup>';
+            sortingTextCopy += '(' + colSortAnyLabel + ')';
           }
           sortingText += '</em></span>';
         }
       }
       sortDisplay = '<div class="dt-sorting-info">' + sortingText + '</div>';
+      sortDisplayCopy = sortingTextCopy;
       $(pagingWrapper).after(sortDisplay);
     }
   }
