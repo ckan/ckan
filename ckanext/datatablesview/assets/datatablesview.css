@@ -129,8 +129,11 @@ table.dataTable span.dtcc input::placeholder{
   white-space: nowrap;
 }
 
-#dtprv_wrapper #dtprv-body-main .datatable-id-col{
+#dtprv_wrapper .datatable-id-col{
   background: white;  /* no transparent bg for fixed column */
+}
+
+#dtprv_wrapper #dtprv-body-main .datatable-id-col{
   filter: brightness(0.875);  /* make _id column darker ala Excel */
 }
 

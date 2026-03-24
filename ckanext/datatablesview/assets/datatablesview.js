@@ -834,7 +834,10 @@ function load_datatable(CKAN_MODULE){
     /**
      * Render the column summaries in their respective footer cell
      */
-    // let summaryRow = table.footer()
+    // TODO: mean(average), median(middle), mode(frequent),
+    //       spread(range), standard deviation, interquartile range 25% 75%,
+    //       (range-min is 0% median is 50% range-max is 100% of IQR)
+    // TODO: make summary row collapsable
     table.columns().every(function(){
       if( this.index() ){  // don't display for _id col
         if( this.visible() ){  // don't stat hidden cols
