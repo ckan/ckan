@@ -3,11 +3,13 @@
 from time import sleep
 
 import pytest
+import sqlalchemy as sa
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.plugins.toolkit import ValidationError, NotAuthorized, job_from_id
 from ckanext.datastore.tests.helpers import when_was_last_analyze
+import ckanext.datastore.backend.postgres as db
 
 
 def _search(resource_id):
@@ -1328,3 +1330,53 @@ class TestDatastoreUpdate(object):
         for r in result['records']:
             assert '_id' in r
             assert r['movie'] == 'Cats: The Making Of'
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+def test_upsert_schedules_record_count():
+    resource = factories.Resource(url_type="datastore")
+    data = {
+        "resource_id": resource["id"],
+        "fields": [{"id": "value", "type": "numeric"}],
+    }
+    jobid = f'{resource["id"]} calculate record count'
+
+    helpers.call_action("datastore_create", **data)
+
+    # no records no job
+    with pytest.raises(KeyError):
+        job_from_id(jobid)
+
+    data = {
+        "resource_id": resource["id"],
+        "records": [
+            {"value": 1},
+            {"value": 2},
+            {"value": 3},
+            {"value": 4},
+            {"value": 5},
+            {"value": 6},
+            {"value": 7},
+        ],
+        "method": "insert",
+    }
+    helpers.call_action("datastore_upsert", **data)
+
+    assert job_from_id(jobid)
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert not list(stats)  # stats not calculated yet
+
+    job_from_id(jobid).perform()
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert list(stats) == [('{"rows": 7}',)]
