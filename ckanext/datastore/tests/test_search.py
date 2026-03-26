@@ -2,6 +2,7 @@
 
 import json
 import pytest
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 import decimal
 from unittest import mock
@@ -2230,6 +2231,7 @@ def test_datastore_search_lazyjson_records_type_returned():
         "datastore_search", {'api_version': 3}, **search_data)
     assert isinstance(result["records"], LazyJSONObject)
 
+
 def test_api_returns_lazyjson_records_without_decoding(app):
     with mock.patch(
             "ckan.logic._actions",
@@ -2242,3 +2244,43 @@ def test_api_returns_lazyjson_records_without_decoding(app):
         )
 
     assert '"result": {"records":   [ "space" ]  }}' in resp.body
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+def test_search_caches_record_count():
+    resource = factories.Resource(url_type="datastore")
+    data = {
+        "resource_id": resource["id"],
+        "fields": [{"id": "value", "type": "numeric"}],
+        "records": [
+            {"value": 1},
+            {"value": 2},
+            {"value": 3},
+            {"value": 4},
+            {"value": 5},
+            {"value": 6},
+            {"value": 7},
+        ],
+    }
+
+    helpers.call_action("datastore_create", **data)
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert not list(stats)  # stats not calculated yet
+
+    data = {
+        "resource_id": resource["id"],
+    }
+    helpers.call_action("datastore_search", **data)
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert list(stats) == [('{"rows": 7}',)]
