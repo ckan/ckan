@@ -171,7 +171,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    ccount = data_dict['calculate_record_count']
+    # update count only when records passed
+    ccount = data_dict['calculate_record_count'] if records else False
     ccancel = False
     if ccount:
         ccancel = _cancel_calculate_record_count(res['id'])

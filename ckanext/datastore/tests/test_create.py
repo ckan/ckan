@@ -1480,3 +1480,49 @@ class TestDatastoreCreateTriggers(object):
         assert 'records' in result
         for r in result['records']:
             assert '_id' in r
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+def test_create_schedules_record_count():
+    q = p.toolkit.get_job_queue()
+
+    resource = factories.Resource(url_type="datastore")
+    data = {
+        "resource_id": resource["id"],
+        "fields": [{"id": "value", "type": "numeric"}],
+    }
+    jobid = f'{resource["id"]} calculate record count'
+
+    helpers.call_action("datastore_create", **data)
+
+    # no records no job
+    assert jobid not in q.scheduled_job_registry.get_job_ids()
+
+    data['records'] = [
+        {"value": 1},
+        {"value": 2},
+        {"value": 3},
+        {"value": 4},
+        {"value": 5},
+        {"value": 6},
+        {"value": 7},
+    ]
+    helpers.call_action("datastore_create", **data)
+
+    assert jobid in q.scheduled_job_registry.get_job_ids()
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert not list(stats)  # stats not calculated yet
+
+    q.fetch_job(jobid).perform()
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert list(stats) == [('{"rows": 7}',)]
