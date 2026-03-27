@@ -2491,10 +2491,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         '''
         Update the record count cache if it is not already present.
         '''
-        sql = sa.text(f'''
-            ANALYZE {identifier(resource_id)};
-            SELECT cached_table_row_count(:resource_id)
-        ''')
+        sql = sa.text(f'SELECT update_table_stats(:resource_id)')
         with get_write_engine().connect().execution_options(
                 isolation_level='AUTOCOMMIT') as conn:
             try:

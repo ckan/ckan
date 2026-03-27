@@ -145,3 +145,14 @@ AS $body$
     END;
 $body$ LANGUAGE plpgsql;
 ALTER FUNCTION cached_table_row_count() OWNER TO {writeuser};
+
+CREATE OR REPLACE FUNCTION update_table_stats(table_name name)
+    RETURNS BOOL
+AS $body$
+    BEGIN
+        EXECUTE format('ANALYZE public.%I', table_name);
+        PERFORM cached_table_row_count(table_name);
+        RETURN TRUE;
+    END;
+$body$ LANGUAGE plpgsql;
+ALTER FUNCTION update_table_stats() OWNER TO {writeuser};
