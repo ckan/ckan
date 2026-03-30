@@ -751,7 +751,8 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
     res_id = data_dict['resource_id']
 
-    if data_dict['resource_id'] not in WHITELISTED_RESOURCES:
+    if data_dict['resource_id'] not in p.toolkit.config.get(
+            'ckan.datastore.allow_table_search') + REQUIRED_ALLOW_RESOURCES:
         res_exists, real_id = backend.resource_id_from_alias(res_id)
         # Resource only has to exist in the datastore (because it could be an
         # alias)
