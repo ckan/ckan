@@ -28,7 +28,7 @@ Duplicate assets will not be added and any dependencies will be included as
 well as the assets, all in the correct order (see below for details).
 
 Extensions can add new libraries to CKAN using a helper function defined in 
-the :doc:` plugins-toolkit <plugins-toolkit>`. See below.
+the :doc:`plugins toolkit </extensions/plugins-toolkit>`. See below.
 
 In debug mode assets are served un-minified and un-bundled (ie each asset is
 served separately). In non-debug mode the files are served minified and bundled
@@ -139,10 +139,61 @@ documentation
 [extra] (optional)
 ~~~~~~~~~~~~~~~~~~
 
-Additional configuration details. Currently, only one option is
-supported: ``preload``.
+Additional configuration details. The following options are currently
+supported:
 
 **preload**
 
 Defines list of assets in format ``asset_library/asset_name``, that
 must be included into HTML output *before* the current asset.
+
+
+.. _assets_attrs:
+
+**attrs**
+
+Defines attributes that should be added to the generated HTML tag (``<script>`` or ``<link>``).
+Attributes must have a key, but the value is optional.
+
+For instance::
+
+    my_asset:
+      output: base/%(version)s_my_asset.js
+      extra:
+        attrs:
+          async:
+      contents:
+        - ...
+
+::
+
+    <script src="{url}" async></script>
+
+Another example::
+
+    my_asset:
+      output: base/%(version)s_my_asset.js
+      extra:
+        attrs:
+          type: module
+      contents:
+        - ...
+
+::
+
+    <script src="{url}" type="module"></script>
+
+Scripts loaded using ``preload`` will be correctly rendered as ``<link>`` tags::
+
+    my_asset:
+      output: base/%(version)s_my_asset.js
+      extra:
+        attrs:
+          rel: "preload"
+          as: "script"
+      contents:
+        - ...
+
+::
+
+    <link href="{url}" rel="preload" as="script"/>
