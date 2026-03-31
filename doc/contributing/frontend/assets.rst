@@ -27,7 +27,7 @@ defined by the assets configuration, not in the location of the ``{% asset %}`` 
 Duplicate assets will not be added and any dependencies will be included as
 well as the assets, all in the correct order (see below for details).
 
-Extensions can add new libraries to CKAN using a helper function defined in 
+Extensions can add new libraries to CKAN using a helper function defined in
 the :doc:` plugins-toolkit <plugins-toolkit>`. See below.
 
 In debug mode assets are served un-minified and un-bundled (ie each asset is
@@ -49,10 +49,18 @@ To add an asset from an extension, use the ``add_resource(path, name)`` function
         'my_webassets_library')
 
 The first argument is the path to the asset directory relative to
-the file calling the function (generally ``plugin.py``). The second argument, 
+the file calling the function (generally ``plugin.py``). The second argument,
 is the name of the library (to be used by templates when they want to
 include an asset from the library using the ``{% asset %}`` tag as, so for instance
 ``my_webassets_library`` in the example shown above).
+
+Some filters like cssrewrite below, require that the asset directory is also public directory.
+So use ``add_public_directory(config, path)`` function for that:
+
+::
+
+  ckan.plugins.toolkit.add_public_directory(config,
+          'path/to/my/webassets/library/dir')
 
 webassets.yml
 -------------
