@@ -483,6 +483,28 @@ class TestResourceCreate:
         result = helpers.call_action("resource_create", context=context, **data_dict)
         assert result["id"] == _id
 
+    def test_resource_create_sysadmin_can_set_date_fields(self):
+        """
+        Sysadmins can set metadata_modified field.
+        """
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        resource = helpers.call_action(
+            "resource_create",
+            context=context,
+            id=_id,
+            package_id=factories.Dataset()["id"],
+            name="A nice resource",
+            created='1994-01-01T00:00:01',
+            last_modified='1994-01-01T00:00:01',
+            metadata_modified='1994-01-01T00:00:01',
+        )
+        resource = helpers.call_action("resource_show", id=_id)
+        assert resource["created"] == "1994-01-01T00:00:01"
+        assert resource["last_modified"] == "1994-01-01T00:00:01"
+        assert resource["metadata_modified"] == "1994-01-01T00:00:01"
+
     def test_normal_user_can_provide_custom_id(self):
 
         user = factories.User()
@@ -496,6 +518,28 @@ class TestResourceCreate:
         }
         result = helpers.call_action("resource_create", context=context, **data_dict)
         assert result["id"] == _id
+
+    def test_resource_create_normal_user_can_not_set_date_fields(self):
+        """
+        Normal users can NOT set metadata_modified field.
+        """
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        resource = helpers.call_action(
+            "resource_create",
+            context=context,
+            id=_id,
+            package_id=factories.Dataset()["id"],
+            name="A nice resource",
+            created='1994-01-01T00:00:01',
+            last_modified='1994-01-01T00:00:01',
+            metadata_modified='1994-01-01T00:00:01',
+        )
+        resource = helpers.call_action("resource_show", id=_id)
+        assert resource["created"] == "1994-01-01T00:00:01"
+        assert resource["last_modified"] == "1994-01-01T00:00:01"
+        assert resource["metadata_modified"] != "1994-01-01T00:00:01"
 
     def test_doesnt_require_url(self):
         dataset = factories.Dataset()
@@ -1047,6 +1091,25 @@ class TestDatasetCreate(object):
         dataset = helpers.call_action("package_show", id=dataset["id"])
         assert dataset["extras"][0]["key"] == "original media"
 
+    def test_package_create_sysadmin_can_set_date_fields(self):
+        """
+        Sysadmins can set metadata_created and metadata_modified fields.
+        """
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        dataset = helpers.call_action(
+            "package_create",
+            context=context,
+            name=factories.Dataset.stub().name,
+            title="Test Extras",
+            metadata_modified='1994-01-01T00:00:01',
+            metadata_created='1994-01-01T00:00:01',
+        )
+        dataset = helpers.call_action("package_show", id=dataset["id"])
+        assert dataset["metadata_modified"] == "1994-01-01T00:00:01"
+        assert dataset["metadata_created"] == "1994-01-01T00:00:01"
+
     def test_normal_user_can_not_set_extras_id(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": False}
@@ -1060,6 +1123,25 @@ class TestDatasetCreate(object):
                 extras=[{"id": _id, "key": "original media", "value": '"book"'}],
             )
         assert "The input field id was not expected" in str(exception.value)
+
+    def test_package_create_normal_user_can_not_set_date_fields(self):
+        """
+        Normal users can NOT set metadata_created and metadata_modified fields.
+        """
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        _id = str(uuid.uuid4())
+        dataset = helpers.call_action(
+            "package_create",
+            context=context,
+            name=factories.Dataset.stub().name,
+            title="Test Extras",
+            metadata_modified='1994-01-01T00:00:01',
+            metadata_created='1994-01-01T00:00:01',
+        )
+        dataset = helpers.call_action("package_show", id=dataset["id"])
+        assert dataset["metadata_modified"] != "1994-01-01T00:00:01"
+        assert dataset["metadata_created"] != "1994-01-01T00:00:01"
 
     def test_license(self):
         dataset = helpers.call_action(
