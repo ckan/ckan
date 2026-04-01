@@ -2579,7 +2579,10 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
 
     groups_data = []
 
-    extras = logic.get_action(list_action)({}, {})
+    # When items is explicitly configured as empty, return no results.
+    # This allows hiding featured orgs/groups by setting the config
+    # value to an empty string.
+    extras = logic.get_action(list_action)({}, {}) if items else []
 
     # list of found ids to prevent duplicates
     found = []
