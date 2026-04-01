@@ -1,0 +1,2 @@
+Fixed duplicated root_path in webassets when assets directory is public directory
+and debug mode is used or cssrewrite is present in filters.
