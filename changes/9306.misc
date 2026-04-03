@@ -1,0 +1,1 @@
+Feed generator moved into a new extension [ckanext-feedgen](https://github.com/ckan/ckanext-feedgen).
