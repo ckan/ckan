@@ -137,7 +137,6 @@ module = [
     "blinker.*",
     "cookiecutter.*",
     "dominate.*",
-    "feedgen.*",
     "flask_babel.*",
     "flask_debugtoolbar.*",
     "flask_multistatic.*",

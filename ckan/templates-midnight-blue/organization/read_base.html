@@ -28,8 +28,3 @@
   {% snippet 'organization/snippets/info.html', organization=group_dict, show_nums=true, group_type=group_type, am_following=am_following %}
   {% block organization_facets %}{% endblock %}
 {% endblock %}
-
-{% block links %}
-  {{ super() }}
-  {% include "organization/snippets/feeds.html" %}
-{% endblock %}

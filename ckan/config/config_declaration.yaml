@@ -1551,33 +1551,6 @@ groups:
           :ref:`ckan.site_id`. This user is used by ckan for performing actions from the
           command-line.
 
-
-  - annotation: Feeds Settings
-    options:
-      - key: ckan.feeds.author_name
-        default: ""
-        example: Michael Jackson
-        description: This controls the feed author's name. If unspecified, it'll use :ref:`ckan.site_id`.
-
-      - key: ckan.feeds.author_link
-        example: http://okfn.org
-        description: This controls the feed author's link. If unspecified, it'll use :ref:`ckan.site_url`.
-
-      - key: ckan.feeds.authority_name
-        default: ""
-        example: http://okfn.org
-        description: The domain name or email address of the default publisher of the feeds and elements. If unspecified, it'll use :ref:`ckan.site_url`.
-
-      - key: ckan.feeds.date
-        default: ""
-        example: 2012-03-22
-        description: A string representing the default date on which the authority_name is owned by the publisher of the feed.
-
-      - key: ckan.feeds.limit
-        type: int
-        default: 20
-        description: Number of items returned in the feeds
-
   - annotation: Internationalisation Settings
     options:
       - key: ckan.locale_default

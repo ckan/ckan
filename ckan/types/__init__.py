@@ -43,7 +43,7 @@ __all__ = [
     "Schema", "PlainSchemaFunc", "ComplexSchemaFunc",
     "AuthResult",
     "Action", "ChainedAction", "AuthFunction", "ChainedAuthFunction",
-    "PFeed", "PFeedFactory", "PResourceUploader", "PUploader",
+    "PResourceUploader", "PUploader",
 ]
 
 AlchemySession = ScopedSession[Any]
@@ -183,35 +183,6 @@ ChainedAuthFunction = Callable[
 
 Action = Callable[[Context, DataDict], Any]
 ChainedAction = Callable[[Action, Context, DataDict], Any]
-
-
-class PFeed(Protocol):
-    def add_item(self: Any, **kwargs: Any) -> None:
-        ...
-
-    def writeString(self: Any, encoding: str) -> str:
-        ...
-
-
-class PFeedFactory(Protocol):
-    """Contract for IFeed.get_feed_class
-    """
-
-    def __call__(
-        self,
-        feed_title: str,
-        feed_link: str,
-        feed_description: str,
-        language: Optional[str],
-        author_name: Optional[str],
-        feed_guid: Optional[str],
-        feed_url: Optional[str],
-        previous_page: Optional[str],
-        next_page: Optional[str],
-        first_page: Optional[str],
-        last_page: Optional[str],
-    ) -> PFeed:
-        ...
 
 
 class PUploader(Protocol):
