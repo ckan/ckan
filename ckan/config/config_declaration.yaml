@@ -1403,6 +1403,23 @@ groups:
         example: 10
         description: The maximum in megabytes an image upload can be.
 
+      - key: ckan.downloads_use_x_accel_redirect
+        type: bool
+        default: false
+        example: true
+        description: |
+          Set the X-Accel-Redirect header on resource downloads.
+
+          This allows nginx to handle resource downloads, rather than routing it through python.
+          In particular, this is valuable to allow the use of HTTP range requests against resource files.
+          Requires that nginx has access to the file store location and  a location block in the nginx config similar to the following::
+
+            location /var/lib/ckan {
+                internal;
+                sendfile     on;
+                alias /var/lib/ckan;
+            }
+
   - annotation: Uploader Settings
     options:
       - key: ckan.upload.user.types
