@@ -4,6 +4,7 @@ import os
 import pytest
 
 from sqlalchemy import inspect
+from click.testing import CliRunner
 
 import ckan.migration as migration
 import ckanext.example_database_migrations.plugin as example_plugin
@@ -117,6 +118,48 @@ class TestMigrations:
         """
         cli.invoke(ckan, ["db", "upgrade", "--skip-plugins"])
         assert db._get_pending_plugins() == {"example_database_migrations": 2}
+
+
+@pytest.mark.usefixtures("with_plugins", "non_clean_db", "with_extended_cli")
+class TestPluginAndAlembicIniOpitons:
+    def test_disabled_plugins(self, cli: CliRunner):
+        """Test that migration commands fail if plugin is not enabled."""
+        result = cli.invoke(
+            ckan, ["db", "version", "-p", "example_database_migrations"]
+        )
+        assert "cannot be loaded" in result.output
+
+    @pytest.mark.ckan_config("ckan.plugins", ["example_database_migrations"])
+    def test_enablued_plugins(self, cli: CliRunner):
+        """Test that migration commands work if plugin is enabled."""
+        result = cli.invoke(
+            ckan, ["db", "version", "-p", "example_database_migrations"]
+        )
+        assert "Current DB version: 0" in result.output
+
+    def test_usage_of_alembic_ini(self, cli: CliRunner):
+        """Test that migration commands work if plugin is enabled."""
+        import ckanext.example_database_migrations as plugin
+
+        root = os.path.dirname(plugin.__file__)
+        ini_path = os.path.join(
+            root, "migration", "example_database_migrations", "alembic.ini"
+        )
+
+        result = cli.invoke(ckan, ["db", "version", "--alembic-ini", ini_path])
+        assert "Current DB version: 0" in result.output
+
+        result = cli.invoke(ckan, ["db", "upgrade", "--alembic-ini", ini_path])
+        assert "Upgrading DB: SUCCESS" in result.output
+
+        result = cli.invoke(ckan, ["db", "version", "--alembic-ini", ini_path])
+        assert "Current DB version: 728663ebe30e (head)" in result.output
+
+        result = cli.invoke(ckan, ["db", "downgrade", "--alembic-ini", ini_path])
+        assert "Downgrading DB: SUCCESS" in result.output
+
+        result = cli.invoke(ckan, ["db", "version", "--alembic-ini", ini_path])
+        assert "Current DB version: 0" in result.output
 
 
 @pytest.mark.usefixtures("clean_db")
