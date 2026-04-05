@@ -1,0 +1,7 @@
+version: 1
+groups:
+  - annotation: ~
+    options:
+      - key: example.ivalidators.number
+        validators: int_validator negate
+        default: 1
