@@ -1,0 +1,2 @@
+Allow applying DB migrations of disabled plugins via providing ``--alembic-ini
+path/to/alembic/configuration/of/plugin``.
