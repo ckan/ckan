@@ -369,12 +369,26 @@ def migrate_db_for():
             migrate_db_for("my_plugin")
             assert model.Session.bind.has_table("my_plugin_custom_table")
 
+    Migrations for disabled plugins require full path to the `alembic.ini`
+    located in the plugin's migration folder::
+
+        @pytest.mark.usefixtures("clean_db")
+        def test_migrations_applied(migrate_db_for):
+            alembic_ini = ".../ckanext/my_plugin/migration/my_plugin/alembic.ini"
+            migrate_db_for("my_disabled_plugin", alembic_ini)
+            assert model.Session.bind.has_table("my_plugin_custom_table")
+
     """
     from ckan.cli.db import _run_migrations
 
-    def runner(plugin: str, version: str = "head", forward: bool = True):
+    def runner(
+        plugin: str,
+        version: str = "head",
+        forward: bool = True,
+        alembic_ini: str | None = None,
+    ):
         assert plugin, "Cannot apply migrations of unknown plugin"
-        _run_migrations(plugin, version, forward)
+        _run_migrations(plugin, version, forward, alembic_ini)
 
     return runner
 
