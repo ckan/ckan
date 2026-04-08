@@ -121,7 +121,7 @@ class TestMigrations:
 
 
 @pytest.mark.usefixtures("with_plugins", "non_clean_db", "with_extended_cli")
-class TestPluginAndAlembicIniOpitons:
+class TestPluginOption:
     def test_disabled_plugins(self, cli: CliRunner):
         """Test that migration commands fail if plugin is not enabled."""
         result = cli.invoke(
@@ -139,26 +139,35 @@ class TestPluginAndAlembicIniOpitons:
 
     def test_usage_of_alembic_ini(self, cli: CliRunner):
         """Test that migration commands work if plugin is enabled."""
-        import ckanext.example_database_migrations as plugin
 
-        root = os.path.dirname(plugin.__file__)
-        ini_path = os.path.join(
-            root, "migration", "example_database_migrations", "alembic.ini"
+        result = cli.invoke(
+            ckan,
+            ["db", "version", "-p", "example_database_migrations", "--load-plugin"],
         )
-
-        result = cli.invoke(ckan, ["db", "version", "--alembic-ini", ini_path])
         assert "Current DB version: 0" in result.output
 
-        result = cli.invoke(ckan, ["db", "upgrade", "--alembic-ini", ini_path])
+        result = cli.invoke(
+            ckan,
+            ["db", "upgrade", "-p", "example_database_migrations", "--load-plugin"],
+        )
         assert "Upgrading DB: SUCCESS" in result.output
 
-        result = cli.invoke(ckan, ["db", "version", "--alembic-ini", ini_path])
+        result = cli.invoke(
+            ckan,
+            ["db", "version", "-p", "example_database_migrations", "--load-plugin"],
+        )
         assert "Current DB version: 728663ebe30e (head)" in result.output
 
-        result = cli.invoke(ckan, ["db", "downgrade", "--alembic-ini", ini_path])
+        result = cli.invoke(
+            ckan,
+            ["db", "downgrade", "-p", "example_database_migrations", "--load-plugin"],
+        )
         assert "Downgrading DB: SUCCESS" in result.output
 
-        result = cli.invoke(ckan, ["db", "version", "--alembic-ini", ini_path])
+        result = cli.invoke(
+            ckan,
+            ["db", "version", "-p", "example_database_migrations", "--load-plugin"],
+        )
         assert "Current DB version: 0" in result.output
 
 
