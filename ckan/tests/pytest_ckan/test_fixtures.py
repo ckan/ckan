@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-
-import os
-
 import pytest
-from urllib.parse import urlparse
 from sqlalchemy import inspect, Column, Integer
 
 import ckan.plugins as plugins
 from ckan.common import config, asbool
 from ckan.tests import factories
+from ckan.lib import files
 from ckan.lib.redis import connect_to_redis
 from ckan.model.base import BaseModel
 
@@ -148,17 +144,10 @@ class TestCreateWithUpload(object):
             upload_field_name=u"image_upload",
             name=u"test-org"
         )
-        image_path = os.path.join(
-            ckan_config[u"ckan.storage_path"],
-            u'storage',
-            urlparse(org[u'image_display_url']).path.lstrip(u"/")
-        )
-
-        assert os.path.isfile(image_path)
-        with open(image_path, u"rb") as image:
-            content = image.read()
-            # PNG signature
-            assert content.hex()[:16].upper() == '89504E470D0A1A0A'
+        storage = files.get_storage(ckan_config["ckan.files.default_storages.group"])
+        content = storage.content(files.FileData.from_string(org["image_url"]))
+        # PNG signature
+        assert content.hex()[:16].upper() == '89504E470D0A1A0A'
 
     def test_create_resource(self, create_with_upload):
         dataset = factories.Dataset()

@@ -1,15 +1,14 @@
-# encoding: utf-8
+from __future__ import annotations
 
-import click
 import magic
 import os
-
-from typing import List
+import click
 
 from ckan import model
 from ckan import logic
 from ckan.common import config
-from ckan.lib.uploader import get_uploader
+from ckan.lib import files
+from ckan.lib.uploader import get_uploader, FKUpload
 from ckan.types import Context
 
 
@@ -19,19 +18,35 @@ def clean():
     pass
 
 
-def _get_users_with_invalid_image(mimetypes: List[str]) -> List[model.User]:
+def _get_users_with_invalid_image() -> list[model.User]:
     """Returns a list of users containing images with mimetypes not supported.
     """
     users = model.User.all()
     users_with_img = [u for u in users if u.image_url]
     invalid = []
+
     for user in users_with_img:
         upload = get_uploader("user", old_filename=user.image_url)
-        filepath = upload.old_filepath  # type: ignore
-        if os.path.exists(filepath):
-            mimetype = magic.from_file(filepath, mime=True)
-            if mimetype not in mimetypes:
-                invalid.append(user)
+        if isinstance(upload, FKUpload):
+            filename = upload.old_filename
+            storage = upload.storage
+            if not isinstance(storage, files.Storage) or not filename:
+                continue
+            location = files.Location(filename)
+            if storage.exists(files.FileData.from_string(location)):
+                content_type = storage.content_type(location)
+                try:
+                    storage.validate_content_type(content_type)
+                except files.exc.WrongUploadTypeError:
+                    invalid.append(user)
+        else:
+            mimetypes = config["ckan.upload.user.mimetypes"]
+            filepath = upload.old_filepath  # pyright: ignore[reportAttributeAccessIssue]
+            if os.path.exists(filepath):
+                mimetype = magic.from_file(filepath, mime=True)
+                if mimetype not in mimetypes:
+                    invalid.append(user)
+
     return invalid
 
 
@@ -56,12 +71,7 @@ def users(force: bool):
       ckan clean users --force
 
     """
-    mimetypes = config.get("ckan.upload.user.mimetypes")
-    if not mimetypes:
-        click.echo("No mimetypes have been configured for user uploads.")
-        return
-
-    invalid = _get_users_with_invalid_image(mimetypes)
+    invalid = _get_users_with_invalid_image()
 
     if not invalid:
         click.echo("No users were found with invalid images.")
@@ -81,14 +91,24 @@ def users(force: bool):
 
     for user in invalid:
         upload = get_uploader("user", old_filename=user.image_url)
-        file_path = upload.old_filepath  # type: ignore
+        filename = upload.old_filename  # type: ignore
+
+        storage: files.Storage = upload.storage  # type: ignore
         try:
-            os.remove(file_path)
-        except Exception:
+            storage.remove(
+                files.FileData(files.Location(filename))
+            )
+
+        except files.exc.UnsupportedOperationError as err:
+            # file cannot be removed. Maybe it still possible to remove the
+            # user, but because files are not tracked yet, there will be no way
+            # to identify orphaned files in future. So, let's keep user for now
+            click.echo(str(err))
             msg = "Cannot remove {}. User will not be deleted.".format(
-                file_path
+                filename
             )
             click.echo(msg)
-        else:
-            logic.get_action("user_delete")(context, {"id": user.name})
-            click.secho("Deleted user: %s" % user.name, fg="green", bold=True)
+            continue
+
+        logic.get_action("user_delete")(context, {"id": user.name})
+        click.secho("Deleted user: %s" % user.name, fg="green", bold=True)

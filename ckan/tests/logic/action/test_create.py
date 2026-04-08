@@ -16,6 +16,7 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
+from ckan.lib import files
 from ckan.lib.navl.dictization_functions import DataError
 
 from freezegun import freeze_time
@@ -507,7 +508,7 @@ class TestResourceCreate:
 
         assert not stored_resource["url"]
 
-    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir):
+    def test_mimetype_by_url(self):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -520,7 +521,6 @@ class TestResourceCreate:
             "url": "http://localhost/data.csv",
             "name": "A nice resource",
         }
-        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         result = helpers.call_action("resource_create", context, **params)
 
         mimetype = result.pop("mimetype")
@@ -778,27 +778,23 @@ class TestResourceCreate:
             assert m.call_args.args[3] == {0: 0}, 'copy existing resource 0'
 
     def test_upload_file_paths(self, create_with_upload):
-        from ckan.common import config
-        import os
-
-        storage_path = config["ckan.storage_path"]
-
+        storage = files.get_storage("resources")
         dataset = factories.Dataset()
         resource1 = create_with_upload(
             "hello world", "file1.txt", url="http://data1",
             package_id=dataset["id"])
 
-        assert os.path.exists(
-            os.path.join(storage_path, "resources", resource1["id"][:3])
-        )
+        id = resource1["id"]
+        location = f"{id[:3]}/{id[3:6]}/{id[6:]}"
+        assert storage.exists(files.FileData.from_string(location))
 
         resource2 = create_with_upload(
             "bye bye world", "file2.txt", url="http://data2",
             package_id=dataset["id"])
 
-        assert os.path.exists(
-            os.path.join(storage_path, "resources", resource2["id"][:3])
-        )
+        id = resource2["id"]
+        location = f"{id[:3]}/{id[3:6]}/{id[6:]}"
+        assert storage.exists(files.FileData.from_string(location))
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -2152,7 +2148,7 @@ class TestUserPluginExtras(object):
         assert created_user["id"] == _id
 
 
-@pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.usefixtures("clean_db")
 class TestUserImageUrl(object):
     def test_external_picture(self):
         stub = factories.User.stub()
@@ -2191,7 +2187,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload("hello world", "file.txt", **params)
 
     def test_upload_non_picture_html_fails_without_extra_config(
@@ -2204,7 +2200,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload("<html><body>hello world</body></html>", "file.html", **params)
 
     def test_upload_svg_fails_without_extra_config(
@@ -2217,7 +2213,7 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.svg", **params)
 
     def test_upload_svg_wrong_extension_fails_without_extra_config(
@@ -2230,10 +2226,10 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.png", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    @pytest.mark.ckan_config("ckan.upload.user.types", ["image"])
     def test_upload_non_picture_with_png_extension(
             self, create_with_upload, faker):
         params = {
@@ -2244,13 +2240,12 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             create_with_upload("hello world", "file.png", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "")
-    @pytest.mark.ckan_config("ckan.upload.user.types", "")
-    def test_uploads_not_allowed_when_empty_mimetypes_and_types(
-            self, create_with_upload, faker):
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", ["image/png"])
+    @pytest.mark.ckan_config("ckan.upload.user.types", ["*"])
+    def test_upload_mimetype_has_higher_priority(self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
             "email": faker.email(),
@@ -2259,25 +2254,11 @@ class TestUserImageUrl(object):
             "upload_field_name": "image_upload",
         }
         with pytest.raises(
-                logic.ValidationError, match="No uploads allowed for object type"):
-            create_with_upload("hello world", "file.png", **params)
-
-    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
-    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
-    def test_upload_all_types_allowed_needs_both_options(self, create_with_upload, faker):
-        params = {
-            "name": faker.user_name(),
-            "email": faker.email(),
-            "password": "12345678",
-            "action": "user_create",
-            "upload_field_name": "image_upload",
-        }
-        with pytest.raises(
-                logic.ValidationError, match="Unsupported upload type"):
+                logic.ValidationError, match="Type .+ is not supported"):
             assert create_with_upload(faker.json(), "file.json", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "*")
-    @pytest.mark.ckan_config("ckan.upload.user.types", "*")
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", ["*"])
+    @pytest.mark.ckan_config("ckan.upload.user.types", ["*"])
     def test_upload_all_types_allowed(self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
@@ -2288,7 +2269,7 @@ class TestUserImageUrl(object):
         }
         assert create_with_upload(faker.json(), "file.json", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    @pytest.mark.ckan_config("ckan.upload.user.types", ["image"])
     def test_upload_picture(self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
@@ -2299,7 +2280,7 @@ class TestUserImageUrl(object):
         }
         assert create_with_upload(faker.image(), "file.png", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    @pytest.mark.ckan_config("ckan.upload.user.types", ["image"])
     def test_upload_picture_extension_enforced(self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),

@@ -1,6 +1,6 @@
-# encoding: utf-8
 from __future__ import annotations
 
+import contextlib
 import os
 import datetime
 import logging
@@ -10,17 +10,28 @@ from pathlib import Path
 from typing import Any, IO, Optional
 from urllib.parse import urlparse
 
+import file_keeper as fk
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.common import config
+from ckan.lib import files
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
 MB = 1 << 20
 
 log = logging.getLogger(__name__)
+
+
+def _is_url(value: str):
+    """Check if the given value is a URL."""
+    try:
+        url = urlparse(value)
+        return bool(url.netloc and url.scheme)
+    except ValueError:
+        return False
 
 
 def _copy_file(input_file: IO[bytes],
@@ -51,7 +62,12 @@ def get_uploader(upload_to: str,
 
     # default uploader
     if upload is None:
-        upload = Upload(upload_to, old_filename)
+        try:
+            files.get_storage(config[f"ckan.files.default_storages.{upload_to}"])
+        except files.exc.UnknownStorageError:
+            upload = Upload(upload_to, old_filename)
+        else:
+            upload = FKUpload(upload_to, old_filename)
 
     return upload
 
@@ -66,19 +82,19 @@ def get_resource_uploader(data_dict: dict[str, Any]) -> PResourceUploader:
 
     # default uploader
     if upload is None:
-        upload = ResourceUpload(data_dict)
+        try:
+            files.get_storage(config["ckan.files.default_storages.resource"])
+        except files.exc.UnknownStorageError:
+            upload = ResourceUpload(data_dict)
+        else:
+            upload = FKResourceUpload(data_dict)
 
     return upload
 
 
 def get_storage_path() -> str:
     '''Function to get the storage path from config file.'''
-    storage_path = config.get('ckan.storage_path')
-    if not storage_path:
-        log.critical('''Please specify a ckan.storage_path in your config
-                        for your uploads''')
-
-    return storage_path
+    return config['ckan.storage_path']
 
 
 def get_max_image_size() -> int:
@@ -101,10 +117,13 @@ class Upload(object):
     def __init__(self,
                  object_type: str,
                  old_filename: Optional[str] = None) -> None:
-        ''' Setup upload by creating a subdirectory of the storage directory
-        of name object_type. old_filename is the name of the file in the url
-        field last time'''
+        '''Setup upload by creating a subdirectory of the storage directory
+        of name ``object_type``.
 
+        ``old_filename`` contains the name of the previous file replaced by the
+        ongoing upload. Use it to automatically remove an exiting file after
+        uploading a new one.
+        '''
         self.storage_path = None
         self.filename = None
         self.filepath = None
@@ -137,7 +156,6 @@ class Upload(object):
         actually is). clear_field is the name of a boolean field which
         requests the upload to be deleted.  This needs to be called before
         it reaches any validators'''
-
         self.url = data_dict.get(url_field, '')
         self.clear = data_dict.pop(clear_field, None)
         self.file_field = file_field
@@ -160,7 +178,7 @@ class Upload(object):
                 data_dict[url_field] = self.filename
 
         # keep the file if there has been no change
-        elif self.old_filename and not self.old_filename.startswith('http'):
+        elif self.old_filename and not _is_url(self.old_filename):
             if not self.clear:
                 data_dict[url_field] = self.old_filename
             if self.clear and self.url == self.old_filename:
@@ -187,8 +205,7 @@ class Upload(object):
             os.rename(self.tmp_filepath, self.filepath)
             self.clear = True
 
-        if (self.clear and self.old_filename
-                and not self.old_filename.startswith('http')
+        if (self.clear and self.old_filename and not _is_url(self.old_filename)
                 and self.old_filepath):
             try:
                 os.remove(self.old_filepath)
@@ -221,12 +238,7 @@ class Upload(object):
             declared_mimetype_from_filename,
             declared_content_type,
         ):
-            if (
-                declared_mimetype
-                and allowed_mimetypes
-                and allowed_mimetypes[0] != "*"
-                and declared_mimetype not in allowed_mimetypes
-            ):
+            if not files.is_supported_type(declared_mimetype, allowed_mimetypes):
                 raise logic.ValidationError(
                     {
                         self.file_field: [
@@ -395,3 +407,214 @@ class ResourceUpload(object):
                 os.remove(filepath)
             except OSError:
                 pass
+
+
+class FKUpload(object):
+    storage: fk.Storage | None = None
+    filename: Optional[str]
+    object_type: Optional[str]
+    old_filename: Optional[str]
+    upload_file: files.Upload | None
+
+    def __init__(self,
+                 object_type: str,
+                 old_filename: Optional[str] = None) -> None:
+        '''Setup upload by creating a subdirectory of the storage directory
+        of name ``object_type``.
+
+        ``old_filename`` contains the name of the previous file replaced by the
+        ongoing upload. Use it to automatically remove an exiting file after
+        uploading a new one.
+        '''
+        self.filename = None
+        self.object_type = object_type
+        self.old_filename = old_filename
+
+        storage_name: str = config[f"ckan.files.default_storages.{object_type}"]
+        self.storage = files.get_storage(storage_name)
+
+    def update_data_dict(self, data_dict: dict[str, Any], url_field: str,
+                         file_field: str, clear_field: str) -> None:
+        ''' Manipulate data from the data_dict.  url_field is the name of the
+        field where the upload is going to be. file_field is name of the key
+        where the FieldStorage is kept (i.e the field where the file data
+        actually is). clear_field is the name of a boolean field which
+        requests the upload to be deleted.  This needs to be called before
+        it reaches any validators'''
+
+        self.url = data_dict.get(url_field, '')
+        self.clear = data_dict.pop(clear_field, None)
+        self.file_field = file_field
+        self.upload_field_storage = data_dict.pop(file_field, None)
+
+        if not self.storage:
+            return
+
+        if isinstance(self.upload_field_storage, FlaskFileStorage):
+            if self.upload_field_storage.filename:
+                self.filename = self.upload_field_storage.filename
+                self.filename = str(datetime.datetime.utcnow()) + self.filename
+                self.filename = munge.munge_filename_legacy(self.filename)
+                self.upload_file = files.make_upload(self.upload_field_storage)
+
+                self.verify_type()
+
+                data_dict[url_field] = self.filename
+
+        # keep the file if there has been no change
+        elif self.old_filename and not _is_url(self.old_filename):
+            if not self.clear:
+                data_dict[url_field] = self.old_filename
+            if self.clear and self.url == self.old_filename:
+                data_dict[url_field] = ''
+
+    def upload(self, max_size: int = 2) -> None:
+        ''' Actually upload the file.
+        This should happen just before a commit but after the data has
+        been validated and flushed to the db. This is so we do not store
+        anything unless the request is actually good.
+        max_size is size in MB maximum of the file'''
+        if not self.storage or not config["ckan.uploads_enabled"]:
+            return
+
+        if self.filename:
+            assert self.upload_file
+
+            try:
+                self.storage.upload(
+                    self.storage.prepare_location(self.filename),
+                    self.upload_file,
+                )
+            except (files.exc.LargeUploadError, files.exc.ExistingFileError) as err:
+                raise logic.ValidationError({self.file_field: [str(err)]})
+
+            self.clear = True
+
+        if (self.clear and self.old_filename and not _is_url(self.old_filename)):
+            with contextlib.suppress(files.exc.MissingFileError):
+                self.storage.remove(files.FileData(
+                    files.Location(self.old_filename)
+                ))
+
+    def verify_type(self):
+
+        if not self.upload_file:
+            return
+
+        if isinstance(self.storage, files.Storage):
+            try:
+                self.storage.validate_content_type(self.upload_file.content_type)
+            except files.exc.WrongUploadTypeError as e:
+                    raise logic.ValidationError(
+                        {
+                            self.file_field: [str(e)]
+                        }
+                    )
+
+        # fix extension according to the content type
+        guessed_mimetype = self.upload_file.content_type
+        preferred_extension = mimetypes.guess_extension(guessed_mimetype)
+        if preferred_extension and self.filename:
+            self.filename = str(Path(self.filename).with_suffix(preferred_extension))
+
+
+class FKResourceUpload(object):
+    mimetype: Optional[str]
+    storage: fk.Storage | None = None
+
+    def __init__(self, resource: dict[str, Any]) -> None:
+        self.storage = files.get_storage(config["ckan.files.default_storages.resource"])
+
+        config_mimetype_guess = config.get('ckan.mimetype_guess')
+
+        self.filename = None
+        self.mimetype = None
+
+        upload_field_storage = resource.pop('upload', None)
+        self.clear = resource.pop('clear_upload', None)
+
+        if bool(upload_field_storage) and \
+                isinstance(upload_field_storage, FlaskFileStorage):
+
+            self.upload_file = files.make_upload(upload_field_storage)
+            self.filesize = self.upload_file.size
+            self.filename = munge.munge_filename(self.upload_file.filename)
+            resource['url'] = self.filename
+            resource['url_type'] = 'upload'
+            resource['last_modified'] = datetime.datetime.utcnow()
+
+            # check if the mimetype failed from guessing with the url
+            if not self.mimetype and config_mimetype_guess == 'file_ext':
+                self.mimetype = mimetypes.guess_type(self.filename)[0]
+
+            if not self.mimetype and config_mimetype_guess == 'file_contents':
+                self.mimetype = self.upload_file.content_type
+
+        elif self.clear:
+            resource['url_type'] = ''
+
+        url = resource.get('url')
+        if (
+                not self.mimetype
+                and url
+                and config_mimetype_guess == 'file_ext'
+                and urlparse(url).path
+        ):
+            self.mimetype = mimetypes.guess_type(url)[0]
+
+
+    def get_directory(self, id: str) -> str:
+        if not self.storage:
+            raise TypeError("storage_path is not defined")
+        return os.path.join(id[0:3], id[3:6])
+
+    def get_path(self, id: str) -> files.Location:
+        directory = self.get_directory(id)
+        filepath = os.path.join(directory, id[6:])
+
+        # location is a safe version of filepath, processed with
+        # transformers(e.g., converted to safe relative path)
+        location = self.storage.prepare_location(filepath)  # type: ignore
+
+        if filepath != location:
+            raise logic.ValidationError({'upload': ['Invalid storage path']})
+
+        return location
+
+    def upload(self, id: str, max_size: int = 10) -> None:
+        '''Actually upload the file.
+
+        :returns: ``'file uploaded'`` if a new file was successfully uploaded
+            (whether it overwrote a previously uploaded file or not),
+            ``'file deleted'`` if an existing uploaded file was deleted,
+            or ``None`` if nothing changed
+        :rtype: ``string`` or ``None``
+
+        '''
+        if not self.storage or not config["ckan.uploads_enabled"]:
+            return
+
+        # Get filepath on the system where the file for this resource will be
+        # stored
+        location = self.get_path(id)
+
+        # If a filename has been provided (a file is being uploaded)
+        # we write it to the filepath (and overwrite it if it already
+        # exists). This way the uploaded file will always be stored
+        # in the same location
+        if self.filename:
+            try:
+                self.storage.upload(location, self.upload_file)
+            except (files.exc.LargeUploadError, files.exc.ExistingFileError) as err:
+                raise logic.ValidationError({'upload': [str(err)]})
+
+            return
+
+        # The resource form only sets self.clear (via the input clear_upload)
+        # to True when an uploaded file is not replaced by another uploaded
+        # file, only if it is replaced by a link to file.
+        # If the uploaded file is replaced by a link, we should remove the
+        # previously uploaded file to clean up the file system.
+        if self.clear:
+            with contextlib.suppress(files.exc.MissingFileError):
+                self.storage.remove(files.FileData(location))
