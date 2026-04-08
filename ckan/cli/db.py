@@ -18,10 +18,10 @@ from . import error_shout
 log = logging.getLogger(__name__)
 
 applies_to_plugin = click.option("-p", "--plugin", help="Affected plugin.")
-accepts_alembic_ini_path = click.option(
-    "--alembic-ini",
-    help="Path to alembic.ini file to use for migration commands."
-    + " Use it instead of `--plugin` when plugin is not enabled.",
+accepts_disabled_plugin = click.option(
+    "--load-plugin",
+    is_flag=True,
+    help="Load the plugin before running the command. Fails if plugin already loaded.",
 )
 
 
@@ -92,16 +92,16 @@ def clean():
 @click.option('--skip-core', is_flag=True, help='Skip core migrations')
 @click.pass_context
 @applies_to_plugin
-@accepts_alembic_ini_path
+@accepts_disabled_plugin
 def upgrade(
         ctx: click.Context, version: str, plugin: str,
         skip_core: bool, skip_plugins: bool,
-        alembic_ini: str | None
+        load_plugin: bool
 ):
     """Upgrade or initialize the database.
     """
     if not skip_core:
-        _run_migrations(plugin, version, alembic_ini=alembic_ini)
+        _run_migrations(plugin, version, load_plugin=load_plugin)
 
     if not skip_plugins and not plugin:
         _migrate_plugins(apply=True)
@@ -122,11 +122,11 @@ def _migrate_plugins(apply: bool):
 @db.command()
 @click.option(u'-v', u'--version', help=u'Migration version', default=u'base')
 @applies_to_plugin
-@accepts_alembic_ini_path
-def downgrade(version: str, plugin: str, alembic_ini: str | None):
+@accepts_disabled_plugin
+def downgrade(version: str, plugin: str, load_plugin: bool):
     """Downgrade the database.
     """
-    _run_migrations(plugin, version, False, alembic_ini)
+    _run_migrations(plugin, version, False, load_plugin)
     click.secho(u'Downgrading DB: SUCCESS', fg=u'green', bold=True)
 
 
@@ -171,11 +171,11 @@ def _run_migrations(
     plugin: str,
     version: str = "head",
     forward: bool = True,
-    alembic_ini: str | None = None,
+    load_plugin: bool = False,
 ):
     if not version:
         version = "head" if forward else "base"
-    with _repo_for_plugin(plugin, alembic_ini) as repo:
+    with _repo_for_plugin(plugin, load_plugin) as repo:
         if forward:
             repo.upgrade_db(version)
         else:
@@ -184,11 +184,11 @@ def _run_migrations(
 
 @db.command()
 @applies_to_plugin
-@accepts_alembic_ini_path
-def version(plugin: str, alembic_ini: str | None):
+@accepts_disabled_plugin
+def version(plugin: str, load_plugin: bool):
     """Returns current version of data schema.
     """
-    current = current_revision(plugin, alembic_ini) or ''
+    current = current_revision(plugin, load_plugin) or ''
     try:
         current = _version_hash_to_ordinal(current)
     except ValueError:
@@ -198,8 +198,8 @@ def version(plugin: str, alembic_ini: str | None):
                 bold=True)
 
 
-def current_revision(plugin: str, alembic_ini: str | None = None) -> str | None:
-    with _repo_for_plugin(plugin, alembic_ini) as repo:
+def current_revision(plugin: str, load_plugin: bool = False) -> str | None:
+    with _repo_for_plugin(plugin, load_plugin) as repo:
         repo.setup_migration_version_control()
         return repo.current_version()
 
@@ -272,10 +272,17 @@ def _resolve_alembic_config(plugin: str):
 
 
 @contextlib.contextmanager
-def _repo_for_plugin(plugin: str, alembic_ini: str | None = None):
+def _repo_for_plugin(plugin: str, load_plugin: bool = False):
     original = model.repo._alembic_ini
-    model.repo._alembic_ini = alembic_ini or _resolve_alembic_config(plugin)
-    try:
-        yield model.repo
-    finally:
-        model.repo._alembic_ini = original
+    if load_plugin:
+        ctx = p.use_plugin(plugin)
+    else:
+        ctx = contextlib.nullcontext()
+
+    with ctx:
+        model.repo._alembic_ini = _resolve_alembic_config(plugin)
+
+        try:
+            yield model.repo
+        finally:
+            model.repo._alembic_ini = original
