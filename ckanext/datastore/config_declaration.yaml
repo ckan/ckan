@@ -135,14 +135,3 @@ groups:
       recalculate and store the number of rows in a table after the table's
       content is updated. If another update happens within this time the
       first background job is canceled and a new one is scheduled.
-
-  - key: ckan.datastore.allow_table_search
-    type: list
-    default: []
-    description: |
-      Set a list of valid table names for users to query. Allows
-      for additional custom tables to be queried without the need
-      for an actual Resource object.
-
-      _table_metadata will always be allowed, as it is required for
-      other features to work correctly.
