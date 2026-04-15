@@ -121,7 +121,7 @@ class CSRFProtectPerRequest(CSRFProtect):
             if not request.endpoint:
                 return
 
-            if app.blueprints.get(request.blueprint) in self._exempt_blueprints:
+            if request.blueprint in self._exempt_blueprints:
                 return
 
             view = app.view_functions.get(request.endpoint)
