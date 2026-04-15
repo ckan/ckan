@@ -265,7 +265,6 @@ ts_delete
 ts_filter
 ts_headline
 ts_rank
-ts_rewrite
 tsvector_to_array
 unnest
 upper
