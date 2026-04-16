@@ -39,6 +39,7 @@ class TestTypeGetters(object):
             "SELECT * FROM abc; SET LOCAL statement_timeout to"
             "SET LOCAL statement_timeout to; SELECT * FROM abc",
             'SELECT * FROM "foo"; SELECT * FROM "abc"',
+            r"""SELECT ' \'' as A, * FROM "foo"; SELECT * FROM "abc" --'""",
         ]
 
         for single in singles:
