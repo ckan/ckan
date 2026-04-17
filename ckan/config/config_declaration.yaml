@@ -1744,7 +1744,9 @@ groups:
       - key: smtp.starttls_ca_bundle
         validators: ignore_empty
         example: /path/to/ca-bundle.crt
-        description: The CA bundle path to use for TLS certificate validation.
+        description: |
+          The CA bundle path to use for TLS certificate validation. If not given
+          the system’s default CA certificates will be used.
 
       - key: smtp.user
         example: username@example.com
