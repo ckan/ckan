@@ -1735,6 +1735,17 @@ groups:
         example: "true"
         description: Whether or not to use STARTTLS when connecting to the SMTP server.
 
+      - key: smtp.starttls_verify
+        type: bool
+        default: true
+        example: "true"
+        description: Whether or not to validate the SMTP server TLS certificate.
+
+      - key: smtp.starttls_ca_bundle
+        validators: ignore_empty
+        example: /path/to/ca-bundle.crt
+        description: The CA bundle path to use for TLS certificate validation.
+
       - key: smtp.user
         example: username@example.com
         description: The username used to authenticate with the SMTP server.
