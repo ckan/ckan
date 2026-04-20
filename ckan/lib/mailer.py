@@ -134,6 +134,11 @@ def _mail_recipient(
                             context = ssl.create_default_context(
                                 capath=smtp_starttls_ca_bundle
                             )
+                        else:
+                            raise MailerException(
+                                "SMTP CA bundle path (smtp.starttls_ca_bundle) "
+                                f"can not be accessed: {smtp_starttls_ca_bundle}"
+                            )
                     else:
                         context = ssl.create_default_context()
                     smtp_connection.starttls(context=context)
