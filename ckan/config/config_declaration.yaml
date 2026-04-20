@@ -1675,7 +1675,10 @@ groups:
         example: /path/to/ca-bundle.crt
         description: |
           The CA bundle path to use for TLS certificate validation. If not given
-          the system’s default CA certificates will be used.
+          the system’s default CA certificates will be used. The value can be either a
+          a file of concatenated CA certificates or a directory containing several CA
+          certificates as described in the
+          `Python documentation <https://docs.python.org/3/library/ssl.html#ssl.create_default_context>`_.
 
       - key: smtp.user
         example: username@example.com

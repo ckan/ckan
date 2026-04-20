@@ -126,9 +126,14 @@ def _mail_recipient(
             if smtp_connection.has_extn('STARTTLS'):
                 if smtp_starttls_verify:
                     if smtp_starttls_ca_bundle:
-                        context = ssl.create_default_context(
-                            capath=smtp_starttls_ca_bundle
-                        )
+                        if os.path.isfile(smtp_starttls_ca_bundle):
+                            context = ssl.create_default_context(
+                                cafile=smtp_starttls_ca_bundle
+                            )
+                        elif os.path.isdir(smtp_starttls_ca_bundle):
+                            context = ssl.create_default_context(
+                                capath=smtp_starttls_ca_bundle
+                            )
                     else:
                         context = ssl.create_default_context()
                     smtp_connection.starttls(context=context)

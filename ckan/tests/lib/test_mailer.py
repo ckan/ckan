@@ -490,19 +490,45 @@ class TestMailer(MailerBase):
 
     @pytest.mark.ckan_config("smtp.starttls", True)
     @pytest.mark.ckan_config("smtp.starttls_ca_bundle", "/some/ca-bundle.crt")
-    def test_starttls_verify_with_ca_bundle(self, mail_server, monkeypatch):
+    def test_starttls_verify_with_ca_bundle_file(self, mail_server, monkeypatch):
         mock_context = mock.MagicMock()
         mock_create = mock.Mock(return_value=mock_context)
         monkeypatch.setattr(ssl, "create_default_context", mock_create)
-        monkeypatch.setattr(os.path, "exists", lambda p: True)
+        monkeypatch.setattr(
+            os.path, "exists", lambda p: p == "/some/ca-bundle.crt"
+        )
+        monkeypatch.setattr(
+            os.path, "isfile", lambda p: p == "/some/ca-bundle.crt"
+        )
 
         mailer.mail_recipient(
             "Bob", "b@example.com", "Meeting", "Test", {}
         )
 
-        mock_create.assert_called_once_with(capath="/some/ca-bundle.crt")
+        mock_create.assert_called_once_with(cafile="/some/ca-bundle.crt")
         mail_server.starttls.assert_called_once_with(context=mock_context)
-        mail_server.starttls.reseti_mock()
+        mail_server.starttls.reset_mock()
+
+    @pytest.mark.ckan_config("smtp.starttls", True)
+    @pytest.mark.ckan_config("smtp.starttls_ca_bundle", "/some/ca-bundle")
+    def test_starttls_verify_with_ca_bundle_path(self, mail_server, monkeypatch):
+        mock_context = mock.MagicMock()
+        mock_create = mock.Mock(return_value=mock_context)
+        monkeypatch.setattr(ssl, "create_default_context", mock_create)
+        monkeypatch.setattr(
+            os.path, "exists", lambda p: p == "/some/ca-bundle"
+        )
+        monkeypatch.setattr(
+            os.path, "isdir", lambda p: p == "/some/ca-bundle"
+        )
+
+        mailer.mail_recipient(
+            "Bob", "b@example.com", "Meeting", "Test", {}
+        )
+
+        mock_create.assert_called_once_with(capath="/some/ca-bundle")
+        mail_server.starttls.assert_called_once_with(context=mock_context)
+        mail_server.starttls.reset_mock()
 
     @pytest.mark.ckan_config("smtp.starttls", True)
     @pytest.mark.ckan_config("smtp.starttls_ca_bundle", "/nonexistent/ca-bundle.crt")
