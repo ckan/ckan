@@ -1491,7 +1491,7 @@ def test_create_schedules_record_count():
         "resource_id": resource["id"],
         "fields": [{"id": "value", "type": "numeric"}],
     }
-    jobid = f'{resource["id"]} calculate record count'
+    jobid = f'{resource["id"]}_calculate-record-count'
 
     helpers.call_action("datastore_create", **data)
 

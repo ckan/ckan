@@ -895,7 +895,7 @@ def _patch_resource_last_modified(resource_id: str, last_modified: datetime):
     )
 
 def _cancel_calculate_record_count(resource_id: str) -> bool:
-    job_id = f'{resource_id} calculate record count'
+    job_id = f'{resource_id}_calculate-record-count'
     try:
         existing_job = p.toolkit.job_from_id(job_id)
     except KeyError:
@@ -904,7 +904,7 @@ def _cancel_calculate_record_count(resource_id: str) -> bool:
     return True
 
 def _schedule_calculate_record_count(resource_id: str):
-    job_id = f'{resource_id} calculate record count'
+    job_id = f'{resource_id}_calculate-record-count'
     delay = timedelta(seconds=p.toolkit.config[
         'ckan.datastore.background_calculate_record_count_delay'])
 

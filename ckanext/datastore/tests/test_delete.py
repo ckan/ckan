@@ -669,7 +669,7 @@ def test_delete_schedules_record_count():
             {"value": 7},
         ],
     }
-    jobid = f'{resource["id"]} calculate record count'
+    jobid = f'{resource["id"]}_calculate-record-count'
 
     helpers.call_action("datastore_create", **data)
 
