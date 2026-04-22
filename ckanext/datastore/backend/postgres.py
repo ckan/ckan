@@ -1619,7 +1619,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     _insert_links(data_dict, limit, offset)
 
     if data_dict["include_total"]:
-        if where_clause or distinct:
+        if where_clause or distinct or resource_id.startswith("_"):
             # this is slow for large results
             count_sql_string = u'''SELECT count(*) FROM (
                 SELECT {distinct} {select}

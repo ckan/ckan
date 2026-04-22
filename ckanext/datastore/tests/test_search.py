@@ -2284,3 +2284,49 @@ def test_search_caches_record_count():
             ), {'resource_id': resource['id']}
         )
     assert list(stats) == [('{"rows": 7}',)]
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+def test_search_table_metadata():
+    resource = factories.Resource(url_type="datastore")
+    data = {
+        "resource_id": resource["id"],
+        "fields": [{"id": "value", "type": "numeric"}],
+        "records": [
+            {"value": 1},
+            {"value": 2},
+            {"value": 3},
+            {"value": 4},
+            {"value": 5},
+            {"value": 6},
+            {"value": 7},
+        ],
+    }
+
+    helpers.call_action("datastore_create", **data)
+
+    with db.get_write_engine().connect() as conn:
+        conn.execute(sa.text(
+            "delete from _table_stats where resource_id='_table_metadata'"
+        ))
+        conn.commit()
+
+    helpers.call_action("datastore_search", resource_id=resource["id"])
+    helpers.call_action("datastore_search", resource_id='_table_metadata')
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select resource_id, stats from _table_stats "
+            "where resource_id in ('_table_metadata', :resource_id)"
+            ), {'resource_id': resource['id']}
+        )
+
+    # stats cached for resource_id but not _table_metadata
+    assert list(stats) == [(resource['id'], '{"rows": 7}')]
+
+    with db.get_read_engine().connect() as conn:
+        tables = conn.execute(sa.text(
+            "select name from _table_metadata where name='_table_stats'"
+        ))
+    assert list(tables) == []

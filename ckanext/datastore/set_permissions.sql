@@ -68,6 +68,7 @@ CREATE OR REPLACE VIEW "_table_metadata" AS
         (dependee.relkind = 'r'::"char" OR dependee.relkind = 'v'::"char")
         AND dependee.relnamespace = (
             SELECT oid FROM pg_namespace WHERE nspname='public')
+        AND NOT starts_with(dependee.relname, '_')
     ORDER BY dependee.oid DESC;
 ALTER VIEW "_table_metadata" OWNER TO {writeuser};
 GRANT SELECT ON "_table_metadata" TO {readuser};
@@ -128,7 +129,7 @@ AS $body$
         RETURN row_count;
     END;
 $body$ LANGUAGE plpgsql;
-ALTER FUNCTION update_cached_table_row_count() OWNER TO {writeuser};
+ALTER FUNCTION update_cached_table_row_count(name) OWNER TO {writeuser};
 
 CREATE OR REPLACE FUNCTION cached_table_row_count(table_name name)
     RETURNS BIGINT
@@ -144,7 +145,7 @@ AS $body$
         RETURN row_count;
     END;
 $body$ LANGUAGE plpgsql;
-ALTER FUNCTION cached_table_row_count() OWNER TO {writeuser};
+ALTER FUNCTION cached_table_row_count(name) OWNER TO {writeuser};
 
 CREATE OR REPLACE FUNCTION update_table_stats(table_name name)
     RETURNS BOOL
@@ -155,4 +156,4 @@ AS $body$
         RETURN TRUE;
     END;
 $body$ LANGUAGE plpgsql;
-ALTER FUNCTION update_table_stats() OWNER TO {writeuser};
+ALTER FUNCTION update_table_stats(name) OWNER TO {writeuser};
