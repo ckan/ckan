@@ -660,6 +660,34 @@ class TestUser(object):
 
         assert "Error sending the email" in response
 
+    @mock.patch("ckan.lib.mailer.send_reset_link")
+    def test_request_reset_with_nul_in_username(self, send_reset_link, app):
+        """Regression: a NUL byte (U+0000) in the ``user`` form field must
+        not 500. PostgreSQL rejects NUL in text columns and psycopg2 raises
+        ValueError before the query is sent, so unguarded input used to
+        crash the reset form with an Internal Server Error.
+
+        Malformed input is surfaced with a flash error and a redirect back
+        to the form (same pattern the view uses for empty input or a bad
+        captcha), not a 500 and not a silent success.
+        """
+        offset = url_for("user.request_reset")
+        response = app.post(offset, data=dict(user="foo\x00bar"))
+
+        assert response.status_code == 200
+        assert "Invalid input" in response
+        send_reset_link.assert_not_called()
+
+    @mock.patch("ckan.lib.mailer.send_reset_link")
+    def test_request_reset_with_nul_in_email(self, send_reset_link, app):
+        """Regression: NUL byte in an email-shaped reset identifier."""
+        offset = url_for("user.request_reset")
+        response = app.post(offset, data=dict(user="foo\x00@example.com"))
+
+        assert response.status_code == 200
+        assert "Invalid input" in response
+        send_reset_link.assert_not_called()
+
     def test_sysadmin_not_authorized(self, app):
         user = factories.UserWithToken()
         app.post(
