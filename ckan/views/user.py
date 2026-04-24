@@ -698,9 +698,36 @@ class RequestResetView(MethodView):
             'ignore_auth': True,
         }
 
-        user_objs: list[model.User] = []
+        user_objs: list[model.User] = self._get_user_objects(id_, context)
 
-        # Usernames cannot contain '@' symbols
+        for user_obj in user_objs:
+            log.info('Emailing reset link to user: %s', user_obj.name)
+            try:
+                self._send_notification(user_obj)
+                signals.request_password_reset.send(
+                    user_obj.name, user=user_obj)
+            except mailer.MailerException as e:
+                # SMTP is not configured correctly or the server is
+                # temporarily unavailable
+                h.flash_error(_(u'Error sending the email. Try again later '
+                                'or contact an administrator for help'))
+                log.exception(e)
+                return h.redirect_to(config.get(
+                    u'ckan.user_reset_landing_page'))
+
+        # always tell the user it succeeded, because otherwise we reveal
+        # which accounts exist or not
+        h.flash_success(
+            _(u'A reset link has been emailed to you '
+              '(unless the account specified does not exist)'))
+        return h.redirect_to(config.get(
+            u'ckan.user_reset_landing_page'))
+
+    def _get_user_objects(
+            self, id_: str,
+            context: Context
+    ) -> list[model.User]:
+        user_objs: list[model.User] = []
         if '@' in id_:
             # Search by email address
             # (You can forget a user id, but you don't tend to forget your
@@ -732,31 +759,11 @@ class RequestResetView(MethodView):
                 pass
 
         if not user_objs:
-            log.info('User requested reset link for unknown user: %s',
-                     repr_untrusted(id_))
-
-        for user_obj in user_objs:
-            log.info('Emailing reset link to user: %s', user_obj.name)
-            try:
-                self._send_notification(user_obj)
-                signals.request_password_reset.send(
-                    user_obj.name, user=user_obj)
-            except mailer.MailerException as e:
-                # SMTP is not configured correctly or the server is
-                # temporarily unavailable
-                h.flash_error(_(u'Error sending the email. Try again later '
-                                'or contact an administrator for help'))
-                log.exception(e)
-                return h.redirect_to(config.get(
-                    u'ckan.user_reset_landing_page'))
-
-        # always tell the user it succeeded, because otherwise we reveal
-        # which accounts exist or not
-        h.flash_success(
-            _(u'A reset link has been emailed to you '
-              '(unless the account specified does not exist)'))
-        return h.redirect_to(config.get(
-            u'ckan.user_reset_landing_page'))
+            log.info(
+                'User requested reset link for unknown user: %s',
+                repr_untrusted(id_)
+            )
+        return user_objs
 
     def get(self) -> str:
         self._prepare()
