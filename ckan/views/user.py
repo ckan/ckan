@@ -675,23 +675,17 @@ class RequestResetView(MethodView):
             return h.redirect_to(u'user.request_reset')
 
         id_ = request.form.get(u'user', '')
-        if id_ in (None, u''):
-            h.flash_error(_(u'Email is required'))
-            return h.redirect_to(u'user.request_reset')
+        if id_ in (None, ''):
+            h.flash_error(_('Email is required'))
+            return h.redirect_to('user.request_reset')
         log.info('Password reset requested for user %s', repr_untrusted(id_))
 
-        # Validate the form input. Malformed input (e.g. a NUL byte that
-        # would crash psycopg2 in the user lookup below) is not something
-        # a legitimate user can type accidentally, so we surface it the
-        # same way as an empty field or a bad captcha: flash an error and
-        # send the user back to the form. This is consistent with the
-        # view's other input-validation paths and avoids the anti-pattern
-        # of responding 500 on malformed input.
         _data, errors = dictization_functions.validate(
             {'user': id_}, _request_reset_form_schema(), {})
         if errors:
-            h.flash_error(_(u'Invalid input'))
-            return h.redirect_to(u'user.request_reset')
+            h.flash_error(_('Invalid input'))
+            return h.redirect_to('user.request_reset')
+        id_ = _data.get('user', '')
 
         context: Context = {
             'user': current_user.name,
