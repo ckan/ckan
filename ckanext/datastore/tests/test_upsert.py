@@ -128,7 +128,7 @@ class TestDatastoreUpsert(object):
         # job scheduled to update last_modified
         res = helpers.call_action("resource_show", id=resource["id"])
         assert res["last_modified"] == last_modified_1
-        job = job_from_id(f"{resource['id']} datastore patch last_modified")
+        job = job_from_id(f"{resource['id']}_datastore-patch-last_modified")
         assert job
 
         job.perform()
@@ -168,7 +168,7 @@ class TestDatastoreUpsert(object):
         # no job for read-only tables
         with pytest.raises(KeyError):
             job_from_id(
-                f"{resource['id']} datastore patch last_modified")
+                f"{resource['id']}_datastore-patch-last_modified")
 
     def test_field_types(self):
         resource = factories.Resource(url_type="datastore")

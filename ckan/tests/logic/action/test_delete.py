@@ -316,6 +316,22 @@ class TestGroupPurge(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
+class TestOrganizationDelete(object):
+    @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
+    def test_delete_org_without_datasets(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+
+        helpers.call_action(
+            "organization_delete",
+            context={"user": user["name"]},
+            id=org["name"],
+        )
+
+        assert model.Group.get(org["id"]).state == "deleted"
+
+
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationPurge(object):
     def test_a_non_sysadmin_cant_purge_org(self):
         user = factories.User()

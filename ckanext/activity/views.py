@@ -23,7 +23,6 @@ from ckan.views.user import _extra_template_variables
 
 # TODO: don't use hidden funcitons
 from ckan.views.dataset import _setup_template_variables
-
 from ckan.types import Context, Response
 from .model import Activity
 from .logic.validators import (
@@ -983,6 +982,72 @@ def _get_dashboard_context(
         "dict": None,
     }
 
+
+def _check_admin_activities_auth() -> None:
+    context: Context = {
+        "user": getattr(tk.current_user, "name", None) or "",
+        "auth_user_obj": getattr(tk.current_user, "userobj", None),
+    }
+    tk.check_access("sysadmin", context)
+
+
+_ADMIN_DELETE_BY_OFFSET_DAYS = {
+    "older_than_1_day": 1,
+    "older_than_30_days": 30,
+    "older_than_365_days": 365,
+}
+
+
+def admin_activities() -> Union[str, Response]:
+    """Admin tab view: predefined delete options with counts."""
+    try:
+        _check_admin_activities_auth()
+    except tk.NotAuthorized:
+        return tk.abort(403, tk._("Need to be system administrator to administer"))
+
+    user = getattr(tk.current_user, "name", None) or ""
+
+    if tk.request.method == "POST":
+        if "cancel" in tk.request.form:
+            return tk.h.redirect_to("activity.admin_activities")
+
+        action = tk.request.form.get("action", "")
+        if action == "delete_all":
+            result = tk.get_action("activity_delete_all")(
+                {"user": user, "session": model.Session},
+                {"batch_size": 50000},
+            )
+            model.Session.remove()
+            tk.h.flash_success(result.get("message", ""))
+        else:
+            offset_days = _ADMIN_DELETE_BY_OFFSET_DAYS.get(action)
+            if offset_days is not None:
+                result = tk.get_action("activity_delete")(
+                    {"user": user, "session": model.Session},
+                    {
+                        "offset_days": offset_days,
+                        "batch_size": 50000,
+                    },
+                )
+                model.Session.remove()
+                tk.h.flash_success(result.get("message", ""))
+        return tk.h.redirect_to("activity.admin_activities")
+
+    counts = tk.get_action("activity_delete_counts")(
+        {"user": user, "session": model.Session}, {}
+    )
+    return tk.render(
+        "admin/activities.html",
+        extra_vars={"counts": counts},
+    )
+
+
+bp.add_url_rule(
+    "/ckan-admin/activities",
+    view_func=admin_activities,
+    methods=["GET", "POST"],
+    endpoint="admin_activities",
+)
 
 @bp.route("/testing/dashboard")
 def dashboard_testing() -> str:

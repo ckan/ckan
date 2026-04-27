@@ -934,6 +934,7 @@ def config_declaration_v1(
                 "callable_args": [ignore_empty, dict_only],
                 "example": [ignore_missing],
                 "description": [default(""), unicode_safe],
+                "null_value": [default("null"), unicode_safe],
                 "validators": [default(""), unicode_safe],
                 "type": [default("base"), one_of(list(option_types))],
             }

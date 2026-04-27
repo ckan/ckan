@@ -4,12 +4,13 @@ import datetime
 import hashlib
 import os
 import sys
+from typing import Any
 
 import pytz
 import tzlocal
 from babel import Locale
 import flask_babel
-
+from faker import Faker
 import pytest
 
 from ckan.config.middleware import flask_app
@@ -910,26 +911,222 @@ def test_get_translated(data_dict, locale, result, monkeypatch):
 
 
 class TestUploadsEnabled:
-
-    @pytest.mark.ckan_config("ckan.uploads_enabled", True)
-    def test_uploads_enabled(self):
-        assert h.uploads_enabled() is True
+    def test_disabled_with_no_type(self):
+        """Without upload type, helper returns False."""
+        assert not h.uploads_enabled()
 
     @pytest.mark.ckan_config("ckan.uploads_enabled", False)
-    def test_uploads_disabled(self):
-        assert h.uploads_enabled() is False
+    def test_disabled(self):
+        """When uploads are disabled globally, they are disabled for all types."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
 
-    def test_uploads_disabled_on_default_configuration(self):
-        assert h.uploads_enabled() is False
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
+    def test_enabled_with_storage(self):
+        """Default storage implicitly enables uploads for all types."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert h.uploads_enabled(type)
 
-    @pytest.mark.ckan_config("ckan.storage_path", "/some/path")
-    def test_uploads_enabled_with_only_storage_path(self):
-        assert h.uploads_enabled() is True
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.storage_path", "")
+    def test_disabled_without_storage_and_path(self):
+        """Without storages and storage_path uploads are disabled."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
 
-    @pytest.mark.usefixtures("with_plugins")
-    @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
-    def test_uploads_enabled_when_iuploader_plugin_exists(self):
-        assert h.uploads_enabled() is True
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.storage_path", "/any/path")
+    def test_enabled_with_path(self):
+        """With storage_path set, uploads are enabled - that's a classic behavior."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert h.uploads_enabled(type)
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.files.storage.groups.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.admins.type", "ckan:memory")
+    def test_enabled_for_specific_storages(self):
+        """When specific storages are configured, uploads are enabled for those types."""
+        assert not h.uploads_enabled("resource")
+        assert h.uploads_enabled("group")
+        assert h.uploads_enabled("admin")
+        assert not h.uploads_enabled("user")
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.test.disabled_capabilities", ["CREATE"])
+    def test_disabled_without_create_capability(self):
+        """Even with a storage configured, if it doesn't have the CREATE capability, uploads are disabled."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
+
+
+def test_remove_locale_from_url(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.remove_locale_from_url("/ca/dataset") == "/dataset"
+        assert h.remove_locale_from_url("/ca") == "/"
+        assert h.remove_locale_from_url("/ca/dataset/some-dataset") == "/dataset/some-dataset"
+        assert h.remove_locale_from_url("/ca/group/some-group") == "/group/some-group"
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "en"}):
+
+        assert h.remove_locale_from_url("/en/dataset") == "/dataset"
+        assert h.remove_locale_from_url("/en") == "/"
+        assert h.remove_locale_from_url("/dataset") == "/dataset"  # no locale to remove
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_remove_locale_from_url_with_root_path(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/dataset") == "/my/custom/path/foo/dataset"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo") == "/my/custom/path/foo/"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/dataset/some-dataset") == "/my/custom/path/foo/dataset/some-dataset"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/group/some-group") == "/my/custom/path/foo/group/some-group"
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_remove_root_path_from_url(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        # With locale in root path
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo") == "/"
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo/dataset/some-dataset") == "/dataset/some-dataset"
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo/group/some-group") == "/group/some-group"
+
+        # Without locale (fallback)
+        assert h.remove_root_path_from_url("/my/custom/path/foo") == "/"
+        assert h.remove_root_path_from_url("/my/custom/path/foo/dataset/some-dataset") == "/dataset/some-dataset"
+
+
+def test_page_is_active(app):
+
+    with app.flask_app.test_request_context("/"):
+
+        assert h.page_is_active("home.index") is True
+
+        assert h.page_is_active("/") is True
+
+    with app.flask_app.test_request_context("/dataset"):
+
+        assert h.page_is_active("dataset.search") is True
+        assert h.page_is_active("group.index") is False
+
+        assert h.page_is_active("/dataset") is True
+
+    with app.flask_app.test_request_context("/dataset/some-dataset"):
+
+        assert h.page_is_active("dataset.search", active_blueprints=["dataset"]) is True
+        assert h.page_is_active("/dataset", active_blueprints=["dataset"]) is True
+
+        assert h.page_is_active("group.index", active_blueprints=["group"]) is False
+        assert h.page_is_active("/group", active_blueprints=["group"]) is False
+
+    with app.flask_app.test_request_context("/group/some-group"):
+
+        assert (
+            h.page_is_active("dataset.search", active_blueprints=["dataset"]) is False
+        )
+        assert h.page_is_active("/dataset", active_blueprints=["dataset"]) is False
+
+        assert h.page_is_active("group.index", active_blueprints=["group"]) is True
+        assert h.page_is_active("/group", active_blueprints=["group"]) is True
+
+
+def test_page_is_active_with_locale(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.page_is_active("/ca") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/dataset") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset/some-dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/dataset", active_blueprints=["dataset"]) is True
+
+    with app.flask_app.test_request_context(
+        "/group/some-group", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/group", active_blueprints=["group"]) is True
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_page_is_active_with_locale_and_root_path(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.page_is_active("/my/custom/path/ca/foo") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/dataset") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset/some-dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/dataset", active_blueprints=["dataset"]) is True
+
+    with app.flask_app.test_request_context(
+        "/group/some-group", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/group", active_blueprints=["group"]) is True
+
+
+class TestHasMoreFacets:
+    @pytest.mark.parametrize(
+        ("size", "limit", "expected"),
+        [
+            [3, 3, False],
+            [3, 5, False],
+            [3, 1, True],
+            [3, 0, False],
+            [0, 0, False],
+            [0, 3, False],
+        ],
+    )
+    def test_has_more_facets(self, size: int, limit: int, expected: bool, faker: Faker):
+        """Tests that has_more_facets returns True if the number of facets exceeds the limit, and false otherwise."""
+        facets = [{"name": faker.word()} for _ in range(size)]
+        assert h.has_more_facets("test", {"test": {"items": facets}}, limit) is expected
+
+    def test_exclude_active(self, faker: Faker, test_request_context: Any):
+        """Tests the effect of the exclude_active parameter on
+        has_more_facets. If exclude_active is True, the active facet(s) should
+        be excluded from the count when determining if there are more facets
+        than the limit.
+        """
+        facets = [{"name": faker.word()} for _ in range(10)]
+        with test_request_context(
+            "/dataset?test={}&test={}".format(facets[0]["name"], facets[1]["name"])
+        ):
+            # by default, active facets are included in the count, so there are more than 8 facets
+            assert h.has_more_facets("test", {"test": {"items": facets}}, 8) is True
+
+            # with exclude_active=True, the 2 active facets should be excluded
+            # from the count, so there are not more than 8 facets
+            assert (
+                h.has_more_facets("test", {"test": {"items": facets}}, 8, True) is False
+            )
+
+            # with exclude_active=True and a limit of 7, there are more than 7
+            # facets excluding the active ones, so it should return True
+            assert (
+                h.has_more_facets("test", {"test": {"items": facets}}, 7, True) is True
+            )
 
 
 def test_get_facet_items_dict(test_request_context):

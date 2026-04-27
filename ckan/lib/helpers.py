@@ -37,7 +37,7 @@ from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
-from ckan.lib import i18n
+from ckan.lib import i18n, files
 from ckan.plugins.core import plugin_loaded
 
 from urllib.parse import (
@@ -739,6 +739,10 @@ def get_flashed_messages(**kwargs: Any):
 
 @core_helper
 def endpoint_from_url(url: str) -> str:
+
+    url = remove_locale_from_url(url)
+    url = remove_root_path_from_url(url)
+
     try:
         urls = current_app.url_map.bind("")
         match = urls.match(url)
@@ -746,6 +750,68 @@ def endpoint_from_url(url: str) -> str:
     except RuntimeError:
         endpoint = ""
     return endpoint
+
+
+@core_helper
+def remove_root_path_from_url(url: str) -> str:
+    """
+    Remove the root path (i.e. config["ckan.root_path"]) from a url.
+
+    Note: the locale is also removed if present. See ckan/tests/lib/test_helpers.py
+    for examples.
+
+    """
+    root_path = config["ckan.root_path"]
+    if not url or not root_path:
+        return url
+
+    # Try to match with current locale first
+    current_locale = request.environ.get("CKAN_LANG")
+    if current_locale:
+        locale_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(locale_root_path):
+            remaining_url = url[len(locale_root_path):]
+            return remaining_url if remaining_url else "/"
+
+    # Try to match without locale (fallback)
+    base_root_path = re.sub(r"/?\{\{LANG\}\}/?", "/", root_path)
+    if base_root_path and url.startswith(base_root_path):
+        remaining_url = url[len(base_root_path):]
+        return remaining_url if remaining_url else "/"
+
+    return url
+
+
+@core_helper
+def remove_locale_from_url(url: str) -> str:
+    """Remove the locale part from a URL based on current locale and root_path config.
+    """
+    current_locale = request.environ.get("CKAN_LANG")
+    if not url or not current_locale:
+        return url
+
+    root_path = config["ckan.root_path"]
+
+    if root_path and "{{LANG}}" in root_path:
+        # Root path defined
+        current_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(current_root_path):
+            # Remove current root path
+            url = url[len(current_root_path):]
+            # Remove lang bit from base root path
+            base_root_path = (
+                re.sub(r"/?\{\{LANG\}\}/?", "/", root_path).rstrip("/") + "/"
+            )
+            url = base_root_path + url.lstrip("/")
+    else:
+        # Default, no root path: locale is added as /<lang>/ at the beginning of the url
+        locale_prefix = f"/{current_locale}/"
+        if url.startswith(locale_prefix):
+            url = url[len(locale_prefix) - 1:]  # To preserve the slash
+        elif url == f"/{current_locale}":
+            url = "/"
+
+    return url
 
 
 @core_helper
@@ -1114,11 +1180,12 @@ def humanize_entity_type(entity_type: str, object_type: str,
 
 @core_helper
 def get_facet_items_dict(
-        facet: str,
-        search_facets: Union[dict[str, dict[str, Any]], Any] = None,
-        limit: Optional[int] = None,
-        exclude_active: bool = False) -> list[dict[str, Any]]:
-    '''Return the list of unselected facet items for the given facet, sorted
+    facet: str,
+    search_facets: dict[str, dict[str, Any]],
+    limit: int | None = None,
+    exclude_active: bool = False,
+) -> list[dict[str, Any]]:
+    """Return the list of unselected facet items for the given facet, sorted
     by count.
 
     Returns the list of unselected facet constraints or facet items (e.g. tag
@@ -1136,24 +1203,23 @@ def get_facet_items_dict(
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
 
-    '''
-    if not search_facets \
-       or not isinstance(search_facets, dict) \
-       or not search_facets.get(facet, {}).get('items'):
+    """
+    items = search_facets.get(facet, {}).get("items")
+    if not items:
         return []
+
+    params: list[tuple[str, str]] = request.args.items(multi=True)
     facets = []
-    for facet_item in search_facets[facet]['items']:
-        if not len(facet_item['name'].strip()):
-            continue
-        params_items = request.args.items(multi=True)
-        if (facet, facet_item['name']) not in params_items:
-            facets.append(dict(active=False, **facet_item))
-        elif not exclude_active:
-            facets.append(dict(active=True, **facet_item))
 
-    if limit is None and getattr(g, 'search_facets_limits', None):
-        limit = g.search_facets_limits.get(facet)
+    for facet_item in items:
+        active = (facet, facet_item["name"]) in params
+        if not active or not exclude_active:
+            facets.append(dict(facet_item, active=active))
 
+    if limit is None:
+        limit = helper_functions.get_param_int(
+            f"_{facet}_limit", config["search.facets.default"]
+        )
     # zero or negative limit treated as infinite for historical reasons
     has_limit: bool = limit is not None and limit > 0
 
@@ -1167,44 +1233,53 @@ def get_facet_items_dict(
     facets.sort(key=sort_facets)
 
     if has_limit:
-        return facets[:limit]
+        facets = facets[:limit]
+
     return facets
 
 
 @core_helper
-def has_more_facets(facet: str,
-                    search_facets: dict[str, dict[str, Any]],
-                    limit: Optional[int] = None,
-                    exclude_active: bool = False) -> bool:
-    '''
-    Returns True if there are more facet items for the given facet than the
+def has_more_facets(
+    facet: str,
+    search_facets: dict[str, dict[str, Any]],
+    limit: int | None = None,
+    exclude_active: bool = False,
+) -> bool:
+    """Returns True if there are more facet items for the given facet than the
     limit.
 
     Reads the complete list of facet items for the given facet from
-    search_facets, and filters out the facet items that the user has already
-    selected.
+    search_facets, and optionally filters out the facet items that the user has
+    already selected.
 
     Arguments:
     facet -- the name of the facet to filter.
     search_facets -- dict with search facets
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
+    """
+    items = search_facets[facet]["items"]
+    if not items:
+        return False
 
-    '''
-    facets = []
-    for facet_item in search_facets[facet]['items']:
-        if not len(facet_item['name'].strip()):
-            continue
+    if limit is None:
+        limit = helper_functions.get_param_int(
+            f"_{facet}_limit", config["search.facets.default"]
+        )
+    # missing limit, as well as limit=0 treated as no-limit
+    if not limit:
+        return False
+
+    count = 0
+    if exclude_active:
         params_items = request.args.items(multi=True)
-        if (facet, facet_item['name']) not in params_items:
-            facets.append(dict(active=False, **facet_item))
-        elif not exclude_active:
-            facets.append(dict(active=True, **facet_item))
-    if getattr(g, 'search_facets_limits', None) and limit is None:
-        limit = g.search_facets_limits.get(facet)
-    if limit is not None and len(facets) > limit:
-        return True
-    return False
+        for facet_item in items:
+            if not exclude_active or (facet, facet_item["name"]) not in params_items:
+                count += 1
+    else:
+        count = len(items)
+
+    return count > limit
 
 
 @core_helper
@@ -1228,7 +1303,12 @@ def default_collapse_facets():
 
 
 @core_helper
-def get_param_int(name: str, default: int = 10) -> int:
+def get_param_int(name: str, default: int = 0) -> int:
+    """Get a query parameter from the request as an integer.
+
+    Return a default value if the parameter is not present or cannot be
+    converted to an integer.
+    """
     try:
         return int(request.args.get(name, default))
     except ValueError:
@@ -2432,17 +2512,39 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def uploads_enabled() -> bool:
-    upload_config = config.get('ckan.uploads_enabled')
-    if upload_config is not None:
-        return upload_config
+def uploads_enabled(object_type: str | None = None) -> bool:
+    """Returns True if uploads are enabled for the given object type.
 
-    if config['ckan.storage_path'] is not None:
-        return True
+    :param object_type: the type of object to check uploads for, e.g. resource,
+        group, user or admin
+    :type object_type: string
+    """
+    if not object_type:
+        log.warning("h.uploads_enabled call without object_type is non supported")
+        return False
 
-    if len([plugin for plugin in p.PluginImplementations(p.IUploader)]) != 0:
-        return True
-    return False
+    if not config["ckan.uploads_enabled"]:
+        return False
+
+    storage_name = config.get(f"ckan.files.default_storages.{object_type}")
+    if not storage_name:
+        log.warning(
+            "h.uploads_enabled call with an unexpected object_type '%s'",
+            object_type,
+        )
+        return False
+
+    try:
+        storage = files.get_storage(storage_name)
+    except files.exc.UnknownStorageError:
+        # if the storage is not found, then we are using old upload rules: when
+        # storage path is configured or uploader is customized, uploads are allowed
+        return bool(
+            config["ckan.storage_path"]
+            or any(plugin for plugin in p.PluginImplementations(p.IUploader))
+        )
+
+    return storage.supports(files.Capability.CREATE)
 
 
 @core_helper

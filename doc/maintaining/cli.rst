@@ -115,7 +115,7 @@ Example 1:
 .. parsed-literal::
 
  $ ckan shell
- Python 3.9.13 (main, Dec 11 2022, 15:23:12) 
+ Python 3.9.13 (main, Dec 11 2022, 15:23:12)
  Type 'copyright', 'credits' or 'license' for more information
 
  **In [1]:** model.User.all()
@@ -127,7 +127,7 @@ Example 1:
  **In [2]:** from ckan.logic.action.get import package_show
 
  **In [3]:** package_show({"model": model}, {"id": "api-package-1"})
- **Out[3]:** 
+ **Out[3]:**
  {'author': None,
  'author_email': None,
  'creator_user_id': 'f0c04c11-4369-4cf1-9da4-69d9aae06a2e',
@@ -352,7 +352,7 @@ db: Manage databases
 
 .. parsed-literal::
 
- ckan db clean               - Clean the database
+ ckan db clean               - Clean the database and search index
  ckan db downgrade           - Downgrade the database
  ckan db duplicate_emails    - Check users email for duplicate
  ckan db init                - Initialize the database
@@ -639,11 +639,11 @@ computer to reindex faster
 
  ckan -c |ckan.ini| search-index rebuild-fast
 
-There is also an option to clear the whole index first and then rebuild it with all datasets:
+.. note::
 
-.. parsed-literal::
-
- ckan -c |ckan.ini| search-index rebuild --clear
+   As of CKAN 2.12, the ``--clear`` option has been removed from 
+   ``search-index rebuild``. The command now automatically clears orphaned 
+   packages after rebuilding instead of clearing the entire index beforehand.
 
 There are other search related commands, mostly useful for debugging purposes
 
@@ -652,6 +652,7 @@ There are other search related commands, mostly useful for debugging purposes
  ckan search-index check                  - checks for datasets not indexed
  ckan search-index show DATASET_NAME      - shows index of a dataset
  ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
+ ckan search-index clear-orphans          - clears orphaned packages from the search index
 
 
 sysadmin: Give sysadmin rights
@@ -755,3 +756,23 @@ Usage
  ckan views --no-default-filters
  ckan views --search (-s)         - Set Search
  ckan views --yes (-y)
+
+
+files: Manage storages and files
+=========================================
+
+Usage
+
+.. parsed-literal::
+
+ ckan file adapters [--with-docs] [--with-configuration]         - show all awailable storage adapters
+ ckan file storage list [-v]                                     - show all configured storages
+ ckan file storage scan                                          - iterate over all files available in storage
+ ckan file storage transfer SRC DEST [--location ...] [--remove] - move files between storages
+ ckan file storage remove-files                                  - remove all files from the storage
+ ckan file stats overview                                        - general information about storage usage
+ ckan file stats types                                           - files distribution by MIME type
+ ckan file stats owner                                           - files distribution by owner
+ ckan file stream FILE_ID -o OUTPUT                              - stream content of the file
+ ckan file maintain empty-owner                                  - manage files that have no owner
+ ckan file maintain missing-files                                - manage files that do not exist in storage

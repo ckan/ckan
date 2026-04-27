@@ -26,9 +26,9 @@ jobs:
         )
       }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Create backport pull requests
-        uses: korthout/backport-action@v3
+        uses: korthout/backport-action@v4
         with:
           # Token to authenticate requests to GitHub. This is a Personal Access Token
           # from the ckanbot user
@@ -61,7 +61,7 @@ jobs:
       }}
     steps:
       - name: Add Backport failed label to PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.BACKPORT_ACTION_PAT }}
           script: |

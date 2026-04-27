@@ -15,6 +15,7 @@ from . import subscriptions
 @tk.blanket.helpers
 @tk.blanket.blueprints
 @tk.blanket.validators
+@tk.blanket.cli
 class ActivityPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.ISignal)

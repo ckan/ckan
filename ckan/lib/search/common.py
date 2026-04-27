@@ -4,7 +4,7 @@ from __future__ import annotations
 import datetime
 import logging
 import re
-from typing import Any, Optional
+from typing import Any
 
 import pysolr
 import simplejson
@@ -33,37 +33,6 @@ class SolrConnectionError(Exception):
     pass
 
 
-DEFAULT_SOLR_URL = 'http://127.0.0.1:8983/solr/ckan'
-
-
-class SolrSettings(object):
-    _is_initialised: bool = False
-    _url: Optional[str] = None
-    _user: Optional[str] = None
-    _password: Optional[str] = None
-
-    @classmethod
-    def init(cls,
-             url: Optional[str],
-             user: Optional[str] = None,
-             password: Optional[str] = None) -> None:
-        if url is not None:
-            cls._url = url
-            cls._user = user
-            cls._password = password
-        else:
-            cls._url = DEFAULT_SOLR_URL
-        cls._is_initialised = True
-
-    @classmethod
-    def get(cls) -> tuple[str, Optional[str], Optional[str]]:
-        if not cls._is_initialised:
-            raise SearchIndexError('SOLR URL not initialised')
-        if not cls._url:
-            raise SearchIndexError('SOLR URL is blank')
-        return (cls._url, cls._user, cls._password)
-
-
 def is_available() -> bool:
     """
     Return true if we can successfully connect to Solr.
@@ -78,7 +47,9 @@ def is_available() -> bool:
 
 
 def make_connection(decode_dates: bool = True) -> Solr:
-    solr_url, solr_user, solr_password = SolrSettings.get()
+    solr_url: str = config["solr_url"]
+    solr_user: str | None = config["solr_user"]
+    solr_password: str | None = config["solr_password"]
 
     if solr_url and solr_user and solr_password:
         # Rebuild the URL with the username/password

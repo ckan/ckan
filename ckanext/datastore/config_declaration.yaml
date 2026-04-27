@@ -117,3 +117,11 @@ groups:
 
       Indexes increase the time and disk space required to load data
       into the DataStore.
+
+  - key: ckan.datastore.public_table_search
+    type: list
+    default: ["_table_metadata"]
+    description: |
+      Set a list of valid table names for users to query. Allows
+      for additional custom tables to be queried without the need
+      for an actual Resource object.

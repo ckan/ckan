@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+
+{% block primary_content_inner %}
+  <h2>{{ _('Activities') }}</h2>
+
+  <p class="mb-4">
+    {% trans %}
+    Purge activities by age. Use 'ckan clean activities' via CLI for more options.
+    {% endtrans %}
+  </p>
+
+  <div class="list-group list-group-flush">
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ _('Delete activities older than a day') }}</span>
+      <span>
+        <span class="badge bg-secondary rounded-pill me-2">{{ counts.older_than_1_day }}</span>
+        <form method="POST" action="{{ h.url_for('activity.admin_activities') }}" class="d-inline" data-module="confirm-action" data-module-with-data="true" data-module-content="{{ _('Delete {count} activities older than a day? This cannot be undone.').format(count=counts.older_than_1_day) }}">
+          {{ h.csrf_input() }}
+          <input type="hidden" name="action" value="older_than_1_day">
+          <button type="submit" class="btn btn-danger btn-sm" {% if counts.older_than_1_day == 0 %}disabled{% endif %}>{{ _('Delete') }}</button>
+        </form>
+      </span>
+    </div>
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ _('Delete activities older than a month') }}</span>
+      <span>
+        <span class="badge bg-secondary rounded-pill me-2">{{ counts.older_than_30_days }}</span>
+        <form method="POST" action="{{ h.url_for('activity.admin_activities') }}" class="d-inline" data-module="confirm-action" data-module-with-data="true" data-module-content="{{ _('Delete {count} activities older than a month? This cannot be undone.').format(count=counts.older_than_30_days) }}">
+          {{ h.csrf_input() }}
+          <input type="hidden" name="action" value="older_than_30_days">
+          <button type="submit" class="btn btn-danger btn-sm" {% if counts.older_than_30_days == 0 %}disabled{% endif %}>{{ _('Delete') }}</button>
+        </form>
+      </span>
+    </div>
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ _('Delete activities older than a year') }}</span>
+      <span>
+        <span class="badge bg-secondary rounded-pill me-2">{{ counts.older_than_365_days }}</span>
+        <form method="POST" action="{{ h.url_for('activity.admin_activities') }}" class="d-inline" data-module="confirm-action" data-module-with-data="true" data-module-content="{{ _('Delete {count} activities older than a year? This cannot be undone.').format(count=counts.older_than_365_days) }}">
+          {{ h.csrf_input() }}
+          <input type="hidden" name="action" value="older_than_365_days">
+          <button type="submit" class="btn btn-danger btn-sm" {% if counts.older_than_365_days == 0 %}disabled{% endif %}>{{ _('Delete') }}</button>
+        </form>
+      </span>
+    </div>
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ _('Delete all activities') }}</span>
+      <span>
+        <span class="badge bg-secondary rounded-pill me-2">{{ counts.total }}</span>
+        <form method="POST" action="{{ h.url_for('activity.admin_activities') }}" class="d-inline" data-module="confirm-action" data-module-with-data="true" data-module-content="{{ _('Delete all {count} activities? This cannot be undone.').format(count=counts.total) }}">
+          {{ h.csrf_input() }}
+          <input type="hidden" name="action" value="delete_all">
+          <button type="submit" class="btn btn-danger btn-sm" {% if counts.total == 0 %}disabled{% endif %}>{{ _('Delete all') }}</button>
+        </form>
+      </span>
+    </div>
+  </div>
+{% endblock primary_content_inner %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="fa fa-clock-o"></i>
+      {{ _('Activities') }}
+    </h2>
+    <div class="module-content">
+      <p>
+        {% trans %}
+        Purge activity stream entries by age. Each option shows how many activities would be deleted. Purging is irreversible.
+        {% endtrans %}
+      </p>
+    </div>
+  </div>
+{% endblock secondary_content %}

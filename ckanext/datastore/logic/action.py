@@ -24,8 +24,6 @@ log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
 
-WHITELISTED_RESOURCES = ['_table_metadata']
-
 RESOURCE_LAST_MODIFIED_SETTLE_TIME = timedelta(seconds=15)
 
 
@@ -700,7 +698,8 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
     res_id = data_dict['resource_id']
 
-    if data_dict['resource_id'] not in WHITELISTED_RESOURCES:
+    if data_dict['resource_id'] not in p.toolkit.config.get(
+            'ckan.datastore.public_table_search'):
         res_exists, real_id = backend.resource_id_from_alias(res_id)
         # Resource only has to exist in the datastore (because it could be an
         # alias)
@@ -804,7 +803,7 @@ def _cancel_patch_resource_last_modified(resource_id: str):
     ''' Remove any existing scheduled job to patch resource
     last_modified.
     '''
-    job_id = f'{resource_id} datastore patch last_modified'
+    job_id = f'{resource_id}_datastore-patch-last_modified'
     try:
         existing_job = p.toolkit.job_from_id(job_id)
     except KeyError:
@@ -819,7 +818,7 @@ def _schedule_patch_resource_last_modified(resource_id: str):
     datastore_create, datastore_upsert and/or datastore_delete.
     '''
     last_modified = datetime.now(timezone.utc)
-    job_id = f'{resource_id} datastore patch last_modified'
+    job_id = f'{resource_id}_datastore-patch-last_modified'
 
     _cancel_patch_resource_last_modified(resource_id)
     p.toolkit.get_job_queue().enqueue_in(

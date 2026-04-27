@@ -24,7 +24,7 @@
     {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
     {% set is_url = data.image_url and data.image_url.startswith('http') %}
 
-    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled("group"), is_url=is_url, is_upload=is_upload) }}
 
   {% endblock %}
 

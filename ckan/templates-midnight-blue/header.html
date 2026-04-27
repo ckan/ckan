@@ -95,11 +95,18 @@
           {% endblock %}
           {% block header_account_notlogged %}
             {% if not c.userobj %}
-              <div class="col-md-2 login">
+              <div class="col-md-2 gap-2 login">
                 <a class="btn btn-primary" href="{{ h.url_for('user.login') }}">
                   {{ _('Login') }}
                   <i class="fa fa-sign-in"></i>
                 </a>
+
+                {% if h.check_access('user_create') %}
+                  <a class="btn btn-primary" href="{{ h.url_for('user.register') }}">
+                    {{ _('Register') }}
+                    <i class="fa fa-id-card"></i>
+                  </a>
+                {% endif %}
               </div>
             {% endif %}
           {% endblock %}
