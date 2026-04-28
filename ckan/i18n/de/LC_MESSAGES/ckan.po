@@ -6,7 +6,8 @@
 # Translators:
 # Adrià Mercader <amercadero@gmail.com>, 2022
 # toothstone, 2023
-# Ondics Githubler, 2024
+# Ondics Githubler, 2026
+# OndicsTA, 2026
 # 
 #, fuzzy
 msgid ""
@@ -15,10 +16,10 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-30 16:00+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Ondics Githubler, 2024\n"
+"Last-Translator: OndicsTA, 2026\n"
 "Language-Team: German (https://app.transifex.com/okfn/teams/11162/de/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
 "Language: de\n"
@@ -358,11 +359,11 @@ msgstr "Ressource"
 
 #: ckan/logic/validators.py:288
 msgid "Invalid characters in resource id"
-msgstr ""
+msgstr "Ungültige Zeichen in Ressource-ID"
 
 #: ckan/logic/validators.py:290
 msgid "Invalid length for resource id"
-msgstr ""
+msgstr "Ungültige Länge für die Ressource mit der ID"
 
 #: ckan/logic/validators.py:344
 msgid "That group name or ID does not exist."
@@ -1428,7 +1429,7 @@ msgstr "Absenden"
 
 #: ckan/templates/page.html:6
 msgid "Skip to main content"
-msgstr ""
+msgstr "Überspringen zum Hauptinhalt"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
@@ -2203,6 +2204,9 @@ msgid ""
 "bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
+"Hier kann <a href=\"#markdown\" title=\"Markdown quick reference\" data-bs-"
+"toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
+"html=\"true\">Markdown Formatierung</a> benutzt werden."
 
 #: ckan/templates/macros/form/required_message.html:11
 msgid "Required field"
@@ -2522,7 +2526,7 @@ msgstr "Herunterladen"
 
 #: ckan/templates/package/resource_read.html:52
 msgid "List of downloadable formats"
-msgstr ""
+msgstr "Liste der herunterladbaren Formate"
 
 #: ckan/templates/package/resource_read.html:88
 #: ckan/templates/package/resource_read.html:90
@@ -2749,7 +2753,7 @@ msgstr[1] "{count} Mitmacher"
 
 #: ckan/templates/package/collaborators/confirm_delete.html:11
 msgid "Are you sure you want to delete collaborator - {name}?"
-msgstr ""
+msgstr "Soll der Mitmacher {name} wirklich gelöscht werden?"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3257,7 +3261,7 @@ msgstr "Sie haben noch keine API Token erstellt."
 
 #: ckan/templates/user/confirm_delete.html:11
 msgid "Are you sure you want to delete user - {name}?"
-msgstr ""
+msgstr "Soll der Benutzer {name} wirklich gelöscht werden?"
 
 #: ckan/templates/user/dashboard.html:25
 #: ckan/templates/user/dashboard_datasets.html:11
@@ -4886,7 +4890,7 @@ msgstr "DataStore Ressource nicht gefunden"
 
 #: ckanext/datastore/blueprint.py:113
 msgid "Unsupported format"
-msgstr ""
+msgstr "Format nicht unterstützt"
 
 #: ckanext/datastore/blueprint.py:194
 msgid ""
@@ -5053,7 +5057,7 @@ msgstr "Daten-API"
 #: ckanext/datastore/templates-bs3/datastore/api_examples/python.html:9
 #, python-format
 msgid "(using the <a href=\"%(url)s\">ckanapi</a> client library)"
-msgstr ""
+msgstr "(es wird die <a href=\"%(url)s\">ckanapi</a> Client-Bibliothek genutzt)"
 
 #: ckanext/datatablesview/plugin.py:89 ckanext/reclineview/plugin.py:177
 msgid "Table"
