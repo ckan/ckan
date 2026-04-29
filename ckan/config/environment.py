@@ -51,7 +51,7 @@ def load_environment(conf: Union[Config, CKANConfig]):
             'Possible values are: "public" and "public-bs3".'
         )
 
-    log.info('Loading static files from %s' % static_files)
+    log.info('Loading static files from %s', static_files)
 
     # Initialize main CKAN config object
     config.update(conf)
@@ -205,7 +205,7 @@ def update_config() -> None:
         )
 
     jinja2_templates_path = os.path.join(root, templates)
-    log.info('Loading templates from %s' % jinja2_templates_path)
+    log.info('Loading templates from %s', jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
     extra_template_paths = config.get('extra_template_paths')

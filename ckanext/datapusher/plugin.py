@@ -114,8 +114,8 @@ class DatapusherPlugin(p.SingletonPlugin):
                 # There already is a pending DataPusher submission,
                 # skip this one ...
                 log.debug(
-                    u'Skipping DataPusher submission for '
-                    u'resource {0}'.format(resource_dict['id'])
+                    'Skipping DataPusher submission for resource %s',
+                    resource_dict['id'],
                 )
                 return
         except p.toolkit.ObjectNotFound:
@@ -123,8 +123,8 @@ class DatapusherPlugin(p.SingletonPlugin):
 
         try:
             log.debug(
-                u'Submitting resource {0}'.format(resource_dict['id']) +
-                u' to DataPusher'
+                'Submitting resource %s to DataPusher',
+                resource_dict['id'],
             )
             p.toolkit.get_action(u'datapusher_submit')(
                 context, {

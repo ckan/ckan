@@ -106,7 +106,7 @@ def index_for(_type: Any) -> SearchIndex:
         _type_n = _normalize_type(_type)
         return _INDICES[_type_n]()
     except KeyError:
-        log.warn("Unknown search type: %s" % _type)
+        log.warning("Unknown search type: %s", _type)
         return NoopSearchIndex()
 
 
@@ -147,7 +147,7 @@ def dispatch_by_operation(entity_type: str, entity: dict[str, Any],
         elif operation == domain_object.DomainObjectOperation.deleted:
             index.remove_dict(entity)
         else:
-            log.warn("Unknown operation: %s" % operation)
+            log.warning("Unknown operation: %s", operation)
     except Exception as ex:
         log.exception(ex)
         # we really need to know about any exceptions, so reraise
@@ -176,7 +176,7 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
             dispatch_by_operation(entity.__class__.__name__,
                                   {'id': entity.id}, operation)
         else:
-            log.warn("Discarded Sync. indexing for: %s" % entity)
+            log.warning("Discarded Sync. indexing for: %s", entity)
 
 
 def rebuild(package_id: Optional[str] = None,
@@ -258,8 +258,8 @@ def rebuild(package_id: Optional[str] = None,
                     defer_commit
                 )
             except Exception as e:
-                log.error(u'Error while indexing dataset %s: %s' %
-                          (pkg_id, repr(e)))
+                log.error('Error while indexing dataset %s: %s',
+                    pkg_id, repr(e))
                 if force:
                     log.error(text_traceback())
                     continue
@@ -300,7 +300,7 @@ def show(package_reference: str) -> dict[str, Any]:
 
 def clear(package_reference: str) -> None:
     package_index = index_for(model.Package)
-    log.debug("Clearing search index for dataset %s..." %
+    log.debug("Clearing search index for dataset %s...",
               package_reference)
     package_index.delete_package({'id': package_reference})
 

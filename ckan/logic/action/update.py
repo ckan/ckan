@@ -761,7 +761,7 @@ def group_update(context: Context, data_dict: DataDict) -> ActionResult.GroupUpd
 
 def organization_update(
         context: Context, data_dict: DataDict) -> ActionResult.OrganizationUpdate:
-    '''Update a organization.
+    '''Update an organization.
 
     You must be authorized to edit the organization.
 
@@ -1307,6 +1307,6 @@ def config_option_update(
     # Update the config update timestamp
     model.set_system_info('ckan.config_update', str(time.time()))
 
-    log.info('Updated config options: {0}'.format(data))
+    log.info('Updated config options: %s', data)
 
     return data

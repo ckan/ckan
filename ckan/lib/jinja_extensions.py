@@ -128,8 +128,8 @@ class CkanExtend(ext.Extension):
                 raise Exception('ckan_extends tag wrong path %s in %s'
                                 % (provided_template, template_path))
             else:
-                log.critical('Remove path from ckan_extend tag in %s'
-                             % template_path)
+                log.critical('Remove path from ckan_extend tag in %s',
+                             template_path)
 
         # provide our magic format
         # format is *<search path parent directory>*<template name>
@@ -208,8 +208,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 contents = f.read().decode(self.encoding)
             except UnicodeDecodeError as e:
                 log.critical(
-                    'Template corruption in `%s` unicode decode errors'
-                    % filename
+                    'Template corruption in `%s` unicode decode errors',
+                    filename
                 )
                 raise e
             finally:

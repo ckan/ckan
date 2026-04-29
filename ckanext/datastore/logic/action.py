@@ -172,7 +172,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     resobj = model.Resource.get(data_dict['resource_id'])
     if resobj.extras.get('datastore_active') is not True:
         log.debug(
-            'Setting datastore_active=True on resource {0}'.format(resobj.id)
+            'Setting datastore_active=True on resource %s', resobj.id,
         )
         set_datastore_active_flag(context, data_dict, True)
 
@@ -426,8 +426,7 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
             resource is not None and
             resource.extras.get('datastore_active') is True):
         log.debug(
-            'Setting datastore_active=False on resource {0}'.format(
-                resource.id)
+            'Setting datastore_active=False on resource %s', resource.id,
         )
         set_datastore_active_flag(context, data_dict, False)
 

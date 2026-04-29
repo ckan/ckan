@@ -13,15 +13,20 @@ from ckan.lib.helpers import url_for
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_idatasetform_v6")
 def test_register_blueprint(make_app):
-    receiver = mock.Mock()
-    with signals.register_blueprint.connected_to(receiver):
-        make_app()
-    assert receiver.call_count == 2
-    (type_,), _ = receiver.call_args_list[0]
-    assert type_ == u"dataset"
+    try:
+        receiver = mock.Mock()
+        with signals.register_blueprint.connected_to(receiver):
+            make_app()
+        assert receiver.call_count == 2
+        (type_,), _ = receiver.call_args_list[0]
+        assert type_ == u"dataset"
 
-    (type_,), _ = receiver.call_args_list[1]
-    assert type_ == u"resource"
+        (type_,), _ = receiver.call_args_list[1]
+        assert type_ == u"resource"
+    finally:
+        from ckan.plugins import plugin_loaded, unload
+        if plugin_loaded("example_idatasetform_v6"):
+            unload("example_idatasetform_v6")
 
 
 def test_request_signals(app):

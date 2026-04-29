@@ -173,8 +173,8 @@ class CreateTestData(object):
                     if field in item:
                         pkg_dict[field] = str(item[field])
                 if model.Package.by_name(pkg_dict['name']):
-                    log.warning('Cannot create package "%s" as it already exists.' % \
-                                    (pkg_dict['name']))
+                    log.warning('Cannot create package "%s" as it already exists.',
+                        pkg_dict['name'])
                     continue
                 pkg = model.Package(**pkg_dict)
                 model.Session.add(pkg)
@@ -323,8 +323,8 @@ class CreateTestData(object):
                                 'type', 'is_organization'))
         for group_dict in group_dicts:
             if model.Group.by_name(str(group_dict['name'])):
-                log.warning('Cannot create group "%s" as it already exists.' %
-                            group_dict['name'])
+                log.warning('Cannot create group "%s" as it already exists.',
+                    group_dict['name'])
                 continue
             pkg_names = group_dict.pop('packages', [])
             group = model.Group(name=str(group_dict['name']))

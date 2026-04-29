@@ -558,8 +558,8 @@ def get_action(action: str) -> Action:
             def wrapped(context: Optional[Context] = None,
                         data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
-                    log.critical('%s was passed extra keywords %r'
-                                 % (_action.__name__, kw))
+                    log.critical('%s was passed extra keywords %r',
+                                 _action.__name__, kw)
 
                 context = _prepopulate_context(context)
 
@@ -582,7 +582,7 @@ def get_action(action: str) -> Action:
                     audit = context['__auth_audit'][-1]
                     if audit[0] == action_name and audit[1] == id(_action):
                         if action_name not in authz.auth_functions_list():
-                            log.debug('No auth function for %s' % action_name)
+                            log.debug('No auth function for %s', action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
                             raise Exception(
                                 'Action function {0} did not call its '
@@ -841,8 +841,8 @@ def get_validator(
 
         for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
             for name, fn in plugin.get_validators().items():
-                log.debug('Validator function {0} from plugin {1} was inserted'
-                          .format(name, plugin.name))
+                log.debug('Validator function %s from plugin %s was inserted',
+                          name, plugin.name)
                 _validators_cache[name] = fn
     try:
         return _validators_cache[validator]
