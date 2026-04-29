@@ -703,8 +703,8 @@ def package_collaborator_create(
     model.Session.add(collaborator)
     model.repo.commit()
 
-    log.info('User {} added as collaborator in package {} ({})'.format(
-        user.name, package.id, capacity))
+    log.info('User %s added as collaborator in package %s (%s)',
+             user.name, package.id, capacity)
 
     return model_dictize.member_dictize(collaborator, context)
 
@@ -782,7 +782,7 @@ def _group_or_org_create(context: Context,
     member_create_context['ignore_auth'] = True
 
     logic.get_action('member_create')(member_create_context, member_dict)
-    log.debug('Created object %s' % group.name)
+    log.debug('Created object %s', group.name)
 
     return_id_only = context.get('return_id_only', False)
     action = 'organization_show' if is_org else 'group_show'
@@ -946,7 +946,7 @@ def user_create(context: Context,
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
-    :param image_url: the URL to an image to be displayed on the group's page
+    :param image_url: the URL to an image to be displayed on the user's page
         (optional)
     :type image_url: string
     :param plugin_extras: private extra user data belonging to plugins.
@@ -1052,7 +1052,7 @@ def user_create(context: Context,
         )
         user_dict["token"] = api_token["token"]
 
-    log.debug('Created user {name}'.format(name=user.name))
+    log.debug('Created user %s', user.name)
     return user_dict
 
 
@@ -1175,7 +1175,7 @@ def vocabulary_create(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % vocabulary.name)
+    log.debug('Created Vocabulary %s', vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
@@ -1219,7 +1219,7 @@ def tag_create(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug("Created tag '%s' " % tag)
+    log.debug("Created tag '%s' ", tag)
     return model_dictize.tag_dictize(tag, context)
 
 
@@ -1237,14 +1237,13 @@ def follow_user(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_user', context, data_dict)
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
+        raise NotFound(_("User not found"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_user_schema())
@@ -1273,8 +1272,8 @@ def follow_user(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following user {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following user %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_user_dictize(follower, context)
 
@@ -1293,14 +1292,13 @@ def follow_dataset(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_dataset', context, data_dict)
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
+        raise NotFound(_("User not found"))
 
     schema = (context.get('schema') or
               ckan.logic.schema.default_follow_dataset_schema())
@@ -1323,8 +1321,8 @@ def follow_dataset(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following dataset {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following dataset %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_dataset_dictize(follower, context)
 
@@ -1430,14 +1428,13 @@ def follow_group(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    _check_access('follow_group', context, data_dict)
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
+        raise NotFound(_("User not found"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_group_schema())
@@ -1460,8 +1457,8 @@ def follow_group(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following group {object}'.format(
-        follower=follower.follower_id, object=follower.object_id))
+    log.debug('User %s started following group %s',
+              follower.follower_id, follower.object_id)
 
     return model_dictize.user_following_group_dictize(follower, context)
 

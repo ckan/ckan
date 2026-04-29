@@ -3,7 +3,7 @@ on:
   workflow_call:
   workflow_dispatch:
 env:
-  PYTHON_VERSION: '3.9'
+  PYTHON_VERSION: '3.10'
 
 permissions:
   contents: read

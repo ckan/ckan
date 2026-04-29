@@ -15,7 +15,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
-from ckan import authz
+from ckan import authz, model
 from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
 
@@ -39,7 +39,7 @@ def user_delete(context: Context, data_dict: DataDict) -> ActionResult.UserDelet
 
     Only sysadmins can delete users.
 
-    :param id: the id or usernamename of the user to delete
+    :param id: the id or name of the user to delete
     :type id: string
     '''
 
@@ -118,7 +118,7 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
 
     .. warning:: Purging a dataset cannot be undone!
 
-    Purging a database completely removes the dataset from the CKAN database,
+    Purging a dataset completely removes the dataset from the CKAN database,
     whereas deleting a dataset simply marks the dataset as deleted (it will no
     longer show up in the front-end, but is still in the db).
 
@@ -369,8 +369,8 @@ def package_collaborator_delete(context: Context, data_dict: DataDict) -> Action
     model.Session.delete(collaborator)
     model.repo.commit()
 
-    log.info('User {} removed as collaborator from package {}'.format(
-        user_id, package.id))
+    log.info('User %s removed as collaborator from package %s',
+        user_id, package.id)
 
 
 def _group_or_org_delete(
@@ -542,7 +542,7 @@ def group_purge(context: Context, data_dict: DataDict) -> None:
     whereas deleting a group simply marks the group as deleted (it will no
     longer show up in the frontend, but is still in the db).
 
-    Datasets in the organization will remain, just not in the purged group.
+    Datasets in the group will remain, just not in the purged group.
 
     You must be authorized to purge the group.
 
@@ -563,7 +563,7 @@ def organization_purge(context: Context, data_dict: DataDict) -> None:
     db).
 
     Datasets owned by the organization will remain, just not in an
-    organization any more.
+    organization anymore.
 
     You must be authorized to purge the organization.
 
@@ -653,15 +653,10 @@ def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
 
-    model = context['model']
-
-    if not context.get('user'):
-        raise ckan.logic.NotAuthorized(
-                _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise ckan.logic.NotAuthorized(
-                _("You must be logged in to unfollow something."))
+        raise NotFound(_("User not found"))
+
     follower_id = userobj.id
 
     validated_data_dict, errors = validate(data_dict, schema, context)
@@ -688,6 +683,7 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
+    _check_access('unfollow_user', context, data_dict)
     _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
@@ -699,6 +695,7 @@ def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
+    _check_access('unfollow_dataset', context, data_dict)
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingDataset)
 
@@ -762,6 +759,7 @@ def unfollow_group(context: Context, data_dict: DataDict) -> None:
     '''
     schema = context.get('schema',
             ckan.logic.schema.default_follow_group_schema())
+    _check_access('unfollow_group', context, data_dict)
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingGroup)
 
@@ -789,7 +787,7 @@ def job_clear(context: Context, data_dict: DataDict) -> list[str]:
     names = [jobs.remove_queue_name_prefix(queue.name) for queue in queues]
     for queue, name in zip(queues, names):
         queue.empty()
-        log.info(u'Cleared background job queue "{}"'.format(name))
+        log.info('Cleared background job queue "%s"', name)
     return names
 
 
@@ -806,7 +804,7 @@ def job_cancel(context: Context, data_dict: DataDict) -> None:
     id = _get_or_bust(data_dict, u'id')
     try:
         jobs.job_from_id(id).delete()
-        log.info(u'Cancelled background job {}'.format(id))
+        log.info('Cancelled background job %s', id)
     except KeyError:
         raise NotFound
 
@@ -814,8 +812,8 @@ def job_cancel(context: Context, data_dict: DataDict) -> None:
 def api_token_revoke(context: Context, data_dict: DataDict) -> ActionResult.ApiTokenRevoke:
     """Delete API Token.
 
-    :param string token: Token to remove(required if `jti` not specified).
-    :param string jti: Id of the token to remove(overrides `token` if
+    :param string token: Token to remove (required if `jti` not specified).
+    :param string jti: ID of the token to remove (overrides `token` if
         specified).
 
     .. versionadded:: 3.0

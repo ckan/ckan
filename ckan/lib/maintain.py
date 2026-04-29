@@ -74,7 +74,7 @@ def timer(params: Union[Callable[..., Any], list[str]]) -> Callable[..., Any]:
         def wrapped(*args: Any, **kw: Any):
             start = time.time()
             result = fn(*args, **kw)
-            log.info('Timer: %s %.4f' % (fn_name, time.time() - start))
+            log.info('Timer: %s %.4f', fn_name, time.time() - start)
             return result
         return wrapped
 
@@ -108,7 +108,7 @@ def timer(params: Union[Callable[..., Any], list[str]]) -> Callable[..., Any]:
             start = time.time()
             # call the function
             result = fn(*args, **kw)
-            log.info('Timer: %s %.4f %s' % (fn_name, time.time() - start, p))
+            log.info('Timer: %s %.4f %s', fn_name, time.time() - start, p)
             return result
         return wrapped
     return decorator

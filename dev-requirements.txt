@@ -2,14 +2,13 @@
 
 beautifulsoup4==4.12.3
 cookiecutter==2.6.0
-coveralls   #Let Unpinned - Requires latest coveralls
 Faker==26.0.0
 factory-boy==3.3.0
 flask-debugtoolbar==0.15.1
 freezegun==1.5.1
 ipdb==0.13.13
 pip-tools==7.4.1
-Pillow==10.4.0
+Pillow==12.2.0
 responses==0.25.3
 sphinx-rtd-theme==2.0.0
 sphinx==7.3.7

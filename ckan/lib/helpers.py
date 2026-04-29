@@ -907,9 +907,9 @@ def map_pylons_to_flask_route_name(menu_item: str):
             LEGACY_ROUTE_NAMES.update(mappings)
 
     if menu_item in LEGACY_ROUTE_NAMES:
-        log.info('Route name "{}" is deprecated and will be removed. '
-                 'Please update calls to use "{}" instead'
-                 .format(menu_item, LEGACY_ROUTE_NAMES[menu_item]))
+        log.info('Route name "%s" is deprecated and will be removed. '
+                 'Please update calls to use "%s" instead',
+                 menu_item, LEGACY_ROUTE_NAMES[menu_item])
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
@@ -1325,7 +1325,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = bleach_clean(markdown(text), strip=True)
+    plain = bleach_clean(markdown(text), tags=(), strip=True)
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(

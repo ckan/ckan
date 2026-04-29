@@ -133,7 +133,7 @@ def get_default_view_plugins(
 
         if not view_plugin:
             log.warning(
-                'Plugin for view {0} could not be found'.format(view_type))
+                'Plugin for view %s could not be found', view_type)
             # We should probably check on startup if the default
             # view types exist
             continue

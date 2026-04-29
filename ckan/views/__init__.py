@@ -129,7 +129,7 @@ def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
     if not apitoken:
         return None
     apitoken = str(apitoken)
-    log.debug(f'Received API Token: {apitoken[:10]}[...]')
+    log.debug('Received API Token: %s[...]', apitoken[:10])
 
     user = api_token.get_user_from_token(apitoken)
 

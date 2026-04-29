@@ -14,7 +14,7 @@ If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
-**The minimum Python version required is 3.9**
+**The minimum Python version required is 3.10**
 
 From source is also the right installation method for developers who want to
 work on CKAN.
@@ -36,7 +36,7 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v3.9 or newer <https://www.python.org/getit/>`_
+Python                 `The Python programming language, v3.10 or newer <https://www.python.org/getit/>`_
 |postgres|             `The PostgreSQL database system, v12 or newer <https://www.postgresql.org/docs/10/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_

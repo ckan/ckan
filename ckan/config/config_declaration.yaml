@@ -76,15 +76,25 @@ groups:
         internal: true
       - key: MAX_COOKIE_SIZE
         internal: true
+      - key: MAX_FORM_MEMORY_SIZE
+        internal: true
+      - key: MAX_FORM_PARTS
+        internal: true
       - key: PREFERRED_URL_SCHEME
         internal: true
       - key: PRESERVE_CONTEXT_ON_EXCEPTION
         internal: true
       - key: PROPAGATE_EXCEPTIONS
         internal: true
+      - key: PROVIDE_AUTOMATIC_OPTIONS
+        internal: true
+      - key: SECRET_KEY_FALLBACKS
+        internal: true
       - key: SEND_FILE_MAX_AGE_DEFAULT
         internal: true
       - key: SERVER_NAME
+        internal: true
+      - key: SESSION_COOKIE_PARTITIONED
         internal: true
       - key: TEMPLATES_AUTO_RELOAD
         internal: true
@@ -93,6 +103,8 @@ groups:
       - key: TRAP_BAD_REQUEST_ERRORS
         internal: true
       - key: TRAP_HTTP_EXCEPTIONS
+        internal: true
+      - key: TRUSTED_HOSTS
         internal: true
       - key: USE_X_SENDFILE
         internal: true
@@ -1663,6 +1675,22 @@ groups:
         type: bool
         example: "true"
         description: Whether or not to use STARTTLS when connecting to the SMTP server.
+
+      - key: smtp.starttls_verify
+        type: bool
+        default: true
+        example: "true"
+        description: Whether or not to validate the SMTP server TLS certificate.
+
+      - key: smtp.starttls_ca_bundle
+        validators: ignore_empty
+        example: /path/to/ca-bundle.crt
+        description: |
+          The CA bundle path to use for TLS certificate validation. If not given
+          the system’s default CA certificates will be used. The value can be either a
+          a file of concatenated CA certificates or a directory containing several CA
+          certificates as described in the
+          `Python documentation <https://docs.python.org/3/library/ssl.html#ssl.create_default_context>`_.
 
       - key: smtp.user
         example: username@example.com

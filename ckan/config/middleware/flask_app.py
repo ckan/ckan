@@ -28,7 +28,7 @@ from werkzeug.exceptions import (
 from flask_babel import Babel
 
 from flask_login import LoginManager
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from ckan.common import CKANConfig, asbool, session, current_user
 
 import ckan.model as model
@@ -62,7 +62,80 @@ from ckan.types import CKANApp, Config, Response
 
 log = logging.getLogger(__name__)
 
-csrf = CSRFProtect()
+class CSRFProtectPerRequest(CSRFProtect):
+    """ Following Flask-WTF csrf.CSRFProtect, provide for exemption
+    for the current request
+
+    We need to extend this class because of the way we are using csrf.exempt().
+    That method is not really meant to be used a per-request basis. Our custom
+    code is just the `exempt_this_request()` method and the code marked below
+    in the `init_app()` method.
+
+    """
+
+    def exempt_this_request(self):
+        """Mark this request to be excluded from CSRF protection.
+
+        ::
+            csrf.exempt_this_request()
+
+        """
+
+        g._csrf_exempt_view = True
+
+    def init_app(self, app: Any):
+        app.extensions["csrf"] = self
+
+        app.config.setdefault("WTF_CSRF_ENABLED", True)
+        app.config.setdefault("WTF_CSRF_CHECK_DEFAULT", True)
+        app.config["WTF_CSRF_METHODS"] = set(
+            app.config.get("WTF_CSRF_METHODS", ["POST", "PUT", "PATCH", "DELETE"])
+        )
+        app.config.setdefault("WTF_CSRF_FIELD_NAME", "csrf_token")
+        app.config.setdefault("WTF_CSRF_HEADERS", ["X-CSRFToken", "X-CSRF-Token"])
+        app.config.setdefault("WTF_CSRF_TIME_LIMIT", 3600)
+        app.config.setdefault("WTF_CSRF_SSL_STRICT", True)
+
+        app.jinja_env.globals["csrf_token"] = generate_csrf
+        app.context_processor(lambda: {"csrf_token": generate_csrf})
+
+        @app.before_request
+        def csrf_protect(): # type: ignore
+
+            """
+            Start custom code
+            """
+            if getattr(g, "_csrf_exempt_view", False):
+                return
+            """
+            End custom code
+            """
+
+            if not app.config["WTF_CSRF_ENABLED"]:
+                return
+
+            if not app.config["WTF_CSRF_CHECK_DEFAULT"]:
+                return
+
+            if request.method not in app.config["WTF_CSRF_METHODS"]:
+                return
+
+            if not request.endpoint:
+                return
+
+            if app.blueprints.get(request.blueprint) in self._exempt_blueprints:
+                return
+
+            view = app.view_functions.get(request.endpoint)
+            dest = f"{view.__module__}.{view.__name__}"
+
+            if dest in self._exempt_views:
+                return
+
+            self.protect()
+
+
+csrf = CSRFProtectPerRequest()
 
 csrf_warn_extensions = (
         "Extensions are excluded from CSRF protection! "
@@ -262,7 +335,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     csrf.init_app(app)
 
     if config.get("ckan.csrf_protection.ignore_extensions"):
-        log.warn(csrf_warn_extensions)
+        log.warning(csrf_warn_extensions)
         _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
@@ -276,9 +349,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         try:
             app = plugin.make_error_log_middleware(app, config)
         except AttributeError:
-            log.critical('Middleware class {0} is missing the method'
-                         'make_error_log_middleware.'
-                         .format(plugin.__class__.__name__))
+            log.critical('Middleware class %s is missing the method'
+                         'make_error_log_middleware.',
+                         plugin.__class__.__name__)
 
     # Initialize flask-login
     login_manager = LoginManager()
@@ -403,8 +476,7 @@ def ckan_before_request() -> Optional[Response]:
         endpoint = request.endpoint or ""
         view = current_app.view_functions.get(endpoint)
         if view:
-            dest = f"{view.__module__}.{view.__name__}"
-            csrf.exempt(dest)
+            csrf.exempt_this_request()
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
@@ -434,7 +506,7 @@ def ckan_after_request(response: Response) -> Response:
     url = request.environ['PATH_INFO']
     status_code = response.status_code
 
-    log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
+    log.info(' %s %s render time %.3f seconds', status_code, url, r_time)
 
     return response
 
@@ -507,9 +579,7 @@ def _register_core_blueprints(app: CKANApp):
                 for blueprint in inspect.getmembers(module, is_blueprint):
                     app.register_blueprint(blueprint[1])
                     log.debug(
-                        u'Registered core blueprint: {0!r}'.format(
-                            blueprint[0]
-                        )
+                        'Registered core blueprint: %r', blueprint[0]
                     )
 
 
