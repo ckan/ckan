@@ -1,5 +1,5 @@
-Midnight blue theme use different blocks in `base.html`:
+Following blocks  in `base.html` were updated:
 
 * block `htmltag` that wraps whole `<html>` tag is replaced with `html_attrs` block that wraps only attributes of the tag
-* block `headtag` is removed.
+* block `headtag` is removed
 * block `bodytag` renamed to `body_attrs`
