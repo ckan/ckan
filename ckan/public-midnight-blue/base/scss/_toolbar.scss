@@ -110,10 +110,6 @@
     justify-content: flex-end;
 }
 
-.no-nav .page-header {
-    @include border-radius(3px 3px 0 0);
-}
-
 .nav-tabs-plain {
     padding: 0 $gutterX;
     &>.active>a,
