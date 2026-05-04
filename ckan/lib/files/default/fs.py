@@ -22,10 +22,13 @@ class Settings(base.Settings, fs.Settings):
 class Reader(base.Reader, fs.Reader):
     @override
     def response(self, data: base.FileData, extras: dict[str, Any]) -> types.Response:
-        filepath = os.path.join(self.storage.settings.path, data.location)
         if not self.storage.exists(data):
             raise exc.MissingFileError(self.storage, data.location)
 
+        # `full_path` prevents injection of null-byte and path-traversal. But
+        # even without it the location can be considered as safe, because
+        # `storage.exists` has not complains about it.
+        filepath = self.storage.full_path(data.location)
         return flask.send_file(
             filepath,
             download_name=data.location,
