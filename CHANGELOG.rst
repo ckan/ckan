@@ -15,6 +15,8 @@ v.2.10.10 2026-04-29
 Migration notes
 ---------------
 
+- The minimum Python version for this version is Python 3.9. It has been tested up
+  tp Python 3.11
 - This version requires a requirements upgrade on source installations
 
 Minor changes
