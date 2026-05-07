@@ -674,7 +674,7 @@ class RequestResetView(MethodView):
             h.flash_error(error_msg)
             return h.redirect_to(u'user.request_reset')
 
-        id_ = request.form.get(u'user', '')
+        id_ = request.form.get('user', '')
         if id_ in (None, ''):
             h.flash_error(_('Email is required'))
             return h.redirect_to('user.request_reset')
