@@ -391,12 +391,7 @@ def test_no_nul_characters_with_valid_value():
     ]
 
     for valid_value in valid_values:
-
-        @returns_arg
-        def call_validator(*args, **kwargs):
-            return validators.no_nul_characters(*args, **kwargs)
-
-        call_validator(valid_value)
+        returns_arg(validators.no_nul_characters)(valid_value)
 
 
 def test_strip_value_with_valid_value():
