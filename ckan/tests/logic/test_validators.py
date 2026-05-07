@@ -371,12 +371,7 @@ def test_no_nul_characters_with_invalid_value():
     ]
 
     for invalid_value in invalid_values:
-
-        @raises_invalid
-        def call_validator(*args, **kwargs):
-            return validators.no_nul_characters(*args, **kwargs)
-
-        call_validator(invalid_value, context={})
+        raises_invalid(validators.no_nul_characters)(invalid_value, context={})
 
 
 def test_no_nul_characters_with_valid_value():
