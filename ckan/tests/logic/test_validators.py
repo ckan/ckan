@@ -356,8 +356,8 @@ def test_email_validator_with_valid_value():
         call_validator(valid_value)
 
 
-def test_no_nul_characters_with_invalid_value():
-    """no_nul_characters() should raise Invalid for any string containing
+def test_no_nul_byte_with_invalid_value():
+    """no_nul_byte() should raise Invalid for any string containing
     the NUL byte. PostgreSQL text columns reject NUL and psycopg2 raises
     ValueError before the query is sent, so unguarded input becomes a 500.
     """
@@ -371,11 +371,11 @@ def test_no_nul_characters_with_invalid_value():
     ]
 
     for invalid_value in invalid_values:
-        raises_invalid(validators.no_nul_characters)(invalid_value, context={})
+        raises_invalid(validators.no_nul_byte)(invalid_value, context={})
 
 
-def test_no_nul_characters_with_valid_value():
-    """no_nul_characters() should return the value unchanged for any string
+def test_no_nul_byte_with_valid_value():
+    """no_nul_byte() should return the value unchanged for any string
     that doesn't contain the NUL byte, including strings with other control
     characters and non-ASCII Unicode (which PostgreSQL accepts)."""
     valid_values = [
@@ -391,7 +391,7 @@ def test_no_nul_characters_with_valid_value():
     ]
 
     for valid_value in valid_values:
-        returns_arg(validators.no_nul_characters)(valid_value)
+        returns_arg(validators.no_nul_byte)(valid_value)
 
 
 def test_strip_value_with_valid_value():

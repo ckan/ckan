@@ -367,7 +367,7 @@ def group_id_or_name_exists(reference: str, context: Context) -> Any:
     return reference
 
 
-def no_nul_characters(value: Any, context: Context) -> Any:
+def no_nul_byte(value: Any, context: Context) -> Any:
     '''Reject strings containing the NUL character (U+0000).
 
     PostgreSQL ``text`` columns cannot store the NUL byte and ``psycopg2``
