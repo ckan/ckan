@@ -1,1 +1,1 @@
-Test factories support composite primary key via ``primary_key = ("part1", "part2")``.
+Test factories can be used with models that have composite primary key.
