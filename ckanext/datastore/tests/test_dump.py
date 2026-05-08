@@ -911,3 +911,75 @@ def get_csv_record_values(response_body):
 
 def get_json_record_values(response_body):
     return [record[1] for record in json.loads(response_body)["records"]]
+
+
+class TestDatastoreDumpInterface(object):
+    """Tests for the IDatastoreDump plugin interface.
+
+    Uses ``sample_dump_plugin`` (see
+    ``ckanext/datastore/tests/sample_dump_plugin.py``), which adds a
+    ``faux`` format and removes the built-in ``xml`` format.
+    """
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_unknown_format_rejected(self, app):
+        # Sanity check: the schema's one_of validator rejects formats
+        # not in the registry, regardless of any plugin.
+        resource = factories.Resource()
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            force=True,
+            records=[{"book": "annakarenina"}],
+        )
+
+        app.get(
+            f"/datastore/dump/{resource['id']}?format=bogus", status=400
+        )
+
+    @pytest.mark.ckan_config(
+        "ckan.plugins", "datastore sample_dump_plugin"
+    )
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_custom_format_added_via_plugin(self, app):
+        resource = factories.Resource()
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            force=True,
+            records=[{"book": "annakarenina"}, {"book": "warandpeace"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=faux"
+        )
+        assert response.status_code == 200
+        assert (
+            response.headers["Content-Type"]
+            == "application/x-faux; charset=utf-8"
+        )
+        assert (
+            f'filename="{resource["id"]}.faux"'
+            in response.headers["Content-disposition"]
+        )
+
+    @pytest.mark.ckan_config(
+        "ckan.plugins", "datastore sample_dump_plugin"
+    )
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_xml_disabled_via_plugin(self, app):
+        # The plugin returns {"xml": None}, which removes the format
+        # from the registry. The schema's one_of validator then rejects
+        # ?format=xml at validation time (HTTP 400).
+        resource = factories.Resource()
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            force=True,
+            records=[{"book": "annakarenina"}],
+        )
+
+        app.get(
+            f"/datastore/dump/{resource['id']}?format=xml", status=400
+        )
