@@ -62,28 +62,28 @@ def get_dump_format_configs() -> dict[str, dict[str, Any]]:
             "label": "CSV",
             "writer_factory": csv_writer,
             "records_format": "csv",
-            "content_type": b"text/csv; charset=utf-8",
+            "content_type": "text/csv; charset=utf-8",
             "file_extension": "csv",
         },
         "tsv": {
             "label": "TSV",
             "writer_factory": tsv_writer,
             "records_format": "tsv",
-            "content_type": b"text/tab-separated-values; charset=utf-8",
+            "content_type": "text/tab-separated-values; charset=utf-8",
             "file_extension": "tsv",
         },
         "json": {
             "label": "JSON",
             "writer_factory": json_writer,
             "records_format": "lists",
-            "content_type": b"application/json; charset=utf-8",
+            "content_type": "application/json; charset=utf-8",
             "file_extension": "json",
         },
         "xml": {
             "label": "XML",
             "writer_factory": xml_writer,
             "records_format": "objects",
-            "content_type": b"text/xml; charset=utf-8",
+            "content_type": "text/xml; charset=utf-8",
             "file_extension": "xml",
         },
     }
@@ -188,7 +188,6 @@ def dump(resource_id: str):
                                 sort=sort,
                                 search_params=search_params,
                                 user=user_context),
-                        mimetype='application/octet-stream',
                         headers=headers)
     except ObjectNotFound:
         abort(404, _('DataStore resource not found'))

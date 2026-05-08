@@ -263,7 +263,7 @@ class IDatastoreDump(interfaces.Interface):
           writer
         - 'records_format': The format for records ('csv', 'tsv',
           'lists', 'objects')
-        - 'content_type': The MIME type for the response (bytes)
+        - 'content_type': The MIME type for the response (str)
         - 'file_extension': The file extension for downloads
 
         Example: add ``xlsx`` and remove ``xml``::
@@ -274,8 +274,8 @@ class IDatastoreDump(interfaces.Interface):
                     'writer_factory': xlsx_writer,
                     'records_format': 'objects',
                     'content_type': (
-                        b'application/vnd.openxmlformats-'
-                        b'officedocument.spreadsheetml.sheet'
+                        'application/vnd.openxmlformats-'
+                        'officedocument.spreadsheetml.sheet'
                     ),
                     'file_extension': 'xlsx',
                 },

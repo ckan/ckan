@@ -22,7 +22,7 @@ class SampleDumpPlugin(p.SingletonPlugin):
                 "label": "Faux",
                 "writer_factory": csv_writer,
                 "records_format": "csv",
-                "content_type": b"application/x-faux; charset=utf-8",
+                "content_type": "application/x-faux; charset=utf-8",
                 "file_extension": "faux",
             },
             "xml": None,
