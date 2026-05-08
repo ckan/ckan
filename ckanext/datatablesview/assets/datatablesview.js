@@ -623,12 +623,13 @@ this.ckan.module('datatables_view', function (jQuery) {
 
           // add resourceinfo in footer, very useful if this view is embedded
           const resourceInfo = document.getElementById('dtv-resource-info').innerText
-          const resourceInfoContent = '<a href="' + resourceurl + '">' +
-            packagename + '&mdash;' + resourcename +
-            '</a> <i class="fa fa-info-circle" title="' + resourceInfo + '"</i>'
-          $('div.resourceinfo').html(
-            DOMPurify.sanitize(resourceInfoContent, { ALLOWED_TAGS: ['a', 'i']})
-          )
+          const resourceLink = $('<a>')
+            .attr('href', resourceurl)
+            .text(packagename + '—' + resourcename)
+          const resourceIcon = $('<i>')
+            .attr('class', 'fa fa-info-circle')
+            .attr('title', resourceInfo)
+          $('div.resourceinfo').empty().append(resourceLink, ' ', resourceIcon)
 
           // if in list/responsive mode, hide search inputs for hidden columns
           if (gcurrentView === 'list') {
