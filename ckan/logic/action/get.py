@@ -2079,34 +2079,26 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
             raise ValidationError({'query': msg})
 
         # prevent pattern injection
-        term = misc.escape_sql_like_special_characters(term)
+        safe_term = misc.escape_sql_like_special_characters(term)
 
         model_attr = getattr(model.Resource, field)
 
         # Treat the has field separately, see docstring.
         if field == 'hash':
-            q = q.filter(model_attr.ilike(str(term) + '%'))
+            q = q.filter(model_attr.ilike(str(safe_term) + '%'))
 
         # Resource extras are stored in a json blob.  So searching for
         # matching fields is a bit trickier. See the docstring.
         elif field in model.Resource.get_extra_columns():
-            model_attr = getattr(model.Resource, 'extras')
-
-            like = _or_(
-                model_attr.ilike(
-                    u'''%%"%s": "%%%s%%",%%''' % (field, term)),
-                model_attr.ilike(
-                    u'''%%"%s": "%%%s%%"}''' % (field, term))
-            )
-            q = q.filter(like)
+            q = q.filter(model.Resource.extras[field].astext == term)
 
         # Just a regular field
         else:
             column = model_attr.property.columns[0]
             if isinstance(column.type, sqlalchemy.UnicodeText):
-                q = q.filter(model_attr.ilike('%' + str(term) + '%'))
+                q = q.filter(model_attr.ilike('%' + str(safe_term) + '%'))
             else:
-                q = q.filter(model_attr == term)
+                q = q.filter(model_attr == safe_term)
 
     if order_by is not None:
         if hasattr(model.Resource, order_by):
