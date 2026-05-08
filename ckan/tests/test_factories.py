@@ -1,12 +1,12 @@
-# encoding: utf-8
-
 import pytest
+from faker import Faker
 
 import ckan.tests.factories as factories
+from ckan import model, types
 
 
 @pytest.mark.parametrize(
-    u"entity",
+    "entity",
     [
         factories.User,
         factories.Resource,
@@ -20,7 +20,7 @@ import ckan.tests.factories as factories
 @pytest.mark.usefixtures("non_clean_db")
 def test_id_uniqueness(entity):
     first, second = entity(), entity()
-    assert first[u"id"] != second[u"id"]
+    assert first["id"] != second["id"]
 
 
 # START-CONFIG-OVERRIDE
@@ -29,7 +29,7 @@ def test_id_uniqueness(entity):
 def test_resource_view_factory():
     resource_view1 = factories.ResourceView()
     resource_view2 = factories.ResourceView()
-    assert resource_view1[u"id"] != resource_view2[u"id"]
+    assert resource_view1["id"] != resource_view2["id"]
 
 
 # END-CONFIG-OVERRIDE
@@ -38,4 +38,36 @@ def test_resource_view_factory():
 @pytest.mark.usefixtures("non_clean_db")
 def test_dataset_factory_allows_creation_by_anonymous_user():
     dataset = factories.Dataset(user=None)
-    assert dataset[u"creator_user_id"] is None
+    assert dataset["creator_user_id"] is None
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_factory_model(package_factory: types.TestFactory, faker: Faker):
+    """Factory can create a model object instead of a dictionary."""
+    notes = faker.sentence()
+    package = package_factory.model(notes=notes)
+    assert isinstance(package, model.Package)
+    assert package.notes == notes
+
+
+class UserFollowFactory(factories.CKANFactory):
+    class Meta:
+        model = model.UserFollowingUser
+        action = "follow_user"
+        primary_key = ("follower_id", "object_id")
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_factory_model_with_composite_key(user_factory: types.TestFactory):
+    """Factory can create a model object with a composite primary key.
+
+    In this case, the UserFollowingUser model has a composite primary key
+    consisting of follower_id and object_id.
+    """
+    john = user_factory()
+    jane = user_factory()
+
+    result = UserFollowFactory.model(id=john["id"], user=jane)
+    assert isinstance(result, model.UserFollowingUser)
+    assert result.object_id == john["id"]
+    assert result.follower_id == jane["id"]

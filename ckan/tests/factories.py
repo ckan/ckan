@@ -69,6 +69,10 @@ Usage::
  # * create `Meta` class inside it, with the two properties:
  #   * model: corresponding SQLAlchemy model
  #   * action: API action that can create instances of the model
+ #   * primary_key (optional): Name of the model's primary key column. The default
+ #         value is `id`. Override this only if PK has a different name or consists
+ #         of multiple columns(use tuple with column names in this case,
+ #         i.e `primary_key = ("a", "b")`)
  # * define any extra attributes
  # * register factory as a fixture using :py:func:`~pytest_factoryboy.register`
  import factory
@@ -95,6 +99,7 @@ https://pytest-factoryboy.readthedocs.io/en/latest/
 from __future__ import annotations
 
 import string
+import operator
 import unittest.mock as mock
 
 from functools import partial
@@ -204,12 +209,17 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
         return cls._api_postprocess_result(result)
 
     @classmethod
-    def model(cls, **kwargs):
+    def model(cls, **kwargs: Any):
         """Create entity via API and retrieve result directly from the DB."""
         result = cls(**kwargs)
+
+        key = cls._meta.primary_key
+        if isinstance(key, str):
+            key = (key, )
+        getter = operator.itemgetter(*key)
         return cls._meta.sqlalchemy_session.get(
             cls._meta.model,
-            result[cls._meta.primary_key],
+            getter(result),
         )
 
     @classmethod
