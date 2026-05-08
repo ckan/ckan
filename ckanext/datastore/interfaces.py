@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from ckan.types import Context, Schema
-from typing import Any
+from typing import Any, Optional
 import ckan.plugins.interfaces as interfaces
 
 
@@ -232,3 +232,60 @@ class IDataDictionaryForm(interfaces.Interface):
         in the data dictionary page.
         """
         return field
+
+
+class IDatastoreDump(interfaces.Interface):
+    """
+    Allow plugins to register custom dump formats and writers for datastore
+    exports
+    """
+
+    def register_dump_formats(
+        self,
+    ) -> dict[str, dict[str, Any] | None]:
+        """
+        Register, override, or remove dump formats for datastore exports.
+
+        Return a dictionary where each key is a format name. The value
+        is either:
+
+        - A configuration dict to add a new format or replace an
+          existing one (defaults: csv, tsv, json, xml).
+        - ``None``, which acts as a sentinel meaning "remove this
+          format". Returning ``{"xml": None}`` disables the built-in
+          XML dump entirely (UI dropdown entry, schema validation,
+          and the ``?format=xml`` URL).
+
+        A configuration dict must include:
+
+        - 'label': Human-readable name shown in the download dropdown UI
+        - 'writer_factory': A context manager function that creates a
+          writer
+        - 'records_format': The format for records ('csv', 'tsv',
+          'lists', 'objects')
+        - 'content_type': The MIME type for the response (bytes)
+        - 'file_extension': The file extension for downloads
+
+        Example: add ``xlsx`` and remove ``xml``::
+
+            {
+                'xlsx': {
+                    'label': 'Excel',
+                    'writer_factory': xlsx_writer,
+                    'records_format': 'objects',
+                    'content_type': (
+                        b'application/vnd.openxmlformats-'
+                        b'officedocument.spreadsheetml.sheet'
+                    ),
+                    'file_extension': 'xlsx',
+                },
+                'xml': None,
+            }
+
+        Plugins are applied in load order, so a later plugin can undo
+        or replace an earlier plugin's registration.
+
+        :returns: Mapping of format name to config dict or ``None``
+        :rtype: dict
+        """
+        return {}

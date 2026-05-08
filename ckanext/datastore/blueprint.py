@@ -8,6 +8,7 @@ from flask import Blueprint, Response
 from flask.views import MethodView
 
 import ckan.lib.navl.dictization_functions as dict_fns
+from ckan import plugins as p
 from ckan.logic import (
     tuplize_dict,
     parse_params,
@@ -17,6 +18,8 @@ from ckan.plugins.toolkit import (
     abort, render, g, h, ValidationError, asbool, check_access, config,
 )
 from ckan.types import Schema, ValidatorFactory
+
+from ckanext.datastore.interfaces import IDatastoreDump
 from ckanext.datastore.logic.schema import (
     list_of_strings_or_string,
     json_validator,
@@ -37,17 +40,69 @@ one_of = cast(ValidatorFactory, get_validator(u'one_of'))
 default = cast(ValidatorFactory, get_validator(u'default'))
 unicode_only = get_validator(u'unicode_only')
 
-DUMP_FORMATS = u'csv', u'tsv', u'json', u'xml'
 PAGINATE_BY = 32000
 
 datastore = Blueprint(u'datastore', __name__)
+
+
+def get_dump_formats() -> tuple[str, ...]:
+    """Get available dump formats from plugins"""
+    dump_format_configs = get_dump_format_configs()
+    return tuple(dump_format_configs.keys())
+
+
+def get_dump_format_configs() -> dict[str, dict[str, Any]]:
+    """Get dump format configurations from all plugins"""
+    all_formats = {
+        "csv": {
+            "label": "CSV",
+            "writer_factory": csv_writer,
+            "records_format": "csv",
+            "content_type": b"text/csv; charset=utf-8",
+            "file_extension": "csv",
+        },
+        "tsv": {
+            "label": "TSV",
+            "writer_factory": tsv_writer,
+            "records_format": "tsv",
+            "content_type": b"text/tab-separated-values; charset=utf-8",
+            "file_extension": "tsv",
+        },
+        "json": {
+            "label": "JSON",
+            "writer_factory": json_writer,
+            "records_format": "lists",
+            "content_type": b"application/json; charset=utf-8",
+            "file_extension": "json",
+        },
+        "xml": {
+            "label": "XML",
+            "writer_factory": xml_writer,
+            "records_format": "objects",
+            "content_type": b"text/xml; charset=utf-8",
+            "file_extension": "xml",
+        },
+    }
+
+    # Allow plugins to add, override, or remove formats.
+    # A value of None is a sentinel meaning "remove this format"
+    # for sites that want to disable a default (e.g. {"xml": None}).
+    for plugin in p.PluginImplementations(IDatastoreDump):
+        plugin_formats = plugin.register_dump_formats()
+        for name, cfg in plugin_formats.items():
+            if cfg is None:
+                all_formats.pop(name, None)
+            else:
+                all_formats[name] = cfg
+
+    return all_formats
 
 
 def dump_schema() -> Schema:
     return {
         u'offset': [default(0), int_validator],
         u'limit': [ignore_missing, int_validator],
-        u'format': [default(u'csv'), one_of(DUMP_FORMATS)],
+        u'format': [default(u'csv'), one_of(get_dump_formats())],
         u'bom': [default(False), boolean_validator],
         u'filters': [ignore_missing, json_validator],
         u'q': [ignore_missing, unicode_or_json_validator],
@@ -100,27 +155,19 @@ def dump(resource_id: str):
 
     user_context = g.user
 
-    content_type = None
-    content_disposition = None
+    # Get format configuration from plugin registry
+    dump_formats = get_dump_format_configs()
 
-    if fmt == 'csv':
-        content_disposition = 'attachment; filename="{name}.csv"'.format(
-            name=resource_id)
-        content_type = b'text/csv; charset=utf-8'
-    elif fmt == 'tsv':
-        content_disposition = 'attachment; filename="{name}.tsv"'.format(
-            name=resource_id)
-        content_type = b'text/tab-separated-values; charset=utf-8'
-    elif fmt == 'json':
-        content_disposition = 'attachment; filename="{name}.json"'.format(
-            name=resource_id)
-        content_type = b'application/json; charset=utf-8'
-    elif fmt == 'xml':
-        content_disposition = 'attachment; filename="{name}.xml"'.format(
-            name=resource_id)
-        content_type = b'text/xml; charset=utf-8'
-    else:
-        abort(404, _('Unsupported format'))
+    if fmt not in dump_formats:
+        abort(404, _("Unsupported format"))
+
+    format_config = dump_formats[fmt]
+    file_extension = format_config["file_extension"]
+    content_type = format_config["content_type"]
+
+    content_disposition = 'attachment; filename="{name}.{ext}"'.format(
+        name=resource_id, ext=file_extension
+    )
 
     headers = {}
     if content_type:
@@ -244,20 +291,15 @@ def dump_to(
     limit: Optional[int], options: dict[str, Any], sort: str,
     search_params: dict[str, Any], user: str
 ):
-    if fmt == 'csv':
-        writer_factory = csv_writer
-        records_format = 'csv'
-    elif fmt == 'tsv':
-        writer_factory = tsv_writer
-        records_format = 'tsv'
-    elif fmt == 'json':
-        writer_factory = json_writer
-        records_format = 'lists'
-    elif fmt == 'xml':
-        writer_factory = xml_writer
-        records_format = 'objects'
-    else:
-        assert False, 'Unsupported format'
+    # Get format configuration from plugin registry
+    dump_formats = get_dump_format_configs()
+
+    if fmt not in dump_formats:
+        assert False, "Unsupported format"
+
+    format_config = dump_formats[fmt]
+    writer_factory = format_config["writer_factory"]
+    records_format = format_config["records_format"]
 
     bom = options.get('bom', False)
 
