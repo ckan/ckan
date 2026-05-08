@@ -8,6 +8,7 @@ import re
 from hashlib import sha1, md5
 
 import passlib.utils
+import sqlalchemy as sa
 from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_, and_
 from sqlalchemy.orm import synonym, Mapped
@@ -63,7 +64,10 @@ user_table = Table('user', meta.metadata,
         Index('idx_user_name', 'name'),
         Index('idx_only_one_active_email_no_case', func.lower(Column('email')),
               unique=True, postgresql_where="(state = 'active'::text)"),
-        )
+        Index('idx_user_name_index', sa.text(
+            "(\nCASE\n    WHEN fullname IS NULL OR fullname = ''::text"
+            " THEN name\n    ELSE fullname\nEND)"
+        )))
 
 
 class User(core.StatefulObjectMixin,
