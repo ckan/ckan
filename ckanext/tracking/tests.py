@@ -49,7 +49,7 @@ def track(app):
             "HTTP_ACCEPT_LANGUAGE": "en",
             "HTTP_ACCEPT_ENCODING": "gzip, deflate",
         }
-        app.post(
+        return app.post(
             "/_tracking", params=params, environ_overrides=environ_overrides
             )
 
@@ -544,3 +544,7 @@ class TestTracking(object):
         package_2_data = lines[1]
         assert package_2_data["total views"] == "2"
         assert package_2_data["recent views (last 2 weeks)"] == "2"
+
+    def test_post_tracking_does_not_return_method_not_allowed(self, track):
+        response = track(url="", type_="page")
+        assert response.status_code == 200
