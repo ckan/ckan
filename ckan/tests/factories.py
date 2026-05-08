@@ -69,10 +69,6 @@ Usage::
  # * create `Meta` class inside it, with the two properties:
  #   * model: corresponding SQLAlchemy model
  #   * action: API action that can create instances of the model
- #   * primary_key (optional): Name of the model's primary key column. The default
- #         value is `id`. Override this only if PK has a different name or consists
- #         of multiple columns(use tuple with column names in this case,
- #         i.e `primary_key = ("a", "b")`)
  # * define any extra attributes
  # * register factory as a fixture using :py:func:`~pytest_factoryboy.register`
  import factory
@@ -106,6 +102,7 @@ from functools import partial
 from typing import Any, Optional
 
 import factory
+import sqlalchemy as sa
 from faker import Faker
 
 import ckan.model
@@ -166,7 +163,7 @@ class CKANOptions(factory.alchemy.SQLAlchemyOptions):
     def _build_default_options(self):
         return super()._build_default_options() + [
             factory.base.OptionDefault("action", None, inherit=True),
-            factory.base.OptionDefault("primary_key", "id", inherit=True),
+            factory.base.OptionDefault("primary_key", None, inherit=True),
         ]
 
 
@@ -214,9 +211,15 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
         result = cls(**kwargs)
 
         key = cls._meta.primary_key
+        if not key:
+            # if key is not specified in factory definition, compute it via
+            # model inspection
+            key = tuple(k.name for k in sa.inspect(cls._meta.model).primary_key)
+
         if isinstance(key, str):
             key = (key, )
         getter = operator.itemgetter(*key)
+
         return cls._meta.sqlalchemy_session.get(
             cls._meta.model,
             getter(result),

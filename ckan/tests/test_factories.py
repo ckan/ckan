@@ -50,15 +50,21 @@ def test_factory_model(package_factory: types.TestFactory, faker: Faker):
     assert package.notes == notes
 
 
-class UserFollowFactory(factories.CKANFactory):
+class UserFollowFactoryWithKey(factories.CKANFactory):
     class Meta:
         model = model.UserFollowingUser
         action = "follow_user"
         primary_key = ("follower_id", "object_id")
 
 
+class UserFollowFactoryWithoutKey(factories.CKANFactory):
+    class Meta:
+        model = model.UserFollowingUser
+        action = "follow_user"
+
+
 @pytest.mark.usefixtures("non_clean_db")
-def test_factory_model_with_composite_key(user_factory: types.TestFactory):
+def test_factory_model_with_explicit_composite_key(user_factory: types.TestFactory):
     """Factory can create a model object with a composite primary key.
 
     In this case, the UserFollowingUser model has a composite primary key
@@ -67,7 +73,19 @@ def test_factory_model_with_composite_key(user_factory: types.TestFactory):
     john = user_factory()
     jane = user_factory()
 
-    result = UserFollowFactory.model(id=john["id"], user=jane)
+    result = UserFollowFactoryWithKey.model(id=john["id"], user=jane)
+    assert isinstance(result, model.UserFollowingUser)
+    assert result.object_id == john["id"]
+    assert result.follower_id == jane["id"]
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_factory_model_with_implicit_composite_key(user_factory: types.TestFactory):
+    """If primary key is not specified, factory will guess it."""
+    john = user_factory()
+    jane = user_factory()
+
+    result = UserFollowFactoryWithoutKey.model(id=john["id"], user=jane)
     assert isinstance(result, model.UserFollowingUser)
     assert result.object_id == john["id"]
     assert result.follower_id == jane["id"]
