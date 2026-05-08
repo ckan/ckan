@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from ckan.types import Context, Schema
-from typing import Any, Optional
+from typing import Any
 import ckan.plugins.interfaces as interfaces
 
 
