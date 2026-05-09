@@ -7,7 +7,7 @@ Revises: d4d9be9189fe
 Create Date: 2020-02-24 09:24:22.405413
 
 """
-from alembic import op
+from alembic import op, context
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
@@ -18,11 +18,16 @@ depends_on = None
 
 
 def upgrade():
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
     op.add_column(
         u'resource',
         sa.Column(u'metadata_modified', sa.TIMESTAMP, nullable=True)
     )
-    op.execute(u'UPDATE resource SET metadata_modified = created')
+    execute(u'UPDATE resource SET metadata_modified = created')
 
 
 def downgrade():

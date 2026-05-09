@@ -359,6 +359,8 @@ db: Manage databases
  ckan db pending-migrations  - List all sources with unapplied migrations.
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
+ ckan db history             - Print list of migrations
+ ckan db export-migration    - Generate SQL executed during DB migration
 
 See :doc:`database-management`.
 

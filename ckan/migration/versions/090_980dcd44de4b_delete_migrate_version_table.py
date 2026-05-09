@@ -7,7 +7,7 @@ Revises: 23c92480926e
 Create Date: 2019-05-09 13:39:44.097930
 
 """
-from alembic import op
+from alembic import op, context
 
 # revision identifiers, used by Alembic.
 revision = u'980dcd44de4b'
@@ -23,7 +23,12 @@ def upgrade():
     there is no `migrate_version` table, so DO NOT remove `IF EXISTS`
     clause.
     '''
-    op.execute(u'DROP TABLE IF EXISTS migrate_version')
+    if context.is_offline_mode():
+        execute = context.execute
+    else:
+        execute = op.execute
+
+    execute(u'DROP TABLE IF EXISTS migrate_version')
 
 
 def downgrade():
