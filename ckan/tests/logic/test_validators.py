@@ -929,6 +929,51 @@ def test_tag_string_convert():
     assert convert("trailing comma space, ") == ["trailing comma space"]
 
 
+@helpers.change_config('ckan.validation.tag_name.regex', "[\w \-.:\n\r]*$")
+def test_tag_string_convert_custom_regex():
+    def convert(tag_string):
+        key = "tag_string"
+        data = {key: tag_string}
+        errors = []
+        context = {"model": model, "session": model.Session}
+        validators.tag_string_convert(key, data, errors, context)
+        tags = []
+        i = 0
+        while True:
+            tag = data.get(("tags", i, "name"))
+            if not tag:
+                break
+            tags.append(tag)
+            i += 1
+        return tags
+
+    assert convert("big, good") == ["big", "good"]
+    assert convert("one, several word tag, with-hyphen") == [
+        "one",
+        "several word tag",
+        "with-hyphen",
+    ]
+    assert convert("") == []
+    assert convert("trailing comma,") == ["trailing comma"]
+    assert convert("trailing comma space, ") == ["trailing comma space"]
+
+    # test non-alphanumeric character
+    assert convert("1:5000") == ["1:5000"]
+
+    # Test with a string containing unicode characters
+    assert convert("café, résumé") == ["café", "résumé"]
+
+    # Test with normalized unicode characters
+    assert ["cafe\u0301", "re\u0301sume\u0301"] != ["café", "résumé"]
+    assert convert("cafe\u0301, re\u0301sume\u0301") == ["café", "résumé"]
+
+    # expect error when line break in string, even though the configured regex would accept that non-printable char
+    raises_invalid(validators.tag_name_validator)("test\nme", {})
+
+    # expect error when comma in string
+    raises_invalid(validators.tag_name_validator)("1,2", {})
+
+
 def test_url_validator():
     key = ("url",)
     errors = {(key): []}

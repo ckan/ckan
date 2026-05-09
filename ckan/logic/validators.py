@@ -9,6 +9,7 @@ import mimetypes
 import string
 import json
 import uuid
+import unicodedata
 from typing import Any, Container, Optional, Union
 from urllib.parse import urlparse
 
@@ -497,13 +498,43 @@ def tag_length_validator(value: Any, context: Context) -> Any:
     return value
 
 def tag_name_validator(value: Any, context: Context) -> Any:
-    """Ensures that tag does not contain wrong characters
     """
-    tagname_match = re.compile(r'[\w \-.]*$', re.UNICODE)
+    Accept
+    - either alphanumeric characters, spaces (" "), hyphens ("-"), underscores ("_") or dots (".")
+    - or all character matching a configured regex in the CKAN config file
+
+    Reject
+    - tags with non-printable characters, even when the custom regex would allow them
+
+    Normalisation
+    - does apply Unicode normalization
+    """
+
+    # Normalize input to NFC (canonical decomposition followed by canonical composition)
+    # TODO not necessary if only tag_string_convert is being used, which does unicode normalization by itself
+    value = unicodedata.normalize('NFC', value)
+
+    # Define the default regex
+    default_regex = r'[\w \-.]*$'
+
+    # Fetch the validation regex from CKAN configuration
+    regex = config.get('ckan.validation.tag_name.regex', default_regex)
+
+    # Validate regex
+    tagname_match = re.compile(regex, re.UNICODE)
     if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" can only contain alphanumeric '
-                        'characters, spaces (" "), hyphens ("-"), '
-                        'underscores ("_") or dots (".")') % (value))
+        if not tagname_match.match(value):
+            message = ('Tag "%s" can only contain alphanumeric characters, spaces (" "), hyphens ("-"), '
+                       'underscores ("_") or dots (".")') % (value) \
+                if regex == default_regex else (
+                                                   'Tag "%s" contains invalid characters. Allowed characters are defined by '
+                                                   'the configured validation pattern "%s"') % (value, regex)
+            raise Invalid(_(message))
+
+    # Ensure all characters in the value are printable
+    if not value.isprintable():
+        raise Invalid(_('Tag "%s" contains non-printable characters, which are not allowed.') % (value))
+
     return value
 
 def tag_not_uppercase(value: Any, context: Context) -> Any:
@@ -527,6 +558,9 @@ def tag_string_convert(key: FlattenKey, data: FlattenDataDict,
                 if tag.strip()]
     else:
         tags = data[key]
+
+    # Normalize input to NFC (canonical decomposition followed by canonical composition)
+    tags = [unicodedata.normalize('NFC', tag) for tag in tags]
 
     current_index = max( [int(k[1]) for k in data.keys() if len(k) == 3 and k[0] == 'tags'] + [-1] )
 
