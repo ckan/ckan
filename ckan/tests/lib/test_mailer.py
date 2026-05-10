@@ -1,12 +1,15 @@
 # encoding: utf-8
 
 import base64
+import os
 import pytest
 import io
+import ssl
 from email.header import decode_header
 from email.mime.text import MIMEText
 from email.parser import Parser
 import email.utils
+from unittest import mock
 
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
@@ -458,3 +461,80 @@ class TestMailer(MailerBase):
 
         msgs = mail_server.get_smtp_messages()
         assert len(msgs) == 1
+
+    @pytest.mark.ckan_config("smtp.starttls", True)
+    def test_starttls_verify_default_context(self, mail_server, monkeypatch):
+        mock_context = mock.MagicMock()
+        mock_create = mock.Mock(return_value=mock_context)
+        monkeypatch.setattr(ssl, "create_default_context", mock_create)
+
+        mailer.mail_recipient(
+            "Bob", "b@example.com", "Meeting", "Test", {}
+        )
+
+        mock_create.assert_called_once_with()   # No arguments, default context
+        mail_server.starttls.assert_called_once_with(context=mock_context)
+        mail_server.starttls.reset_mock()
+
+
+    @pytest.mark.ckan_config("smtp.starttls", True)
+    @pytest.mark.ckan_config("smtp.starttls_verify", False)
+    def test_starttls_no_verify(self, mail_server):
+        mailer.mail_recipient(
+            "Bob", "b@example.com", "Meeting", "Test", {}
+        )
+
+        mail_server.starttls.assert_called_once_with()
+        mail_server.starttls.reset_mock()
+
+
+    @pytest.mark.ckan_config("smtp.starttls", True)
+    @pytest.mark.ckan_config("smtp.starttls_ca_bundle", "/some/ca-bundle.crt")
+    def test_starttls_verify_with_ca_bundle_file(self, mail_server, monkeypatch):
+        mock_context = mock.MagicMock()
+        mock_create = mock.Mock(return_value=mock_context)
+        monkeypatch.setattr(ssl, "create_default_context", mock_create)
+        monkeypatch.setattr(
+            os.path, "exists", lambda p: p == "/some/ca-bundle.crt"
+        )
+        monkeypatch.setattr(
+            os.path, "isfile", lambda p: p == "/some/ca-bundle.crt"
+        )
+
+        mailer.mail_recipient(
+            "Bob", "b@example.com", "Meeting", "Test", {}
+        )
+
+        mock_create.assert_called_once_with(cafile="/some/ca-bundle.crt")
+        mail_server.starttls.assert_called_once_with(context=mock_context)
+        mail_server.starttls.reset_mock()
+
+    @pytest.mark.ckan_config("smtp.starttls", True)
+    @pytest.mark.ckan_config("smtp.starttls_ca_bundle", "/some/ca-bundle")
+    def test_starttls_verify_with_ca_bundle_path(self, mail_server, monkeypatch):
+        mock_context = mock.MagicMock()
+        mock_create = mock.Mock(return_value=mock_context)
+        monkeypatch.setattr(ssl, "create_default_context", mock_create)
+        monkeypatch.setattr(
+            os.path, "exists", lambda p: p == "/some/ca-bundle"
+        )
+        monkeypatch.setattr(
+            os.path, "isdir", lambda p: p == "/some/ca-bundle"
+        )
+
+        mailer.mail_recipient(
+            "Bob", "b@example.com", "Meeting", "Test", {}
+        )
+
+        mock_create.assert_called_once_with(capath="/some/ca-bundle")
+        mail_server.starttls.assert_called_once_with(context=mock_context)
+        mail_server.starttls.reset_mock()
+
+    @pytest.mark.ckan_config("smtp.starttls", True)
+    @pytest.mark.ckan_config("smtp.starttls_ca_bundle", "/nonexistent/ca-bundle.crt")
+    def test_starttls_ca_bundle_not_found(self, mail_server):
+        with pytest.raises(mailer.MailerException) as exc:
+            mailer.mail_recipient(
+                "Bob", "b@example.com", "Meeting", "Test", {}
+            )
+        assert "SMTP CA bundle path (smtp.starttls_ca_bundle) does not exist" in str(exc.value)

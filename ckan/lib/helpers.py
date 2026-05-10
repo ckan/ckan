@@ -28,7 +28,6 @@ from typing import (
 
 
 import dominate.tags as dom_tags
-from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
@@ -864,24 +863,19 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
             active = ''
         return kwargs.pop('class_', '') + active or None
 
-    def _create_link_text(text: str, **kwargs: Any):
-        ''' Update link text to add a icon or span if specified in the
-        kwargs '''
-        if kwargs.pop('inner_span', None):
-            text = literal('<span>') + text + literal('</span>')
-        if icon:
-            text = literal('<i class="fa fa-%s"></i> ' % icon) + text
-        return text
-
     icon = kwargs.pop('icon', None)
+    inner_span = kwargs.pop('inner_span', None)
     cls = _link_class(kwargs)
     title = kwargs.pop('title', kwargs.pop('title_', None))
-    return link_to(
-        _create_link_text(text, **kwargs),
-        url_for(*args, **kwargs),
-        cls=cls,
-        title=title
-    )
+
+    link = dom_tags.a(href=url_for(*args, **kwargs), cls=cls, title=title)
+
+    if icon:
+        link.add(dom_tags.i(cls=f"fa fa-{icon}"))   # type: ignore
+
+    link.add(dom_tags.span(text) if inner_span else f"{text}")  # type: ignore
+
+    return literal(link)
 
 
 def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
@@ -904,7 +898,7 @@ def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs['href'] = url
     if label == '' or label is None:
         label = url
-    return literal(str(dom_tags.a(raw_dom_tags(label), **attrs)))
+    return literal(str(dom_tags.a(label, **attrs)))
 
 
 @core_helper

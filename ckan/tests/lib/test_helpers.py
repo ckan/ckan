@@ -326,12 +326,12 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"test-tag" foobar',
-                '<p><a href="/dataset/?tags=test-tag">tag:"test-tag"</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
                 False,
             ),
             (
                 'tag:"test tag" foobar',
-                '<p><a href="/dataset/?tags=test+tag">tag:"test tag"</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
                 False,
             ),
             (
@@ -348,7 +348,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 'tag:"Test- _." foobar',
-                '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>',
+                '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
                 False,
             ),
             (
@@ -358,7 +358,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 u'tag:"Japanese katakana \u30a1" blah',
-                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:"Japanese katakana \u30a1"</a> blah</p>',
+                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
                 False,
             ),
             (
@@ -400,7 +400,7 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/dataset/?tags=Test-+_.">tag:"Test- _."</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
         assert h.render_markdown(data) == output
 
     def test_tag_names_do_not_match_commas(self):
@@ -653,11 +653,11 @@ class TestBuildNavMain(object):
         assert link == '<a class="css-class" href="https://www.example.com" target="_blank">Example Link</a>'
 
         link2 = h.link_to('display_name', h.url_for('dataset.search', tags='name'), class_='tag')
-        link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
+        assert link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
 
     def test_build_nav_icon(self):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil')
-        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i> Edit</a></li>'
+        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i>Edit</a></li>'
 
 
 class TestRemoveUrlParam:

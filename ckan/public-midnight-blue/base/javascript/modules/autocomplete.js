@@ -3,8 +3,8 @@
  *
  * source   - A url pointing to an API autocomplete endpoint.
  * interval - The interval between requests in milliseconds (default: 300).
- * items    - The max number of items to display (default: 10)
  * tags     - Boolean attribute if true will create a tag input.
+ * createtags - Boolean attribute if false will not allow creating new tags
  * key      - A string of the key you want to be the form value to end up on
  *            from the ajax returned results
  * label    - A string of the label you want to appear within the dropdown for
@@ -24,7 +24,6 @@ this.ckan.module('autocomplete', function (jQuery) {
       createtags: true,
       key: false,
       label: false,
-      items: 10,
       source: null,
       tokensep: ',',
       interval: 300,
@@ -50,39 +49,63 @@ this.ckan.module('autocomplete', function (jQuery) {
     setupAutoComplete: function () {
       var settings = {
         width: 'resolve',
-        formatResult: this.formatResult,
-        formatNoMatches: this.formatNoMatches,
-        formatInputTooShort: this.formatInputTooShort,
-        formatSearching: this.formatSearching,
+        templateResult: this.templateResult,
+        language: {
+          noResults: this.formatNoMatches,
+          inputTooShort: this.formatInputTooShort,
+          searching: this.formatSearching,
+        },
         dropdownCssClass: this.options.dropdownClass,
-        containerCssClass: this.options.containerClass,
         tokenSeparators: this.options.tokensep.split(''),
-        minimumInputLength: this.options.minimumInputLength
+        minimumInputLength: this.options.minimumInputLength,
+        selectionCssClass: this.options.containerClass
       };
 
       // Different keys are required depending on whether the select is
       // tags or generic completion.
       if (!this.el.is('select')) {
-        if (this.options.tags) {
-          settings.tags = this._onQuery;
 
-          // Disable creating new tags
-          if (!this.options.createtags) {
-            settings.createSearchChoice = function(params) {
-              return undefined;
-            }
+        settings.dataAdapter = this.dataAdapter();
+        if ( this.options.tags ){
+          var Utils = $.fn.select2.amd.require('select2/utils');
+          var Tags = $.fn.select2.amd.require('select2/data/tags');
+          settings.dataAdapter = Utils.Decorate(settings.dataAdapter, Tags)
+          settings.multiple = "multiple"
+
+          // tokenizer is not applied when custom data adapter is used
+          if (settings.tokenSeparators != null) {
+            var Tokenizer = $.fn.select2.amd.require('select2/data/tokenizer');
+            settings.dataAdapter = Utils.Decorate(settings.dataAdapter, Tokenizer);
           }
-        } else {
-          settings.query = this._onQuery;
-          settings.createSearchChoice = this.formatTerm;
         }
-        settings.initSelection = this.formatInitialValue;
+
+        // minimum input length is not applied when custom data adapter is used
+        if (this.options.minimumInputLength > 0) {
+          var Utils = $.fn.select2.amd.require('select2/utils');
+          var MinimumInputLength = $.fn.select2.amd.require('select2/data/minimumInputLength');
+          settings.dataAdapter = Utils.Decorate(settings.dataAdapter, MinimumInputLength)
+        }
+
+        // Disable creating new tags
+        if (!this.options.createtags) {
+          settings.createTag = function (params) {
+            return undefined;
+          }
+        }
+        else{
+            settings.createTag = this.formatTerm;
+        }
       }
       else {
         if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)) {
             var ieversion=new Number(RegExp.$1);
             if (ieversion<=7) {return}
          }
+      }
+
+      // Add placeholder to select2 component if its given on the element
+      if ( this.el.attr('placeholder') ) {
+        settings.placeholder = this.el.attr('placeholder');
       }
 
       // clean up rendered select2 from htmx back/forward navigation
@@ -190,25 +213,30 @@ this.ckan.module('autocomplete', function (jQuery) {
      *
      * state     - The current object that is being rendered.
      * container - The element the content will be added to (added in 3.0)
-     * query     - The query object (added in select2 3.0).
      *
      *
-     * Returns a text string.
+     * Returns a text string or a jquery object.
      */
-    formatResult: function (state, container, query, escapeMarkup) {
-      var term = this._lastTerm || (query ? query.term : null) || null; // same as query.term
+    templateResult: function (state, container) {
+      var term = this._lastTerm || null;
 
-      if (container) {
+      if (state.loading) {
+        return state.text
+      }
+
+      var Utils = $.fn.select2.amd.require('select2/utils');
+
+      if (container && state.id) {
         // Append the select id to the element for styling.
-        container.attr('data-value', state.id);
+        $(container).attr('data-value', state.id);
       }
 
       var result = [];
       $(state.text.split(term)).each(function() {
-        result.push(escapeMarkup ? escapeMarkup(this) : this);
+        result.push(Utils.escapeMarkup(this));
       });
 
-      return result.join(term && (escapeMarkup ? escapeMarkup(term) : term).bold());
+      return $("<span>" + result.join(term && Utils.escapeMarkup(term).bold()) + "</span>");
     },
 
     /* Formatter for the select2 plugin that returns a string used when
@@ -216,8 +244,15 @@ this.ckan.module('autocomplete', function (jQuery) {
      *
      * Returns a text string.
      */
-    formatNoMatches: function (term) {
-      return !term ? this._('Start typing…') : this._('No matches found');
+    formatNoMatches: function () {
+      // hack to detect if we are searching something for autocomplete api
+      if ( this.options.source ) {
+        var term = this._lastTerm || null;
+        return !term ? this._('Start typing…') : this._('No matches found');
+      }
+      else {
+        return this._('No matches found')
+      }
     },
 
     /* Formatter used by the select2 plugin that returns a string when the
@@ -243,7 +278,15 @@ this.ckan.module('autocomplete', function (jQuery) {
     },
 
     formatTerm: function (term) {
+      if (typeof term === 'object') {
+        term = term.term;
+      }
       term = jQuery.trim(term || '');
+
+      // Don't create tag from empty terms
+      if (term === '') {
+        return
+      }
 
       // Need to replace comma with a unicode character to trick the plugin
       // as it won't split this into multiple items.
@@ -298,6 +341,40 @@ this.ckan.module('autocomplete', function (jQuery) {
           jQuery(event.target).trigger(e);
         }, 10);
       }
+    },
+
+    dataAdapter: function(){
+      // Create custom data adapter for Select2 4.0
+      // See https://select2.org/upgrading/migrating-from-35#custom-data-adapters-instead-of-query
+
+      var module = this;
+      var ArrayData = $.fn.select2.amd.require('select2/data/array');
+      var Utils = $.fn.select2.amd.require('select2/utils');
+
+      function CKANDataAdapter ($element, options) {
+        CKANDataAdapter.__super__.constructor.call(this, $element, options);
+      }
+
+      Utils.Extend(CKANDataAdapter, ArrayData);
+
+      CKANDataAdapter.prototype.query = function (params, callback) {
+        module._onQuery({
+          term: params.term,
+          callback: callback
+        });
+      };
+
+      CKANDataAdapter.prototype.current = function (callback) {
+        module.formatInitialValue(this.$element, function(formatted) {
+          // Ensure we always return an array for Select2 4.0
+          if (formatted && !Array.isArray(formatted)) {
+            formatted = [formatted];
+          }
+          callback(formatted || []);
+        });
+      };
+
+      return CKANDataAdapter;
     }
   };
 });

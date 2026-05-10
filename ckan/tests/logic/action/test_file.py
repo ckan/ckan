@@ -285,7 +285,7 @@ class TestFileRename:
     def test_name_secured(self, file: dict[str, Any]):
         """Filename is sanitized."""
         bad_name = fake.unique.file_path()
-        good_name = bad_name.rsplit("/", 1)[-1]
+        good_name = bad_name.rsplit("/", 1)[-1].lower()
 
         result = call_action("file_rename", id=file["id"], name=bad_name)
 
