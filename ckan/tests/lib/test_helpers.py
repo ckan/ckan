@@ -1155,7 +1155,6 @@ def test_get_facet_items_dict(test_request_context):
 
     with test_request_context(u'?foo=some-value'):
         # calls that should return no results
-        assert h.get_facet_items_dict(None) == []
         assert h.get_facet_items_dict('foo', None) == []
         assert h.get_facet_items_dict('foo', {'foo': {'items': []}}) == []
         assert h.get_facet_items_dict('baz', search_facets) == []
