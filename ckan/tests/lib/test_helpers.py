@@ -1162,7 +1162,7 @@ def test_get_facet_items_dict(test_request_context):
 
         # no limit, include active item
         # should sort alphabetically
-        assert h.get_facet_items_dict('foo', search_facets) == [
+        assert h.get_facet_items_dict('foo', search_facets, 0) == [
             inactive_facet_result,
             active_facet_result
         ]
