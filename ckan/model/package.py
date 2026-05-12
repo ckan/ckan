@@ -12,6 +12,7 @@ import datetime
 import logging
 from typing_extensions import TypeAlias, Self
 
+import sqlalchemy as sa
 from sqlalchemy.sql import and_, or_
 from sqlalchemy import (orm, types, Column, Table, ForeignKey, Index,
                         CheckConstraint)
@@ -83,6 +84,10 @@ package_table = Table('package', meta.metadata,
     )),
     Index('idx_pkg_sid', 'id', 'state'),
     Index('idx_pkg_sname', 'name', 'state'),
+    Index('idx_pkg_slname', sa.func.lower(sa.text("name::text")), 'state'),
+    Index('idx_pkg_lname', sa.func.lower(sa.text("name::text"))),
+    Index('idx_pkg_suname', sa.func.upper(sa.text("name::text")), 'state'),
+    Index('idx_pkg_uname', sa.func.upper(sa.text("name::text"))),
     Index('idx_pkg_stitle', 'title', 'state'),
     Index('idx_package_creator_user_id', 'creator_user_id'),
 )
