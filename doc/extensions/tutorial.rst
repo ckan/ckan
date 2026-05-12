@@ -123,7 +123,7 @@ Creating a plugin class
    extension's features.
 
 
-``cookiecutter`` should have created the following file file
+``cookiecutter`` should have created the following file
 ``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``.
 Edit it to match the following:
 
@@ -552,7 +552,7 @@ it means that your plugin class does not implement one of the plugin
 interface's methods. A plugin must implement every method of every plugin
 interface that it implements.
 
-.. todo:: Can you user inherit=True to avoid having to implement them all?
+.. todo:: Can you use inherit=True to avoid having to implement them all?
 
 Other ``AttributeError``\ s can happen if your method returns the wrong type of
 value, check the documentation for each plugin interface method to see what
