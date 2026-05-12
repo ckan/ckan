@@ -530,6 +530,13 @@ for writing CKAN extensions, including:
 * Using the :doc:`plugins toolkit <plugins-toolkit>`
 * Handling exceptions
 
+.. seealso::
+
+   Now that you've built your extension, consider sharing it with the CKAN
+   community by listing it on the `CKAN Ecosystem catalog
+   <https://ecosystem.ckan.org/extension/>`_. It's a great way to let other
+   users discover and explore your work.
+
 
 Troubleshooting
 ===============
