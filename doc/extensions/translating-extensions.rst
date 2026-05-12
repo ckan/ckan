@@ -118,9 +118,9 @@ Translations with Transifex
 Once you have created your translations, you can manage them using Transifex.
 This is out side of the scope of this tutorial, but the Transifex documentation
 provides tutorials on how to
-`upload translations <http://docs.transifex.com/tutorials/content/#upload-files-and-download-the-translations>`_
+`upload translations <https://help.transifex.com/en/articles/6318456-uploading-translations>`_
 and how to manage them using the
-`command line client <http://docs.transifex.com/tutorials/client/>`_.
+`command line client <https://developers.transifex.com/docs/using-the-client>`_.
 
 
 ---------------------
@@ -166,4 +166,3 @@ implement the ``ITranslation`` interface yourself.
    ~ckan.plugins.interfaces.ITranslation.i18n_directory
    ~ckan.plugins.interfaces.ITranslation.i18n_locales
    ~ckan.plugins.interfaces.ITranslation.i18n_domain
-

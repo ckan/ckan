@@ -2,6 +2,7 @@
 
 '''API functions for partial updates of existing data in CKAN'''
 
+from ckan import model
 from ckan.logic import (
     get_action as _get_action,
     check_access as _check_access,
@@ -36,7 +37,6 @@ def package_patch(
     _check_access('package_patch', context, data_dict)
 
     show_context: Context = {
-        'model': context['model'],
         'session': context['session'],
         'user': context['user'],
         'auth_user_obj': context['auth_user_obj'],
@@ -73,7 +73,6 @@ def resource_patch(context: Context,
     '''
     _check_access('resource_patch', context, data_dict)
 
-    model = context['model']
     resource = model.Resource.get(_get_or_bust(data_dict, 'id'))
     if not resource:
         raise NotFound('Resource was not found.')

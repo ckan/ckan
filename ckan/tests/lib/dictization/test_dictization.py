@@ -259,6 +259,9 @@ class TestDictizeWithRemoveColumns:
         with pytest.raises(IntegrityError):
             model.Session.commit()
 
+        model.Session.rollback()
+
+
     def test_package_dictization_with_deleted_group(self):
         """
         Ensure that the dictization does not return groups that the dataset has

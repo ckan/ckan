@@ -5,7 +5,7 @@
 # but at the same time making it easy to change for example the json lib
 # used.
 #
-# NOTE:  This file is specificaly created for
+# NOTE:  This file is specifically created for
 # from ckan.common import x, y, z to be allowed
 from __future__ import annotations
 
@@ -27,30 +27,22 @@ from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
 import simplejson as json  # type: ignore # noqa
-import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
-from ckan.types import Model, Request
+from ckan.types import Request
 
 
 if TYPE_CHECKING:
     MutableMapping = MutableMapping[str, Any]
+    import ckan.model as model_
 
 SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
-TCurrentUser = Union["Model.User", "Model.AnonymousUser"]
+TCurrentUser = Union["model_.User", "model_.AnonymousUser"]
 current_user = cast(TCurrentUser, _cu)
 login_user = _login_user
 logout_user = _logout_user
-
-
-@maintain.deprecated('All web requests are served by Flask', since="2.10.0")
-def is_flask_request():
-    u'''
-    This function is deprecated. All CKAN requests are now served by Flask
-    '''
-    return True
 
 
 def streaming_response(data: Iterable[Any],
@@ -200,19 +192,6 @@ class CKANRequest(LocalProxy[Request]):
     @property
     def htmx(self) -> HtmxDetails:
         return HtmxDetails(self)
-
-    @property
-    @maintain.deprecated('Use `request.args` instead of `request.params`',
-                         since="2.10.0")
-    def params(self):
-        '''This property is deprecated.
-
-        Special case as Pylons' request.params is used all over the place.  All
-        new code meant to be run just in Flask (eg views) should always use
-        request.args
-
-        '''
-        return self.args
 
 
 def _get_c():

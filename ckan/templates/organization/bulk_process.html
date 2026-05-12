@@ -15,7 +15,19 @@
       <h3 class="page-heading">
         {% block page_heading %}
           {%- if page.item_count -%}
-            {{ page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=q) if q }}
+            {% if q %}
+              {% trans count=page.item_count, query=q %}
+                {{ count }} dataset found for "{{ query }}".
+              {% pluralize %}
+                {{ count }} datasets found for "{{ query }}".
+              {% endtrans %}
+            {% else %}
+              {% trans count=page.item_count %}
+                {{ count }} dataset found.
+              {% pluralize %}
+                {{ count }} datasets found.
+              {% endtrans %}
+            {% endif %}
           {%- elif request.args -%}
             {{ _('Sorry no datasets found for "{query}"').format(query=q) }}
           {%- else -%}
@@ -80,12 +92,12 @@
                           {{ title|truncate(80) }}
                         </a>
                         {% if package.get('state', '').startswith('draft') %}
-                          <span class="label label-info">{{ _('Draft') }}</span>
+                          <span class="badge bg-info text-dark">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}
-                          <span class="label label-danger">{{ _('Deleted') }}</span>
+                          <span class="badge bg-danger">{{ _('Deleted') }}</span>
                         {% endif %}
                         {% if package.private %}
-                          <span class="label label-danger">{{ _('Private') }}</span>
+                          <span class="badge bg-danger">{{ _('Private') }}</span>
                         {% endif %}
                       </h3>
                       {% if notes %}

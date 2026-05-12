@@ -1,14 +1,12 @@
 describe('ckan.module.CustomFieldsModule()', {testIsolation: false}, function () {
-   before(() => {
+  before(() => {
     cy.visit('/');
-    cy.window().then(win => {
+    cy.request('/testing/custom_form_fields').then(response => {
+      cy.wrap(response.body).as('template')
+    }).window().then(win => {
       cy.wrap(win.ckan.module.registry['custom-fields']).as('CustomFieldsModule');
       win.jQuery('<div id="fixture">').appendTo(win.document.body)
-      cy.loadFixture('custom_fields.html').then((template) => {
-        cy.wrap(template).as('template');
-      });
     })
-
   });
 
   beforeEach(function () {

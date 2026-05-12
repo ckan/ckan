@@ -5,7 +5,6 @@ from typing import Any
 
 import ckan
 import ckan.lib.navl.dictization_functions
-import ckan.model
 
 import ckan.plugins as plugins
 
@@ -197,7 +196,7 @@ def translate_resource_data_dict(data_dict: dict[str, Any]):
             .unflatten(translated_flattened))
     return translated_data_dict
 
-KEYS_TO_IGNORE = ['state', 'revision_id', 'id', #title done seperately
+KEYS_TO_IGNORE = ['state', 'revision_id', 'id', #title done separately
                   'metadata_created', 'metadata_modified', 'site_id']
 
 

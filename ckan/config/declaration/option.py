@@ -32,7 +32,7 @@ class Flag(enum.Flag):
 
 
     ignored: this option is ignored by CKAN(not used or unconditionally
-    overriden)
+    overridden)
 
     experimental: this option is not stabilized and can change in
     future. Mainly exist for extension developers, as only stable features are
@@ -61,13 +61,13 @@ class Flag(enum.Flag):
     domain. While it's similar to `placeholder` attribute of the
     :py:class:`~ckan.config.declaration.option.Option`, their goals are
     different.
-    Option.placeholer:
+    Option.placeholder:
     - shows an example of expectend value
     - is ignored when config option is **missing** from the config file
     - shown as a default value in the config file generated from template. For
       example, `Option<key=a, placeholder=b, commented=False>` is added to the
       config file as `a = b`. After this, `config.get('a')` returns `b`,
-      because it's explicitely written in the config file.
+      because it's explicitly written in the config file.
     Flag.commented:
     - Marks option as commented by default
     - Does not changes behavior of `Option.default` and `Option.placeholder`.
@@ -80,10 +80,41 @@ class Flag(enum.Flag):
     `commented` are virtually ignored, having absolutely no impact on the value
     of the config option.
 
+    flask: this option is used by Flask application or extension. Every option
+    with this flag will be copied into Flask's config object during
+    initialization of the application.
+
+    nullable: this option will be set to `None` and validation will be skipped
+    if it's missing from the config file or if it has value
+    `null`(string). It's preferable to keep the same type of the option's value
+    and avoid nullable options. But in specific situations it may be more
+    convenient to express missing value as `None` rather than default value for
+    the type. For example, boolean options normally have values `True` and
+    `False`, where `False` is the default value used when option is
+    missing. Because of it, system does not sees the difference between
+    explicitly disabled option(`False`) and indeterminate state(missing
+    value). To handle this indeterminate state differently, use nullable
+    options and apply additional logic when the value of option is set to
+    `None` instead of assuming that user does not want this option
+    enabled. Nullable flag affects missing options and values that are equal to
+    string `null`. This specific placeholder `null` can be configured by
+    providing `null_value: "my_null_placeholder"` attribute in the declaration
+    of config option. If option exists in the config file and it is not equal
+    to `null`(or other value specified in `null_value` attribute), it will pass
+    standard validation. Any option that has no `type` and `validators` is
+    implicitly nullable and there is no need to specify this flag unless
+    ability to accept `None` is critical for the logic of application and must
+    be highlighted. There is no guarantees related to behavior of option that
+    has `nullable` and `required` flags enabled simultaneously: at the moment
+    this combination means that option may be set to none, but any other falsy
+    value will be rejected. But this is considered a coincidence and may change
+    in future without any anouncement, so do not rely on this behavior and set
+    `ignore_missing not_empty` validators on the option instead.
+
     reserved_*(01-10): these flags are added for extension developers. CKAN
     doesn't treat them specially, neither includes them in groups, like
     `not_safe`/`not_iterable`. These flags are completely ignored by CKAN. If
-    your extension enchances the behavior of config options using some sort of
+    your extension enhances the behavior of config options using some sort of
     boolean flags - use reserved markers. Always rely on a config option that
     controls, which reserved marker to use, in order to avoid conflicts with
     other extensions. Example:
@@ -101,12 +132,14 @@ class Flag(enum.Flag):
     extensions are trying to use the same reserved flag.
 
     """
-    ignored = enum.auto()
-    experimental = enum.auto()
-    internal = enum.auto()
-    required = enum.auto()
-    editable = enum.auto()
     commented = enum.auto()
+    editable = enum.auto()
+    experimental = enum.auto()
+    flask = enum.auto()
+    ignored = enum.auto()
+    internal = enum.auto()
+    nullable = enum.auto()
+    required = enum.auto()
 
     reserved_01 = enum.auto()
     reserved_02 = enum.auto()
@@ -153,7 +186,7 @@ class Annotation(SectionMixin, str):
     """Details that are not attached to any option.
 
     Mainly serves documentation purposes. Can be used for creating section
-    separators or blocks of text with the recomendations, that are not
+    separators or blocks of text with the recommendations, that are not
     connected to any particular option and rather describle the whole section.
 
     """
@@ -193,6 +226,7 @@ class Option(SectionMixin, Generic[T]):
     example: Optional[Any]
     validators: str
     legacy_key: Optional[str]
+    null_value: str = "null"
 
     def __init__(self, default: Optional[T] = None):
         self.flags = Flag.none()
@@ -223,7 +257,7 @@ class Option(SectionMixin, Generic[T]):
 
         If more sophisticated logic cannot be avoided, consider creating a
         subclass of :py:class:`~ckan.config.declaration.option.Option` with
-        custom `str_value` implemetation and declaring the option using
+        custom `str_value` implementation and declaring the option using
         `declare_option` method of
         :py:class:`~ckan.config.declaration.Declaration`.
 
@@ -334,6 +368,9 @@ class Option(SectionMixin, Generic[T]):
         if self.has_flag(Flag.required) and "not_empty" not in validators:
             validators = f"not_empty {validators}"
 
+        if self.has_flag(Flag.nullable) and "ignore_missing" not in validators:
+            validators = f"ignore_missing {validators}"
+
         return validators
 
     def experimental(self) -> Self:
@@ -389,7 +426,7 @@ def _validators_from_string(s: str) -> list[Validator]:
             try:
                 parsed_args = ast.literal_eval(args)
                 if not isinstance(parsed_args, tuple) or not parsed_args:
-                    # it's a signle argument. `not parsed_args` means that this
+                    # it's a single argument. `not parsed_args` means that this
                     # single argument is an empty tuple,
                     # for example: "default(())"
 

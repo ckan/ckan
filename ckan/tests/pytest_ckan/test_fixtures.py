@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-
-import os
-
 import pytest
-from urllib.parse import urlparse
 from sqlalchemy import inspect, Column, Integer
 
 import ckan.plugins as plugins
 from ckan.common import config, asbool
 from ckan.tests import factories
+from ckan.lib import files
 from ckan.lib.redis import connect_to_redis
 from ckan.model.base import BaseModel
 
@@ -28,6 +24,10 @@ def test_ckan_config_mark(ckan_config):
 
 
 # END-CONFIG-OVERRIDE
+
+
+class _FakePlugin:
+    pass
 
 
 @pytest.mark.ckan_config(u"some.new.config", u"exists")
@@ -51,6 +51,50 @@ class TestWithPlugins:
             self, load_example_helpers, with_plugins
     ):
         assert "example_helper" not in plugins.toolkit.h
+
+    def test_fake_plugin_does_not_exist(self,):
+        """Fake plugin is not accidentally registered via entrypoint."""
+        with pytest.raises(plugins.PluginNotFoundException):
+            plugins.load("fake_plugin")
+
+    @pytest.mark.provide_plugin("fake_plugin", _FakePlugin)
+    @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")
+    def test_provided_plugin_can_be_loaded_manually(self,):
+        """Fake plugin can be loaded when provided via mark."""
+        try:
+            plugin = plugins.load("fake_plugin")
+            assert isinstance(plugin, _FakePlugin)
+        finally:
+            # manually loaded plugins need to be cleaned up
+            # or they will affect other tests
+            plugins.unload_all()
+
+    @pytest.mark.provide_plugin("fake_plugin", _FakePlugin)
+    @pytest.mark.ckan_config("ckan.plugins", "fake_plugin")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_provided_plugins(self):
+        """Fake plugins are loaded by `with_plugins`."""
+        plugin = plugins.get_plugin("fake_plugin")
+        assert isinstance(plugin, _FakePlugin)
+
+    @pytest.mark.ckan_config("ckan.plugins", "stats")
+    @pytest.mark.with_plugins(
+        "text_view",
+        "image_view",
+        {"activity": list, "datapusher": dict},
+    )
+    @pytest.mark.with_plugins("audio_view")
+    @pytest.mark.with_plugins({"fake_plugin": _FakePlugin})
+    def test_mark_mode(self):
+        """`with_plugins` can load real plugins, register fake plugins and be
+        used multiple times."""
+        assert plugins.plugin_loaded("stats")
+        assert plugins.plugin_loaded("text_view")
+        assert plugins.plugin_loaded("image_view")
+        assert plugins.plugin_loaded("audio_view")
+        assert isinstance(plugins.get_plugin("activity"), list)
+        assert isinstance(plugins.get_plugin("datapusher"), dict)
+        assert isinstance(plugins.get_plugin("fake_plugin"), _FakePlugin)
 
 
 @pytest.mark.ckan_config("ckan.site_url", "https://example.org")
@@ -100,17 +144,10 @@ class TestCreateWithUpload(object):
             upload_field_name=u"image_upload",
             name=u"test-org"
         )
-        image_path = os.path.join(
-            ckan_config[u"ckan.storage_path"],
-            u'storage',
-            urlparse(org[u'image_display_url']).path.lstrip(u"/")
-        )
-
-        assert os.path.isfile(image_path)
-        with open(image_path, u"rb") as image:
-            content = image.read()
-            # PNG signature
-            assert content.hex()[:16].upper() == '89504E470D0A1A0A'
+        storage = files.get_storage(ckan_config["ckan.files.default_storages.group"])
+        content = storage.content(files.FileData.from_string(org["image_url"]))
+        # PNG signature
+        assert content.hex()[:16].upper() == '89504E470D0A1A0A'
 
     def test_create_resource(self, create_with_upload):
         dataset = factories.Dataset()
@@ -200,3 +237,40 @@ def test_clean_db_does_not_break_with_custom_models(_n):
 
     """
     pass
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_app_with_user(app, user):
+    """Smoke testing of flask-login authentication."""
+
+    # unauthenticated request to `user_show` fails
+    url = plugins.toolkit.url_for("api.action", logic_function="user_show")
+    resp = app.get(url)
+    assert not resp.json["success"]
+
+    # user can be authorized via remember cookie. After the first request it's
+    # copied into the session, so we'll have to clean both, the cookie and the
+    # session.
+    app.set_remember_user(user["name"])
+    resp = app.get(url)
+    assert resp.json["result"]["id"] == user["id"]
+
+    # if only session is cleared, user will be restored because of
+    # remember-cookie. If only cookie is cleared, active user remains in the
+    # session, so we must clear both.
+    app.set_remember_user(None)
+    app.set_session_user(None)
+    resp = app.get(url)
+    assert not resp.json["success"]
+
+    # save user into the session. This option is very close the real
+    # authentication.
+    app.set_session_user(user["name"])
+    resp = app.get(url)
+    assert resp.json["result"]["id"] == user["id"]
+
+    # without remember-cookie, just dropping user from the session is enough to
+    # anonymize following requests.
+    app.set_session_user(None)
+    resp = app.get(url)
+    assert not resp.json["success"]

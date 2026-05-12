@@ -32,7 +32,7 @@ vendor:
   contents:
     - jed.js
     - moment-with-locales.js
-    - select2/select2.js
+    - select2/select2.full.js
     - popperjs.js
     - purify.js
 
@@ -45,17 +45,6 @@ bootstrap:
       - vendor/jquery
   contents:
     - bootstrap/js/bootstrap.js
-
-fileupload:
-  filters: rjsmin
-  output: vendor/%(version)s_fileupload.js
-  extra:
-    preload:
-      - vendor/jquery
-  contents:
-    - jquery.ui.widget.js
-    - jquery-fileupload/jquery.iframe-transport.js
-    - jquery-fileupload/jquery.fileupload.js
 
 reorder:
   filters: rjsmin

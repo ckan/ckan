@@ -23,11 +23,11 @@
         </div>
       {% endblock %}
       {% block heading %}
-      <h1 class="heading">{{ organization.title or organization.name }}
+      <h2 class="heading">{{ organization.title or organization.name }}
         {% if organization.state == 'deleted' %}
           [{{ _('Deleted') }}]
         {% endif %}
-      </h1>
+      </h2>
       {% endblock %}
       {% block description %}
       {% if organization.description %}
@@ -38,7 +38,7 @@
           {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
         </p>
       {% else %}
-        <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization') }}</p>
+        <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization.') }}</p>
       {% endif %}
       {% endblock %}
       {% if show_nums %}

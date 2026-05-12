@@ -68,24 +68,18 @@ class TestPackageNew(object):
 
         assert plugin.id_in_dict
 
+    @pytest.mark.ckan_config("solr_url", "http://example.com/badsolrurl")
     @pytest.mark.usefixtures("clean_index")
     def test_new_indexerror(self, app, user):
-        from ckan.lib.search.common import SolrSettings
-        bad_solr_url = "http://example.com/badsolrurl"
-        solr_url = SolrSettings.get()[0]
-        try:
-            SolrSettings.init(bad_solr_url)
-            new_package_name = u"new-package-missing-solr"
-            offset = url_for("dataset.new")
-            headers = {"Authorization": user["token"]}
-            res = app.post(
-                offset,
-                headers=headers,
-                data={"save": "", "name": new_package_name},
-            )
-            assert "Unable to add package to search index" in res, res
-        finally:
-            SolrSettings.init(solr_url)
+        new_package_name = u"new-package-missing-solr"
+        offset = url_for("dataset.new")
+        headers = {"Authorization": user["token"]}
+        res = app.post(
+            offset,
+            headers=headers,
+            data={"save": "", "name": new_package_name},
+        )
+        assert "Unable to add package to search index" in res, res
 
     def test_change_locale(self, app, user):
         url = url_for("dataset.new")
@@ -146,7 +140,7 @@ class TestPackageNew(object):
 
     def test_resource_required(self, app, user):
         url = url_for("dataset.new")
-        name = "one-resource-required"
+        name = "resource-data-required"
         headers = {"Authorization": user["token"]}
         response = app.post(url, headers=headers, data={
             "name": name,
@@ -157,9 +151,9 @@ class TestPackageNew(object):
         response = app.post(location, headers=headers, data={
             "id": "",
             "url": "",
-            "save": "go-metadata",
+            "save": "again",
         })
-        assert "You must add at least one data resource" in response
+        assert "No resource data entered" in response
 
     def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")
@@ -1092,7 +1086,7 @@ class TestResourceDownload(object):
 
         response = app.get(url)
 
-        assert response.headers[u"Content-Type"] == u"text/csv"
+        assert response.headers[u"Content-Type"] == u"text/csv; charset=utf-8"
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
@@ -1116,7 +1110,7 @@ class TestResourceView(object):
         response = app.post(
             url,
             headers={"Authorization": user["token"]},
-            data={"title": "Test Image View"}
+            data={"title": "Test Image View", "view_type": "image_view"}
         )
         assert helpers.body_contains(response, "Test Image View")
 

@@ -1,136 +1,91 @@
-describe('ckan.module.ConfirmActionModule()', {testIsolation: false}, function () {
+describe('ckan.module.ConfirmActionModule()', { testIsolation: false }, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
       cy.wrap(win.ckan.module.registry['confirm-action']).as('ConfirmActionModule');
-      win.jQuery('<div id="fixture">').appendTo(win.document.body)
-    })
+      win.jQuery('<div id="fixture">').appendTo(win.document.body);
+    });
   });
 
   beforeEach(function () {
     cy.window().then(win => {
-      win.jQuery.fn.modal = cy.spy();
+      cy.stub(win.ckan, 'confirm').as('ckanConfirm');
 
-      this.el = document.createElement('button');
+      this.el = win.jQuery('<button>'); // jQuery element so `.on()` works
       this.sandbox = win.ckan.sandbox();
       this.sandbox.body = win.jQuery('#fixture');
-      cy.wrap(this.sandbox.body).as('fixture');
+
       this.module = new this.ConfirmActionModule(this.el, {}, this.sandbox);
-    })
+    });
   });
 
   afterEach(function () {
     this.module.teardown();
+
+    cy.get('@ckanConfirm').then(stub => stub.restore());
   });
 
-  describe('.initialize()', {testIsolation: false}, function () {
-    it('should watch for clicks on the module element', function () {
-      let target = cy.stub(this.module.el, 'on');
+  describe('.initialize()', function () {
+    it('should bind click event to module element', function () {
+      const spy = cy.spy(this.module.el, 'on');
       this.module.initialize();
-      expect(target).to.be.called;
-      expect(target).to.be.calledWith('click', this.module._onClick);
+      expect(spy).to.be.calledWith('click', this.module._onClick);
     });
   });
 
-  describe('.confirm()', {testIsolation: false}, function () {
-    it('should append the modal to the document body', function () {
-      this.module.confirm();
-      assert.equal(this.fixture.children().length, 1);
-      assert.equal(this.fixture.find('.modal').length, 1);
-    });
+  describe('._onClick()', function () {
+    it('should prevent default and call ckan.confirm()', function () {
+      const fakeEvent = { preventDefault: cy.spy() };
 
-    it('should show the modal dialog', function () {
       cy.window().then(win => {
-        this.module.confirm();
-        expect(win.jQuery.fn.modal).to.be.called;
-        expect(win.jQuery.fn.modal).to.be.calledWith('show');
-      })
+        const performStub = cy.stub(this.module, 'performAction');
+
+        // Trigger the click handler
+        this.module._onClick(fakeEvent);
+
+        expect(fakeEvent.preventDefault).to.be.called;
+
+        cy.get('@ckanConfirm').then(ckanConfirm => {
+          expect(ckanConfirm).to.be.calledOnce;
+
+          const args = ckanConfirm.getCall(0).args[0];
+
+          expect(args).to.have.property('message');
+
+          // Simulate confirm callback
+          args.onConfirm();
+          expect(performStub).to.be.called;
+        });
+      });
     });
   });
 
-  describe('.performAction()', {testIsolation: false}, function () {
-    it('should submit the action');
-  });
-
-  describe('.createModal()', {testIsolation: false}, function () {
-    it('should create the modal element', function () {
-      let target = this.module.createModal();
-
-      assert.ok(target.hasClass('modal'));
-    });
-
-    it('should set the module.modal property', function () {
-      let target = this.module.createModal();
-
-      assert.ok(target === this.module.modal);
-    });
-
-    it('should bind the success/cancel listeners', function () {
+  describe('.performAction()', function () {
+    it('should trigger HTMX if hx-post/hx-get is present', function () {
       cy.window().then(win => {
-        let target = cy.stub(win.jQuery.fn, 'on');
+        const form = win.jQuery('<form hx-post="/doit">').appendTo('body');
+        this.el = win.jQuery('<button>').appendTo(form)[0];
+        this.module = new this.ConfirmActionModule(this.el, {}, this.sandbox);
 
-        this.module.createModal();
+        cy.stub(win.htmx, 'trigger').as('htmxTrigger');
+        this.module.performAction();
 
-        // Not an ideal check as this implementation could be done in many ways.
-        expect(target).to.be.calledTwice;
-        expect(target).to.be.calledWith('click', '.btn-primary', this.module._onConfirmSuccess);
-        expect(target).to.be.calledWith('click', '.btn-cancel', this.module._onConfirmCancel);
-
-        target.restore();
-      })
+        cy.get('@htmxTrigger').should('be.calledWith', form[0], 'submit');
+      });
     });
 
-    it('should initialise the modal plugin', function () {
+    it('should create and submit a form if no hx-post and withData is false', function () {
       cy.window().then(win => {
-        this.module.createModal();
-        expect(win.jQuery.fn.modal).to.be.called;
-        expect(win.jQuery.fn.modal).to.be.calledWith({show: false});
-      })
-    });
+        const href = '/delete';
+        this.el = win.jQuery(`<a href="${href}">`).appendTo('body')[0];
+        this.module = new this.ConfirmActionModule(this.el, { withData: false }, this.sandbox);
 
-    it('should allow to customize the content', function () {
-      this.module.options.content = 'some custom content';
-      let target = this.module.createModal();
+        const stub = cy.stub(win.jQuery.fn, 'submit');
+        this.module.performAction();
 
-      assert.equal(target.find('.modal-body').text(), 'some custom content');
-    });
-  });
-
-  describe('._onClick()', {testIsolation: false}, function () {
-    it('should prevent the default action', function () {
-      let target = {preventDefault: cy.spy()};
-      this.module._onClick(target);
-
-      expect(target.preventDefault).to.be.called;
-    });
-
-    it('should display the confirmation dialog', function () {
-      let target = cy.stub(this.module, 'confirm');
-      this.module._onClick({preventDefault: cy.spy()});
-      expect(target).to.be.called;
+        expect(stub).to.be.called;
+        stub.restore();
+      });
     });
   });
-
-  describe('._onConfirmSuccess()', {testIsolation: false}, function () {
-    it('should perform the action', function () {
-      cy.window().then(win => {
-        let target = cy.stub(this.module, 'performAction');
-        this.module._onConfirmSuccess(win.jQuery.Event('click'));
-        expect(target).to.be.called;
-      })
-    });
-  });
-
-  describe('._onConfirmCancel()', {testIsolation: false}, function () {
-    it('should hide the modal', function () {
-      cy.window().then(win => {
-        this.module.modal = win.jQuery('<div/>');
-        this.module._onConfirmCancel(win.jQuery.Event('click'));
-
-        expect(win.jQuery.fn.modal).to.be.called;
-        expect(win.jQuery.fn.modal).to.be.calledWith( 'hide');
-      })
-    });
-  });
-
 });

@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from typing import (
-    Any, List, Optional, Sequence, Tuple, Union
-)
-from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
 
-from ..model import Query, Model
+from typing_extensions import TypeAlias, TypedDict
+
+if TYPE_CHECKING:
+    import ckan.model as model
+    from ckan.types import Query
 
 AnyDict: TypeAlias = "dict[str, Any]"
 ###############################################################################
@@ -23,7 +23,7 @@ GroupListAuthz = List[AnyDict]
 OrganizationListForUser = List[AnyDict]
 LicenseList = List[AnyDict]
 TagList = Union[List[AnyDict], List[str]]
-UserList = Union[List[AnyDict], List[str], "Query[Model.User]"]
+UserList = Union[List[AnyDict], List[str], "Query[model.User]"]
 PackageRelationshipsList = List[AnyDict]
 PackageShow = AnyDict
 ResourceShow = AnyDict
@@ -111,7 +111,7 @@ UserDelete: TypeAlias = None
 PackageDelete: TypeAlias = None
 DatasetPurge: TypeAlias = None
 ResourceDelete: TypeAlias = None
-ResourceViewDelete: TypeAlias = None
+ResourceViewDelete: TypeAlias = AnyDict
 ResourceViewClear: TypeAlias = None
 PackageRelationshipDelete: TypeAlias = None
 MemberDelete: TypeAlias = None
@@ -155,3 +155,20 @@ PackageOwnerOrgUpdate: TypeAlias = None
 BulkUpdatePrivate: TypeAlias = None
 BulkUpdatePublic: TypeAlias = None
 BulkUpdateDelete: TypeAlias = None
+
+###############################################################################
+#                                     File                                    #
+###############################################################################
+class FileSearch(TypedDict):
+    count: int
+    results: list[FileShow]
+
+FileCreate = dict[str, Any]
+FileRegister = dict[str, Any]
+FileDelete = dict[str, Any]
+FileShow = dict[str, Any]
+FileRename = dict[str, Any]
+FilePin = dict[str, Any]
+FileUnpin = dict[str, Any]
+FileOwnershipTransfer = dict[str, Any]
+FileOwnerScan = FileSearch

@@ -65,7 +65,7 @@ minor release they belong to, so for example CKAN ``2.0``, ``2.0.1``,
      ``pip-requirements.txt`` and ``requirements.txt`` files and run
      ``pip install -e .`` for each. If you are using a custom extension
      which does not use this requirements file names or is located elsewhere,
-     you will need to manually reenable it.
+     you will need to manually re-enable it.
 
 
 #. Finally, restart uWSGI and Nginx:

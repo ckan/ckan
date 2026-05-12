@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import multiprocessing as mp
+import sys
 
 import click
 import sqlalchemy as sa
@@ -31,14 +32,17 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
-@click.option('-c', '--clear', help='Clear the index before reindexing',
-              is_flag=True)
+@click.option('--keep-orphans', is_flag=True,
+              help='Keep orphaned packages in search index after rebuild. '
+                   'By default, orphaned packages are automatically cleared.')
 @click.argument(u'package_id', required=False)
+@click.pass_context
 def rebuild(
-        verbose: bool, force: bool, only_missing: bool, quiet: bool,
-        commit_each: bool, package_id: str, clear: bool
+        ctx: click.Context, verbose: bool, force: bool, only_missing: bool,
+        quiet: bool, commit_each: bool, keep_orphans: bool, package_id: str
 ):
     u''' Rebuild search index '''
+    errors = 0
     from ckan.lib.search import rebuild, commit
     try:
 
@@ -47,13 +51,21 @@ def rebuild(
                 force=force,
                 defer_commit=(not commit_each),
                 quiet=quiet and not verbose,
-                clear=clear)
+                clear=False)  # Never clear before rebuild
+
+        if not keep_orphans:
+            ctx.invoke(clear_orphans)
+
     except logic.NotFound:
         error_shout("Couldn't find package %s" % package_id)
+        errors = 1
     except Exception as e:
         error_shout(e)
+        errors = 1
     if not commit_each:
         commit()
+    if errors:
+        sys.exit(errors)
 
 
 @search_index.command(name=u'check', short_help=u'Check search index')
@@ -86,11 +98,11 @@ def get_orphans() -> list[str]:
     search = None
     indexed_package_ids = []
     while search is None or len(indexed_package_ids) < search['count']:
-        search = logic.get_action('package_search')({}, {
-                'q': '*:*',
-                'fl': 'id',
-                'start': len(indexed_package_ids),
-                'rows': 1000})
+        search = logic.get_action('package_search')({"ignore_auth":True}, {
+            'q': '*:*',
+            'fl': 'id',
+            'start': len(indexed_package_ids),
+            'rows': 1000})
         indexed_package_ids += search['results']
 
     package_ids = {r[0] for r in model.Session.query(model.Package.id)}
@@ -106,7 +118,7 @@ def get_orphans() -> list[str]:
 
 @search_index.command(
     name=u'list-orphans',
-    short_help=u'Lists any non-existant packages in the search index'
+    short_help=u'Lists any non-existent packages in the search index'
 )
 def list_orphans_command():
     orphaned_package_ids = get_orphans()
@@ -119,16 +131,17 @@ def list_orphans_command():
 
 @search_index.command(
     name=u'clear-orphans',
-    short_help=u'Clear any non-existant packages in the search index'
+    short_help=u'Clear any non-existent packages in the search index'
 )
 @click.option(u'-v', u'--verbose', is_flag=True)
-def clear_orphans(verbose: bool = False):
+@click.pass_context
+def clear_orphans(ctx: click.Context, verbose: bool = False):
     for orphaned_package_id in get_orphans():
         if verbose:
             click.echo("Clearing search index for dataset {}...".format(
                 orphaned_package_id
             ))
-        clear(orphaned_package_id)
+        ctx.invoke(clear, dataset_name=orphaned_package_id)
 
 
 @search_index.command(

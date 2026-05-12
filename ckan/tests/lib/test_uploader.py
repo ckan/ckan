@@ -7,7 +7,7 @@ from werkzeug.datastructures import FileStorage
 from ckan.logic import ValidationError
 from ckan.lib.uploader import ResourceUpload, Upload
 
-
+@pytest.mark.ckan_config('ckan.uploads_enabled', True)
 class TestInitResourceUpload(object):
     def test_resource_without_upload_with_old_werkzeug(
             self, ckan_config, monkeypatch, tmpdir):
@@ -46,6 +46,7 @@ class TestInitResourceUpload(object):
     def test_resource_with_upload(
             self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'',
                u'format': u'PNG',
@@ -78,14 +79,17 @@ class TestInitResourceUpload(object):
         with pytest.raises(ValidationError):
             res_upload.upload(resource_id)
 
-
+@pytest.mark.ckan_config('ckan.uploads_enabled', True)
 class TestUpload(object):
-    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config, faker):
+    def test_group_upload(
+            self, monkeypatch, tmpdir, make_app, ckan_config, faker,
+            reset_storages):
         """Reproduce group's logo upload and check that file available through
         public url.
 
         """
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
                      BytesIO(faker.image()),

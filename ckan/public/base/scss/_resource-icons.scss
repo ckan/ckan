@@ -1,5 +1,8 @@
 // RESOURCE FORMAT ICONS
 
+// PSD source file for resource icons is maintained in the ckan-assets repo:
+// https://github.com/ckan/ckan-assets
+
 @use "sass:map";
 
 $icon-position: (
@@ -158,5 +161,83 @@ $icon-position: (
 .format-label[data-format=geo],
 .format-label[data-format*=geo] {
     @include ckan-resource-icon-bg-pos(22,
+    "resourceIcon");
+}
+
+.format-label[data-format=parquet],
+.format-label[data-format*=parquet] {
+    @include ckan-resource-icon-bg-pos(23,
+    "resourceIcon");
+}
+
+.format-label[data-format=md],
+.format-label[data-format*=md] {
+    @include ckan-resource-icon-bg-pos(24,
+    "resourceIcon");
+}
+
+.format-label[data-format=tif],
+.format-label[data-format*=tif] {
+    @include ckan-resource-icon-bg-pos(25,
+    "resourceIcon");
+}
+
+.format-label[data-format=pmtiles],
+.format-label[data-format*=pmtiles] {
+    @include ckan-resource-icon-bg-pos(26,
+    "resourceIcon");
+}
+
+.format-label[data-format=atx],
+.format-label[data-format*=atx] {
+    @include ckan-resource-icon-bg-pos(27,
+    "resourceIcon");
+}
+
+.format-label[data-format=fgb],
+.format-label[data-format*=fgb] {
+    @include ckan-resource-icon-bg-pos(28,
+    "resourceIcon");
+}
+
+.format-label[data-format=shx],
+.format-label[data-format*=shx] {
+    @include ckan-resource-icon-bg-pos(29,
+    "resourceIcon");
+}
+
+.format-label[data-format=shp],
+.format-label[data-format*=shp] {
+    @include ckan-resource-icon-bg-pos(30,
+    "resourceIcon");
+}
+
+.format-label[data-format=gpkg],
+.format-label[data-format*=gpkg] {
+    @include ckan-resource-icon-bg-pos(31,
+    "resourceIcon");
+}
+
+.format-label[data-format=dbf],
+.format-label[data-format*=dbf] {
+    @include ckan-resource-icon-bg-pos(32,
+    "resourceIcon");
+}
+
+.format-label[data-format=py],
+.format-label[data-format*=py] {
+    @include ckan-resource-icon-bg-pos(33,
+    "resourceIcon");
+}
+
+.format-label[data-format=ipynb],
+.format-label[data-format*=ipynb] {
+    @include ckan-resource-icon-bg-pos(34,
+    "resourceIcon");
+}
+
+.format-label[data-format=gz],
+.format-label[data-format*=gz] {
+    @include ckan-resource-icon-bg-pos(35,
     "resourceIcon");
 }

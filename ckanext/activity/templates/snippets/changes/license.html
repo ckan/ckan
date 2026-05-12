@@ -4,63 +4,49 @@
     {# if both of them have URLs #}
     {% if change.new_url != "" and change.old_url != "" %}
 
-      {{ _('Changed the license of ') }}
-      <a href="{{pkg_link}}">
-        {{ change.title }}
-      <a>
+      {% trans
+        title=change.title, new_license=change.new_title, old_license=change.old_title,
+        new_url=change.new_url, old_url=change.old_url
+      %}
+      Changed the license of
+      <a href="{{ pkg_link }}">{{ title }}</a> to
+      <a href="{{ new_url }}">{{ new_license }}</a> (previously
+      <a href="{{ old_url }}">{{ old_license }}</a>).
+      {% endtrans %}
 
-      {{ _('to') }}
-      <a href="{{change.new_url}}">
-        {{change.new_title}}
-      </a>
-
-      {{ _('( previously') }}
-      <a href="{{change.old_url}}">
-        {{change.old_title}}
-      </a>
-      {{_(')')}}
-
-      {# if only the new one has a URL #}
+    {# if only the new one has a URL #}
     {% elif change.new_url != "" and change.old_url == "" %}
 
-      {{ _('Changed the license of') }}
-      <a href="{{pkg_link}}">
-        {{change.title}}
-      </a>
+      {% trans
+        title=change.title, new_license=change.new_title, old_license=change.old_title,
+        new_url=change.new_url
+      %}
+      Changed the license of
+      <a href="{{ pkg_link }}">{{ title }}</a> to
+      <a href="{{ new_url }}">{{ new_license }}</a> (previously {{ old_license }}).
+      {% endtrans %}
 
-      {{ _('to') }}
-      <a href="{{change.new_url}}">
-        {{change.new_title}}
-      </a>
-
-      {{ _('(previously') + change.old_title + ' )'}}
-
-      {# if only the old one has a URL #}
+    {# if only the old one has a URL #}
     {% elif change.new_url == "" and change.old_url != "" %}
 
-     {{ _('Changed the license of') }}
-      <a href="{{pkg_link}}">
-        {{change.title}}
-      </a>
+      {% trans
+        title=change.title, new_license=change.new_title, old_license=change.old_title,
+        old_url=change.old_url
+      %}
+      Changed the license of
+      <a href="{{ pkg_link }}">{{ title }}</a> to {{ new_license }}
+      (previously <a href="{{ old_url }}">{{ old_license }}</a>).
+      {% endtrans %}
 
-      {{ _('to') + change.new_title }}
-
-      {{ _('( previously') }}
-      <a href="{{change.old_url}}">
-        {{change.old_title}}
-      </a>
-      {{_(')')}}
-
-      {# otherwise neither has a URL #}
+    {# otherwise neither has a URL #}
     {% else %}
 
-      {{ _('Changed the license of') }}
-      <a href="{{pkg_link}}">
-        {{change.title}}
-      </a>
-
-      {{ _('to') + change.new_title}}
-      {{ _('(previously') + change.old_title + _(')')|safe }}
+      {% trans
+        title=change.title, new_license=change.new_title, old_license=change.old_title
+      %}
+      Changed the license of
+      <a href="{{ pkg_link }}">{{ title }}</a> to {{ new_license }} (previously {{ old_license }}).
+      {% endtrans %}
 
     {% endif %}
   </p>

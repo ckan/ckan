@@ -14,7 +14,8 @@
 
 {% block content_action %}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-light', icon='wrench' %}
+    {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-primary', icon='plus' %}
+    {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-secondary', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
@@ -34,7 +35,7 @@
   {% block package_organization %}
     {% if pkg.organization %}
       {% set org = h.get_organization(pkg.organization.id) %}
-      {% snippet "organization/snippets/info.html", organization=org, show_nums=false, am_following=am_following %}
+      {% snippet "organization/snippets/info.html", organization=org, show_nums=false, am_following=am_following, image_link=true %}
     {% endif %}
   {% endblock %}
 

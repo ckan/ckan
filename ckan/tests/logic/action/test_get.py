@@ -1465,13 +1465,8 @@ class TestPackageSearch(object):
         # depending on the solr version.
 
     def _create_bulk_datasets(self, name, count):
-        from ckan import model
-
-        pkgs = [
-            model.Package(name="{}_{}".format(name, i)) for i in range(count)
-        ]
-        model.Session.add_all(pkgs)
-        model.repo.commit_and_remove()
+        for i in range(count):
+            factories.Dataset(name=f"{name}_{i}")
 
     def test_rows_returned_default(self):
         self._create_bulk_datasets("rows_default", 11)
@@ -2064,7 +2059,7 @@ class TestUserAutocomplete(object):
         result = helpers.call_action("user_autocomplete", q="compl", limit=1)
         assert len(result) == 1
 
-    def test_autcomplete_email(self):
+    def test_autocomplete_email(self):
         user = factories.Sysadmin()
         context = {"user": user["name"]}
         factories.User(name="user1234", email="joe@doe.com")
@@ -2074,7 +2069,7 @@ class TestUserAutocomplete(object):
         assert result[0]["name"] == "user1234"
 
         # test when user is not sysadmin
-        result = helpers.call_action("user_autocomplete", q="joe")
+        result = helpers.call_action("user_autocomplete", q="joe@doe.com")
         assert len(result) == 0
 
 

@@ -1,25 +1,30 @@
-# -*- coding: utf-8 -*-
-
-
+import pytest
+from ckan import types
 from ckan.cli.cli import ckan
+from click.testing import CliRunner
+from typing import Any
 
 
-def test_build_and_clean(cli, ckan_config, tmpdir, monkeypatch):
-    """After build, there are some folders with assets inside
-    `%(ckan.storage_path)/webassets`. And after cleaning they must
-    be empty.
-
+@pytest.mark.usefixtures("with_extended_cli")
+def test_build_and_clean(
+    cli: CliRunner,
+    ckan_config: types.FixtureCkanConfig,
+    tmpdir: Any,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """After build, there are some folders with assets inside webassets
+    path. And after cleaning they must be empty.
     """
-    monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    cli.invoke(ckan, [u'asset', u'build'])
-    webassets_folder = [d for d in tmpdir.listdir() if d.basename == "webassets"][0]
-    for folder in webassets_folder.listdir():
+    monkeypatch.setitem(ckan_config, "ckan.webassets.path", tmpdir)
+    cli.invoke(ckan, ["asset", "build"])
+
+    for folder in tmpdir.listdir():
         if not folder.isdir():
             continue
         assert folder.listdir()
 
-    cli.invoke(ckan, [u'asset', u'clean'])
-    for folder in webassets_folder.listdir():
+    cli.invoke(ckan, ["asset", "clean"])
+    for folder in tmpdir.listdir():
         if not folder.isdir():
             continue
         assert not folder.listdir()

@@ -56,10 +56,10 @@ def _get_group_template(template_type: str,
         return method()
 
 
-def _db_to_form_schema(group_type: Optional[str] = None) -> Schema:
+def _show_group_schema(group_type: Optional[str] = None) -> Schema:
     u'''This is an interface to manipulate data from the database
      into a format suitable for the form (optional)'''
-    return lookup_group_plugin(group_type).db_to_form_schema()
+    return lookup_group_plugin(group_type).show_group_schema()
 
 
 def _setup_template_variables(context: Context,
@@ -198,7 +198,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     extra_vars: dict[str, Any] = {}
     context: Context = {
         u'user': current_user.name,
-        u'schema': _db_to_form_schema(group_type=group_type),
+        u'schema': _show_group_schema(group_type=group_type),
         u'for_view': True,
         u'extras_as_string': True
     }
@@ -330,11 +330,6 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
             items_per_page=limit)
 
         extra_vars["search_facets"] = query['search_facets']
-        extra_vars["search_facets_limits"] = g.search_facets_limits = {}
-        default_limit: int = config.get(u'search.facets.default')
-        for facet in extra_vars["search_facets"].keys():
-            limit = int(request.args.get(u'_%s_limit' % facet, default_limit))
-            g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
 
         extra_vars["sort_by_selected"] = sort_by
@@ -353,6 +348,10 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
 def _update_facet_titles(
         facets: 'OrderedDict[str, str]',
         group_type: str) -> 'OrderedDict[str, str]':
+    if g.group_dict.get(u'is_organization'):
+        del facets['organization']
+    else:
+        del facets['groups']
     for plugin in plugins.PluginImplementations(plugins.IFacets):
         facets = (
             plugin.group_facets(facets, group_type, None)
@@ -391,7 +390,7 @@ def read(group_type: str,
     extra_vars = {}
     context: Context = {
         u'user': current_user.name,
-        u'schema': _db_to_form_schema(group_type=group_type),
+        u'schema': _show_group_schema(group_type=group_type),
         u'for_view': True
     }
     data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
@@ -445,6 +444,12 @@ def read(group_type: str,
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
     extra_vars["am_following"] = am_following
+    extra_vars["dataset_type"] = h.default_package_type()
+
+    if request.htmx:
+        return base.render(
+            _get_group_template('read_template_htmx', g.group_dict['type']),
+            extra_vars)
 
     return base.render(
         _get_group_template(u'read_template', g.group_dict['type']),
@@ -816,7 +821,7 @@ class BulkProcessView(MethodView):
 
         context: Context = {
             u'user': current_user.name,
-            u'schema': _db_to_form_schema(group_type=group_type),
+            u'schema': _show_group_schema(group_type=group_type),
             u'for_view': True,
             u'extras_as_string': True
         }

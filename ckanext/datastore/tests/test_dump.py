@@ -5,6 +5,7 @@ import json
 import pytest
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import xml.etree.ElementTree as ET
 
 
 class TestDatastoreDump(object):
@@ -199,8 +200,58 @@ class TestDatastoreDump(object):
         assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_tsv(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(
+            "/datastore/dump/{0}?limit=1&format=tsv".format(
+                str(resource["id"])
+            )
+        )
+
+        expected_content = (
+            "_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
+            "nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00.000\t"
+            '"[""Princess Anna"",""Sergius""]"\t'
+            '"[""a"",""e"",""x""]"\t"[""b"", '
+            '{""moo"": ""moo""}]"\n'
+        )
+        assert res.get_data(as_text=True) == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_tsv_without_ms(self, app):
         resource = factories.Resource()
         data = {
             "resource_id": resource["id"],
@@ -289,8 +340,71 @@ class TestDatastoreDump(object):
         assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_json(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(
+            "/datastore/dump/{0}?limit=1&format=json".format(
+                resource["id"]
+            )
+        )
+
+        content = json.loads(res.data)
+        expected_content = {
+            u'fields': [
+                {u'id': u'_id', u'type': u'int'},
+                {u'id': u'bük', u'type': u'text'},
+                {u'id': u'author', u'type': u'text'},
+                {u'id': u'published', u'type': u'timestamp'},
+                {u'id': u'characters', u'type': u'_text'},
+                {u'id': u'random_letters', u'type': u'_text'},
+                {u'id': u'nested', u'type': u'json'}
+            ],
+            u'records': [
+                [
+                    1, u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00.000',
+                    [u'Princess Anna', u'Sergius'],
+                    [u'a', u'e', u'x'],
+                    [u'b', {u'moo': u'moo'}]
+                ]
+            ]
+        }
+        assert content == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_json_without_ms(self, app):
         resource = factories.Resource()
         data = {
             "resource_id": resource["id"],
@@ -392,8 +506,70 @@ class TestDatastoreDump(object):
         assert attachment_filename == expected_attch_filename
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_xml(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": u"b\xfck", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "published"},
+                {"id": u"characters", u"type": u"_text"},
+                {"id": "random_letters", "type": "text[]"},
+            ],
+            "records": [
+                {
+                    u"b\xfck": "annakarenina",
+                    "author": "tolstoy",
+                    "published": "2005-03-01",
+                    "nested": ["b", {"moo": "moo"}],
+                    u"characters": [u"Princess Anna", u"Sergius"],
+                    "random_letters": ["a", "e", "x"],
+                },
+                {
+                    u"b\xfck": "warandpeace",
+                    "author": "tolstoy",
+                    "nested": {"a": "b"},
+                    "random_letters": [],
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(f"/datastore/dump/{resource['id']}?limit=1&format=xml")
+        expected_content = (
+            u'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'
+            r'<row _id="1">'
+            u"<b\xfck>annakarenina</b\xfck>"
+            u"<author>tolstoy</author>"
+            u"<published>2005-03-01T00:00:00.000</published>"
+            u"<characters>"
+            u'<value key="0">Princess Anna</value>'
+            u'<value key="1">Sergius</value>'
+            u"</characters>"
+            u"<random_letters>"
+            u'<value key="0">a</value>'
+            u'<value key="1">e</value>'
+            u'<value key="2">x</value>'
+            u"</random_letters>"
+            u"<nested>"
+            u'<value key="0">b</value>'
+            u'<value key="1">'
+            u'<value key="moo">moo</value>'
+            u"</value>"
+            u"</nested>"
+            u"</row>\n"
+            u"</data>\n"
+        )
+        assert res.get_data(as_text=True) == expected_content
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_xml_without_ms(self, app):
         resource = factories.Resource()
         data = {
             "resource_id": resource["id"],
@@ -492,6 +668,64 @@ class TestDatastoreDump(object):
             resource['id'])
 
         assert attachment_filename == expected_attch_filename
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_xml_col_name_conformity(self, app):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "278bad_name", "type": "text"},
+                {"id": "xmlbad_name", "type": "text"},
+                {"id": "bad name", "type": "text"},
+                {"id": "bad_(name)", "type": "text"},
+                {"id": ".bad_name", "type": "text"},
+                {"id": "-bad_name", "type": "text"},
+            ],
+            "records": [
+                {
+                    "278bad_name": "example",  # cannot start with numbers
+                    "xmlbad_name": "example 0",  # cannot start with "xml"
+                    "bad name": "example 1",  # cannot have spaces
+                    "bad_(name)": "example 2",  # cannot have special chars
+                    ".bad_name": "example 3",  # cannot start with period
+                    "-bad_name": "example 4",  # cannot start with hyphen
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        res = app.get(f"/datastore/dump/{resource['id']}?format=xml")
+        body = res.get_data(as_text=True)
+
+        # bad names should not exist in the xml content
+        assert '278bad_name' not in body
+        assert 'xmlbad_name' not in body
+        assert 'bad name' not in body
+        assert 'bad_(name)' not in body
+        assert '.bad_name' not in body
+        assert '-bad_name' not in body
+
+        xml = ET.fromstring(body)
+
+        # same keys will be appended with incrementing number
+        expected_obj = {
+            'bad_name': 'example',
+            'bad_name_0': 'example 0',
+            'bad_name_1': 'example 1',
+            'bad_name_2': 'example 2',
+            'bad_name_3': 'example 3',
+            'bad_name_4': 'example 4',
+        }
+
+        row = xml.find('row')
+
+        for tag, value in expected_obj.items():
+            obj = row.find(tag)
+            assert obj is not None
+            assert obj.text == value
 
     @pytest.mark.ckan_config("ckan.datastore.search.rows_max", "3")
     @pytest.mark.ckan_config("ckan.plugins", "datastore")

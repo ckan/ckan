@@ -1,0 +1,3 @@
+Remove unsafe usage of unescaped HTML entities when generating links which could act as a 
+potential XSS vector. *Note*: This vulnerability was not released in a public CKAN version, it was 
+present only in the master branch. Many thanks to @Shirshaw64p for reporting it.

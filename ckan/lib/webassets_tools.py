@@ -6,7 +6,7 @@ from typing import Any
 from typing_extensions import Literal, TypedDict, assert_never
 
 from markupsafe import Markup
-from webassets import Environment
+from webassets.env import Environment
 from webassets.loaders import YAMLLoader
 
 from ckan.common import config, g
@@ -87,7 +87,7 @@ def register_core_assets():
     """Register CKAN core assets.
 
     Call this function after registration of plugin assets. Asset overrides are
-    not alowed, so if plugin tries to replace CKAN core asset, it has to
+    not allowed, so if plugin tries to replace CKAN core asset, it has to
     register an asset with the same name before core asset is added. In this
     case, asset from plugin will have higher precedence and core asset will be
     ignored.
@@ -211,14 +211,8 @@ def get_webassets_path() -> str:
             "ckan.storage_path"
         ) or get_ckan_temp_directory()
 
-        if storage_path:
-            webassets_path = os.path.join(storage_path, "webassets")
+        webassets_path = os.path.join(storage_path, "webassets")
 
-    if not webassets_path:
-        raise RuntimeError(
-            "Either `ckan.webassets.path` or `ckan.storage_path`"
-            " must be specified"
-        )
     return webassets_path
 
 

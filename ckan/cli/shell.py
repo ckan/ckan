@@ -35,7 +35,7 @@ def ipython(namespace: Mapping[str, Any], banner: str) -> None:
 
 def python(namespace: Mapping[str, Any], banner: str) -> None:
     import code
-    code.interact(banner=banner, local=namespace)
+    code.interact(banner=banner, local=dict(namespace))
 
 
 @click.command()

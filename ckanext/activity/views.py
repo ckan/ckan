@@ -14,6 +14,7 @@ from ckan.views.group import (
     # TODO: don't use hidden funcitons
     _get_group_template,
 )
+from ckan.views.dataset import _get_pkg_template
 
 from ckan.common import request as ckan_request
 
@@ -22,7 +23,6 @@ from ckan.views.user import _extra_template_variables
 
 # TODO: don't use hidden funcitons
 from ckan.views.dataset import _setup_template_variables
-
 from ckan.types import Context, Response
 from .model import Activity
 from .logic.validators import (
@@ -185,6 +185,7 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     tk.g.pkg_dict = package
 
     extra_vars: dict[str, Any] = {
+        "base_template": _get_pkg_template("resource_template", dataset_type),
         "resource_views": resource_views,
         "current_resource_view": current_resource_view,
         "dataset_type": dataset_type,
@@ -287,6 +288,7 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
     return tk.render(
         "package/history.html",
         {
+            "base_template": _get_pkg_template("read_template", package_type),
             "dataset_type": package_type,
             "pkg_dict": pkg_dict,
             "pkg": pkg,
@@ -832,7 +834,14 @@ def user_activity(id: str) -> str:
         "older_activities_url": older_activities_url
     })
 
-    return tk.render("user/activity_stream.html", extra_vars)
+    if ckan_request.htmx:
+        return tk.render(
+            "snippets/activity_stream.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "user/activity_stream.html", extra_vars
+        )
 
 
 @bp.route("/dashboard/", strict_slashes=False)
@@ -904,7 +913,14 @@ def dashboard() -> str:
     # dashboard page.
     tk.get_action("dashboard_mark_activities_old")(context, {})
 
-    return tk.render("user/dashboard.html", extra_vars)
+    if ckan_request.htmx:
+        return tk.render(
+            "user/snippets/news_feed.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "user/dashboard.html", extra_vars
+        )
 
 
 def _get_dashboard_context(
@@ -965,3 +981,82 @@ def _get_dashboard_context(
         "selected_id": False,
         "dict": None,
     }
+
+
+def _check_admin_activities_auth() -> None:
+    context: Context = {
+        "user": getattr(tk.current_user, "name", None) or "",
+        "auth_user_obj": getattr(tk.current_user, "userobj", None),
+    }
+    tk.check_access("sysadmin", context)
+
+
+_ADMIN_DELETE_BY_OFFSET_DAYS = {
+    "older_than_1_day": 1,
+    "older_than_30_days": 30,
+    "older_than_365_days": 365,
+}
+
+
+def admin_activities() -> Union[str, Response]:
+    """Admin tab view: predefined delete options with counts."""
+    try:
+        _check_admin_activities_auth()
+    except tk.NotAuthorized:
+        return tk.abort(403, tk._("Need to be system administrator to administer"))
+
+    user = getattr(tk.current_user, "name", None) or ""
+
+    if tk.request.method == "POST":
+        if "cancel" in tk.request.form:
+            return tk.h.redirect_to("activity.admin_activities")
+
+        action = tk.request.form.get("action", "")
+        if action == "delete_all":
+            result = tk.get_action("activity_delete_all")(
+                {"user": user, "session": model.Session},
+                {"batch_size": 50000},
+            )
+            model.Session.remove()
+            tk.h.flash_success(result.get("message", ""))
+        else:
+            offset_days = _ADMIN_DELETE_BY_OFFSET_DAYS.get(action)
+            if offset_days is not None:
+                result = tk.get_action("activity_delete")(
+                    {"user": user, "session": model.Session},
+                    {
+                        "offset_days": offset_days,
+                        "batch_size": 50000,
+                    },
+                )
+                model.Session.remove()
+                tk.h.flash_success(result.get("message", ""))
+        return tk.h.redirect_to("activity.admin_activities")
+
+    counts = tk.get_action("activity_delete_counts")(
+        {"user": user, "session": model.Session}, {}
+    )
+    return tk.render(
+        "admin/activities.html",
+        extra_vars={"counts": counts},
+    )
+
+
+bp.add_url_rule(
+    "/ckan-admin/activities",
+    view_func=admin_activities,
+    methods=["GET", "POST"],
+    endpoint="admin_activities",
+)
+
+@bp.route("/testing/dashboard")
+def dashboard_testing() -> str:
+    return tk.render(
+        'user/snippets/followee_dropdown.html', {
+            'context': {},
+            'followees': [
+                {"dict": {"id": 1}, "display_name": "Test followee"},
+                {"dict": {"id": 2}, "display_name": "Not valid"}
+            ]
+        }
+    )

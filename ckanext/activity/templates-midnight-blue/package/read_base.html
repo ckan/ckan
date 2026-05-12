@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  {{ super() }}
+  {{ h.build_nav_icon('activity.package_activity', _('Activity Stream'), id=pkg.id if is_activity_archive else pkg.name, icon='clock') }}
+{% endblock content_primary_nav %}

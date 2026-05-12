@@ -34,6 +34,8 @@ class TestSearchIndex(object):
             "metadata_created": datetime.datetime.now().isoformat(),
             "metadata_modified": datetime.datetime.now().isoformat(),
         }
+        cls.base_package_dict['with_custom_schema'] = dict(
+            cls.base_package_dict)
 
     def test_solr_is_available(self):
         assert self.solr_client.search("*:*") is not None
@@ -213,7 +215,7 @@ class TestPackageSearchIndex:
     def _get_pkg_dict():
         # This is a simple package, enough to be indexed, in the format that
         # package_show would return
-        return {
+        pkg_dict = {
             "name": "river-quality",
             "id": "d9567b82-d3f0-4c17-b222-d9a7499f7940",
             "state": "active",
@@ -222,6 +224,8 @@ class TestPackageSearchIndex:
             "metadata_created": "2014-06-10T08:24:12.782257",
             "metadata_modified": "2014-06-10T08:24:12.782257",
         }
+        pkg_dict['with_custom_schema'] = dict(pkg_dict)
+        return pkg_dict
 
     @staticmethod
     def _get_pkg_dict_with_resources():
@@ -284,9 +288,6 @@ class TestPackageSearchIndex:
         # validated_data_dict is the result of package_show, validated
         validated_data_dict = json.loads(indexed_pkg["validated_data_dict"])
         assert validated_data_dict["name"] == "river-quality"
-        # title is inserted (copied from the name) during validation
-        # so its presence shows it is validated
-        assert "title" in validated_data_dict
 
     def test_index_package_stores_validated_data_dict_without_unvalidated_data_dict(
         self,

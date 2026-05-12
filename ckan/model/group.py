@@ -213,7 +213,7 @@ class Group(core.StatefulObjectMixin,
 
     def set_approval_status(self, status: str) -> None:
         """
-            Aproval status can be set on a group, where currently it does
+            Approval status can be set on a group, where currently it does
             nothing other than act as an indication of whether it was
             approved or not. It may be that we want to tie the object
             status to the approval status
@@ -443,7 +443,7 @@ meta.registry.map_imperatively(Member, member_table, properties={
 
 
 # Should there arise a bug that allows loops in the group hierarchy, then it
-# will lead to infinite recursion, tieing up postgres processes at 100%, and
+# will lead to infinite recursion, tying up postgres processes at 100%, and
 # the server will suffer. To avoid ever failing this badly, we put in this
 # limit on recursion.
 MAX_RECURSES: int = 8

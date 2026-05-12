@@ -26,12 +26,18 @@ ckan.module('metadata-button', function(jQuery) {
       else {
         div.style.display = "none";
       }
+
+      // Read translatable strings from data attributes so templates can inject
+      // translated values. Fallback to English if attributes are not present.
       var btn = document.getElementById("metadata_button");
-      if (btn.value === "Show metadata diff") {
-        btn.value = "Hide metadata diff";
+      var showText = btn.getAttribute('data-show-text') || 'Show metadata diff';
+      var hideText = btn.getAttribute('data-hide-text') || 'Hide metadata diff';
+
+      if (btn.value === showText) {
+        btn.value = hideText;
       }
       else {
-        btn.value = "Show metadata diff";
+        btn.value = showText;
       }
     }
   }

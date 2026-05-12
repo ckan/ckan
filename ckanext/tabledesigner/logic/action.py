@@ -4,7 +4,12 @@ from __future__ import annotations
 from typing import Any, Callable
 
 from ckan.types import Context
-from ckan.plugins.toolkit import get_action, chained_action, ValidationError
+from ckan.plugins.toolkit import (
+    get_action,
+    chained_action,
+    ValidationError,
+    fresh_context,
+)
 
 from ckanext.tabledesigner.datastore import create_table
 
@@ -15,7 +20,7 @@ def resource_create(
         context: Context,
         data_dict: dict[str, Any]) -> dict[str, Any]:
     res = original_action(context, data_dict)
-    _create_table_and_view(res)
+    _create_table_and_view(context, res)
     return res
 
 
@@ -25,23 +30,26 @@ def resource_update(
         context: Context,
         data_dict: dict[str, Any]) -> dict[str, Any]:
     res = original_action(context, data_dict)
-    _create_table_and_view(res)
+    _create_table_and_view(context, res)
     return res
 
 
-def _create_table_and_view(res: dict[str, Any]) -> None:
+def _create_table_and_view(context: Context, res: dict[str, Any]) -> None:
     if res.get('url_type') != 'tabledesigner':
         return
-    if not res.get('datastore_active'):
-        create_table(res['id'], [])
 
-    views = get_action('resource_view_list')({}, {
+    if not res.get('datastore_active'):
+        create_table(res['id'], [], context)
+
+    views = get_action('resource_view_list')(fresh_context(context), {
         'id': res['id']
     })
+
     if any(v['view_type'] == 'datatables_view' for v in views):
         return
+
     try:
-        get_action('resource_view_create')({}, {
+        get_action('resource_view_create')(fresh_context(context), {
             'resource_id': res['id'],
             'view_type': 'datatables_view',
             'title': 'Table',

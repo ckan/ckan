@@ -2,6 +2,7 @@
 
 import ckan.logic as logic
 import ckan.authz as authz
+from ckan import model
 from ckan.common import _, config
 from ckan.logic.auth import (get_package_object, get_group_object,
                              get_resource_object,
@@ -119,7 +120,6 @@ def package_show(context: Context, data_dict: DataDict) -> AuthResult:
 
 
 def resource_show(context: Context, data_dict: DataDict) -> AuthResult:
-    model = context['model']
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
 
@@ -139,9 +139,6 @@ def resource_show(context: Context, data_dict: DataDict) -> AuthResult:
 
 
 def resource_view_show(context: Context, data_dict: DataDict) -> AuthResult:
-
-    model = context['model']
-
     resource_view = model.ResourceView.get(data_dict['id'])
     if not resource_view:
         raise logic.NotFound(_('Resource view not found, cannot check auth.'))
@@ -251,8 +248,6 @@ def organization_follower_list(context: Context,
 
 
 def _followee_list(context: Context, data_dict: DataDict) -> AuthResult:
-    model = context['model']
-
     # Visitors cannot see what users are following.
     authorized_user = model.User.get(context.get('user'))
     if not authorized_user:
@@ -329,7 +324,7 @@ def api_token_list(context: Context, data_dict: DataDict) -> AuthResult:
     """
     # Support "user" for backwards compatibility
     id_or_name = data_dict.get("user_id", data_dict.get("user"))
-    user = context[u'model'].User.get(id_or_name)
+    user = model.User.get(id_or_name)
     success = user is not None and user.name == context[u'user']
 
     return {u'success': success}
@@ -342,7 +337,6 @@ def package_collaborator_list(context: Context,
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
     '''
     user = context['user']
-    model = context['model']
 
     pkg = model.Package.get(data_dict['id'])
     user_obj = model.User.get(user)

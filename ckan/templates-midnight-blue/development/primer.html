@@ -14,8 +14,10 @@
 {% snippet 'development/snippets/context.html' %}
 
 <div class="module module-narrow module-shallow">
-  <h2 class="module-heading"><i class="fa fa-info-circle"></i> Helper text</h2>
-  <div class="module-content">{{ lipsum(1) }}</div>
+  <div class="module-group">
+    <h2 class="module-heading"><i class="fa fa-info-circle"></i> Helper text</h2>
+    <div class="module-content">{{ lipsum(1) }}</div>
+  </div>
 </div>
 
 {% snippet 'development/snippets/nav.html', heading='Navigation' %}
@@ -27,9 +29,9 @@
 {% block primary_content %}
 {% snippet 'development/snippets/page_header.html' %}
 
-<div class="module-content">
-  <div class="input-group input-group-lg search-giant">
-    <input type="text" class="search form-control" name="q" value="" autocomplete="off" placeholder="Search something...">
+<div class="module-content search-form">
+  <div class="input-group search-input-group">
+    <input type="text" class="input-lg form-control" name="q" value="" autocomplete="off" placeholder="Search something...">
     <span class="input-group-btn">
         <button class="btn btn-secondary" type="submit">
           <i class="fa fa-search"></i>
@@ -63,7 +65,9 @@
   <hr>
   <h2>Form stages</h2>
 </div>
-{% snippet 'development/snippets/form_stages.html' %}
+<div class="form_stages">
+  {% snippet 'development/snippets/form_stages.html' %}
+</div>
 
 
 <div class="module-content m-bottom">

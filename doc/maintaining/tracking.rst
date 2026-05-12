@@ -40,7 +40,7 @@ To enable page view tracking:
    Save the file and restart your web server. CKAN will now record raw page
    view tracking data in your CKAN database as pages are viewed.
 
-2. Run the tracking datbase migrations::
+2. Run the tracking database migrations::
 
     ckan -c |ckan.ini| db upgrade -p tracking
 

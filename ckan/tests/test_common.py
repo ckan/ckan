@@ -98,12 +98,6 @@ def test_setting_a_key_sets_it_on_flask_config_if_app_context(monkeypatch):
     assert flask.current_app.config[u"ckan.site_title"] == u"Example title"
 
 
-@pytest.mark.usefixtures("with_request_context")
-@pytest.mark.ckan_config("ckan.site_title", "Example title")
-def test_setting_a_key_does_set_it_on_flask_config_if_outside_app_context():
-    assert flask.current_app.config["ckan.site_title"] == "Example title"
-
-
 @pytest.mark.ckan_config(u"ckan.site_title", u"Example title")
 def test_deleting_a_key_deletes_it_on_ckan_config():
     del ckan_config[u"ckan.site_title"]

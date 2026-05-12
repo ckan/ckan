@@ -28,7 +28,6 @@ from typing import (
 
 
 import dominate.tags as dom_tags
-from dominate.util import raw as raw_dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
@@ -37,7 +36,7 @@ from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
-from ckan.lib import i18n
+from ckan.lib import i18n, files
 from ckan.plugins.core import plugin_loaded
 
 from urllib.parse import (
@@ -48,10 +47,8 @@ import ckan.config
 import ckan.exceptions
 import ckan.model as model
 import ckan.lib.formatters as formatters
-import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
-import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 import ckan
@@ -741,6 +738,10 @@ def get_flashed_messages(**kwargs: Any):
 
 @core_helper
 def endpoint_from_url(url: str) -> str:
+
+    url = remove_locale_from_url(url)
+    url = remove_root_path_from_url(url)
+
     try:
         urls = current_app.url_map.bind("")
         match = urls.match(url)
@@ -748,6 +749,68 @@ def endpoint_from_url(url: str) -> str:
     except RuntimeError:
         endpoint = ""
     return endpoint
+
+
+@core_helper
+def remove_root_path_from_url(url: str) -> str:
+    """
+    Remove the root path (i.e. config["ckan.root_path"]) from a url.
+
+    Note: the locale is also removed if present. See ckan/tests/lib/test_helpers.py
+    for examples.
+
+    """
+    root_path = config["ckan.root_path"]
+    if not url or not root_path:
+        return url
+
+    # Try to match with current locale first
+    current_locale = request.environ.get("CKAN_LANG")
+    if current_locale:
+        locale_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(locale_root_path):
+            remaining_url = url[len(locale_root_path):]
+            return remaining_url if remaining_url else "/"
+
+    # Try to match without locale (fallback)
+    base_root_path = re.sub(r"/?\{\{LANG\}\}/?", "/", root_path)
+    if base_root_path and url.startswith(base_root_path):
+        remaining_url = url[len(base_root_path):]
+        return remaining_url if remaining_url else "/"
+
+    return url
+
+
+@core_helper
+def remove_locale_from_url(url: str) -> str:
+    """Remove the locale part from a URL based on current locale and root_path config.
+    """
+    current_locale = request.environ.get("CKAN_LANG")
+    if not url or not current_locale:
+        return url
+
+    root_path = config["ckan.root_path"]
+
+    if root_path and "{{LANG}}" in root_path:
+        # Root path defined
+        current_root_path = root_path.replace("{{LANG}}", current_locale)
+        if url.startswith(current_root_path):
+            # Remove current root path
+            url = url[len(current_root_path):]
+            # Remove lang bit from base root path
+            base_root_path = (
+                re.sub(r"/?\{\{LANG\}\}/?", "/", root_path).rstrip("/") + "/"
+            )
+            url = base_root_path + url.lstrip("/")
+    else:
+        # Default, no root path: locale is added as /<lang>/ at the beginning of the url
+        locale_prefix = f"/{current_locale}/"
+        if url.startswith(locale_prefix):
+            url = url[len(locale_prefix) - 1:]  # To preserve the slash
+        elif url == f"/{current_locale}":
+            url = "/"
+
+    return url
 
 
 @core_helper
@@ -800,24 +863,19 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
             active = ''
         return kwargs.pop('class_', '') + active or None
 
-    def _create_link_text(text: str, **kwargs: Any):
-        ''' Update link text to add a icon or span if specified in the
-        kwargs '''
-        if kwargs.pop('inner_span', None):
-            text = literal('<span>') + text + literal('</span>')
-        if icon:
-            text = literal('<i class="fa fa-%s"></i> ' % icon) + text
-        return text
-
     icon = kwargs.pop('icon', None)
+    inner_span = kwargs.pop('inner_span', None)
     cls = _link_class(kwargs)
     title = kwargs.pop('title', kwargs.pop('title_', None))
-    return link_to(
-        _create_link_text(text, **kwargs),
-        url_for(*args, **kwargs),
-        cls=cls,
-        title=title
-    )
+
+    link = dom_tags.a(href=url_for(*args, **kwargs), cls=cls, title=title)
+
+    if icon:
+        link.add(dom_tags.i(cls=f"fa fa-{icon}"))   # type: ignore
+
+    link.add(dom_tags.span(text) if inner_span else f"{text}")  # type: ignore
+
+    return literal(link)
 
 
 def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
@@ -840,7 +898,7 @@ def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs['href'] = url
     if label == '' or label is None:
         label = url
-    return literal(str(dom_tags.a(raw_dom_tags(label), **attrs)))
+    return literal(str(dom_tags.a(label, **attrs)))
 
 
 @core_helper
@@ -1037,7 +1095,8 @@ def humanize_entity_type(entity_type: str, object_type: str,
     Possible purposes(depends on `entity_type` and change over time)::
 
         `add link`: "Add [object]" button on search pages
-        `breadcrumb`: "Home / [object]s / New" section in breadcrums
+        `add association link`: "Add to [object]" button on dataset pages
+        `breadcrumb`: "Home / [object]s / New" section in breadcrumbs
         `content tab`: "[object]s | Groups | Activity" tab on details page
         `create label`: "Home / ... / Create [object]" part of breadcrumb
         `create title`: "Create [object] - CKAN" section of page title
@@ -1051,10 +1110,10 @@ def humanize_entity_type(entity_type: str, object_type: str,
         `my label`: "My [object]s" tab in dashboard
         `name placeholder`: "<[object]>" section of URL preview on object form
         `no any objects`: No objects created yet
-        `no associated label`: no gorups for dataset
+        `no associated label`: no groups for dataset
         `no description`: object has no description
         `no label`: package with no organization
-        `page title`: "Title - [objec]s - CKAN" section of page title
+        `page title`: "Title - [object]s - CKAN" section of page title
         `save label`: "Save [object]" button
         `search placeholder`: "Search [object]s..." placeholder
         `update label`: "Update [object]" button
@@ -1075,6 +1134,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
     templates = {
         u'add link': _(u"Add {object_type}"),
+        u'add association link': _(u"Add to {object_type}"),
         u'breadcrumb': _(u"{object_type}s"),
         u'content tab': _(u"{object_type}s"),
         u'create label': _(u"Create {object_type}"),
@@ -1090,12 +1150,12 @@ def humanize_entity_type(entity_type: str, object_type: str,
         u'my label': _(u"My {object_type}s"),
         u'view label': _("View {object_type}"),
         u'name placeholder': _(u"My {object_type}"),
-        u'no any objects': _(
-            u"There are currently no {object_type}s for this site"),
-        u'no associated label': _(
-            u'There are no {object_type}s associated with this dataset'),
-        u'no description': _(
-            u'There is no description for this {object_type}'),
+        'no any objects': _(
+            "There are currently no {object_type}s for this site."),
+        'no associated label': _(
+            'There are no {object_type}s associated with this dataset.'),
+        'no description': _(
+            'There is no description for this {object_type}.'),
         u'no label': _(u"No {object_type}"),
         u'page title': _(u"{object_type}s"),
         u'save label': _(u"Save {object_type}"),
@@ -1114,14 +1174,15 @@ def humanize_entity_type(entity_type: str, object_type: str,
 
 @core_helper
 def get_facet_items_dict(
-        facet: str,
-        search_facets: Union[dict[str, dict[str, Any]], Any] = None,
-        limit: Optional[int] = None,
-        exclude_active: bool = False) -> list[dict[str, Any]]:
-    '''Return the list of unselected facet items for the given facet, sorted
+    facet: str,
+    search_facets: dict[str, dict[str, Any]],
+    limit: int | None = None,
+    exclude_active: bool = False,
+) -> list[dict[str, Any]]:
+    """Return the list of unselected facet items for the given facet, sorted
     by count.
 
-    Returns the list of unselected facet contraints or facet items (e.g. tag
+    Returns the list of unselected facet constraints or facet items (e.g. tag
     names like "russian" or "tolstoy") for the given search facet (e.g.
     "tags"), sorted by facet item count (i.e. the number of search results that
     match each facet item).
@@ -1136,71 +1197,105 @@ def get_facet_items_dict(
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
 
-    '''
-    if not search_facets \
-       or not isinstance(search_facets, dict) \
-       or not search_facets.get(facet, {}).get('items'):
+    """
+    items = search_facets.get(facet, {}).get("items")
+    if not items:
         return []
+
+    params: list[tuple[str, str]] = request.args.items(multi=True)
     facets = []
-    for facet_item in search_facets[facet]['items']:
-        if not len(facet_item['name'].strip()):
-            continue
-        params_items = request.args.items(multi=True)
-        if (facet, facet_item['name']) not in params_items:
-            facets.append(dict(active=False, **facet_item))
-        elif not exclude_active:
-            facets.append(dict(active=True, **facet_item))
+
+    for facet_item in items:
+        active = (facet, facet_item["name"]) in params
+        if not active or not exclude_active:
+            facets.append(dict(facet_item, active=active))
+
     # Sort descendingly by count and ascendingly by case-sensitive display name
-    sort_facets: Callable[[Any], tuple[int, str]] = lambda it: (
-        -it['count'], it['display_name'].lower())
+    sort_facets = lambda it: (-it["count"], it["display_name"].lower())
     facets.sort(key=sort_facets)
-    if hasattr(g, 'search_facets_limits'):
-        if g.search_facets_limits and limit is None:
-            limit = g.search_facets_limits.get(facet)
+
+    if limit is None:
+        limit = helper_functions.get_param_int(
+            f"_{facet}_limit", config["search.facets.default"]
+        )
     # zero treated as infinite for hysterical raisins
-    if limit is not None and limit > 0:
-        return facets[:limit]
+    if limit:
+        facets = facets[:limit]
+
     return facets
 
 
 @core_helper
-def has_more_facets(facet: str,
-                    search_facets: dict[str, dict[str, Any]],
-                    limit: Optional[int] = None,
-                    exclude_active: bool = False) -> bool:
-    '''
-    Returns True if there are more facet items for the given facet than the
+def has_more_facets(
+    facet: str,
+    search_facets: dict[str, dict[str, Any]],
+    limit: int | None = None,
+    exclude_active: bool = False,
+) -> bool:
+    """Returns True if there are more facet items for the given facet than the
     limit.
 
     Reads the complete list of facet items for the given facet from
-    search_facets, and filters out the facet items that the user has already
-    selected.
+    search_facets, and optionally filters out the facet items that the user has
+    already selected.
 
     Arguments:
     facet -- the name of the facet to filter.
     search_facets -- dict with search facets
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
+    """
+    items = search_facets[facet]["items"]
+    if not items:
+        return False
 
-    '''
-    facets = []
-    for facet_item in search_facets[facet]['items']:
-        if not len(facet_item['name'].strip()):
-            continue
+    if limit is None:
+        limit = helper_functions.get_param_int(
+            f"_{facet}_limit", config["search.facets.default"]
+        )
+    # missing limit, as well as limit=0 treated as no-limit
+    if not limit:
+        return False
+
+    count = 0
+    if exclude_active:
         params_items = request.args.items(multi=True)
-        if (facet, facet_item['name']) not in params_items:
-            facets.append(dict(active=False, **facet_item))
-        elif not exclude_active:
-            facets.append(dict(active=True, **facet_item))
-    if getattr(g, 'search_facets_limits', None) and limit is None:
-        limit = g.search_facets_limits.get(facet)
-    if limit is not None and len(facets) > limit:
-        return True
-    return False
+        for facet_item in items:
+            if not exclude_active or (facet, facet_item["name"]) not in params_items:
+                count += 1
+    else:
+        count = len(items)
+
+    return count > limit
 
 
 @core_helper
-def get_param_int(name: str, default: int = 10) -> int:
+def currently_active_facet(facet: str) -> bool:
+    params_items = request.args.keys()
+    expanded_facet = "_" + facet + "_limit"
+    if facet in params_items or expanded_facet in params_items:
+        return True
+    else:
+        return False
+
+
+@core_helper
+def default_collapse_facets():
+    '''Returns config option for `ckan.default_collapse_facets`.
+    If true, the facets in the secondary will be collapsed by default.
+    If false, the facets will all be open, unless closed by the user.
+    Default is false
+    '''
+    return config['ckan.default_collapse_facets']
+
+
+@core_helper
+def get_param_int(name: str, default: int = 0) -> int:
+    """Get a query parameter from the request as an integer.
+
+    Return a default value if the parameter is not present or cannot be
+    converted to an integer.
+    """
     try:
         return int(request.args.get(name, default))
     except ValueError:
@@ -1286,11 +1381,7 @@ def linked_user(user: Union[str, model.User],
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return literal(u'{icon} {link}'.format(
-            icon=user_image(
-                user.id,
-                size=avatar
-            ),
+        return literal(u'{link}'.format(
             link=link_to(
                 displayname,
                 url_for('user.read', id=name)
@@ -1308,54 +1399,6 @@ def group_name_to_title(name: str) -> str:
 
 
 @core_helper
-@maintain.deprecated("helpers.truncate() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "builtin jinja filter instead.",
-                     since="2.10.0")
-def truncate(text: str,
-             length: int = 30,
-             indicator: str = '...',
-             whole_word: bool = False) -> str:
-    """Truncate ``text`` with replacement characters.
-
-    ``length``
-        The maximum length of ``text`` before replacement
-    ``indicator``
-        If ``text`` exceeds the ``length``, this string will replace
-        the end of the string
-    ``whole_word``
-        If true, shorten the string further to avoid breaking a word in the
-        middle.  A word is defined as any string not containing whitespace.
-        If the entire text before the break is a single word, it will have to
-        be broken.
-
-    Example::
-
-        >>> truncate('Once upon a time in a world far far away', 14)
-        'Once upon a...'
-
-    Deprecated: please use jinja filter `truncate` instead
-    """
-    if not text:
-        return ""
-    if len(text) <= length:
-        return text
-    short_length = length - len(indicator)
-    if not whole_word:
-        return text[:short_length] + indicator
-    # Go back to end of previous word.
-    i = short_length
-    while i >= 0 and not text[i].isspace():
-        i -= 1
-    while i >= 0 and text[i].isspace():
-        i -= 1
-    if i <= 0:
-        # Entire text before break is one word, or we miscalculated.
-        return text[:short_length] + indicator
-    return text[:i + 1] + indicator
-
-
-@core_helper
 def markdown_extract(text: str,
                      extract_length: int = 190) -> Union[str, Markup]:
     ''' return the plain text representation of markdown encoded text.  That
@@ -1363,7 +1406,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = RE_MD_HTML_TAGS.sub('', markdown(text))
+    plain = bleach_clean(markdown(text), tags=(), strip=True)
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(
@@ -1824,13 +1867,13 @@ def snippet(template_name: str, **kw: Any) -> str:
 @core_helper
 def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     ''' This is a helper function for converting lists of objects into
-    lists of dicts. It is for backwards compatability only. '''
+    lists of dicts. It is for backwards compatibility only. '''
 
     import ckan.lib.dictization.model_dictize as md
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context: Context = {'model': model}
+    context: Context = {}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1931,7 +1974,7 @@ def add_url_param(alternative_url: Optional[str] = None,
     :py:func:`~ckan.lib.helpers.url_for` controller & action default to the
     current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
     '''
 
@@ -1969,7 +2012,7 @@ def remove_url_param(key: Union[list[str], str],
     via :py:func:`~ckan.lib.helpers.url_for`
     controller & action default to the current ones
 
-    This can be overriden providing an alternative_url, which will be used
+    This can be overridden providing an alternative_url, which will be used
     instead.
 
     '''
@@ -2165,10 +2208,6 @@ RE_MD_EXTERNAL_LINK = re.compile(
     flags=re.UNICODE
 )
 
-# find all tags but ignore < in the strings so that we can use it correctly
-# in markdown
-RE_MD_HTML_TAGS = re.compile('<[^><]*>')
-
 
 @core_helper
 def html_auto_link(data: str) -> str:
@@ -2228,7 +2267,6 @@ def render_markdown(data: str,
     if allow_html:
         data = markdown(data.strip())
     else:
-        data = RE_MD_HTML_TAGS.sub('', data.strip())
         data = bleach_clean(
             markdown(data), strip=True,
             tags=MARKDOWN_TAGS,
@@ -2461,10 +2499,39 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def uploads_enabled() -> bool:
-    if uploader.get_storage_path():
-        return True
-    return False
+def uploads_enabled(object_type: str | None = None) -> bool:
+    """Returns True if uploads are enabled for the given object type.
+
+    :param object_type: the type of object to check uploads for, e.g. resource,
+        group, user or admin
+    :type object_type: string
+    """
+    if not object_type:
+        log.warning("h.uploads_enabled call without object_type is non supported")
+        return False
+
+    if not config["ckan.uploads_enabled"]:
+        return False
+
+    storage_name = config.get(f"ckan.files.default_storages.{object_type}")
+    if not storage_name:
+        log.warning(
+            "h.uploads_enabled call with an unexpected object_type '%s'",
+            object_type,
+        )
+        return False
+
+    try:
+        storage = files.get_storage(storage_name)
+    except files.exc.UnknownStorageError:
+        # if the storage is not found, then we are using old upload rules: when
+        # storage path is configured or uploader is customized, uploads are allowed
+        return bool(
+            config["ckan.storage_path"]
+            or any(plugin for plugin in p.PluginImplementations(p.IUploader))
+        )
+
+    return storage.supports(files.Capability.CREATE)
 
 
 @core_helper
@@ -2881,4 +2948,8 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_input.html')
+    '''
+    Render a hidden CSRF input field.
+    '''
+    import ckan.lib.base as base
+    return literal(base.render('snippets/csrf_input.html'))

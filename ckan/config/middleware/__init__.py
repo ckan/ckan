@@ -28,11 +28,13 @@ def make_app(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     load_environment(conf)
 
-    flask_app = make_flask_stack(conf)
+    flask_app = make_flask_stack()
 
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from tests
     global _internal_test_request_context
-    _internal_test_request_context = flask_app._wsgi_app.test_request_context()
+    _internal_test_request_context = (
+        flask_app._wsgi_app.test_request_context()  # type: ignore
+    )
 
     return flask_app

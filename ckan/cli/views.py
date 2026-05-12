@@ -10,7 +10,7 @@ import json
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
-from ckan.common import config
+from ckan.common import config, aslist
 from ckan.cli import error_shout
 from ckan.lib.datapreview import (
     add_views_to_dataset_resources,
@@ -178,7 +178,7 @@ def clean(ctx: click.Context, yes: bool):
 
 def _get_view_plugins(view_plugin_types: list[str],
                       get_datastore_views: bool = False):
-    """Returns the view plugins that were succesfully loaded
+    """Returns the view plugins that were successfully loaded
 
     Views are provided as a list of ``view_plugin_types``. If no types
     are provided, the default views defined in the
@@ -294,33 +294,42 @@ def _add_default_filters(search_data_dict: dict[str, Any],
     modified with extra filters.
     """
 
-    from ckanext.textview.plugin import get_formats as get_text_formats
-    datapusher_formats = config.get("ckan.datapusher.formats")
+    try:
+        from ckanext.textview.plugin import get_formats as get_text_formats
+        text_formats = get_text_formats(config)
+    except ImportError:
+        text_formats = {}
+
+    datastore_formats = []
+    if config.get("ckan.datapusher.formats"):
+        datastore_formats = aslist(config["ckan.datapusher.formats"])
+    elif config.get("ckanext.xloader.formats"):
+        datastore_formats = aslist(config["ckanext.xloader.formats"])
 
     filter_formats = []
 
     for view_type in view_types:
-        if view_type == u"image_view":
-            formats = config.get(
-                "ckan.preview.image_formats").split()
+        if view_type == "image_view":
+            formats = aslist(config.get(
+                "ckan.preview.image_formats"))
             for _format in formats:
                 filter_formats.extend([_format, _format.upper()])
 
-        elif view_type == u"text_view":
-            formats = get_text_formats(config)
+        elif view_type == "text_view":
+            formats = text_formats
             for _format in itertools.chain.from_iterable(formats.values()):
                 filter_formats.extend([_format, _format.upper()])
 
-        elif view_type == u"pdf_view":
-            filter_formats.extend([u"pdf", u"PDF"])
+        elif view_type == "pdf_view":
+            filter_formats.extend(["pdf", "PDF"])
 
         elif view_type == "datatables_view":
 
-            if datapusher_formats[0] in filter_formats:
+            if not datastore_formats:
                 continue
 
-            for _format in datapusher_formats:
-                if u"/" not in _format:
+            for _format in datastore_formats:
+                if "/" not in _format:
                     filter_formats.extend([_format, _format.upper()])
         else:
             # There is another view type provided so we can't add any

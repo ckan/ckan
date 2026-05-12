@@ -1,27 +1,26 @@
-$notificationsBg: #C9403A;
+$notificationsBg: #CF1322;
 .account-masthead {
     @extend .clearfix;
     min-height: 30px;
     color: $mastheadTextColor;
-    background: darken($mastheadBackgroundColor, 10%);
+    background: $gray-100;
     .account {
         float: right;
         ul {
             display: inline-flex;
-            justify-content: center;
             align-items: baseline;
+            flex-wrap: wrap;
             li {
                 display: block;
                 float: left;
-                border-left: 1px solid darken($mastheadBackgroundColor, 15%);
-                a {
+                padding: .5rem 0;
+                a, button {
                     display: block;
                     text-decoration: none;
-                    color: $link-color;
-                    font-size: 13px;
-                    font-weight: bold;
-                    padding: 0 10px;
-                    line-height: 31px;
+                    @include border-radius(8px);
+                    font-size: 14px;
+                    padding: 6px 10px;
+                    margin-left: .5rem;
                     span.username,
                     span.text {
                         margin: 0 2px 0 4px;
@@ -32,16 +31,21 @@ $notificationsBg: #C9403A;
                         left: -9999px;
                     }
                     &:hover {
-                        color: $link-hover-color;
-                        background-color: darken($mastheadBackgroundColor, 15%);
+                        color: $white;
+                        background-color: darken($primary, 15%);
                         text-decoration: none;
                     }
                     &.sub {
                         font-weight: 300;
                     }
                 }
-                .btn-link {
-                    border-radius: 0;
+                a.image {
+                    background-color: $white;
+                    color: $black;
+                    border: 1px solid #d0d5dd;
+                    &:hover {
+                        background-color: darken($white, 15%);
+                    }
                 }
             }
         }
@@ -63,7 +67,8 @@ $notificationsBg: #C9403A;
             }
             &.notifications-important a {
                 span.badge {
-                    color: $mastheadLinkColor;
+                    color: $white;
+                    border: 1px solid $notificationsBg;
                     background-color: $notificationsBg;
                 }
             }
@@ -121,6 +126,7 @@ $notificationsBg: #C9403A;
             display: inline-block;
             img {
                 max-height: $logoMaxHeight;
+                min-height: $logoMinHeight;
                 vertical-align: unset;
             }
         }

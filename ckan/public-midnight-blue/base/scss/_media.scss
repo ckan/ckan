@@ -4,7 +4,7 @@
     padding-left: 0px;
     min-height: 205px;
     padding-top: math.div($grid-gutter-width, 2);
-    background: lighten($layoutBackgroundColor, 5%) url("#{$bgPath}");
+    background: lighten($layoutBackgroundColor, 5%);
     border: 1px solid $moduleHeadingBorderColor;
     border-width: 1px 0;
 }

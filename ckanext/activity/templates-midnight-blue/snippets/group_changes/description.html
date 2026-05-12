@@ -1,0 +1,30 @@
+<li>
+  <p>
+    {% if change.method == "change" %}
+
+      {{ _('Updated description of {group_link} from <br class="line-height2"><blockquote>{old_description}</blockquote> to <br class="line-height2"><blockquote>{new_description}</blockquote>').format(
+        group_link = h.nav_link(change.title, named_route='group.read', id=change.pkg_id),
+        old_description = change.old_description,
+        new_description = change.new_description
+        ) }}
+
+    {% elif change.method == "add" %}
+
+      {{ _('Updated description of {group_link} to <br class="line-height2"><blockquote>{new_description}</blockquote>').format(
+        group_link = h.nav_link(change.title, named_route='group.read', id=change.pkg_id),
+        new_description = change.new_description
+        ) }}
+
+    {% elif change.method == "remove" %}
+
+      {{ _('Removed description from {group_link}').format(
+        group_link = h.nav_link(change.title, named_route='group.read', id=change.pkg_id)
+        ) }}
+
+    {% else %}
+
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>

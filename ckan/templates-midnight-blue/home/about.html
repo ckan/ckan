@@ -8,8 +8,10 @@
 
 {% block primary %}
   <article class="module" role="main">
-    <h1 class="page-heading">{% block page_heading %}{{ _('About') }}{% endblock %}</h1>
     <div class="module-content primary">
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('About') }}{% endblock %}
+      </h1>
       {% block about %}
         {% if g.site_about %}
           {{ h.render_markdown(g.site_about) }}

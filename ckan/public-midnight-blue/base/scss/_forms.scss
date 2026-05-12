@@ -287,24 +287,29 @@ select[data-module="autocomplete"] {
 }
 
 .editor textarea {
-    @include border-radius($inputBorderRadius $inputBorderRadius 0 0);
-    border-bottom: none;
+    @include border-radius($inputBorderRadius $inputBorderRadius);
 }
 
 .editor .editor-info-block {
-    @include border-radius(0 0 $inputBorderRadius $inputBorderRadius);
-    display: block;
-    float: none;
-    padding: 4px 10px;
-    background: #ebebeb;
-    width: auto;
-    border: 1px solid $inputBorder;
+    margin-top: 8px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    width: 245px;
+    height: auto;
     border-top: none;
-    font-size: 11px;
-    color: #282828;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    color: #344054;
+    background-color: #F9FAFB;
+    gap: 7px;
+    letter-spacing: -0.6px;
 }
 
 .editor .editor-info-block a {
+    color: #004999;
     text-decoration: none;
 }
 
@@ -442,60 +447,46 @@ select[data-module="autocomplete"] {
 // anchor element which can also have an active class.
 .stages {
     @include list-unstyled;
-    @include clearfix;
     color: $stagesTextColor;
     counter-reset: stage;
     overflow: hidden;
     margin-bottom: $grid-gutter-width;
     padding: 0;
     li {
-        line-height: 27px;
         counter-increment: stage;
-        width: 50%;
-        background-color: $stagesBackground;
-        float: left;
-        padding: 10px 20px;
+        border-radius: 8px;
+        background-color: $gray-100;
         position: relative;
+        margin-bottom: 1rem;
         z-index: 0;
-        &::before{
-            @include border-radius(14px);
-            content: counter(stage);
-            display: inline-block;
-            width: 27px;
-            height: 27px;
-            margin-right: 5px;
-            font-weight: bold;
-            text-align: center;
-            color: $stagesCounterTextColor;
-            background-color: $stagesCounterBackground;
-            z-index: 1;
+        padding: 12px 4px;
+        border: 1px solid $gray-300;
+        .stage-nohighlight {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 14px;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+            border: none; 
+            background: none; 
         }
-        &::after {
-            left: 0;
-            border: solid $stagesTransparentBackground;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-            border-top-color: $stagesBackground;
-            border-bottom-color: $stagesBackground;
-            border-width: 29px; // Needs to be an odd number
-            top: 50%;
-            margin-top: -29px;
-            margin-left: -30px;
+        .step {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 18px;
+        }
+      
+        .step-name {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: -0.8px;
         }
     }
 }
 
 .stages li.last {
     position: relative;
-    right: -1px;
-}
-
-.stages li.last,
-.stages li.last .highlight {
-    @include border-radius(0 3px 0 0);
 }
 
 .stages li.first:after {
@@ -519,9 +510,13 @@ select[data-module="autocomplete"] {
     content: none;
 }
 
-.stages li.active,
-.stages li.complete {
-    background: none;
+.stages li.active .step,
+.stages li.complete .step {
+    color: $gray-500;
+}
+.stages li.active .step-name,
+.stages li.complete .step-name {
+    color: $gray-900;
 }
 
 .stages li.active:before {
@@ -586,7 +581,13 @@ select[data-module="autocomplete"] {
 }
 
 .select2-container-multi .select2-choices .select2-search-field input {
-    height: 29px;
+    padding: 0px !important;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: -0.8px;
+    color: #667085;
+    font-family: $baseFontFamily;
+    line-height: 100%;
 }
 
 .select2-container .select2-choice input,
@@ -609,8 +610,9 @@ select[data-module="autocomplete"] {
 }
 
 .select2-container-multi.select2-container .select2-choices {
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border: 0.125rem solid #D0D5DD ;
 }
 
 .select2-search-choice-close,
@@ -686,9 +688,9 @@ select[data-module="autocomplete"] {
     .btn-remove-url {
         position: absolute;
         margin-right: 0;
-        top: math.div($grid-gutter-width,5);
+        top: math.div($grid-gutter-width,6);
         right: math.div($grid-gutter-width,6);
-        padding: 0 12px;
+        padding: 5px 12px;
         @include border-radius(100px);
         .icon-remove {
             margin-right: 0;
@@ -744,11 +746,10 @@ select[data-module="autocomplete"] {
 
     .btn-remove-url {
         position: absolute;
-        margin-right: 0;
-        margin-top: 11px;
         top: $grid-gutter-width;
         right: math.div($grid-gutter-width, 6);
-        padding: 0 12px;
+        padding: 5px 12px;
+        transform: translateY(30%);
         border-radius: 100px;
         .icon-remove {
             margin-right: 0;
@@ -777,4 +778,83 @@ select[data-module="autocomplete"] {
           display: block;
         }
     }
+}
+
+.select2-container {
+    .select2-choice {
+        display: block;
+        height: 40px !important;
+        padding: 0.75rem !important;
+        overflow: hidden;
+        position: relative;
+        border: none !important;
+        white-space: none !important;
+        line-height: 1.5 !important;
+        font-weight: 400;
+        font-size: 14px;
+        color: #667085 !important;
+        text-decoration: none;
+        border-radius: 6px !important;
+        background-clip: padding-box;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-color: #fff;
+        filter: none !important;
+        background-image: none !important;
+        border-color: #D0D5DD !important;
+
+        .select2-arrow {
+            display: inline-block;
+            width: 18px;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
+            border-left: none !important;
+            border-radius: 0 4px 4px 0;
+            background-clip: padding-box;
+            background: white !important;
+            background-image: none !important;
+            padding-right: 8px;
+
+            b {
+                background-image: none !important;
+                background: none !important;
+                display: block;
+                width: 100%;
+                height: 100%;
+                background: none !important;
+                position: relative; 
+
+                &::before {
+                    content: "\f078"; 
+                    font-family: 'Font Awesome 5 Free'; 
+                    font-weight: 900; 
+                    font-size: 8px; 
+                    color: #667085; 
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+                
+            }
+        }
+    }
+
+    .select2-default {
+        color: white !important;
+    }
+
+    .select2-choice.select2-default {
+        background-color: #ffffff !important;
+    }
+}
+
+
+.select2-dropdown-open .select2-choice {
+    background-color: white !important;
 }

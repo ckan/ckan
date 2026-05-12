@@ -8,18 +8,23 @@ Example:
   {% snippet "package/snippets/resource_info.html", res=res %}
 
 #}
+
 <div class="module context-info">
-  <div class="module-content">
-    {% block page_title %}
-      <h1 class="heading">{{ h.resource_display_name(res) or res.id }}</h1>
-    {% endblock %}
-    {% block resource_info %}
-      <div class="nums">
-        <dl>
-          <dt>{{ _('Format') }}</dt>
-          <dd>{{ h.get_translated(res, 'format') }}</dd>
-        </dl>
-      </div>
-    {% endblock %}
+  <div class="module-narrow">
+    <div class="module-heading">
+      {% block page_title %}
+        <h2 class="heading">{{ h.resource_display_name(res) or res.id }}</h2>
+      {% endblock %}
+    </div>
+    <div class="package-info">
+      {% block resource_info %}
+        <div class="nums">
+          <dl>
+            <dt>{{ _('Format') }}</dt>
+            <dd>{{ h.get_translated(res, 'format') }}</dd>
+          </dl>
+        </div>
+      {% endblock %}
+    </div>
   </div>
 </div>

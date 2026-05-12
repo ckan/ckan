@@ -2,7 +2,7 @@
    eg 'user.unfollow' will anchor to '#user-info' #}
 {% set anchor_type = anchor_type or obj_type %}
 {% if following or am_following %}
-  <a class="btn btn-danger" hx-post="{{ h.url_for(obj_type + '.unfollow', id=obj_id) }}" hx-target="#{{ anchor_type }}-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
+  <a class="btn btn-danger" hx-post="{{ h.url_for(obj_type + '.unfollow', id=obj_id) }}" hx-target="#{{ anchor_type }}-info"><i class="fa-solid fa-circle-minus"></i> {{ _('Unfollow') }}</a>
 {% else %}
-  <a class="btn btn-success" hx-post="{{ h.url_for(obj_type + '.follow', id=obj_id) }}" hx-target="#{{ anchor_type }}-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
+  <a class="btn btn-success" hx-post="{{ h.url_for(obj_type + '.follow', id=obj_id) }}" hx-target="#{{ anchor_type }}-info"><i class="fa-solid fa-circle-plus"></i> {{ _('Follow') }}</a>
 {% endif %}

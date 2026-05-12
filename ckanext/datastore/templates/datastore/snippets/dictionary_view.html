@@ -1,7 +1,6 @@
 {% block dictionary_view %}
   <div class="module-content">
     <h2>{{ _('Data Dictionary') }}</h2>
-
     {% macro dictionary_field(label) %}
       {% set content = caller().strip() %}
       {% if content %}
@@ -9,26 +8,26 @@
         <dd class="col-sm-9">{{ content }}</dd>
       {% endif %}
     {% endmacro %}
-
-    {% for field in ddict %}
-
-      {% set field_type %}{% block dictionary_field_type scoped
-        %}{{ field.type }}{% endblock %}{% endset %}
-      {% set extra_info -%}
-        {% call dictionary_field(_('Label')) %}
-          {{ h.get_translated(field.get('info', {}), 'label') }}
-        {% endcall %}
-        {% call dictionary_field(_('Description')) %}
-          {{ h.render_markdown(h.get_translated(
-            field.get('info', {}), 'notes')) }}
-        {% endcall %}
-        {% block dictionary_field_extras scoped %}
-        {% endblock %}
-      {%- endset %}
-      {# render_markdown to strip snippet comments and whitespace #}
-      {% set has_extra=h.render_markdown(extra_info) %}
-
-      <div class="accordion">
+    <div class="accordion">
+      {% for field in ddict %}
+        {% set field_type %}
+          {% block dictionary_field_type scoped%}
+            {{ field.type }}
+          {% endblock %}
+        {% endset %}
+        {% set extra_info -%}
+          {% call dictionary_field(_('Label')) %}
+            {{ h.get_translated(field.get('info', {}), 'label') }}
+          {% endcall %}
+          {% call dictionary_field(_('Description')) %}
+            {{ h.render_markdown(h.get_translated(
+              field.get('info', {}), 'notes')) }}
+          {% endcall %}
+          {% block dictionary_field_extras scoped %}
+          {% endblock %}
+        {%- endset %}
+        {# render_markdown to strip snippet comments and whitespace #}
+        {% set has_extra=h.render_markdown(extra_info) %}
         <div class="accordion-item">
           <h3 class="accordion-header" id="field{{ prefix }}-{{ loop.index }}">
             {%- if has_extra -%}
@@ -39,11 +38,12 @@
             {%- else -%}
               <button class="accordion-button no-after" disabled>
             {%- endif -%}
-              <div class="col-1">{{ loop.index }}.</div><div class="col-7">
+              <div class="col-1">{{ loop.index }}.</div>
+              <div class="col-7">
                 {{- h.get_translated(field.get('info', {}), 'label')
                   or field.id -}}
               </div>
-              <div class="col-4">{{ field_type }}</div>
+              <div class="col-3">{{ field_type }}</div>
             </button>
           </h3>
           {% if has_extra %}
@@ -60,8 +60,7 @@
             </div>
           {% endif %}
         </div>
-      </div>
-
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 {% endblock %}

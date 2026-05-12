@@ -2,7 +2,7 @@
 """Contains ``ckan`` and ``ckanext`` namespaces for signals as well as a bunch
 of predefined core-level signals.
 
-Check :doc:`signals` for extra detais.
+Check :doc:`signals` for extra details.
 
 """
 
