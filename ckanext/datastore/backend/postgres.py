@@ -1616,8 +1616,6 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
     _unrename_json_field(data_dict)
 
-    _insert_links(data_dict, limit, offset)
-
     if data_dict["include_total"]:
         if where_clause or distinct or resource_id.startswith("_"):
             # this is slow for large results
