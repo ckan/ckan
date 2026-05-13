@@ -42,6 +42,7 @@
     data-module-ckan-filters='{{ request.args.get("filters", "")|e or "null" }}'
     data-module-responsive-flag='{{ resource_view.get('responsive')|tojson }}'
     data-module-show-summary-row='{{ resource_view.get('show_summary_row')|tojson }}'
+    data-module-show-histograms='{{ resource_view.get('show_histograms')|tojson }}'
     data-module-page-length-choices="{{ page_length_choices }}"
     data-module-resource-url="{{ h.url_for(package.type ~ '_resource.read', id=package.name, resource_id=resource.id, _external=True ) }}"
     data-module-data-dictionary='{{- data_dictionary|tojson -}}'

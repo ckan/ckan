@@ -7,13 +7,20 @@
   value='True',
   checked=data.responsive,
   ) }}
-{{ form.checkbox(
+{# {{ form.checkbox(
   'show_summary_row',
   id='field-show-summary-row',
   label=_('Show Summary Row'),
   value='True',
   checked=data.show_summary_row,
-  ) }}
+  ) }} #}
+{# {{ form.checkbox(
+  'show_histograms',
+  id='field-show-histograms',
+  label=_('Show Histograms'),
+  value='True',
+  checked=data.show_histograms,
+  ) }} #}
 {% call form.input(
   'ellipsis_length',
   id='field-ellipsis_length',

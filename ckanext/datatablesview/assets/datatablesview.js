@@ -20,6 +20,7 @@ this.ckan.module('datatables_view', function($){
       ckanFilters: null,
       responsiveFlag: false,
       showSummaryRow: false,
+      showHistograms: false,
       pageLengthChoices: [20, 50, 100, 500, 1000],
       resourceUrl: null,
       dataDictionary: null,
@@ -119,6 +120,7 @@ function load_datatable(CKAN_MODULE){
   const ckanFilters = CKAN_MODULE.options.ckanFilters;
   const defaultCompactView = CKAN_MODULE.options.responsiveFlag;
   const showSummaryRow = CKAN_MODULE.options.showSummaryRow;
+  const showHistograms = CKAN_MODULE.options.showHistograms;
   const pageLengthChoices = CKAN_MODULE.options.pageLengthChoices;
   const resourceURI = CKAN_MODULE.options.resourceUrl;
   const dataDictionary = CKAN_MODULE.options.dataDictionary;
@@ -182,6 +184,52 @@ function load_datatable(CKAN_MODULE){
       description: _('Description'),
     }
   }
+
+  const CELL_DISPLAY_RENDERERS = {
+    'text': function(_data, _type, _row, _meta, _dictionary_field){
+      /**
+       * Our custom Cell renderer for text type cells in the table.
+       */
+      return DataTable.render.ellipsis(ellipsisLength, _meta.row, _dictionary_field.id)(_data, _type, _row, _meta);
+    },
+    'text_array': function(_data, _type, _row, _meta, _dictionary_field){
+      /**
+       * Our custom Cell renderer for text array type cells in the table.
+       */
+      if( ! Array.isArray(_data) ){
+        _data = _data.toString().split(',');  // split to Array if not already
+      }
+      let displayList = '<ul class="text-left">';
+      _data.forEach(function(_val, _i, _arr){
+        displayList += '<li>' + _val + '</li>';
+      });
+      displayList += '</ul>';
+      return displayList;
+    },
+    'bool': function(_data, _type, _row, _meta, _dictionary_field){
+      /**
+       * Our custom Cell renderer for boolean type cells in the table.
+       */
+      return 'TRUE' ? _data === true : 'FALSE';
+    },
+    'number': function(_data, _type, _row, _meta, _dictionary_field){
+      /**
+       * Our custom Cell renderer for number type cells in the table.
+       */
+      // TODO: add number format configs/options ??
+      // number(THOUSAND, DECIMAL, PRECISION, PREFIX, POSTFIX)
+      return DataTable.render.number(null, null, 2, null, null).display(_data, _type, _row);
+    },
+    'date': function(_data, _type, _row, _meta, _dictionary_field){
+      /**
+       * Our custom Cell renderer for datetime type cells in the table.
+       */
+      if( ! _data.toString().includes('+0000') ){
+        _data = _data.toString() + '+0000';  // add UTC offset if not present
+      }
+      return DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(_data, _type, _row, _meta);
+    },
+  };
 
   const numberTypes = [
     'year',
@@ -254,13 +302,33 @@ function load_datatable(CKAN_MODULE){
     }else if( dateTypes.includes(dataDictionary[i].type) ){
       _colType = 'date';
     }
+    let _cellRenderer = CELL_DISPLAY_RENDERERS.text;
+    if( dataDictionary[i].type == '_text' ){
+      _cellRenderer = CELL_DISPLAY_RENDERERS.text_array;
+    }else if( numberTypes.includes(dataDictionary[i].type) ){
+      _cellRenderer = CELL_DISPLAY_RENDERERS.number;
+    }else if( dateTypes.includes(dataDictionary[i].type) ){
+      _cellRenderer = CELL_DISPLAY_RENDERERS.date;
+    }
+    // TODO: add money formatting ??
     availableColumns.push({
       "name": dataDictionary[i].id,
       "data": dataDictionary[i].id,
       "searchable": true,
       "type": _colType,
       "render": function(_data, _type, _row, _meta){
-        return cell_renderer(_data, _type, _row, _meta, dataDictionary[i]);
+        if( _type != 'display' ){
+          return _data;
+        }
+        if( _data == null ){
+          // TODO: make configurable??
+          return '';  // blank cell for None/null values
+        }
+        if( _data === true || _data === false ){
+          // special case for boolean types
+          return CELL_DISPLAY_RENDERERS.bool(_data, _type, _row, _meta, dataDictionary[i]);
+        }
+        return _cellRenderer(_data, _type, _row, _meta, dataDictionary[i]);
       }
     });
     // use id for key so we can get info easier
@@ -389,52 +457,6 @@ function load_datatable(CKAN_MODULE){
     return visibleIDs;
   }
 
-  function cell_renderer(_data, _type, _row, _meta, _dictionary_field){
-    /**
-     * Our custom Cell renderer for all cells in the table.
-     */
-    if( typeof _row.DT_RowId != 'undefined' && _row.DT_RowId == 'dt-row-histogram' ){
-      // TODO: render historgams here...
-      return;
-    }
-    if( _type == 'display' ){
-      if( _data == null ){
-        return '';  // blank cell for None/null values
-      }
-      if( _dictionary_field.type == '_text' ){
-        if( ! Array.isArray(_data) ){
-          _data = _data.toString().split(',');  // split to Array if not already
-        }
-        let displayList = '<ul class="text-left">';
-        _data.forEach(function(_val, _i, _arr){
-          displayList += '<li>' + _val + '</li>';
-        });
-        displayList += '</ul>';
-        return displayList;
-      }
-      if( _data === true ){
-        return 'TRUE';
-      }
-      if( _data === false ){
-        return 'FALSE';
-      }
-      if( numberTypes.includes(_dictionary_field.type) ){
-        // TODO: add number format configs/options ??
-        // number(THOUSAND, DECIMAL, PRECISION, PREFIX, POSTFIX)
-        return DataTable.render.number(null, null, 2, null, null).display(_data, _type, _row);
-      }
-      // TODO: add money formatting ??
-      if( dateTypes.includes(_dictionary_field.type) ){
-        if( ! _data.toString().includes('+0000') ){
-          _data = _data.toString() + '+0000';  // add UTC offset if not present
-        }
-        return DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(_data, _type, _row, _meta);
-      }
-      return DataTable.render.ellipsis(ellipsisLength, _meta.row, _dictionary_field.id)(_data, _type, _row, _meta);
-    }
-    return _data;
-  }
-
   function get_available_buttons(){
     /**
      * Get buttons available to the DataTable.
@@ -472,6 +494,8 @@ function load_datatable(CKAN_MODULE){
           /**
            * Add all of the table filter info to the clipboard
            */
+          // FIXME: should this info just be in messageBottom??
+          //        people might just want th data rigth at the top?
           let copyInfo = packageName + ' — ' + resourceName + '\n' + resourceURI + '\n';
           copyInfo += countDisplayCopy + '\n' + sortDisplayCopy + '\n'
           copyInfo += TABLE_LANGUAGE.print.dataUpdated + ' ' + dataUpdatedDate + '\n'
@@ -633,6 +657,8 @@ function load_datatable(CKAN_MODULE){
           /**
            * Add all of the table filter info to the print head
            */
+          // FIXME: should this info just be in messageBottom??
+          //        people might just want th data rigth at the top?
           let printInfo = '<div>';
           printInfo += countDisplay + sortDisplay;
           printInfo += '<span><a href="' + resourceURI + '">' + packageName + ' — ' + resourceName + '</a></span><br/>';
@@ -838,6 +864,7 @@ function load_datatable(CKAN_MODULE){
     //       spread(range), standard deviation, interquartile range 25% 75%,
     //       (range-min is 0% median is 50% range-max is 100% of IQR)
     // TODO: make summary row collapsable
+    return;
     table.columns().every(function(){
       if( this.index() ){  // don't display for _id col
         if( this.visible() ){  // don't stat hidden cols
@@ -845,49 +872,21 @@ function load_datatable(CKAN_MODULE){
           let dsID = $(this.header()).attr('data-name');
           let statCell = $('#dtprv_wrapper').find('tr#dt-summary-row').find('td[data-name="' + dsID + '"]');
           if( numberTypes.includes(ds_type) ){
-            let sum = this.data().sum();
-            if( sum ){
-              let sumRounded = sum.toFixed(2);
-              let average = sum / tableState.page_length;
-              let averageRounded = average.toFixed(2);
-              let values = [];
-              $(this.data()).each(function(_index, _value){
-                if( _value ){  // ignore blanks
-                  values.push(_value);
-                }
-              });
-              let min = Math.min(...values);
-              let max = Math.max(...values);
-              let minRounded = min.toFixed(2);
-              let maxRounded = max.toFixed(2);
-              let stats = '<dl>';
-              stats += '<dt>' + TABLE_LANGUAGE.info.summary.total + '</dt>&nbsp;<dd title="' + sum + '">' + sumRounded + '</dd><br/>';
-              stats += '<dt>' + TABLE_LANGUAGE.info.summary.average + '</dt>&nbsp;<dd title="' + average + '">' + averageRounded + '</dd><br/>';
-              stats += '<dt>' + TABLE_LANGUAGE.info.summary.range + '</dt>&nbsp;<dd title="' + min + ' — ' + max + '">' + minRounded + ' — ' + maxRounded + '</dd>';
-              stats += '</dl>';
-              statCell.html(stats);
-            }
+
           }else if( dateTypes.includes(ds_type) ){
-            let dates = [];
-            $(this.data()).each(function(_index, _value){
-              let parsedValue = _value;
-              if( ! parsedValue.toString().includes('+0000') ){
-                parsedValue = parsedValue.toString() + '+0000';  // add UTC offset if not present
-              }
-              dates.push(new Date(parsedValue));
-            });
-            let min = new Date(Math.min(...dates));
-            let max = new Date(Math.max(...dates));
-            min = DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(min, ds_type, 0, {});
-            max = DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(max, ds_type, 0, {});
-            let stats = '<dl>';
-            stats += '<dt>' + TABLE_LANGUAGE.info.summary.dateRange + '</dt>&nbsp;<dd>' + min + ' — ' + max + '</dd><br/>';
-            stats += '</dl>';
-            statCell.html(stats);
+
           }
         }
       }
     });
+  }
+
+  function render_histograms(){
+    /**
+     * Render the histograms in their respective header cell
+     */
+    // TODO: implement histograms when backend is ready
+    return;
   }
 
   function bind_column_filter(_column, _index){
@@ -1075,7 +1074,12 @@ function load_datatable(CKAN_MODULE){
     render_timing_info();
     set_button_states();
     if( showSummaryRow ){
+      // TODO: implement summary statistics when backend is ready
       render_summary_stats();
+    }
+    if( showHistograms ){
+      // TODO: implement histograms when backend is ready
+      render_histograms();
     }
   }
 
@@ -1229,7 +1233,6 @@ function load_datatable(CKAN_MODULE){
       select: {
         style: 'os',
         blurable: true,
-        // TODO: clicking on links should stop propogation into selecting a row...
         selector: 'td:not(.dt-cell-histogram)' + (isCompactView ? ':not(.datatable-id-col)' : '')
       },
       scrollX: ! isCompactView,
