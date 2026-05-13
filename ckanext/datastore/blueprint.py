@@ -14,7 +14,7 @@ from ckan.logic import (
 )
 from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
-    abort, render, g, h, ValidationError, asbool, check_access
+    abort, render, g, h, ValidationError, asbool, check_access, config,
 )
 from ckan.types import Schema, ValidatorFactory
 from ckanext.datastore.logic.schema import (
@@ -22,7 +22,6 @@ from ckanext.datastore.logic.schema import (
     json_validator,
     unicode_or_json_validator,
 )
-from ckanext.datastore.logic.action import WHITELISTED_RESOURCES
 from ckanext.datastore.backend import DatastoreBackend
 from ckanext.datastore.writer import (
     csv_writer,
@@ -69,7 +68,7 @@ def dump(resource_id: str):
             )
         )
 
-    if resource_id not in WHITELISTED_RESOURCES:
+    if resource_id not in config.get('ckan.datastore.public_table_search'):
         backend = DatastoreBackend.get_active_backend()
         res_exists, real_id = backend.resource_id_from_alias(resource_id)
 
