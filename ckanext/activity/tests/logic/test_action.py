@@ -12,7 +12,12 @@ import ckan.plugins.toolkit as tk
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-from ckanext.activity.model.activity import Activity, package_activity_list
+from ckanext.activity.model.activity import (
+    Activity,
+    ActivityDetail,
+    package_activity_list,
+)
+from ckanext.activity.tests.conftest import ActivityFactory
 
 
 def _clear_activities():
@@ -2776,3 +2781,486 @@ class TestDeleteResourceViewActivity(object):
         params = {"id": resource_view["id"]}
 
         helpers.call_action("resource_view_delete", context=context, **params)
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+class TestActivityDeleteByDateRangeOrOffset:
+
+    @pytest.mark.freeze_time
+    def test_delete_by_offset_days(self, freezer):
+        freezer.move_to("2023-01-01")
+
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+
+        activity_dict = {
+            "activity_type": "changed package",
+            "object_id": dataset["id"],
+            "user_id": sysadmin["id"],
+        }
+        _ = ActivityFactory(**activity_dict)
+
+        freezer.move_to("2023-02-01")
+
+        data_dict = {"offset_days": 30}
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+
+        # new user and new package that's how we get 3
+        assert result["message"] == "Deleted 3 rows from the activity table."
+        activities = model.Session.query(Activity).all()
+        assert len(activities) == 0
+
+    @pytest.mark.freeze_time
+    def test_delete_by_offset_days_with_batch_size_deletes_in_batches(self, freezer):
+        """With batch_size set, activities are deleted in batches and total is correct."""
+        freezer.move_to("2023-01-01")
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        activity_dict = {
+            "activity_type": "changed package",
+            "object_id": dataset["id"],
+            "user_id": sysadmin["id"],
+        }
+        for _ in range(4):
+            ActivityFactory(**activity_dict)
+        model.Session.commit()
+        # 1 new package + 1 new user + 4 changed = 6 activities before 2023-02-01
+        freezer.move_to("2023-02-01")
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            offset_days=30,
+            batch_size=2,
+        )
+        assert result["message"] == "Deleted 6 rows from the activity table."
+        activities = model.Session.query(Activity).all()
+        assert len(activities) == 0
+
+    @pytest.mark.freeze_time
+    def test_delete_by_offset_days_with_keep_keeps_n_most_recent_per_item(self, freezer):
+        """With keep=N, the N most recent activities per object_id are kept."""
+        freezer.move_to("2023-01-01T10:00:00")
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        # Add 4 more activities for this package (same object_id) at different times
+        for day in (5, 10, 15, 20):
+            freezer.move_to(f"2023-01-{day:02d}T12:00:00")
+            ActivityFactory(
+                activity_type="changed package",
+                object_id=dataset["id"],
+                user_id=sysadmin["id"],
+            )
+        model.Session.commit()
+        # Package has 5 activities (1 new package + 4 changed); user has 1.
+        # offset_days=11 from 2023-02-01 → threshold 2023-01-21, so all 6 are in range.
+        freezer.move_to("2023-02-01T12:00:00")
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            offset_days=11,
+            keep=2,
+        )
+        # Per object_id we keep 2. Package: 5 - 2 = 3 deleted. User: 1, keep 2 → 0 deleted.
+        assert result["message"] == "Deleted 3 rows from the activity table."
+        remaining = model.Session.query(Activity).all()
+        assert len(remaining) == 3  # 2 for package + 1 for user
+        # Remaining package activities should be the 2 most recent (01-15 and 01-20)
+        pkg_activities = [a for a in remaining if a.object_id == dataset["id"]]
+        assert len(pkg_activities) == 2
+        timestamps = sorted([a.timestamp for a in pkg_activities], reverse=True)
+        assert timestamps[0].strftime("%Y-%m-%d") == "2023-01-20"
+        assert timestamps[1].strftime("%Y-%m-%d") == "2023-01-15"
+
+    @pytest.mark.freeze_time
+    def test_delete_by_offset_days_keep_larger_than_count_deletes_none(self, freezer):
+        """When keep is larger than activities per item, none are deleted."""
+        freezer.move_to("2023-01-01T12:00:00")
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        model.Session.commit()
+        count_before = model.Session.query(Activity).count()
+        freezer.move_to("2023-02-01T12:00:00")
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            offset_days=30,
+            keep=100,
+        )
+        assert result["message"] == "No activities found matching the specified criteria."
+        assert model.Session.query(Activity).count() == count_before
+
+    @pytest.mark.freeze_time
+    def test_delete_by_date_range_with_keep_keeps_n_per_item(self, freezer):
+        """keep works with date range: keeps N most recent per item in range."""
+        freezer.move_to("2023-01-10T10:00:00")
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        freezer.move_to("2023-01-15T10:00:00")
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        freezer.move_to("2023-01-20T10:00:00")
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        model.Session.commit()
+        # Range 2023-01-01 to 2023-01-31: captures new user (01-10), new package (01-10), 3 changed (01-10, 01-15, 01-20)
+        freezer.move_to("2023-02-01")
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            start_date="2023-01-01",
+            end_date="2023-01-31",
+            keep=1,
+        )
+        # Package: 3 in range, keep 1 → delete 2. User: 1 in range, keep 1 → delete 0.
+        assert result["message"] == "Deleted 2 rows from the activity table."
+        remaining = model.Session.query(Activity).all()
+        assert len(remaining) == 2  # 1 for package (01-20) + 1 for user
+
+    @pytest.mark.freeze_time
+    def test_delete_by_date_range(self, freezer):
+        freezer.move_to("2023-01-02")
+
+        sysadmin = factories.Sysadmin()
+        _ = factories.Dataset()
+
+        freezer.move_to("2023-03-01")
+
+        data_dict = {"start_date": "2023-01-01", "end_date": "2023-01-31"}
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+
+        assert result["message"] == "Deleted 2 rows from the activity table."
+        activities = model.Session.query(Activity).all()
+        assert len(activities) == 0
+
+    @pytest.mark.freeze_time
+    def test_delete_by_date_range_accepts_iso8601_datetime(self, freezer):
+        """start_date and end_date accept ISO 8601 with time (e.g. YYYY-MM-DDTHH:mm)."""
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        freezer.move_to("2023-01-15T09:00:00")
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        freezer.move_to("2023-01-15T14:30:00")
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        model.Session.commit()
+        # Delete only activities between 10:00 and 15:00 on 2023-01-15
+        data_dict = {
+            "start_date": "2023-01-15T10:00",
+            "end_date": "2023-01-15T15:00",
+        }
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+        # Only the 14:30 activity falls in [10:00, 15:00]; 09:00 is before range
+        assert result["message"] == "Deleted 1 rows from the activity table."
+        remaining = model.Session.query(Activity).count()
+        assert remaining == 3  # new user, new package, and 09:00 changed package
+
+    def test_start_date_greater_than_end_date_raises_validation_error(self):
+        sysadmin = factories.Sysadmin()
+        start_date = "2023-02-01"
+        end_date = "2023-01-31"
+
+        data_dict = {"start_date": start_date, "end_date": end_date}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_no_matching_activities_found(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {"offset_days": 60}
+
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+        assert (
+            result["message"]
+            == "No activities found matching the specified criteria."
+        )
+
+    def test_missing_all_parameters(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_missing_start_date(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {"end_date": "2023-02-01"}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_missing_end_date(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {"start_date": "2023-01-01"}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_normal_user_cannot_delete_activities(self):
+        user = factories.User()
+        data_dict = {"offset_days": 30}
+
+        context = {"user": user["name"]}
+        with pytest.raises(tk.NotAuthorized):
+            # Using get_action instead of call_action to bypass the default
+            # ignore_auth=True behavior.
+            tk.get_action("activity_delete")(context, data_dict)
+
+    @pytest.mark.freeze_time
+    def test_delete_removes_related_activity_detail_rows(self, freezer):
+        freezer.move_to("2023-01-01")
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        activity_dict = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        detail = ActivityDetail(
+            activity_id=activity_dict["id"],
+            object_id=dataset["id"],
+            object_type="Package",
+            activity_type="changed package",
+        )
+        model.Session.add(detail)
+        model.Session.commit()
+        assert model.Session.query(ActivityDetail).count() == 1
+
+        freezer.move_to("2023-02-01")
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            offset_days=30,
+        )
+        assert "Deleted" in result["message"]
+        assert model.Session.query(Activity).count() == 0
+        assert model.Session.query(ActivityDetail).count() == 0
+
+    def test_delete_single_activity_by_id(self):
+        """Deleting by id removes only that activity, leaves others."""
+        sysadmin = factories.Sysadmin()
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+        act1 = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset1["id"],
+            user_id=sysadmin["id"],
+        )
+        act2 = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset2["id"],
+            user_id=sysadmin["id"],
+        )
+        model.Session.commit()
+        all_ids = [a.id for a in model.Session.query(Activity).all()]
+        assert len(all_ids) >= 2
+        target_id = act1["id"]
+
+        result = helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            id=target_id,
+        )
+        assert result["message"] == "Activity purged"
+
+        remaining = model.Session.query(Activity).all()
+        remaining_ids = [a.id for a in remaining]
+        assert target_id not in remaining_ids
+        assert act2["id"] in remaining_ids
+
+    def test_delete_single_activity_by_id_removes_activity_detail(self):
+        """Deleting a single activity by id also removes its ActivityDetail rows."""
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        activity_dict = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        detail = ActivityDetail(
+            activity_id=activity_dict["id"],
+            object_id=dataset["id"],
+            object_type="Package",
+            activity_type="changed package",
+        )
+        model.Session.add(detail)
+        model.Session.commit()
+        assert model.Session.query(ActivityDetail).count() == 1
+
+        helpers.call_action(
+            "activity_delete",
+            context={"user": sysadmin["name"]},
+            id=activity_dict["id"],
+        )
+        assert model.Session.query(Activity).filter_by(id=activity_dict["id"]).count() == 0
+        assert model.Session.query(ActivityDetail).count() == 0
+
+    @pytest.mark.freeze_time
+    def test_purge_by_date_only_removes_activities_on_that_date(self, freezer):
+        """Simulates purge-by-date: deleting activities for one date leaves others."""
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+
+        freezer.move_to("2023-01-01 12:00:00")
+        act_jan = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+
+        freezer.move_to("2023-02-15 12:00:00")
+        act_feb = ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+
+        model.Session.commit()
+        jan_date_str = "2023-01-01"
+        feb_date_str = "2023-02-15"
+
+        # Simulate purge by date: only delete activities on 2023-01-01
+        activities_jan = [
+            a for a in model.Session.query(Activity).all()
+            if a.timestamp and a.timestamp.strftime("%Y-%m-%d") == jan_date_str
+        ]
+        for act in activities_jan:
+            helpers.call_action(
+                "activity_delete",
+                context={"user": sysadmin["name"]},
+                id=act.id,
+            )
+
+        remaining = model.Session.query(Activity).all()
+        remaining_ids = [a.id for a in remaining]
+        remaining_dates = {
+            a.timestamp.strftime("%Y-%m-%d") for a in remaining if a.timestamp
+        }
+        assert act_jan["id"] not in remaining_ids
+        assert act_feb["id"] in remaining_ids
+        assert jan_date_str not in remaining_dates
+        assert feb_date_str in remaining_dates
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+class TestActivityDeleteAll:
+    def test_activity_delete_all_removes_every_row(self):
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        ActivityFactory(
+            activity_type="changed package",
+            object_id=dataset["id"],
+            user_id=sysadmin["id"],
+        )
+        model.Session.commit()
+        n_before = model.Session.query(Activity).count()
+        assert n_before >= 1
+
+        result = helpers.call_action(
+            "activity_delete_all",
+            context={"user": sysadmin["name"]},
+        )
+
+        assert result["message"] == (
+            f"Deleted {n_before} rows from the activity table."
+        )
+        assert model.Session.query(Activity).count() == 0
+
+    def test_activity_delete_all_respects_batch_size(self):
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+        activity_dict = {
+            "activity_type": "changed package",
+            "object_id": dataset["id"],
+            "user_id": sysadmin["id"],
+        }
+        for _ in range(4):
+            ActivityFactory(**activity_dict)
+        model.Session.commit()
+        n_before = model.Session.query(Activity).count()
+        result = helpers.call_action(
+            "activity_delete_all",
+            context={"user": sysadmin["name"]},
+            batch_size=2,
+        )
+        assert result["message"] == (
+            f"Deleted {n_before} rows from the activity table."
+        )
+        assert model.Session.query(Activity).count() == 0
+
+    def test_activity_delete_all_empty_table(self):
+        sysadmin = factories.Sysadmin()
+        factories.Dataset()
+        model.Session.commit()
+        model.Session.query(ActivityDetail).delete()
+        model.Session.query(Activity).delete()
+        model.Session.commit()
+        assert model.Session.query(Activity).count() == 0
+
+        result = helpers.call_action(
+            "activity_delete_all",
+            context={"user": sysadmin["name"]},
+        )
+        assert (
+            result["message"]
+            == "No activities found matching the specified criteria."
+        )
+
+    def test_normal_user_cannot_activity_delete_all(self):
+        user = factories.User()
+        with pytest.raises(tk.NotAuthorized):
+            tk.get_action("activity_delete_all")(
+                {"user": user["name"]},
+                {},
+            )

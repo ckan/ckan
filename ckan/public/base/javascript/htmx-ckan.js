@@ -43,40 +43,104 @@ function htmx_initialize_ckan_modules(event) {
   ).forEach(node => {
     bootstrap.Tooltip.getOrCreateInstance(node)
   })
+
   event.detail.target.querySelectorAll('.show-filters').forEach(node => {
     node.onclick = function () {
       $("body").addClass("filters-modal")
     }
   })
+
   event.detail.target.querySelectorAll('.hide-filters').forEach(node => {
     node.onclick = function () {
       $("body").removeClass("filters-modal")
     }
   })
 }
-document.body.addEventListener("htmx:afterSwap", htmx_initialize_ckan_modules);
+
+document.body.addEventListener("htmx:afterSwap", function (event) {
+  htmx_initialize_ckan_modules(event);
+
+  const element = event.detail.requestConfig?.elt;
+  if (!element) return;
+
+  const toastHandler = new ToastHandler(element);
+
+  if (event.detail.successful) {
+    toastHandler.showToast();
+  }
+});
+
+/**
+ * ToastHandler parses a single JSON-like attribute from an HTML element
+ * and triggers a CKAN toast notification.
+ *
+ * It expects a `data-hx-toast` attribute to be present on the element,
+ * which should contain a JSON string with the toast configuration:
+ *
+ *   <div hx-target='..' hx-get='...' data-hx-toast='{"message": "Something happened", "type": "info"}'></div>
+ *
+ * Use it together with HTMX to show notifications after actions.
+ *
+ * @class
+ * @param {HTMLElement} element - The element containing the toast config.
+ */
+class ToastHandler {
+  constructor(element) {
+    this.attrKey = "data-hx-toast";
+    this.defaultToastOptions = {
+      type: "success",
+      title: ckan.i18n._("Notification"),
+    };
+    this.options = this.buildToastOptions(element);
+  }
+
+  /**
+   * Parses the JSON string from the toast attribute and merges with defaults.
+   *
+   * @param {HTMLElement} element
+   *
+   * @returns {Object}
+   */
+  buildToastOptions(element) {
+    const attrValue = element.getAttribute(this.attrKey);
+    if (!attrValue) return this.defaultToastOptions;
+
+    try {
+      const parsed = JSON.parse(attrValue);
+      return { ...this.defaultToastOptions, ...parsed };
+    } catch (e) {
+      console.error(`Invalid JSON in ${this.attrKey}:`, attrValue);
+      return {
+        ...this.defaultToastOptions,
+        message: `Invalid toast config: ${e.message}`,
+        type: "danger"
+      };
+    }
+  }
+
+  showToast() {
+    if (!this.options.message) return;
+    ckan.toast(this.options);
+  }
+}
+
 document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules);
 
 document.body.addEventListener("htmx:responseError", function (event) {
-  const xhr = event.detail.xhr
-  const error = $(xhr.response).find('#error-content')
-  const headerHTML = error.find('h1').remove().html() || `${xhr.status} ${xhr.statusText}`
-  const messageHTML = error.html() || event.detail.error
-  $('#responseErrorToast').remove()
-  $(`
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-      <div id="responseErrorToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-          <strong class="me-auto text-danger">${headerHTML}</strong>
-          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="${ckan.i18n._("Close")}"></button>
-        </div>
-        <div class="toast-body">
-          ${messageHTML}
-        </div>
-      </div>
-    </div>
-  `).appendTo('body')
-  $('#responseErrorToast').toast('show')
+  const xhr = event.detail.xhr;
+
+  if (xhr.response.startsWith("<!doctype html>")) {
+    const error = $(xhr.response).find('#error-content');
+    var message = error.html() || event.detail.error;
+  } else {
+    var message = xhr.responseText;
+  }
+
+  ckan.toast({
+    message: message.trim().replace(/^"(.*)"$/, '$1'),
+    type: "danger",
+    title: `${xhr.status} ${xhr.statusText}`
+  });
 })
 
 document.addEventListener("htmx:confirm", function (e) {

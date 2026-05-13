@@ -75,7 +75,10 @@ class AuthFunctions:
 
         module_root = 'ckan.logic.auth'
 
-        for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
+        for auth_module_name in [
+                'get', 'create', 'update', 'delete', 'patch',
+                'file',
+        ]:
             module = importlib.import_module(
                 '.' + auth_module_name, module_root)
 

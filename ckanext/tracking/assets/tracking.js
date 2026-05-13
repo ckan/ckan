@@ -15,11 +15,12 @@
 $(function (){
     // remove any site root from url and trim any trailing /
     var url = location.pathname;
-    url = url.substring($('body').data('locale-root'), url.length);
+
+    url = url.substring(document.head.querySelector(['meta[name=locale-root]'])?.content, url.length);
     url = url.replace(/\/*$/, '');
 
     // POST request for each visited page
-    $.ajax({url : $('body').data('site-root') + '_tracking',
+    $.ajax({url : $('meta[name=site-root]').attr('content') + '_tracking',
             type : 'POST',
             data : {url:url, type:'page'},
             timeout : 300 });
@@ -27,7 +28,7 @@ $(function (){
     // POST request when clicking links with class 'resource-url-analytics'
     $('a.resource-url-analytics').on('click', function (e){
       var url = $(e.target).closest('a').attr('href');
-      $.ajax({url : $('body').data('site-root') + '_tracking',
+      $.ajax({url : document.head.querySelector(['meta[name=site-root]'])?.content + '_tracking',
               data : {url:url, type:'resource'},
               type : 'POST',
               timeout : 30});

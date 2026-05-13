@@ -15589,3 +15589,11 @@ input[id^=lang-].btn-check + label.btn:hover {
   font-style: normal;
   font-weight: 100 900;
 }
+@keyframes reverseProgress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

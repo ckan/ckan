@@ -33,6 +33,11 @@ class ExampleIAuthenticatorPlugin(p.SingletonPlugin):
 
     # IAuthenticator
 
+    def identify_user(
+            self, user_id: str | None = None,
+    ) -> model.User | model.AnonymousUser | None:
+        pass
+
     def identify(self):
 
         if toolkit.request.path not in [

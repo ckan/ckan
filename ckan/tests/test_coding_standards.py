@@ -265,12 +265,6 @@ class TestActionAuth(object):
     accepts (context, data_dict) as parameters."""
 
     ACTION_NO_AUTH_BLACKLIST = [
-        "create: follow_dataset",
-        "create: follow_group",
-        "create: follow_user",
-        "delete: unfollow_dataset",
-        "delete: unfollow_group",
-        "delete: unfollow_user",
         "get: roles_show",
         "update: task_status_update_many",
         "update: term_translation_update_many",

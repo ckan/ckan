@@ -1,8 +1,12 @@
 # encoding: utf-8
 
 import json
+from unittest.mock import patch
+
 import pytest
 
+import ckanext.datastore.backend.postgres as db
+from ckan.logic import NotFound
 from ckan.tests import factories, helpers
 from ckan.lib.helpers import url_for
 
@@ -51,3 +55,22 @@ def test_ajax_data(app, user):
         ],
         'total_was_estimated': False,
     }
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore datatables_view")
+@pytest.mark.usefixtures("with_plugins")
+def test_datastore_search_raises_not_found_when_table_missing():
+    """ datastore_search raises ObjectNotFound when the table does not exist
+        and the resource_id_from_alias returns (True, None) to
+        indicate that the view exists but the table is missing.
+    """
+    with patch.object(
+        db.DatastorePostgresqlBackend,
+        'resource_id_from_alias',
+        return_value=(True, None),
+    ):
+        with pytest.raises(NotFound):
+            helpers.call_action(
+                'datastore_search',
+                resource_id='00000000-0000-0000-0000-000000000000',
+            )

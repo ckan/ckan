@@ -14,6 +14,7 @@ from typing import (
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
+from ckan import types
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
     PUploader, PResourceUploader, Schema, SignalMapping, Validator,
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
+    from ckan.lib.files import Storage
 
 
 AttachmentWithType = Union[
@@ -40,38 +42,39 @@ Attachment = Union[AttachmentWithType, AttachmentWithoutType]
 
 
 __all__ = [
-    u'Interface',
-    u'IMiddleware',
-    u'IAuthFunctions',
-    u'IDomainObjectModification',
-    u'IFeed',
-    u'IGroupController',
-    u'IOrganizationController',
-    u'IPackageController',
-    u'IPluginObserver',
-    u'IConfigurable',
-    u'IConfigDeclaration',
-    u'IConfigurer',
-    u'IActions',
-    u'IResourceUrlChange',
-    u'IDatasetForm',
-    u'IValidators',
-    u'IResourceView',
-    u'IResourceController',
-    u'IGroupForm',
-    u'ITagController',
-    u'ITemplateHelpers',
-    u'IFacets',
-    u'IAuthenticator',
-    u'ITranslation',
-    u'IUploader',
-    u'IBlueprint',
-    u'IPermissionLabels',
-    u'IForkObserver',
-    u'IApiToken',
-    u'IClick',
-    u'ISignal',
-    u'INotifier',
+    "Interface",
+    "IMiddleware",
+    "IAuthFunctions",
+    "IDomainObjectModification",
+    "IFeed",
+    "IGroupController",
+    "IOrganizationController",
+    "IPackageController",
+    "IPluginObserver",
+    "IConfigurable",
+    "IConfigDeclaration",
+    "IConfigurer",
+    "IActions",
+    "IResourceUrlChange",
+    "IDatasetForm",
+    "IValidators",
+    "IResourceView",
+    "IResourceController",
+    "IGroupForm",
+    "ITagController",
+    "ITemplateHelpers",
+    "IFacets",
+    "IAuthenticator",
+    "ITranslation",
+    "IUploader",
+    "IBlueprint",
+    "IPermissionLabels",
+    "IForkObserver",
+    "IApiToken",
+    "IClick",
+    "ISignal",
+    "INotifier",
+    "IFiles",
 ]
 
 
@@ -1694,45 +1697,93 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''Allows custom authentication methods to be integrated into CKAN.
+    '''Allows custom authentication methods to be integrated into CKAN.
 
-        All interface methods except for the ``abort()`` one support
-        returning a Flask response object. This can be used for instance to
-        issue redirects or set cookies in the response. If a response object
-        is returned there will be no further processing of the current request
-        and that response will be returned. This can be used by plugins to:
+    Interface methods :py:meth:`.login`, :py:meth:`.logout` and deprecated
+    :py:meth:`.identify` support returning a Flask response object. This can be
+    used for instance to issue redirects or set cookies in the response. If a
+    response object is returned there will be no further processing of the
+    current request and that response will be returned. This can be used by
+    plugins to:
 
-        * Issue a redirect::
+    * Issue a redirect::
 
-            def identify(self):
+        def login(self):
 
-                return toolkit.redirect_to('myplugin.custom_endpoint')
+            return toolkit.redirect_to('myplugin.custom_endpoint')
 
-        * Set or clear cookies (or headers)::
+    * Set or clear cookies (or headers)::
 
-            from Flask import make_response
+        from flask import make_response
 
-            def identify(self)::
+        def login(self)::
 
-                response = make_response(toolkit.render('my_page.html'))
-                response.set_cookie(cookie_name, expires=0)
+            response = make_response(toolkit.render('my_page.html'))
+            response.set_cookie(cookie_name, expires=0)
 
-                return response
+            return response
+
+    Instead of using :py:meth:`.identify` in this role, it's recommended to use
+    :py:class:`~ckan.plugins.interfaces.IMiddleware` interfaces. Its
+    :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` accpets
+    ``app`` object that can be supplied with before-request callback::
+
+        p.implements(IMiddleware, inherit=True)
+        def make_middleware(self, app):
+            app.before_request(
+                lambda: toolkit.redirect_to('myplugin.custom_endpoint')
+            )
 
     '''
 
+    def identify_user(
+            self, user_id: str | None = None,
+    ) -> model.User | model.AnonymousUser | None:
+        """Load a user using.
+
+        When :py:func:`~ckan.plugins.toolkit.ckan.plugins.toolkit.login_user`
+        is called with a user object, user's ID is saved in the session. After
+        that, in the beginning of each request the same user's ID from the
+        session is used to get user details via :py:meth:`.identify_user`.
+
+        If all implementations of the method return ``None`` when called with
+        non-empty ``user_id``, application assumes that the user stored in the
+        session is not valid and calls the method once again, but without
+        arguments this time. At this point implementations have a chance to
+        identify user using request details or any other appropriate source of
+        user's identity.
+
+        The implementation returns:
+
+        * a :py:class:`~ckan.model.User` object if user is identified
+
+        * a :py:class:`~ckan.model.AnonymousUser` object if user definitely is
+          not authenticated and identification from following plugins must be
+          ignored.
+
+        * ``None`` if the user cannot be identified by the current
+          implementation, but there is a chance that following plugins can
+          identify it.
+
+        If any implementation returns :py:class:`~ckan.model.AnonymousUser` for
+        call with ``user_id``, no further processing happens and app treats the
+        request as an anonymous request. If all implementations return
+        ``None``, :py:meth:`.identify_user` will be called once again without
+        arguments.
+
+        """
+        return None
+
     def identify(self) -> Optional[Response]:
-        u'''Called to identify the user.
+        '''DEPRECATED. Called for side effects before the request.
 
-        If the user is identified then it should set:
-
-         - g.user: The name of the user
-         - g.userobj: The actual user object
-
-        Alternatively, plugins can return a response object in order to prevent
-        the default CKAN authorization flow. See
-        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
-        for more details.
+        Formerly it was used to identify a user during the request. This
+        responsibility is moved to :py:meth:`.identify_user`. The
+        current method can perform side-effects or produce a response object to
+        stop further processing of the requests. More idiomatic way to achieve
+        both goals is using Flask's ``app.before_request`` callback, that can
+        be registered using
+        :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` method.
 
         '''
 
@@ -2252,6 +2303,128 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class IFiles(Interface):
+    """Extension point for files.
+
+    This interface is not stabilized. Implement it with `inherit=True`.
+
+    Example::
+
+        class MyPlugin(p.SingletonPlugin):
+            p.implements(p.IFiles, inherit=True)
+    """
+
+    def files_get_storage_adapters(self) -> dict[str, type[Storage]]:
+        """Return mapping of storage type to adapter class.
+
+        Example::
+
+            def files_get_storage_adapters(self):
+                return {
+                    "my_ext:dropbox": DropboxStorage,
+                }
+
+        :returns: adapters provided by the implementation
+        """
+        return {}
+
+    def files_get_location_transformers(self) -> dict[str, types.LocationTransformer]:
+        """Return additional location transformers.
+
+        Example::
+
+            def files_get_location_transformers(self):
+                def lower_transformer(location, upload, extras):
+                    returnlocation.lower()
+
+                return {
+                    "my_ext:lowercase": lower_transformer,
+                }
+
+        :returns: location transformers provided by the implementation
+        """
+        return {}
+
+    def files_file_allows(
+        self,
+        context: types.Context,
+        file: model.File,
+        operation: types.FileOperation,
+    ) -> bool | None:
+        """Decide if user is allowed to perform specified operation on the file.
+
+        Return True/False if user allowed/not allowed. Return None to rely on
+        other plugins.
+
+        Default implementation relies on ``ckan.files.owner.cascade_access``
+        config option. When owner of file is included into cascade access, user
+        can perform operation on file if he can perform the same operation with
+        file's owner.
+
+        If current owner is not affected by cascade access, user can perform
+        operation on file only if user owns the file.
+
+        Example::
+
+            def files_file_allows(
+                    self, context,
+                    file: model.File,
+                    operation: FileOperation
+            ) -> bool | None:
+                if file.owner_info and file.owner_info.owner_type == "resource":
+                    return is_authorized_boolean(
+                        f"resource_{operation}",
+                        context,
+                        {"id": file.owner_info.id}
+                    )
+
+                return None
+
+        :param context: API context
+        :param file: accessed file object
+        :param operation: performed operation
+        :returns: decision whether operation is allowed for the file
+        """
+        return None
+
+    def files_owner_allows(
+        self,
+        context: types.Context,
+        owner_type: str,
+        owner_id: str,
+        operation: types.FileOwnerOperation,
+    ) -> bool | None:
+        """Decide if user is allowed to perform operation on the owner.
+
+        Return True/False if user allowed/not allowed. Return None to rely on
+        other plugins.
+
+        Example::
+
+            def files_owner_allows(
+                    self, context,
+                    owner_type: str, owner_id: str,
+                    operation: FileOwnerOperation
+            ) -> bool | None:
+                if owner_type == "resource" and operation == "file_transfer":
+                    return is_authorized_boolean(
+                        f"resource_update",
+                        context,
+                        {"id": owner_id}
+                    )
+
+                return None
+
+        :param context: API context
+        :param owner_type: type of the tested owner
+        :param owner_id: type of the tested owner
+        :param operation: performed operation
+        :returns: decision whether operation is allowed for the owner
+
+        """
+        return None
 
 
 class INotifier(Interface):

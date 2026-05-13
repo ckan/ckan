@@ -1,17 +1,19 @@
-# encoding: utf-8
 from __future__ import annotations
 
-import cgi
 import json
 import logging
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
+
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
 from flask.views import MethodView
+import file_keeper as fk
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
+from ckan.lib import files
 from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
@@ -19,13 +21,13 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.lib import signals
-from ckan.common import _, config, g, request, current_user
+from ckan.common import _, config, g, request, current_user, streaming_response
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
 
-from ckan.types import Context, Response, ErrorDict
+from ckan.types import Context, Response
 
 Blueprint = flask.Blueprint
 NotFound = logic.NotFound
@@ -167,10 +169,36 @@ def download(package_type: str,
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
-        resp = flask.send_file(filepath, download_name=filename)
+        mimetype = rsc.get('mimetype')
 
-        if rsc.get('mimetype'):
-            resp.headers['Content-Type'] = rsc['mimetype']
+        storage = getattr(upload, "storage", None)
+        if isinstance(storage, fk.Storage):
+            overrides = {}
+            if mimetype:
+                overrides["content_type"] = mimetype
+            location = files.Location(filepath)
+            file_data = files.FileData(
+                location,
+                size=storage.size(location),
+                **overrides,
+            )
+            if isinstance(storage, files.Storage):
+                resp = storage.as_response(file_data, filename)
+            else:
+                resp = streaming_response(
+                    storage.stream(file_data),
+                    file_data.content_type,
+                )
+                resp.headers.set(
+                    "content-disposition",
+                    "attachment",
+                    filename=filename or file_data.location,
+                )
+
+        else:
+            resp = flask.send_file(filepath, download_name=filename)
+            if mimetype:
+                resp.headers['Content-Type'] = mimetype
         signals.resource_download.send(resource_id)
         return resp
 
@@ -202,7 +230,7 @@ class CreateView(MethodView):
         data_provided = False
         for key, value in data.items():
             if (
-                    (value or isinstance(value, cgi.FieldStorage))
+                    (value or isinstance(value, FlaskFileStorage))
                     and key != u'resource_type'):
                 data_provided = True
                 break
@@ -228,10 +256,8 @@ class CreateView(MethodView):
                     _(u'The dataset {id} could not be found.').format(id=id)
                 )
             except ValidationError as e:
-                errors = cast(
-                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
                 error_summary = e.error_summary
-                return self.get(package_type, id, data, errors, error_summary)
+                return self.get(package_type, id, {}, e.error_dict, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
@@ -262,10 +288,8 @@ class CreateView(MethodView):
                     {'id': id, 'state': 'active'}
                 )
             except ValidationError as e:
-                errors = cast(
-                    "list[ErrorDict]", e.error_dict.get('resources', [{}]))[-1]
                 error_summary = e.error_summary
-                return self.get(package_type, id, data, errors, error_summary)
+                return self.get(package_type, id, {}, e.error_dict, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
         elif save_action == u'go-metadata-preview':
             data_dict = get_action(u'package_show')(context, {u'id': id})

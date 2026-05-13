@@ -14,7 +14,7 @@ for example:
   example a dataset is updated)
 
 * Performing processing or validation or on data (as done by the Archiver and
-  DataStorer Extensions)
+  XLoader Extensions)
 
 Basically, any piece of work that takes too long to perform while the main
 application is waiting is a good candidate for a background job.

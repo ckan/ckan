@@ -1,0 +1,8 @@
+Global variable `search_facets_limits` is no longer available on dataset search
+pages::
+
+    # before
+    g.search_facets_limits.get("facet")
+
+    # after
+    h.get_param_int(f"_{facet}_limit", config["search.facets.default"])
