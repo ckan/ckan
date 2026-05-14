@@ -4,11 +4,17 @@ on:
     types: [closed]
   issue_comment:
     types: [created]
-permissions:
-  contents: write # so it can comment
-  pull-requests: write # so it can create pull requests
+
+permissions: {}
+
 jobs:
   backport:
+    permissions:
+      contents: write # so it can comment
+      pull-requests: write # so it can create pull requests
+    environment:
+      name: backports
+      deployment: false
     name: Backport pull request
     runs-on: ubuntu-latest
     # Only run when a pull request is merged
@@ -26,9 +32,11 @@ jobs:
         )
       }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Create backport pull requests
-        uses: korthout/backport-action@v4
+        uses: korthout/backport-action@7c3f6cd5843cac11bc59a04a1b7699af93261670 # v4.5.0
         with:
           # Token to authenticate requests to GitHub. This is a Personal Access Token
           # from the ckanbot user
@@ -61,7 +69,7 @@ jobs:
       }}
     steps:
       - name: Add Backport failed label to PR
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ secrets.BACKPORT_ACTION_PAT }}
           script: |

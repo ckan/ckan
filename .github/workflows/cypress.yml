@@ -7,12 +7,13 @@ env:
   NODE_VERSION: '16'
   PYTHON_VERSION: '3.10'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   cypress:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     services:
       ckan_postgres:
         image: postgres:15
@@ -29,7 +30,7 @@ jobs:
           POSTGRES_DB: ckan_test
 
       ckan_redis:
-        image: redis
+        image: redis:7
         ports:
           - 6379:6379
       ckan_solr:
@@ -43,12 +44,14 @@ jobs:
       CKAN_REDIS_URL: redis://localhost:6379/1
 
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -66,18 +69,18 @@ jobs:
           ckan config-tool test-core-ci.ini "ckan.plugins = activity"
 
       - name: Run Cypress
-        uses: cypress-io/github-action@v7
+        uses: cypress-io/github-action@c495c3ddffba403ba11be95fffb67e25203b3799 # v7.1.10
         with:
           start: ckan -c test-core-ci.ini run
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: cypress-videos
