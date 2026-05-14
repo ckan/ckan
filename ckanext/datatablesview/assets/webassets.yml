@@ -1,5 +1,8 @@
 main-css:
   output: ckanext-datatablesview/%(version)s_datatablesview.css
+  extra:
+    preload:
+      - vendor/fontawesome
   contents:
     - vendor/DataTables/datatables.min.css
     - datatablesview.css

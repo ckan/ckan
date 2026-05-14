@@ -29,8 +29,8 @@ this.ckan.module('datatables_view', function($){
     },
     initialize: function(){
       /**
-       * Call functional code so we can destory and re-initialize the objects
-       * we need to, instead of the entire module object (or requiring page reload).
+       * Call functional code so we can destory and re-initialize the DataTable objects
+       * we need to, instead of the entire CKAN module object (or requiring page reload).
        */
       load_datatable(this);
     }
@@ -286,6 +286,7 @@ function load_datatable(CKAN_MODULE){
     "className": 'dt-body-right datatable-id-col',
     "width": isCompactView ? '28px' : '50px',
   }];
+  const defaultColOrder = [0];
 
   for( let i = 0; i < dataDictionary.length; i++ ){
     /**
@@ -331,6 +332,7 @@ function load_datatable(CKAN_MODULE){
         return _cellRenderer(_data, _type, _row, _meta, dataDictionary[i]);
       }
     });
+    defaultColOrder.push(i + 1);
     // use id for key so we can get info easier
     keyedDataDictionary[dataDictionary[i].id] = dataDictionary[i];
   }
@@ -473,12 +475,12 @@ function load_datatable(CKAN_MODULE){
           if( isCompactView ){
             dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>');
             isCompactView = false;
-            tableState.compact_view = false;
           } else {
             dt.button('viewToggleButton:name').text('<i class="fa fa-list"></i>');
             isCompactView = true;
-            tableState.compact_view = true;
           }
+          // special case for selected rows when switching between Full/Compact tables
+          tableState.selected = table.rows({ selected: true })[0];
           dt.state.save();
           set_state_change_visibility();
           dt.clear().destroy();
@@ -636,12 +638,13 @@ function load_datatable(CKAN_MODULE){
           if( ! defaultCompactView ){
             dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>');
             isCompactView = false;
-            tableState.compact_view = false;
           } else {
             dt.button('viewToggleButton:name').text('<i class="fa fa-list"></i>');
             isCompactView = true;
-            tableState.compact_view = true;
           }
+          dt.rows().deselect();  // special case for selected rows
+          dt.colReorder.reset(); // reset the column ordering
+          tableState = void 0;  // clear local state variable
           dt.state.clear();
           dt.clear().destroy();
           initialize_datatable();
@@ -860,6 +863,7 @@ function load_datatable(CKAN_MODULE){
     /**
      * Render the column summaries in their respective footer cell
      */
+    // TODO: implement summary statistics when backend is ready
     // TODO: mean(average), median(middle), mode(frequent),
     //       spread(range), standard deviation, interquartile range 25% 75%,
     //       (range-min is 0% median is 50% range-max is 100% of IQR)
@@ -912,7 +916,7 @@ function load_datatable(CKAN_MODULE){
       $(_inputObj).attr('placeholder', TABLE_LANGUAGE.info.column.search + ' ' + colLabel);
 
       let clearButton = $(_inputObj).parent().find('.dtcc-search-clear');
-      $(clearButton).off('click.clearFilter');
+      $(clearButton).off('click.clearFilter');  // prevent duplicate events
       $(clearButton).on('click.clearFilter', function(_event){
         $(_inputObj).val('').focus().blur();
         _column.search(null).draw();
@@ -924,7 +928,7 @@ function load_datatable(CKAN_MODULE){
         $(clearButton).show();
       }
 
-      $(_inputObj).off('keyup.filterCol');
+      $(_inputObj).off('keyup.filterCol');  // prevent duplicate events
       $(_inputObj).on('keyup.filterCol', function(_event){
         let _fVal = $(_inputObj).val();
         if( _event.keyCode == 13 && _column.search() !== _fVal ){
@@ -967,10 +971,31 @@ function load_datatable(CKAN_MODULE){
     });
 
     // prevent selecting rows if clicking a link or image inside a cell
-    table.on('user-select', function(_event, _dt, _type, _cell, _originalEvent) {
+    table.off('user-select.preventLinkSelects');  // prevent duplicate events
+    table.on('user-select.preventLinkSelects', function(_event, _dt, _type, _cell, _originalEvent) {
       if( $(_originalEvent.target).is('a') || $(_originalEvent.target).is('img') ){
         _event.preventDefault();
       }
+    });
+
+    // deselect rows during certain events
+    table.off('page.deselectRows search.deselectRows order.deselectRows length.deselectRows');  // prevent duplicate events
+    table.on('page.deselectRows search.deselectRows order.deselectRows length.deselectRows', function(e, dt, type){
+      table.rows().deselect();
+    });
+
+    // set button states when selecting/deselecting rows
+    table.off('select.setButtonStates deselect.setButtonStates');  // prevent duplicate events
+    table.on('select.setButtonStates deselect.setButtonStates', function(e, dt, type, indexes){
+      // special case for selected rows when switching between Full/Compact tables
+      tableState.selected = table.rows({ selected: true })[0];
+      set_button_states();
+    });
+
+    // set button states when changing column visibility and ordering
+    table.off('column-visibility.setButtonStates columns-reordered.setButtonStates');  // prevent duplicate events
+    table.on('column-visibility.setButtonStates columns-reordered.setButtonStates', function(e, dt, type){
+      set_button_states();
     });
   }
 
@@ -978,18 +1003,18 @@ function load_datatable(CKAN_MODULE){
     /**
      * Set selected rows based on table saved state.
      */
-    // FIXME: row selects state...
-    if( typeof tableState == 'undefined' || tableState == null ){
+    if( typeof selectedRows == 'undefined' ){
       return;
     }
 
-    table.rows(tableState.selected).select();
+    table.rows(selectedRows).select();
   }
 
   function set_button_states(){
     /**
      * Modify table buttons based on table interaction.
      */
+    // BootStrap disabled buttons to DataTables disabled buttons
     let buttons = $('#dtprv_wrapper').find('.dt-buttons').find('.btn.disabled');
     if( buttons.length > 0 ){
       $(buttons).each(function(_index, _button){
@@ -1001,30 +1026,53 @@ function load_datatable(CKAN_MODULE){
       return;  // nothing changed
     }
 
-    let tableModified = false;
+    function _set_button_states(_tableModified){
+      if( ! _tableModified ){
+        $('.dt-buttons button.resetButton').addClass('btn-secondary').addClass('disabled').removeClass('btn-warning').attr('disabled', true);
+        return;  // state is same as default state
+      }
+
+      $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning').attr('disabled', false);
+    }
 
     if( tableState.page_number != 0 ){
-      tableModified = true;
+      _set_button_states(true);  // page number has changed
+      return;
     }
     if( tableState.page_length != pageLengthChoices[0] ){
-      tableModified = true;
+      _set_button_states(true);  // page length has changed from configured
+      return;
     }
     if( tableState.selected.length > 0 ){
-      tableModified = true;
+      _set_button_states(true);  // rows have been selected
+      return;
     }
-    if( tableState.sort_order != defaultSortOrder ){
-      tableModified = true;
+    if( JSON.stringify(tableState.sort_order) !== JSON.stringify(defaultSortOrder) ){
+      _set_button_states(true);  // sort order changed from configured
+      return;
     }
     if( tableState.compact_view != defaultCompactView ){
-      tableModified = true;
+      _set_button_states(true);  // table view type has changed from configured
+      return;
+    }
+    if( table.columns(':hidden').indexes().toArray().length > 0 ){
+      _set_button_states(true);  // column visibility has changed
+      return;
+    }
+    if( JSON.stringify(tableState.column_order) !== JSON.stringify(defaultColOrder) ){
+      _set_button_states(true);  // column ordering has changed
+      return;
+    }
+    if( table.search().length > 0 ){
+      _set_button_states(true);  // there is a table search
+      return;
+    }
+    if( table.columns().search().toArray().some(function(_s){ return _s.length > 0; }) ){
+      _set_button_states(true);  // there is a column search
+      return;
     }
 
-    if( ! tableModified ){
-      $('.dt-buttons button.resetButton').addClass('btn-secondary').addClass('disabled').removeClass('btn-warning').attr('disabled', true);
-      return;  // state is same as default state
-    }
-
-    $('.dt-buttons button.resetButton').removeClass('btn-secondary').removeClass('disabled').addClass('btn-warning').attr('disabled', false);
+    _set_button_states(false);  // state is same as default state
   }
 
   function set_table_visibility(){
@@ -1119,15 +1167,15 @@ function load_datatable(CKAN_MODULE){
     _data.selected = this.api().rows({selected: true})[0];
     _data.sort_order = this.api().order();
     _data.compact_view = isCompactView;
+    _data.column_order = this.api().colReorder.order();
 
-    let localInstanceState = typeof tableState != 'undefined' && tableState != null ? tableState : _data;
-    tableState = _data;
+    // special case for selected rows when switching between Full/Compact tables
+    let localInstanceSelected = typeof tableState != 'undefined' ? tableState.selected : _data.selected;
 
-    tableState.page_number = localInstanceState.page_number;
-    tableState.page_length = localInstanceState.page_length;
-    tableState.selected = localInstanceState.selected;
-    tableState.sort_order = localInstanceState.sort_order;
-    tableState.compact_view = localInstanceState.compact_view;
+    // update local JS table state object for easier code access
+    tableState = Object.assign({}, tableState, _data);
+    tableState.selected = localInstanceSelected;
+    selectedRows = tableState.selected;
 
     // custom local storage name for multiple table views and fullscreen views
     window.localStorage.setItem('DataTables_dtprv_' + viewID, JSON.stringify(_data));
@@ -1154,14 +1202,13 @@ function load_datatable(CKAN_MODULE){
       return null;  // no saved state
     }
 
-    let localInstanceState = typeof tableState != 'undefined' && tableState != null ? tableState : _data;
-    tableState = _data;
+    // special case for selected rows when switching between Full/Compact tables
+    let localInstanceSelected = typeof tableState != 'undefined' ? tableState.selected : _data.selected;
 
-    tableState.page_number = localInstanceState.page_number;
-    tableState.page_length = localInstanceState.page_length;
-    tableState.selected = localInstanceState.selected;
-    tableState.sort_order = localInstanceState.sort_order;
-    tableState.compact_view = localInstanceState.compact_view;
+    // update local JS table state object for easier code access
+    tableState = Object.assign({}, tableState, _data);
+    tableState.selected = localInstanceSelected;
+    selectedRows = tableState.selected;
 
     return _data;
   }
