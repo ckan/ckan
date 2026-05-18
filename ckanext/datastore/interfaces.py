@@ -240,6 +240,8 @@ class IDatastoreDump(interfaces.Interface):
     exports
     """
 
+    _reverse_iteration_order = True
+
     def register_dump_formats(
         self,
     ) -> dict[str, dict[str, Any] | None]:
