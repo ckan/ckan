@@ -926,11 +926,10 @@ class TestDatastoreDumpInterface(object):
     def test_unknown_format_rejected(self, app):
         # Sanity check: the schema's one_of validator rejects formats
         # not in the registry, regardless of any plugin.
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
         helpers.call_action(
             "datastore_create",
             resource_id=resource["id"],
-            force=True,
             records=[{"book": "annakarenina"}],
         )
 
@@ -943,11 +942,10 @@ class TestDatastoreDumpInterface(object):
     )
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_custom_format_added_via_plugin(self, app):
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
         helpers.call_action(
             "datastore_create",
             resource_id=resource["id"],
-            force=True,
             records=[{"book": "annakarenina"}, {"book": "warandpeace"}],
         )
 
@@ -972,11 +970,10 @@ class TestDatastoreDumpInterface(object):
         # The plugin returns {"xml": None}, which removes the format
         # from the registry. The schema's one_of validator then rejects
         # ?format=xml at validation time (HTTP 400).
-        resource = factories.Resource()
+        resource = factories.Resource(url_type='datastore')
         helpers.call_action(
             "datastore_create",
             resource_id=resource["id"],
-            force=True,
             records=[{"book": "annakarenina"}],
         )
 
