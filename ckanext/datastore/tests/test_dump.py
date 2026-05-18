@@ -3,11 +3,15 @@
 import unittest.mock as mock
 import json
 import pytest
+import ckan.plugins.toolkit as toolkit
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import xml.etree.ElementTree as ET
 
+from ckan.lib.helpers import url_for
 from ckanext.datastore.backend.postgres import search_data
+from ckanext.datastore.tests.sample_dump_plugin import ALWAYS_INVALID_REASON
+
 
 class TestDatastoreDump(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -980,3 +984,133 @@ class TestDatastoreDumpInterface(object):
         app.get(
             f"/datastore/dump/{resource['id']}?format=xml", status=400
         )
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore sample_dump_plugin")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestDatastoreDumpValidate(object):
+    """Tests for the optional ``validate`` callable on a format config.
+
+    Uses the ``gated`` format from ``sample_dump_plugin`` (its
+    validator always rejects with :data:`ALWAYS_INVALID_REASON`) so the contract
+    can be exercised without needing a real extension installed.
+    """
+
+    def test_helper_marks_format_unavailable_with_reason(self):
+        # The helper should report the gated format as unavailable
+        # with the validator's reason, while formats whose validator
+        # approves (``passes``) and those without a validator
+        # (csv/tsv/json/faux) stay available.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"]
+        )
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["gated"]["available"] is False
+        assert by_name["gated"]["reason"] == ALWAYS_INVALID_REASON
+
+        # Validator present but returns None => available.
+        assert by_name["passes"]["available"] is True
+        assert by_name["passes"]["reason"] is None
+
+        # No validator at all => available.
+        for name in ("csv", "tsv", "json", "faux"):
+            assert by_name[name]["available"] is True
+            assert by_name[name]["reason"] is None
+
+    def test_helper_skips_validators_when_no_resource_id(self):
+        # Without a resource_id, the helper can't run validators, so
+        # every format should still appear (no crash, no validator
+        # call). available/reason fall back to "always available".
+        formats = toolkit.h.datastore_dump_formats()
+        by_name = {f["name"]: f for f in formats}
+
+        assert "gated" in by_name
+        assert by_name["gated"]["available"] is True
+        assert by_name["gated"]["reason"] is None
+
+    def test_dump_endpoint_rejects_with_400(self, app):
+        # A direct GET to /datastore/dump/<id>?format=gated should
+        # return HTTP 400 with the validator's reason in the body.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=gated",
+            status=400,
+        )
+        assert ALWAYS_INVALID_REASON in response.get_data(as_text=True)
+
+    def test_dump_endpoint_allows_format_without_validator(self, app):
+        # Sanity check that the gated validator doesn't bleed into
+        # other formats on the same resource.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=faux"
+        )
+        assert response.status_code == 200
+
+    def test_dump_endpoint_allows_format_whose_validator_approves(self, app):
+        # Covers the blueprint branch where ``validate`` is defined but
+        # returns ``None`` (no abort). The ``passes`` format reuses the
+        # csv writer, so the response should also be a normal dump.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=passes"
+        )
+        assert response.status_code == 200
+        assert (
+            response.headers["Content-Type"]
+            == "application/x-passes; charset=utf-8"
+        )
+
+    def test_resource_read_page_renders_disabled_dropdown_item(self, app):
+        # The download dropdown on the resource page should render the
+        # gated format as a disabled item with the validator's reason
+        # exposed as the ``title`` attribute, while the other formats
+        # remain regular clickable links.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        url = url_for(
+            "dataset_resource.read",
+            id=resource["package_id"],
+            resource_id=resource["id"],
+        )
+        response = app.get(url)
+        body = response.get_data(as_text=True)
+
+        assert response.status_code == 200
+        # The disabled <span> for gated must carry the reason as title.
+        assert 'class="dropdown-item disabled"' in body
+        assert f'title="{ALWAYS_INVALID_REASON}"' in body
+        # And the built-in CSV format must still render as an active
+        # dropdown-item link (not disabled).
+        assert 'class="dropdown-item"' in body
