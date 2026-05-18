@@ -260,7 +260,10 @@ class IDatastoreDump(interfaces.Interface):
 
         A configuration dict must include:
 
-        - 'label': Human-readable name shown in the download dropdown UI
+        - 'label': Human-readable name shown in the download dropdown UI.
+          User-facing, so wrap it in ``toolkit._()`` to make it
+          translatable. ``register_dump_formats`` is called per
+          request, so the translation evaluates in the current locale.
         - 'writer_factory': A context manager function that creates a
           writer
         - 'records_format': The format for records ('csv', 'tsv',
