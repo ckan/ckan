@@ -271,7 +271,34 @@ class IDatastoreDump(interfaces.Interface):
         - 'content_type': The MIME type for the response (str)
         - 'file_extension': The file extension for downloads
 
-        Example: add ``xlsx`` and remove ``xml``::
+        And may optionally include:
+
+        - 'validate': A callable ``(resource_id: str) -> Optional[str]``
+          that returns ``None`` if the format can be produced for the
+          given resource, or a (translatable) reason string if not.
+          When set, the format is rendered as disabled in the download
+          dropdown with the reason shown as a tooltip, and direct
+          download URLs return HTTP 400. Use this for hard format
+          limits (e.g. Excel's 1,048,576-row / 16,384-column ceiling).
+          The validator is called on every dropdown render and before
+          serving a dump, so it must be cheap on the common path.
+          It is responsible for fetching whatever data it needs;
+          typically via ``toolkit.get_action('datastore_search')`` with
+          ``limit=0, include_total=True``, which is O(1) after the
+          first call thanks to CKAN's cached row count.
+
+        Example: add ``xlsx`` with a row/column-limit validator and
+        remove ``xml``::
+
+            def xlsx_validate(resource_id):
+                result = toolkit.get_action('datastore_search')(
+                    {}, {'resource_id': resource_id,
+                         'limit': 0, 'include_total': True})
+                if len(result['fields']) > 16384:
+                    return toolkit._('Too many columns for XLSX.')
+                if result['total'] >= 1048576:
+                    return toolkit._('Too many rows for XLSX.')
+                return None
 
             {
                 'xlsx': {
@@ -283,6 +310,7 @@ class IDatastoreDump(interfaces.Interface):
                         'officedocument.spreadsheetml.sheet'
                     ),
                     'file_extension': 'xlsx',
+                    'validate': xlsx_validate,
                 },
                 'xml': None,
             }

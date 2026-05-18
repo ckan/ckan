@@ -267,20 +267,36 @@ def datastore_show_resource_actions():
     return "midnight-blue" not in tk.config.get("ckan.base_templates_folder")
 
 
-def datastore_dump_formats() -> list[dict[str, Any]]:
+def datastore_dump_formats(
+        resource_id: Optional[str] = None) -> list[dict[str, Any]]:
     """
     Return the list of dump formats registered via the IDatastoreDump
     interface, in registration order, for rendering the download dropdown.
 
     Each entry exposes only what templates need (no writer/content-type
-    internals): ``name`` (the ?format= value) and ``label`` (display text).
+    internals): ``name`` (the ?format= value), ``label`` (display text),
+    ``available`` (bool) and ``reason`` (str or None).
+
+    When ``resource_id`` is provided and a registered format declares
+    an optional ``validate`` callable, the validator is invoked with
+    the resource id; if it returns a non-empty string, the format is
+    flagged ``available=False`` with that string as the ``reason``
+    (intended for a tooltip). Formats without a validator are always
+    available. Vanilla CKAN ships no validators, so this call adds no
+    extra DB work unless an extension opts in.
     """
     from ckanext.datastore.blueprint import get_dump_format_configs
 
-    return [
-        {
+    out = []
+    for name, cfg in get_dump_format_configs().items():
+        reason = None
+        validate = cfg.get("validate")
+        if validate is not None and resource_id is not None:
+            reason = validate(resource_id)
+        out.append({
             "name": name,
             "label": cfg.get("label", name.upper()),
-        }
-        for name, cfg in get_dump_format_configs().items()
-    ]
+            "available": reason is None,
+            "reason": reason,
+        })
+    return out

@@ -169,6 +169,16 @@ def dump(resource_id: str):
     file_extension = format_config["file_extension"]
     content_type = format_config["content_type"]
 
+    # If the format declares a validator, run it before we start
+    # streaming. A 400 here is the only way to surface a reason
+    # cleanly; once the chunked response starts, dropping the
+    # connection is the best we can do.
+    validate = format_config.get("validate")
+    if validate is not None:
+        reason = validate(resource_id)
+        if reason:
+            abort(400, reason)
+
     content_disposition = 'attachment; filename="{name}.{ext}"'.format(
         name=resource_id, ext=file_extension
     )
