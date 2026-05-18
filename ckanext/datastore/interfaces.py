@@ -272,7 +272,7 @@ class IDatastoreDump(interfaces.Interface):
 
             {
                 'xlsx': {
-                    'label': 'Excel',
+                    'label': toolkit._('Excel'),
                     'writer_factory': xlsx_writer,
                     'records_format': 'objects',
                     'content_type': (

@@ -59,28 +59,28 @@ def get_dump_format_configs() -> dict[str, dict[str, Any]]:
     """Get dump format configurations from all plugins"""
     all_formats = {
         "csv": {
-            "label": "CSV",
+            "label": _("CSV"),
             "writer_factory": csv_writer,
             "records_format": "csv",
             "content_type": "text/csv; charset=utf-8",
             "file_extension": "csv",
         },
         "tsv": {
-            "label": "TSV",
+            "label": _("TSV"),
             "writer_factory": tsv_writer,
             "records_format": "tsv",
             "content_type": "text/tab-separated-values; charset=utf-8",
             "file_extension": "tsv",
         },
         "json": {
-            "label": "JSON",
+            "label": _("JSON"),
             "writer_factory": json_writer,
             "records_format": "lists",
             "content_type": "application/json; charset=utf-8",
             "file_extension": "json",
         },
         "xml": {
-            "label": "XML",
+            "label": _("XML"),
             "writer_factory": xml_writer,
             "records_format": "objects",
             "content_type": "text/xml; charset=utf-8",
