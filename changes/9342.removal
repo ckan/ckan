@@ -1,0 +1,1 @@
+Remove :py:class:`ckan.model.types.UuidType`.

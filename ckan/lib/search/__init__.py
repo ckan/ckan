@@ -40,7 +40,7 @@ def text_traceback() -> str:
     return "".join(traceback.format_exception(*sys.exc_info()))
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11', '2.12']
 
 DEFAULT_OPTIONS = {
     'limit': 20,

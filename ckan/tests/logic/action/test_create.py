@@ -1940,6 +1940,54 @@ class TestApiToken(object):
         assert res.last_access is None
         assert res.id == jti
 
+    def test_token_created_insert(self):
+        """
+        Sysadmins should be able to insert id, created_at, last_access
+        """
+        from ckan.lib.api_token import decode
+
+        # normal users cannot insert API Tokens
+        user = factories.User()
+        data = helpers.call_action(
+            'api_token_create',
+            context={'model': model, 'user': user['name'],
+                     'ignore_auth': False},
+            user=user['name'],
+            name='token-name-create',
+            id='thisisthetoken',
+            created_at='2025-09-12T19:06:35.989399',
+            last_access='2025-09-12T19:06:35.989399'
+        )
+        token = data['token']
+        jti = decode(token)['jti']
+        res = model.ApiToken.get(jti)
+        assert res.user_id == user['id']
+        assert res.last_access != datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.created_at != datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.id == jti
+        assert res.id != 'thisisthetoken'
+
+        # sysadmin users can insert API Tokens
+        user = factories.Sysadmin()
+        data = helpers.call_action(
+            'api_token_create',
+            context={'model': model, 'user': user['name'],
+                     'ignore_auth': False},
+            user=user['name'],
+            name='token-name-create',
+            id='thisisthetoken',
+            created_at='2025-09-12T19:06:35.989399',
+            last_access='2025-09-12T19:06:35.989399'
+        )
+        token = data['token']
+        jti = decode(token)['jti']
+        res = model.ApiToken.get(jti)
+        assert res.user_id == user['id']
+        assert res.last_access == datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.created_at == datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.id == jti
+        assert res.id == 'thisisthetoken'
+
 
 @pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)

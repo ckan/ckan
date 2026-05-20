@@ -18,8 +18,10 @@ def extract(d, keys):
 
 
 def clear_db(Session):  # noqa
-    drop_tables = u"""select 'drop table "' || tablename || '" cascade;'
-                    from pg_tables where schemaname = 'public' """
+    drop_tables = """
+        SELECT 'drop table "' || tablename || '" cascade;'
+        FROM pg_tables WHERE schemaname = 'public'
+        AND tablename != '_table_stats'"""
     c = Session.connection()
     results = c.execute(sa.text(drop_tables))
     for result in results:
@@ -43,7 +45,7 @@ def clear_db(Session):  # noqa
 
 def rebuild_all_dbs(Session):  # noqa
     """ If the tests are running on the same db, we have to make sure that
-    the ckan tables are recrated.
+    the ckan tables are recreated.
     """
     db_read_url_parts = model.parse_db_config('ckan.datastore.write_url')
     db_ckan_url_parts = model.parse_db_config('sqlalchemy.url')

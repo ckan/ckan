@@ -109,7 +109,6 @@ class FileOwnerTransferHistory:
     __tablename__ = "file_owner_transfer_history"
 
     __table_args__ = (
-        sa.Index("idx_owner_transfer_item", "file_id", unique=False),
         sa.ForeignKeyConstraint(
             ["file_id"],
             ["file_owner.file_id"],

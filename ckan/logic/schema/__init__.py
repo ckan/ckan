@@ -863,12 +863,16 @@ def default_create_api_token_schema(not_empty: Validator,
                                     unicode_safe: Validator,
                                     ignore_missing: Validator,
                                     json_object: Validator,
-                                    ignore_not_sysadmin: Validator
+                                    ignore_not_sysadmin: Validator,
+                                    isodate: Validator
                                     ) -> Schema:
     return {
         u'name': [not_empty, unicode_safe],
         u'user': [not_empty, unicode_safe],
         u'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
+        'created_at': [ignore_missing, isodate, ignore_not_sysadmin],
+        'id': [ignore_missing, ignore_not_sysadmin],
+        'last_access': [ignore_missing, isodate, ignore_not_sysadmin],
     }
 
 

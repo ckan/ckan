@@ -6,19 +6,25 @@ on:
     tags:
       - 'ckan-**'
 
+permissions: {}
+
 jobs:
   build:
     name: Create GitHub release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # So it can create the release via the API
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
 
     - name: Build Changelog URL and create release
       run: |
-        TAG_NAME=${{ github.ref_name }}
+        TAG_NAME=${GITHUB_REF_NAME}
         CKAN_VERSION=$(echo $TAG_NAME | sed -s 's/ckan-//')
         MAJOR=$(echo $CKAN_VERSION | cut -d'.' -f1)
         MINOR=$(echo $CKAN_VERSION | cut -d'.' -f2)
