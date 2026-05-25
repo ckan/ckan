@@ -153,7 +153,7 @@ def dump(resource_id: str):
     dump_formats = get_dump_format_configs()
 
     if fmt not in dump_formats:
-        abort(404, _("Unsupported format"))
+        abort(400, _("Unsupported format"))
 
     format_config = dump_formats[fmt]
     file_extension = format_config["file_extension"]
@@ -298,7 +298,7 @@ def dump_to(
     dump_formats = get_dump_format_configs()
 
     if fmt not in dump_formats:
-        assert False, "Unsupported format"
+        abort(400, _("Unsupported format"))
 
     format_config = dump_formats[fmt]
     writer_factory = format_config["writer_factory"]
