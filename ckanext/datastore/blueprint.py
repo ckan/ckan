@@ -17,7 +17,7 @@ from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
     abort, render, g, h, ValidationError, asbool, check_access, config,
 )
-from ckan.types import Schema, ValidatorFactory
+from ckan.types import Context, Schema, ValidatorFactory
 
 from ckanext.datastore.interfaces import IDatastoreDump
 from ckanext.datastore.logic.schema import (
@@ -116,7 +116,7 @@ def build_dump_context(
     sp = search_params or {}
     # If the caller already provides total and fields, we can skip the DB query here
     if total is None or fields is None:
-        ds_context = {'user': user} if user is not None else {}
+        ds_context = cast(Context, {'user': user} if user is not None else {})
         result = get_action('datastore_search')(
             ds_context,
             dict(sp, resource_id=resource_id, limit=0, include_total=True),
