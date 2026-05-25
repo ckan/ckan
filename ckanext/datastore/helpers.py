@@ -268,7 +268,9 @@ def datastore_show_resource_actions():
 
 
 def datastore_dump_formats(
-        resource_id: Optional[str] = None) -> list[dict[str, Any]]:
+        resource_id: Optional[str] = None,
+        search_params: Optional[dict[str, Any]] = None,
+) -> list[dict[str, Any]]:
     """
     Return the list of dump formats registered via the IDatastoreDump
     interface, in registration order, for rendering the download dropdown.
@@ -277,22 +279,45 @@ def datastore_dump_formats(
     internals): ``name`` (the ?format= value), ``label`` (display text),
     ``available`` (bool) and ``reason`` (str or None).
 
-    When ``resource_id`` is provided and a registered format declares
-    an optional ``validate`` callable, the validator is invoked with
-    the resource id; if it returns a non-empty string, the format is
-    flagged ``available=False`` with that string as the ``reason``
-    (intended for a tooltip). Formats without a validator are always
-    available. Vanilla CKAN ships no validators, so this call adds no
+    When ``resource_id`` is provided and at least one registered format
+    declares availability controls (``max_rows``/``max_columns`` and/or
+    a ``validate`` callable), the export scope is resolved once (a single
+    ``datastore_search``) and each such format is evaluated against it. A
+    non-empty reason marks the format ``available=False`` with that
+    string as the ``reason`` (intended for a tooltip). ``search_params``
+    (``filters``/``q``/``distinct``/``fields``/``sort``) narrows that
+    scope so a filtered download is judged on the filtered result; omit
+    it to evaluate the whole resource.
+
+    Vanilla CKAN ships no availability controls, so this call adds no
     extra DB work unless an extension opts in.
     """
-    from ckanext.datastore.blueprint import get_dump_format_configs
+    from ckanext.datastore.blueprint import (
+        get_dump_format_configs,
+        build_dump_context,
+        evaluate_format_availability,
+    )
+
+    formats = get_dump_format_configs()
+
+    def _has_controls(cfg: dict[str, Any]) -> bool:
+        return any(
+            k in cfg for k in ("max_columns", "max_rows", "validate"))
+
+    # Only resolve the (potentially expensive) export scope when there's
+    # actually something to check, so the common formats-only case stays
+    # free of extra DB work.
+    context = None
+    # Build a context only if required
+    has_controls = any(_has_controls(cfg) for cfg in formats.values())
+    if resource_id is not None and has_controls:
+        context = build_dump_context(resource_id, search_params)
 
     out = []
-    for name, cfg in get_dump_format_configs().items():
+    for name, cfg in formats.items():
         reason = None
-        validate = cfg.get("validate")
-        if validate is not None and resource_id is not None:
-            reason = validate(resource_id)
+        if context is not None and _has_controls(cfg):
+            reason = evaluate_format_availability(cfg, context)
         out.append({
             "name": name,
             "label": cfg.get("label", name.upper()),
