@@ -14,12 +14,14 @@
       {% for fmt in h.datastore_dump_formats(resource_id=res.id) %}
       <li>
         {% if fmt.available %}
-        <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format=fmt.name, bom=True) }}"
-          target="_blank" rel="noreferrer"><span>{{ fmt.label }}</span></a>
+          <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format=fmt.name, bom=True) }}"
+            target="_blank" rel="noreferrer"><span>{{ fmt.label }}</span></a>
         {% else %}
-        <span class="dropdown-item disabled" title="{{ fmt.reason }}" aria-disabled="true">
-          {{ fmt.label }} <small class="text-muted">({{ _('unavailable') }})</small>
-        </span>
+          <span class="dropdown-item disabled" title="{{ fmt.reason }}" aria-disabled="true">
+            {% trans format_label=fmt.label %}
+              {{ format_label }} <small class="text-muted">(unavailable)</small>
+            {% endtrans %}
+          </span>
         {% endif %}
       </li>
       {% endfor %}
