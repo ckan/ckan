@@ -2,6 +2,7 @@
 
 import unittest.mock as mock
 import json
+import urllib.parse
 import pytest
 import ckan.plugins.toolkit as toolkit
 import ckan.tests.helpers as helpers
@@ -1114,3 +1115,95 @@ class TestDatastoreDumpValidate(object):
         # And the built-in CSV format must still render as an active
         # dropdown-item link (not disabled).
         assert 'class="dropdown-item"' in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore sample_dump_plugin")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestDatastoreDumpDeclarativeLimits(object):
+    """Tests for declarative ``max_rows``/``max_columns`` controls.
+
+    Uses the ``capped`` format from ``sample_dump_plugin`` (``max_rows``
+    is 1, ``max_columns`` is 5, no ``validate`` callable). These exercise
+    the framework-evaluated availability path and, crucially, that the
+    decision is made against the *filtered* export scope rather than the
+    resource totals.
+    """
+
+    def _make_resource(self, records):
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=records,
+        )
+        return resource
+
+    def test_helper_marks_over_row_limit_unavailable(self):
+        # 2 rows > max_rows=1 -> capped is unavailable with a
+        # framework-generated reason mentioning rows.
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"])
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["capped"]["available"] is False
+        assert "rows" in by_name["capped"]["reason"].lower()
+        # Formats without controls stay available.
+        assert by_name["csv"]["available"] is True
+
+    def test_helper_within_limit_available(self):
+        # 1 row == max_rows=1 (rejected only when strictly greater).
+        resource = self._make_resource([{"book": "annakarenina"}])
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"])
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["capped"]["available"] is True
+        assert by_name["capped"]["reason"] is None
+
+    def test_dump_endpoint_rejects_over_limit_with_400(self, app):
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=capped",
+            status=400,
+        )
+        assert "rows" in response.get_data(as_text=True).lower()
+
+    def test_dump_endpoint_filtered_under_limit_succeeds(self, app):
+        # The resource has 2 rows (over the cap), but a filter reduces
+        # the export to a single row, so the capped format becomes
+        # available and the download succeeds. This is the case a
+        # resource-id-only validator would get wrong.
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        qs = urllib.parse.urlencode({
+            "format": "capped",
+            "filters": json.dumps({"book": "annakarenina"}),
+        })
+        response = app.get(f"/datastore/dump/{resource['id']}?{qs}")
+
+        assert response.status_code == 200
+        assert "annakarenina" in response.get_data(as_text=True)
+        assert "warandpeace" not in response.get_data(as_text=True)
+
+    def test_helper_filtered_scope_marks_available(self):
+        # Same as above but through the helper: passing search_params
+        # that filter to one row flips capped from unavailable to
+        # available.
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"],
+            search_params={"filters": {"book": "annakarenina"}},
+        )
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["capped"]["available"] is True
+        assert by_name["capped"]["reason"] is None
