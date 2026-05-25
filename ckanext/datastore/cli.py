@@ -22,7 +22,8 @@ from ckanext.datastore.backend.postgres import (
     _get_raw_field_info,
     _TIMEOUT,
 )
-from ckanext.datastore.blueprint import dump_to, get_dump_formats
+from ckanext.datastore.blueprint import dump_to, get_dump_format_configs
+
 
 log = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
     flask_app = ctx.meta['flask_app']
     # Validated here (not via click.Choice) so the IDatastoreDump plugin
     # registry is consulted at run time, after CKAN has loaded plugins.
-    valid_formats = get_dump_formats()
+    valid_formats = list(get_dump_format_configs())
     if format not in valid_formats:
         raise click.BadParameter(
             u'Format must be one of: {0}'.format(u', '.join(valid_formats))

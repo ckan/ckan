@@ -45,16 +45,6 @@ PAGINATE_BY = 32000
 datastore = Blueprint(u'datastore', __name__)
 
 
-def get_dump_formats() -> list[str]:
-    """Get available dump formats from plugins.
-
-    Returns a list
-    List > Tuple when we have one element only
-    """
-    dump_format_configs = get_dump_format_configs()
-    return list(dump_format_configs.keys())
-
-
 def get_dump_format_configs() -> dict[str, dict[str, Any]]:
     """Get dump format configurations from all plugins"""
     all_formats = {
@@ -106,7 +96,7 @@ def dump_schema() -> Schema:
     return {
         u'offset': [default(0), int_validator],
         u'limit': [ignore_missing, int_validator],
-        u'format': [default(u'csv'), one_of(get_dump_formats())],
+        u'format': [default(u'csv'), one_of(list(get_dump_format_configs()))],
         u'bom': [default(False), boolean_validator],
         u'filters': [ignore_missing, json_validator],
         u'q': [ignore_missing, unicode_or_json_validator],
