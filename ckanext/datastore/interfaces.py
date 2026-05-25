@@ -271,33 +271,59 @@ class IDatastoreDump(interfaces.Interface):
         - 'content_type': The MIME type for the response (str)
         - 'file_extension': The file extension for downloads
 
-        And may optionally include:
+        And may optionally include any of the following availability
+        controls. They decide whether the format can be produced for a
+        given export: when any of them rejects, the format is rendered
+        disabled in the download dropdown with the reason shown as a
+        tooltip, and direct download URLs return HTTP 400. They are
+        evaluated against the *filtered* export scope (post-filter row
+        count, selected columns), not the resource totals, so a user
+        who has filtered a large resource down is judged on the
+        filtered result. Vanilla CKAN ships none of these, so they add
+        no extra work unless a plugin opts in.
 
-        - 'validate': A callable ``(resource_id: str) -> Optional[str]``
-          that returns ``None`` if the format can be produced for the
-          given resource, or a (translatable) reason string if not.
-          When set, the format is rendered as disabled in the download
-          dropdown with the reason shown as a tooltip, and direct
-          download URLs return HTTP 400. Use this for hard format
-          limits (e.g. Excel's 1,048,576-row / 16,384-column ceiling).
-          The validator is called on every dropdown render and before
-          serving a dump, so it must be cheap on the common path.
-          It is responsible for fetching whatever data it needs;
-          typically via ``toolkit.get_action('datastore_search')`` with
-          ``limit=0, include_total=True``, which is O(1) after the
-          first call thanks to CKAN's cached row count.
+        - 'max_columns': An int. The framework marks the format
+          unavailable when the export has more columns than this and
+          writes the reason message itself. Use for hard column limits
+          (e.g. Excel's 16,384-column ceiling).
+        - 'max_rows': An int. As ``max_columns`` but for the
+          post-filter row count. ``max_rows`` is the largest number of
+          rows the format can hold; the export is rejected when its row
+          count is strictly greater (e.g. Excel allows 1,048,576 rows
+          *including* the header row, so set ``max_rows`` to
+          ``1048575``).
+        - 'validate': A callable ``(context: dict) -> Optional[str]``
+          for constraints that ``max_rows``/``max_columns`` cannot
+          express (e.g. a geo format that needs geometry columns).
+          Returns ``None`` if the format can be produced, or a
+          (translatable) reason string if not. The ``context`` carries
+          the export scope so the callable does not need to fetch it:
 
-        Example: add ``xlsx`` with a row/column-limit validator and
-        remove ``xml``::
+          - ``resource_id``: the (resolved) resource id.
+          - ``fields``: the exported columns as ``[{'id', 'type'},...]``
+            (raw, including ``_id``); ``len(fields)`` is the column
+            count.
+          - ``total``: the post-filter row count.
+          - ``filters`` / ``q`` / ``distinct`` / ``selected_fields`` /
+            ``sort``: the query that produced the scope, for advanced
+            checks.
+          - ``user``: the requesting user (may be ``None``).
 
-            def xlsx_validate(resource_id):
-                result = toolkit.get_action('datastore_search')(
-                    {}, {'resource_id': resource_id,
-                         'limit': 0, 'include_total': True})
-                if len(result['fields']) > 16384:
-                    return toolkit._('Too many columns for XLSX.')
-                if result['total'] >= 1048576:
-                    return toolkit._('Too many rows for XLSX.')
+          The controls run on every dropdown render and before serving
+          a dump, but the scope is resolved once per call (a single
+          ``datastore_search``) and shared across formats.
+
+        When more than one control is present they are evaluated cheapest
+        first and the first rejection wins:
+        ``max_columns`` -> ``max_rows`` -> ``validate``.
+
+        Example: add ``xlsx`` with declarative limits, add ``geojson``
+        with a column-presence validator, and remove ``xml``::
+
+            def geojson_validate(context):
+                names = {f['id'] for f in context['fields']}
+                if not ({'lat', 'lng'} <= names or 'geom' in names):
+                    return toolkit._('No geometry columns for GeoJSON.')
                 return None
 
             {
@@ -310,7 +336,16 @@ class IDatastoreDump(interfaces.Interface):
                         'officedocument.spreadsheetml.sheet'
                     ),
                     'file_extension': 'xlsx',
-                    'validate': xlsx_validate,
+                    'max_columns': 16384,
+                    'max_rows': 1048575,
+                },
+                'geojson': {
+                    'label': toolkit._('GeoJSON'),
+                    'writer_factory': geojson_writer,
+                    'records_format': 'objects',
+                    'content_type': 'application/geo+json; charset=utf-8',
+                    'file_extension': 'geojson',
+                    'validate': geojson_validate,
                 },
                 'xml': None,
             }
