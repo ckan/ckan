@@ -114,7 +114,7 @@ def build_dump_context(
     may pass them in to skip the query entirely.
     """
     sp = search_params or {}
-    # If the caller already provide total and fields, we can skip the DB query here
+    # If the caller already provides total and fields, we can skip the DB query here
     if total is None or fields is None:
         ds_context = {'user': user} if user is not None else {}
         result = get_action('datastore_search')(
