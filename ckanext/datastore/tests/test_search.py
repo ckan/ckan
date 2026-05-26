@@ -2330,3 +2330,181 @@ def test_search_table_metadata():
             "select name from _table_metadata where name='_table_stats'"
         ))
     assert list(tables) == []
+
+
+class TestDatastoreSearchFilters(object):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+    def test_range(self):
+        dataset = factories.Dataset()
+        data = {
+            "resource": {"package_id": dataset["id"]},
+            "fields": [
+                {"id": "num", "type": "int"},
+            ],
+            "records": [
+                {"num": 5}, {"num": 7}, {"num": 9}, {"num": 1}, {"num":10},
+            ]
+        }
+        result = helpers.call_action("datastore_create", **data)
+        resource_id = result["resource_id"]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={"num": {"gt": 5, "lt": 9}},
+        )
+        assert result["records"] == [{"_id": 2, "num": 7}]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={"num": {"gte": 5, "lte": 9}},
+        )
+        assert result["records"] == [
+            {"_id": 1, "num": 5},
+            {"_id": 2, "num": 7},
+            {"_id": 3, "num": 9},
+        ]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={"num": [{"lte": 1}, 7, {"gte": 10}]},
+        )
+        assert result["records"] == [
+            {"_id": 2, "num": 7},
+            {"_id": 4, "num": 1},
+            {"_id": 5, "num": 10},
+        ]
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
+    def test_nested_and_or(self):
+        dataset = factories.Dataset()
+        data = {
+            "resource": {"package_id": dataset["id"]},
+            "fields": [
+                {"id": "course", "type": "text"},
+                {"id": "special", "type": "bool"},
+            ],
+            "records": [
+                {"course": "salad", "special": False},
+                {"course": "appetizer", "special": False},
+                {"course": "main", "special": True},
+                {"course": "dessert", "special": False},
+            ]
+        }
+        result = helpers.call_action("datastore_create", **data)
+        resource_id = result["resource_id"]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={
+                "$or": [
+                    {"course": "appetizer", "special": False},
+                    {"special": True}
+                ]
+            },
+        )
+        assert result["records"] == [
+            {"_id": 2, "course": "appetizer", "special": False},
+            {"_id": 3, "course": "main", "special": True},
+        ]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters=[
+                {"course": "appetizer", "special": False},
+                {"special": True}
+            ],
+        )
+        assert result["records"] == [
+            {"_id": 2, "course": "appetizer", "special": False},
+            {"_id": 3, "course": "main", "special": True},
+        ]
+        result = helpers.call_action(
+            "datastore_search",
+            resource_id=resource_id,
+            filters={
+                "special": False,
+                "$or": [
+                    {"course": "appetizer"},
+                    {"_id": {"gt": 2}}
+                ]
+            },
+        )
+        assert result["records"] == [
+            {"_id": 2, "course": "appetizer", "special": False},
+            {"_id": 4, "course": "dessert", "special": False},
+        ]
+
+
+class TestDatastoreSearchDistinctTests(object):
+    sysadmin_user = None
+    normal_user = None
+
+    @pytest.fixture(autouse=True)
+    def initial_data(self, clean_datastore, app):
+        ctd.CreateTestData.create()
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])
+        self.sysadmin_token = self.sysadmin_token["token"]
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])
+        self.normal_user_token = self.normal_user_token["token"]
+        self.dataset = model.Package.get("annakarenina")
+        self.resource = self.dataset.resources[0]
+
+        self.records = [{'val': 'foo'} for r in range(5)]
+        self.records.append({'val': 'bar'})
+
+        self.data = {
+            "resource_id": self.resource.id,
+            "force": True,
+            "aliases": "distinct_with_limit",
+            "fields": [
+                {"id": "val", "type": "text"},
+            ],
+            "records": self.records,
+        }
+        headers = {"Authorization": self.sysadmin_token}
+        res = app.post(
+            "/api/action/datastore_create", json=self.data, headers=headers,
+        )
+        res_dict = json.loads(res.data)
+        assert res_dict["success"] is True
+
+        # Make an organization, because private datasets must belong to one.
+        self.organization = helpers.call_action(
+            "organization_create",
+            {"user": self.sysadmin_user["name"]},
+            name="test_org",
+        )
+
+        engine = db.get_write_engine()
+        self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.parametrize("limit, result_len", [
+        (2, 2),
+        (1, 1),
+        (3, 2),
+        (None, 2),
+    ])
+    def test_search_distinct(self, app, limit, result_len):
+        ''' test for distinct + limits returning the limit on the distinct
+            not the limit of the base query '''
+        data = {
+            "resource_id": self.data["resource_id"],
+            "fields": [u"val"],
+            "distinct": True,
+            "limit": limit,
+        }
+
+        headers = {"Authorization": self.normal_user_token}
+        res = app.post(
+            "/api/action/datastore_search", json=data, headers=headers,
+        )
+        res_dict = json.loads(res.data)
+        assert res_dict["success"] is True
+        result = res_dict["result"]
+        assert len(result["records"]) == result_len
