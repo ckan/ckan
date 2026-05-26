@@ -1458,6 +1458,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     limit = query_dict['limit']
     offset = query_dict['offset']
 
+    distinct_final_statement = ''
     if query_dict.get('distinct'):
         distinct = 'DISTINCT'
     else:
@@ -1490,17 +1491,24 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             last_id_select = 'max(_id)'
             is_keyset = any(i[0].startswith( '_id > ') for i in query_dict['where'])
 
-    if is_keyset:
-        final_statement = '{where} {sort} LIMIT {limit}'
+    if not distinct:
+        if is_keyset:
+            final_statement = '{where} {sort} LIMIT {limit}'
+        else:
+            # UNDONE -- this probably isn't necessary if the offset is 0 by
+            # default on the limit
+            final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
     else:
-        final_statement = '{where} {sort} LIMIT {limit} OFFSET {offset}'
+        # This should be fine for keyset or not final statement
+        final_statement = '{where}'
+        distinct_final_statement = '{sort} LIMIT {limit} OFFSET {offset}'
 
     if records_format == 'objects':
         sql_fmt = '''
             WITH records_page AS (
                 SELECT * FROM {resource} {ts_query} {final_statement}
             ), select_cols AS (
-                SELECT {distinct} {select} FROM records_page
+                SELECT {distinct} {select} FROM records_page {distinct_final_statement}
             ), json_cols AS (
                 SELECT array_to_json(array_agg(select_cols))::text j
                 FROM select_cols
@@ -1520,6 +1528,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
                 SELECT * FROM {resource} {ts_query} {final_statement}
             ), select_cols AS (
                 SELECT {distinct} '[' || {select} || ']' v FROM records_page
+                {distinct_final_statement}
             ), list_cols AS (
                 SELECT '[' || array_to_string(array_agg(select_cols.v), ',') || ']' lc
                 FROM select_cols
@@ -1537,7 +1546,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             COPY (
                 WITH records_page AS (
                     SELECT * FROM {resource} {ts_query} {final_statement}
-                ) SELECT {distinct} {select} FROM records_page
+                ) SELECT {distinct} {select} FROM records_page {distinct_final_statement}
             ) TO STDOUT csv
         '''
 
@@ -1546,7 +1555,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             COPY (
                 WITH records_page AS (
                     SELECT * FROM {resource} {ts_query} {final_statement}
-                ) SELECT {distinct} {select} FROM records_page
+                ) SELECT {distinct} {select} FROM records_page {distinct_final_statement}
             ) TO STDOUT csv DELIMITER '\t'
         '''
 
@@ -1559,13 +1568,21 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         offset=offset,
         sort=sort_clause,
     )
+    distinct_final_statement = distinct_final_statement.format(
+        limit=limit,
+        offset=offset,
+        sort=sort_clause,
+    )
     sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
         resource=identifier(resource_id),
         ts_query=ts_query,
         last_id_select=last_id_select,
-        final_statement=final_statement)
+        final_statement=final_statement,
+        distinct_final_statement=distinct_final_statement,
+
+    )
 
     if records_format == 'csv' or records_format == 'tsv':
         buf = StringIO()

@@ -2433,3 +2433,76 @@ class TestDatastoreSearchFilters(object):
             {"_id": 2, "course": "appetizer", "special": False},
             {"_id": 4, "course": "dessert", "special": False},
         ]
+
+
+class TestDatastoreSearchDistinctTests(object):
+    sysadmin_user = None
+    normal_user = None
+
+    @pytest.fixture(autouse=True)
+    def initial_data(self, clean_datastore, app):
+        ctd.CreateTestData.create()
+        self.sysadmin_user = factories.Sysadmin()
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])
+        self.sysadmin_token = self.sysadmin_token["token"]
+        self.normal_user = factories.User()
+        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])
+        self.normal_user_token = self.normal_user_token["token"]
+        self.dataset = model.Package.get("annakarenina")
+        self.resource = self.dataset.resources[0]
+
+        self.records = [{'val': 'foo'} for r in range(5)]
+        self.records.append({'val': 'bar'})
+
+        self.data = {
+            "resource_id": self.resource.id,
+            "force": True,
+            "aliases": "distinct_with_limit",
+            "fields": [
+                {"id": "val", "type": "text"},
+            ],
+            "records": self.records,
+        }
+        headers = {"Authorization": self.sysadmin_token}
+        res = app.post(
+            "/api/action/datastore_create", json=self.data, headers=headers,
+        )
+        res_dict = json.loads(res.data)
+        assert res_dict["success"] is True
+
+        # Make an organization, because private datasets must belong to one.
+        self.organization = helpers.call_action(
+            "organization_create",
+            {"user": self.sysadmin_user["name"]},
+            name="test_org",
+        )
+
+        engine = db.get_write_engine()
+        self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    @pytest.mark.parametrize("limit, result_len", [
+        (2, 2),
+        (1, 1),
+        (3, 2),
+        (None, 2),
+    ])
+    def test_search_distinct(self, app, limit, result_len):
+        ''' test for distinct + limits returning the limit on the distinct
+            not the limit of the base query '''
+        data = {
+            "resource_id": self.data["resource_id"],
+            "fields": [u"val"],
+            "distinct": True,
+            "limit": limit,
+        }
+
+        headers = {"Authorization": self.normal_user_token}
+        res = app.post(
+            "/api/action/datastore_search", json=data, headers=headers,
+        )
+        res_dict = json.loads(res.data)
+        assert res_dict["success"] is True
+        result = res_dict["result"]
+        assert len(result["records"]) == result_len
