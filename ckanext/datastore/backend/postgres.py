@@ -1546,7 +1546,8 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             COPY (
                 WITH records_page AS (
                     SELECT * FROM {resource} {ts_query} {final_statement}
-                ) SELECT {distinct} {select} FROM records_page {distinct_final_statement}
+                ) SELECT {distinct} {select}
+                FROM records_page {distinct_final_statement}
             ) TO STDOUT csv
         '''
 
@@ -1555,7 +1556,8 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             COPY (
                 WITH records_page AS (
                     SELECT * FROM {resource} {ts_query} {final_statement}
-                ) SELECT {distinct} {select} FROM records_page {distinct_final_statement}
+                ) SELECT {distinct} {select}
+                FROM records_page {distinct_final_statement}
             ) TO STDOUT csv DELIMITER '\t'
         '''
 
