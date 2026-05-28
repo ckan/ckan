@@ -30,6 +30,9 @@ __all__ = [
     'unload_non_system_plugins',
 ]
 
+# System plugins references. Do not use this directly, use ``find_system_plugins()`` instead.
+_system_plugins = None
+
 TInterface = TypeVar('TInterface', bound="Interface")
 
 log = logging.getLogger(__name__)
@@ -240,6 +243,14 @@ def find_system_plugins() -> list[str]:
     These are essential for operation and therefore cannot be
     enabled/disabled through the configuration file.
     '''
+    global _system_plugins
+
+    if _system_plugins:
+        ep_names = []
+        for ep in _system_plugins:
+            ep.load()
+            ep_names.append(ep.name)
+        return ep_names
 
     try:
         eps = [ep for ep in entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP)]
@@ -248,7 +259,9 @@ def find_system_plugins() -> list[str]:
         eps = [ep for ep in entry_points().get(SYSTEM_PLUGINS_ENTRY_POINT_GROUP)]    # type: ignore
 
     ep_names = []
+    _system_plugins = []
     for ep in eps:
+        _system_plugins.append(ep)
         ep.load()
         ep_names.append(ep.name)
 
