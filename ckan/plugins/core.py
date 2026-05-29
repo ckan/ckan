@@ -30,8 +30,9 @@ __all__ = [
     'unload_non_system_plugins',
 ]
 
-# System plugins references. Do not use this directly, use ``find_system_plugins()`` instead.
-_system_plugins = None
+# System plugins references. Do not use this directly, use
+# ``find_system_plugins()`` instead.
+_system_plugins = []
 
 TInterface = TypeVar('TInterface', bound="Interface")
 
@@ -244,9 +245,9 @@ def find_system_plugins() -> list[str]:
     enabled/disabled through the configuration file.
     '''
     global _system_plugins
+    ep_names = []
 
     if _system_plugins:
-        ep_names = []
         for ep in _system_plugins:
             ep.load()
             ep_names.append(ep.name)
@@ -258,7 +259,6 @@ def find_system_plugins() -> list[str]:
         # Python 3.9
         eps = [ep for ep in entry_points().get(SYSTEM_PLUGINS_ENTRY_POINT_GROUP)]    # type: ignore
 
-    ep_names = []
     _system_plugins = []
     for ep in eps:
         _system_plugins.append(ep)
