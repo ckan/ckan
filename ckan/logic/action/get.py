@@ -856,7 +856,7 @@ def user_list(
     if q:
         query = model.User.search(q, query, user_name=context.get('user'))
     if email:
-        query = query.filter_by(email=email)
+        query = query.filter(_func.lower(model.User.email) == email.lower())
 
     order_by_field = None
     if order_by == 'edits':
