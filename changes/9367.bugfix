@@ -1,0 +1,1 @@
+Fix performance regression in ``PluginImplementations`` on CKAN 2.11
