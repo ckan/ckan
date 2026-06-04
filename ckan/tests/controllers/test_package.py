@@ -68,24 +68,18 @@ class TestPackageNew(object):
 
         assert plugin.id_in_dict
 
+    @pytest.mark.ckan_config("solr_url", "http://example.com/badsolrurl")
     @pytest.mark.usefixtures("clean_index")
     def test_new_indexerror(self, app, user):
-        from ckan.lib.search.common import SolrSettings
-        bad_solr_url = "http://example.com/badsolrurl"
-        solr_url = SolrSettings.get()[0]
-        try:
-            SolrSettings.init(bad_solr_url)
-            new_package_name = u"new-package-missing-solr"
-            offset = url_for("dataset.new")
-            headers = {"Authorization": user["token"]}
-            res = app.post(
-                offset,
-                headers=headers,
-                data={"save": "", "name": new_package_name},
-            )
-            assert "Unable to add package to search index" in res, res
-        finally:
-            SolrSettings.init(solr_url)
+        new_package_name = u"new-package-missing-solr"
+        offset = url_for("dataset.new")
+        headers = {"Authorization": user["token"]}
+        res = app.post(
+            offset,
+            headers=headers,
+            data={"save": "", "name": new_package_name},
+        )
+        assert "Unable to add package to search index" in res, res
 
     def test_change_locale(self, app, user):
         url = url_for("dataset.new")

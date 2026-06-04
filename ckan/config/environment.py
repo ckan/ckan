@@ -181,13 +181,6 @@ def update_config() -> None:
             "ckan.display_timezone is not 'server' or a valid timezone"
         )
 
-    # Init SOLR settings and check if the schema is compatible
-    # from ckan.lib.search import SolrSettings, check_solr_schema_version
-
-    # lib.search is imported here as we need the config enabled and parsed
-    search.SolrSettings.init(config.get('solr_url'),
-                             config.get('solr_user'),
-                             config.get('solr_password'))
     search.check_solr_schema_version()
 
     lib_plugins.reset_package_plugins()

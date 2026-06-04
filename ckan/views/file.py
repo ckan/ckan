@@ -136,7 +136,8 @@ def public_download(storage_name: str, location: str) -> Response:
             size=storage.size(location),
             content_type=storage.content_type(location),
         )
-    except files.exc.MissingFileError:
+    except (files.exc.MissingFileError, files.exc.LocationError):
+        # LocationError happens during path-traversal attack
         return base.abort(404)
 
     return _as_response(storage_name, data)

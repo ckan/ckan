@@ -27,6 +27,63 @@ Minor changes
 
 - Remove helper ``get_site_statistics()`` (#8705)
 
+
+v.2.11.5 2026-04-29
+===================
+
+Migration notes
+---------------
+
+- This version requires a requirements upgrade on source installations
+- Added support for Python 3.13 and 3.14. Dropped support for Python 3.9.
+
+Minor changes
+-------------
+
+- Replace usage of pkg_resources.iter_entry_points, update exception message
+  (`#8992 <https://github.com/ckan/ckan/pull/8992>`_)
+- non-zero exit codes when search-index CLI fails (`#9011
+  <https://github.com/ckan/ckan/pull/9011>`_)
+- Pass about_formatted to snippet to display this value in the sidebar. (`#9148
+  <https://github.com/ckan/ckan/pull/9148>`_)
+- Add missing import. (`#9161 <https://github.com/ckan/ckan/pull/9161>`_)
+- Added string translation for `Searching...` in the Select2 JS autocomplete
+  module. (`#9184 <https://github.com/ckan/ckan/pull/9184>`_)
+- Do not respond with a 500 error to external requests (`#9201
+  <https://github.com/ckan/ckan/pull/9201>`_)
+- The ``follow_*`` and ``unfollow_*`` actions now call their respective authentication
+  methods:
+
+  - ``follow_group``
+  - ``follow_dataset``
+  - ``follow_user``
+  - ``unfollow_group``
+  - ``unfollow_dataset``
+  - ``unfollow_user`` (`#9229 <https://github.com/ckan/ckan/pull/9229>`_)
+
+
+Bugfixes
+--------
+
+- `CVE-2026-41132 <https://github.com/ckan/ckan/security/advisories/GHSA-mpfm-fpgx-647q>`_: No certificate validation on SMTP connection
+- `CVE-2026-41255 <https://github.com/ckan/ckan/security/advisories/GHSA-mcvf-jxcw-vj73>`_: CSRF exemption primed by anonymous requests
+- `CVE-2026-42031 <https://github.com/ckan/ckan/security/advisories/GHSA-h7j7-3rx6-xvcg>`_: Unauthenticated SQL Injection in ``datastore_search_sql``
+- `CVE-2026-42032 <https://github.com/ckan/ckan/security/advisories/GHSA-cg4x-64p3-x59h>`_: Unauthenticated Authorization Bypass in ``datastore_search_sql``
+- Fix Preview for resource view create/update pages (`#9128
+  <https://github.com/ckan/ckan/pull/9128>`_)
+- fix for issue with datastore dump startup time affecting large tables (`#9144
+  <https://github.com/ckan/ckan/pull/9144>`_)
+- fix for markdown_extract tag removal bug introduced in 112afff (`#9162
+  <https://github.com/ckan/ckan/pull/9162>`_)
+- Fix SMTP TLS error with embedded port (`#9186
+  <https://github.com/ckan/ckan/pull/9186>`_)
+- Restores body_extras block on base.html, it was removed by accident. (`#9295
+  <https://github.com/ckan/ckan/pull/9295>`_)
+- Fixed duplicated root_path in webassets when assets directory is public
+  directory
+  and debug mode is used or cssrewrite is present in filters. (`#9300
+  <https://github.com/ckan/ckan/pull/9300>`_)
+
 v.2.11.4 2025-10-29
 ===================
 
@@ -894,6 +951,45 @@ Removals and deprecations
 
       class SecondPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(IAnything)
+
+v.2.10.10 2026-04-29
+====================
+
+Migration notes
+---------------
+
+- The minimum Python version for this version is Python 3.9. It has been tested up
+  tp Python 3.11
+- This version requires a requirements upgrade on source installations
+
+Minor changes
+-------------
+
+- Add missing import. (`#9161 <https://github.com/ckan/ckan/pull/9161>`_)
+- Added string translation for `Searching...` in the Select2 JS autocomplete
+  module. (`#9184 <https://github.com/ckan/ckan/pull/9184>`_)
+
+
+Bugfixes
+--------
+
+- `CVE-2026-41132 <https://github.com/ckan/ckan/security/advisories/GHSA-mpfm-fpgx-647q>`_: No certificate validation on SMTP connection
+- `CVE-2026-41255 <https://github.com/ckan/ckan/security/advisories/GHSA-mcvf-jxcw-vj73>`_: CSRF exemption primed by anonymous requests
+- `CVE-2026-42031 <https://github.com/ckan/ckan/security/advisories/GHSA-h7j7-3rx6-xvcg>`_: Unauthenticated SQL Injection in ``datastore_search_sql``
+- `CVE-2026-42032 <https://github.com/ckan/ckan/security/advisories/GHSA-cg4x-64p3-x59h>`_: Unauthenticated Authorization Bypass in ``datastore_search_sql``
+- Fix Preview for resource view create/update pages (`#9128
+  <https://github.com/ckan/ckan/pull/9128>`_)
+- fix for issue with datastore dump startup time affecting large tables (`#9144
+  <https://github.com/ckan/ckan/pull/9144>`_)
+- fix for markdown_extract tag removal bug introduced in 112afff (`#9162
+  <https://github.com/ckan/ckan/pull/9162>`_)
+- Fix SMTP TLS error with embedded port (`#9186
+  <https://github.com/ckan/ckan/pull/9186>`_)
+- Fixed duplicated root_path in webassets when assets directory is public
+  directory
+  and debug mode is used or cssrewrite is present in filters. (`#9300
+  <https://github.com/ckan/ckan/pull/9300>`_)
+
 
 v.2.10.9 2025-10-29
 ===================

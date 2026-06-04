@@ -64,7 +64,7 @@ object_id_validators = {
     **VALIDATORS_PACKAGE_ACTIVITY_TYPES,
     **VALIDATORS_USER_ACTIVITY_TYPES,
     **VALIDATORS_GROUP_ACTIVITY_TYPES,
-    **VALIDATORS_ORGANIZATION_ACTIVITY_TYPES
+    **VALIDATORS_ORGANIZATION_ACTIVITY_TYPES,
 }
 
 
@@ -98,3 +98,36 @@ def object_id_validator(
             'There is no object_id validator for activity type "%s"'
             % activity_type
         )
+
+
+def ensure_date_range_or_offset_provided(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+) -> Any:
+    start_date = data.get(("start_date",))
+    end_date = data.get(("end_date",))
+    offset_days = data.get(("offset_days",))
+
+    if (start_date and end_date) or offset_days:
+        return
+
+    error_msg = (
+        "Either both start_date and end_date must be specified, "
+        "or offset_days must be provided."
+    )
+    raise tk.Invalid(tk._(error_msg))
+
+
+def ensure_id_or_date_criteria_provided(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+) -> Any:
+    """Pass if id is provided, otherwise require date range or offset_days."""
+    activity_id = data.get(("id",))
+    if activity_id and str(activity_id).strip():
+        return
+    ensure_date_range_or_offset_provided(key, data, errors, context)

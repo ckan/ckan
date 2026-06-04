@@ -45,6 +45,7 @@ option_types = {
     "int": "declare_int",
     "dynamic": "declare_dynamic",
     "list": "declare_list",
+    "float": "declare_float",
 }
 
 handler: FormatHandler[Callable[..., None]] = FormatHandler()
@@ -137,6 +138,9 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
                 if "example" in details:
                     option.example = details["example"]
+
+                if "null_value" in details:
+                    option.null_value = details["null_value"]
 
                 if "default_callable" in details:
                     args = details.get("callable_args", {})

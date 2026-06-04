@@ -24,8 +24,6 @@ log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
 
-WHITELISTED_RESOURCES = ['_table_metadata']
-
 RESOURCE_LAST_MODIFIED_SETTLE_TIME = timedelta(seconds=15)
 
 
@@ -76,12 +74,13 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
         {"function": "trigger_clean_reference"},
         {"function": "trigger_check_codes"}]
     :type triggers: list of dictionaries
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the existing aliases or constraints. Setting ``records`` appends
@@ -172,10 +171,26 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    result = backend.create(context, data_dict, plugin_data)
+    # update count only when records passed
+    ccount = data_dict['calculate_record_count'] if records else False
+    ccancel = False
+    if ccount:
+        ccancel = _cancel_calculate_record_count(res['id'])
 
-    if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
+    try:
+        result = backend.create(context, data_dict, plugin_data)
+    except:
+        # if we canceled an earlier count job, reschedule before failing
+        if ccancel:
+            _schedule_calculate_record_count(res['id'])
+        raise
+
+    if not ccount or ccount == 'background':
+        backend.clear_table_stats(res['id'])
+    if ccount == 'background':
+        _schedule_calculate_record_count(res['id'])
+    elif ccount:
+        backend.calculate_record_count(res['id'])
 
     # Set the datastore_active flag on the resource if necessary
     resobj = model.Resource.get(data_dict['resource_id'])
@@ -317,12 +332,13 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
                    Possible options are: upsert, insert, update
                    (optional, default: upsert)
     :type method: string
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
     :param dry_run: set to True to abort transaction instead of committing,
                     e.g. to check for validation or type errors.
     :type dry_run: bool (optional, default: False)
@@ -361,7 +377,19 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
             u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
-    result = backend.upsert(context, data_dict)
+    ccount = data_dict['calculate_record_count']
+    ccancel = False
+    if ccount:
+        ccancel = _cancel_calculate_record_count(resource_id)
+
+    try:
+        result = backend.upsert(context, data_dict)
+    except:
+        # if we canceled an earlier count job, reschedule before failing
+        if ccancel:
+            _schedule_calculate_record_count(resource_id)
+        raise
+
     p.toolkit.signals.datastore_upsert.send(resource_id, records=records)
 
     result.pop('id', None)
@@ -369,8 +397,12 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     if not data_dict.pop('include_records', False):
         result.pop('records', None)
 
-    if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
+    if not ccount or ccount == 'background':
+        backend.clear_table_stats(res['id'])
+    if ccount == 'background':
+        _schedule_calculate_record_count(res['id'])
+    elif ccount:
+        backend.calculate_record_count(res['id'])
 
     if res.get('url_type') in p.toolkit.h.datastore_rw_resource_url_types():
         _schedule_patch_resource_last_modified(resource_id)
@@ -465,19 +497,23 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
-    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
-                   If missing delete whole table and all dependent views.
-                   (optional)
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}
+                    or {"year": {"lt": 2020}}).
+                    *WARNING* if this parameter is missing the whole table and
+                    any associated data dictionary and dependent views will be deleted.
+                    (optional).
+    :type filters: dictionary
     :type filters: dictionary
     :param include_deleted_records: return the full values of deleted records
                                     (optional, default: False)
     :type include_deleted_records: bool
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
 
     For writable tables the resource ``last_modified`` value will be updated
     by a scheduled background job. See :ref:`background jobs` for more
@@ -524,11 +560,28 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
             u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
-    result = backend.delete(context, data_dict)
+    ccount = data_dict.pop('calculate_record_count')
+    ccancel = False
+    if ccount:
+        ccancel = _cancel_calculate_record_count(resource_id)
+
+    try:
+        result = backend.delete(context, data_dict)
+    except:
+        # if we canceled an earlier count job, reschedule before failing
+        if ccancel:
+            _schedule_calculate_record_count(resource_id)
+        raise
+
     p.toolkit.signals.datastore_delete.send(
         resource_id, result=result, data_dict=data_dict)
-    if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(resource_id)  # type: ignore
+
+    if not ccount or ccount == 'background':
+        backend.clear_table_stats(resource_id)
+    if ccount == 'background':
+        _schedule_calculate_record_count(resource_id)
+    elif ccount:
+        backend.calculate_record_count(resource_id)
 
     # Set the datastore_active flag on the resource if necessary
     if data_dict.get('filters', None) is None and res.get('datastore_active'):
@@ -562,19 +615,20 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
-    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}).
-                   If {} delete all records.
-                   (required)
+    :param filters: :ref:`filters` to apply before deleting (eg {"name": "fred"}
+                    or {"year": {"lt": 2020}}).
+                    If {} delete all records.  (required)
     :type filters: dictionary
     :param include_deleted_records: return the full values of deleted records
                                     (optional, default: False)
     :type include_deleted_records: bool
-    :param calculate_record_count: updates the stored count of records, used to
-        optimize datastore_search in combination with the
-        `total_estimation_threshold` parameter. If doing a series of requests
-        to change a resource, you only need to set this to True on the last
-        request.
-    :type calculate_record_count: bool (optional, default: False)
+    :param calculate_record_count: False: don't update the count, True: update
+        the count immediately, "background": schedule a background job to update
+        the record count. The stored count of records is used to optimize
+        datastore_search total count response. If doing a series of requests to
+        change a resource, set this to False for all but the last request.
+        (optional, default: "background")
+    :type calculate_record_count: True, False or "background"
 
     For writable tables the resource ``last_modified`` value will be updated
     by a scheduled background job. See :ref:`background jobs` for more
@@ -606,8 +660,8 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
     :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
-    :param filters: :ref:`filters` for matching conditions to select, e.g
-                    {"key1": "a", "key2": "b"} (optional)
+    :param filters: :ref:`filters` for matching conditions to select (eg
+                    {"name": "fred"} or {"year": {"lt": 2020}}). (optional).
     :type filters: dictionary
     :param q: full text query. If it's a string, it'll search on all fields on
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},
@@ -629,7 +683,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
         ``ckan.datastore.search.rows_default``, upper limit: ``32000`` unless
         set in site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
-    :param offset: offset this number of rows (optional)
+    :param offset: offset this number of rows (optional) it is more efficient
+                   to use the value returned in ``next_page`` as a ``filter``
+                   instead of using ``offset`` for paginating over large tables
     :type offset: int
     :param fields: fields to return
                    (optional, default: all fields in original order)
@@ -640,23 +696,15 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :param include_total: True to return total matching record count
                           (optional, default: true)
     :type include_total: bool
-    :param total_estimation_threshold: If "include_total" is True and
-        "total_estimation_threshold" is not None and the estimated total
-        (matching record count) is above the "total_estimation_threshold" then
-        this datastore_search will return an *estimate* of the total, rather
-        than a precise one. This is often good enough, and saves
-        computationally expensive row counting for larger results (e.g. >100000
-        rows). The estimated total comes from the PostgreSQL table statistics,
-        generated when Express Loader or DataPusher finishes a load, or by
-        autovacuum. NB Currently estimation can't be done if the user specifies
-        'filters' or 'distinct' options. (optional, default: None)
-    :type total_estimation_threshold: int or None
     :param records_format: the format for the records return value:
         'objects' (default) list of {fieldname1: value1, ...} dicts,
         'lists' list of [value1, value2, ...] lists,
         'csv' string containing comma-separated values with no header,
         'tsv' string containing tab-separated values with no header
     :type records_format: controlled list
+    :param include_next_page: set to True to return a filter parameter that
+        will retrieve the next page of results. Ignored if records are not
+        sorted by the `_id` field (default: False)
 
 
     Setting the ``plain`` flag to false enables the entire PostgreSQL
@@ -690,6 +738,9 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :type total_was_estimated: bool
     :param records: list of matching results
     :type records: depends on records_format value passed
+    :param next_page: values to add to the ``filter`` parameter to retrieve the
+                      next page of results (when sorting by ``_id``, the default)
+    :type next_page: dictionary
 
     '''
     backend = DatastoreBackend.get_active_backend()
@@ -700,7 +751,8 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
 
     res_id = data_dict['resource_id']
 
-    if data_dict['resource_id'] not in WHITELISTED_RESOURCES:
+    if data_dict['resource_id'] not in p.toolkit.config.get(
+            'ckan.datastore.public_table_search'):
         res_exists, real_id = backend.resource_id_from_alias(res_id)
         # Resource only has to exist in the datastore (because it could be an
         # alias)
@@ -804,7 +856,7 @@ def _cancel_patch_resource_last_modified(resource_id: str):
     ''' Remove any existing scheduled job to patch resource
     last_modified.
     '''
-    job_id = f'{resource_id} datastore patch last_modified'
+    job_id = f'{resource_id}_datastore-patch-last_modified'
     try:
         existing_job = p.toolkit.job_from_id(job_id)
     except KeyError:
@@ -819,7 +871,7 @@ def _schedule_patch_resource_last_modified(resource_id: str):
     datastore_create, datastore_upsert and/or datastore_delete.
     '''
     last_modified = datetime.now(timezone.utc)
-    job_id = f'{resource_id} datastore patch last_modified'
+    job_id = f'{resource_id}_datastore-patch-last_modified'
 
     _cancel_patch_resource_last_modified(resource_id)
     p.toolkit.get_job_queue().enqueue_in(
@@ -842,6 +894,31 @@ def _patch_resource_last_modified(resource_id: str, last_modified: datetime):
         {'user': site_user['name'], 'ignore_auth': True},
         {'id': resource_id, 'last_modified': last_modified},
     )
+
+def _cancel_calculate_record_count(resource_id: str) -> bool:
+    job_id = f'{resource_id}_calculate-record-count'
+    try:
+        existing_job = p.toolkit.job_from_id(job_id)
+    except KeyError:
+        return False
+    existing_job.delete()
+    return True
+
+def _schedule_calculate_record_count(resource_id: str):
+    job_id = f'{resource_id}_calculate-record-count'
+    delay = timedelta(seconds=p.toolkit.config[
+        'ckan.datastore.background_calculate_record_count_delay'])
+
+    p.toolkit.get_job_queue().enqueue_in(
+        delay,
+        _calculate_record_count,
+        resource_id,
+        job_id=job_id,
+    )
+
+def _calculate_record_count(resource_id: str):
+    backend = DatastoreBackend.get_active_backend()
+    backend.calculate_record_count(resource_id)
 
 
 @logic.validate(dsschema.datastore_function_create_schema)

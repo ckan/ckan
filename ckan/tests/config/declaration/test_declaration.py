@@ -75,6 +75,77 @@ class TestDeclaration:
         _, errors = decl.validate({})
         assert key in errors
 
+    def test_nullable_missing_option(self):
+        """Nullable flag sets missing option to None."""
+        decl = Declaration()
+        key = "test.nullable.flag.allows_none"
+        decl.declare_bool(key, False).set_flag(Flag.nullable)
+
+        cfg = {}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: None}
+
+    def test_nullable_default(self):
+        """Nullable flag sets `null` value to None."""
+        decl = Declaration()
+        key = "test.nullable.flag.allows_none"
+        decl.declare_bool(key, False).set_flag(Flag.nullable)
+
+        cfg = {key: "null"}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: None}
+
+    def test_nullable_non_null(self):
+        """Nullable flag processes empty and non-`null` values normally."""
+        decl = Declaration()
+        key = "test.nullable.flag.allows_none"
+        decl.declare_bool(key, False).set_flag(Flag.nullable)
+
+        cfg = {key: ""}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: False}
+
+        cfg = {key: "0"}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: False}
+
+        cfg = {key: "1"}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: True}
+
+    def test_nullable_custom(self, faker):
+        """Nullable flag processes empty and non-`null` values normally."""
+        custom_null = faker.word()
+        decl = Declaration()
+        key = "test.nullable.flag.allows_none"
+        option = decl.declare(key, "test").set_flag(Flag.nullable)
+        option.null_value = custom_null
+
+        cfg = {}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: None}
+
+        cfg = {key: ""}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: ""}
+
+        cfg = {key: "null"}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: "null"}
+
+        cfg = {key: custom_null}
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == {key: None}
+
     def test_setup(self, ckan_config):
         decl = Declaration()
         decl.setup()
@@ -170,11 +241,17 @@ class TestDeclaration:
         decl.normalize(cfg)
         assert cfg == CKANConfig({"a": 20})
 
-    @pytest.mark.parametrize("raw,safe", [
-        ({}, {"a": "default"}),
-        ({"legacy_a": "legacy"}, {"a": "legacy", "legacy_a": "legacy"}),
-        ({"a": "modern", "legacy_a": "legacy"}, {"a": "modern", "legacy_a": "legacy"}),
-    ])
+    @pytest.mark.parametrize(
+        "raw,safe",
+        [
+            ({}, {"a": "default"}),
+            ({"legacy_a": "legacy"}, {"a": "legacy", "legacy_a": "legacy"}),
+            (
+                {"a": "modern", "legacy_a": "legacy"},
+                {"a": "modern", "legacy_a": "legacy"},
+            ),
+        ],
+    )
     def test_legacy_key(self, raw, safe):
         decl = Declaration()
         option = decl.declare(Key().a, "default")

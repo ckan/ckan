@@ -2,22 +2,22 @@
 # e.g. for running ckan tests and building the docs
 
 beautifulsoup4==4.14.3
-cookiecutter==2.6.0
-coverage==7.13.4
+cookiecutter==2.7.1
+coverage==7.13.5
 factory-boy==3.3.3
-Faker==40.4.0
+Faker==40.15.0
 flask-debugtoolbar==0.16.0
 freezegun==1.5.5
 ipdb==0.13.13
 junit2html==31.0.5
-junitparser==4.0.2
-Pillow==12.1.1
+junitparser==5.0.0
+Pillow==12.2.0
 pip-tools==7.5.3
-pytest-cov==7.0.0
+pytest-cov==7.1.0
 pytest-factoryboy==2.8.1
 pytest-freezegun==0.4.2
 pytest-split==0.11.0
-pytest==9.0.2
+pytest==9.0.3
 responses==0.26.0
 sphinx-rtd-theme==3.1.0
 sphinx==8.1.3

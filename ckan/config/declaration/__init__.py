@@ -8,7 +8,6 @@ import logging
 from collections import OrderedDict
 from typing import (
     Any,
-    Container,
     Dict,
     Iterator,
     List,
@@ -124,10 +123,19 @@ class Declaration:
         """
 
         for key in self.iter_options(exclude=Flag.not_safe()):
-            if key in config or isinstance(key, Pattern):
+            if isinstance(key, Pattern):
                 continue
 
             info = self[key]
+
+            # typechecker cannot detect that key can be used for dictionary
+            # access without typecasting
+            key = cast(Any, key)
+            is_nullable = info.has_flag(Flag.nullable)
+            if key in config:
+                if is_nullable and config[key] == info.null_value:
+                    config[key] = None
+                continue
 
             if info.legacy_key and info.legacy_key in config:
                 log.warning(
@@ -136,6 +144,9 @@ class Declaration:
                     key
                 )
                 config[str(key)] = config[info.legacy_key]
+
+            elif is_nullable:
+                config[str(key)] = None
 
             else:
                 config[str(key)] = info.default
@@ -156,7 +167,7 @@ class Declaration:
             if v is df.missing:
                 continue
 
-            if k not in cast(Container[str], self):
+            if k not in self:
                 # it either __extra or __junk
                 continue
 
@@ -293,29 +304,40 @@ class Declaration:
         return option
 
     def declare_bool(
-            self, key: Key, default: Optional[bool] = False) -> Option[bool]:
+            self, key: Key, default: bool = False) -> Option[bool]:
         """Declare boolean option.
         """
         option = self.declare(key, bool(default))
         option.set_validators("boolean_validator")
         return option
 
-    def declare_int(self, key: Key, default: Optional[int]) -> Option[int]:
-        """Declare numeric option.
+    def declare_int(self, key: Key, default: int | None = None) -> Option[int]:
+        """Declare integer option.
         """
+        if default is None:
+            default = 0
         option = self.declare(key, default)
         option.set_validators("convert_int")
         return option
 
+    def declare_float(self, key: Key, default: Optional[float]) -> Option[float]:
+        """Declare float option.
+        """
+        option = self.declare(key, default)
+        option.set_validators("convert_float")
+        return option
+
     def declare_list(
-            self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
+            self, key: Key, default: list[T] | None = None) -> Option[list[T]]:
         """Declare option that accepts space-separated list of values.
         """
+        if default is None:
+            default = []
         option = self.declare(key, default)
         option.set_validators("as_list")
         return option
 
-    def declare_dynamic(self, key: Key, default: Any = None) -> Option[Any]:
+    def declare_dynamic(self, key: Key, default: T = None) -> Option[T]:
         """Declare dynamic option using a Key with `<name>` segment(surrounded
         with angles).
 
@@ -328,7 +350,7 @@ class Declaration:
                 for fragment in key
             ]
         )
-        option: Option[Any] = self.declare(key, default)
+        option = self.declare(key, default)
         return option
 
     def annotate(self, text: str) -> Annotation:

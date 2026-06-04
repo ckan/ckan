@@ -16,11 +16,12 @@ import ckan.model as model
 import ckan.model.domain_object as domain_object
 import ckan.logic as logic
 from ckan.types import Context
+from ckan.common import config
 
 from ckan.lib.search.common import (
     make_connection, SearchIndexError, SearchQueryError,  # type: ignore
     SolrConnectionError, # type: ignore
-    SearchError, is_available, SolrSettings, config
+    SearchError, is_available
 )
 from ckan.lib.search.index import (
     SearchIndex, PackageSearchIndex, NoopSearchIndex
@@ -30,7 +31,6 @@ from ckan.lib.search.query import (
     TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
     QueryOptions, convert_legacy_parameters_to_solr  # type: ignore
 )
-from ckan.lib.search.index import SearchIndex
 
 
 log = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ def text_traceback() -> str:
     return "".join(traceback.format_exception(*sys.exc_info()))
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11', '2.12']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -239,7 +239,9 @@ def _get_schema_from_solr(file_offset: str):
 
     timeout = config.get('ckan.requests.timeout')
 
-    solr_url, solr_user, solr_password = SolrSettings.get()
+    solr_url: str = config["solr_url"]
+    solr_user: str | None = config["solr_user"]
+    solr_password: str | None = config["solr_password"]
 
     url = solr_url.strip('/') + file_offset
 
