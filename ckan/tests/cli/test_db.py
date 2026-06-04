@@ -4,6 +4,7 @@ import os
 import pytest
 
 from sqlalchemy import inspect
+from click.testing import CliRunner
 
 import ckan.migration as migration
 import ckanext.example_database_migrations.plugin as example_plugin
@@ -117,6 +118,57 @@ class TestMigrations:
         """
         cli.invoke(ckan, ["db", "upgrade", "--skip-plugins"])
         assert db._get_pending_plugins() == {"example_database_migrations": 2}
+
+
+@pytest.mark.usefixtures("with_plugins", "non_clean_db", "with_extended_cli")
+class TestPluginOption:
+    def test_disabled_plugins(self, cli: CliRunner):
+        """Test that migration commands fail if plugin is not enabled."""
+        result = cli.invoke(
+            ckan, ["db", "version", "-p", "example_database_migrations"]
+        )
+        assert "cannot be loaded" in result.output
+
+    @pytest.mark.ckan_config("ckan.plugins", ["example_database_migrations"])
+    def test_enablued_plugins(self, cli: CliRunner):
+        """Test that migration commands work if plugin is enabled."""
+        result = cli.invoke(
+            ckan, ["db", "version", "-p", "example_database_migrations"]
+        )
+        assert "Current DB version: 0" in result.output
+
+    def test_usage_of_alembic_ini(self, cli: CliRunner):
+        """Test that migration commands work if plugin is enabled."""
+
+        result = cli.invoke(
+            ckan,
+            ["db", "version", "-p", "example_database_migrations", "--load-plugin"],
+        )
+        assert "Current DB version: 0" in result.output
+
+        result = cli.invoke(
+            ckan,
+            ["db", "upgrade", "-p", "example_database_migrations", "--load-plugin"],
+        )
+        assert "Upgrading DB: SUCCESS" in result.output
+
+        result = cli.invoke(
+            ckan,
+            ["db", "version", "-p", "example_database_migrations", "--load-plugin"],
+        )
+        assert "Current DB version: 728663ebe30e (head)" in result.output
+
+        result = cli.invoke(
+            ckan,
+            ["db", "downgrade", "-p", "example_database_migrations", "--load-plugin"],
+        )
+        assert "Downgrading DB: SUCCESS" in result.output
+
+        result = cli.invoke(
+            ckan,
+            ["db", "version", "-p", "example_database_migrations", "--load-plugin"],
+        )
+        assert "Current DB version: 0" in result.output
 
 
 @pytest.mark.usefixtures("clean_db")
