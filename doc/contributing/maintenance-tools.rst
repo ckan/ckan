@@ -49,7 +49,7 @@ on how to set up these):
 
 * The public variable ``TECH_TEAM_USER_IDS`` is a JSON list of the GitHub user ids of the Tech Team members. User ids can be found using the ``https://api.github.com/users/<user_name>`` endpoint.
 * The public variable ``CKANBOT_USER_ID`` is the user id of the :ref:`ckanbot`.
-* The ``backports`` environment secret ``BACKPORT_ACTION_PAT`` is a `Personal Access Token <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens>`_ (PAT) of the ckanbot account, with enough permissions to write to the ckan/ckan repository.
+* The ``backports`` environment secret ``BACKPORTS_ACTION_PAT`` is a `Personal Access Token <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens>`_ (PAT) of the ckanbot account, with enough permissions to write to the ckan/ckan repository.
 
 When creating a new PAT, make sure to select the following settings:
 
