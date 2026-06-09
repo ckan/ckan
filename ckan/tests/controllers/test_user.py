@@ -608,6 +608,18 @@ class TestUser(object):
         assert send_reset_link.call_args[0][0].id == user["id"]
 
     @mock.patch("ckan.lib.mailer.send_reset_link")
+    def test_request_reset_by_email_case_insensitive(self, send_reset_link, app):
+        """User can request password reset by email in a case-insensitive way."""
+        user = factories.User()
+
+        offset = url_for("user.request_reset")
+        response = app.post(offset, data=dict(user=user["email"].upper()))
+
+        assert "A reset link has been emailed to you" in response
+        assert send_reset_link.call_args[0][0].id == user["id"]
+
+
+    @mock.patch("ckan.lib.mailer.send_reset_link")
     def test_request_reset_by_name(self, send_reset_link, app):
         user = factories.User()
 
