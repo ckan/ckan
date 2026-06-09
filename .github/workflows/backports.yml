@@ -40,7 +40,7 @@ jobs:
         with:
           # Token to authenticate requests to GitHub. This is a Personal Access Token
           # from the ckanbot user
-          github_token: ${{ secrets.BACKPORT_ACTION_PAT }}
+          github_token: ${{ secrets.BACKPORTS_ACTION_PAT }}
           # Run when there is one or more "Backport <branch>" labels,
           # excluding "Backport pending"
           label_pattern: "Backport (?!pending)([^ ]+)$"
@@ -71,7 +71,7 @@ jobs:
       - name: Add Backport failed label to PR
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{ secrets.BACKPORT_ACTION_PAT }}
+          github-token: ${{ secrets.BACKPORTS_ACTION_PAT }}
           script: |
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
