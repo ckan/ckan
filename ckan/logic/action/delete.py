@@ -16,6 +16,7 @@ import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
 from ckan import authz, model
 from  ckan.lib.navl.dictization_functions import validate
+from ckan.lib.search import rebuild
 from ckan.model.follower import ModelFollowingModel
 
 from ckan.common import _
@@ -315,10 +316,9 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
             filter(model.Member.state    == 'active').first()
     if member:
         member.delete()
-        model.Session.flush()
-        if isinstance(obj, model.Package):
-            ckan.logic.index_update_package(context, obj.id)
         model.repo.commit()
+        if isinstance(obj, model.Package):
+            rebuild(obj.id)
 
 
 def package_collaborator_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageCollaboratorDelete:
