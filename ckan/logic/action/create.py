@@ -630,6 +630,9 @@ def member_create(context: Context,
 
     model.Session.add(member)
     if not context.get("defer_commit"):
+        model.Session.flush()
+        if isinstance(obj, model.Package):
+            logic.index_update_package(context, obj.id)
         model.repo.commit()
 
     return model_dictize.member_dictize(member, context)
