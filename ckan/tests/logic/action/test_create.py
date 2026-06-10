@@ -2428,6 +2428,29 @@ class TestTagCreate:
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate2:
+    @pytest.mark.usefixtures("clean_index")
+    def test_member_create_reindexes_package_groups(self):
+        group = factories.Group()
+        package = factories.Dataset()
+
+        def get_search_result_groups():
+            results = helpers.call_action(
+                "package_search", q=package["title"]
+            )["results"]
+            return [group["name"] for group in results[0]["groups"]]
+
+        assert get_search_result_groups() == []
+
+        helpers.call_action(
+            "member_create",
+            object=package["id"],
+            id=group["id"],
+            object_type="package",
+            capacity="public",
+        )
+
+        assert get_search_result_groups() == [group["name"]]
+
     def test_member_create_accepts_object_name_or_id(self):
         org = factories.Organization()
         package = factories.Dataset()
