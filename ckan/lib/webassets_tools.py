@@ -8,10 +8,10 @@ from typing_extensions import Literal, TypedDict, assert_never
 from markupsafe import Markup
 from webassets.env import Environment
 from webassets.loaders import YAMLLoader
+from webassets.utils import is_url
 
 from ckan.common import config, g
 from ckan.lib.io import get_ckan_temp_directory
-
 
 log = logging.getLogger(__name__)
 env: Environment
@@ -63,6 +63,7 @@ def create_library(name: str, path: str) -> None:
         # `ckanext/A/assets/x.css` and `ckanext/B/assets/x.css`), both plugins
         # will load the same `x.css` from the plugin that was first registered
         bundle.contents = [
+            item if is_url(item) else
             os.path.join(path, item)
             for item in bundle.contents
         ]
@@ -79,7 +80,7 @@ def webassets_init() -> None:
 
     env = Environment()
     env.directory = static_path
-    env.debug = config["debug"]
+    env.debug = config["ckan.webassets.debug"]
     env.url = config["ckan.webassets.url"]
 
 
