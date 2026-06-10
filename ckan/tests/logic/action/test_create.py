@@ -1,12 +1,13 @@
-# encoding: utf-8
 """Unit tests for ckan/logic/action/create.py.
 
 """
+from __future__ import annotations
+
 import datetime
 import operator
 import unittest.mock as mock
 import uuid
-
+from typing import Any
 import pytest
 import sqlalchemy as sa
 
@@ -2557,6 +2558,25 @@ class TestMemberCreate2:
                 object_type="notvalid",
                 capacity="member",
             )
+
+    def test_member_create_updates_search_index(
+            self, package: dict[str, Any], group: dict[str, Any]
+    ):
+        """When a package is added to a group, the search index needs to be
+        updated so that the package appears in the group's search results."""
+        pkg = helpers.call_action("package_show", id=package["name"])
+        assert not pkg["groups"]
+
+        helpers.call_action(
+                "member_create",
+                object=pkg["name"],
+                id=group["id"],
+                object_type="package",
+                capacity="public",
+        )
+        pkg = helpers.call_action("package_show", id=package["name"])
+        assert len(pkg["groups"]) == 1
+        assert pkg["groups"][0]["name"] == group["name"]
 
 
 @pytest.mark.usefixtures("clean_db")

@@ -2,7 +2,7 @@
 
 import re
 from unittest import mock
-
+from typing import Any
 import pytest
 
 import ckan.lib.jobs as jobs
@@ -989,3 +989,29 @@ class TestMemberDelete:
                 object_type="notvalid",
                 capacity="member",
             )
+
+    def test_member_delete_updates_search_index(
+            self, package: dict[str, Any], group: dict[str, Any]
+    ):
+        """Deleting a package from the group updates the search index so that
+        the package no longer shows as being in the group.
+        """
+        helpers.call_action(
+                "member_create",
+                object=package["name"],
+                id=group["id"],
+                object_type="package",
+                capacity="public",
+        )
+        pkg = helpers.call_action("package_show", id=package["name"])
+        assert pkg["groups"]
+
+        helpers.call_action(
+                "member_delete",
+                object=package["name"],
+                id=group["id"],
+                object_type="package",
+                capacity="public",
+        )
+        pkg = helpers.call_action("package_show", id=package["name"])
+        assert not pkg["groups"]

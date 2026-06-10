@@ -19,6 +19,7 @@ from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
 
 from ckan.common import _
+from ckan.lib.search import rebuild
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
 log = logging.getLogger('ckan.logic')
@@ -316,6 +317,10 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
     if member:
         member.delete()
         model.repo.commit()
+        # remove group info from the indexed package dictionary
+        if obj_type == "package":
+            rebuild(obj_id)
+
 
 
 def package_collaborator_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageCollaboratorDelete:
