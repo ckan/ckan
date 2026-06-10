@@ -271,26 +271,9 @@ def datastore_dump_formats(
         resource_id: Optional[str] = None,
         search_params: Optional[dict[str, Any]] = None,
 ) -> list[dict[str, Any]]:
-    """
-    Return the list of dump formats registered via the IDatastoreDump
-    interface, in registration order, for rendering the download dropdown.
-
-    Each entry exposes only what templates need (no writer/content-type
-    internals): ``name`` (the ?format= value), ``label`` (display text),
+    """ Return registered dump formats for the download dropdown.
+    Each entry exposes only what templates need: ``name``, ``label``,
     ``available`` (bool) and ``reason`` (str or None).
-
-    When ``resource_id`` is provided and at least one registered format
-    declares availability controls (``max_rows``/``max_columns`` and/or
-    a ``validate`` callable), the export scope is resolved once (a single
-    ``datastore_search``) and each such format is evaluated against it. A
-    non-empty reason marks the format ``available=False`` with that
-    string as the ``reason`` (intended for a tooltip). ``search_params``
-    (``filters``/``q``/``distinct``/``fields``/``sort``) narrows that
-    scope so a filtered download is judged on the filtered result; omit
-    it to evaluate the whole resource.
-
-    Vanilla CKAN ships no availability controls, so this call adds no
-    extra DB work unless an extension opts in.
     """
     from ckanext.datastore.blueprint import (
         get_dump_format_configs,
@@ -304,11 +287,8 @@ def datastore_dump_formats(
         return any(
             k in cfg for k in ("max_columns", "max_rows", "validate"))
 
-    # Only resolve the (potentially expensive) export scope when there's
-    # actually something to check, so the common formats-only case stays
-    # free of extra DB work.
+    # Only resolve the export scope when a format actually has controls.
     context = None
-    # Build a context only if required
     has_controls = any(_has_controls(cfg) for cfg in formats.values())
     if resource_id is not None and has_controls:
         context = build_dump_context(resource_id, search_params)

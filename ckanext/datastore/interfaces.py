@@ -248,112 +248,34 @@ class IDatastoreDump(interfaces.Interface):
         """
         Register, override, or remove dump formats for datastore exports.
 
+        The initial dump format list is defined at
+        ``ckanext.datastore.blueprint.get_dump_format_configs``.
         Return a dictionary where each key is a format name. The value
         is either:
 
         - A configuration dict to add a new format or replace an
           existing one (defaults: csv, tsv, json, xml).
-        - ``None``, which acts as a sentinel meaning "remove this
-          format". Returning ``{"xml": None}`` disables the built-in
-          XML dump entirely (UI dropdown entry, schema validation,
-          and the ``?format=xml`` URL).
+        - ``None``, which acts as a sentinel meaning "remove this format".
+
+        You can see a usage sample at
+        ``ckanext/datastore/tests/sample_dump_plugin.py``
 
         A configuration dict must include:
 
-        - 'label': Human-readable name shown in the download dropdown UI.
-          User-facing, so wrap it in ``toolkit._()`` to make it
-          translatable. ``register_dump_formats`` is called per
-          request, so the translation evaluates in the current locale.
-        - 'writer_factory': A context manager function that creates a
-          writer
-        - 'records_format': The format for records ('csv', 'tsv',
-          'lists', 'objects')
+        - 'label': Human-readable name
+        - 'writer_factory': A context manager function that creates a writer
+        - 'records_format': The format for records
         - 'content_type': The MIME type for the response (str)
         - 'file_extension': The file extension for downloads
 
-        And may optionally include any of the following availability
-        controls. They decide whether the format can be produced for a
-        given export: when any of them rejects, the format is rendered
-        disabled in the download dropdown with the reason shown as a
-        tooltip, and direct download URLs return HTTP 400. They are
-        evaluated against the *filtered* export scope (post-filter row
-        count, selected columns), not the resource totals, so a user
-        who has filtered a large resource down is judged on the
-        filtered result. Vanilla CKAN ships none of these, so they add
-        no extra work unless a plugin opts in.
+        And may optionally include availability controls.
 
-        - 'max_columns': An int. The framework marks the format
-          unavailable when the export has more columns than this and
-          writes the reason message itself. Use for hard column limits
-          (e.g. Excel's 16,384-column ceiling).
-        - 'max_rows': An int. As ``max_columns`` but for the
-          post-filter row count. ``max_rows`` is the largest number of
-          rows the format can hold; the export is rejected when its row
-          count is strictly greater (e.g. Excel allows 1,048,576 rows
-          *including* the header row, so set ``max_rows`` to
-          ``1048575``).
+        - 'max_columns': int.
+        - 'max_rows': int.
         - 'validate': A callable ``(context: dict) -> Optional[str]``
           for constraints that ``max_rows``/``max_columns`` cannot
-          express (e.g. a geo format that needs geometry columns).
-          Returns ``None`` if the format can be produced, or a
-          (translatable) reason string if not. The ``context`` carries
-          the export scope so the callable does not need to fetch it:
+          express. Returns ``None`` if the format can be produced, or a
+          (translatable) reason string if not.
 
-          - ``resource_id``: the (resolved) resource id.
-          - ``fields``: the exported columns as ``[{'id', 'type'},...]``
-            (raw, including ``_id``); ``len(fields)`` is the column
-            count.
-          - ``total``: the post-filter row count.
-          - ``filters`` / ``q`` / ``distinct`` / ``selected_fields`` /
-            ``sort``: the query that produced the scope, for advanced
-            checks.
-          - ``user``: the requesting user (may be ``None``).
-
-          The controls run on every dropdown render and before serving
-          a dump, but the scope is resolved once per call (a single
-          ``datastore_search``) and shared across formats.
-
-        When more than one control is present they are evaluated cheapest
-        first and the first rejection wins:
-        ``max_columns`` -> ``max_rows`` -> ``validate``.
-
-        Example: add ``xlsx`` with declarative limits, add ``geojson``
-        with a column-presence validator, and remove ``xml``::
-
-            def geojson_validate(context):
-                names = {f['id'] for f in context['fields']}
-                if not ({'lat', 'lng'} <= names or 'geom' in names):
-                    return toolkit._('No geometry columns for GeoJSON.')
-                return None
-
-            {
-                'xlsx': {
-                    'label': toolkit._('Excel'),
-                    'writer_factory': xlsx_writer,
-                    'records_format': 'objects',
-                    'content_type': (
-                        'application/vnd.openxmlformats-'
-                        'officedocument.spreadsheetml.sheet'
-                    ),
-                    'file_extension': 'xlsx',
-                    'max_columns': 16384,
-                    'max_rows': 1048575,
-                },
-                'geojson': {
-                    'label': toolkit._('GeoJSON'),
-                    'writer_factory': geojson_writer,
-                    'records_format': 'objects',
-                    'content_type': 'application/geo+json; charset=utf-8',
-                    'file_extension': 'geojson',
-                    'validate': geojson_validate,
-                },
-                'xml': None,
-            }
-
-        Plugins are applied in load order, so a later plugin can undo
-        or replace an earlier plugin's registration.
-
-        :returns: Mapping of format name to config dict or ``None``
-        :rtype: dict
         """
         return {}

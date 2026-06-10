@@ -929,8 +929,6 @@ class TestDatastoreDumpInterface(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_unknown_format_rejected(self, app):
-        # Sanity check: the schema's one_of validator rejects formats
-        # not in the registry, regardless of any plugin.
         resource = factories.Resource(url_type='datastore')
         helpers.call_action(
             "datastore_create",
@@ -972,9 +970,7 @@ class TestDatastoreDumpInterface(object):
     )
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_xml_disabled_via_plugin(self, app):
-        # The plugin returns {"xml": None}, which removes the format
-        # from the registry. The schema's one_of validator then rejects
-        # ?format=xml at validation time (HTTP 400).
+        # {"xml": None} removes the format, so ?format=xml is rejected.
         resource = factories.Resource(url_type='datastore')
         helpers.call_action(
             "datastore_create",
@@ -997,11 +993,7 @@ class TestDatastoreDumpValidate(object):
     can be exercised without needing a real extension installed.
     """
 
-    def test_helper_marks_format_unavailable_with_reason(self):
-        # The helper should report the gated format as unavailable
-        # with the validator's reason, while formats whose validator
-        # approves (``passes``) and those without a validator
-        # (csv/tsv/json/faux) stay available.
+    def test_helper_marks_format_unavailable_with_reason(self, app):
         resource = factories.Resource(url_type="datastore")
         helpers.call_action(
             "datastore_create",
@@ -1027,9 +1019,8 @@ class TestDatastoreDumpValidate(object):
             assert by_name[name]["reason"] is None
 
     def test_helper_skips_validators_when_no_resource_id(self):
-        # Without a resource_id, the helper can't run validators, so
-        # every format should still appear (no crash, no validator
-        # call). available/reason fall back to "always available".
+        # Without a resource_id no validators run; every format still
+        # appears as available.
         formats = toolkit.h.datastore_dump_formats()
         by_name = {f["name"]: f for f in formats}
 
@@ -1038,8 +1029,7 @@ class TestDatastoreDumpValidate(object):
         assert by_name["gated"]["reason"] is None
 
     def test_dump_endpoint_rejects_with_400(self, app):
-        # A direct GET to /datastore/dump/<id>?format=gated should
-        # return HTTP 400 with the validator's reason in the body.
+        # A gated dump returns HTTP 400 with the reason in the body.
         resource = factories.Resource(url_type="datastore")
         helpers.call_action(
             "datastore_create",
@@ -1054,8 +1044,7 @@ class TestDatastoreDumpValidate(object):
         assert ALWAYS_INVALID_REASON in response.get_data(as_text=True)
 
     def test_dump_endpoint_allows_format_without_validator(self, app):
-        # Sanity check that the gated validator doesn't bleed into
-        # other formats on the same resource.
+        # The gated validator must not affect other formats.
         resource = factories.Resource(url_type="datastore")
         helpers.call_action(
             "datastore_create",
@@ -1069,9 +1058,7 @@ class TestDatastoreDumpValidate(object):
         assert response.status_code == 200
 
     def test_dump_endpoint_allows_format_whose_validator_approves(self, app):
-        # Covers the blueprint branch where ``validate`` is defined but
-        # returns ``None`` (no abort). The ``passes`` format reuses the
-        # csv writer, so the response should also be a normal dump.
+        # validate defined but returning None -> normal dump.
         resource = factories.Resource(url_type="datastore")
         helpers.call_action(
             "datastore_create",
@@ -1089,10 +1076,8 @@ class TestDatastoreDumpValidate(object):
         )
 
     def test_resource_read_page_renders_disabled_dropdown_item(self, app):
-        # The download dropdown on the resource page should render the
-        # gated format as a disabled item with the validator's reason
-        # exposed as the ``title`` attribute, while the other formats
-        # remain regular clickable links.
+        # The dropdown renders gated as a disabled item carrying the
+        # reason as title, with other formats as normal links.
         resource = factories.Resource(url_type="datastore")
         helpers.call_action(
             "datastore_create",
@@ -1109,11 +1094,9 @@ class TestDatastoreDumpValidate(object):
         body = response.get_data(as_text=True)
 
         assert response.status_code == 200
-        # The disabled <span> for gated must carry the reason as title.
         assert 'class="dropdown-item disabled"' in body
         assert f'title="{ALWAYS_INVALID_REASON}"' in body
-        # And the built-in CSV format must still render as an active
-        # dropdown-item link (not disabled).
+        # CSV still renders as an active link.
         assert 'class="dropdown-item"' in body
 
 
@@ -1122,11 +1105,9 @@ class TestDatastoreDumpValidate(object):
 class TestDatastoreDumpDeclarativeLimits(object):
     """Tests for declarative ``max_rows``/``max_columns`` controls.
 
-    Uses the ``capped`` format from ``sample_dump_plugin`` (``max_rows``
-    is 1, ``max_columns`` is 5, no ``validate`` callable). These exercise
-    the framework-evaluated availability path and, crucially, that the
-    decision is made against the *filtered* export scope rather than the
-    resource totals.
+    Uses the ``capped`` format (``max_rows`` 1, ``max_columns`` 5) to
+    check the framework-evaluated path and that the decision uses the
+    filtered export scope, not the resource totals.
     """
 
     def _make_resource(self, records):
@@ -1139,8 +1120,7 @@ class TestDatastoreDumpDeclarativeLimits(object):
         return resource
 
     def test_helper_marks_over_row_limit_unavailable(self):
-        # 2 rows > max_rows=1 -> capped is unavailable with a
-        # framework-generated reason mentioning rows.
+        # 2 rows > max_rows=1 -> capped unavailable, reason mentions rows.
         resource = self._make_resource(
             [{"book": "annakarenina"}, {"book": "warandpeace"}])
 
@@ -1175,10 +1155,8 @@ class TestDatastoreDumpDeclarativeLimits(object):
         assert "rows" in response.get_data(as_text=True).lower()
 
     def test_dump_endpoint_filtered_under_limit_succeeds(self, app):
-        # The resource has 2 rows (over the cap), but a filter reduces
-        # the export to a single row, so the capped format becomes
-        # available and the download succeeds. This is the case a
-        # resource-id-only validator would get wrong.
+        # 2-row resource is over the cap, but a filter brings the export
+        # to one row, so the capped download succeeds.
         resource = self._make_resource(
             [{"book": "annakarenina"}, {"book": "warandpeace"}])
 
@@ -1193,9 +1171,7 @@ class TestDatastoreDumpDeclarativeLimits(object):
         assert "warandpeace" not in response.get_data(as_text=True)
 
     def test_helper_filtered_scope_marks_available(self):
-        # Same as above but through the helper: passing search_params
-        # that filter to one row flips capped from unavailable to
-        # available.
+        # Same via the helper: a filter to one row makes capped available.
         resource = self._make_resource(
             [{"book": "annakarenina"}, {"book": "warandpeace"}])
 

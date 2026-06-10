@@ -104,8 +104,7 @@ def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
     u'''Dump a datastore resource.
     '''
     flask_app = ctx.meta['flask_app']
-    # Validated here (not via click.Choice) so the IDatastoreDump plugin
-    # registry is consulted at run time, after CKAN has loaded plugins.
+    # Resolved at run time so plugin-registered formats are included.
     valid_formats = list(get_dump_format_configs())
     if format not in valid_formats:
         raise click.BadParameter(

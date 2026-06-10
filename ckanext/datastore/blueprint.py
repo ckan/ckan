@@ -78,9 +78,8 @@ def get_dump_format_configs() -> dict[str, dict[str, Any]]:
         },
     }
 
-    # Allow plugins to add, override, or remove formats.
-    # A value of None is a sentinel meaning "remove this format"
-    # for sites that want to disable a default (e.g. {"xml": None}).
+    # Plugins can add, override, or remove formats. A None value
+    # removes a default (e.g. {"xml": None}).
     for plugin in p.PluginImplementations(IDatastoreDump):
         plugin_formats = plugin.register_dump_formats()
         for name, cfg in plugin_formats.items():
@@ -99,22 +98,8 @@ def build_dump_context(
     total: Optional[int] = None,
     fields: Optional[list[dict[str, Any]]] = None,
 ) -> dict[str, Any]:
-    """Resolve a dump's effective (filtered) scope for format validators.
-
-    Returns the context dict passed to a format's ``validate`` callable
-    and to :func:`evaluate_format_availability`. It describes *what is
-    actually being exported* -- the post-filter row count and the
-    resolved field set -- not the resource totals, so a user who has
-    filtered a large resource down is judged on the filtered result.
-
-    A single ``datastore_search`` with ``limit=0`` and
-    ``include_total=True`` resolves ``total`` and ``fields``. Callers
-    that already have them (e.g. a page that just rendered the table, or
-    a future JS/HTMX endpoint that knows the current filtered counts)
-    may pass them in to skip the query entirely.
-    """
+    """ Prepare the to `evaluate_format_availability` """
     sp = search_params or {}
-    # If the caller already provides total and fields, we can skip the DB query here
     if total is None or fields is None:
         ds_context = cast(Context, {'user': user} if user is not None else {})
         result = get_action('datastore_search')(
@@ -139,20 +124,8 @@ def build_dump_context(
 def evaluate_format_availability(
     cfg: dict[str, Any], context: dict[str, Any]
 ) -> Optional[str]:
-    """Decide whether a format can be produced for a given dump scope.
-
-    Returns ``None`` when the format is available, otherwise a
-    translatable reason string suitable for a tooltip and for the
-    HTTP 400 body. Resolution order (first failure wins, cheapest
-    checks first):
-
-    1. ``max_columns`` -- compared against the number of exported
-       columns. The framework writes the reason message.
-    2. ``max_rows`` -- compared against the post-filter row count. The
-       framework writes the reason message.
-    3. ``validate`` -- the format's own ``(context) -> Optional[str]``
-       callable, for constraints that counts cannot express (e.g. a geo
-       format requiring geometry columns).
+    """ Decide whether a format can be produced for a given dump scope.
+    Returns ``None`` when available, otherwise a translatable reason string
     """
     n_cols = len(context['fields'])
     max_cols = cfg.get('max_columns')
@@ -234,7 +207,6 @@ def dump(resource_id: str):
 
     user_context = g.user
 
-    # Get format configuration from plugin registry
     dump_formats = get_dump_format_configs()
 
     if fmt not in dump_formats:
@@ -244,12 +216,6 @@ def dump(resource_id: str):
     file_extension = format_config["file_extension"]
     content_type = format_config["content_type"]
 
-    # Check availability (declarative row/column limits and/or a custom
-    # validator) against the *filtered* export scope before we start
-    # streaming. A 400 here is the only way to surface a reason cleanly;
-    # once the chunked response starts, dropping the connection is the
-    # best we can do. Formats without any availability controls (the
-    # built-in csv/tsv/json/xml) skip this.
     config_to_evaluate = ("max_columns", "max_rows", "validate")
     evaluation_required = any(k in format_config for k in config_to_evaluate)
     if evaluation_required:
@@ -385,7 +351,6 @@ def dump_to(
     limit: Optional[int], options: dict[str, Any], sort: str,
     search_params: dict[str, Any], user: str
 ):
-    # Get format configuration from plugin registry
     dump_formats = get_dump_format_configs()
 
     if fmt not in dump_formats:
