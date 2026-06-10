@@ -315,6 +315,9 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
             filter(model.Member.state    == 'active').first()
     if member:
         member.delete()
+        model.Session.flush()
+        if isinstance(obj, model.Package):
+            ckan.logic.index_update_package(context, obj.id)
         model.repo.commit()
 
 
