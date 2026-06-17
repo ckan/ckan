@@ -399,12 +399,25 @@ def migrate_db_for():
             migrate_db_for("my_plugin")
             assert model.Session.bind.has_table("my_plugin_custom_table")
 
+    To load plugin that is disabled when fixture is called, use `load_plugin`
+    argument of the fixture::
+
+        @pytest.mark.usefixtures("clean_db")
+        def test_migrations_applied(migrate_db_for):
+            migrate_db_for("my_disabled_plugin", load_plugin=True)
+            assert model.Session.bind.has_table("my_plugin_custom_table")
+
     """
     from ckan.cli.db import _run_migrations
 
-    def runner(plugin: str, version: str = "head", forward: bool = True):
+    def runner(
+        plugin: str,
+        version: str = "head",
+        forward: bool = True,
+        load_plugin: bool = False,
+    ):
         assert plugin, "Cannot apply migrations of unknown plugin"
-        _run_migrations(plugin, version, forward)
+        _run_migrations(plugin, version, forward, load_plugin)
 
     return runner
 
