@@ -117,7 +117,7 @@ The functions in ``ckan.logic.action`` are exposed to the world as the
 from the function name, for example
 ``ckan.logic.action.create.package_create()`` is exposed at
 ``/api/action/package_create``. See `Steve Yegge's Google platforms rant
-<https://plus.google.com/112678702228711889851/posts/eVeouesvaVX>`_ for some
+<https://gist.github.com/chitchcock/1281611#file-20111011_steveyeggegoogleplatformrant-md>`_ for some
 interesting discussion about APIs.
 
 **All** publicly visible functions in the
