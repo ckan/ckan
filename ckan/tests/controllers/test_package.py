@@ -1068,6 +1068,20 @@ class TestResourceNew(object):
                 status=403,
             )
 
+    def test_edit_resource_for_dataset_that_does_not_exist_404s(
+        self, app, user
+    ):
+        headers = {"Authorization": user["token"]}
+        response = app.get(
+            url_for(
+                "dataset_resource.edit",
+                id="does-not-exist",
+                resource_id="does-not-exist",
+            ),
+            headers=headers,
+        )
+        assert response.status_code == 404
+
 
 @pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestResourceDownload(object):
