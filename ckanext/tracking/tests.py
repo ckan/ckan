@@ -49,9 +49,9 @@ def track(app):
             "HTTP_ACCEPT_LANGUAGE": "en",
             "HTTP_ACCEPT_ENCODING": "gzip, deflate",
         }
-        app.post(
+        return app.post(
             "/_tracking", params=params, environ_overrides=environ_overrides
-            )
+        )
 
     return func
 
@@ -67,9 +67,7 @@ def update_tracking_summary():
     # the method directly, we're not testing the command-line parsing.
     from ckanext.tracking.cli.tracking import update_all
 
-    date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
-        "%Y-%m-%d"
-    )
+    date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     update_all(engine=engine, start_date=date)
 
 
@@ -85,14 +83,10 @@ class TestTracking(object):
         package = call_action("package_show", id=package["name"])
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
-            "A package that has not "
-            "been viewed should have 0 "
-            "recent views"
+            "A package that has not been viewed should have 0 recent views"
         )
         assert tracking_summary["total"] == 0, (
-            "A package that has not "
-            "been viewed should have 0 "
-            "total views"
+            "A package that has not been viewed should have 0 total views"
         )
 
     def test_resource_with_0_views(self):
@@ -106,14 +100,10 @@ class TestTracking(object):
         resource = package["resources"][0]
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
-            "A resource that has not "
-            "been viewed should have 0 "
-            "recent views"
+            "A resource that has not been viewed should have 0 recent views"
         )
         assert tracking_summary["total"] == 0, (
-            "A resource that has not "
-            "been viewed should have 0 "
-            "total views"
+            "A resource that has not been viewed should have 0 total views"
         )
 
         # The resource_show() API should return 0 recent views and 0 total
@@ -121,14 +111,10 @@ class TestTracking(object):
         resource = call_action("resource_show", id=resource["id"])
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
-            "A resource that has not "
-            "been viewed should have 0 "
-            "recent views"
+            "A resource that has not been viewed should have 0 recent views"
         )
         assert tracking_summary["total"] == 0, (
-            "A resource that has not "
-            "been viewed should have 0 "
-            "total views"
+            "A resource that has not been viewed should have 0 total views"
         )
 
     def test_package_with_one_view(self, track):
@@ -143,14 +129,10 @@ class TestTracking(object):
         package = call_action("package_show", id=package["name"])
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
-            "A package that has been "
-            "viewed once should have 1 "
-            "recent view."
+            "A package that has been viewed once should have 1 recent view."
         )
         assert tracking_summary["total"] == 1, (
-            "A package that has been "
-            "viewed once should have 1 "
-            "total view"
+            "A package that has been viewed once should have 1 total view"
         )
 
         assert len(package["resources"]) == 1
@@ -173,7 +155,8 @@ class TestTracking(object):
         resource = factories.Resource(package_id=package["id"])
         url = h.url_for(
             "{}_resource.read".format(package["type"]),
-            id=package["name"], resource_id=resource["id"]
+            id=package["name"],
+            resource_id=resource["id"],
         )
         track(url)
 
@@ -184,33 +167,17 @@ class TestTracking(object):
         resource = package["resources"][0]
 
         assert package["tracking_summary"]["recent"] == 0, (
-            "Previewing a "
-            "resource should "
-            "not increase the "
-            "package's recent "
-            "views"
+            "Previewing a resource should not increase the package's recent views"
         )
         assert package["tracking_summary"]["total"] == 0, (
-            "Previewing a "
-            "resource should "
-            "not increase the "
-            "package's total "
-            "views"
+            "Previewing a resource should not increase the package's total views"
         )
         # Yes, previewing a resource does _not_ increase its view count.
         assert resource["tracking_summary"]["recent"] == 0, (
-            "Previewing a "
-            "resource should "
-            "not increase "
-            "the resource's "
-            "recent views"
+            "Previewing a resource should not increase the resource's recent views"
         )
         assert resource["tracking_summary"]["total"] == 0, (
-            "Previewing a "
-            "resource should "
-            "not increase the "
-            "resource's "
-            "recent views"
+            "Previewing a resource should not increase the resource's recent views"
         )
 
     def test_resource_with_one_download(self, track):
@@ -223,32 +190,26 @@ class TestTracking(object):
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
         assert package["tracking_summary"]["recent"] == 0, (
-            "Downloading a resource should not increase the package's recent "
-            "views"
+            "Downloading a resource should not increase the package's recent views"
         )
         assert package["tracking_summary"]["total"] == 0, (
-            "Downloading a resource should not increase the package's total "
-            "views"
+            "Downloading a resource should not increase the package's total views"
         )
         assert resource["tracking_summary"]["recent"] == 1, (
-            "Downloading a resource should increase the resource's recent "
-            "views"
+            "Downloading a resource should increase the resource's recent views"
         )
         assert resource["tracking_summary"]["total"] == 1, (
-            "Downloading a resource should increase the resource's total "
-            "views"
+            "Downloading a resource should increase the resource's total views"
         )
 
         # The resource_show() API should return the same result.
         resource = call_action("resource_show", id=resource["id"])
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
-            "Downloading a resource should increase the resource's recent "
-            "views"
+            "Downloading a resource should increase the resource's recent views"
         )
         assert tracking_summary["total"] == 1, (
-            "Downloading a resource should increase the resource's total "
-            "views"
+            "Downloading a resource should increase the resource's total views"
         )
 
     @pytest.mark.usefixtures("clean_db")
@@ -273,16 +234,16 @@ class TestTracking(object):
             q = q.filter_by(url=url)
             tracking_summary = q.one()
             assert tracking_summary.count == 1, (
-                "Viewing a page should " "increase the page's view " "count"
+                "Viewing a page should increase the page's view count"
             )
             # For pages (as opposed to datasets and resources) recent_views and
             # running_total always stay at 1. Shrug.
-            assert (
-                tracking_summary.recent_views == 0
-            ), "recent_views for a page is always 0"
-            assert (
-                tracking_summary.running_total == 0
-            ), "running_total for a page is always 0"
+            assert tracking_summary.recent_views == 0, (
+                "recent_views for a page is always 0"
+            )
+            assert tracking_summary.running_total == 0, (
+                "running_total for a page is always 0"
+            )
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_with_many_views(self, track):
@@ -301,12 +262,11 @@ class TestTracking(object):
         package = call_action("package_show", id=package["name"])
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 3, (
-            "A package that has been viewed 3 times recently should have 3 "
-            "recent views"
+            "A package that has been viewed 3 times recently should have 3 recent views"
         )
-        assert (
-            tracking_summary["total"] == 3
-        ), "A package that has been viewed 3 times should have 3 total views"
+        assert tracking_summary["total"] == 3, (
+            "A package that has been viewed 3 times should have 3 total views"
+        )
 
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -343,8 +303,7 @@ class TestTracking(object):
             "3 recent downloads"
         )
         assert tracking_summary["total"] == 3, (
-            "A resource that has been downloaded 3 times should have 3 total "
-            "downloads"
+            "A resource that has been downloaded 3 times should have 3 total downloads"
         )
 
         tracking_summary = package["tracking_summary"]
@@ -382,16 +341,15 @@ class TestTracking(object):
             q = q.filter_by(url=url)
             tracking_summary = q.one()
             assert tracking_summary.count == 3, (
-                "A page that has been viewed three times should have view "
-                "count 3"
+                "A page that has been viewed three times should have view count 3"
             )
             # For pages (as opposed to datasets and resources) recent_views and
             # running_total always stay at 1. Shrug.
             assert tracking_summary.recent_views == 0, (
-                "recent_views for " "pages is always 0"
+                "recent_views for pages is always 0"
             )
             assert tracking_summary.running_total == 0, (
-                "running_total for " "pages is always 0"
+                "running_total for pages is always 0"
             )
 
     def test_dataset_view_count_throttling(self, track):
@@ -415,10 +373,10 @@ class TestTracking(object):
 
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
-            "Repeat dataset views should " "not add to recent views " "count"
+            "Repeat dataset views should not add to recent views count"
         )
         assert tracking_summary["total"] == 1, (
-            "Repeat dataset views should " "not add to total views count"
+            "Repeat dataset views should not add to total views count"
         )
 
     def test_resource_download_count_throttling(self, track):
@@ -439,12 +397,12 @@ class TestTracking(object):
 
         resource = call_action("resource_show", id=resource["id"])
         tracking_summary = resource["tracking_summary"]
-        assert (
-            tracking_summary["recent"] == 1
-        ), "Repeat resource downloads should not add to recent views count"
-        assert (
-            tracking_summary["total"] == 1
-        ), "Repeat resource downloads should not add to total views count"
+        assert tracking_summary["recent"] == 1, (
+            "Repeat resource downloads should not add to recent views count"
+        )
+        assert tracking_summary["total"] == 1, (
+            "Repeat resource downloads should not add to total views count"
+        )
 
     @pytest.mark.usefixtures("clean_index", "clean_db")
     def test_sorting_datasets_by_recent_views(self, track):
@@ -544,3 +502,7 @@ class TestTracking(object):
         package_2_data = lines[1]
         assert package_2_data["total views"] == "2"
         assert package_2_data["recent views (last 2 weeks)"] == "2"
+
+    def test_post_tracking_does_not_return_method_not_allowed(self, track):
+        response = track(url="", type_="page")
+        assert response.status_code == 200

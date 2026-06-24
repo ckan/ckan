@@ -6,6 +6,7 @@ from typing import Any, Callable
 from ckan.plugins import toolkit
 from ckan.types import Context, CKANApp
 from ckan.common import CKANConfig
+from ckanext.tracking.views import tracking_bp
 
 from .cli.tracking import tracking
 from .helpers import popular
@@ -19,6 +20,11 @@ class TrackingPlugin(p.SingletonPlugin):
     p.implements(p.IMiddleware, inherit=True)
     p.implements(p.IPackageController, inherit=True)
     p.implements(p.ITemplateHelpers)
+    p.implements(p.IBlueprint)
+
+    # IBlueprint
+    def get_blueprint(self):
+        return tracking_bp
 
     # IClick
     def get_commands(self) -> "list[click.Command]":

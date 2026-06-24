@@ -1,0 +1,2 @@
+POST /_tracking endpoint now returns 200 instead of 405 Method Not Allowed.
+Adds ckanext/tracking/views.py with a Flask blueprint that accepts POST /_tracking and returns 200.
