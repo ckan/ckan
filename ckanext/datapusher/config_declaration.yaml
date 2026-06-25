@@ -49,3 +49,13 @@ groups:
       In case a DataPusher task gets stuck and fails to recover, this is the minimum
       amount of time (in seconds) after a resource is submitted to DataPusher that the
       resource can be submitted again.
+
+  - key: ckan.datapusher.requires_validation
+    default: False
+    example: True
+    description: >-
+        Resources are required to pass validation from the ckanext-validation
+        plugin to be able to get DataPushered.
+    type: bool
+    required: false
+
