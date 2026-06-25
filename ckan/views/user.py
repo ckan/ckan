@@ -760,10 +760,12 @@ class PerformResetView(MethodView):
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to reset password.'))
 
+        context[u'ignore_auth'] = True
         try:
             user_dict = logic.get_action(u'user_show')(context, {u'id': id})
         except logic.NotFound:
             base.abort(404, _(u'User not found'))
+        del context[u'ignore_auth']
         user_obj = context[u'user_obj']
         g.reset_key = request.args.get(u'key')
         if not mailer.verify_reset_link(user_obj, g.reset_key):
