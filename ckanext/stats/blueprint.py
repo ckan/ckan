@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import Any
 from flask import Blueprint
-
+from ckan import plugins as p
 from ckan.plugins.toolkit import render, h
 import ckanext.stats.stats as stats_lib
 
@@ -52,4 +52,15 @@ def index():
         extra_vars['raw_deleted_datasets'].append(
             {'date': h.date_str_to_datetime(
                 week_date), 'deleted_packages': num_packages})
+
+    base_templates = 'ckanext/stats/'
+    templates = {
+        'raw_packages_by_week': base_templates + 'raw_packages_by_week.html',
+        'raw_all_package_revisions': base_templates + 'raw_all_package_revisions.html',
+    }
+    extra_vars['templates'] = templates
+    # Allow IStats interface to modify the stats
+    for item in p.PluginImplementations(p.IStats):
+        item.after_stats(extra_vars)
+
     return render(u'ckanext/stats/index.html', extra_vars)
