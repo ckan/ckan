@@ -396,6 +396,9 @@ section of the page has been replaced, but the rest of the page remains intact.
    part of the page, you have to look at the
    `source code of the default template files <https://github.com/ckan/ckan/tree/master/ckan/templates>`_.
 
+Template contents that are *not* in a block, or are in a block that does not
+exist in the parent, will be ignored.
+
 
 ------------------------------------------------------
 Extending parent blocks with Jinja's ``{{ super() }}``
@@ -410,9 +413,151 @@ block, you can use Jinja's ``{{ super() }}`` tag:
 When the child block above is rendered, Jinja will replace the
 ``{{ super() }}`` tag with the contents of the parent block.
 The ``{{ super() }}`` tag can be placed anywhere in the block.
+If the block does not exist in the parent, the template will give an error.
 
 
 .. _template helper functions:
+
+----------------------------
+Interactions between plugins
+----------------------------
+
+Overriding blocks
+=================
+
+If multiple plugins override the same template, then ``{% ckan_extends %}``
+will cause each one to extend the next plugin in the configuration, instead of
+extending the default. This can make the interactions between plugins complex,
+and sensitive to the exact ordering.
+
+Suppose that the configuration file contains:
+
+    ckan.plugins = plugin1 plugin2 plugin3
+
+And the default ``home/index.html`` contains:
+
+    Lorem ipsum {% block cicero %}dolor sit amet{% endblock %}
+
+And each of the three plugins defines a ``home/index.html`` like this:
+
+.. topic:: ``plugin1/templates/home/index.html``
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, adding plugin 1{% endblock %}
+
+.. topic:: ``plugin2/templates/home/index.html``
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, adding plugin 2{% endblock %}
+
+.. topic:: ``plugin3/templates/home/index.html``
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, adding plugin 3{% endblock %}
+
+Then the resulting page would look like:
+
+    Lorem ipsum dolor sit amet, adding plugin 3, adding plugin 2, adding plugin 1
+
+``plugin1`` loads its template first, but because of ``ckan_extends``, CKAN
+will keep looking through the list of plugins for one that can resolve the
+template. When it reaches ``plugin2``, the same thing occurs, followed by
+``plugin3``. CKAN then loads the default template, which does not extend
+anything, and passes it back up the chain. The ``plugin3`` template extends the
+``cicero`` block's contents (using ``super()``), ``plugin2`` extends it again,
+and ``plugin1`` extends it a third time.
+
+If one of the plugins does not use ``ckan_extends``, then processing will stop
+there. For example, suppose that the ``plugin2`` template just contains:
+
+    {% block cicero %}Adding plugin 2{% endblock %}
+
+Then the page would look like:
+
+    Adding plugin 2, adding plugin 1
+
+The ``plugin3`` template and the default template are not loaded. ``plugin1``
+is earlier in the plugin order, so it is still loaded, and extends the block.
+
+Similar considerations apply if a template overrides a block without calling
+``{{ super() }}``. The rest of the template will still extend the base, but the
+block will not. However, it can still be extended in turn by plugins that come
+earlier in the ordering. For example, if the ``plugin2`` template contained:
+
+    {% ckan_extends %}
+    {% block cicero %}adding plugin 2{% endblock %}
+
+then the result would look like:
+
+    Lorem ipsum adding plugin 2, adding plugin 1
+
+The ``plugin2`` template extends the ``plugin3`` template, but the ``cicero``
+block overrides the extended version without including it, because ``plugin2``
+does not call ``super()``. ``plugin1`` then extends the ``plugin2`` version of
+the block, because ``plugin1`` comes earlier in the plugin ordering (and does
+call ``super()``). The rest of the template extends the default.
+
+Adding blocks
+=============
+
+Plugins can declare new blocks that other plugins can override and extend.
+When using ``ckan_extends``, these blocks must be nested inside blocks that
+exist in the parent; otherwise they will be ignored. In addition, the template
+that directly extends the default cannot call ``super()`` for them, since no
+parent block exists.
+
+Overriding a nested block should normally occur at the top level, as calling
+``super()`` will copy the entire block from the parent, and defining it again
+within the enclosing block will create an additional copy.
+
+For example, using the same 'Lorem ipsum' example page as above:
+
+.. topic:: ``plugin1/templates/home/index.html``
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, Adding plugin 1{% endblock %}
+    {% block foo %}{{ super() }}, baz{% endblock %}
+
+.. topic:: ``plugin2/templates/home/index.html``
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, Adding plugin 2{% endblock %}
+    {% block foo %}{{ super() }}, meh{% endblock %}
+
+.. topic:: ``plugin3/templates/home/index.html``
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, Adding plugin 3{% block foo %}, quux{% endblock %}{% endblock %}
+
+``plugin3`` defines the ``foo`` block, and the other two plugins extend it with
+``super()``. The result will look like:
+
+    Lorem ipsum dolor sit amet, Adding plugin 3, quux, meh, baz, Adding plugin 2, Adding plugin 1
+
+If the ``foo`` block in ``plugin3`` attempted to call ``super()``, it would
+encounter an error.
+
+If the ordering were changed to ``ckan.plugins = plugin2 plugin3 plugin1``,
+then there would again be an error, since the ``foo`` block for ``plugin1``
+would be attempting to call ``super()`` when no parent exists.
+
+If the ``plugin1`` and ``plugin2`` templates moved the ``foo`` block from the
+top level to nest it again, like so:
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, Adding plugin 1{% block foo %}{{ super() }}, baz{% endblock %}{% endblock %}
+
+    {% ckan_extends %}
+    {% block cicero %}{{ super() }}, Adding plugin 2{% block foo %}{{ super() }}, meh{% endblock %}{% endblock %}
+
+Then the contents of the ``foo`` block would appear multiple times:
+
+    Lorem ipsum dolor sit amet, Adding plugin 3, quux, meh, baz, Adding plugin 2, quux, meh, baz, Adding plugin 1, quux, meh, baz
+
+``plugin2`` and ``plugin1`` add to the contents of ``foo``, but by calling ``super()``, they also cause the entire parent block
+- including a copy of ``foo`` - to be inserted at the start of the ``cicero`` block, before then adding another copy of ``foo``.
+This is rarely the desired behaviour. If you wish to call ``super()`` on a block that contains a nested block, and at the same time
+override the contents of the nested block, you should usually add your override as a top-level block, as shown above.
 
 -------------------------
 Template helper functions
