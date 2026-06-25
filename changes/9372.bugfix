@@ -1,0 +1,3 @@
+Add the missing CSRF token (``h.csrf_input()``) to the Table Designer add-row,
+edit-row and delete-rows forms, so they are protected and continue to work when
+extension CSRF protection is enforced (``ckan.csrf_protection.ignore_extensions = false``).
