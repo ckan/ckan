@@ -102,7 +102,8 @@ DO $body$
                 ON t.tgrelid = relname::regclass AND t.tgname = 'zfulltext'
             WHERE relkind = 'r'::"char" AND t.tgname IS NULL
                 AND relnamespace = (
-                    SELECT oid FROM pg_namespace WHERE nspname='public')),
+                    SELECT oid FROM pg_namespace WHERE nspname='public')
+                AND NOT starts_with(relname, '_')),
             'SELECT 1;');
     END;
 $body$;
