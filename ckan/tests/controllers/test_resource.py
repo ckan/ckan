@@ -76,6 +76,11 @@ class TestCreate:
     ):
         """Submitting an empty resource form does not create a resource."""
         app.set_session_user(user["name"])
+
+        # when form is submitted, even if `upload` field is empty, it's sent to
+        # flask as unnamed file with no content. To reliably test creation of
+        # empty resource, `upload` must be provided in the same way in the
+        # following payload.
         app.post(
             f"/dataset/{package['name']}/resource/new",
             data={"save": "", "id": "", "upload": (BytesIO(), "")},
