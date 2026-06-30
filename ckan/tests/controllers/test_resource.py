@@ -1,9 +1,13 @@
-# encoding: utf-8
+from __future__ import annotations
 
+from typing import Any
+from faker import Faker
+from file_keeper.core.upload import BytesIO
 import pytest
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.tests.factories as factories
+from ckan import types
 from ckan.tests.helpers import call_action
 
 
@@ -61,3 +65,46 @@ class TestPluggablePreviews:
 
         assert "mock-preview" in result
         assert "mock-preview.js" in result
+
+
+@pytest.mark.usefixtrues("with_plugins", "non_clean_db")
+class TestCreate:
+    """Tests for the resource creation page."""
+
+    def test_empty_form(
+        self, user: dict[str, Any], app: types.FixtureApp, package: dict[str, Any]
+    ):
+        """Submitting an empty resource form does not create a resource."""
+        app.set_session_user(user["name"])
+        app.post(
+            f"/dataset/{package['name']}/resource/new",
+            data={"save": "", "id": "", "upload": (BytesIO(), "")},
+        )
+
+        pkg = call_action("package_show", id=package["id"])
+        assert not pkg["resources"]
+
+    def test_form_with_upload(
+        self,
+        user: dict[str, Any],
+        app: types.FixtureApp,
+        package: dict[str, Any],
+        faker: Faker,
+    ):
+        """Submitting a resource form with an uploaded file creates a new resource."""
+        content = faker.binary(42)
+        filename = faker.file_name(extension="txt")
+        app.set_session_user(user["name"])
+        app.post(
+            f"/dataset/{package['name']}/resource/new",
+            data={"save": "", "id": "", "upload": (BytesIO(content), filename)},
+        )
+
+        pkg = call_action("package_show", id=package["id"])
+
+        assert len(pkg["resources"]) == 1
+        res = pkg["resources"][0]
+
+        assert res["size"] == len(content)
+        assert res["format"] == "TXT"
+        assert res["url"].endswith(filename)
