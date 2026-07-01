@@ -107,16 +107,6 @@ function copyModal (title) {
   window.getSelection().removeAllRanges()
 }
 
-// force column auto width adjustment to kick in
-// used by "Autofit columns" button
-function fitColText () {
-  const dt = $('#dtprv').DataTable({ retrieve: true })
-  if (gcurrentView === 'list') {
-    dt.responsive.recalc()
-  }
-  dt.columns.adjust().draw(false)
-}
-
 // ensure element id is valid
 function validateId (id) {
   id = id.toLowerCase()
@@ -575,7 +565,6 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
           })
-          api.draw(false)
         }, // end stateLoadParams
         stateSaveParams: function (settings, data) {
           // this callback is invoked when saving state info
@@ -658,10 +647,6 @@ this.ckan.module('datatables_view', function (jQuery) {
             }
           })
 
-          // start showing page once everything is just about rendered
-          // we need to make it visible now so smartsize works if needed
-          document.getElementsByClassName('dt-view')[0].style.visibility = 'visible'
-
           const url = new URL(window.location.href)
           const state = url.searchParams.get('state')
           // if there is a state url parm, its a deeplink share
@@ -673,33 +658,6 @@ this.ckan.module('datatables_view', function (jQuery) {
               setTimeout(function () {
                 window.location.reload()
               }, 200)
-            }
-          } else {
-            // otherwise, do a smartsize check to fill up screen
-            // if default pagelen is too low and there is available space
-            const currPageLen = api.page.len()
-            if (json.recordsTotal > currPageLen) {
-              const scrollBodyHeight = $('#resize_wrapper').height() - ($('.dataTables_scrollHead').height() * 2.75)
-              const rowHeight = $('tbody tr').first().height()
-              // find nearest pagelen to fill display
-              const minPageLen = Math.floor(scrollBodyHeight / rowHeight)
-              if (currPageLen < minPageLen) {
-                for (const pageLen of pagelengthchoices) {
-                  if (pageLen >= minPageLen) {
-                    api.page.len(pageLen)
-                    api.ajax.reload()
-                    api.columns.adjust()
-                    window.localStorage.removeItem('loadctr-' + gresviewId)
-                    console.log('smart sized >' + minPageLen)
-                    setTimeout(function () {
-                      const api = $('#dtprv').DataTable({ retrieve: true })
-                      api.draw(false)
-                      fitColText()
-                    }, 100)
-                    break
-                  }
-                }
-              }
             }
           }
 
@@ -915,8 +873,6 @@ this.ckan.module('datatables_view', function (jQuery) {
                         : ' <span class="fa fa-sort-amount-desc"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
-        //adjust column widths after sorting
-        fitColText();
       })
     }
   }
