@@ -11,8 +11,6 @@ import datetime
 from socket import error as socket_error
 from typing import Any, Union, cast
 
-import six
-
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -182,11 +180,9 @@ def package_create(
 
     plugin_data = data.get('plugin_data', False)
     include_plugin_data = False
-    if user:
-        user_obj = model.User.by_name(six.ensure_text(user))
-        if user_obj:
-            data['creator_user_id'] = user_obj.id
-            include_plugin_data = user_obj.sysadmin and plugin_data
+    if user_obj := model.User.by_name(user):
+        data['creator_user_id'] = user_obj.id
+        include_plugin_data = user_obj.sysadmin and plugin_data
 
     pkg, _change = model_save.package_dict_save(
         data, context, include_plugin_data)
@@ -722,7 +718,7 @@ def _group_or_org_create(context: Context,
     for item in plugins.PluginImplementations(plugin_type):
         item.create(group)
 
-    user_obj = model.User.by_name(six.ensure_text(user))
+    user_obj = model.User.by_name(user)
     assert user_obj
 
     upload.upload(uploader.get_max_image_size())

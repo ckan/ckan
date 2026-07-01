@@ -9,7 +9,7 @@ from typing import Any
 import pysolr
 import simplejson
 
-from six.moves.urllib.parse import quote_plus  # type: ignore
+from urllib.parse import quote_plus
 from pysolr import Solr
 
 from ckan.common import config
