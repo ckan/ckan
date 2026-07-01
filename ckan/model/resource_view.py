@@ -5,6 +5,8 @@ from typing import Any, Collection, Optional
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -25,7 +27,7 @@ resource_view_table = sa.Table(
     sa.Column('description', sa.types.UnicodeText, nullable=True),
     sa.Column('view_type', sa.types.UnicodeText, nullable=False),
     sa.Column('order', sa.types.Integer, nullable=False),
-    sa.Column('config', _types.JsonDictType),
+    sa.Column('config', MutableDict.as_mutable(JSONB)),
     sa.Index('idx_view_resource_id', 'resource_id'),
 )
 
