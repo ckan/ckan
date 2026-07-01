@@ -1,0 +1,3 @@
+Validate the NUL byte in the password reset form input to prevent psycopg2
+from crashing when it tries to look up a user with an invalid username or
+email address.
