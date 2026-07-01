@@ -1,25 +1,11 @@
-[role=main],
-.main {
-    position: relative;
-}
-
 .main {
     padding: 20px 0;
     background-color: $white;
 }
 
-.main:after,
-[role=main]:after {
-    bottom: 0;
-    border-top-width: 1px;
-}
-
 .main .primary {
     border-radius: 20px;
     background-color: $layoutPrimaryBackgroundColor;
-    position: relative;
-    float: right;
-    margin-left: 0; // Remove grid margin.
 }
 
 .main .secondary {

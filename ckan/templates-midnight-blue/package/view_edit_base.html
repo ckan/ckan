@@ -23,7 +23,7 @@
   {% if h.resource_view_full_page(resource_view) %}
     {{ self.flash() }}
     {{ self.toolbar() }}
-    <div class="wrapper no-nav">
+    <div class="wrapper">
       {{ self.primary_content() }}
     </div>
   {% else %}
@@ -31,7 +31,7 @@
   {% endif %}
 
   {% if to_preview and h.resource_view_display_preview(resource_view) %}
-    <div class="row wrapper no-nav view-preview-container">
+    <div class="row wrapper view-preview-container">
       <section class="module module-narrow module-shallow">
         <h2 class="module-heading">
           <i class="fa fa-image"></i> {{ _('View preview') }}
