@@ -138,6 +138,7 @@ def package_resource_list_save(
     # Mark any left-over resources as deleted
     for resource in set(old_list) - set(obj_list):
         resource.state = 'deleted'
+        resource.position = None
         resource_list.append(resource)
 
     return True
