@@ -385,6 +385,8 @@ def resource_view_create(
     else:
         order = last_view.order + 1
     data['order'] = order
+    data['view_type'] = view_type
+    data['resource_id'] = resource_id
 
     resource_view = model_save.resource_view_dict_save(data, context)
     if not context.get('defer_commit'):
