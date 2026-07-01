@@ -116,6 +116,15 @@ If making site wide header changes it is preferable to override the
 Blocks in base.html
 ===================
 
+document
+--------
+
+The document block is the root block for the entire page. It can be used to
+replace the entire page content if needed. It is not recommended to use this
+block as it will make it difficult to maintain the page structure and may cause
+issues with other blocks. It is better to use the other blocks to make changes
+to the page structure and content.
+
 doctype
 -------
 
@@ -123,26 +132,32 @@ Allows the DOCTYPE to be set on a page by page basis::
 
   {% block doctype %}<!DOCTYPE html>{% endblock %}
 
-htmltag
--------
+html_attrs
+----------
 
 Allows custom attributes to be added to the <html> tag::
 
-  {% block htmltag %}<html lang="en-gb" class="no-js">{% endblock %}
+  {% block html_attrs %}lang="en" data-tag="No idea what you'd add here"{% endblock %}
 
-headtag
--------
+head_extras
+-----------
 
-Allows custom attributes to be added to the <head> tag::
+The document_head block allows you to add additional content to the head of the
+page.
 
-  {% block headtag %}<head data-tag="No idea what you'd add here">{% endblock %}
+body_extras
+-----------
 
-bodytag
--------
+The document_head block allows you to add additional content to the body of the
+page.
+
+
+body_attrs
+----------
 
 Allows custom attributes to be added to the <body> tag::
 
-  {% block bodytag %}<body class="full-page">{% endblock %}
+  {% block body_attrs %}class="my-custom-class" data-tag="No idea what you'd add here"{% endblock %}
 
 meta
 ----
