@@ -1,0 +1,15 @@
+{
+    "processing": "Henter...",
+    "lengthMenu": "Vis _MENU_ linjer",
+    "zeroRecords": "Ingen linjer matcher s&oslash;gningen",
+    "info": "Viser _START_ til _END_ af _TOTAL_ linjer",
+    "infoEmpty": "Viser 0 til 0 af 0 linjer",
+    "infoFiltered": "(filtreret fra _MAX_ linjer)",
+    "search": "S&oslash;g:",
+    "paginate": {
+        "first": "F&oslash;rste",
+        "previous": "Forrige",
+        "next": "N&aelig;ste",
+        "last": "Sidste"
+    }
+}
