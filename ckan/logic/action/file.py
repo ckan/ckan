@@ -607,7 +607,7 @@ def file_rename(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
     .. code-block:: sh
 
-        $ ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a \\
+        $ ckanapi action file_rename id=226056e2-6f83-47c5-8bd2-102e2b82ab9a \\
             name=new-name.txt
 
     :param id: ID of the file
