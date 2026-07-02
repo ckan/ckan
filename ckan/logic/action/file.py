@@ -214,7 +214,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     storage. It always sanitized with :py:func:`~ckan.lib.munge.munge_filename`
     to avoid directory traversal. Additionally, it can be transformed via
     storage's ``location_transformers``. These are the function that are
-    applied to the name after sanitization anb before file is written to the
+    applied to the name after sanitization and before file is written to the
     storage. For example, filename can be transformed into UUIDv4 using
     ``uuid4`` transformer, to prevent name collisions. Alternatively, for the
     same reason, file can be prefixed with an ISO 8601 datetime using
