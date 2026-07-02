@@ -269,7 +269,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     Instead of enabling access to this action for every registered user, the
     recommended approach is to create a different action for handling specific
     type of uploads. Implement dedicated auth function for this new action and
-    then use it to upload files into a signle target storage, controlling
+    then use it to upload files into a single target storage, controlling
     upload quota per user or any other aspects of uploads. Internally, this new
     action can call ``file_create`` bypassing its authorization, as long as new
     action has reliable auth function:
