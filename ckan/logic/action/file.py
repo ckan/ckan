@@ -578,7 +578,7 @@ def file_show(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileS
     """Show file details.
 
     This action only displays information from DB record. There is no way to
-    get the content of the file using this action(or any other API action).
+    get the content of the file using this action (or any other API action).
 
     .. code-block:: sh
 
