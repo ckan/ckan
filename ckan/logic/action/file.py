@@ -286,7 +286,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
                 {"name": name, "storage": storage, "upload": upload},
             )
 
-    When uploading a real file(or using ``werkqeug.datastructures.FileStorage``),
+    When uploading a real file (or using ``werkqeug.datastructures.FileStorage``),
     name parameter can be omited. In this case, the name of uploaded file is
     used:
 
