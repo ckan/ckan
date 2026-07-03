@@ -67,7 +67,7 @@ class TestPluggablePreviews:
         assert "mock-preview.js" in result
 
 
-@pytest.mark.usefixtrues("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 class TestCreate:
     """Tests for the resource creation page."""
 
