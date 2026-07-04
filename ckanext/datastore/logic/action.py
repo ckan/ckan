@@ -962,8 +962,9 @@ def datastore_function_delete(context: Context, data_dict: dict[str, Any]):
 
 @logic.validate(dsschema.datastore_sequence_create_schema)
 def datastore_sequence_create(context: Context, data_dict: dict[str, Any]):
-    u'''
-    Create a sequence for use with trigger functions
+    '''
+    Create a sequence for use with trigger functions or
+    datastore_sequence_next
 
     :param name: sequence name
     :type name: string
@@ -979,7 +980,7 @@ def datastore_sequence_create(context: Context, data_dict: dict[str, Any]):
 
 @logic.validate(dsschema.datastore_sequence_delete_schema)
 def datastore_sequence_delete(context: Context, data_dict: dict[str, Any]):
-    u'''
+    '''
     Delete a sequence
 
     :param name: sequence name
@@ -995,11 +996,12 @@ def datastore_sequence_delete(context: Context, data_dict: dict[str, Any]):
 
 @logic.validate(dsschema.datastore_sequence_next_schema)
 def datastore_sequence_next(context: Context, data_dict: dict[str, Any]):
-    u'''
-    Delete a sequence
+    '''
+    Return the next value and advance a sequence
 
     :param name: sequence name
     :type name: string
+    :rtype: int
     '''
     p.toolkit.check_access('datastore_sequence_next', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
