@@ -259,3 +259,23 @@ def datastore_info_schema() -> Schema:
         'include_fields_schema': [default(True), boolean_validator],
         '__before': [rename('id', 'resource_id')]
     }
+
+
+def datastore_sequence_create_schema() -> Schema:
+    return {
+        'name': [unicode_only, not_empty],
+        'if_not_exists': [default(False), boolean_validator],
+    }
+
+
+def datastore_sequence_delete_schema() -> Schema:
+    return {
+        'name': [unicode_only, not_empty],
+        'if_exists': [default(False), boolean_validator],
+    }
+
+
+def datastore_sequence_next_schema() -> Schema:
+    return {
+        'name': [unicode_only, not_empty],
+    }

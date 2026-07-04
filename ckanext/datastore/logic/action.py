@@ -958,3 +958,49 @@ def datastore_function_delete(context: Context, data_dict: dict[str, Any]):
     p.toolkit.check_access('datastore_function_delete', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
     backend.drop_function(data_dict['name'], data_dict['if_exists'])
+
+
+@logic.validate(dsschema.datastore_sequence_create_schema)
+def datastore_sequence_create(context: Context, data_dict: dict[str, Any]):
+    u'''
+    Create a sequence for use with trigger functions
+
+    :param name: sequence name
+    :type name: string
+    :param if_not_exists: True to skip existing sequences
+        (default: False)
+    '''
+    p.toolkit.check_access('datastore_sequence_create', context, data_dict)
+    backend = DatastoreBackend.get_active_backend()
+    backend.create_sequence(
+        name=data_dict['name'],
+        if_not_exists=data_dict['if_not_exists'])
+
+
+@logic.validate(dsschema.datastore_sequence_delete_schema)
+def datastore_sequence_delete(context: Context, data_dict: dict[str, Any]):
+    u'''
+    Delete a sequence
+
+    :param name: sequence name
+    :type name: string
+    :param if_exists: True to skip missing sequences
+        (default: False)
+    '''
+    p.toolkit.check_access('datastore_sequence_delete', context, data_dict)
+    backend = DatastoreBackend.get_active_backend()
+    backend.drop_sequence(
+        name=data_dict['name'], if_exists=data_dict['if_exists'])
+
+
+@logic.validate(dsschema.datastore_sequence_next_schema)
+def datastore_sequence_next(context: Context, data_dict: dict[str, Any]):
+    u'''
+    Delete a sequence
+
+    :param name: sequence name
+    :type name: string
+    '''
+    p.toolkit.check_access('datastore_sequence_next', context, data_dict)
+    backend = DatastoreBackend.get_active_backend()
+    return backend.sequence_nextval(name=data_dict['name'])

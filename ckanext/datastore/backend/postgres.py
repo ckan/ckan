@@ -7,6 +7,7 @@ from typing_extensions import TypeAlias
 
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.dialects.postgresql import REGCLASS
+from sqlalchemy.schema import CreateSequence, DropSequence
 from ckan.types import Context, ErrorDict
 import copy
 import logging
@@ -2528,6 +2529,16 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             except DatabaseError as err:
                 raise DatastoreException(err)
 
+    def create_sequence(self, *args: Any, **kwargs: Any) -> None:
+        return create_sequence(*args, **kwargs)
+
+    def drop_sequence(self, *args: Any, **kwargs: Any) -> None:
+        return drop_sequence(*args, **kwargs)
+
+    def sequence_nextval(self, *args: Any, **kwargs: Any) -> int:
+        return sequence_nextval(*args, **kwargs)
+
+
 
 def create_function(name: str, arguments: Iterable[dict[str, Any]],
                     rettype: Any, definition: str, or_replace: bool):
@@ -2569,6 +2580,33 @@ def drop_function(name: str, if_exists: bool):
         _write_engine_execute(sql)
     except ProgrammingError as pe:
         raise ValidationError({u'name': [_programming_error_summary(pe)]})
+
+
+def create_sequence(name: str, if_not_exists: bool) -> None:
+    try:
+        with get_write_engine().begin() as conn:
+            seq = sa.Sequence(name)
+            conn.execute(CreateSequence(seq, if_not_exists=if_not_exists))
+    except ProgrammingError as pe:
+        raise ValidationError({'name': [_programming_error_summary(pe)]})
+
+
+def drop_sequence(name: str, if_exists: bool) -> None:
+    try:
+        with get_write_engine().begin() as conn:
+            seq = sa.Sequence(name)
+            conn.execute(DropSequence(seq, if_exists=if_exists))
+    except ProgrammingError as pe:
+        raise ValidationError({'name': [_programming_error_summary(pe)]})
+
+
+def sequence_nextval(name: str) -> int:
+    try:
+        with get_write_engine().begin() as conn:
+            seq = sa.Sequence(name)
+            return conn.execute(sa.select(seq.next_value())).scalar()
+    except ProgrammingError as pe:
+        raise ValidationError({'name': [_programming_error_summary(pe)]})
 
 
 def _write_engine_execute(sql: str):

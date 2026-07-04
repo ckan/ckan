@@ -245,3 +245,18 @@ class DatastoreBackend:
         """Remove number or records and any other stats cached for
         a resource.
         """
+
+    def create_sequence(self, name: str, if_not_exists: bool) -> None:
+        """Called by `datastore_sequence_create` action.
+        """
+        raise NotImplementedError()
+
+    def drop_sequence(self, name: str, if_exists: bool) -> None:
+        """Called by `datastore_sequence_delete` action.
+        """
+        raise NotImplementedError()
+
+    def sequence_nextval(self, name: str) -> int:
+        """Called by `datastore_sequence_next` action.
+        """
+        raise NotImplementedError()
