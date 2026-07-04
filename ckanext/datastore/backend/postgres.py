@@ -2604,7 +2604,9 @@ def sequence_nextval(name: str) -> int:
     try:
         with get_write_engine().begin() as conn:
             seq = sa.Sequence(name)
-            return conn.execute(sa.select(seq.next_value())).scalar()
+            num = conn.execute(sa.select(seq.next_value())).scalar()
+            assert isinstance(num, int)
+            return num
     except ProgrammingError as pe:
         raise ValidationError({'name': [_programming_error_summary(pe)]})
 
