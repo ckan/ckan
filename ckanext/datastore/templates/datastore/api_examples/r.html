@@ -13,9 +13,9 @@ result &lt;- req %&gt;%
     req_body_json(list(
         resource_id = '{{ resource_id }}',
         limit = 5,
-        q = 'jones'))
-    req_perform %&gt;% 
-    resp_body_json</code></pre>
+        q = 'jones')) %&gt;%
+    req_perform() %&gt;%
+    resp_body_json()</code></pre>
 {% endcall %}
 
 
@@ -30,9 +30,9 @@ result &lt;- req %&gt;%
         resource_id='{{ resource_id }}', 
         filters = list(
             subject = list("watershed", "survey"), 
-            stage = "active")))
-    req_perform %&gt;% 
-    resp_body_json</code></pre>
+            stage = "active"))) %&gt;%
+    req_perform() %&gt;%
+    resp_body_json()</code></pre>
 {% endcall %}
 
 
@@ -44,9 +44,9 @@ req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search_s
 result &lt;- req %&gt;% 
     req_headers(Authorization = API_TOKEN) %&gt;% 
     req_body_json(list(
-        sql = "SELECT * FROM \"{{resource_id}}\" WHERE title LIKE 'jones'"))
-    req_perform %&gt;% 
-    resp_body_json
+        sql = "SELECT * FROM \"{{resource_id}}\" WHERE title LIKE 'jones'")) %&gt;%
+    req_perform() %&gt;%
+    resp_body_json()
 </code></pre>
 {% endcall %}
 
