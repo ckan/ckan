@@ -282,7 +282,7 @@ they will behave identically.
 CKAN uses `file-keeper`_ as an abstraction layer for low-level interaction with
 the file storages. It exposes classes with a standard storage interface
 regardless of the underlying system. As a result, saving files into the local
-files ystem, a cloud provider or a database looks exactly the same from the
+file system, a cloud provider or a database looks exactly the same from the
 code perspective.
 
 Storages are initialized during application startup and must be configured in

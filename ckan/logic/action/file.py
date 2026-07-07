@@ -214,7 +214,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     storage. It always sanitized with :py:func:`~ckan.lib.munge.munge_filename`
     to avoid directory traversal. Additionally, it can be transformed via
     storage's ``location_transformers``. These are the function that are
-    applied to the name after sanitization anb before file is written to the
+    applied to the name after sanitization and before file is written to the
     storage. For example, filename can be transformed into UUIDv4 using
     ``uuid4`` transformer, to prevent name collisions. Alternatively, for the
     same reason, file can be prefixed with an ISO 8601 datetime using
@@ -269,7 +269,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     Instead of enabling access to this action for every registered user, the
     recommended approach is to create a different action for handling specific
     type of uploads. Implement dedicated auth function for this new action and
-    then use it to upload files into a signle target storage, controlling
+    then use it to upload files into a single target storage, controlling
     upload quota per user or any other aspects of uploads. Internally, this new
     action can call ``file_create`` bypassing its authorization, as long as new
     action has reliable auth function:
@@ -286,7 +286,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
                 {"name": name, "storage": storage, "upload": upload},
             )
 
-    When uploading a real file(or using ``werkqeug.datastructures.FileStorage``),
+    When uploading a real file (or using ``werkqeug.datastructures.FileStorage``),
     name parameter can be omited. In this case, the name of uploaded file is
     used:
 
@@ -578,7 +578,7 @@ def file_show(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileS
     """Show file details.
 
     This action only displays information from DB record. There is no way to
-    get the content of the file using this action(or any other API action).
+    get the content of the file using this action (or any other API action).
 
     .. code-block:: sh
 
