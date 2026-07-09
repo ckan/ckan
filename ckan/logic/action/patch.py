@@ -132,9 +132,6 @@ def organization_patch(
     patched = dict(organization_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    if patched.get("extras"):
-        for extra in patched["extras"]:
-            extra.pop("id", None)
 
     patch_context = context.copy()
     patch_context['allow_partial_update'] = True
