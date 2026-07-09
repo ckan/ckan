@@ -31,7 +31,7 @@ class Reader(base.Reader, fs.Reader):
         filepath = self.storage.full_path(data.location)
         return flask.send_file(
             filepath,
-            download_name=data.location,
+            download_name=extras.get("filename") or data.location,
             mimetype=data.content_type,
         )
 
