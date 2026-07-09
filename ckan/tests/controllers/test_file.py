@@ -31,6 +31,30 @@ class TestDownload:
         assert resp.data == content
 
 
+    def test_download_fs(
+        self,
+        faker: Faker,
+        file_factory: types.TestFactory,
+        app: types.FixtureApp,
+        tmpdir: Any,
+        reset_storages: types.FixtureResetStorages,
+        ckan_config: types.FixtureCkanConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        """Test downloaded file has correct name."""
+        name = ckan_config["ckan.files.default_storages.default"]
+        monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.type", "ckan:fs")
+        monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.path", str(tmpdir))
+        monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.location_transformers", ["uuid4"])
+        reset_storages()
+
+        file = file_factory()
+
+        app.set_session_user(file["owner_id"])
+        resp = app.get(f"/file/download/{file['id']}")
+        assert file["name"] in resp.headers["content-disposition"]
+
+
 class TestPublicDownload:
     @pytest.mark.ckan_config(
         "ckan.files.storage.non_public_storage.type", "ckan:memory"
