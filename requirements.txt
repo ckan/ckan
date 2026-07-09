@@ -12,7 +12,7 @@ babel==2.15.0
     # via
     #   -r requirements.in
     #   flask-babel
-bleach==6.1.0
+bleach==6.4.0
     # via -r requirements.in
 blinker==1.9.0
     # via
@@ -54,7 +54,7 @@ greenlet==3.3.1
     # via
     #   -r requirements.in
     #   sqlalchemy
-idna==3.7
+idna==3.18
     # via requests
 itsdangerous==2.2.0
     # via
@@ -65,11 +65,11 @@ jinja2==3.1.6
     #   -r requirements.in
     #   flask
     #   flask-babel
-lxml==6.0.2
+lxml==6.1.1
     # via
     #   -r requirements.in
     #   feedgen
-mako==1.3.11
+mako==1.3.12
     # via alembic
 markdown==3.10.2
     # via -r requirements.in
@@ -96,7 +96,7 @@ polib==1.2.0
     # via -r requirements.in
 psycopg2==2.9.11
     # via -r requirements.in
-pyjwt==2.12.1
+pyjwt==2.13.0
     # via -r requirements.in
 pyparsing==3.1.2
     # via -r requirements.in
@@ -125,9 +125,7 @@ rq==1.16.2
 simplejson==3.19.2
     # via -r requirements.in
 six==1.16.0
-    # via
-    #   bleach
-    #   python-dateutil
+    # via python-dateutil
 sqlalchemy[mypy]==1.4.52
     # via
     #   -r requirements.in
@@ -148,7 +146,7 @@ typing-extensions==4.12.2
     #   sqlalchemy2-stubs
 tzlocal==5.2
     # via -r requirements.in
-urllib3==2.6.3
+urllib3==2.7.0
     # via requests
 watchdog==4.0.1
     # via werkzeug
