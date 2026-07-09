@@ -29,6 +29,7 @@ import ckan.authz as authz
 
 from ckan import model
 from ckan.common import _, asbool
+from ckan.lib.search import rebuild
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
 # FIXME this looks nasty and should be shared better
@@ -605,6 +606,8 @@ def member_create(context: Context,
     model.Session.add(member)
     if not context.get("defer_commit"):
         model.repo.commit()
+        if isinstance(obj, model.Package):
+            rebuild(obj.id)
 
     return model_dictize.member_dictize(member, context)
 
