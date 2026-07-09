@@ -37,11 +37,11 @@ class TestFileCreate:
 
     def test_name_explicit(self, file_factory: types.TestFactory):
         """Name can be overriden even when upload contains filename."""
-        name = fake.unique.file_name()
+        name = fake.unique.file_name().capitalize()
         ignored_name = fake.unique.file_name()
         upload = FileStorage(io.BytesIO(fake.binary(100)), ignored_name)
         result = file_factory(name=name, upload=upload)
-        assert result["location"] == name
+        assert result["location"] == name.lower()
 
     def test_missing_name(self, file_factory: types.TestFactory, faker: Faker):
         """If upload does not have filename, explicit name is required."""
