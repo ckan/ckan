@@ -4,8 +4,6 @@ import json
 import logging
 from typing import Any, Optional, Union
 
-from werkzeug.datastructures import FileStorage as FlaskFileStorage
-
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
 from flask.views import MethodView
@@ -229,9 +227,9 @@ class CreateView(MethodView):
         # see if we have any data that we are trying to save
         data_provided = False
         for key, value in data.items():
-            if (
-                    (value or isinstance(value, FlaskFileStorage))
-                    and key != u'resource_type'):
+            # in case of empty upload, value will be set to FileStorage without
+            # `filename` attribute, which evaluates to False in boolean context
+            if value and key != "resource_type":
                 data_provided = True
                 break
 

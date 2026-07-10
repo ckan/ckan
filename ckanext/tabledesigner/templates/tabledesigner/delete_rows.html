@@ -25,6 +25,7 @@
   </table>
 
   <form method="post" >
+    {{ h.csrf_input() }}
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-alert"></i> {{ _('Delete') }}
     </button>
