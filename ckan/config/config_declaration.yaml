@@ -1607,8 +1607,8 @@ groups:
 
       - key: ckan.webassets.debug
         type: bool
-        default: true
-        example: false
+        default: false
+        example: true
         description: |
           When this setting is ``True``, webassets will not combine and minify
           the assets, and will instead serve them as separate files. This may
