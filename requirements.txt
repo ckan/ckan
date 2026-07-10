@@ -18,7 +18,7 @@ bleach==5.0.1
     # via -r requirements.in
 blinker==1.5
     # via -r requirements.in
-certifi==2024.7.4
+certifi==2026.6.17
     # via
     #   -r requirements.in
     #   requests
