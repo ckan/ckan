@@ -1013,15 +1013,15 @@ class TestDatasetCreate(object):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": False}
         _id = str(uuid.uuid4())
-        with pytest.raises(logic.ValidationError) as exception:
-            helpers.call_action(
-                "package_create",
-                context=context,
-                name=factories.Dataset.stub().name,
-                title="Test Extras",
-                extras=[{"id": _id, "key": "original media", "value": '"book"'}],
-            )
-        assert "The input field id was not expected" in str(exception.value)
+        dataset = helpers.call_action(
+            "package_create",
+            context=context,
+            name=factories.Dataset.stub().name,
+            title="Test Extras",
+            extras=[{"id": _id, "key": "original media", "value": '"book"'}],
+        )
+        assert _id != model.Session.query(model.PackageExtra.id).filter(
+            model.PackageExtra.package_id==dataset['id']).scalar()
 
     def test_license(self):
         dataset = helpers.call_action(
@@ -1234,14 +1234,14 @@ class TestGroupCreate(object):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": False}
         _id = str(uuid.uuid4())
-        with pytest.raises(logic.ValidationError) as exception:
-            helpers.call_action(
-                "group_create",
-                context=context,
-                name=f"test-group-{_id}",
-                extras=[{"id": _id, "key": "area", "value": '"non profit"'}]
-            )
-        assert "The input field id was not expected" in str(exception.value)
+        group = helpers.call_action(
+            "group_create",
+            context=context,
+            name=f"test-group-{_id}",
+            extras=[{"id": _id, "key": "area", "value": '"non profit"'}]
+        )
+        assert _id != model.Session.query(model.GroupExtra.id).filter(
+            model.GroupExtra.group_id==group['id']).scalar()
 
     def test_sysadmin_user_cant_set_extras_id(self):
         user = factories.Sysadmin()
@@ -2360,6 +2360,29 @@ class TestTagCreate:
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate2:
+    @pytest.mark.usefixtures("clean_index")
+    def test_member_create_reindexes_package_groups(self):
+        group = factories.Group()
+        package = factories.Dataset()
+
+        def get_search_result_groups():
+            results = helpers.call_action(
+                "package_search", q=package["title"]
+            )["results"]
+            return [group["name"] for group in results[0]["groups"]]
+
+        assert get_search_result_groups() == []
+
+        helpers.call_action(
+            "member_create",
+            object=package["id"],
+            id=group["id"],
+            object_type="package",
+            capacity="public",
+        )
+
+        assert get_search_result_groups() == [group["name"]]
+
     def test_member_create_accepts_object_name_or_id(self):
         org = factories.Organization()
         package = factories.Dataset()

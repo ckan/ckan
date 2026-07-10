@@ -163,6 +163,45 @@ class TestPatch(object):
         assert organization2["name"] == name
         assert organization2["description"] == "somethingnew"
 
+    def test_organization_patch_with_extras(self):
+        user = factories.User()
+        organization = factories.Organization(
+            description="some test now", user=user,
+            extras=[
+                {"key": "k1", "value": "v1"},
+                {"key": "k2", "value": "v2"},
+            ]
+        )
+        name = organization["name"]
+
+        new_extras = [
+            {"key": "k1", "value": "v1"},
+            {"key": "k3", "value": "v3"},
+        ]
+
+        organization = helpers.call_action(
+            "organization_patch",
+            id=organization["id"],
+            description="somethingnew",
+            extras=new_extras,
+            context={
+                "user": user["name"],
+                "ignore_auth": False,
+            },
+
+        )
+
+        organization = helpers.call_action(
+            "organization_show", id=organization["id"]
+        )
+
+        assert organization["name"] == name
+        assert organization["description"] == "somethingnew"
+        cleaned_extras = []
+        for extra in organization["extras"]:
+            cleaned_extras.append({"key": extra["key"], "value": extra["value"]})
+        assert cleaned_extras == new_extras
+
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
     def test_organization_patch_updating_single_field_when_public_user_details_is_false(
         self,
