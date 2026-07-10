@@ -9,7 +9,7 @@ R
 
 req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}")
 result &lt;- req %&gt;% 
-    req_headers(Authorization = API_TOKEN) %>% 
+    req_headers(Authorization = API_TOKEN) %&gt;%
     req_body_json(list(
         resource_id = '{{ resource_id }}',
         limit = 5,
@@ -25,7 +25,7 @@ result &lt;- req %&gt;%
 
 req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}")
 result &lt;- req %&gt;% 
-    req_headers(Authorization = API_TOKEN) %>% 
+    req_headers(Authorization = API_TOKEN) %&gt;%
     req_body_json(list(
         resource_id='{{ resource_id }}', 
         filters = list(
