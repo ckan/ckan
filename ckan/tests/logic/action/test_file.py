@@ -37,11 +37,12 @@ class TestFileCreate:
 
     def test_name_explicit(self, file_factory: types.TestFactory):
         """Name can be overriden even when upload contains filename."""
-        name = fake.unique.file_name()
+        name = fake.unique.file_name().lower()
         ignored_name = fake.unique.file_name()
         upload = FileStorage(io.BytesIO(fake.binary(100)), ignored_name)
         result = file_factory(name=name, upload=upload)
-        assert result["location"] == name
+        # `lower` is required to align with potential changes during normalization
+        assert result["location"] == name.lower()
 
     def test_missing_name(self, file_factory: types.TestFactory, faker: Faker):
         """If upload does not have filename, explicit name is required."""
@@ -53,12 +54,12 @@ class TestFileCreate:
         name = fake.unique.file_name()
         upload = FileStorage(io.BytesIO(fake.binary(100)), name)
         result = file_factory(upload=upload, name=None)
-        assert result["location"] == name
+        assert result["location"] == name.lower()
 
     def test_name_secured(self, file_factory: types.TestFactory):
         """Filename is sanitized even without location transformers."""
         bad_name = fake.unique.file_path()
-        good_name = bad_name.rsplit("/", 1)[-1]
+        good_name = bad_name.rsplit("/", 1)[-1].lower()
 
         result = file_factory(name=bad_name)
         assert result["location"] == good_name
@@ -75,7 +76,7 @@ class TestFileCreate:
         assert uuid.UUID(prefix)
 
         suffix = result["location"][-len(name) :]
-        assert suffix == name
+        assert suffix == name.lower()
 
     def test_existing(self, file: dict[str, Any], file_factory: types.TestFactory):
         """Existing file reported via validation error."""
@@ -278,7 +279,7 @@ class TestFileRename:
         name = faker.file_name()
         result = call_action("file_rename", id=file["id"], name=name)
 
-        assert result["name"] == name
+        assert result["name"] == name.lower()
         assert result["location"] == file["location"]
         assert result["id"] == file["id"]
 
