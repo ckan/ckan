@@ -128,6 +128,9 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_function_create': auth.datastore_function_create,
             'datastore_function_delete': auth.datastore_function_delete,
             'datastore_run_triggers': auth.datastore_run_triggers,
+            'datastore_sequence_create': auth.datastore_sequence_create,
+            'datastore_sequence_delete': auth.datastore_sequence_delete,
+            'datastore_sequence_next': auth.datastore_sequence_next,
         }
 
     # IResourceController
