@@ -1,1 +1,2 @@
-Fix language code in `html` tag `lang` attribute
+Fix language code in `html` tag `lang` attribute to use BCP-47
+with a new `unix_locale_to_bcp47` template helper function.
