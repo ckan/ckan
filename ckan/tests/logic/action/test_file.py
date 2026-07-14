@@ -50,32 +50,32 @@ class TestFileCreate:
 
     def test_name_deduced_from_file(self, file_factory: types.TestFactory):
         """If upload contains filename, explicit name is not required."""
-        name = fake.unique.file_name()
+        name = fake.unique.file_name().capitalize()
         upload = FileStorage(io.BytesIO(fake.binary(100)), name)
         result = file_factory(upload=upload, name=None)
-        assert result["location"] == name
+        assert result["location"] == name.lower()
 
     def test_name_secured(self, file_factory: types.TestFactory):
         """Filename is sanitized even without location transformers."""
-        bad_name = fake.unique.file_path()
+        bad_name = fake.unique.file_path().capitalize()
         good_name = bad_name.rsplit("/", 1)[-1]
 
         result = file_factory(name=bad_name)
-        assert result["location"] == good_name
+        assert result["location"] == good_name.lower()
 
     @pytest.mark.ckan_config(
         "ckan.files.storage.test.location_transformers", ["uuid4_prefix"]
     )
     def test_location_transformed(self, file_factory: types.TestFactory):
         """Location transformers are applied to the location."""
-        name = fake.unique.file_name()
+        name = fake.unique.file_name().upper()
         result = file_factory(name=name)
 
         prefix = result["location"][: -len(name)]
         assert uuid.UUID(prefix)
 
         suffix = result["location"][-len(name) :]
-        assert suffix == name
+        assert suffix == name.lower()
 
     def test_existing(self, file: dict[str, Any], file_factory: types.TestFactory):
         """Existing file reported via validation error."""
@@ -275,10 +275,10 @@ class TestFileRename:
 
     def test_rename_real(self, faker: Faker, file: dict[str, Any]):
         """Real file can be renamed."""
-        name = faker.file_name()
+        name = faker.file_name().capitalize()
         result = call_action("file_rename", id=file["id"], name=name)
 
-        assert result["name"] == name
+        assert result["name"] == name.lower()
         assert result["location"] == file["location"]
         assert result["id"] == file["id"]
 
