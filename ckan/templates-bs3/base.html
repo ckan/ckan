@@ -3,7 +3,7 @@
 
 {# Allows custom attributes to be added to the <html> tag #}
 {%- block htmltag -%}
-{% set lang = h.lang()|replace("_", "-") %}
+{% set lang = h.unix_locale_to_bcp47(h.lang()) %}
 <!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
 {%- endblock -%}
