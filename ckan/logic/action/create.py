@@ -29,6 +29,7 @@ import ckan.authz as authz
 
 from ckan import model
 from ckan.common import _, asbool
+from ckan.lib.search import rebuild
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
 # FIXME this looks nasty and should be shared better
@@ -605,6 +606,8 @@ def member_create(context: Context,
     model.Session.add(member)
     if not context.get("defer_commit"):
         model.repo.commit()
+        if isinstance(obj, model.Package):
+            rebuild(obj.id)
 
     return model_dictize.member_dictize(member, context)
 
@@ -1437,6 +1440,15 @@ def api_token_create(context: Context,
     :type user: string
     :param name: distinctive name for API Token
     :type name: string
+    :param created_at: datetime string for when the API Token was made.
+        Only sysadmin users may set this value, used for data migrations.
+    :type created_at: timestamp
+    :param id: UUID of the API Token (a.k.a the encoded token).
+        Only sysadmin users may set this value, used for data migrations.
+    :type id: string
+    :param last_access: datetime string for when the API Token was last used.
+        Only sysadmin users may set this value, used for data migrations.
+    :type last_access: timestamp
 
     :returns: Returns a dict with the key "token" containing the
               encoded token value. Extensions can provide additional
@@ -1445,7 +1457,7 @@ def api_token_create(context: Context,
     :rtype: dictionary
 
     """
-    user, name = _get_or_bust(data_dict, [u'user', u'name'])
+    user, _name = _get_or_bust(data_dict, [u'user', u'name'])
 
     if model.User.get(user) is None:
         raise NotFound("User not found")
@@ -1462,7 +1474,7 @@ def api_token_create(context: Context,
         raise ValidationError(errors)
 
     token_obj = model_save.api_token_save(
-        {u'user': user, u'name': name}, context
+        validated_data_dict, context
     )
     model.Session.commit()
     data = {

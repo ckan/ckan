@@ -94,8 +94,8 @@
       </button>
 
       <div class="main-navbar collapse navbar-collapse" id="main-navigation-toggle">
+      {% block header_site_navigation %}
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          {% block header_site_navigation %}
             {% block header_site_navigation_tabs %}
               {% set org_type = h.default_group_type('organization') %}
               {% set group_type = h.default_group_type('group') %}

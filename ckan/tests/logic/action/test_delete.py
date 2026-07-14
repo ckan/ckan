@@ -908,6 +908,28 @@ class TestVocabularyDelete(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberDelete:
+    @pytest.mark.usefixtures("clean_index")
+    def test_member_delete_reindexes_package_groups(self):
+        group = factories.Group()
+        package = factories.Dataset(groups=[{"id": group["id"]}])
+
+        def get_search_result_groups():
+            results = helpers.call_action(
+                "package_search", q=package["title"]
+            )["results"]
+            return [group["name"] for group in results[0]["groups"]]
+
+        assert get_search_result_groups() == [group["name"]]
+
+        helpers.call_action(
+            "member_delete",
+            object=package["id"],
+            id=group["id"],
+            object_type="package",
+        )
+
+        assert get_search_result_groups() == []
+
     def test_member_delete_accepts_object_name_or_id(self):
         org = factories.Organization()
         user = factories.User()

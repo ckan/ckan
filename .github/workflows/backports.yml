@@ -4,11 +4,17 @@ on:
     types: [closed]
   issue_comment:
     types: [created]
-permissions:
-  contents: write # so it can comment
-  pull-requests: write # so it can create pull requests
+
+permissions: {}
+
 jobs:
   backport:
+    permissions:
+      contents: write # so it can comment
+      pull-requests: write # so it can create pull requests
+    environment:
+      name: backports
+      deployment: false
     name: Backport pull request
     runs-on: ubuntu-latest
     # Only run when a pull request is merged
@@ -26,13 +32,13 @@ jobs:
         )
       }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Create backport pull requests
-        uses: korthout/backport-action@v4
+        uses: korthout/backport-action@2e830a1d0b8269505846ddd407a70876913ad1f8 # v4.6.0
         with:
           # Token to authenticate requests to GitHub. This is a Personal Access Token
           # from the ckanbot user
-          github_token: ${{ secrets.BACKPORT_ACTION_PAT }}
+          github_token: ${{ secrets.BACKPORTS_ACTION_PAT }}
           # Run when there is one or more "Backport <branch>" labels,
           # excluding "Backport pending"
           label_pattern: "Backport (?!pending)([^ ]+)$"
@@ -61,9 +67,9 @@ jobs:
       }}
     steps:
       - name: Add Backport failed label to PR
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{ secrets.BACKPORT_ACTION_PAT }}
+          github-token: ${{ secrets.BACKPORTS_ACTION_PAT }}
           script: |
             await github.rest.issues.addLabels({
               owner: context.repo.owner,

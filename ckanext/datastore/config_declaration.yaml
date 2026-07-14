@@ -118,6 +118,16 @@ groups:
       Indexes increase the time and disk space required to load data
       into the DataStore.
 
+  - key: ckan.datastore.background_calculate_record_count_delay
+    type: float
+    default: 5
+    example: 0.5
+    description: |
+      This is the delay in seconds used when scheduling a background job to
+      recalculate and store the number of rows in a table after the table's
+      content is updated. If another update happens within this time the
+      first background job is canceled and a new one is scheduled.
+
   - key: ckan.datastore.public_table_search
     type: list
     default: ["_table_metadata"]

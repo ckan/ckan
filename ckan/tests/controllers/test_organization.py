@@ -543,23 +543,6 @@ class TestOrganizationInnerSearch(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationMembership(object):
-
-    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
-    def test_admin_users_cannot_invite_members(self, app, user):
-        """ Org admin users can't invite users if they can't create users """
-        headers = {"Authorization": user["token"]}
-        organization = factories.Organization(
-            users=[{"name": user["name"], "capacity": "admin"}]
-        )
-
-        with app.flask_app.test_request_context():
-            response = app.get(
-                url_for("organization.member_new", id=organization["id"]),
-                headers=headers,
-            )
-            assert response.status_code == 200
-            assert "invite a new user" not in response
-
     def test_editor_users_cannot_add_members(self, app, user):
         headers = {"Authorization": user["token"]}
         organization = factories.Organization(
@@ -692,6 +675,25 @@ class TestOrganizationFollow:
             <dt>Followers</dt>
             <dd><span>1</span></dd>
         ''' in response
+
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
+    def test_organization_follow_without_public_user_details(self, app, user):
+        headers = {"Authorization": user["token"]}
+        organization = factories.Organization()
+
+        follow_url = url_for("organization.follow", id=organization["id"])
+        response = app.post(follow_url, headers=headers)
+
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+
+        unfollow_url = url_for("organization.unfollow", id=organization["id"])
+        response = app.post(unfollow_url, headers=headers)
+
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
 
     def test_organization_follow_not_exist(self, app, user):
         """Pass an id for a organization that doesn't exist"""

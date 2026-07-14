@@ -1202,7 +1202,7 @@ def get_facet_items_dict(
     if not items:
         return []
 
-    params: list[tuple[str, str]] = request.args.items(multi=True)
+    params: list[tuple[str, str]] = list(request.args.items(multi=True))
     facets = []
 
     for facet_item in items:

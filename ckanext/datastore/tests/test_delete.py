@@ -650,3 +650,56 @@ class TestDatastoreFunctionDelete(object):
             name=u"test_not_there_either",
             if_exists=True,
         )
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+def test_delete_schedules_record_count():
+    resource = factories.Resource(url_type="datastore")
+    data = {
+        "resource_id": resource["id"],
+        "fields": [{"id": "value", "type": "numeric"}],
+        "records": [
+            {"value": 1},
+            {"value": 2},
+            {"value": 3},
+            {"value": 4},
+            {"value": 5},
+            {"value": 6},
+            {"value": 7},
+        ],
+    }
+    jobid = f'{resource["id"]}_calculate-record-count'
+
+    helpers.call_action("datastore_create", **data)
+
+    job_from_id(jobid).delete()
+    # job removed
+    with pytest.raises(KeyError):
+        job_from_id(jobid)
+
+    data = {
+        "resource_id": resource["id"],
+        "filters": {
+            "value": [1, 2, 3]
+        }
+    }
+    helpers.call_action("datastore_records_delete", **data)
+
+    assert job_from_id(jobid)
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert not list(stats)  # stats not calculated yet
+
+    job_from_id(jobid).perform()
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert list(stats) == [('{"rows": 4}',)]

@@ -1132,3 +1132,21 @@ class TestHasMoreFacets:
 def test_unix_locale_to_bcp47():
     assert h.unix_locale_to_bcp47('en') == 'en'
     assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'
+
+
+def test_get_facet_items_dict(test_request_context: Any):
+    """get_facet_items_dict returns a list of facet items with the correct active state based on the current request parameters."""
+    facets = [
+        {"name": name, "display_name": name, "count": 1} for name in ["aaa", "bbb", "ccc"]
+    ]
+
+    with test_request_context("/dataset?test=ccc&test=aaa"):
+        result = h.get_facet_items_dict("test", {"test": {"items": facets}})
+        assert result[0]["name"] == "aaa"
+        assert result[0]["active"]
+
+        assert result[1]["name"] == "bbb"
+        assert not result[1]["active"]
+
+        assert result[2]["name"] == "ccc"
+        assert result[2]["active"]

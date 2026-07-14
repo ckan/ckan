@@ -552,6 +552,25 @@ class TestGroupFollow:
           <dd><span>1</span></dd>
         ''' in response
 
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
+    def test_group_follow_without_public_user_details(self, app, user):
+        headers = {"Authorization": user["token"]}
+        group = factories.Group()
+
+        follow_url = url_for("group.follow", id=group["id"])
+        response = app.post(follow_url, headers=headers)
+
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+
+        unfollow_url = url_for("group.unfollow", id=group["id"])
+        response = app.post(unfollow_url, headers=headers)
+
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+
     def test_group_follow_not_exist(self, app, user):
         """Pass an id for a group that doesn't exist"""
 

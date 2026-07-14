@@ -4,8 +4,6 @@ import json
 import logging
 from typing import Any, Optional, Union
 
-from werkzeug.datastructures import FileStorage as FlaskFileStorage
-
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
 from flask.views import MethodView
@@ -229,9 +227,9 @@ class CreateView(MethodView):
         # see if we have any data that we are trying to save
         data_provided = False
         for key, value in data.items():
-            if (
-                    (value or isinstance(value, FlaskFileStorage))
-                    and key != u'resource_type'):
+            # in case of empty upload, value will be set to FileStorage without
+            # `filename` attribute, which evaluates to False in boolean context
+            if value and key != "resource_type":
                 data_provided = True
                 break
 
@@ -386,6 +384,8 @@ class EditView(MethodView):
                 403,
                 _(u'User %r not authorized to edit %s') % (user, id)
             )
+        except NotFound:
+            return base.abort(404, _(u'Dataset not found'))
         return context
 
     def post(self, package_type: str, id: str,
@@ -429,7 +429,10 @@ class EditView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
         context = self._prepare(id)
-        pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        try:
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        except NotFound:
+            return base.abort(404, _(u'Dataset not found'))
 
         try:
             resource_dict = get_action(u'resource_show')(
