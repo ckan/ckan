@@ -3,7 +3,7 @@
 
 {# Allows custom attributes to be added to the <html> tag #}
 {%- block htmltag -%}
-{% set lang = h.lang()|replace("_", "-") %}
+{% set lang = h.unix_locale_to_bcp47(h.lang()) %}
   <html lang="{{ lang }}" {% if h.is_rtl_language()  %} dir="rtl" {% endif %} class="js">
 {%- endblock -%}
 
