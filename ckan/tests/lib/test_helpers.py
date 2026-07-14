@@ -1145,3 +1145,8 @@ def test_get_facet_items_dict(test_request_context: Any):
 
         assert result[2]["name"] == "ccc"
         assert result[2]["active"]
+
+
+def test_unix_locale_to_bcp47():
+    assert h.unix_locale_to_bcp47('en') == 'en'
+    assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'
