@@ -2922,7 +2922,7 @@ def dataset_followee_list(
     datasets = [dataset for dataset in datasets if dataset is not None]
 
     # Safety check: check which datasets the user can actually access
-    check_context = dict(context, ignore_auth=False)
+    check_context = logic.fresh_context(context, ignore_auth=False)
     datasets = [
         dataset for dataset in datasets
         if authz.is_authorized_boolean(
