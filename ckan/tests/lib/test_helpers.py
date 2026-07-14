@@ -1127,3 +1127,8 @@ class TestHasMoreFacets:
             assert (
                 h.has_more_facets("test", {"test": {"items": facets}}, 7, True) is True
             )
+
+
+def test_unix_locale_to_bcp47():
+    assert h.unix_locale_to_bcp47('en') == 'en'
+    assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'
