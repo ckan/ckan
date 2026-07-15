@@ -1605,6 +1605,15 @@ groups:
           serving the files directly with Flask. This will increase performance when serving the assets, but it
           requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 
+      - key: ckan.webassets.debug
+        type: bool
+        default: false
+        example: true
+        description: |
+          When this setting is ``True``, webassets will not combine and minify
+          the assets, and will instead serve them as separate files. This may
+          be useful for debugging purposes, but it is not recommended for
+          production environments.
 
   - annotation: User Settings
     options:
