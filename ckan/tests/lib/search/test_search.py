@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-
 import os
+import uuid
 import pytest
 
+
 import ckan.config as config
-from ckan.lib.search.common import SearchQueryError
+from ckan.lib.search.common import SearchQueryError, config as ckan_config
 import ckan.tests.factories as factories
 import ckan.model as model
 import ckan.lib.search as search
-from ckan.lib.search import check_solr_schema_version, SearchError
+from ckan.lib.search import check_solr_schema_version, SearchError, make_connection
 from ckan.lib.search.query import _get_local_query_parser
 
 root_dir = os.path.join(os.path.dirname(config.__file__), "solr")
@@ -215,3 +216,42 @@ def test_allowed_local_params_via_config():
     # Support dot symbol in keys
     assert query.run({"fq": "{!lucene q.op=AND}bees butterflies"})["count"] == 0
     assert query.run({"fq": "{!lucene q.op=OR}bees butterflies"})["count"] == 2
+
+
+@pytest.mark.usefixtures("clean_index")
+def test_get_index_uses_site_id():
+
+    dataset_id = str(uuid.uuid4())
+
+    conn = make_connection()
+
+    datasets = [
+        {
+            "id": dataset_id,
+            "site_id": "site1",
+            "entity_type": "package",
+            "type": "dataset",
+            "state": "active",
+            "private": False,
+            "index_id": "2",
+        },
+        {
+            "id": dataset_id,
+            "site_id": ckan_config["ckan.site_id"],
+            "entity_type": "package",
+            "type": "dataset",
+            "state": "active",
+            "private": False,
+            "index_id": "1",
+        },
+    ]
+    conn.add(docs=datasets, commit=True)
+
+    # Check both records were indexed in Solr
+    assert conn.search(q=f"id:{dataset_id}").hits == 2
+
+    # Check that our own get_index method returns the dataset for the current site only
+    query = search.query_for(model.Package)
+    result = query.get_index(dataset_id)
+
+    assert result["site_id"] == ckan_config["ckan.site_id"]
