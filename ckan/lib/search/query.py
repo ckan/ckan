@@ -347,7 +347,7 @@ class PackageSearchQuery(SearchQuery):
             'rows': 1,
             'q': 'name:"%s" OR id:"%s"' % (reference, reference),
             'wt': 'json',
-            'fq': 'site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'}
+            'fq': '+site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'}
 
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r', query)
