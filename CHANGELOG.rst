@@ -9,6 +9,15 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.11.6 XXXX-XX-XX
+===================
+
+
+Minor changes
+-------------
+
+- Removed setuptools upper limit requirement
+
 v.2.11.5 2026-04-29
 ===================
 
