@@ -1,3 +1,4 @@
-Validate the NUL byte in the password reset form input to prevent psycopg2
-from crashing when it tries to look up a user with an invalid username or
-email address.
+The ``unicode_safe`` validator now silently strips NUL (0x00) characters
+and lone surrogates (U+D800-U+DFFF), which can never be stored (PostgreSQL
+rejects NUL in text fields and lone surrogates cannot be encoded to UTF-8),
+so every schema using it is protected.

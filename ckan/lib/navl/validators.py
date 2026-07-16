@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import re
 from typing import Any, Callable, NoReturn
 
 
@@ -286,6 +287,12 @@ def unicode_only(value: Any) -> str:
         raise Invalid(_('Must be a Unicode string value'))
     return value
 
+# characters that can never be stored: PostgreSQL rejects NUL (0x00) in
+# text fields and lone surrogates cannot be encoded to UTF-8, so psycopg2
+# fails on both before the query is even sent
+_pg_unsafe_re = re.compile('[\x00\ud800-\udfff]')
+
+
 def unicode_safe(value: Any) -> str:
     '''
     Make sure value passed is treated as unicode, but don't raise
@@ -298,9 +305,15 @@ def unicode_safe(value: Any) -> str:
     a list of strings (uses json format instead). It also
     converts binary strings assuming either UTF-8 or CP1252
     encodings (not ASCII, with occasional decoding errors)
+
+    NUL characters (U+0000) and lone surrogates (U+D800-U+DFFF) are
+    silently stripped from the returned value: PostgreSQL cannot store
+    NUL in text fields and lone surrogates cannot be encoded to UTF-8,
+    so psycopg2 raises an error when binding a string containing either
+    as a query parameter. They can never be safely kept.
     '''
     if isinstance(value, str):
-        return value
+        return _pg_unsafe_re.sub('', value)
     if hasattr(value, 'filename'):
         # cgi.FieldStorage instance for uploaded files, show the name
         value = value.filename
@@ -310,15 +323,19 @@ def unicode_safe(value: Any) -> str:
         # bytes only arrive when core ckan or plugins call
         # actions from Python code
         try:
-            return bytes.decode(value)
+            value = bytes.decode(value)
         except UnicodeDecodeError:
-            return value.decode(u'cp1252')
+            value = value.decode('cp1252')
+        return _pg_unsafe_re.sub('', value)
     try:
-        return json.dumps(value, sort_keys=True, ensure_ascii=False)
+        # json.dumps escapes NUL (as a backslash-u sequence) but
+        # passes lone surrogates through as-is, so strip the result too
+        return _pg_unsafe_re.sub(
+            '', json.dumps(value, sort_keys=True, ensure_ascii=False))
     except Exception:
         # at this point we have given up. Just don't error out
         try:
-            return str(value)
+            return _pg_unsafe_re.sub('', str(value))
         except Exception:
             return u'\N{REPLACEMENT CHARACTER}'
 
