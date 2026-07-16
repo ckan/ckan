@@ -1307,6 +1307,8 @@ def follow_dataset(context: Context,
 
     _check_access('follow_dataset', context, data_dict)
 
+    model = context['model']
+
     schema = context.get(
         'schema') or ckan.logic.schema.default_follow_dataset_schema()
 
@@ -1447,6 +1449,8 @@ def follow_group(context: Context,
 
     '''
     _check_access('follow_group', context, data_dict)
+
+    model = context['model']
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_group_schema())

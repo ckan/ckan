@@ -682,7 +682,7 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
 
     _check_access('unfollow_user', context, data_dict)
     _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
-    _unfollow(context, data_dict, schema, model.UserFollowingUser)
+
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     '''Stop following a dataset.

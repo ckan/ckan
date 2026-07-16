@@ -1,2 +1,0 @@
-Remove unnecessary declare_namespace in ckanext/stats/__init__.py
-to resolve compatibility with setuptools>=82
