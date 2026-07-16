@@ -667,15 +667,16 @@ class TestUser(object):
         ValueError before the query is sent, so unguarded input used to
         crash the reset form with an Internal Server Error.
 
-        Malformed input is surfaced with a flash error and a redirect back
-        to the form (same pattern the view uses for empty input or a bad
-        captcha), not a 500 and not a silent success.
+        ``unicode_safe`` silently strips the NUL, so the input is handled
+        exactly as if it had never contained one -- here, as an unknown
+        username.
         """
         offset = url_for("user.request_reset")
         response = app.post(offset, data=dict(user="foo\x00bar"))
 
         assert response.status_code == 200
-        assert "Invalid input" in response
+        # doesn't reveal account does or doesn't exist
+        assert "A reset link has been emailed to you" in response
         send_reset_link.assert_not_called()
 
     @mock.patch("ckan.lib.mailer.send_reset_link")
@@ -683,6 +684,32 @@ class TestUser(object):
         """Regression: NUL byte in an email-shaped reset identifier."""
         offset = url_for("user.request_reset")
         response = app.post(offset, data=dict(user="foo\x00@example.com"))
+
+        assert response.status_code == 200
+        # doesn't reveal account does or doesn't exist
+        assert "A reset link has been emailed to you" in response
+        send_reset_link.assert_not_called()
+
+    @mock.patch("ckan.lib.mailer.send_reset_link")
+    def test_request_reset_nul_stripped_value_matches_user(
+        self, send_reset_link, app
+    ):
+        """A NUL byte is stripped rather than rejected, so the cleaned
+        value still matches the intended account."""
+        user = factories.User()
+
+        offset = url_for("user.request_reset")
+        response = app.post(offset, data=dict(user=user["name"] + "\x00"))
+
+        assert response.status_code == 200
+        assert "A reset link has been emailed to you" in response
+        send_reset_link.assert_called_once()
+
+    @mock.patch("ckan.lib.mailer.send_reset_link")
+    def test_request_reset_with_only_nul_bytes(self, send_reset_link, app):
+        """Input that strips down to the empty string fails validation."""
+        offset = url_for("user.request_reset")
+        response = app.post(offset, data=dict(user="\x00\x00"))
 
         assert response.status_code == 200
         assert "Invalid input" in response
