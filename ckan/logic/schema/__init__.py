@@ -497,15 +497,15 @@ def user_new_form_schema(
 
 @validator_args
 def request_reset_form_schema(
-        not_empty: Validator, unicode_safe: Validator,
-        no_nul_byte: Validator) -> Schema:
+        not_empty: Validator, unicode_safe: Validator) -> Schema:
     '''Schema for the /user/reset form (request a password-reset link).
 
-    Guards the ``user`` field against NUL bytes that would otherwise crash
-    psycopg2 when the value is used to look the user up in Postgres.
+    ``unicode_safe`` strips NUL bytes that would otherwise crash psycopg2
+    when the value is used to look the user up in Postgres. It runs first
+    so that a value reduced to the empty string fails ``not_empty``.
     '''
     return {
-        'user': [not_empty, no_nul_byte, unicode_safe],
+        'user': [unicode_safe, not_empty],
     }
 
 

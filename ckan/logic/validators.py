@@ -367,27 +367,6 @@ def group_id_or_name_exists(reference: str, context: Context) -> Any:
     return reference
 
 
-def no_nul_byte(value: Any, context: Context) -> Any:
-    '''Reject strings containing the NUL character (U+0000).
-
-    PostgreSQL ``text`` columns cannot store the NUL byte and ``psycopg2``
-    raises ``ValueError`` when binding a NUL-bearing string as a query
-    parameter. Without this validator, a stray NUL in user-supplied input
-    bubbles up as a 500 instead of a normal validation error.
-
-    Other illegal-XML characters (most C0 controls, Unicode surrogates,
-    non-characters) are accepted by PostgreSQL and are stripped at Solr
-    indexing time only -- see ``ckan.lib.search.index._illegal_xml_chars_re``.
-
-    :raises ckan.lib.navl.dictization_functions.Invalid: if ``value``
-        contains the NUL character
-
-    '''
-    if isinstance(value, str) and '\x00' in value:
-        raise Invalid(_('Nul bytes are not allowed.'))
-    return value
-
-
 name_match = re.compile(r'[a-z0-9_\-]*$')
 def name_validator(value: Any, context: Context) -> Any:
     '''Return the given value if it's a valid name, otherwise raise Invalid.
