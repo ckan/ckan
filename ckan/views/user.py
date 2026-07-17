@@ -747,7 +747,7 @@ class RequestResetView(MethodView):
             # accounts with the same email address and they want to be
             # specific)
             try:
-                logic.get_action(u'user_show')(context, {u'id': id_})
+                logic.get_action('user_show')(context, {'id': id_})
                 user_objs.append(context[u'user_obj'])
             except logic.NotFound:
                 pass
