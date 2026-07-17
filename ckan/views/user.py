@@ -681,7 +681,7 @@ class RequestResetView(MethodView):
         log.info('Password reset requested for user %s', repr_untrusted(id))
 
         _data, errors = dictization_functions.validate(
-            {'user': id_}, _request_reset_form_schema(), {})
+            {'user': id}, _request_reset_form_schema(), {})
         if errors:
             h.flash_error(_('Invalid input'))
             return h.redirect_to('user.request_reset')
