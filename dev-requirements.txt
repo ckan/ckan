@@ -2,7 +2,6 @@
 
 beautifulsoup4==4.11.1
 cookiecutter==2.1.1
-coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.17
 Faker==14.2.0
 factory-boy==3.2.1

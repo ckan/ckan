@@ -2,3 +2,4 @@ name: "CKAN CodeQL config"
 
 paths-ignore:
   - '**/vendor/**'
+  - '**/cookiecutter/**'
