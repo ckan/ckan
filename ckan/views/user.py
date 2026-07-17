@@ -674,11 +674,11 @@ class RequestResetView(MethodView):
             h.flash_error(error_msg)
             return h.redirect_to(u'user.request_reset')
 
-        id_ = request.form.get('user', '')
-        if id_ in (None, ''):
-            h.flash_error(_('Email is required'))
-            return h.redirect_to('user.request_reset')
-        log.info('Password reset requested for user %s', repr_untrusted(id_))
+        id = request.form.get(u'user', '')
+        if id in (None, u''):
+            h.flash_error(_(u'Email is required'))
+            return h.redirect_to(u'user.request_reset')
+        log.info('Password reset requested for user %s', repr_untrusted(id))
 
         _data, errors = dictization_functions.validate(
             {'user': id_}, _request_reset_form_schema(), {})
