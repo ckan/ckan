@@ -4,7 +4,7 @@ Installing CKAN
 
 .. include:: /_supported_versions.rst
 
-CKAN 2.10 supports Python 3.7 to Python 3.10.
+CKAN 2.11 supports Python 3.10 to Python 3.14.
 
 Before you can use CKAN on your own computer, you need to install it.
 There are three ways to install CKAN:
@@ -21,11 +21,11 @@ Package install
 ===============
 
 Installing from package is the quickest and easiest way to install CKAN, but it requires
-Ubuntu 20.04 64-bit or Ubuntu 22.04 64-bit.
+Ubuntu 22.04 64-bit or Ubuntu 24.04 64-bit.
 
 You should install CKAN from package if:
 
-* You want to install CKAN on an Ubuntu 20.04 or 22.04, 64-bit server, *and*
+* You want to install CKAN on an Ubuntu 22.04 or 24.04, 64-bit server, *and*
 * You only want to run one CKAN website per server
 
 See :doc:`install-from-package`.
@@ -36,7 +36,7 @@ Source install
 You should install CKAN from source if:
 
 * You want to install CKAN on a 32-bit computer, *or*
-* You want to install CKAN on a different version of Ubuntu, not 20.04 or 22.04, *or*
+* You want to install CKAN on a different version of Ubuntu, not 22.04 or 24.04, *or*
 * You want to install CKAN on another operating system (eg. RHEL, CentOS, OS X), *or*
 * You want to run multiple CKAN websites on the same server, *or*
 * You want to install CKAN for development
