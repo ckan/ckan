@@ -29,6 +29,7 @@ vendor:
     preload:
       - vendor/select2-css
       - vendor/jquery
+      - vendor/fontawesome
   contents:
     - jed.js
     - moment-with-locales.js
