@@ -779,6 +779,12 @@ groups:
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
 
+      - key: WTF_CSRF_META_NAME
+        flask: true
+        default: csrf-token
+        description: |
+          Value of the name attribute rendered by csrf_meta_tag().
+
   - annotation: Flask-Login Remember me cookie settings
     options:
       - key: REMEMBER_COOKIE_NAME
