@@ -2,7 +2,7 @@
   <div class="module-content">
     <div class="row">
     {% if heading %}
-      <h1 class="page-heading {% if h.check_access('package_create') %}col-md-9{% endif %}">
+      <h1 class="page-heading">
         {{ heading }}
         {% if state == 'deleted' %}
           [{{ _('Deleted') }}]
