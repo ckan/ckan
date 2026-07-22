@@ -162,7 +162,7 @@ describe('ckan.module(id, properties|callback)', {testIsolation: false}, functio
 
         // Call a function to publish and subscribe to an event on each instance.
         this.target.restore();
-        this.target = cy.stub(win.ckan.module, 'createInstance', function () {
+        this.target = cy.stub(win.ckan.module, 'createInstance').callsFake(function () {
           let callback = cy.spy();
 
           pubsub.publish('test');
