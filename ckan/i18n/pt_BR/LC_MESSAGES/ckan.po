@@ -1,28 +1,26 @@
-# Portuguese (Brazil) translations for ckan.
-# Copyright (C) 2024 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2026 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+# 
 # Translators:
-# Adrià Mercader <amercadero@gmail.com>, 2024
-# Luiz Maa, 2025
+# Adrià Mercader <amercadero@gmail.com>, 2026
+# 
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.11.0b0\n"
+"Project-Id-Version: ckan 2.12.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-06-12 14:56+0200\n"
-"PO-Revision-Date: 2024-05-23 14:04+0000\n"
-"Last-Translator: Luiz Maa, 2025\n"
-"Language: pt_BR\n"
-"Language-Team: Portuguese (Brazil) "
-"(https://app.transifex.com/okfn/teams/11162/pt_BR/)\n"
-"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % "
-"1000000 == 0 ? 1 : 2;\n"
+"PO-Revision-Date: 2026-06-12 13:00+0000\n"
+"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2026\n"
+"Language-Team: Portuguese (Brazil) (https://app.transifex.com/okfn/teams/11162/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: ckan/authz.py:247
 #, python-format
@@ -352,7 +350,8 @@ msgstr "Você não pode adicionar um conjunto de dados a essa organização"
 
 #: ckan/logic/validators.py:101 ckan/logic/validators.py:792
 #, python-format
-msgid "Cannot change value of key from %(old)s to %(new)s. This key is read-only"
+msgid ""
+"Cannot change value of key from %(old)s to %(new)s. This key is read-only"
 msgstr ""
 
 #: ckan/logic/validators.py:133
@@ -464,8 +463,8 @@ msgstr "Nome tem que ter um máximo de %i caracteres"
 
 #: ckan/logic/validators.py:403
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 "Precisa conter apenas caracteres alfanuméricos (ascii) e os seguintes "
 "símbolos: -_"
@@ -511,11 +510,11 @@ msgstr "O comprimento da etiqueta \"%s\" é maior que o máximo %i"
 #: ckan/logic/validators.py:506
 #, python-format
 msgid ""
-"Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), "
-"hyphens (\"-\"), underscores (\"_\") or dots (\".\")"
+"Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
+" (\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
-"A etiqueta \"%s\" só pode conter caracteres alfanuméricos, espaços (\" "
-"\"), hifens (\"-\"), sublinhados (\"_\") ou pontos (\".\")"
+"A etiqueta \"%s\" só pode conter caracteres alfanuméricos, espaços (\" \"), "
+"hifens (\"-\"), sublinhados (\"_\") ou pontos (\".\")"
 
 #: ckan/logic/validators.py:516
 #, python-format
@@ -626,9 +625,7 @@ msgstr "\"filter_fields\" e \"filter_values\" devem ter o mesmo comprimento"
 
 #: ckan/logic/validators.py:1009
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
-msgstr ""
-"\"filter_fields\" é obrigatório quando \"filter_values\" estiver "
-"preenchido"
+msgstr "\"filter_fields\" é obrigatório quando \"filter_values\" estiver preenchido"
 
 #: ckan/logic/validators.py:1012
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
@@ -878,8 +875,7 @@ msgstr "Usuário %s não está autorizado a editar esses grupos"
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
 msgstr ""
-"O usuário %s não autorizado a adicionar conjunto de dados a essa "
-"organização"
+"O usuário %s não autorizado a adicionar conjunto de dados a essa organização"
 
 #: ckan/logic/auth/create.py:71
 msgid "No dataset id provided, cannot check auth."
@@ -897,7 +893,8 @@ msgstr ""
 #: ckan/logic/auth/create.py:88
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr "Usuário %s não está autorizado a criar recursos no conjunto de dados %s"
+msgstr ""
+"Usuário %s não está autorizado a criar recursos no conjunto de dados %s"
 
 #: ckan/logic/auth/create.py:126
 #, python-format
@@ -937,8 +934,8 @@ msgstr "Usuário %s não autorizado a editar o grupo %s"
 #, python-format
 msgid "User %s not authorized to add collaborators to this dataset"
 msgstr ""
-"O usuário %s não está autorizado a adicionar colaboradores a este "
-"conjunto de dados"
+"O usuário %s não está autorizado a adicionar colaboradores a este conjunto "
+"de dados"
 
 #: ckan/logic/auth/create.py:320
 msgid "You must be logged in to follow groups"
@@ -959,7 +956,8 @@ msgstr "Usuário %s não está autorizado a excluir o recurso %s"
 
 #: ckan/logic/auth/delete.py:54 ckan/logic/auth/get.py:144
 msgid "Resource view not found, cannot check auth."
-msgstr "Visão de recurso não encontrada, não é possível verificar a autenticação."
+msgstr ""
+"Visão de recurso não encontrada, não é possível verificar a autenticação."
 
 #: ckan/logic/auth/delete.py:75
 #, python-format
@@ -990,8 +988,8 @@ msgstr "Usuário %s não está autorizado a excluir a organização %s"
 #, python-format
 msgid "User %s not authorized to remove collaborators from this dataset"
 msgstr ""
-"O usuário %s não está autorizado a remover colaboradores deste conjunto "
-"de dados"
+"O usuário %s não está autorizado a remover colaboradores deste conjunto de "
+"dados"
 
 #: ckan/logic/auth/delete.py:209
 msgid "You must be logged in to unfollow groups"
@@ -1033,8 +1031,8 @@ msgstr "Usuário %s não autorizado a ler o grupo %s"
 #, python-format
 msgid "User %s not authorized to list collaborators from this dataset"
 msgstr ""
-"O usuário %s não está autorizado a listar colaboradores deste conjunto de"
-" dados"
+"O usuário %s não está autorizado a listar colaboradores deste conjunto de "
+"dados"
 
 #: ckan/logic/auth/update.py:51
 #, python-format
@@ -1083,7 +1081,8 @@ msgstr "Usuário %s não está autorizado a atualizar a tabela"
 #: ckan/logic/auth/update.py:242
 #, python-format
 msgid "User %s not authorized to update term_translation table"
-msgstr "O usuário %s não está autorizado a atualizar a tabela term_translation"
+msgstr ""
+"O usuário %s não está autorizado a atualizar a tabela term_translation"
 
 #: ckan/model/license.py:217
 msgid "License not specified"
@@ -1238,8 +1237,10 @@ msgstr "Nenhum resultado encontrado"
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "A entrada é curta demais, deve possuir pelo menos um caractere"
-msgstr[1] "A entrada é curta demais, deve possuir pelo menos %(num)d caracteres"
-msgstr[2] "A entrada é curta demais, deve possuir pelo menos %(num)d caracteres"
+msgstr[1] ""
+"A entrada é curta demais, deve possuir pelo menos %(num)d caracteres"
+msgstr[2] ""
+"A entrada é curta demais, deve possuir pelo menos %(num)d caracteres"
 
 #: ckan/public-midnight-blue/base/javascript/modules/autocomplete.js:277
 msgid "Searching..."
@@ -1317,13 +1318,13 @@ msgstr "Reordenar recursos"
 
 #: ckan/public-midnight-blue/base/javascript/modules/resource-reorder.js:42
 msgid ""
-"You can rearrange the resources by dragging them using the arrow icon. "
-"Drag the resource to the right and place it to the desired location on "
-"the list. When you are done, click the \"Save order\" -button."
+"You can rearrange the resources by dragging them using the arrow icon. Drag "
+"the resource to the right and place it to the desired location on the list. "
+"When you are done, click the \"Save order\" -button."
 msgstr ""
 "Você pode reorganizar os recursos arrastando-os usando o ícone de seta. "
-"Arraste o recurso para a direita e coloque-o no local desejado na lista. "
-"Ao terminar, clique no botão \"Salvar pedido\"."
+"Arraste o recurso para a direita e coloque-o no local desejado na lista. Ao "
+"terminar, clique no botão \"Salvar pedido\"."
 
 #: ckan/public-midnight-blue/base/javascript/modules/resource-reorder.js:64
 #: ckan/public-midnight-blue/base/javascript/modules/resource-view-reorder.js:54
@@ -1398,8 +1399,8 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
-"<strong>Impulsionado por</strong> <a class=\"hide-text ckan-footer-logo\""
-" href=\"http://ckan.org\">CKAN</a>"
+"<strong>Impulsionado por</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:11
 msgid "Sysadmin settings"
@@ -1608,30 +1609,28 @@ msgstr "Opções de configuração do CKAN"
 #: ckan/templates/admin/config.html:51
 #, python-format
 msgid ""
-"<p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> <p><strong>Custom "
+"<p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Custom "
 "Stylesheet:</strong> Define an alternative main CSS file.</p> "
 "<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
-"Text:</strong> This text will appear on this CKAN instances <a "
-"href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
-"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"header of all the CKAN instance templates.</p> <p><strong>About:</strong> "
+"This text will appear on this CKAN instances <a href=\"%(about_url)s\">about"
+" page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this"
+" CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to "
+"visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that "
+"appears in <code>&lt;head&gt;</code> tag of every page. If you wish to "
+"customize the templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\" rel=\"noreferrer\">reading the documentation</a>.</p>"
 msgstr ""
-"<p><strong>Título do site:</strong> Este é o título desta instância do "
-"CKAN. Ele aparece em vários lugares no CKAN.</p> <p><strong>Folha de "
-"Estilo Personalizada:</strong> Defina um arquivo CSS principal "
-"alternativo.</p> <p><strong>Logo do site:</strong> Este é o logotipo que "
-"aparece no cabeçalho de todos os modelos de instância do CKAN.</p> "
-"<p><strong>Sobre:</strong> Este texto aparecerá na <a "
-"href=\"%(about_url)s\">página sobre</a> desta instância do CKAN.</p> "
-"<p><strong>Texto introdutório:</strong> Este texto aparecerá na <a "
-"href=\"%(home_url)s\">página inicial</a> desta instância do CKAN como uma"
-" mensagem de boas-vindas aos visitantes.</p> <p><strong>CSS "
+"<p><strong>Título do site:</strong> Este é o título desta instância do CKAN."
+" Ele aparece em vários lugares no CKAN.</p> <p><strong>Folha de Estilo "
+"Personalizada:</strong> Defina um arquivo CSS principal alternativo.</p> "
+"<p><strong>Logo do site:</strong> Este é o logotipo que aparece no cabeçalho"
+" de todos os modelos de instância do CKAN.</p> <p><strong>Sobre:</strong> "
+"Este texto aparecerá na <a href=\"%(about_url)s\">página sobre</a> desta "
+"instância do CKAN.</p> <p><strong>Texto introdutório:</strong> Este texto "
+"aparecerá na <a href=\"%(home_url)s\">página inicial</a> desta instância do "
+"CKAN como uma mensagem de boas-vindas aos visitantes.</p> <p><strong>CSS "
 "customizado:</strong> Este é um bloco de CSS que aparece na tag "
 "<code>&lt;head&gt;</code> de cada página. Se você deseja personalizar os "
 "modelos mais completamente, recomendamos <a href=\"%(docs_url)s\" "
@@ -1665,10 +1664,10 @@ msgstr "Administrar o CKAN"
 #: ckan/templates/admin/index.html:80
 #, python-format
 msgid ""
-"<p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\" "
-"rel=\"noreferrer\">sysadmin guide</a></p>"
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed"
+" with care!</p> <p>For guidance on using sysadmin features, see the CKAN <a "
+"href=\"%(docs_url)s\" target=\"_blank\" rel=\"noreferrer\">sysadmin "
+"guide</a></p>"
 msgstr ""
 
 #: ckan/templates/admin/trash.html:13 ckan/views/admin.py:130
@@ -1680,7 +1679,8 @@ msgid "Purge all"
 msgstr "Limpar tudo"
 
 #: ckan/templates/admin/trash.html:32
-msgid "Purge deleted datasets, organizations or groups forever and irreversibly."
+msgid ""
+"Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr ""
 "Elimine conjuntos de dados, organizações ou grupos excluídos de forma "
 "definitiva e irreversível."
@@ -1794,18 +1794,18 @@ msgstr "Selecionar"
 #, python-format
 msgid ""
 "Dear %(user_name)s, You have been invited to %(site_title)s. A user has "
-"already been created for you with the username %(user_name)s. You can "
-"change it later. You have been added to the %(group_type)s "
-"%(group_title)s with the following role: %(role_name)s. To accept this "
-"invite, please reset your password at: %(reset_link)s Have a nice day. --"
-" Message sent by %(site_title)s (%(site_url)s)"
+"already been created for you with the username %(user_name)s. You can change"
+" it later. You have been added to the %(group_type)s %(group_title)s with "
+"the following role: %(role_name)s. To accept this invite, please reset your "
+"password at: %(reset_link)s Have a nice day. -- Message sent by "
+"%(site_title)s (%(site_url)s)"
 msgstr ""
 "Prezado(a) %(user_name)s, Você foi convidado(a) para %(site_title)s. Um "
-"usuário já foi criado para você com o nome de usuário %(user_name)s. Você"
-" pode alterá-lo mais tarde. Você foi adicionado ao %(group_type)s "
+"usuário já foi criado para você com o nome de usuário %(user_name)s. Você "
+"pode alterá-lo mais tarde. Você foi adicionado ao %(group_type)s "
 "%(group_title)s com a seguinte função: %(role_name)s. Para aceitar este "
-"convite, redefina sua senha em: %(reset_link)s Tenha um bom dia. -- "
-"Mensagem enviada por %(site_title)s (%(site_url)s)"
+"convite, redefina sua senha em: %(reset_link)s Tenha um bom dia. -- Mensagem"
+" enviada por %(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/invite_user_subject.txt:1
 #, python-format
@@ -1815,8 +1815,8 @@ msgstr "Convite para %(site_title)s"
 #: ckan/templates/emails/reset_password.txt:1
 #, python-format
 msgid ""
-"Dear %(user_name)s, You have requested your password on %(site_title)s to"
-" be reset. Please click the following link to confirm this request: "
+"Dear %(user_name)s, You have requested your password on %(site_title)s to be"
+" reset. Please click the following link to confirm this request: "
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
@@ -1928,7 +1928,8 @@ msgstr "Nome Descrescente"
 msgid "There are currently no groups for this site."
 msgstr ""
 
-#: ckan/templates/group/index.html:32 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:32
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Que tal criar um?"
 
@@ -1949,7 +1950,8 @@ msgstr "CSV"
 
 #: ckan/templates/group/manage_members.html:16
 #: ckan/templates/group/member_new.html:63
-#: ckan/templates/group/member_new.html:67 ckan/templates/group/members.html:13
+#: ckan/templates/group/member_new.html:67
+#: ckan/templates/group/members.html:13
 #: ckan/templates/organization/manage_members.html:23
 #: ckan/templates/organization/member_new.html:65
 #: ckan/templates/organization/member_new.html:69
@@ -2036,7 +2038,8 @@ msgstr "Novo Usuário"
 #: ckan/templates/group/member_new.html:51
 #: ckan/templates/organization/member_new.html:53
 msgid "If you wish to invite a new user, enter their email address."
-msgstr "Se você quer convidar um novo usuário, inclua o endereço de email dele."
+msgstr ""
+"Se você quer convidar um novo usuário, inclua o endereço de email dele."
 
 #: ckan/templates/group/member_new.html:54
 #: ckan/templates/organization/member_new.html:56
@@ -2079,8 +2082,8 @@ msgid ""
 "datasets from groups</p>"
 msgstr ""
 "<p><strong>Administrador:</strong> Pode editar informações do grupo, bem "
-"como gerenciar os membros da organização.</p> <p><strong>Membro:</strong>"
-" Pode adicionar ou remover conjuntos de dados dos grupos</p>"
+"como gerenciar os membros da organização.</p> <p><strong>Membro:</strong> "
+"Pode adicionar ou remover conjuntos de dados dos grupos</p>"
 
 #: ckan/templates/group/new.html:3
 msgid "Create a Group"
@@ -2183,16 +2186,16 @@ msgstr "O que são grupos?"
 
 #: ckan/templates/group/snippets/helper.html:19
 msgid ""
-"You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets."
+"You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets."
 msgstr ""
-"Você pode usar Grupos do CKAN para criar e gerenciar coleções de "
-"conjuntos de dados. Isso pode ser feito para catalogar conjuntos de dados"
-" de um projeto ou time particular, ou em um tema particular, ou como uma "
-"forma simples de ajudar as pessoas a encontrar e buscar seus próprios "
-"conjuntos de dados."
+"Você pode usar Grupos do CKAN para criar e gerenciar coleções de conjuntos "
+"de dados. Isso pode ser feito para catalogar conjuntos de dados de um "
+"projeto ou time particular, ou em um tema particular, ou como uma forma "
+"simples de ajudar as pessoas a encontrar e buscar seus próprios conjuntos de"
+" dados."
 
 #: ckan/templates/group/snippets/info.html:19
 #: ckan/templates/organization/bulk_process.html:97
@@ -2214,46 +2217,44 @@ msgstr "Bem-vindo"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
-"<p>CKAN is the world’s leading open-source data portal platform.</p> "
-"<p>CKAN is a complete out-of-the-box software solution that makes data "
-"accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
+"<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
+" is a complete out-of-the-box software solution that makes data accessible "
+"and usable – by providing tools to streamline publishing, sharing, finding "
+"and using data (including storage of data and provision of robust data "
+"APIs). CKAN is aimed at data publishers (national and regional governments, "
+"companies and organizations) wanting to make their data open and "
+"available.</p> <p>CKAN is used by governments and user groups worldwide and "
+"powers a variety of official and community data portals including portals "
+"for local, national and international government, such as the UK’s <a "
 "href=\"https://data.gov.uk\">data.gov.uk</a> and the United States <a "
-"href=\"https://catalog.data.gov/\">catalog.data.gov</a>, the Brazilian <a"
-" href=\"https://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
+"href=\"https://catalog.data.gov/\">catalog.data.gov</a>, the Brazilian <a "
+"href=\"https://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
 "Argentina, Finland and elsewhere.</p> <p>CKAN: <a "
-"href=\"https://ckan.org/\">https://ckan.org/</a><br /> CKAN Showcases: <a"
-" href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> "
+"href=\"https://ckan.org/\">https://ckan.org/</a><br /> CKAN Showcases: <a "
+"href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> "
 "Features overview: <a "
 "href=\"https://ckan.org/features/\">https://ckan.org/features/</a></p>"
 msgstr ""
 "<p>CKAN é a principal plataforma de portal de dados de código aberto do "
-"mundo.</p> <p>CKAN é uma solução de software completa e pronta para uso "
-"que torna os dados acessíveis e utilizáveis ​​– fornecendo ferramentas "
-"para agilizar a publicação, o compartilhamento, a busca e o uso de dados "
+"mundo.</p> <p>CKAN é uma solução de software completa e pronta para uso que "
+"torna os dados acessíveis e utilizáveis ​​– fornecendo ferramentas para "
+"agilizar a publicação, o compartilhamento, a busca e o uso de dados "
 "(incluindo o armazenamento de dados e o fornecimento de dados robustos "
 "APIs). O CKAN é destinado a publicadores de dados (governos nacionais e "
-"regionais, empresas e organizações) que desejam tornar seus dados abertos"
-" e disponíveis.</p> <p>O CKAN é usado por governos e grupos de usuários "
-"em todo o mundo e impulsiona uma variedade de portais de dados oficiais e"
-" comunitários, incluindo portais para governos locais, nacionais e "
+"regionais, empresas e organizações) que desejam tornar seus dados abertos e "
+"disponíveis.</p> <p>O CKAN é usado por governos e grupos de usuários em todo"
+" o mundo e impulsiona uma variedade de portais de dados oficiais e "
+"comunitários, incluindo portais para governos locais, nacionais e "
 "internacionais, como o do Reino Unido <a "
 "href=\"https://data.gov.uk\">data.gov.uk</a> e os Estados Unidos <a "
 "href=\"https://catalog.data.gov/\">catalog.data.gov</a>, o Brasil <a "
 "href=\"https://dados.gov.br/\">dados.gov.br</a>, os Países Baixos e os "
-"Países Baixos portais governamentais, bem como sites de cidades e "
-"municípios nos EUA, Reino Unido, Argentina, Finlândia e outros "
-"lugares.</p> <p>CKAN: <a "
-"href=\"https://ckan.org/\">https://ckan.org/</a><br /> Vitrines CKAN: <a "
-"href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> "
-"Visão geral dos recursos: <a "
+"Países Baixos portais governamentais, bem como sites de cidades e municípios"
+" nos EUA, Reino Unido, Argentina, Finlândia e outros lugares.</p> <p>CKAN: "
+"<a href=\"https://ckan.org/\">https://ckan.org/</a><br /> Vitrines CKAN: <a "
+"href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> Visão"
+" geral dos recursos: <a "
 "href=\"https://ckan.org/features/\">https://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
@@ -2262,8 +2263,8 @@ msgstr "Bem-vindo ao CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will"
 msgstr ""
 "Este é um belo parágrafo introdutório sobre o CKAN ou sobre o sítio em "
 "geral. Nós não temos uma cópia para colocar aqui, mas em breve teremos"
@@ -2332,14 +2333,13 @@ msgstr "Customizar"
 #: ckan/templates/macros/form/markdown.html:31
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-"
-"bs-html=\"true\">Markdown formatting</a> here"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
+"html=\"true\">Markdown formatting</a> here"
 msgstr ""
-"Você pode usar <a href=\"#markdown\" title=\"Referência rápida de "
-"Markdown\" data-bs-toggle=\"popover\" data-bs-"
-"content=\"%(markdown_tooltip)s\" data-bs-html=\"true\">Formatação "
-"Markdown</a> aqui"
+"Você pode usar <a href=\"#markdown\" title=\"Referência rápida de Markdown\""
+" data-bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-"
+"bs-html=\"true\">Formatação Markdown</a> aqui"
 
 #: ckan/templates/macros/form/required_message.html:11
 msgid "Required field"
@@ -2465,15 +2465,15 @@ msgid ""
 "<p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p>"
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p>"
 msgstr ""
-"<p><strong>Administrador:</strong> Pode adicionar/editar e excluir "
-"conjuntos de dados, assim como gerenciar membros da organização.</p> "
-"<p><strong>Editor:</strong> Pode adicionar e editar conjuntos de dados, "
-"mas não gerenciar membros da organização.</p> <p><strong>Membro:</strong>"
-" Pode ver os conjuntos de dados privados da organização, mas não "
-"adicionar novos conjuntos de dados.</p>"
+"<p><strong>Administrador:</strong> Pode adicionar/editar e excluir conjuntos"
+" de dados, assim como gerenciar membros da organização.</p> "
+"<p><strong>Editor:</strong> Pode adicionar e editar conjuntos de dados, mas "
+"não gerenciar membros da organização.</p> <p><strong>Membro:</strong> Pode "
+"ver os conjuntos de dados privados da organização, mas não adicionar novos "
+"conjuntos de dados.</p>"
 
 #: ckan/templates/organization/new.html:3
 msgid "Create an Organization"
@@ -2494,11 +2494,11 @@ msgstr "O que são Organizações?"
 #: ckan/templates/organization/snippets/helper.html:20
 msgid ""
 "CKAN Organizations are used to create, manage and publish collections of "
-"datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish."
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish."
 msgstr ""
-"Organizações do CKAN são usadas para criar, gerenciar e publicar coleções"
-" de conjuntos de dados. Usuários podem possuir diferentes papéis em uma "
+"Organizações do CKAN são usadas para criar, gerenciar e publicar coleções de"
+" conjuntos de dados. Usuários podem possuir diferentes papéis em uma "
 "organização, dependendo do seu level de autorização para criar, editar e "
 "publicar."
 
@@ -2516,13 +2516,12 @@ msgstr "Um pouco de informações sobre a minha organização..."
 
 #: ckan/templates/organization/snippets/organization_form.html:40
 msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot"
-" be performed while public or private datasets belong to this "
-"organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
-"Tem certeza que deseja excluir esta organização? Nota*: A exclusão não "
-"pode ser executada enquanto conjuntos de dados, públicos ou privados, "
-"pertencerem a esta Organização."
+"Tem certeza que deseja excluir esta organização? Nota*: A exclusão não pode "
+"ser executada enquanto conjuntos de dados, públicos ou privados, pertencerem"
+" a esta Organização."
 
 #: ckan/templates/organization/snippets/organization_form.html:43
 msgid "Save Organization"
@@ -2546,14 +2545,14 @@ msgstr "O que são conjuntos de dados?"
 
 #: ckan/templates/package/base_form_page.html:22
 msgid ""
-"A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data."
+"A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data."
 msgstr ""
 "Um conjunto de dados do CKAN é uma coleção de recursos de dados (como "
-"arquivos), unidos com uma descrição e outras informações, em uma URL "
-"fixa. Conjuntos de dados são o que usuários visualizam quando estão "
-"buscando dados."
+"arquivos), unidos com uma descrição e outras informações, em uma URL fixa. "
+"Conjuntos de dados são o que usuários visualizam quando estão buscando "
+"dados."
 
 #: ckan/templates/package/confirm_delete.html:12
 #, python-brace-format
@@ -2710,8 +2709,7 @@ msgstr "Clique aqui para saber mais ..."
 #: ckan/templates/package/resource_read.html:115
 msgid "Here are some reasons you may not be seeing expected views:"
 msgstr ""
-"Seguem alguns possíveis motivos para que você não veja as visões "
-"esperadas:"
+"Seguem alguns possíveis motivos para que você não veja as visões esperadas:"
 
 #: ckan/templates/package/resource_read.html:117
 msgid "No view has been created that is suitable for this resource"
@@ -2725,13 +2723,13 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:119
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 "Se uma visão exigir o DataStore, o plugin do DataStore pode não estar "
-"habilitado, os dados podem ainda não ter sido carregados no DataStore, ou"
-" o DataStore pode ainda não ter terminado de processar os dados"
+"habilitado, os dados podem ainda não ter sido carregados no DataStore, ou o "
+"DataStore pode ainda não ter terminado de processar os dados"
 
 #: ckan/templates/package/resource_read.html:141
 msgid "Additional Information"
@@ -2798,8 +2796,8 @@ msgstr "O recurso não tem visões"
 #: ckan/templates/package/snippets/resources_list.html:28
 #, python-format
 msgid ""
-"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p>"
+"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
+" some?</a></p>"
 msgstr ""
 "<p class=\"empty\">Esse conjunto de dados não possui dados, <a "
 "href=\"%(url)s\">por que não adicionar alguns?</a></p>"
@@ -2818,8 +2816,8 @@ msgid ""
 "You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s)."
 msgstr ""
-"Você também pode ter acesso a esses registros usando a %(api_link)s (veja"
-" %(api_doc_link)s)."
+"Você também pode ter acesso a esses registros usando a %(api_link)s (veja "
+"%(api_doc_link)s)."
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
@@ -2863,24 +2861,23 @@ msgstr "Quais são as funções disponíveis?"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:68
 msgid ""
-"<p><strong>Admin:</strong> In addition to managing the dataset, admins "
-"can add and remove collaborators from a dataset.</p>"
+"<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
+"add and remove collaborators from a dataset.</p>"
 msgstr ""
-"<p><strong>Administrador:</strong> Além de gerenciar o conjunto de dados,"
-" os administradores podem adicionar e remover colaboradores de um "
-"conjunto de dados.</p>"
+"<p><strong>Administrador:</strong> Além de gerenciar o conjunto de dados, os"
+" administradores podem adicionar e remover colaboradores de um conjunto de "
+"dados.</p>"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:72
 msgid ""
-"<p><strong>Editor:</strong> Editors can edit the dataset and its "
-"resources, as well accessing the dataset if private.</p> "
-"<p><strong>Member:</strong> Members can access the dataset if private, "
-"but not edit it.</p>"
+"<p><strong>Editor:</strong> Editors can edit the dataset and its resources, "
+"as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
+"Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
-"<p><strong>Editor:</strong> Os editores podem editar o conjunto de dados "
-"e seus recursos, além do acesso ao conjunto de dados se for privado.</p> "
-"<p><strong>Membro:</strong> Os membros podem acessar o conjunto de dados "
-"se for privado, mas não editá-lo.</p>"
+"<p><strong>Editor:</strong> Os editores podem editar o conjunto de dados e "
+"seus recursos, além do acesso ao conjunto de dados se for privado.</p> "
+"<p><strong>Membro:</strong> Os membros podem acessar o conjunto de dados se "
+"for privado, mas não editá-lo.</p>"
 
 #: ckan/templates/package/collaborators/collaborators.html:7
 msgid "Add Collaborators"
@@ -2965,8 +2962,8 @@ msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
-"Peça a um administrador do sistema para criar uma organização antes que "
-"você possa continuar."
+"Peça a um administrador do sistema para criar uma organização antes que você"
+" possa continuar."
 
 #: ckan/templates/package/snippets/package_basic_fields.html:6
 #: ckan/templates/package/snippets/view_form.html:8
@@ -2998,8 +2995,8 @@ msgid ""
 "License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
-"Definições de licenças e informações adicionais podem ser encontradas em "
-"<a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+"Definições de licenças e informações adicionais podem ser encontradas em <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:75
 msgid "Organization"
@@ -3023,17 +3020,16 @@ msgstr "Ativo"
 
 #: ckan/templates/package/snippets/package_form.html:33
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 "A <i>licença de dados</i> que você escolher acima aplica-se somente ao "
-"conteúdo de quaisquer recurso de arquivos que você adicionar a este "
-"conjunto de dados. Ao enviar este formulário, você concorda em lançar os "
-"valores de <i>metadados</i> que você incluir sob a licença <a "
+"conteúdo de quaisquer recurso de arquivos que você adicionar a este conjunto"
+" de dados. Ao enviar este formulário, você concorda em lançar os valores de "
+"<i>metadados</i> que você incluir sob a licença <a "
 "href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
 "License</a>."
 
@@ -3150,8 +3146,8 @@ msgstr "O que é um recurso?"
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
 msgstr ""
-"Um recurso pode ser qualquer arquivo ou link para um arquivo que contenha"
-" dados úteis."
+"Um recurso pode ser qualquer arquivo ou link para um arquivo que contenha "
+"dados úteis."
 
 #: ckan/templates/package/snippets/resource_item.html:21
 #, python-brace-format
@@ -3206,8 +3202,8 @@ msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
 msgstr ""
-"Você pode copiar e colar o código para embutir em um CMS ou software de "
-"blog que suporte HTML puro"
+"Você pode copiar e colar o código para embutir em um CMS ou software de blog"
+" que suporte HTML puro"
 
 #: ckan/templates/package/snippets/resource_view.html:80
 msgid "Width"
@@ -3351,7 +3347,8 @@ msgstr "Nenhuma Licença Fornecida"
 
 #: ckan/templates/snippets/license.html:27
 msgid "This dataset satisfies the Open Definition."
-msgstr "Este conjunto de dados satisfaz a Definição de Aberto - Open Definition."
+msgstr ""
+"Este conjunto de dados satisfaz a Definição de Aberto - Open Definition."
 
 #: ckan/templates/snippets/package_item.html:48
 msgid "There is no description for this dataset."
@@ -3377,8 +3374,8 @@ msgstr "<p class=\"extra\">Por favor tente uma nova pesquisa.</p>"
 
 #: ckan/templates/snippets/search_form.html:87
 msgid ""
-"<p id=\"search-error\"><strong>There was an error while "
-"searching.</strong> Please try again.</p>"
+"<p id=\"search-error\"><strong>There was an error while searching.</strong> "
+"Please try again.</p>"
 msgstr ""
 "<p id=\"search-error\"><strong>Houve um erro ao pesquisar.</strong> Por "
 "favor tente novamente.</p>"
@@ -3483,7 +3480,8 @@ msgstr ""
 msgid "Loading..."
 msgstr "Carregando ..."
 
-#: ckan/templates/user/api_tokens.html:12 ckan/templates/user/read_base.html:26
+#: ckan/templates/user/api_tokens.html:12
+#: ckan/templates/user/read_base.html:26
 msgid "API Tokens"
 msgstr "API Tokens"
 
@@ -3541,10 +3539,11 @@ msgid "Account Info"
 msgstr "Informações da Conta"
 
 #: ckan/templates/user/edit.html:19
-msgid "Your profile lets other CKAN users know about who you are and what you do."
+msgid ""
+"Your profile lets other CKAN users know about who you are and what you do."
 msgstr ""
-"Seu perfil permite que outros usuários do CKAN saibam quem você é o que "
-"você faz."
+"Seu perfil permite que outros usuários do CKAN saibam quem você é o que você"
+" faz."
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "Change details"
@@ -3588,11 +3587,11 @@ msgstr "Reativar usuário"
 
 #: ckan/templates/user/edit_user_form.html:33
 msgid ""
-"This account is deactivated, if you want to reactivate it, please click "
-"on checkbox."
+"This account is deactivated, if you want to reactivate it, please click on "
+"checkbox."
 msgstr ""
-"Esta conta está desativada. Se você quiser reativá-la, por favor, clique "
-"na caixa de seleção."
+"Esta conta está desativada. Se você quiser reativá-la, por favor, clique na "
+"caixa de seleção."
 
 #: ckan/templates/user/edit_user_form.html:43
 #: ckan/templates/user/edit_user_form.html:78
@@ -3666,8 +3665,7 @@ msgstr "Esqueceu sua senha ?"
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
 msgstr ""
-"Sem problema, use nosso formulário de recuperação de senha para "
-"redefiní-la."
+"Sem problema, use nosso formulário de recuperação de senha para redefiní-la."
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
@@ -3748,8 +3746,8 @@ msgstr "Redefinir Senha"
 #: ckan/templates/user/perform_reset.html:22
 msgid "You can also change username. It can not be modified later."
 msgstr ""
-"Você também pode alterar o nome de usuário. Ele não poderá ser modificado"
-" mais tarde."
+"Você também pode alterar o nome de usuário. Ele não poderá ser modificado "
+"mais tarde."
 
 #: ckan/templates/user/perform_reset.html:30
 msgid "Update Password"
@@ -3791,11 +3789,11 @@ msgstr "Solicitar redefinição"
 
 #: ckan/templates/user/request_reset.html:44
 msgid ""
-"Enter your email address or username into the box and we will send you an"
-" email with a link to enter a new password."
+"Enter your email address or username into the box and we will send you an "
+"email with a link to enter a new password."
 msgstr ""
-"Entre seu nome de usuário para que um e-mail seja enviado com um link "
-"para restaurar sua senha."
+"Entre seu nome de usuário para que um e-mail seja enviado com um link para "
+"restaurar sua senha."
 
 #: ckan/templates/user/snippets/api_token_create_form.html:14
 msgid "Create API Token"
@@ -3807,9 +3805,8 @@ msgid ""
 "API Token created: <code style=\"word-break:break-all;\">{token}</code> "
 "{copy}<br>Make sure to copy it now, you won't be able to see it again!"
 msgstr ""
-"Token de API criado: <code style=\"word-break:break-all;\">{token}</code>"
-" {copy}<br>Certifique-se de copiá-lo agora, você não poderá vê-lo "
-"novamente!"
+"Token de API criado: <code style=\"word-break:break-all;\">{token}</code> "
+"{copy}<br>Certifique-se de copiá-lo agora, você não poderá vê-lo novamente!"
 
 #: ckan/templates/user/snippets/api_token_list.html:19
 msgid "Token"
@@ -3979,8 +3976,7 @@ msgstr "Usuário %r não autorizado a editar %s"
 #: ckan/views/dataset.py:915 ckan/views/dataset.py:942
 msgid "Dataset not found or you have no permission to view it"
 msgstr ""
-"Conjunto de dados não encontrado ou você não tem permissão para "
-"visualizá-lo"
+"Conjunto de dados não encontrado ou você não tem permissão para visualizá-lo"
 
 #: ckan/views/dataset.py:432 ckan/views/dataset.py:742
 #: ckan/views/dataset.py:983
@@ -4148,13 +4144,14 @@ msgstr "Não autorizado a adicionar membro ao grupo %s"
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
-"Por favor <a href=\"%s\">atualize o seu perfil</a> e adicione o seu "
-"endereço de e-mail. "
+"Por favor <a href=\"%s\">atualize o seu perfil</a> e adicione o seu endereço"
+" de e-mail. "
 
 #: ckan/views/home.py:72
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr "%s usa o seu endereço de e-mail se você precisar redefinir a sua senha."
+msgstr ""
+"%s usa o seu endereço de e-mail se você precisar redefinir a sua senha."
 
 #: ckan/views/resource.py:74 ckan/views/resource.py:584
 #, python-format
@@ -4319,16 +4316,16 @@ msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
-"Erro ao enviar o e-mail. Tente novamente mais tarde ou entre em contato "
-"com o administrador para ajuda"
+"Erro ao enviar o e-mail. Tente novamente mais tarde ou entre em contato com "
+"o administrador para ajuda"
 
 #: ckan/views/user.py:739
 msgid ""
-"A reset link has been emailed to you (unless the account specified does "
-"not exist)"
+"A reset link has been emailed to you (unless the account specified does not "
+"exist)"
 msgstr ""
-"Um link de redefinição foi enviado para você por e-mail (a menos que a "
-"conta especificada não exista)"
+"Um link de redefinição foi enviado para você por e-mail (a menos que a conta"
+" especificada não exista)"
 
 #: ckan/views/user.py:761
 msgid "Unauthorized to reset password."
@@ -4387,7 +4384,8 @@ msgstr "Não autorizado a visualizar dados de atividade"
 
 #: ckanext/activity/views.py:255
 msgid "The detail of this dataset activity is not available"
-msgstr "Os detalhes desta atividade do conjunto de dados não estão disponíveis"
+msgstr ""
+"Os detalhes desta atividade do conjunto de dados não estão disponíveis"
 
 #: ckanext/activity/views.py:332
 #, python-format
@@ -4428,8 +4426,8 @@ msgstr ""
 
 #: ckanext/activity/logic/action.py:776
 msgid ""
-"No activities found matching the specified criteria. Please provide "
-"either start_date and end_date or offset_days."
+"No activities found matching the specified criteria. Please provide either "
+"start_date and end_date or offset_days."
 msgstr ""
 
 #: ckanext/activity/logic/action.py:819 ckanext/activity/logic/action.py:850
@@ -4511,8 +4509,8 @@ msgstr ""
 
 #: ckanext/activity/templates/admin/activities.html:68
 msgid ""
-"Purge activity stream entries by age. Each option shows how many "
-"activities would be deleted. Purging is irreversible."
+"Purge activity stream entries by age. Each option shows how many activities "
+"would be deleted. Purging is irreversible."
 msgstr ""
 
 #: ckanext/activity/templates-midnight-blue/group/activity_stream.html:3
@@ -4605,13 +4603,13 @@ msgstr "Em %(timestamp)s, %(username)s:"
 #: ckanext/activity/templates/package/resource_history.html:10
 #, python-format
 msgid ""
-"You're currently viewing an old version of this dataset. Data files may "
-"not match the old version of the metadata. <a href=\"%(url)s\">View the "
-"current version</a>."
+"You're currently viewing an old version of this dataset. Data files may not "
+"match the old version of the metadata. <a href=\"%(url)s\">View the current "
+"version</a>."
 msgstr ""
 "Você está visualizando uma versão antiga deste conjunto de dados. Os "
-"arquivos de dados podem não corresponder à versão antiga dos metadados. "
-"<a href=\"%(url)s\">Visualizar a versão atualversão</a>."
+"arquivos de dados podem não corresponder à versão antiga dos metadados. <a "
+"href=\"%(url)s\">Visualizar a versão atualversão</a>."
 
 #: ckanext/activity/templates-midnight-blue/snippets/activity_stream.html:13
 #: ckanext/activity/templates-midnight-blue/snippets/stream.html:62
@@ -4770,8 +4768,7 @@ msgstr "{actor} excluiu o recurso {resource} do conjunto de dados {dataset}"
 #: ckanext/activity/templates/snippets/activities/deleted_resource_view.html:9
 #, python-brace-format
 msgid ""
-"{actor} deleted resource view \"{view_title}\" for resource "
-"{resource_link}"
+"{actor} deleted resource view \"{view_title}\" for resource {resource_link}"
 msgstr ""
 
 #: ckanext/activity/templates-midnight-blue/snippets/activities/fallback.html:17
@@ -4844,7 +4841,8 @@ msgstr "{actor} excluiu a etiqueta {tag} do conjunto de dados {dataset}"
 #: ckanext/activity/templates/snippets/changes/author.html:5
 #, python-brace-format
 msgid "Set author of {pkg_link} to {new_author} (previously {old_author})"
-msgstr "Definir autor de {pkg_link} para {new_author} (anteriormente {old_author})"
+msgstr ""
+"Definir autor de {pkg_link} para {new_author} (anteriormente {old_author})"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/author.html:13
 #: ckanext/activity/templates/snippets/changes/author.html:13
@@ -4936,13 +4934,15 @@ msgstr "Recurso excluído {resource_link} de {pkg_link}"
 #: ckanext/activity/templates/snippets/changes/extension_fields.html:3
 #, python-brace-format
 msgid "Changed value of field <q>{key}</q> to <q>{value}</q> in {pkg_link}"
-msgstr "Valor alterado do campo <q>{key}</q> para <q>{value}</q> em {pkg_link}"
+msgstr ""
+"Valor alterado do campo <q>{key}</q> para <q>{value}</q> em {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:5
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:5
 #, python-brace-format
 msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
-msgstr "Adicionado campo <q>{key}</q> com valor <q>{value}</q> para {pkg_link}"
+msgstr ""
+"Adicionado campo <q>{key}</q> com valor <q>{value}</q> para {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:13
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:13
@@ -4981,14 +4981,15 @@ msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously "
 "<q>{old_val}</q>) in {pkg_link}"
 msgstr ""
-"Valor do campo <q>{key}</q> alterado para <q>{new_val}</q> (anteriormente"
-" <q>{old_val}</q>) em {pkg_link}"
+"Valor do campo <q>{key}</q> alterado para <q>{new_val}</q> (anteriormente "
+"<q>{old_val}</q>) em {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:51
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:51
 #, python-brace-format
 msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
-msgstr "Valor alterado do campo <q>{key}</q> para <q>{new_val}</q> em {pkg_link}"
+msgstr ""
+"Valor alterado do campo <q>{key}</q> para <q>{new_val}</q> em {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:59
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:59
@@ -5185,12 +5186,12 @@ msgstr "Descrição removida do recurso {resource_link} em {pkg_link}"
 #, python-brace-format
 msgid ""
 "Updated description of resource {resource_link} in {pkg_link} from <br "
-"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "Descrição atualizada do recurso {resource_link} em {pkg_link} de <br "
-"class=\"line-height2\"><blockquote>{old_desc}</blockquote> para <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> para <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:5
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:5
@@ -5206,13 +5207,15 @@ msgstr ""
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:16
 #, python-brace-format
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
-msgstr "Campo adicionado <q>{key}</q> ao recurso {resource_link} em {pkg_link}"
+msgstr ""
+"Campo adicionado <q>{key}</q> ao recurso {resource_link} em {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:26
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:26
 #, python-brace-format
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
-msgstr "Adicionados os seguintes campos ao recurso {resource_link} em {pkg_link}"
+msgstr ""
+"Adicionados os seguintes campos ao recurso {resource_link} em {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:49
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:49
@@ -5223,10 +5226,10 @@ msgstr "Campo removido <q>{key}</q> do recurso {resource_link} em {pkg_link}"
 #: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:59
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:59
 #, python-brace-format
-msgid "Removed the following fields from resource {resource_link} in {pkg_link}"
+msgid ""
+"Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
-"Os seguintes campos foram removidos do recurso {resource_link} em "
-"{pkg_link}"
+"Os seguintes campos foram removidos do recurso {resource_link} em {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:75
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:75
@@ -5262,8 +5265,8 @@ msgstr ""
 #: ckanext/activity/templates/snippets/changes/resource_format.html:17
 #, python-format
 msgid ""
-"Set format of resource <a href=\"%(resource_url)s\">%(resource_name)s</a>"
-" to <a href=\"%(format_url)s\">%(format)s</a> in <a "
+"Set format of resource <a href=\"%(resource_url)s\">%(resource_name)s</a> to"
+" <a href=\"%(format_url)s\">%(format)s</a> in <a "
 "href=\"%(pkg_link)s\">%(title)s</a>."
 msgstr ""
 
@@ -5271,18 +5274,18 @@ msgstr ""
 #: ckanext/activity/templates/snippets/changes/resource_format.html:30
 #, python-format
 msgid ""
-"Set format of resource <a href=\"%(resource_url)s\">%(resource_name)s</a>"
-" to <a href=\"%(new_format_url)s\">%(new_format)s</a> (previously <a "
+"Set format of resource <a href=\"%(resource_url)s\">%(resource_name)s</a> to"
+" <a href=\"%(new_format_url)s\">%(new_format)s</a> (previously <a "
 "href=\"%(old_format_url)s\">%(old_format)s</a>)."
 msgstr ""
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/resource_name.html:3
 #: ckanext/activity/templates/snippets/changes/resource_name.html:3
 #, python-brace-format
-msgid "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
+msgid ""
+"Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
 msgstr ""
-"Recurso renomeado {old_resource_link} para {new_resource_link} em "
-"{pkg_link}"
+"Recurso renomeado {old_resource_link} para {new_resource_link} em {pkg_link}"
 
 #: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:5
 #: ckanext/activity/templates/snippets/changes/tags.html:5
@@ -5380,8 +5383,8 @@ msgid ""
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
 "Descrição atualizada de {group_link} de <br class=\"line-"
-"height2\"><blockquote>{old_description}</blockquote> para <br class"
-"=\"line-height2\"><blockquote>{new_description}</blockquote>"
+"height2\"><blockquote>{old_description}</blockquote> para <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates-midnight-blue/snippets/group_changes/description.html:13
 #: ckanext/activity/templates/snippets/group_changes/description.html:13
@@ -5403,8 +5406,8 @@ msgstr "Descrição removida de {group_link}"
 #: ckanext/activity/templates/snippets/group_changes/image_url.html:9
 #, python-format
 msgid ""
-"Changed the image URL of <a href=\"%(group_link)s\">%(title)s</a> from <a"
-" href=\"%(old_url)s\">%(old_url)s</a> to <a "
+"Changed the image URL of <a href=\"%(group_link)s\">%(title)s</a> from <a "
+"href=\"%(old_url)s\">%(old_url)s</a> to <a "
 "href=\"%(new_url)s\">%(new_url)s</a>."
 msgstr ""
 
@@ -5431,8 +5434,8 @@ msgid ""
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
 "Descrição atualizada de {org_link} de <br class=\"line-"
-"height2\"><blockquote>{old_description}</blockquote> para <br class"
-"=\"line-height2\"><blockquote>{new_description}</blockquote>"
+"height2\"><blockquote>{old_description}</blockquote> para <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates-midnight-blue/snippets/organization_changes/description.html:13
 #: ckanext/activity/templates/snippets/organization_changes/description.html:13
@@ -5574,7 +5577,8 @@ msgstr ""
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:16
 msgid "Are you sure you want to delete the DataStore and Data Dictionary?"
-msgstr "Tem certeza de que deseja excluir o DataStore e o Dicionário de Dados?"
+msgstr ""
+"Tem certeza de que deseja excluir o DataStore e o Dicionário de Dados?"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:17
 msgid "Delete from DataStore"
@@ -5637,11 +5641,11 @@ msgstr "Campo %d"
 
 #: ckanext/datastore/blueprint.py:232
 msgid ""
-"Data Dictionary saved. Any type overrides will take effect when the "
-"resource is next uploaded to DataStore"
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
 msgstr ""
-"Dicionário de Dados salvo. Quaisquer substituições de tipo entrarão em "
-"vigor quando o recurso for carregado novamente no DataStore"
+"Dicionário de Dados salvo. Quaisquer substituições de tipo entrarão em vigor"
+" quando o recurso for carregado novamente no DataStore"
 
 #: ckanext/datastore/assets/js/api-info.js:99
 msgid "There is no API data to load for this resource"
@@ -5692,8 +5696,8 @@ msgstr ""
 #: ckanext/datastore/templates/datastore/snippets/api_info.html:38
 #, python-format
 msgid ""
-"Further information in the <a href=\"%(url)s\" target=\"_blank\">main "
-"CKAN Data API and DataStore documentation</a>.</p>"
+"Further information in the <a href=\"%(url)s\" target=\"_blank\">main CKAN "
+"Data API and DataStore documentation</a>.</p>"
 msgstr ""
 "Mais informações na <a href=\"%(url)s\" target=\"_blank\">documentação "
 "principal da API de Dados e do DataStore do CKAN</a>.</p>"
@@ -5717,8 +5721,8 @@ msgid ""
 "Get results with either \"watershed\" or \"survey\" as subject and "
 "\"active\" as its stage:"
 msgstr ""
-"Obtenha resultados com \"bacia hidrográfica\" ou \"pesquisa\" como "
-"assunto e \"ativo\" como estágio:"
+"Obtenha resultados com \"bacia hidrográfica\" ou \"pesquisa\" como assunto e"
+" \"ativo\" como estágio:"
 
 #: ckanext/datastore/templates/datastore/snippets/api_info.html:75
 #: ckanext/tabledesigner/templates/datastore/snippets/api_info.html:35
@@ -5732,8 +5736,8 @@ msgstr "Usando a API com este navegador da Web"
 #: ckanext/datastore/templates/datastore/snippets/api_info.html:92
 msgid "Some API endpoints may be accessed using a GET query string."
 msgstr ""
-"Alguns endpoints da API podem ser acessados ​​usando uma string de "
-"consulta GET."
+"Alguns endpoints da API podem ser acessados ​​usando uma string de consulta "
+"GET."
 
 #: ckanext/datastore/templates/datastore/snippets/api_info.html:93
 msgid "Query example (first 5 results)"
@@ -5882,13 +5886,13 @@ msgstr "Comprimento da elipse"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid ""
-"Length at which data will be truncated with an ellipsis for display. Set "
-"to zero for no truncation, and for data to be wrapped at column name "
-"width instead."
+"Length at which data will be truncated with an ellipsis for display. Set to "
+"zero for no truncation, and for data to be wrapped at column name width "
+"instead."
 msgstr ""
-"Comprimento no qual os dados serão truncados para exibição. Definido como"
-" zero para nenhum truncamento e para que os dados sejam ajustados na "
-"largura do nome da coluna."
+"Comprimento no qual os dados serão truncados para exibição. Definido como "
+"zero para nenhum truncamento e para que os dados sejam ajustados na largura "
+"do nome da coluna."
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:22
 msgid "Date format"
@@ -5897,14 +5901,13 @@ msgstr "Formato da data"
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:25
 msgid ""
 "Moment.js date format to use for displaying dates (see <a "
-"href=\"https://devhints.io/moment#formatting-1\" "
-"target=\"_blank\">Moment.js cheatsheet</a>). If <b>NONE</b>, the raw "
-"timestamp value will be shown."
+"href=\"https://devhints.io/moment#formatting-1\" target=\"_blank\">Moment.js"
+" cheatsheet</a>). If <b>NONE</b>, the raw timestamp value will be shown."
 msgstr ""
 "Formato de data Moment.js a ser usado para exibir datas (consulte <a "
-"href=\"https://devhints.io/moment#formatting-1\" "
-"target=\"_blank\">Moment.js cheatsheet</a>). If <b>Nenhum</b>, o valor do"
-" timestamp de data/hora bruto será mostrado."
+"href=\"https://devhints.io/moment#formatting-1\" target=\"_blank\">Moment.js"
+" cheatsheet</a>). If <b>Nenhum</b>, o valor do timestamp de data/hora bruto "
+"será mostrado."
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:29
 msgid "Show Columns"
@@ -6047,8 +6050,8 @@ msgstr "Este grupo está sem descrição"
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
 msgstr ""
-"A ferramenta de pré-visualização de dados do CKAN tem muitas "
-"funcionalidades poderosas"
+"A ferramenta de pré-visualização de dados do CKAN tem muitas funcionalidades"
+" poderosas"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:6
 msgid "Second"
@@ -6239,11 +6242,11 @@ msgstr "Numérico"
 
 #: ckanext/tabledesigner/column_types.py:308
 msgid ""
-"Number with arbitrary precision (any number of digits before and after "
-"the decimal)"
+"Number with arbitrary precision (any number of digits before and after the "
+"decimal)"
 msgstr ""
-"Número com precisão arbitrária (qualquer número de dígitos antes e depois"
-" dodecimal)"
+"Número com precisão arbitrária (qualquer número de dígitos antes e depois "
+"dodecimal)"
 
 #: ckanext/tabledesigner/column_types.py:326
 msgid "Integer"
@@ -6349,8 +6352,8 @@ msgstr "Atualize um registro existente:"
 #: ckanext/tabledesigner/templates/datastore/snippets/api_info.html:57
 #, python-format
 msgid ""
-"\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted "
-"or updated based on the primary key values passed"
+"\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted or "
+"updated based on the primary key values passed"
 msgstr ""
 "\"%(method)s\" é definido por padrão como \"%(upsert)s\", ou seja, os "
 "registros serão inseridos ou atualizados com base nos valores da chave "
@@ -6370,7 +6373,8 @@ msgstr "Remover campo"
 
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:33
 msgid "Field identifier or column heading when exported to CSV"
-msgstr "Identificador de campo ou cabeçalho de coluna quando exportado para CSV"
+msgstr ""
+"Identificador de campo ou cabeçalho de coluna quando exportado para CSV"
 
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:40
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_view.html:18
@@ -6405,16 +6409,16 @@ msgid ""
 "<b>No fields defined:</b> click the Data Dictionary button above to "
 "customize this table"
 msgstr ""
-"<b>Nenhum campo definido:</b> clique no botão Dicionário de Dados acima "
-"para personalizar esta tabela"
+"<b>Nenhum campo definido:</b> clique no botão Dicionário de Dados acima para"
+" personalizar esta tabela"
 
 #: ckanext/tabledesigner/templates/package/resource_read.html:18
 msgid ""
-"<b>No table view defined:</b> click the Views button and add a Table view"
-" to view and edit data"
+"<b>No table view defined:</b> click the Views button and add a Table view to"
+" view and edit data"
 msgstr ""
-"<b>Nenhuma visualização de tabela definida:</b> clique no botão Exibições"
-" e adicione uma visualização de Tabela avisualizar e editar dados"
+"<b>Nenhuma visualização de tabela definida:</b> clique no botão Exibições e "
+"adicione uma visualização de Tabela avisualizar e editar dados"
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:6
 msgid "Create a custom table for your data"
@@ -6426,17 +6430,17 @@ msgid "Table Designer"
 msgstr "Designer de Tabela"
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:20
-msgid "Save this resource, then customize the table from the Data Dictionary tab"
+msgid ""
+"Save this resource, then customize the table from the Data Dictionary tab"
 msgstr "Salve este recurso e personalize a tabela na guia Dicionário de Dados"
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:22
 #, python-format
 msgid ""
-"Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this "
-"table."
+"Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this table."
 msgstr ""
-"Use a aba <a href=\"%(url)s\">Dicionário de Dados</a> para personalizar "
-"esta tabela."
+"Use a aba <a href=\"%(url)s\">Dicionário de Dados</a> para personalizar esta"
+" tabela."
 
 #: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:6
 #: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:10
@@ -6462,13 +6466,12 @@ msgstr "Padrão"
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:11
 #, python-brace-format
 msgid ""
-"Regular expression to match against the field, e.g. "
-"<code>AB-\\d{6}</code> for text starting with <code>AB-</code> and ending"
-" with 6 digits"
+"Regular expression to match against the field, e.g. <code>AB-\\d{6}</code> "
+"for text starting with <code>AB-</code> and ending with 6 digits"
 msgstr ""
 "Expressão regular para corresponder ao campo, por exemplo, "
-"<code>AB-\\d{6}</code> para texto que começa com <code>AB-</code> e "
-"termina com 6 dígitos"
+"<code>AB-\\d{6}</code> para texto que começa com <code>AB-</code> e termina "
+"com 6 dígitos"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:3
 #: ckanext/tabledesigner/templates/tabledesigner/view_snippets/range.html:1
@@ -6511,11 +6514,11 @@ msgstr " (Chave primária)"
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:14
 #, python-brace-format
 msgid ""
-"Field {num} removed. Click Save below to save your changes and delete all"
-" data in this field."
+"Field {num} removed. Click Save below to save your changes and delete all "
+"data in this field."
 msgstr ""
-"Campo {num} removido. Clique em Salvar abaixo para salvar suas alterações"
-" e excluir todos os dados deste campo."
+"Campo {num} removido. Clique em Salvar abaixo para salvar suas alterações e "
+"excluir todos os dados deste campo."
 
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:39
 msgid "Add field"
@@ -6573,13 +6576,13 @@ msgstr "ex: http://example.com/poster.jpg"
 #: ckanext/videoview/theme/templates/video_view.html:7
 #, python-format
 msgid ""
-"Sorry, your browser doesn't support embedded videos, but don't worry, you"
-" can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch "
-"it with your favorite video player!"
+"Sorry, your browser doesn't support embedded videos, but don't worry, you "
+"can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch it "
+"with your favorite video player!"
 msgstr ""
 "Desculpe, seu navegador não suporta vídeos incorporados, mas não se "
-"preocupe, você pode ​​<a href=\"%(res_url)s\" alt=\"video "
-"url\">baixar</a> e assistircom seu reprodutor de vídeo favorito!"
+"preocupe, você pode ​​<a href=\"%(res_url)s\" alt=\"video url\">baixar</a> e"
+" assistircom seu reprodutor de vídeo favorito!"
 
 #: ckanext/webpageview/plugin.py:27 ckanext/webpageview/plugin.py:32
 msgid "Website"
@@ -6592,194 +6595,3 @@ msgstr "Url de página Web"
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
-
-#~ msgid "There are currently no {object_type}s for this site"
-#~ msgstr "Atualmente não há {object_type}s para este site"
-
-#~ msgid "There are no {object_type}s associated with this dataset"
-#~ msgstr "Não há {object_type}s associados a este conjunto de dados"
-
-#~ msgid "There is no description for this {object_type}"
-#~ msgstr "Não há descrição para este {object_type}"
-
-#~ msgid "Resource"
-#~ msgstr "Recurso"
-
-#~ msgid "That login name is not available."
-#~ msgstr "Esse nome de login não está disponível."
-
-#~ msgid "Cannot change value of key from %s to %s. This key is read-only"
-#~ msgstr ""
-#~ "Não é possível alterar o valor da"
-#~ " chave de %s para %s. Essa "
-#~ "chave é somente para leitura"
-
-#~ msgid "Not a string"
-#~ msgstr "Não é uma string"
-
-#~ msgid "Value must be one of {}"
-#~ msgstr "O valor deve ser um de {}"
-
-#~ msgid "You must be logged in to unfollow something."
-#~ msgstr "Você precisa estar autenticado para deixar de seguir algo."
-
-#~ msgid "Please Confirm Action"
-#~ msgstr "Por favor, confirme a ação"
-
-#~ msgid ""
-#~ "<p>As a sysadmin user you have "
-#~ "full control over this CKAN instance."
-#~ " Proceed with care!</p> <p>For guidance "
-#~ "on using sysadmin features, see the "
-#~ "CKAN  <a href=\"%(docs_url)s\" target=\"_blank\" "
-#~ "rel=\"noreferrer\">sysadmin guide</a></p>"
-#~ msgstr ""
-#~ "<p>Como usuário administrador de sistemas, "
-#~ "você tem controle total sobre esta "
-#~ "instância do CKAN. Prossigacom cuidado!</p>"
-#~ " <p>Para obter orientações sobre como "
-#~ "usar os recursos do administrador de "
-#~ "sistemas do CKAN, consulte o <a "
-#~ "href=\"%(docs_url)s\" target=\"_blank\" "
-#~ "rel=\"noreferrer\">guia do administrador de "
-#~ "sistemas</a>"
-
-#~ msgid "There are currently no groups for this site"
-#~ msgstr "Atualmente não há grupos neste sítio"
-
-#~ msgid "Datasets in group: {group}"
-#~ msgstr "Conjuntos de dados no grupo: {group}"
-
-#~ msgid "Remove dataset from this group"
-#~ msgstr "Remover conjunto de dados deste grupo"
-
-#~ msgid "This field is required"
-#~ msgstr "Este campo é obrigatório"
-
-#~ msgid " found for \"{query}\""
-#~ msgstr " encontrado para \"{query}\""
-
-#~ msgid "Datasets in organization: {group}"
-#~ msgstr "Conjuntos de dados na organização: {group}"
-
-#~ msgid "There is no description for this organization"
-#~ msgstr "Não há descrição para essa organização"
-
-#~ msgid "There are no groups associated with this dataset"
-#~ msgstr "Não há grupos associados a este conjunto de dados"
-
-#~ msgid "Finish"
-#~ msgstr "Finalizar"
-
-#~ msgid "There is no description for this dataset"
-#~ msgstr "Não há descrição para este conjunto de dados"
-
-#~ msgid "You haven't created any API Tokens."
-#~ msgstr "Você não criou nenhum Token de API."
-
-#~ msgid "Actions"
-#~ msgstr "Ações"
-
-#~ msgid "Revoke"
-#~ msgstr "Revogar"
-
-#~ msgid "This means only you can see this"
-#~ msgstr "Isso significa que você só pode ver isso"
-
-#~ msgid "Parameter u\"{parameter_name}\" is not an integer"
-#~ msgstr "O parâmetro u\"{parameter_name}\" não é um inteiro"
-
-#~ msgid "You must add at least one data resource"
-#~ msgstr "Você deve adicionar pelo menos um recurso"
-
-#~ msgid "Your password must be 8 characters or longer."
-#~ msgstr "A sua senha deve possuir 8 caracteres ou mais."
-
-#~ msgid "The passwords you entered do not match."
-#~ msgstr "As senhas que você forneceu são diferentes."
-
-#~ msgid "You must provide a password"
-#~ msgstr "Você deve informar uma senha"
-
-#~ msgid "Set author email of "
-#~ msgstr "Definir e-mail do autor de "
-
-#~ msgid "to"
-#~ msgstr "para"
-
-#~ msgid "( previously "
-#~ msgstr "( anteriormente "
-
-#~ msgid ")"
-#~ msgstr ")"
-
-#~ msgid "Set author email of"
-#~ msgstr "Definir e-mail do autor de"
-
-#~ msgid "Removed author email from"
-#~ msgstr "E-mail do autor removido de"
-
-#~ msgid "Changed the license of "
-#~ msgstr "Mudou a licença de "
-
-#~ msgid "( previously"
-#~ msgstr "( anteriormente"
-
-#~ msgid "Changed the license of"
-#~ msgstr "Mudou a licença de"
-
-#~ msgid "(previously"
-#~ msgstr "(anteriormente"
-
-#~ msgid "Set maintainer email of"
-#~ msgstr "Definir e-mail do mantenedor de"
-
-#~ msgid "Removed maintainer email from"
-#~ msgstr "Definir e-mail do mantenedor de"
-
-#~ msgid "Moved"
-#~ msgstr "Movido"
-
-#~ msgid "from"
-#~ msgstr "de"
-
-#~ msgid "Set format of resource"
-#~ msgstr "Definir formato do recurso"
-
-#~ msgid "in"
-#~ msgstr "em"
-
-#~ msgid "Changed the source URL of"
-#~ msgstr "Alterou a URL de origem de"
-
-#~ msgid "Removed the source URL from"
-#~ msgstr "Removido o URL de origem de"
-
-#~ msgid "Changed the image URL of"
-#~ msgstr "Alterou a URL da imagem de"
-
-#~ msgid "Removed the image URL from"
-#~ msgstr "Removido o URL da imagem de"
-
-#~ msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
-#~ msgstr ""
-#~ "ex: http://example.com/audio.mp3 (se estiver "
-#~ "em branco, use a URL do recurso)"
-
-#~ msgid "DataStore and Data Dictionary "
-#~ msgstr "DataStore e Dicionário de Dados "
-
-#~ msgid "User {0} not authorized to update resource {1}"
-#~ msgstr "Usuário {0} não está autorizado para atualizar o recurso {1}"
-
-#~ msgid "Access resource data via a web API with powerful query support"
-#~ msgstr "Acesse recurso pela web API com poderoso suporte a consultas"
-
-#~ msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
-#~ msgstr ""
-#~ "ex: http://example.com/video.mpeg (se estiver "
-#~ "em branco, use a URL do recurso)"
-
-#~ msgid "eg. http://example.com  (if blank uses resource url)"
-#~ msgstr "ex.: http://example.com (se estiver em branco usará a url do recurso)"
-
