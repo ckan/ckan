@@ -1,1 +1,0 @@
-Added `remove_locale_from_url()` and `remove_root_path_from_url()` template helpers

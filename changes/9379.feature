@@ -1,1 +1,0 @@
-New config option :ref:`ckan.webassets.debug` that controls aggregation logic of webassets. When it's disabled(default), webassets are agregated and served from :ref:`ckan.webassets.path` with minumal number of additional requests. When it's enabled, every source file of asset is served separately from its original location, substantially increasing number of additional request.

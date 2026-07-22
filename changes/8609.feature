@@ -1,1 +1,0 @@
-Allows plugins to set the user ID during user creation, by passing ``ignore_auth: True`` in the ``user_create()`` context.

@@ -1,2 +1,0 @@
-Fix `organization_delete` incorrectly failing for organizations with no datasets
-when `ckan.auth.create_unowned_dataset` is disabled.

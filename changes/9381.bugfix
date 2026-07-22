@@ -1,1 +1,0 @@
-Reindex datasets after ``member_create`` and ``member_delete`` change package group memberships, ensuring group pages show the correct datasets.

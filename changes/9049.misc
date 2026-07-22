@@ -1,1 +1,0 @@
-Clear CSRF token from session when logging out programmatically.

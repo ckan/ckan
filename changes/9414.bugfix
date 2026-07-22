@@ -1,2 +1,0 @@
-Restore declare_namespace in ckanext/stats/__init__.py with except block
-to resolve compatibility with setuptools<82

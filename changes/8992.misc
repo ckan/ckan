@@ -1,1 +1,0 @@
-Replace usage of pkg_resources.iter_entry_points, update exception message

@@ -1,1 +1,0 @@
-`ckan db upgrade` can now be used after `ckan db create-from-model`

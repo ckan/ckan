@@ -1,1 +1,0 @@
-Removes `_alerts.scss` and `alert-error` class due to deprecated `alert-variant()`
