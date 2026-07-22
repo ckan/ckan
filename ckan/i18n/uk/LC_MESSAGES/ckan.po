@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.8.4b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-12 14:56+0200\n"
+"POT-Creation-Date: 2026-07-22 12:49+0300\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
 "Language: uk\n"
@@ -376,15 +376,16 @@ msgstr ""
 msgid "Date format incorrect"
 msgstr ""
 
-#: ckan/logic/action/create.py:654 ckan/logic/validators.py:198
+#: ckan/logic/action/create.py:657 ckan/logic/validators.py:198
 #: ckan/logic/validators.py:299 ckan/views/dataset.py:382
 #: ckan/views/dataset.py:393 ckan/views/dataset.py:607
 #: ckan/views/dataset.py:744 ckan/views/dataset.py:781
 #: ckan/views/dataset.py:872 ckan/views/dataset.py:887
 #: ckan/views/dataset.py:981 ckan/views/dataset.py:1012
-#: ckan/views/dataset.py:1092 ckan/views/resource.py:69
-#: ckan/views/resource.py:83 ckan/views/resource.py:571
-#: ckan/views/resource.py:623 ckan/views/resource.py:673
+#: ckan/views/dataset.py:1092 ckan/views/resource.py:67
+#: ckan/views/resource.py:81 ckan/views/resource.py:388
+#: ckan/views/resource.py:435 ckan/views/resource.py:574
+#: ckan/views/resource.py:626 ckan/views/resource.py:676
 #: ckanext/activity/views.py:110 ckanext/activity/views.py:117
 #: ckanext/activity/views.py:216 ckanext/activity/views.py:248
 #: ckanext/activity/views.py:330
@@ -426,13 +427,13 @@ msgstr ""
 msgid "User not found: %s"
 msgstr ""
 
-#: ckan/logic/action/create.py:658 ckan/logic/action/create.py:1213
-#: ckan/logic/action/create.py:1266 ckan/logic/action/create.py:1399
-#: ckan/logic/action/delete.py:353 ckan/logic/action/delete.py:649
+#: ckan/logic/action/create.py:661 ckan/logic/action/create.py:1216
+#: ckan/logic/action/create.py:1269 ckan/logic/action/create.py:1402
+#: ckan/logic/action/delete.py:356 ckan/logic/action/delete.py:652
 #: ckan/logic/auth/update.py:199 ckan/logic/validators.py:347
 #: ckan/views/dataset.py:1171 ckan/views/group.py:651 ckan/views/user.py:60
 #: ckan/views/user.py:360 ckan/views/user.py:391 ckan/views/user.py:451
-#: ckan/views/user.py:766 ckan/views/user.py:808 ckan/views/user.py:917
+#: ckan/views/user.py:763 ckan/views/user.py:805 ckan/views/user.py:914
 msgid "User not found"
 msgstr "Користувач не знайден"
 
@@ -672,43 +673,43 @@ msgstr ""
 msgid "Missing Value"
 msgstr ""
 
-#: ckan/logic/action/create.py:647
+#: ckan/logic/action/create.py:650
 #, python-brace-format
 msgid "Role must be one of \"{}\""
 msgstr ""
 
-#: ckan/logic/action/create.py:662 ckan/logic/action/delete.py:345
+#: ckan/logic/action/create.py:665 ckan/logic/action/delete.py:348
 #: ckan/logic/action/get.py:230 ckan/logic/action/get.py:273
 msgid "Dataset collaborators not enabled"
 msgstr ""
 
-#: ckan/logic/action/create.py:825
+#: ckan/logic/action/create.py:828
 msgid "Trying to create an organization as a group"
 msgstr ""
 
-#: ckan/logic/action/create.py:1093
+#: ckan/logic/action/create.py:1096
 #, python-brace-format
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
 
-#: ckan/logic/action/create.py:1221
+#: ckan/logic/action/create.py:1224
 msgid "Error validating the schema of the user to follow."
 msgstr ""
 
-#: ckan/logic/action/create.py:1226
+#: ckan/logic/action/create.py:1229
 msgid "You cannot follow yourself"
 msgstr ""
 
-#: ckan/logic/action/create.py:1272
+#: ckan/logic/action/create.py:1275
 msgid "Error validating the schema of the dataset to follow."
 msgstr ""
 
-#: ckan/logic/action/create.py:1313 ckan/views/feed.py:220
+#: ckan/logic/action/create.py:1316 ckan/views/feed.py:220
 #: ckan/views/group.py:380 ckan/views/group.py:570
 msgid "Organization not found"
 msgstr ""
 
-#: ckan/logic/action/create.py:1313 ckan/views/dataset.py:1028
+#: ckan/logic/action/create.py:1316 ckan/views/dataset.py:1028
 #: ckan/views/dataset.py:1045 ckan/views/feed.py:203 ckan/views/group.py:382
 #: ckan/views/group.py:417 ckan/views/group.py:466 ckan/views/group.py:501
 #: ckan/views/group.py:541 ckan/views/group.py:572 ckan/views/group.py:677
@@ -718,40 +719,40 @@ msgstr ""
 msgid "Group not found"
 msgstr ""
 
-#: ckan/logic/action/create.py:1319
+#: ckan/logic/action/create.py:1322
 #, python-brace-format
 msgid "User {username} does not exist."
 msgstr ""
 
-#: ckan/logic/action/create.py:1406
+#: ckan/logic/action/create.py:1409
 msgid "Error validating the schema of the group to follow."
 msgstr ""
 
-#: ckan/logic/action/delete.py:349 ckan/logic/action/get.py:224
+#: ckan/logic/action/delete.py:352 ckan/logic/action/get.py:224
 msgid "Package not found"
 msgstr ""
 
-#: ckan/logic/action/delete.py:403
+#: ckan/logic/action/delete.py:406
 msgid "Organization cannot be deleted while it still has datasets"
 msgstr ""
 
-#: ckan/logic/action/delete.py:601 ckan/logic/action/delete.py:625
+#: ckan/logic/action/delete.py:604 ckan/logic/action/delete.py:628
 #: ckan/logic/action/get.py:2432 ckan/logic/action/update.py:1119
 msgid "id not in data"
 msgstr ""
 
-#: ckan/logic/action/delete.py:605 ckan/logic/action/get.py:2435
+#: ckan/logic/action/delete.py:608 ckan/logic/action/get.py:2435
 #: ckan/logic/action/update.py:1123
 #, python-format
 msgid "Could not find vocabulary \"%s\""
 msgstr ""
 
-#: ckan/logic/action/delete.py:633
+#: ckan/logic/action/delete.py:636
 #, python-format
 msgid "Could not find tag \"%s\""
 msgstr ""
 
-#: ckan/logic/action/delete.py:655
+#: ckan/logic/action/delete.py:658
 msgid "Error validating the schema of the object to unfollow."
 msgstr ""
 
@@ -2005,14 +2006,14 @@ msgstr ""
 #: ckanext/activity/templates/admin/activities.html:20
 #: ckanext/activity/templates/admin/activities.html:31
 #: ckanext/activity/templates/admin/activities.html:42
-#: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:29
+#: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:30
 msgid "Delete"
 msgstr ""
 
 #: ckan/templates/group/member_new.html:74
 #: ckanext/datastore/templates/datastore/dictionary.html:30
-#: ckanext/tabledesigner/templates/tabledesigner/add_row.html:30
-#: ckanext/tabledesigner/templates/tabledesigner/edit_row.html:30
+#: ckanext/tabledesigner/templates/tabledesigner/add_row.html:31
+#: ckanext/tabledesigner/templates/tabledesigner/edit_row.html:31
 msgid "Save"
 msgstr "Зберегти"
 
@@ -3827,8 +3828,8 @@ msgid "Invalid search query: {error_message}"
 msgstr ""
 
 #: ckan/views/dataset.py:386 ckan/views/dataset.py:807 ckan/views/group.py:892
-#: ckan/views/resource.py:387 ckan/views/resource.py:564
-#: ckan/views/resource.py:665
+#: ckan/views/resource.py:385 ckan/views/resource.py:567
+#: ckan/views/resource.py:668
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr ""
@@ -3855,7 +3856,7 @@ msgstr ""
 
 #: ckan/views/dataset.py:527 ckan/views/dataset.py:723
 #: ckan/views/dataset.py:1166 ckan/views/group.py:986 ckan/views/group.py:1090
-#: ckan/views/user.py:301 ckan/views/user.py:437 ckan/views/user.py:810
+#: ckan/views/user.py:301 ckan/views/user.py:437 ckan/views/user.py:807
 msgid "Integrity Error"
 msgstr ""
 
@@ -3903,11 +3904,11 @@ msgstr ""
 msgid "User added to collaborators"
 msgstr ""
 
-#: ckan/views/dataset.py:1193 ckan/views/resource.py:92
-#: ckan/views/resource.py:165 ckan/views/resource.py:441
-#: ckan/views/resource.py:490 ckan/views/resource.py:518
-#: ckan/views/resource.py:535 ckan/views/resource.py:582
-#: ckan/views/resource.py:628 ckan/views/resource.py:681
+#: ckan/views/dataset.py:1193 ckan/views/resource.py:90
+#: ckan/views/resource.py:163 ckan/views/resource.py:444
+#: ckan/views/resource.py:493 ckan/views/resource.py:521
+#: ckan/views/resource.py:538 ckan/views/resource.py:585
+#: ckan/views/resource.py:631 ckan/views/resource.py:684
 #: ckanext/activity/views.py:142 ckanext/datapusher/views.py:50
 #: ckanext/datastore/blueprint.py:170 ckanext/resourceproxy/blueprint.py:33
 msgid "Resource not found"
@@ -3948,7 +3949,7 @@ msgstr ""
 msgid "Group member has been deleted."
 msgstr ""
 
-#: ckan/views/group.py:778 ckan/views/user.py:896
+#: ckan/views/group.py:778 ckan/views/user.py:893
 #, python-format
 msgid "Unauthorized to view followers %s"
 msgstr ""
@@ -4008,47 +4009,47 @@ msgstr ""
 msgid "%s uses your email address if you need to reset your password."
 msgstr ""
 
-#: ckan/views/resource.py:74 ckan/views/resource.py:584
+#: ckan/views/resource.py:72 ckan/views/resource.py:587
 #, python-format
 msgid "Unauthorized to read resource %s"
 msgstr ""
 
-#: ckan/views/resource.py:119 ckan/views/resource.py:640
+#: ckan/views/resource.py:117 ckan/views/resource.py:643
 #: ckanext/activity/views.py:173
 msgid "Resource view not found"
 msgstr ""
 
-#: ckan/views/resource.py:167
+#: ckan/views/resource.py:165
 msgid "Not authorized to download resource"
 msgstr ""
 
-#: ckan/views/resource.py:206
+#: ckan/views/resource.py:204
 msgid "No download is available"
 msgstr ""
 
-#: ckan/views/resource.py:241 ckanext/datapusher/helpers.py:26
+#: ckan/views/resource.py:239 ckanext/datapusher/helpers.py:26
 msgid "Error"
 msgstr "Помилка"
 
-#: ckan/views/resource.py:241
+#: ckan/views/resource.py:239
 msgid "No resource data entered"
 msgstr ""
 
-#: ckan/views/resource.py:252
+#: ckan/views/resource.py:250
 msgid "Unauthorized to update dataset"
 msgstr ""
 
-#: ckan/views/resource.py:256 ckan/views/resource.py:282
-#: ckan/views/resource.py:347
+#: ckan/views/resource.py:254 ckan/views/resource.py:280
+#: ckan/views/resource.py:345
 #, python-brace-format
 msgid "The dataset {id} could not be found."
 msgstr ""
 
-#: ckan/views/resource.py:279
+#: ckan/views/resource.py:277
 msgid "Unauthorized to create a resource"
 msgstr ""
 
-#: ckan/views/resource.py:340
+#: ckan/views/resource.py:338
 msgid "Unauthorized to create a resource for this package"
 msgstr ""
 
@@ -4056,33 +4057,33 @@ msgstr ""
 msgid "Unauthorized to edit this resource"
 msgstr ""
 
-#: ckan/views/resource.py:487 ckan/views/resource.py:515
-#: ckan/views/resource.py:532
+#: ckan/views/resource.py:490 ckan/views/resource.py:518
+#: ckan/views/resource.py:535
 #, python-format
 msgid "Unauthorized to delete resource %s"
 msgstr ""
 
-#: ckan/views/resource.py:503
+#: ckan/views/resource.py:506
 msgid "Resource has been deleted."
 msgstr "Ресурс успішно видалено"
 
-#: ckan/views/resource.py:635
+#: ckan/views/resource.py:638
 msgid "Bad resource view data"
 msgstr ""
 
-#: ckan/views/resource.py:643
+#: ckan/views/resource.py:646
 msgid "Resource view not supplied"
 msgstr ""
 
-#: ckan/views/resource.py:738
+#: ckan/views/resource.py:741
 msgid "Unauthorized to edit resource"
 msgstr ""
 
-#: ckan/views/resource.py:786
+#: ckan/views/resource.py:789
 msgid "View not found"
 msgstr ""
 
-#: ckan/views/resource.py:796
+#: ckan/views/resource.py:799
 msgid "View Type Not found"
 msgstr ""
 
@@ -4114,7 +4115,7 @@ msgstr ""
 msgid "incorrect password"
 msgstr "Невірний пароль"
 
-#: ckan/views/user.py:358 ckan/views/user.py:389 ckan/views/user.py:806
+#: ckan/views/user.py:358 ckan/views/user.py:389 ckan/views/user.py:803
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr ""
@@ -4127,7 +4128,7 @@ msgstr ""
 msgid "Unauthorized to register as a user."
 msgstr ""
 
-#: ckan/views/user.py:442 ckan/views/user.py:669
+#: ckan/views/user.py:442 ckan/views/user.py:666
 msgid "Bad Captcha. Please try again."
 msgstr ""
 
@@ -4143,61 +4144,61 @@ msgid ""
 "before"
 msgstr ""
 
-#: ckan/views/user.py:565
+#: ckan/views/user.py:566
 msgid "Login failed. Bad username or password or CAPTCHA."
 msgstr ""
 
-#: ckan/views/user.py:567
+#: ckan/views/user.py:568
 msgid "Login failed. Bad username or password."
 msgstr ""
 
-#: ckan/views/user.py:616
+#: ckan/views/user.py:613
 #, python-brace-format
 msgid "Unauthorized to delete user with id \"{user_id}\"."
 msgstr ""
 
-#: ckan/views/user.py:650
+#: ckan/views/user.py:647
 msgid "Unauthorized to request reset password."
 msgstr ""
 
-#: ckan/views/user.py:675
+#: ckan/views/user.py:672
 msgid "Email is required"
 msgstr ""
 
-#: ckan/views/user.py:730
+#: ckan/views/user.py:727
 msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
 
-#: ckan/views/user.py:739
+#: ckan/views/user.py:736
 msgid ""
 "A reset link has been emailed to you (unless the account specified does "
 "not exist)"
 msgstr ""
 
-#: ckan/views/user.py:761
+#: ckan/views/user.py:758
 msgid "Unauthorized to reset password."
 msgstr ""
 
-#: ckan/views/user.py:770
+#: ckan/views/user.py:767
 msgid "Invalid reset key. Please try again."
 msgstr ""
 
-#: ckan/views/user.py:801
+#: ckan/views/user.py:798
 msgid "Your password has been reset."
 msgstr ""
 
-#: ckan/views/user.py:914
+#: ckan/views/user.py:911
 msgid "Not authorized to promote user to sysadmin"
 msgstr ""
 
-#: ckan/views/user.py:925
+#: ckan/views/user.py:922
 #, python-brace-format
 msgid "Promoted {} to sysadmin"
 msgstr ""
 
-#: ckan/views/user.py:930
+#: ckan/views/user.py:927
 #, python-brace-format
 msgid "Revoked sysadmin permission from {}"
 msgstr ""
