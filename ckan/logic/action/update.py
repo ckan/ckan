@@ -232,6 +232,32 @@ def resource_view_reorder(
     return {'id': id, 'order': new_order}
 
 
+def package_reindex(
+        context: Context, data_dict: DataDict) -> None:
+    '''Rebuild the search index for a dataset (package).
+
+    You must be authorized to edit the dataset
+    and the group(s) it belongs to.
+
+    :param id: the name or id of the dataset to reindex
+    :type id: string
+    '''
+    name_or_id = data_dict.get('id') or data_dict.get('name')
+    if name_or_id is None:
+        raise ValidationError({'id': _('Missing value')})
+
+    pkg = model.Package.get(name_or_id)
+    if pkg is None:
+        raise NotFound(_('Package was not found.'))
+    context["package"] = pkg
+
+    data_dict["id"] = pkg.id
+
+    _check_access('package_reindex', context, data_dict)
+
+    logic.index_update_package(context, pkg.id)
+
+
 def package_update(
         context: Context, data_dict: DataDict) -> ActionResult.PackageUpdate:
     '''Update a dataset (package).

@@ -768,6 +768,21 @@ class TestDatasetUpdate(object):
         ))
         assert unchanged["metadata_modified"] == "2020-02-25T12:00:00"
 
+    @mock.patch("ckan.logic.index_update_package")
+    def test_reindex(self, index_update_package_mock):
+        # test that authorized users can trigger a reindex
+        dataset = factories.Dataset()
+        dataset_id = dataset['id']
+        helpers.call_action('package_reindex', id=dataset_id)
+        index_update_package_mock.assert_called()
+        assert index_update_package_mock.call_args[0][1] == dataset_id
+
+        # but not unauthorized users
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action('package_reindex', context, id=dataset_id)
+
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
