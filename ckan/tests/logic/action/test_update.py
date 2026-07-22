@@ -777,6 +777,14 @@ class TestDatasetUpdate(object):
         index_update_package_mock.assert_called()
         assert index_update_package_mock.call_args[0][1] == dataset_id
 
+        # missing ID
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('package_reindex')
+
+        # invalid ID
+        with pytest.raises(logic.NotFound):
+            helpers.call_action('package_reindex', id="nonexistent")
+
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
