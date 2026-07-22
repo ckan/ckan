@@ -6,20 +6,10 @@
     display: block;
 }
 
-.btn,
-label {
-    font-weight: bold;
-}
-
-.btn-rounded {
-    @include border-radius(100px);
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
 label {
     cursor: pointer;
     font-size: 14px;
+    font-weight: bold;
 }
 
 label:after {
@@ -60,10 +50,6 @@ textarea {
 
 .form-group {
     margin-bottom: 30px;
-}
-.form-group .btn {
-    position: relative;
-    top: -2px;
 }
 
 .unselectable {
