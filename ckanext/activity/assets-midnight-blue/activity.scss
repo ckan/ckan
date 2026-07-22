@@ -38,108 +38,108 @@ $activityColorEmpty: #6E6E6E;
         .icon {
             color: $activityColorBlank ;
         }
-    
+
         // Non defined
         &.failure .icon {
             color: $activityColorDelete;
         }
-    
+
         &.success .icon {
             color: $activityColorNew;
         }
-    
+
         &.added-tag .icon {
             color: adjust-hue($activityColorNew, 60);
         }
-    
+
         &.changed-group .icon {
             color: $activityColorModify;
         }
-    
+
         &.changed-package .icon {
             color: adjust-hue($activityColorModify, 20);
         }
-    
+
         &.changed-package_extra .icon {
             color: adjust-hue($activityColorModify, -20);
         }
-    
+
         &.changed-resource .icon {
             color: adjust-hue($activityColorModify, 40);
         }
-    
+
         &.changed-user .icon {
             color: adjust-hue($activityColorModify, -40);
         }
-    
+
         &.changed-organization .icon {
             color: adjust-hue($activityColorNew, 50);
         }
-    
+
         &.deleted-group .icon {
             color: $activityColorDelete;
         }
-    
+
         &.deleted-package .icon {
             color: adjust-hue($activityColorDelete, 20);
         }
-    
+
         &.deleted-package_extra .icon {
             color: adjust-hue($activityColorDelete, -20);
         }
-    
+
         &.deleted-resource .icon {
             color: adjust-hue($activityColorDelete, 40);
         }
-    
+
         &.deleted-organization .icon {
             color: adjust-hue($activityColorDelete, -40);
         }
-    
+
         &.new-group .icon {
             color: $activityColorNew;
         }
-    
+
         &.new-package .icon {
             color: adjust-hue($activityColorNew, 20);
         }
-    
+
         &.new-package_extra .icon {
             color: adjust-hue($activityColorNew, -20);
         }
-    
+
         &.new-resource .icon {
             color: adjust-hue($activityColorNew, -40);
         }
-    
+
         &.new-user .icon {
             color: adjust-hue($activityColorNew, 80);
         }
-    
+
         &.new-organization .icon {
             color: adjust-hue($activityColorNew, -40);
         }
-    
+
         &.removed-tag .icon {
             color: adjust-hue($activityColorDelete, -40);
         }
-    
+
         &.deleted-related-item .icon {
             color: adjust-hue($activityColorDelete, 60);
         }
-    
+
         &.follow-dataset .icon {
             color: $activityColorNeutral;
         }
-    
+
         &.follow-user .icon {
             color: adjust-hue($activityColorNeutral, 20);
         }
-    
+
         &.new-related-item .icon {
             color: adjust-hue($activityColorNew, -60);
         }
-    
+
         &.follow-group .icon {
             color: adjust-hue($activityColorNew, -50);
         }
@@ -195,8 +195,4 @@ $activityColorEmpty: #6E6E6E;
 
 br.line-height2 {
     line-height: 2;
-}
-
-.pull-right {
-    float: right;
 }

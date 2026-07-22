@@ -51,17 +51,15 @@
         width: 100%;
         border-radius: 6px;
         margin-bottom: 10px;
-        padding: 0 5px 5px;
-        background-color: $white;
+        cursor: pointer;
+
         label {
             font-size: 12px;
             font-weight: 500;
-            color: $gray-500;
             padding-left: 8px;
         }
         @include media-breakpoint-up(md) {
             float: right;
-            margin-left: 15px;
             min-width:200px;
             max-width: min-content;
         }
@@ -81,6 +79,12 @@
             font-weight: 500;
             background-position: right 1rem top;
             background-size: 16px 16px;
+            background-color: transparent;
+            cursor: pointer;
+
+            &:focus {
+                background-color: transparent;
+            }
         }
         &:focus-within{
             box-shadow: 0 0 0 0.25rem rgba(21, 48, 132, 0.25);
@@ -114,17 +118,12 @@
             border: 0;
             border-radius: 0 3px 3px 0;
             color: $brand-500;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: unset;
             font-size: 1rem;
-            line-height: 1.56;
             position: absolute;
             right: 0;
-            bottom: 0;
-            top: 2px;
-            height: 92%;
-            cursor: pointer;
+            top: 1px;
+            height: 93%;
         }
     }
 }
