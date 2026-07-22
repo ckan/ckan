@@ -186,6 +186,7 @@ def resource_view_update(
         model.repo.commit()
     return model_dictize.resource_view_dictize(resource_view, context)
 
+
 def resource_view_reorder(
         context: Context, data_dict: DataDict) -> ActionResult.ResourceViewReorder:
     '''Reorder resource views.
@@ -301,8 +302,8 @@ def package_update(
         dataset_changed = dict(
             original_package, metadata_modified=None, resources=None
             ) != dict(data_dict, metadata_modified=None, resources=None)
-    if not dataset_changed and original_package.get('resources'
-            ) == data_dict.get('resources'):
+    if not dataset_changed and original_package.get('resources') \
+            == data_dict.get('resources'):
         return pkg.id if return_id_only else original_package
 
     res_deps = []
@@ -851,6 +852,7 @@ def group_update(context: Context, data_dict: DataDict) -> ActionResult.GroupUpd
     '''
     return _group_or_org_update(context, data_dict)
 
+
 def organization_update(
         context: Context, data_dict: DataDict) -> ActionResult.OrganizationUpdate:
     '''Update an organization.
@@ -878,6 +880,7 @@ def organization_update(
 
     '''
     return _group_or_org_update(context, data_dict, is_org=True)
+
 
 def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdate:
     '''Update a user account.
@@ -993,6 +996,7 @@ def task_status_update(
     session.close()
     return model_dictize.task_status_dictize(task_status, context)
 
+
 def task_status_update_many(
         context: Context, data_dict: DataDict) -> ActionResult.TaskStatusUpdateMany:
     '''Update many task statuses at once.
@@ -1017,6 +1021,7 @@ def task_status_update_many(
     if not context.get('defer_commit'):
         model.Session.commit()
     return {'results': results}
+
 
 def term_translation_update(
         context: Context, data_dict: DataDict) -> ActionResult.TermTranslationUpdate:
@@ -1054,7 +1059,7 @@ def term_translation_update(
     update = trans_table.update()
     update = update.where(trans_table.c["term"] == data['term'])
     update = update.where(trans_table.c["lang_code"] == data['lang_code'])
-    update = update.values(term_translation = data['term_translation'])
+    update = update.values(term_translation=data['term_translation'])
 
     conn = model.Session.connection()
     result = conn.execute(update)
@@ -1067,6 +1072,7 @@ def term_translation_update(
         model.Session.commit()
 
     return data
+
 
 def term_translation_update_many(
         context: Context, data_dict: DataDict) -> ActionResult.TermTranslationUpdateMany:
@@ -1229,6 +1235,7 @@ def bulk_update_private(context: Context, data_dict: DataDict) -> ActionResult.B
     _check_access('bulk_update_private', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'private': True})
 
+
 def bulk_update_public(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdatePublic:
     ''' Make a list of datasets public
 
@@ -1241,6 +1248,7 @@ def bulk_update_public(context: Context, data_dict: DataDict) -> ActionResult.Bu
 
     _check_access('bulk_update_public', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'private': False})
+
 
 def bulk_update_delete(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdateDelete:
     ''' Make a list of datasets deleted
