@@ -1,22 +1,8 @@
-.module {
-    >.page-header {
-        margin-top: 0px;
-        h1 {
-            margin-bottom: 0;
-        }
-    }
-
-    > .module-content{
-        &:nth-child(2n){
-            padding-top: $grid-gutter-width;
-        }
-    }
-    > .module-header {
-        font-size: 48px;
-        line-height: 48px;
-        font-weight: 600;
-        color: #153084;
-    }
+.module > .module-header {
+    font-size: 48px;
+    line-height: 48px;
+    font-weight: 600;
+    color: #153084;
 }
 
 .module-heading {
@@ -29,20 +15,11 @@
 }
 
 .module-content {
-    padding: $grid-gutter-width;
-    .add-to-group{
-      .btn-primary{
-        margin: $grid-gutter-width 0;
-      }
-    }
-
-    p a:link {
-      text-decoration: underline;
-    }
+    padding: 1.5rem 0.75rem;
 }
 
 .module-footer {
-    padding: 7px 7px;
+    padding: 7px 7px 0;
     margin: 0;
     text-align: center;
     font-weight: 500;

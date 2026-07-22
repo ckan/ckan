@@ -468,15 +468,15 @@ select[data-module="autocomplete"] {
             width: 100%;
             cursor: pointer;
             text-align: left;
-            border: none; 
-            background: none; 
+            border: none;
+            background: none;
         }
         .step {
             font-size: 12px;
             font-weight: 400;
             line-height: 18px;
         }
-      
+
         .step-name {
             font-size: 16px;
             font-weight: 500;
@@ -827,20 +827,20 @@ select[data-module="autocomplete"] {
                 width: 100%;
                 height: 100%;
                 background: none !important;
-                position: relative; 
+                position: relative;
 
                 &::before {
-                    content: "\f078"; 
-                    font-family: 'Font Awesome 5 Free'; 
-                    font-weight: 900; 
-                    font-size: 8px; 
-                    color: #667085; 
+                    content: "\f078";
+                    font-family: 'Font Awesome 5 Free';
+                    font-weight: 900;
+                    font-size: 8px;
+                    color: #667085;
                     position: absolute;
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%);
                 }
-                
+
             }
         }
     }

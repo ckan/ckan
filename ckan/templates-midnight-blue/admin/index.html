@@ -18,7 +18,7 @@
         <tr>
           <td>{{ h.linked_user(user) }}</td>
           <td>
-            <div class="btn-group pull-right">
+            <div class="btn-group float-end">
               <form method="POST" action="{% url_for 'user.sysadmin' %}">
                 {{ h.csrf_input() }}
                 <input type="hidden" value="{{ user }}" name="username" />
