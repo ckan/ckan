@@ -120,7 +120,7 @@
     }
 }
 
-.no-nav .page-header {
+.wrapper:not(:has(> .secondary)) .page-header {
     @include border-radius(3px 3px 0 0);
 }
 
