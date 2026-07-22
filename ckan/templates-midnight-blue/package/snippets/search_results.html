@@ -5,7 +5,7 @@
       <h1 class="page-heading {% if h.check_access('package_create') %}col-md-9{% endif %}">
         {{ heading }}
         {% if state == 'deleted' %}
-          [{{ _('Deleted') }}]
+          <span class="badge bg-danger">{{ _('Deleted') }}</span>
         {% endif %}
       </h1>
     {% endif %}
