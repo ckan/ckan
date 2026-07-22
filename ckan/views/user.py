@@ -249,13 +249,19 @@ class ApiTokenView(MethodView):
 
 def api_tokens_revoke(id: str) -> Union[Response, str]:
     tokens = request.form.getlist('token')
+    token_names = []
     for jti in tokens:
         try:
+            token_obj: Optional[model.ApiToken] = model.ApiToken.get(jti)
             logic.get_action('api_token_revoke')({}, {'jti': jti})
+            if token_obj:
+                token_names.append(token_obj.name)
         except logic.NotAuthorized:
             base.abort(403, _('Unauthorized to revoke API tokens.'))
         except logic.NotFound:
             pass  # ignore already-deleted tokens
+    if token_names:
+        h.flash_notice(_('Deleted API token(s) %s') % ', '.join(token_names))
     return base.render('user/snippets/api_tokens_revoke.html', {
         'tokens': tokens
     })
