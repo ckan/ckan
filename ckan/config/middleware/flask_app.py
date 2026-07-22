@@ -27,7 +27,7 @@ from werkzeug.exceptions import (
 from flask_babel import Babel
 
 from flask_login import LoginManager
-from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf, csrf_meta_tag
 from ckan.common import current_user, config_declaration
 
 import ckan.model as model
@@ -97,11 +97,15 @@ class CSRFProtectPerRequest(CSRFProtect):
         )
         app.config.setdefault("WTF_CSRF_FIELD_NAME", "csrf_token")
         app.config.setdefault("WTF_CSRF_HEADERS", ["X-CSRFToken", "X-CSRF-Token"])
+        app.config.setdefault("WTF_CSRF_META_NAME", "csrf-token")
         app.config.setdefault("WTF_CSRF_TIME_LIMIT", 3600)
         app.config.setdefault("WTF_CSRF_SSL_STRICT", True)
 
         app.jinja_env.globals["csrf_token"] = generate_csrf
-        app.context_processor(lambda: {"csrf_token": generate_csrf})
+        app.context_processor(lambda: {
+            "csrf_token": generate_csrf,
+            "csrf_meta_tag": csrf_meta_tag,
+        })
 
         @app.before_request
         def csrf_protect(): # type: ignore
