@@ -49,6 +49,10 @@ def _perform_reset_form_to_db_schema() -> Schema:
     return schema.user_perform_reset_form_schema()
 
 
+def _request_reset_form_schema() -> Schema:
+    return schema.request_reset_form_schema()
+
+
 def _extra_template_variables(context: Context,
                               data_dict: dict[str, Any]) -> dict[str, Any]:
     is_sysadmin = False
@@ -673,47 +677,19 @@ class RequestResetView(MethodView):
             return h.redirect_to(u'user.request_reset')
         log.info('Password reset requested for user %s', repr_untrusted(id))
 
+        _data, errors = dictization_functions.validate(
+            {'user': id}, _request_reset_form_schema(), {})
+        if errors:
+            h.flash_error(_('Invalid input'))
+            return h.redirect_to('user.request_reset')
+        id_ = _data.get('user', '')
+
         context: Context = {
             'user': current_user.name,
             'ignore_auth': True,
         }
 
-        user_objs: list[model.User] = []
-
-        # Usernames cannot contain '@' symbols
-        if u'@' in id:
-            # Search by email address
-            # (You can forget a user id, but you don't tend to forget your
-            # email)
-            user_list = logic.get_action(u'user_list')(context, {
-                u'email': id
-            })
-            if user_list:
-                # send reset emails for *all* user accounts with this email
-                # (otherwise we'd have to silently fail - we can't tell the
-                # user, as that would reveal the existence of accounts with
-                # this email address)
-                for user_dict in user_list:
-                    # This is ugly, but we need the user object for the mailer,
-                    # and user_list does not return them
-                    logic.get_action(u'user_show')(
-                        context, {u'id': user_dict[u'id']})
-                    user_objs.append(context[u'user_obj'])
-
-        else:
-            # Search by user name
-            # (this is helpful as an option for a user who has multiple
-            # accounts with the same email address and they want to be
-            # specific)
-            try:
-                logic.get_action(u'user_show')(context, {u'id': id})
-                user_objs.append(context[u'user_obj'])
-            except logic.NotFound:
-                pass
-
-        if not user_objs:
-            log.info('User requested reset link for unknown user: %s',
-                     repr_untrusted(id))
+        user_objs: list[model.User] = self._get_user_objects(id_, context)
 
         for user_obj in user_objs:
             log.info('Emailing reset link to user: %s', user_obj.name)
@@ -737,6 +713,48 @@ class RequestResetView(MethodView):
               '(unless the account specified does not exist)'))
         return h.redirect_to(config.get(
             u'ckan.user_reset_landing_page'))
+
+    def _get_user_objects(
+            self, id_: str,
+            context: Context
+    ) -> list[model.User]:
+        user_objs: list[model.User] = []
+        if '@' in id_:
+            # Search by email address
+            # (You can forget a user id, but you don't tend to forget your
+            # email)
+            user_list = logic.get_action(u'user_list')(context, {
+                'email': id_
+            })
+            if user_list:
+                # send reset emails for *all* user accounts with this email
+                # (otherwise we'd have to silently fail - we can't tell the
+                # user, as that would reveal the existence of accounts with
+                # this email address)
+                for user_dict in user_list:
+                    # This is ugly, but we need the user object for the mailer,
+                    # and user_list does not return them
+                    logic.get_action(u'user_show')(
+                        context, {u'id': user_dict[u'id']})
+                    user_objs.append(context[u'user_obj'])
+
+        else:
+            # Search by user name
+            # (this is helpful as an option for a user who has multiple
+            # accounts with the same email address and they want to be
+            # specific)
+            try:
+                logic.get_action('user_show')(context, {'id': id_})
+                user_objs.append(context[u'user_obj'])
+            except logic.NotFound:
+                pass
+
+        if not user_objs:
+            log.info(
+                'User requested reset link for unknown user: %s',
+                repr_untrusted(id_)
+            )
+        return user_objs
 
     def get(self) -> str:
         self._prepare()
