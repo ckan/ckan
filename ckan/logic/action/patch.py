@@ -37,9 +37,9 @@ def package_patch(
     _check_access('package_patch', context, data_dict)
 
     show_context: Context = {
-        'session': context['session'],
-        'user': context['user'],
-        'auth_user_obj': context['auth_user_obj'],
+        'session': context.get('session'),
+        'user': context.get('user'),
+        'auth_user_obj': context.get('auth_user_obj'),
         'ignore_auth': context.get('ignore_auth', False),
         'for_update': True
     }
