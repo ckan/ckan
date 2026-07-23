@@ -33,7 +33,7 @@
           {% block heading %}
           <span class="heading">{{ organization.title or organization.name }}
             {% if organization.state == 'deleted' %}
-              [{{ _('Deleted') }}]
+              <span class="badge bg-danger">{{ _('Deleted') }}</span>
             {% endif %}
           </span>
           {% endblock %}
