@@ -757,7 +757,7 @@ Migration notes
   renamed to :ref:`apitoken_header_name` from ``apikey_header_name``.
 - Value of :ref:`apitoken_header_name` (formerly ``apikey_header_name``)
   determines the only allowed value of the header used for user
-  identification. Previously it was used as a falback header name if
+  identification. Previously it was used as a fallback header name if
   ``Authorization`` header is not available. Config files generated with CKAN
   v2.10 have its value set to ``X-CKAN-API-Key``, making authentication via
   ``Authorization`` impossible. As result, its recommended to set this option
