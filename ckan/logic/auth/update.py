@@ -12,6 +12,11 @@ from ckan.types import Context, DataDict, AuthResult
 
 
 @logic.auth_allow_anonymous_access
+def package_reindex(context: Context, data_dict: DataDict) -> AuthResult:
+    return package_update(context, data_dict)
+
+
+@logic.auth_allow_anonymous_access
 def package_update(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
 
@@ -66,8 +71,9 @@ def package_revise(context: Context, data_dict: DataDict) -> AuthResult:
 
 def package_resource_reorder(context: Context,
                              data_dict: DataDict) -> AuthResult:
-    ## the action function runs package update so no need to run it twice
+    # the action function runs package update so no need to run it twice
     return {'success': True}
+
 
 def resource_update(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
@@ -95,6 +101,7 @@ def resource_update(context: Context, data_dict: DataDict) -> AuthResult:
 def resource_view_update(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
 
+
 def resource_view_reorder(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
 
@@ -102,8 +109,8 @@ def resource_view_reorder(context: Context, data_dict: DataDict) -> AuthResult:
 def package_relationship_update(context: Context,
                                 data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('package_relationship_create',
-                                   context,
-                                   data_dict)
+                               context,
+                               data_dict)
 
 
 def package_change_state(context: Context, data_dict: DataDict) -> AuthResult:
@@ -112,8 +119,8 @@ def package_change_state(context: Context, data_dict: DataDict) -> AuthResult:
 
     # use the logic for package_update
     authorized = authz.is_authorized_boolean('package_update',
-                                                 context,
-                                                 data_dict)
+                                             context,
+                                             data_dict)
     if not authorized:
         return {
             'success': False,
@@ -128,8 +135,8 @@ def group_update(context: Context, data_dict: DataDict) -> AuthResult:
     group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
     authorized = authz.has_user_permission_for_group_or_org(group.id,
-                                                                user,
-                                                                'update')
+                                                            user,
+                                                            'update')
     if not authorized:
         return {'success': False,
                 'msg': _('User %s not authorized to edit group %s') %
@@ -157,8 +164,8 @@ def group_change_state(context: Context, data_dict: DataDict) -> AuthResult:
 
     # use logic for group_update
     authorized = authz.is_authorized_boolean('group_update',
-                                                 context,
-                                                 data_dict)
+                                             context,
+                                             data_dict)
     if not authorized:
         return {
             'success': False,
