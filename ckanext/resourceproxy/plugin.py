@@ -57,7 +57,10 @@ class ResourceProxy(p.SingletonPlugin):
     def get_helpers(self) -> dict[str, Callable[..., Any]]:
         return {u'view_resource_url': self.view_resource_url}
 
-    @deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
+    @deprecated(
+        "No replacement is planned; this helper will be removed",
+        since="2.12.0"
+    )
     def view_resource_url(
         self,
         resource_view: Any,
