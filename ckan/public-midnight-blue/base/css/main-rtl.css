@@ -12616,20 +12616,10 @@ a.tag:hover {
   display: block;
 }
 
-.btn,
-label {
-  font-weight: bold;
-}
-
-.btn-rounded {
-  border-radius: 100px;
-  padding-left: 15px;
-  padding-right: 15px;
-}
-
 label {
   cursor: pointer;
   font-size: 14px;
+  font-weight: bold;
 }
 
 label:after {
@@ -12658,11 +12648,6 @@ textarea {
 
 .form-group {
   margin-bottom: 30px;
-}
-
-.form-group .btn {
-  position: relative;
-  top: -2px;
 }
 
 .unselectable, .checkbox,
@@ -15317,6 +15302,7 @@ footer .ckan-footer-logo {
 }
 
 .btn {
+  font-weight: bold;
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
@@ -15429,30 +15415,10 @@ input[id^=lang-].btn-check + label.btn:hover {
   color: #1d2939;
 }
 
-.custom-btn {
-  width: 36px;
-  height: 36px;
-  background-color: #98a2b3;
-  color: white;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  padding: 0;
-  font-size: 16px;
-  line-height: 1;
-}
-.custom-btn .fa {
-  color: white;
-  font-size: 18px;
-}
-.custom-btn .fa.fa-pencil-square-o::before {
-  content: "\f044";
-  color: white;
-}
-.custom-btn:hover {
-  background-color: rgb(122.6536312849, 135.5027932961, 157.3463687151);
+.btn-rounded {
+  border-radius: 100px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .accordion-button {
