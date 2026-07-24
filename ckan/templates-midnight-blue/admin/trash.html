@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block primary_content_inner %}
-  <h1>
+  <h1 class="sr-only">
     {% block page_heading %}{{ _('Trash') }}{% endblock %}
   </h1>
   <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-all">
