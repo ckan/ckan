@@ -2,6 +2,9 @@
   "name": "ckan",
   "version": "1.0.0",
   "description": "CKAN: The Open Source Data Portal Software ==========================================",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@highlightjs/cdn-assets": "^11.11.1",
@@ -21,10 +24,10 @@
     "gulp": "^5.0.1",
     "gulp-if": "^3.0.0",
     "gulp-rename": "^2.0.0",
-    "gulp-sass": "^5.1.0",
+    "gulp-sass": "^6.0.1",
     "gulp-sourcemaps": "^2.6.5",
     "pyright": "^1.1.402",
-    "sass": "^1.89.2"
+    "sass": "^1.101.3"
   },
   "scripts": {
     "test": "cypress run",
