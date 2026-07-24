@@ -5,6 +5,7 @@ from ckan.common import CKANConfig
 from typing import Any, Callable
 import ckan.plugins as plugins
 
+
 # Our custom template helper function.
 def example_helper():
     '''An example template helper function.'''

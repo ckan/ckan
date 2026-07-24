@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Union, List
+from typing import Any, Union, List, Tuple
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -10,7 +10,7 @@ from flask.wrappers import Response
 
 import ckan.lib.app_globals as app_globals
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -28,8 +28,7 @@ admin = Blueprint(u'admin', __name__, url_prefix=u'/ckan-admin')
 
 def _get_sysadmins() -> "Query[model.User]":
     q = model.Session.query(model.User).filter(
-        # type_ignore_reason: incomplete SQLAlchemy types
-        model.User.sysadmin.is_(True),  # type: ignore
+        model.User.sysadmin.is_(True),
         model.User.state == u'active')
     return q
 
@@ -87,7 +86,7 @@ class ConfigView(MethodView):
 
     def post(self) -> Union[str, Response]:
         try:
-            req: dict[str, Any] = request.form.copy()
+            req = request.form.copy()
             req.update(request.files.to_dict())
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(
@@ -174,6 +173,13 @@ class TrashView(MethodView):
 
         return base_results['results']
 
+    def _get_actions_and_entities(
+        self,
+    ) -> Tuple[Tuple[str, ...], Tuple[List[Any], ...]]:
+        actions = ('dataset_purge', 'group_purge', 'organization_purge')
+        entities = tuple(self.deleted_entities.values())
+        return actions, entities
+
     def get(self) -> str:
         ent_type = request.args.get(u'name')
 
@@ -200,17 +206,11 @@ class TrashView(MethodView):
         return h.redirect_to(u'admin.trash')
 
     def purge_all(self):
-        actions = (u'dataset_purge', u'group_purge', u'organization_purge')
-        entities = (
-            self.deleted_packages,
-            self.deleted_groups,
-            self.deleted_orgs
-        )
-
+        actions, entities = self._get_actions_and_entities()
         for action, deleted_entities in zip(actions, entities):
             for entity in deleted_entities:
                 ent_id = entity.id if hasattr(entity, 'id') \
-                    else entity['id']  # type: ignore
+                    else entity['id']
                 logic.get_action(action)(
                     {u'user': current_user.name}, {u'id': ent_id}
                 )
@@ -219,7 +219,8 @@ class TrashView(MethodView):
 
     def purge_entity(self, ent_type: str):
         entities = self.deleted_entities[ent_type]
-        number = len(entities) if type(entities) == list else entities.count()
+        number = len(entities) if isinstance(entities, list) \
+            else entities.count()
 
         for ent in entities:
             entity_id = ent.id if hasattr(ent, 'id') else ent['id']

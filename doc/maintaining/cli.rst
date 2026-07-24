@@ -93,6 +93,83 @@ with the ``--help`` option, for example:
 
  ckan -c |ckan.ini| user --help
 
+-------------------------------
+CLI command: ckan shell
+-------------------------------
+The main goal to execute a ckan shell command is IPython session with the application loaded for easy debugging and dynamic coding.
+
+There are three variables already populated into the namespace of the shell:
+
+•	**app** containing the Flask application
+•	**config** containing the CKAN config dictionary
+•	**model** module to access to the database using SQLAlchemy syntax
+
+**command:**
+
+.. parsed-literal::
+ $ ckan shell
+
+Example 1:
+================
+
+.. parsed-literal::
+
+ $ ckan shell
+ Python 3.9.13 (main, Dec 11 2022, 15:23:12)
+ Type 'copyright', 'credits' or 'license' for more information
+
+ **In [1]:** model.User.all()
+ **Out[1]:**
+ [<User id=f48287e2-6fac-41a9-9170-fc25ddbcc2d7 name=default password=$pbkdf2- sha512$25000$4rzXure2NkYoBeA8h5DyHg$yKMLOBZCtY.bA5XYq/qhzXfNCO7QOHGuRSkvCjkE2wThE.km/2L6GwQbY4p4lFXyyRMYXnACLxXvR27rVDq/yw fullname=None email=None apikey=46a0b1cc-28f3-4f96-9cf2-f0479fd3f200 created=2022-06-08 12:54:20.344765 reset_key=None about=None last_active=None activity_streams_email_notifications=False sysadmin=True state=active image_url=None plugin_extras=None>]
+
+.. parsed-literal::
+
+ **In [2]:** from ckan.logic.action.get import package_show
+
+ **In [3]:** package_show({"model": model}, {"id": "api-package-1"})
+ **Out[3]:**
+ {'author': None,
+ 'author_email': None,
+ 'creator_user_id': 'f0c04c11-4369-4cf1-9da4-69d9aae06a2e',
+ 'id': '922f3a91-c9ed-4e19-a722-366671b7d72c',
+ 'isopen': False,
+ 'license_id': None,
+ 'license_title': None,
+ 'maintainer': None,
+ 'maintainer_email': None,
+ 'metadata_created': '2022-06-16T14:13:37.736125',
+ 'metadata_modified': '2022-06-16T14:20:19.639665',
+ 'name': 'api-package-1',
+ 'notes': 'Update from API:10000',
+ 'num_resources': 0,
+ 'num_tags': 0,
+ 'organization': None,
+ 'owner_org': None,
+ 'private': False,
+ 'state': 'active',
+ 'title': 'api-package-1',
+ 'type': 'dataset',
+ 'url': None,
+ 'version': None,
+ 'resources': [],
+ 'tags': [],
+ 'extras': [],
+ 'groups': [],
+ 'relationships_as_subject': [],
+ 'relationships_as_object': []}
+
+
+Example 2:
+================
+
+.. parsed-literal::
+
+ **In [7]:** from ckanext.activity.logic import action
+ **In [8]:** before = datetime.fromisoformat('2022-06-16T14:14:00.627446').timestamp()
+ **In [9]:** %timeit action.package_activity_list({}, {'id': 'api-package-1', 'before': before})3.17 ms ± 11.9 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+ **In [10]:** %timeit action.package_activity_list({}, {'id': 'api-package-1', 'offset': 9000})25.3 ms ± 504 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+
+
 
 -------------------------------
 Troubleshooting ckan Commands
@@ -238,7 +315,7 @@ Usage
 
 .. parsed-literal::
 
- ckan datapusher resubmit    - Resubmit udated datastore resources
+ ckan datapusher resubmit    - Resubmit updated datastore resources
  ckan datapusher submit      - Submits resources from package
 
 
@@ -275,13 +352,14 @@ db: Manage databases
 
 .. parsed-literal::
 
- ckan db clean               - Clean the database
+ ckan db clean               - Clean the database and search index
  ckan db downgrade           - Downgrade the database
  ckan db duplicate_emails    - Check users email for duplicate
  ckan db init                - Initialize the database
  ckan db pending-migrations  - List all sources with unapplied migrations.
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
+ ckan db check               - Check if database schema matches definition of models.
 
 See :doc:`database-management`.
 
@@ -562,11 +640,11 @@ computer to reindex faster
 
  ckan -c |ckan.ini| search-index rebuild-fast
 
-There is also an option to clear the whole index first and then rebuild it with all datasets:
+.. note::
 
-.. parsed-literal::
-
- ckan -c |ckan.ini| search-index rebuild --clear
+   As of CKAN 2.12, the ``--clear`` option has been removed from
+   ``search-index rebuild``. The command now automatically clears orphaned
+   packages after rebuilding instead of clearing the entire index beforehand.
 
 There are other search related commands, mostly useful for debugging purposes
 
@@ -575,6 +653,7 @@ There are other search related commands, mostly useful for debugging purposes
  ckan search-index check                  - checks for datasets not indexed
  ckan search-index show DATASET_NAME      - shows index of a dataset
  ckan search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
+ ckan search-index clear-orphans          - clears orphaned packages from the search index
 
 
 sysadmin: Give sysadmin rights
@@ -598,6 +677,8 @@ For example, to make a user called 'admin' into a sysadmin
 tracking: Update tracking statistics
 ====================================
 
+Starting CKAN 2.11 tracking command is only available if the extension es enabled.
+
 Usage
 
 .. parsed-literal::
@@ -619,9 +700,13 @@ Usage
 
 .. note::
 
-    Since version 2.7 the JavaScript translation files are automatically
-    regenerated if necessary when CKAN is started. Hence you usually do not
-    need to run ``ckan translation js`` manually.
+    Since version 2.11 on production installs the JavaScript translation
+    files from extensions must be combined and generated with the
+    ``ckan translation js`` command after any new plugins are enabled or
+    when new versions of ckan or its extensions are installed.
+
+    In development mode ``ckan run`` will combine and generate these
+    files automatically.
 
 
 .. _cli-user:
@@ -645,9 +730,9 @@ For example, to create a new user called 'admin'
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| user add admin email=admin@localhost 
+ ckan -c |ckan.ini| user add admin email=admin@localhost
 
-.. note:: 
+.. note::
      You can use password=test1234 option if "non-interactive" usage is a requirement.
 
 To delete the 'admin' user
@@ -672,3 +757,23 @@ Usage
  ckan views --no-default-filters
  ckan views --search (-s)         - Set Search
  ckan views --yes (-y)
+
+
+files: Manage storages and files
+=========================================
+
+Usage
+
+.. parsed-literal::
+
+ ckan file adapters [--with-docs] [--with-configuration]         - show all awailable storage adapters
+ ckan file storage list [-v]                                     - show all configured storages
+ ckan file storage scan                                          - iterate over all files available in storage
+ ckan file storage transfer SRC DEST [--location ...] [--remove] - move files between storages
+ ckan file storage remove-files                                  - remove all files from the storage
+ ckan file stats overview                                        - general information about storage usage
+ ckan file stats types                                           - files distribution by MIME type
+ ckan file stats owner                                           - files distribution by owner
+ ckan file stream FILE_ID -o OUTPUT                              - stream content of the file
+ ckan file maintain empty-owner                                  - manage files that have no owner
+ ckan file maintain missing-files                                - manage files that do not exist in storage

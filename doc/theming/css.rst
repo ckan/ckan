@@ -58,7 +58,7 @@ and put this Jinja code in it:
 .. literalinclude:: /../ckanext/example_theme_docs/v13_custom_css/templates/base.html
    :language: django
 
-The default ``base.html`` template defines a ``styles`` block which can be
+The default ``base.html`` template defines a ``custom_styles`` block which can be
 extended to link to custom CSS files (any code in the styles block will appear
 in the ``<head>`` of the HTML page).
 

@@ -3,12 +3,14 @@
 import datetime
 import hashlib
 import os
+import sys
+from typing import Any
 
 import pytz
 import tzlocal
 from babel import Locale
 import flask_babel
-
+from faker import Faker
 import pytest
 
 from ckan.config.middleware import flask_app
@@ -151,7 +153,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         assert generated_url == url
 
     @pytest.mark.ckan_config("debug", True)
-    @pytest.mark.ckan_config("DEBUG", True)  # Flask's internal debug flag
     @pytest.mark.ckan_config("ckan.root_path", "/my/custom/path")
     def test_debugtoolbar_url(self, ckan_config):
         # test against built-in `url_for`, that is used by debugtoolbar ext.
@@ -260,8 +261,8 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<h1>moo</h1>", "<h1>moo</h1>", True),
-            ("<h1>moo</h1>", "<p>moo</p>", False),
+            ("<script>moo</script>", "<script>moo</script>", True),
+            ("<script>moo</script>", "moo", False),
             (
                 "http://example.com",
                 '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
@@ -285,7 +286,7 @@ class TestHelpersRenderMarkdown(object):
             (u"[text](javascript: alert(1))", u"<p><a>text</a></p>", False),
             (
                 u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
-                u"<p>and text</p>",
+                '<p><img src="image.png"> and text</p>',
                 False,
             ),
             (u"#heading", u"<h1>heading</h1>", False),
@@ -381,8 +382,8 @@ class TestHelpersRenderMarkdown(object):
                 False,
             ),
             (
-                u"<a href=\u201dsomelink\u201d>somelink</a>",
-                "<p>somelink</p>",
+                "<a href=\u201dsomelink\u201d>somelink</a>",
+                '<p><a href="\u201dsomelink\u201d">somelink</a></p>',
                 False,
             ),
         ],
@@ -652,11 +653,11 @@ class TestBuildNavMain(object):
         assert link == '<a class="css-class" href="https://www.example.com" target="_blank">Example Link</a>'
 
         link2 = h.link_to('display_name', h.url_for('dataset.search', tags='name'), class_='tag')
-        link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
+        assert link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
 
     def test_build_nav_icon(self):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil')
-        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i> Edit</a></li>'
+        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i>Edit</a></li>'
 
 
 class TestRemoveUrlParam:
@@ -705,8 +706,11 @@ def test_sanitize_url():
         u'http://example.com/some-path/to_a/file.jpg'
     ) == u'http://example.com/some-path/to_a/file.jpg'
     assert h.sanitize_url(
-        u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
-    ) == u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+        u'sh+eme://host:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://host:12345/a/path?a=b&c=d'
+    assert h.sanitize_url(
+        u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
     assert h.sanitize_url(
         u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
     ) == u'http://éxàmple.com/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
@@ -722,7 +726,7 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    with_html = u"""Data exposed: &mdash;
+    with_html = u"""<i>Data</i> *exposed*: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """
@@ -738,17 +742,30 @@ Notes: this is the classic RDF source but historically has had some problems wit
     ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
     ("2008-04-13T20:40:20", datetime.datetime(2008, 4, 13, 20, 40, 20)),
     ("2008-04-13T20:40:20.1234", datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)),
+    (
+        "2008-04-13T20:40:20.123-01:30",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, 123000, datetime.timezone(
+            -datetime.timedelta(minutes=90)
+        ))),
+    pytest.param(
+        "2008-04-13T20:40:20-0130",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, tzinfo=datetime.timezone(
+            datetime.timedelta(days=-1, seconds=81000))),
+        marks=pytest.mark.skipif(sys.version_info < (3, 11), reason="This is invalid in py<3.11")
+    )
 ])
-def test_date_str_to_datetime_valid(string, date):
+def test_date_str_to_datetime_valid(string: str, date: datetime.datetime):
     assert h.date_str_to_datetime(string) == date
 
 
 @pytest.mark.parametrize("string", [
-    "2008-04-13T20:40:20-01:30",
-    "2008-04-13T20:40:20-0130",
-    "2008-04-13T20:40:20foobar",
+    pytest.param(
+        "2008-04-13T20:40:20-0130",  # no `:` in timezone
+        marks=pytest.mark.skipif(sys.version_info >= (3, 11), reason="This is valid in py>=3.11"),
+    ),
+    "2008-04-13T20:40:20foobar",  # cannot parse the rest as milliseconds
 ])
-def test_date_str_to_datetime_invalid(string):
+def test_date_str_to_datetime_invalid(string: str):
     with pytest.raises(ValueError):
         h.date_str_to_datetime(string)
 
@@ -891,3 +908,245 @@ def test_decode_view_request_filters(test_request_context):
 def test_get_translated(data_dict, locale, result, monkeypatch):
     monkeypatch.setattr(flask_app, "get_locale", lambda: locale)
     assert h.get_translated(data_dict, 'notes') == result
+
+
+class TestUploadsEnabled:
+    def test_disabled_with_no_type(self):
+        """Without upload type, helper returns False."""
+        assert not h.uploads_enabled()
+
+    @pytest.mark.ckan_config("ckan.uploads_enabled", False)
+    def test_disabled(self):
+        """When uploads are disabled globally, they are disabled for all types."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
+    def test_enabled_with_storage(self):
+        """Default storage implicitly enables uploads for all types."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert h.uploads_enabled(type)
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.storage_path", "")
+    def test_disabled_without_storage_and_path(self):
+        """Without storages and storage_path uploads are disabled."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.storage_path", "/any/path")
+    def test_enabled_with_path(self):
+        """With storage_path set, uploads are enabled - that's a classic behavior."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert h.uploads_enabled(type)
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:unknown")
+    @pytest.mark.ckan_config("ckan.files.storage.groups.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.admins.type", "ckan:memory")
+    def test_enabled_for_specific_storages(self):
+        """When specific storages are configured, uploads are enabled for those types."""
+        assert not h.uploads_enabled("resource")
+        assert h.uploads_enabled("group")
+        assert h.uploads_enabled("admin")
+        assert not h.uploads_enabled("user")
+
+    @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.test.disabled_capabilities", ["CREATE"])
+    def test_disabled_without_create_capability(self):
+        """Even with a storage configured, if it doesn't have the CREATE capability, uploads are disabled."""
+        for type in ["resource", "group", "user", "admin"]:
+            assert not h.uploads_enabled(type)
+
+
+def test_remove_locale_from_url(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.remove_locale_from_url("/ca/dataset") == "/dataset"
+        assert h.remove_locale_from_url("/ca") == "/"
+        assert h.remove_locale_from_url("/ca/dataset/some-dataset") == "/dataset/some-dataset"
+        assert h.remove_locale_from_url("/ca/group/some-group") == "/group/some-group"
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "en"}):
+
+        assert h.remove_locale_from_url("/en/dataset") == "/dataset"
+        assert h.remove_locale_from_url("/en") == "/"
+        assert h.remove_locale_from_url("/dataset") == "/dataset"  # no locale to remove
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_remove_locale_from_url_with_root_path(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/dataset") == "/my/custom/path/foo/dataset"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo") == "/my/custom/path/foo/"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/dataset/some-dataset") == "/my/custom/path/foo/dataset/some-dataset"
+        assert h.remove_locale_from_url("/my/custom/path/ca/foo/group/some-group") == "/my/custom/path/foo/group/some-group"
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_remove_root_path_from_url(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        # With locale in root path
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo") == "/"
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo/dataset/some-dataset") == "/dataset/some-dataset"
+        assert h.remove_root_path_from_url("/my/custom/path/ca/foo/group/some-group") == "/group/some-group"
+
+        # Without locale (fallback)
+        assert h.remove_root_path_from_url("/my/custom/path/foo") == "/"
+        assert h.remove_root_path_from_url("/my/custom/path/foo/dataset/some-dataset") == "/dataset/some-dataset"
+
+
+def test_page_is_active(app):
+
+    with app.flask_app.test_request_context("/"):
+
+        assert h.page_is_active("home.index") is True
+
+        assert h.page_is_active("/") is True
+
+    with app.flask_app.test_request_context("/dataset"):
+
+        assert h.page_is_active("dataset.search") is True
+        assert h.page_is_active("group.index") is False
+
+        assert h.page_is_active("/dataset") is True
+
+    with app.flask_app.test_request_context("/dataset/some-dataset"):
+
+        assert h.page_is_active("dataset.search", active_blueprints=["dataset"]) is True
+        assert h.page_is_active("/dataset", active_blueprints=["dataset"]) is True
+
+        assert h.page_is_active("group.index", active_blueprints=["group"]) is False
+        assert h.page_is_active("/group", active_blueprints=["group"]) is False
+
+    with app.flask_app.test_request_context("/group/some-group"):
+
+        assert (
+            h.page_is_active("dataset.search", active_blueprints=["dataset"]) is False
+        )
+        assert h.page_is_active("/dataset", active_blueprints=["dataset"]) is False
+
+        assert h.page_is_active("group.index", active_blueprints=["group"]) is True
+        assert h.page_is_active("/group", active_blueprints=["group"]) is True
+
+
+def test_page_is_active_with_locale(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.page_is_active("/ca") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/dataset") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset/some-dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/dataset", active_blueprints=["dataset"]) is True
+
+    with app.flask_app.test_request_context(
+        "/group/some-group", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/ca/group", active_blueprints=["group"]) is True
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/my/custom/path/{{LANG}}/foo")
+def test_page_is_active_with_locale_and_root_path(app):
+
+    with app.flask_app.test_request_context("/", environ_overrides={"CKAN_LANG": "ca"}):
+
+        assert h.page_is_active("/my/custom/path/ca/foo") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/dataset") is True
+
+    with app.flask_app.test_request_context(
+        "/dataset/some-dataset", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/dataset", active_blueprints=["dataset"]) is True
+
+    with app.flask_app.test_request_context(
+        "/group/some-group", environ_overrides={"CKAN_LANG": "ca"}
+    ):
+
+        assert h.page_is_active("/my/custom/path/ca/foo/group", active_blueprints=["group"]) is True
+
+
+class TestHasMoreFacets:
+    @pytest.mark.parametrize(
+        ("size", "limit", "expected"),
+        [
+            [3, 3, False],
+            [3, 5, False],
+            [3, 1, True],
+            [3, 0, False],
+            [0, 0, False],
+            [0, 3, False],
+        ],
+    )
+    def test_has_more_facets(self, size: int, limit: int, expected: bool, faker: Faker):
+        """Tests that has_more_facets returns True if the number of facets exceeds the limit, and false otherwise."""
+        facets = [{"name": faker.word()} for _ in range(size)]
+        assert h.has_more_facets("test", {"test": {"items": facets}}, limit) is expected
+
+    def test_exclude_active(self, faker: Faker, test_request_context: Any):
+        """Tests the effect of the exclude_active parameter on
+        has_more_facets. If exclude_active is True, the active facet(s) should
+        be excluded from the count when determining if there are more facets
+        than the limit.
+        """
+        facets = [{"name": faker.word()} for _ in range(10)]
+        with test_request_context(
+            "/dataset?test={}&test={}".format(facets[0]["name"], facets[1]["name"])
+        ):
+            # by default, active facets are included in the count, so there are more than 8 facets
+            assert h.has_more_facets("test", {"test": {"items": facets}}, 8) is True
+
+            # with exclude_active=True, the 2 active facets should be excluded
+            # from the count, so there are not more than 8 facets
+            assert (
+                h.has_more_facets("test", {"test": {"items": facets}}, 8, True) is False
+            )
+
+            # with exclude_active=True and a limit of 7, there are more than 7
+            # facets excluding the active ones, so it should return True
+            assert (
+                h.has_more_facets("test", {"test": {"items": facets}}, 7, True) is True
+            )
+
+
+def test_unix_locale_to_bcp47():
+    assert h.unix_locale_to_bcp47('en') == 'en'
+    assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'
+
+
+def test_get_facet_items_dict(test_request_context: Any):
+    """get_facet_items_dict returns a list of facet items with the correct active state based on the current request parameters."""
+    facets = [
+        {"name": name, "display_name": name, "count": 1} for name in ["aaa", "bbb", "ccc"]
+    ]
+
+    with test_request_context("/dataset?test=ccc&test=aaa"):
+        result = h.get_facet_items_dict("test", {"test": {"items": facets}})
+        assert result[0]["name"] == "aaa"
+        assert result[0]["active"]
+
+        assert result[1]["name"] == "bbb"
+        assert not result[1]["active"]
+
+        assert result[2]["name"] == "ccc"
+        assert result[2]["active"]

@@ -1,0 +1,1 @@
+Fix error when creating an extension calling cookiecutter directly. Simplify and remove dead code.

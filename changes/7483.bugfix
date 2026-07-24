@@ -1,3 +1,0 @@
-In tests, templates from ``ckan.plugins`` set by the config file are used even
-if these plugins are disabled for the test via
-``pytest.mark.ckan_config("ckan.plugins", "")``

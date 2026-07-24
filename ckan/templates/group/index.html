@@ -27,9 +27,9 @@
       {% endif %}
     {% else %}
       <p class="empty">
-        {{ h.humanize_entity_type('group', group_type, 'no any objects') or _('There are currently no groups for this site') }}.
+        {{ h.humanize_entity_type('group', group_type, 'no any objects') or _('There are currently no groups for this site.') }}
         {% if h.check_access('group_create') %}
-          {% link_for _('How about creating one?'), named_route=group_type+'.new' %}</a>.
+          {% link_for _('How about creating one?'), named_route=group_type+'.new' %}</a>
         {% endif %}
       </p>
     {% endif %}

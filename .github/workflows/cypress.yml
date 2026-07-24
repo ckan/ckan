@@ -1,18 +1,22 @@
 name: Cypress
-on: [pull_request]
+on:
+#  pull_request:
+  workflow_call:
+  workflow_dispatch:
 env:
   NODE_VERSION: '16'
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.10'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   cypress:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     services:
-      ckan-postgres:
-        image: postgres:10
+      ckan_postgres:
+        image: postgres:15
         ports:
           - 5432:5432
         options: >-
@@ -25,11 +29,11 @@ jobs:
           POSTGRES_PASSWORD: pass
           POSTGRES_DB: ckan_test
 
-      ckan-redis:
-        image: redis
+      ckan_redis:
+        image: redis:7
         ports:
           - 6379:6379
-      ckan-solr:
+      ckan_solr:
         image: ckan/ckan-solr:master
         ports:
           - 8983:8983
@@ -40,34 +44,45 @@ jobs:
       CKAN_REDIS_URL: redis://localhost:6379/1
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/setup-node@v2-beta
+          cache: 'pip'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
       - name: Install python deps
-        run: pip install -r requirements.txt -r dev-requirements.txt -e.
+        run: |
+         pip install -U pip
+         pip install -r requirements.txt -r dev-requirements.txt -e.
+         pip check
 
       - name: Init environment
         run: |
-          ckan -c test-core-cypress.ini db init
+          ckan -c test-core-ci.ini db init
+          #cypress testing requires activity plugin to be active
+          ckan config-tool test-core-ci.ini "ckan.plugins = activity"
 
       - name: Run Cypress
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@fa4a118725a8f001170d49631ea89e5d66fee626 # v7.4.1
         with:
-          start: ckan -c test-core-cypress.ini run
+          start: ckan -c test-core-ci.ini run
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      # Test run video was always captured, so this action uses "always()" condition
-      - uses: actions/upload-artifact@v1
-        if: always()
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure()
         with:
           name: cypress-videos
           path: cypress/videos
+          if-no-files-found: ignore

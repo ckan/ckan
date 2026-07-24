@@ -75,7 +75,10 @@ class AuthFunctions:
 
         module_root = 'ckan.logic.auth'
 
-        for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
+        for auth_module_name in [
+                'get', 'create', 'update', 'delete', 'patch',
+                'file',
+        ]:
             module = importlib.import_module(
                 '.' + auth_module_name, module_root)
 
@@ -193,7 +196,7 @@ def get_group_or_org_admin_ids(group_id: Optional[str]) -> list[str]:
         .filter(model.Member.state == 'active') \
         .filter(model.Member.capacity == 'admin')
 
-    # type_ignore_reason: all stored memerships have table_id
+    # type_ignore_reason: all stored memberships have table_id
     return [a.table_id for a in q]
 
 
@@ -344,7 +347,7 @@ def _has_user_permission_for_groups(
     # get any roles the user has for the group
     q: Any = (model.Session.query(model.Member.capacity)
          # type_ignore_reason: attribute has no method
-         .filter(model.Member.group_id.in_(group_ids))  # type: ignore
+         .filter(model.Member.group_id.in_(group_ids))
          .filter(model.Member.table_name == 'user')
          .filter(model.Member.state == 'active')
          .filter(model.Member.table_id == user_id))
@@ -390,6 +393,11 @@ def users_role_for_group_or_org(
 def has_user_permission_for_some_org(
         user_name: Optional[str], permission: str) -> bool:
     ''' Check if the user has the given permission for any organization. '''
+
+    # Sys admins can do anything
+    if is_sysadmin(user_name):
+        return True
+
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
@@ -402,7 +410,7 @@ def has_user_permission_for_some_org(
          .filter(model.Member.table_name == 'user')
          .filter(model.Member.state == 'active')
          # type_ignore_reason: attribute has no method
-         .filter(model.Member.capacity.in_(roles))  # type: ignore
+         .filter(model.Member.capacity.in_(roles))
          .filter(model.Member.table_id == user_id))
     group_ids = []
     for row in q:
@@ -416,8 +424,7 @@ def has_user_permission_for_some_org(
         model.Session.query(model.Group)
         .filter(model.Group.is_organization == True)
         .filter(model.Group.state == 'active')
-        # type_ignore_reason: attribute has no method
-        .filter(model.Group.id.in_(group_ids)).exists()  # type: ignore
+        .filter(model.Group.id.in_(group_ids)).exists()
     ).scalar()
 
     return permission_exists
@@ -491,8 +498,7 @@ def user_is_collaborator_on_dataset(
     if capacity:
         if isinstance(capacity, str):
             capacity = [capacity]
-        # type_ignore_reason: attribute has no method
-        q = q.filter(model.PackageMember.capacity.in_(capacity))  # type: ignore
+        q = q.filter(model.PackageMember.capacity.in_(capacity))
 
     return model.Session.query(q.exists()).scalar()
 
@@ -521,11 +527,11 @@ CONFIG_PERMISSIONS_DEFAULTS: dict[str, Union[bool, str]] = {
 def check_config_permission(permission: str) -> Union[list[str], bool]:
     '''Returns the configuration value for the provided permission
 
-    Permission is a string indentifying the auth permission (eg
+    Permission is a string identifying the auth permission (eg
     `anon_create_dataset`), optionally prefixed with `ckan.auth.`.
 
     The possible values for `permission` are the keys of
-    CONFIG_PERMISSIONS_DEFAULTS. These can be overriden in the config file
+    CONFIG_PERMISSIONS_DEFAULTS. These can be overridden in the config file
     by prefixing them with `ckan.auth.`.
 
     Returns the permission value, generally True or False, except on

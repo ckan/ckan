@@ -11,17 +11,17 @@ the DataStore.
 
 When a resource is added to the DataStore, you get:
 
-* Automatic data previews on the resource's page, using the :ref:`Data Explorer extension <data-explorer>`
+* Automatic data previews on the resource's page, using for instance the :ref:`DataTables view extension <datatables-view>`
 * `The Data API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
 The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
-The DataStore is generally used alongside the
-`DataPusher <https://github.com/ckan/datapusher>`_, which will
+The DataStore is generally used alongside tools which will
 automatically upload data to the DataStore from suitable files, whether
-uploaded to CKAN's FileStore or externally linked.
+uploaded to CKAN's FileStore or externally linked. See :ref:`automatic_uploads`
+for more details.
 
 .. contents::
    :depth: 1
@@ -42,14 +42,12 @@ the spreadsheet data is stored in the DataStore, one would be able to access
 individual spreadsheet rows via a simple web API, as well as being able to make
 queries over the spreadsheet contents.
 
+
+.. _setting_up_datastore:
+
 ------------------------
 Setting up the DataStore
 ------------------------
-
-.. versionchanged:: 2.6
-
-   Previous CKAN (and DataStore) versions were compatible with earlier versions
-   of |postgres|.
 
 1. Enable the plugin
 ====================
@@ -194,24 +192,31 @@ You can now delete the DataStore table with::
 
 To find out more about the Data API, see `The Data API`_.
 
+.. _automatic_uploads:
 
----------------------------------------------------
-DataPusher: Automatically Add Data to the DataStore
----------------------------------------------------
+------------------------------------------
+Automatically Adding Data to the DataStore
+------------------------------------------
 
-Often, one wants data that is added to CKAN (whether it is linked to or
+In most cases, you will want data that is added to CKAN (whether it is linked to or
 uploaded to the :doc:`FileStore <filestore>`) to be automatically added to the
 DataStore. This requires some processing, to extract the data from your files
 and to add it to the DataStore in the format the DataStore can handle.
 
-This task of automatically parsing and then adding data to the DataStore is
-performed by the `DataPusher`_, a service that runs asynchronously and can be installed
-alongside CKAN.
+This task of automatically parsing and then adding data to the DataStore can be performed
+by different tools, you can choose the one the best fits your requirements:
 
-To install this please look at the docs here: https://github.com/ckan/datapusher
+* `XLoader <https://github.com/ckan/ckanext-xloader>`_ is the officially supported extension for 
+  automated uploads to the DataStore. It runs as a :doc:`background job <background-tasks>` and supports
+  type guessing and limiting the number of rows imported among other settings.
+* `DataPusher+ (DataPusher Plus) <https://github.com/dathere/datapusher-plus>`_ is a next-generation replacement for the
+  DataPusher, maintained by `datHere <https://dathere.com/>`_. It focuses on increased performance and robustness and
+  includes data pre-processing capabilities to infer fields, transform data, etc.
+* `AirCan <https://github.com/datopian/aircan>`_ is a tool built on top of Apache Airflow maintained
+  by `Datopian <https://www.datopian.com/>`_ that among other functionalities supports automated data uploads to the DataStore.
+* `DataPusher <https://github.com/ckan/datapusher>`_ is a **legacy tool** that is no longer maintained.
+  It presents significant limitations so users are encouraged to migrate to one of the tools above.
 
-.. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
-   not support duplicate column headers. That includes blank column headings.
 
 .. _data_dictionary:
 
@@ -229,12 +234,14 @@ each column:
 * **Label:** a human-friendly label for this column
 * **Description:** a full description for this column in markdown format
 
-Extension developers may add new fields to this form by overriding the default
-Data Dictionary form template ``datastore/snippets/dictionary_form.html``.
-
 The Data Dictionary is set through the API as part of the :ref:`fields` passed
 to :meth:`~ckanext.datastore.logic.action.datastore_create` and
 returned from :meth:`~ckanext.datastore.logic.action.datastore_search`.
+
+.. seealso::
+
+   For information on customizing the Data Dictionary form, see
+   :doc:`/extensions/custom-data-dictionary`.
 
 
 .. _dump:
@@ -283,7 +290,7 @@ expect from a powerful database management system.
 
 A DataStore resource can not be created on its own. It is always required to have an
 associated CKAN resource. If data is stored in the DataStore, it can automatically be
-previewed by a :ref:`preview extension <data-explorer>`.
+previewed by a :ref:`preview extension <datatables-view>`.
 
 
 Making a Data API request
@@ -297,7 +304,7 @@ returns its response in a JSON dictionary. See the :doc:`/api/index` for details
 API reference
 =============
 
-.. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``. Additionally, there are several ways to define a boolean value. ``True``, ``on`` and ``1`` are all vaid boolean values.
+.. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``. Additionally, there are several ways to define a boolean value. ``True``, ``on`` and ``1`` are all valid boolean values.
 
 .. note:: The table structure of the DataStore is explained in :ref:`db_internals`.
 
@@ -307,6 +314,7 @@ API reference
 
 .. _fields:
 
+------
 Fields
 ------
 
@@ -319,39 +327,24 @@ Fields define the column names and the type of the data in a column. A field is 
             "label":  # human-readable label for column
             "notes":  # markdown description of column
             "type_override":  # type for datapusher to use when importing data
-            ...:  # other user-defined fields
+            ...:  # free-form user-defined values
 	}
+        ...:  # values defined and validated with IDataDictionaryForm
     }
 
 Field types not provided will be guessed based on the first row of provided data.
 Set the types to ensure that future inserts will not fail because of an incorrectly
 guessed type. See :ref:`valid-types` for details on which types are valid.
 
-Extra ``"info"`` field values will be stored along with the column. ``"label"``,
-``"notes"`` and ``"type_override"`` can be managed from the default :ref:`data_dictionary`
-form.  Additional fields can be stored by customizing the Data Dictionary form or by
-passing their values to the API directly.
+.. seealso::
 
-Example::
+   For more on custom field values and customizing the Data Dictionary form, see
+   :doc:`/extensions/custom-data-dictionary`.
 
-    [
-        {
-            "id": "code_number",
-            "type": "numeric"
-        },
-        {
-            "id": "description"
-            "type": "text",
-            "info": {
-                "label": "Description",
-                "notes": "A brief usage description for this code",
-                "example": "Used for temporary service interruptions"
-            }
-        }
-    ]
 
 .. _records:
 
+-------
 Records
 -------
 
@@ -376,8 +369,10 @@ Example::
         }
     ]
 
+
 .. _valid-types:
 
+-----------
 Field types
 -----------
 
@@ -411,49 +406,161 @@ You can find more information about the formatting of dates in the `date/time ty
 
 .. _date/time types section of the PostgreSQL documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
+
 .. _filters:
 
+-------
 Filters
 -------
 
-Filters define the matching conditions to select from the DataStore. A filter is defined as follows::
+Filters are parameters to
+:meth:`~ckanext.datastore.logic.action.datastore_search`,
+:meth:`~ckanext.datastore.logic.action.datastore_delete` and
+:meth:`~ckanext.datastore.logic.action.datastore_records_delete` that
+specify the fields and values for records to match::
 
-    {
-        "resource_id":  # the resource ID (required)
-        "filters": {
-            # column name: # field value
-            # column name: # List of field values
-            ...:  # other user-defined filters
-  }
+    "filters": {
+        "family_name": "Romano",
+        "given_name": "Do-Yun"
     }
 
-Filters must be supplied as a dictonary. Filters are used as `WHERE` statements.
-The filters have to be valid key/value pairs. The key must be a valid column name
-and the value must match the respective column type. The value may be provided as a List
-of multiple matching values. See :ref:`valid-types` for details on which types are valid.
+This will only match records where both the ``family_name`` AND
+``given_name`` values match the values given.
 
-Example (single filter values, used as `WHERE =` statements)::
+To match one of multiple values for a field we can use a list::
 
-    {
-        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
-        "filters": {
-            "name": "Fred",
-            "dob":  "1994-7-07"
-        }
+    "filters": {
+        "paint": ["Black", "Green", "Grey"]
     }
 
-Example (multiple filter values, used as `WHERE IN` statements)::
+This will match records with ``"Black"``, ``"Green"`` OR ``"Grey"``
+``paint`` values.
 
-    {
-        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
-        "filters": {
-            "name": ["Fred", "Jones"],
-            "dob":  ["1994-7-07", "1992-7-27"]
-        }
+
+.. _advanced_filters:
+
+Advanced Filters
+================
+
+CKAN 2.12 and later support advanced filters: range filter operations and nested AND and
+OR conditions.
+
+Ranges can be specified using filter operations ``lt``, ``lte``, ``gt`` or ``gte``::
+
+    "filters": {
+        "age": {"gt": 24}
     }
+
+This will match all records with age > 24.
+
+Filter operations can be combined and even mixed with lists of values::
+
+    "filters": {
+        "year": [2005, {"gte": 2010, "lte": 2019}]
+    }
+
+This will match records with year = 2005 OR between 2010 and 2019.
+
+A list filters value may be used to combine filters with an OR instead of an AND::
+
+    "filters": [
+        {"course": "appetizer"},
+        {"special": true}
+    ]
+
+This will match records from a table that have either ``course = "appetizer"`` OR
+``special = true`` (or both).
+
+``$or`` can be used instead of a field name to group OR conditions within AND conditions::
+
+    "filters": {
+        "incident": "noise complaint",
+        "$or": [
+            {"resolution": ["unresolved", "in progress"]},
+            {"year": {"gt": 2024}}
+        ]
+    }
+
+This will match noise complaint records that are unresolved OR in progress, OR
+that are more recent than 2024.
+
+Field names that begin with ``$`` must be prefixed with an extra ``$`` in filters, e.g.
+a field named ``$AUD`` would be filtered as::
+
+    "filters": {
+        "$$AUD": 100
+    }
+
+JSON and array fields can be filtered to matching object or list values using an ``eq``
+filter operation::
+
+    "filters": {
+        "seat": {"eq": {"row": 34, "column": "B"}}
+        "options": {"eq": ["seafood meal"]}
+    }
+
+This will return records from a table with a JSON ``seat`` field containing exactly
+``{"row": 34, "column": "B"}`` and a text array ``options`` field containing exactly
+``["seafood meal"]``.
+
+
+-----------------
+Search Pagination
+-----------------
+
+Using :meth:`~ckanext.datastore.logic.action.datastore_search`
+with the ``offset`` parameter for pagination while retrieving data is common.
+
+This works as expected with tables up to around 500k records, but becomes less
+efficient with more records. This is due to ``offset`` needing to process the data and
+only then skip it, which leads to longer and longer query times. In other words the
+bigger offset number you use, the more time is required for the query to be processed.
+
+There is an alternative: `keyset pagination`.
+
+Keyset pagination can be used to reduce query time and process data more quickly.
+It has one major advantage over ``offset``: later queries take almost the
+exact same amount of time as the first ``offset 0`` (which means no data is skipped).
+
+In order to use keyset pagination, you'll need to add/update your ``filters`` in
+``datastore_search`` and use ``sort`` to match the the filter logic.
+
+For example to generate a keyset paginated query like this::
+
+    WHERE _id > 123 ORDER BY _id asc
+
+Where the last ``_id`` from the last row returned was ``123``,
+we would use ``datastore_search`` parameters like::
+
+    "filters": {
+        "_id": {"gt": 123}
+    },
+    "sort": "_id asc"
+
+Or if we are using keyset paginating in reverse and the last ``_id`` was ``456``::
+
+    WHERE _id < 456 ORDER BY _id desc
+
+We would use ``datastore_search`` parameters like::
+
+    "filters": {
+        "_id": {"lt": 456}
+    },
+    "sort": "_id desc"
+
+To make keyset pagination easier ``datastore_search`` can return a
+``next_page`` value with the ``filters`` that are required to retrieve the next page,
+as long as your results are sorted by the ``_id`` field. To generate this value
+pass ``"include_next_page": true`` to your ``datastore_search`` call.
+
+If you are already processing the records returned and your records include the
+``_id`` field, it is slightly faster to take the last ``_id`` returned in ``records``
+instead of using ``"include_next_page": true``.
+
 
 .. _resource-aliases:
 
+----------------
 Resource aliases
 ----------------
 
@@ -462,6 +569,7 @@ A resource in the DataStore can have multiple aliases that are easier to remembe
 
 .. _comparison_querying:
 
+----------------------------------------
 Comparison of different querying methods
 ----------------------------------------
 
@@ -471,7 +579,7 @@ The DataStore supports querying with two API endpoints. They are similar but sup
 ..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`
 ==============================  ========================================================  ============================================================
 **Ease of use**                 Easy                                                      Complex
-**Flexibility**                 Low                                                       High
+**Flexibility**                 Medium                                                    High
 **Query language**              Custom (JSON)                                             SQL
 **Join resources**              No                                                        Yes
 ==============================  ========================================================  ============================================================
@@ -479,6 +587,7 @@ The DataStore supports querying with two API endpoints. They are similar but sup
 
 .. _db_internals:
 
+----------------------------------
 Internal structure of the database
 ----------------------------------
 
@@ -504,7 +613,7 @@ oid
 Extending DataStore
 -------------------
 
-Starting from CKAN version 2.7, backend used in DataStore can be replaced with custom one. For this purpose, custom extension must implement `ckanext.datastore.interfaces.IDatastoreBackend`, which provides one method - `register_backends`. It should return dictonary with names of custom backends as keys and classes, that represent those backends as values. Each class supposed to be inherited from `ckanext.datastore.backend.DatastoreBackend`.
+Starting from CKAN version 2.7, backend used in DataStore can be replaced with custom one. For this purpose, custom extension must implement `ckanext.datastore.interfaces.IDatastoreBackend`, which provides one method - `register_backends`. It should return dictionary with names of custom backends as keys and classes, that represent those backends as values. Each class supposed to be inherited from `ckanext.datastore.backend.DatastoreBackend`.
 
 .. note:: Example of custom implementation can be found at `ckanext.example_idatastorebackend`
 

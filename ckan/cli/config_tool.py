@@ -10,8 +10,8 @@ from ckan.cli import error_shout
 log = logging.getLogger(__name__)
 
 
-class ConfigOption(click.ParamType):
-    name = u'config-option'
+class ConfigOption(click.ParamType[str]):
+    name = "config-option"
 
     def convert(self, value: str, param: str, ctx: click.Context):
         if u'=' not in value:

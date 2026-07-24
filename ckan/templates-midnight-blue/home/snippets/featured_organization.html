@@ -1,0 +1,11 @@
+{% set organizations = h.get_featured_organizations(count=6) %}
+
+<h2>{{ _("Organizations") }}</h2>
+<ul class="featured-groups">
+  {% for organization in organizations %}
+    {% snippet 'organization/snippets/organization_item.html', organization=organization %}
+  {% endfor %}
+</ul>
+<div>
+  <a class="btn btn-primary-outline pull-right" href="{{ h.url_for('organization.index') }}">{{ _('View all organizations') }}</a>
+</div>

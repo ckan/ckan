@@ -1,0 +1,1 @@
+Fix argument parsing inside `ckan search-index clear-orphans` CLI command.

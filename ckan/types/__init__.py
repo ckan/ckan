@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from functools import partial
@@ -11,27 +10,34 @@ from typing import (
     Mapping,
     Optional,
     Union,
+    Generic,
+    Literal,
 )
 
-from typing_extensions import Protocol, TypeAlias, TypedDict
+from typing_extensions import Protocol, TypeAlias, TypedDict, TypeVar
 from blinker import Signal
+from flask.ctx import RequestContext
 from flask.wrappers import Response, Request
+from sqlalchemy.orm.scoping import ScopedSession
+from sqlalchemy.orm.query import Query
+
 
 from .logic import ActionResult
-from .model import (
-    Model, AlchemySession,
-    Query,
-)
 
 if TYPE_CHECKING:
+    from ckan.common import CKANConfig
+    from ckan.config.middleware.flask_app import CKANFlask
+    import ckan.model as model
+    from ckan.tests.helpers import CKANTestApp
     from ckanext.activity.model import Activity
-
+    from file_keeper.core.types import LocationTransformer
 
 __all__ = [
     "Response", "Request",
     "ActionResult",
-    "Model", "AlchemySession", "Query",
+    "AlchemySession", "Query",
     "Config", "CKANApp",
+    "CKANConfig",
     "DataDict", "ErrorDict",
     "FlattenKey", "FlattenErrorDict", "FlattenDataDict",
     "SignalMapping", "Context",
@@ -41,15 +47,19 @@ __all__ = [
     "AuthResult",
     "Action", "ChainedAction", "AuthFunction", "ChainedAuthFunction",
     "PFeed", "PFeedFactory", "PResourceUploader", "PUploader",
+    "LocationTransformer", "FileOperation", "FileOwnerOperation",
 ]
+
+AlchemySession = ScopedSession[Any]
+
 Config: TypeAlias = Dict[str, Union[str, Mapping[str, str]]]
-CKANApp = Any
+CKANApp: TypeAlias = "CKANFlask"
 
 # dictionary passed to actions
 DataDict: TypeAlias = "dict[str, Any]"
 # dictionary passed to the ValidationError
 ErrorDict: TypeAlias = (
-    "dict[str, Union[int, str, list[Union[str, dict[str, Any]]]]]"
+    "dict[str, Union[int, str, list[str], list[Union[str, dict[str, Any]]]]]"
 )
 
 FlattenKey: TypeAlias = "tuple[Any, ...]"
@@ -68,13 +78,12 @@ class Context(TypedDict, total=False):
     here.
     """
     user: str
-    model: Model
     session: AlchemySession
 
     __auth_user_obj_checked: bool
     __auth_audit: list[tuple[str, int]]
-    auth_user_obj: Union["Model.User", "Model.AnonymousUser", None]
-    user_obj: "Model.User"
+    auth_user_obj: model.User | model.AnonymousUser | None
+    user_obj: model.User
 
     schema_keys: list[Any]
     revision_id: Optional[Any]
@@ -82,6 +91,8 @@ class Context(TypedDict, total=False):
 
     connection: Any
     check_access: Callable[..., Any]
+
+    context_cache: dict[str, Any]
 
     id: str | None
     user_id: str
@@ -93,7 +104,6 @@ class Context(TypedDict, total=False):
     reset_password: bool
     save: bool
     active: bool
-    allow_partial_update: bool
     for_update: bool
     for_edit: bool
     for_view: bool
@@ -116,15 +126,15 @@ class Context(TypedDict, total=False):
     count_private_and_draft_datasets: bool
 
     schema: "Schema"
-    group: "Model.Group"
-    package: "Model.Package"
-    vocabulary: "Model.Vocabulary"
-    tag: "Model.Tag"
+    group: model.Group
+    package: model.Package
+    vocabulary: model.Vocabulary
+    tag: model.Tag
     activity: "Activity"
-    task_status: "Model.TaskStatus"
-    resource: "Model.Resource"
-    resource_view: "Model.ResourceView"
-    relationship: "Model.PackageRelationship"
+    task_status: model.TaskStatus
+    resource: model.Resource
+    resource_view: model.ResourceView
+    relationship: model.PackageRelationship
     api_version: int
     dataset_counts: dict[str, Any]
     limits: dict[str, Any]
@@ -132,6 +142,9 @@ class Context(TypedDict, total=False):
     with_capacity: bool
 
     table_names: list[str]
+    plugin_data: dict[Any, Any]
+    original_package: dict[str, Any]
+    changed_entities: dict[str, set[str]]
 
 
 class AuthResult(TypedDict, total=False):
@@ -154,7 +167,7 @@ ValidatorFactory = Callable[..., Validator]
 
 Schema: TypeAlias = "dict[str, Union[list[Validator], Schema]]"
 
-# Function that accepts arbitary number of validators(decorated by
+# Function that accepts arbitrary number of validators(decorated by
 # ckan.logic.schema.validator_args) and returns Schema dictionary
 ComplexSchemaFunc = Callable[..., Schema]
 # ComplexSchemaFunc+validator_args decorator = function that accepts no args
@@ -244,3 +257,42 @@ class PResourceUploader(Protocol):
 
     def upload(self, id: str, max_size: int = ...) -> None:
         ...
+
+
+TFactoryResult = TypeVar("TFactoryResult", default="dict[str, Any]")
+TFactoryModel = TypeVar("TFactoryModel", default=Any, covariant=True)
+
+
+class TestFactory(Protocol, Generic[TFactoryModel, TFactoryResult]):
+    def __call__(self, **kwargs: Any) -> TFactoryResult:
+        ...
+
+    def api_create(self, data_dict: dict[str, Any]) -> TFactoryResult:
+        ...
+
+    def model(self, **kwargs: Any) -> TFactoryModel:
+        ...
+
+    def create_batch(self, size: int, **kwargs: Any) -> list[TFactoryResult]:
+        ...
+
+    def stub(self, **kwargs: Any) -> object:
+        ...
+
+
+FixtureProvidePlugin = Callable[[str, Callable[..., Any]], None]
+FixtureCkanConfig = dict[str, Any]
+FixtureMakeApp = Callable[[], "CKANTestApp"]
+FixtureApp: TypeAlias = "CKANTestApp"
+FixtureResetRedis = Callable[[], None]
+FixtureResetDb = Callable[[], None]
+FixtureResetQueues = Callable[[], None]
+FixtureResetIndex = Callable[[], None]
+FixtureResetStorages = Callable[[], None]
+FixtureTestRequestContext = Callable[..., RequestContext]
+
+FileOperation = Literal["show", "update", "delete"]
+"""Operation performed on file."""
+
+FileOwnerOperation = Literal["file_transfer", "file_scan"]
+"""Operation performed on file owner."""

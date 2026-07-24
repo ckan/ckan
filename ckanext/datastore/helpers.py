@@ -9,10 +9,12 @@ from typing import (
 from typing_extensions import Literal
 
 import sqlparse
-
+import sqlalchemy as sa
 import ckan.common as converters
 import ckan.plugins.toolkit as tk
 from ckan.types import Context
+
+import unicodedata
 
 
 log = logging.getLogger(__name__)
@@ -20,6 +22,8 @@ log = logging.getLogger(__name__)
 
 def is_single_statement(sql: str):
     '''Returns True if received SQL string contains at most one statement'''
+    if "\\'" in sql:
+        return False
     return len(sqlparse.split(sql)) <= 1
 
 
@@ -30,10 +34,13 @@ def is_valid_field_name(name: str):
     * can't start with underscore
     * can't contain double quote (")
     * can't be empty
+    * can't contain control characters
     '''
     return (name and name == name.strip() and
             not name.startswith('_') and
-            '"' not in name)
+            '"' not in name
+            and not any(
+                unicodedata.category(char).startswith('C') for char in name))
 
 
 def is_valid_table_name(name: str):
@@ -82,7 +89,8 @@ def _strip(s: Any):
 
 
 def should_fts_index_field_type(field_type: str):
-    return field_type.lower() in ['tsvector', 'text', 'number']
+    return field_type in tk.config.get(
+        'ckan.datastore.default_fts_index_field_types', [])
 
 
 def get_table_and_function_names_from_sql(context: Context, sql: str):
@@ -113,12 +121,12 @@ def get_table_and_function_names_from_sql(context: Context, sql: str):
 
         function_names.extend(_get_function_names_from_sql(sql))
 
-        result = context['connection'].execute(
-            'EXPLAIN (VERBOSE, FORMAT JSON) {0}'.format(
-                str(sql))).fetchone()
+        result = context['connection'].scalar(sa.text(
+            f"EXPLAIN (VERBOSE, FORMAT JSON) {sql}"
+        ))
 
         try:
-            query_plan = json.loads(result['QUERY PLAN'])
+            query_plan = json.loads(result)
             plan = query_plan[0]['Plan']
 
             t, q, f = _parse_query_plan(plan)
@@ -216,11 +224,11 @@ def datastore_dictionary(
     """
     try:
         return [
-            f for f in tk.get_action('datastore_search')(
-                {}, {
-                    u'resource_id': resource_id,
-                    u'limit': 0,
-                    u'include_total': False})['fields']
+            f for f in tk.get_action('datastore_info')({}, {
+                'id': resource_id,
+                'include_meta': False,
+                'include_fields_schema': False,
+            })['fields']
             if not f['id'].startswith(u'_') and (
                 include_columns is None or f['id'] in include_columns)
             ]
@@ -248,3 +256,12 @@ def datastore_rw_resource_url_types() -> list[str]:
     datastore_delete
     """
     return ["datastore"]
+
+
+def datastore_show_resource_actions():
+    """
+    Extensions should not show action buttons (i.e.) next to the Manage
+    / Data API core ones
+    """
+
+    return "midnight-blue" not in tk.config.get("ckan.base_templates_folder")

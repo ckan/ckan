@@ -76,13 +76,6 @@ class TestPackage(object):
         assert [p.name for p in group.packages()] == []
 
         # other related objects don't change
-        package_extra = (
-            model.Session.query(model.PackageExtra)
-            .filter_by(package_id=pkg.id)
-            .all()[0]
-        )
-        assert package_extra.state == u"active"
-
         package_tag = (
             model.Session.query(model.PackageTag)
             .filter_by(package_id=pkg.id)
@@ -125,11 +118,6 @@ class TestPackage(object):
             not model.Session.query(model.Package).filter_by(id=pkg.id).all()
         )
         # the purge cascades to some objects
-        assert (
-            not model.Session.query(model.PackageExtra)
-            .filter_by(package_id=pkg.id)
-            .all()
-        )
         assert (
             not model.Session.query(model.PackageTag)
             .filter_by(package_id=pkg.id)

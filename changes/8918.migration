@@ -1,0 +1,4 @@
+All forms implemented in plugins must now incorporate the :ref:`CSRF protection <csrf_best_practices>` snippet if
+they are still not doing it so. All forms submitted to CKAN are now checked for the CSRF token.
+The ``ckan.csrf_protection.ignore_extensions`` config option has no longer any effect.
+

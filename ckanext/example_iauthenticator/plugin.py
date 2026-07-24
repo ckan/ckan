@@ -1,8 +1,9 @@
-# encoding: utf-8
+from __future__ import annotations
+from typing import Any
 
 from flask import Blueprint, make_response
 
-from ckan import plugins as p
+from ckan import model, plugins as p
 
 
 toolkit = p.toolkit
@@ -32,6 +33,11 @@ class ExampleIAuthenticatorPlugin(p.SingletonPlugin):
 
     # IAuthenticator
 
+    def identify_user(
+            self, user_id: str | None = None,
+    ) -> model.User | model.AnonymousUser | None:
+        pass
+
     def identify(self):
 
         if toolkit.request.path not in [
@@ -51,6 +57,14 @@ class ExampleIAuthenticatorPlugin(p.SingletonPlugin):
     def logout(self):
 
         return toolkit.redirect_to(u'example_iauthenticator.custom_logout')
+
+    def authenticate(
+        self, identity: dict[str, Any]
+    ) -> model.User | model.AnonymousUser | None:
+        if identity.get("use_fallback"):
+            return None
+
+        return model.AnonymousUser()
 
     # IBlueprint
 

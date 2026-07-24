@@ -1,12 +1,11 @@
-# encoding: utf-8
-
+import hashlib
 import io
 import os.path
 import shutil
 import tempfile
 import pytest
 
-
+from ckan.common import config
 import ckan.lib.io as ckan_io
 
 
@@ -40,3 +39,10 @@ def test_decode_encode_path():
         assert ckan_io.decode_path(filenames[0]) == filename
     finally:
         shutil.rmtree(temp_dir)
+
+
+def test_get_ckan_temp_directory():
+    suffix = hashlib.sha256(config["SECRET_KEY"].encode()).hexdigest()[:10]
+    expected_folder = f"ckan_{suffix}"
+
+    assert ckan_io.get_ckan_temp_directory() == os.path.join(tempfile.gettempdir(), expected_folder)

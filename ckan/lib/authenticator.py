@@ -1,16 +1,20 @@
-# encoding: utf-8
+from __future__ import annotations
 
 import logging
-import ckan.plugins as plugins
-from typing import Any, Mapping, Optional
+from ckan import model, plugins
+from typing import Any
 
+from ckan.common import g, request
+from ckan.lib import captcha
 from ckan.model import User
 from . import signals
 
 log = logging.getLogger(__name__)
 
 
-def default_authenticate(identity: 'Mapping[str, Any]') -> Optional["User"]:
+def default_authenticate(
+        identity: dict[str, Any]
+) -> model.User | model.AnonymousUser | None:
     if not ('login' in identity and 'password' in identity):
         return None
 
@@ -26,12 +30,28 @@ def default_authenticate(identity: 'Mapping[str, Any]') -> Optional["User"]:
     elif not user_obj.validate_password(identity['password']):
         log.debug('Login as %r failed - password not valid', login)
     else:
-        return user_obj
+        check_captcha = identity.get('check_captcha', True)
+        if check_captcha and g.recaptcha_publickey:
+            # Check for a valid reCAPTCHA response
+            try:
+                client_ip_address = request.remote_addr or 'Unknown IP Address'
+                captcha.check_recaptcha_v2_base(
+                    client_ip_address,
+                    request.form.get(u'g-recaptcha-response', '')
+                )
+                return user_obj
+            except captcha.CaptchaError:
+                log.warning('Login as %r failed - failed reCAPTCHA', login)
+                request.environ[u'captchaFailed'] = True
+        else:
+            return user_obj
     signals.failed_login.send(login)
     return None
 
 
-def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional["User"]:
+def ckan_authenticator(
+        identity: dict[str, Any]
+) -> model.User | model.AnonymousUser | None:
     """Allows extensions that have implemented
     `IAuthenticator.authenticate()` to hook into the CKAN authentication
     process with a custom implementation.

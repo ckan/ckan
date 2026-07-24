@@ -1,0 +1,1 @@
+Removed Circle CI from use, as Github Action run unit tests.

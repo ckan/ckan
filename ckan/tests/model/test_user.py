@@ -6,6 +6,7 @@ import hashlib
 import pytest
 
 from passlib.hash import pbkdf2_sha512
+from faker import Faker
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -160,6 +161,21 @@ class TestUser:
         assert user.email == data["email"]
         assert user.last_active is None
 
+    def test_by_email(self, user_factory, faker: Faker):
+        """Search by email is case-insensitive and requires full-match.
+        """
+
+        mary = user_factory(email=faker.email(domain="ckan.net"))
+        john = user_factory(email=faker.email(domain="ckan.net"))
+
+        assert model.User.by_email(mary["email"]).id == mary["id"]
+        assert model.User.by_email(john["email"]).id == john["id"]
+
+        assert model.User.by_email(mary["email"].upper()).id == mary["id"]
+        assert model.User.by_email(john["email"].title()).id == john["id"]
+
+        assert not model.User.by_email("ckan.net")
+
     def test_get(self):
         brian = factories.User(fullname="Brian")
         sandra = factories.User(fullname="Sandra")
@@ -232,12 +248,12 @@ class TestUser:
         from ckan.lib.helpers import url_for
         from freezegun import freeze_time
 
-        frozen_time = datetime.datetime.utcnow()
         data = factories.User()
         dataset = factories.Dataset()
         user_token = factories.APIToken(user=data["name"])
         headers = {"Authorization": user_token["token"]}
 
+        frozen_time = datetime.datetime.utcnow()
         with freeze_time(frozen_time):
             user = model.User.get(data["id"])
             assert user.last_active is None

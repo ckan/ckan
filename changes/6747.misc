@@ -1,7 +1,0 @@
-Reworked the JavaScript for the view filters to allow for special characters as well as colons and pipes, which previously caused errors. Added a new helper to easily decode the new flattened filter string.
-
-- New helper `decode_view_request_filters`
-    - Returns a `dictionary` of the decoded filter names and their values in a `list`.
-- View Filters JS related code will now encode the filter names and values before flattening into a colon (`:`) and piped (`|`) string.   
-    - Allowing for colons and pipes to be in the filter names and values.
-    - Allowing special characters to be in the filter names and values (such as accented chars). 

@@ -7,20 +7,20 @@ extend CKAN.
 from __future__ import annotations
 
 from typing import (
-    Any, Callable, ClassVar, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Type, Union,
+    Any, Callable, IO, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Tuple, Union, List
 )
-
-from pyutilib.component.core import Interface as _pca_Interface
 
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
-from ckan.model.user import User
+from ckan import types
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
     PUploader, PResourceUploader, Schema, SignalMapping, Validator,
     CKANApp)
+
+from .base import Interface, Plugin
 
 if TYPE_CHECKING:
     import click
@@ -30,71 +30,52 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
-    from .core import SingletonPlugin
+    from ckan.lib.files import Storage
+
+
+AttachmentWithType = Union[
+    Tuple[str, IO[str], str],
+    Tuple[str, IO[bytes], str]
+]
+AttachmentWithoutType = Union[Tuple[str, IO[str]], Tuple[str, IO[bytes]]]
+Attachment = Union[AttachmentWithType, AttachmentWithoutType]
 
 
 __all__ = [
-    u'Interface',
-    u'IMiddleware',
-    u'IAuthFunctions',
-    u'IDomainObjectModification',
-    u'IFeed',
-    u'IGroupController',
-    u'IOrganizationController',
-    u'IPackageController',
-    u'IPluginObserver',
-    u'IConfigurable',
-    u'IConfigDeclaration',
-    u'IConfigurer',
-    u'IActions',
-    u'IResourceUrlChange',
-    u'IDatasetForm',
-    u'IValidators',
-    u'IResourceView',
-    u'IResourceController',
-    u'IGroupForm',
-    u'ITagController',
-    u'ITemplateHelpers',
-    u'IFacets',
-    u'IAuthenticator',
-    u'ITranslation',
-    u'IUploader',
-    u'IBlueprint',
-    u'IPermissionLabels',
-    u'IForkObserver',
-    u'IApiToken',
-    u'IClick',
-    u'ISignal',
+    "Interface",
+    "IMiddleware",
+    "IAuthFunctions",
+    "IDomainObjectModification",
+    "IFeed",
+    "IGroupController",
+    "IOrganizationController",
+    "IPackageController",
+    "IPluginObserver",
+    "IConfigurable",
+    "IConfigDeclaration",
+    "IConfigurer",
+    "IActions",
+    "IResourceUrlChange",
+    "IDatasetForm",
+    "IValidators",
+    "IResourceView",
+    "IResourceController",
+    "IGroupForm",
+    "ITagController",
+    "ITemplateHelpers",
+    "IFacets",
+    "IAuthenticator",
+    "ITranslation",
+    "IUploader",
+    "IBlueprint",
+    "IPermissionLabels",
+    "IForkObserver",
+    "IApiToken",
+    "IClick",
+    "ISignal",
+    "INotifier",
+    "IFiles",
 ]
-
-
-class Interface(_pca_Interface):
-    u'''Base class for custom interfaces.
-
-    Marker base class for extension point interfaces.  This class
-    is not intended to be instantiated.  Instead, the declaration
-    of subclasses of Interface are recorded, and these
-    classes are used to define extension points.
-    '''
-
-    # force PluginImplementations to iterate over interface in reverse order
-    _reverse_iteration_order: ClassVar[bool] = False
-
-    @classmethod
-    def provided_by(cls, instance: "SingletonPlugin") -> bool:
-        u'''Check that the object is an instance of the class that implements
-        the interface.
-        '''
-        return cls.implemented_by(instance.__class__)
-
-    @classmethod
-    def implemented_by(cls, other: Type["SingletonPlugin"]) -> bool:
-        u'''Check whether the class implements the current interface.
-        '''
-        try:
-            return bool(cls in other._implements)
-        except AttributeError:
-            return False
 
 
 class IMiddleware(Interface):
@@ -145,18 +126,6 @@ class IDomainObjectModification(Interface):
     def notify(self, entity: Any, operation: str) -> None:
         u'''
         Send a notification on entity modification.
-
-        :param entity: instance of module.Package.
-        :param operation: 'new', 'changed' or 'deleted'.
-        '''
-        pass
-
-    def notify_after_commit(self, entity: Any, operation: Any) -> None:
-        u'''
-        ** DEPRECATED **
-
-        Supposed to send a notification after entity modification, but it
-        doesn't work.
 
         :param entity: instance of module.Package.
         :param operation: 'new', 'changed' or 'deleted'.
@@ -283,7 +252,7 @@ class IResourceView(Interface):
         :returns: a dictionary with the view type configuration
         :rtype: dict
 
-        .. _Font Awesome: http://fortawesome.github.io/Font-Awesome/3.2.1/icons
+        .. _Font Awesome: https://fontawesome.com/search
         '''
         return {u'name': self.__class__.__name__}
 
@@ -494,6 +463,11 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been updated.
+
+        Note that bulk dataset update actions (`bulk_update_private`,
+        `bulk_update_public`) will bypass this callback. See
+        ``ckan.plugins.toolkit.chained_action`` to wrap those actions
+        if required.
         '''
         pass
 
@@ -502,6 +476,10 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the data dict (typically containing
         just the dataset id) after the dataset has been deleted.
+
+        Note that the `bulk_update_delete` action will bypass this
+        callback. See ``ckan.plugins.toolkit.chained_action`` to wrap
+        that action if required.
         '''
         pass
 
@@ -631,6 +609,10 @@ class IResourceController(Interface):
             dictionary ``url_type`` which is set to ``upload`` when the
             resource file is uploaded instead of linked.
         :type resource: dictionary
+
+        Note that the datastore will bypass this callback when updating
+        the ``datastore_active`` flag on a resource that has been added
+        to the datastore.
         '''
         pass
 
@@ -687,25 +669,25 @@ class IPluginObserver(Interface):
     Hook into the plugin loading mechanism itself
     '''
 
-    def before_load(self, plugin: 'SingletonPlugin') -> None:
+    def before_load(self, plugin: Plugin) -> None:
         u'''
         Called before a plugin is loaded.
-        This method is passed the plugin class.
+        This method is passed the instantiated service object.
         '''
 
-    def after_load(self, service: Any) -> None:
+    def after_load(self, service: Plugin) -> None:
         u'''
         Called after a plugin has been loaded.
         This method is passed the instantiated service object.
         '''
 
-    def before_unload(self, plugin: 'SingletonPlugin') -> None:
+    def before_unload(self, plugin: Plugin) -> None:
         u'''
         Called before a plugin is loaded.
-        This method is passed the plugin class.
+        This method is passed the instantiated service object.
         '''
 
-    def after_unload(self, service: Any) -> None:
+    def after_unload(self, service: Plugin) -> None:
         u'''
         Called after a plugin has been unloaded.
         This method is passed the instantiated service object.
@@ -988,6 +970,8 @@ class ITemplateHelpers(Interface):
     See ``ckanext/example_itemplatehelpers`` for an example plugin.
 
     '''
+    _reverse_iteration_order = True
+
     def get_helpers(self) -> dict[str, Callable[..., Any]]:
         u'''Return a dict mapping names to helper functions.
 
@@ -1215,6 +1199,18 @@ class IDatasetForm(Interface):
         '''
         return ''
 
+    def search_template_htmx(self, package_type: str) -> str:
+        '''
+        Return the path to the template to use in the dataset search page
+        for htmx responses.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/search_htmx.html'``.
+
+        :rtype: string
+        '''
+        return ''
+
     def history_template(self, package_type: str) -> str:
         u'''
         .. warning:: This template is removed. The function exists for
@@ -1264,7 +1260,7 @@ class IDatasetForm(Interface):
         for these datasets. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
-        This is an adavanced interface. Most changes to validation should be
+        This is an advanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
         ``show_package_schema()``, ``create_package_schema()``
         and ``update_package_schema()``. If you need to have a different
@@ -1326,16 +1322,29 @@ class IDatasetForm(Interface):
         '''
         return blueprint
 
+    def resource_validation_dependencies(
+            self, package_type: str) -> List[str]:
+        '''
+        Return a list of dataset field names that affect validation of
+        resource fields.
+
+        package_update and related actions skip re-validating unchanged
+        resources unless one of the resource validation dependencies
+        fields returned here has changed.
+        '''
+        return []
+
 
 class IGroupForm(Interface):
     u'''
     Allows customisation of the group form and its underlying schema.
 
-    The behaviour of the plugin is determined by 5 method hooks:
+    The behaviour of the plugin is determined by these method hooks:
 
      - group_form(self)
-     - form_to_db_schema(self)
-     - db_to_form_schema(self)
+     - create_group_schema(self)
+     - update_group_schema(self)
+     - show_group_schema(self)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -1354,6 +1363,8 @@ class IGroupForm(Interface):
     default behaviours for the 5 method hooks.
 
     '''
+
+    is_organization = False
 
     # These methods control when the plugin is delegated to ###################
 
@@ -1394,6 +1405,57 @@ class IGroupForm(Interface):
         '''
         return 'group'
 
+    def create_group_schema(self) -> Schema:
+        '''Return the schema for validating new group or organization dicts.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when creating new groups,
+        before entering that data into the database.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
+    def update_group_schema(self) -> Schema:
+        '''Return the schema for validating updated group or organization
+        dicts.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when updating groups, before
+        entering that data into the database.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
+    def show_group_schema(self) -> Schema:
+        '''
+        Return a schema to validate groups or organizations before they're
+        shown to the user.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from the database before it is returned to the user via the API or
+        passed to a template for rendering.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
     # End of control methods ##################################################
 
     # Hooks for customising the GroupController's behaviour          ##########
@@ -1421,6 +1483,13 @@ class IGroupForm(Interface):
         '''
         return ''
 
+    def read_template_htmx(self, group_type: str) -> str:
+        u'''
+        Returns a string representing the location of the template to be
+        rendered for the read htmx page
+        '''
+        return ''
+
     def history_template(self, group_type: str) -> str:
         u'''
         Returns a string representing the location of the template to be
@@ -1442,20 +1511,6 @@ class IGroupForm(Interface):
         '''
         return ''
 
-    def form_to_db_schema(self) -> Schema:
-        u'''
-        Returns the schema for mapping group data from a form to a format
-        suitable for the database.
-        '''
-        return {}
-
-    def db_to_form_schema(self) -> Schema:
-        u'''
-        Returns the schema for mapping group data from the database into a
-        format suitable for the form (optional)
-        '''
-        return {}
-
     def setup_template_variables(self, context: Context,
                                  data_dict: DataDict) -> None:
         u'''
@@ -1471,9 +1526,10 @@ class IGroupForm(Interface):
         for these groups. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
-        This is an adavanced interface. Most changes to validation should be
+        This is an advanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
-        ``form_to_db_schema()`` and ``db_to_form_schema()``
+        ``create_group_schema()``, ``update_group_schema()`` or
+        ``show_group_schema()``.
         If you need to have a different
         schema depending on the user or value of any field stored in the
         group, or if you wish to use a different method for validation, then
@@ -1483,8 +1539,8 @@ class IGroupForm(Interface):
         :type context: dictionary
         :param data_dict: the group to be validated
         :type data_dict: dictionary
-        :param schema: a schema, typically from ``form_to_db_schema()``,
-          or ``db_to_form_schema()``
+        :param schema: a schema, typically from ``create_group_schema()``,
+          ``update_group_schema()`` or ``show_group_schema()``
         :type schema: dictionary
         :param action: ``'group_show'``, ``'group_create'``,
           ``'group_update'``, ``'organization_show'``,
@@ -1641,45 +1697,93 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''Allows custom authentication methods to be integrated into CKAN.
+    '''Allows custom authentication methods to be integrated into CKAN.
 
-        All interface methods except for the ``abort()`` one support
-        returning a Flask response object. This can be used for instance to
-        issue redirects or set cookies in the response. If a response object
-        is returned there will be no further processing of the current request
-        and that response will be returned. This can be used by plugins to:
+    Interface methods :py:meth:`.login`, :py:meth:`.logout` and deprecated
+    :py:meth:`.identify` support returning a Flask response object. This can be
+    used for instance to issue redirects or set cookies in the response. If a
+    response object is returned there will be no further processing of the
+    current request and that response will be returned. This can be used by
+    plugins to:
 
-        * Issue a redirect::
+    * Issue a redirect::
 
-            def identify(self):
+        def login(self):
 
-                return toolkit.redirect_to('myplugin.custom_endpoint')
+            return toolkit.redirect_to('myplugin.custom_endpoint')
 
-        * Set or clear cookies (or headers)::
+    * Set or clear cookies (or headers)::
 
-            from Flask import make_response
+        from flask import make_response
 
-            def identify(self)::
+        def login(self)::
 
-                response = make_response(toolkit.render('my_page.html'))
-                response.set_cookie(cookie_name, expires=0)
+            response = make_response(toolkit.render('my_page.html'))
+            response.set_cookie(cookie_name, expires=0)
 
-                return response
+            return response
+
+    Instead of using :py:meth:`.identify` in this role, it's recommended to use
+    :py:class:`~ckan.plugins.interfaces.IMiddleware` interfaces. Its
+    :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` accpets
+    ``app`` object that can be supplied with before-request callback::
+
+        p.implements(IMiddleware, inherit=True)
+        def make_middleware(self, app):
+            app.before_request(
+                lambda: toolkit.redirect_to('myplugin.custom_endpoint')
+            )
 
     '''
 
+    def identify_user(
+            self, user_id: str | None = None,
+    ) -> model.User | model.AnonymousUser | None:
+        """Load a user using.
+
+        When :py:func:`~ckan.plugins.toolkit.ckan.plugins.toolkit.login_user`
+        is called with a user object, user's ID is saved in the session. After
+        that, in the beginning of each request the same user's ID from the
+        session is used to get user details via :py:meth:`.identify_user`.
+
+        If all implementations of the method return ``None`` when called with
+        non-empty ``user_id``, application assumes that the user stored in the
+        session is not valid and calls the method once again, but without
+        arguments this time. At this point implementations have a chance to
+        identify user using request details or any other appropriate source of
+        user's identity.
+
+        The implementation returns:
+
+        * a :py:class:`~ckan.model.User` object if user is identified
+
+        * a :py:class:`~ckan.model.AnonymousUser` object if user definitely is
+          not authenticated and identification from following plugins must be
+          ignored.
+
+        * ``None`` if the user cannot be identified by the current
+          implementation, but there is a chance that following plugins can
+          identify it.
+
+        If any implementation returns :py:class:`~ckan.model.AnonymousUser` for
+        call with ``user_id``, no further processing happens and app treats the
+        request as an anonymous request. If all implementations return
+        ``None``, :py:meth:`.identify_user` will be called once again without
+        arguments.
+
+        """
+        return None
+
     def identify(self) -> Optional[Response]:
-        u'''Called to identify the user.
+        '''DEPRECATED. Called for side effects before the request.
 
-        If the user is identified then it should set:
-
-         - g.user: The name of the user
-         - g.userobj: The actual user object
-
-        Alternatively, plugins can return a response object in order to prevent
-        the default CKAN authorization flow. See
-        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
-        for more details.
+        Formerly it was used to identify a user during the request. This
+        responsibility is moved to :py:meth:`.identify_user`. The
+        current method can perform side-effects or produce a response object to
+        stop further processing of the requests. More idiomatic way to achieve
+        both goals is using Flask's ``app.before_request`` callback, that can
+        be registered using
+        :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` method.
 
         '''
 
@@ -1715,13 +1819,16 @@ class IAuthenticator(Interface):
         return (status_code, detail, headers, comment)
 
     def authenticate(
-        self, identity: 'Mapping[str, Any]'
-    ) -> Optional["User"]:
+        self, identity: dict[str, Any]
+    ) -> model.User | model.AnonymousUser | None:
         """Called before the authentication starts
         (that is after clicking the login button)
 
-        Plugins should return a user object if the authentication was
-        successful, or ``None``` otherwise.
+        Plugins should return:
+
+        * `model.User` object if the authentication was successful
+        * `model.AnonymousUser` object if the authentication failed
+        * `None` to try authentication with different implementations.
         """
 
 
@@ -1864,10 +1971,10 @@ class IPermissionLabels(Interface):
     See ``ckanext/example_ipermissionlabels`` for an example plugin.
     '''
 
-    def get_dataset_labels(self, dataset_obj: 'model.Package') -> list[str]:
+    def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         u'''
         Return a list of unicode strings to be stored in the search index
-        as the permission lables for a dataset dict.
+        as the permission labels for a dataset dict.
 
         :param dataset_obj: dataset details
         :type dataset_obj: Package model object
@@ -1877,8 +1984,9 @@ class IPermissionLabels(Interface):
         '''
         return []
 
-    def get_user_dataset_labels(self,
-                                user_obj: Optional['model.User']) -> list[str]:
+    def get_user_dataset_labels(
+            self, user_obj: model.User | None
+    ) -> list[str]:
         u'''
         Return the permission labels that give a user permission to view
         a dataset. If any of the labels returned from this method match
@@ -2195,3 +2303,227 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class IFiles(Interface):
+    """Extension point for files.
+
+    This interface is not stabilized. Implement it with `inherit=True`.
+
+    Example::
+
+        class MyPlugin(p.SingletonPlugin):
+            p.implements(p.IFiles, inherit=True)
+    """
+
+    def files_get_storage_adapters(self) -> dict[str, type[Storage]]:
+        """Return mapping of storage type to adapter class.
+
+        Example::
+
+            def files_get_storage_adapters(self):
+                return {
+                    "my_ext:dropbox": DropboxStorage,
+                }
+
+        :returns: adapters provided by the implementation
+        """
+        return {}
+
+    def files_get_location_transformers(self) -> dict[str, types.LocationTransformer]:
+        """Return additional location transformers.
+
+        Example::
+
+            def files_get_location_transformers(self):
+                def lower_transformer(location, upload, extras):
+                    returnlocation.lower()
+
+                return {
+                    "my_ext:lowercase": lower_transformer,
+                }
+
+        :returns: location transformers provided by the implementation
+        """
+        return {}
+
+    def files_file_allows(
+        self,
+        context: types.Context,
+        file: model.File,
+        operation: types.FileOperation,
+    ) -> bool | None:
+        """Decide if user is allowed to perform specified operation on the file.
+
+        Return True/False if user allowed/not allowed. Return None to rely on
+        other plugins.
+
+        Default implementation relies on ``ckan.files.owner.cascade_access``
+        config option. When owner of file is included into cascade access, user
+        can perform operation on file if he can perform the same operation with
+        file's owner.
+
+        If current owner is not affected by cascade access, user can perform
+        operation on file only if user owns the file.
+
+        Example::
+
+            def files_file_allows(
+                    self, context,
+                    file: model.File,
+                    operation: FileOperation
+            ) -> bool | None:
+                if file.owner_info and file.owner_info.owner_type == "resource":
+                    return is_authorized_boolean(
+                        f"resource_{operation}",
+                        context,
+                        {"id": file.owner_info.id}
+                    )
+
+                return None
+
+        :param context: API context
+        :param file: accessed file object
+        :param operation: performed operation
+        :returns: decision whether operation is allowed for the file
+        """
+        return None
+
+    def files_owner_allows(
+        self,
+        context: types.Context,
+        owner_type: str,
+        owner_id: str,
+        operation: types.FileOwnerOperation,
+    ) -> bool | None:
+        """Decide if user is allowed to perform operation on the owner.
+
+        Return True/False if user allowed/not allowed. Return None to rely on
+        other plugins.
+
+        Example::
+
+            def files_owner_allows(
+                    self, context,
+                    owner_type: str, owner_id: str,
+                    operation: FileOwnerOperation
+            ) -> bool | None:
+                if owner_type == "resource" and operation == "file_transfer":
+                    return is_authorized_boolean(
+                        f"resource_update",
+                        context,
+                        {"id": owner_id}
+                    )
+
+                return None
+
+        :param context: API context
+        :param owner_type: type of the tested owner
+        :param owner_id: type of the tested owner
+        :param operation: performed operation
+        :returns: decision whether operation is allowed for the owner
+
+        """
+        return None
+
+
+class INotifier(Interface):
+    """
+    Allow plugins to add custom notification mechanisms. CKAN by default uses
+    email notifications. This interface allows plugins to add custom
+    notification mechanisms.
+    """
+
+    def notify_recipient(
+        self,
+        already_notified: bool,
+        recipient_name: str,
+        recipient_email: str,
+        subject: str,
+        body: str,
+        body_html: Optional[str] = None,
+        headers: Optional[dict[str, Any]] = None,
+        attachments: Optional[Iterable[Attachment]] = None,
+    ) -> bool:
+        """Sends an notification to a user.
+
+        .. note:: This custom notification could replace the default
+            email mechanism.
+
+        :param already_notified: if the notification has already
+                                 been sent by a previous plugin
+        :type already_notified: bool
+
+        :param recipient_name: the name of the recipient
+        :type recipient_name: string
+
+        :param recipient_email: the email address of the recipient
+        :type recipient_email: string
+
+        :param subject: the notification subject
+        :type subject: string
+
+        :param body: the notification body, in plain text
+        :type body: string
+
+        :param body_html: the notification body, in html format (optional)
+        :type body_html: string
+
+        :param headers: extra headers to add to notification, in the form
+            {'Header name': 'Header value'}
+        :type headers: dict
+
+        :param attachments: a list of tuples containing file attachments
+            to add to the notification.
+            Tuples should contain the file name and a file-like
+            object pointing to the file contents::
+
+                [
+                    ('some_report.csv', file_object),
+                ]
+
+            Optionally, you can add a third element to the tuple containing the
+            media type::
+
+                [
+                    ('some_report.csv', file_object, 'text/csv'),
+                ]
+        :type attachments: list
+
+        :returns: True if the notification was sent successfully,
+                  False otherwise. If return False, CKAN will
+                  continue to send the email via SMTP.
+        :rtype: bool
+
+        """
+        return False
+
+    def notify_about_topic(self,
+                           already_notified: bool,
+                           topic: str,
+                           details: Optional[dict[str, Any]] = None) -> bool:
+        """Sends details specific to the notification topic.
+        This happens prior to `notify_recipient`.
+
+        Core topics:
+            - request_password_reset
+            - user_invited
+
+        :param already_notified: if the notification has already
+                                 been sent by a previous plugin
+        :type already_notified: bool
+
+        :param topic: the notification topic label
+        :type topic: string
+
+        :param details: details about the notification topic
+            {'user': model.User}
+        :type details: dict
+
+        :returns: True if the notification was handled successfully,
+                  False otherwise. If return False, CKAN will
+                  continue to send the email via SMTP.
+        :rtype: bool
+
+        """
+        return False

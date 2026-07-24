@@ -94,4 +94,4 @@ class TestExampleIResourceController(object):
         assert plugin.counter["after_resource_update"] == 0, plugin.counter
         assert plugin.counter["before_resource_delete"] == 0, plugin.counter
         assert plugin.counter["after_resource_delete"] == 0, plugin.counter
-        assert plugin.counter["before_resource_show"] == 4, plugin.counter
+        assert plugin.counter["before_resource_show"] == 2, plugin.counter

@@ -177,7 +177,6 @@ following contents:
 
 .. parsed-literal::
 
-    proxy_cache_path /tmp/nginx_cache levels=1:2 keys_zone=cache:30m max_size=250m;
     proxy_temp_path /tmp/nginx_proxy 1 2;
 
     server {
@@ -185,14 +184,7 @@ following contents:
         location / {
             proxy_pass http://127.0.0.1:8080/;
             proxy_set_header X-Forwarded-For $remote_addr;
-            proxy_set_header Host $host;
-            proxy_cache cache;
-            proxy_cache_bypass $cookie_auth_tkt;
-            proxy_no_cache $cookie_auth_tkt;
-            proxy_cache_valid 30m;
-            proxy_cache_key $host$scheme$proxy_host$request_uri;
-            # In emergency comment out line to force caching
-            # proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+            proxy_set_header Host $host;            
         }
 
     }
@@ -206,8 +198,23 @@ To prevent conflicts, disable your default nginx sites and restart:
     sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan
     |restart_nginx|
 
+
+-----------------------------------
+7. Generate JavaScript Translations
+-----------------------------------
+
+Some front-end features require translated strings from CKAN and its
+extensions. Run this command once to extract and make these
+strings available after initial installation, upgrades, enabling new
+plugins or enabling new languages.
+
+.. parsed-literal::
+
+    ckan -c |ckan.ini| translation js
+
+
 ------------------------
-7. Access your CKAN site
+8. Access your CKAN site
 ------------------------
 
 
@@ -216,7 +223,7 @@ CKAN instance.
 
 
 --------------------------------------
-8. Setup a worker for background jobs
+9. Setup a worker for background jobs
 --------------------------------------
 CKAN uses asynchronous :ref:`background jobs` for long tasks. These jobs are
 executed by a separate process which is called a :ref:`worker <background jobs

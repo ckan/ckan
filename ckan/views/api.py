@@ -17,12 +17,14 @@ from werkzeug.datastructures import MultiDict
 import ckan.model as model
 from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
-from ckan.lib.base import render
-from ckan.lib.i18n import get_locales_from_config
+from ckan.lib.i18n import get_locales_from_config, get_js_translations_dir
+from ckan.lib.lazyjson import LazyJSONObject
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
-from ckan.lib.search import SearchError, SearchIndexError, SearchQueryError
+from ckan.lib.search import (
+    SearchError, SearchIndexError, SearchQueryError, SolrConnectionError
+)
 from ckan.types import Context, Response, ActionResult
 
 
@@ -129,7 +131,9 @@ def _finish_ok(response_data: Any = None,
 def _finish_bad_request(extra_msg: Optional[str] = None) -> Response:
     response_data = _(u'Bad request')
     if extra_msg:
-        response_data = u'%s - %s' % (response_data, extra_msg)
+        response_data = _('Bad request: %s') % extra_msg
+    else:
+        response_data = _('Bad request')
     return _finish(400, response_data, u'json')
 
 
@@ -137,7 +141,7 @@ def _wrap_jsonp(callback: str, response_msg: str) -> str:
     return u'{0}({1});'.format(callback, response_msg)
 
 
-def _get_request_data(try_url_params: bool = False):
+def _get_request_data(try_url_params: bool = False) -> dict[str, Any]:
     u'''Returns a dictionary, extracted from a request.
 
     If there is no data, None or "" is returned.
@@ -218,13 +222,15 @@ def _get_request_data(try_url_params: bool = False):
 def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     u'''Main endpoint for the action API (v3)
 
-    Creates a dict with the incoming request data and calls the appropiate
+    Creates a dict with the incoming request data and calls the appropriate
     logic function. Returns a JSON response with the following keys:
 
         * ``help``: A URL to the docstring for the specified action
         * ``success``: A boolean indicating if the request was successful or
                 an exception was raised
         * ``result``: The output of the action, generally an Object or an Array
+        * ``changed_entities``: types and ids of entities created, updated
+                or deleted as a result of this action (for some actions)
     '''
 
     # Check if action exists
@@ -272,8 +278,13 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     # Call the action function, catch any exception
     try:
         result = function(context, request_data)
-        return_dict[u'success'] = True
-        return_dict[u'result'] = result
+        return_dict['success'] = True
+        return_dict['result'] = result
+        if 'changed_entities' in context:
+            return_dict['changed_entities'] = {
+                typ: sorted(ids)
+                for typ, ids in context['changed_entities'].items()
+            }
     except DataError as e:
         log.info(u'Format incorrect (Action API): %s - %s',
                  e.error, request_data)
@@ -283,19 +294,15 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         return_dict[u'success'] = False
         return _finish(400, return_dict, content_type=u'json')
     except NotAuthorized as e:
+        error_msg = _('Access denied: %s') % e if str(e) else _('Access denied')
         return_dict[u'error'] = {u'__type': u'Authorization Error',
-                                 u'message': _(u'Access denied')}
+                                 'message': error_msg}
         return_dict[u'success'] = False
-
-        if str(e):
-            return_dict[u'error'][u'message'] += u': %s' % e
-
         return _finish(403, return_dict, content_type=u'json')
     except NotFound as e:
+        error_msg = _('Not found: %s') % e if str(e) else _('Not found')
         return_dict[u'error'] = {u'__type': u'Not Found Error',
-                                 u'message': _(u'Not found')}
-        if str(e):
-            return_dict[u'error'][u'message'] += u': %s' % e
+                                 'message': error_msg}
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')
     except ValidationError as e:
@@ -322,6 +329,12 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
             u'__type': u'Search Index Error',
             u'message': u'Unable to add package to search index: %s' %
                        str(e)}
+        return_dict[u'success'] = False
+        return _finish(500, return_dict, content_type=u'json')
+    except SolrConnectionError:
+        return_dict[u'error'] = {
+            u'__type': u'Search Connection Error',
+            u'message': u'Unable to connect to the search server'}
         return_dict[u'success'] = False
         return _finish(500, return_dict, content_type=u'json')
     except Exception as e:
@@ -452,20 +465,6 @@ def organization_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     return _finish_ok(organization_list)
 
 
-def snippet(snippet_path: str, ver: int = API_REST_DEFAULT_VERSION) -> str:
-    u'''Renders and returns a snippet used by ajax calls
-
-        We only allow snippets in templates/ajax_snippets and its subdirs
-    '''
-    snippet_path = u'ajax_snippets/' + snippet_path
-    # werkzeug.datastructures.ImmutableMultiDict.to_dict
-    # by default returns flattened dict with first occurences of each key.
-    # For retrieving multiple values per key, use named argument `flat`
-    # set to `False`
-    extra_vars = request.args.to_dict()
-    return render(snippet_path, extra_vars=extra_vars)
-
-
 def i18n_js_translations(
         lang: str,
         ver: int = API_REST_DEFAULT_VERSION) -> Union[str, Response]:
@@ -473,13 +472,13 @@ def i18n_js_translations(
     if lang not in get_locales_from_config():
         return _finish_bad_request('Unknown locale: {}'.format(lang))
 
-    ckan_path = os.path.join(os.path.dirname(__file__), u'..')
-    source = os.path.abspath(os.path.join(ckan_path, u'public',
-                             u'base', u'i18n', u'{0}.js'.format(lang)))
+    js_translations_folder = get_js_translations_dir()
+
+    source = os.path.join(js_translations_folder, f"{lang}.js")
     if not os.path.exists(source):
-        return u'{}'
-    translations = json.load(io.open(source, u'r', encoding='utf-8'))
-    return _finish_ok(translations)
+        return "{}"
+    translations = io.open(source, "r", encoding="utf-8").read()
+    return _finish_ok(LazyJSONObject(translations))
 
 
 # Routing
@@ -508,7 +507,6 @@ util_rules: list[tuple[str, Callable[..., Union[str, Response]]]] = [
     (u'/util/group/autocomplete', group_autocomplete),
     (u'/util/organization/autocomplete', organization_autocomplete),
     (u'/util/resource/format_autocomplete', format_autocomplete),
-    (u'/util/snippet/<snippet_path>', snippet),
     (u'/i18n/<lang>', i18n_js_translations),
 ]
 

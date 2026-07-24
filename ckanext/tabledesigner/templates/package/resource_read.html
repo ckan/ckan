@@ -1,0 +1,24 @@
+{% ckan_extends %}
+
+{% block data_preview %}
+
+  {% asset "ckanext-tabledesigner/tabledesigner_css" %}
+
+  {% if
+      res.url_type == 'tabledesigner'
+      and res.datastore_active %}
+    {% if
+        not h.datastore_dictionary(res.id)
+        and h.check_access('datastore_create', {'resource_id': res.id}) %}
+      <div class="alert alert-warning">{{ _('<b>No fields defined:</b> click the Data Dictionary button above to customize this table') }}</div>
+    {% endif %}
+    {% if h.check_access('resource_view_create', {'resource_id': res.id}) %}
+      {% for view in resource_views if view.view_type == 'datatables_view' %}
+      {% else %}
+        <div class="alert alert-warning">{{ _('<b>No table view defined:</b> click the Views button and add a Table view to view and edit data') }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+
+  {{ super() }}
+{% endblock %}

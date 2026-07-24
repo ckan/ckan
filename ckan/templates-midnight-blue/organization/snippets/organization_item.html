@@ -1,0 +1,46 @@
+{#
+Renders a card for a organization. This should be used in a list.
+
+organization - A organization dict.
+
+Example:
+
+    <ul class="groups-list">
+      {% for organization in organizations %}
+        {% snippet "organization/snippets/organization_item.html", organization=organization %}
+      {% endfor %}
+    </ul>
+#}
+
+{% set url = h.url_for(organization.type ~ '.read', id=organization.name) %}
+{% block item %}
+<li class="groups-cards">
+    {% block link %}
+    {% set view_label = _('Open details page for {name}').format(name=organization.display_name) %}
+    <a href="{{ url }}" aria-label="{{ view_label }}" data-bs-title="{{ view_label }}" data-bs-toggle="tooltip">
+      {% block item_inner %}
+        {% block image %}
+        <div class="module-image">
+          <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.svg') }}" alt="{{ organization.name }}" class="img-fluid">
+        </div>
+        {% endblock %}
+          {% block title %}
+            <h3>{{ organization.display_name }}</h3>
+          {% endblock %}
+          {% block datasets %}
+            {% if organization.package_count %}
+              <span class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</span>
+            {% else %}
+              <span class="count">{{ _('0 Datasets') }}</span>
+            {% endif %}
+          {% endblock %}
+          {% block capacity %}
+            {% if show_capacity and organization.capacity %}
+            <p><span class="label label-default">{{ h.roles_translated().get(organization.capacity, organization.capacity) }}</span></p>
+            {% endif %}
+          {% endblock %}
+      {% endblock %}
+    </a>
+    {% endblock %}
+</li>
+{% endblock %}

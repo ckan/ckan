@@ -1,0 +1,120 @@
+// Base variables
+$imagePath: "../../../base/images";
+
+// Layout Variables
+$layoutFontFamily: $font-family-sans-serif;
+$layoutTextColor: $gray-700;
+$layoutBoldColor: $black;
+$layoutLinkColor: $primary;
+$layoutBackgroundColor: $gray-200;
+$layoutTrimBackgroundColor: $white;
+$layoutTrimBorderColor: $gray-400;
+$layoutPrimaryBackgroundColor: $gray-100;
+$logoMaxHeight: 60px;
+$logoMinHeight: 48px;
+
+$navLinkColor: $gray-900;
+$navActiveBackgroundColor: $gray-100;
+
+// Module Variables
+$moduleBackgroundColor: #fff;
+$moduleHeadingBorderColor: #ddd;
+$moduleHeadingBackgroundColor: #f6f6f6;
+$moduleHeadingActionTextColor: #888;
+$moduleExpandedBackgroundColor: rgba(255, 255, 255, 0.9);
+
+$tabTextColor: #111;
+$tagBackgroundColor: #f6f6f6;
+
+$gutterX: 25px;
+$gutterY: 20px;
+$gutterSmallX: 15px;
+$gutterSmallY: $gutterY;
+
+$emptyTextColor: $gray-500;
+$genericBorderColor: $gray-300;
+
+$breadcrumbTextColor: #505050;
+
+$mastheadTextColor: $black;
+$mastheadLinkColor: $mastheadTextColor;
+$mastheadBackgroundColor: $white;
+
+$navItemActiveTextColor: $white;
+$navItemActiveBackgroundColor: $gray-500;
+$navItemActiveArrowSize: $spacer-1;
+
+$pillTextColor: $navItemActiveTextColor;
+$pillBackgroundColor: darken($navItemActiveBackgroundColor, 10%);
+
+$footerBackgroundColor: $brand-700;
+$footerTextColor: $white;
+$footerLinkColor: $footerTextColor;
+
+$inputColor: $black;
+$inputBackground: $body-bg;
+$inputBorder: #ccc;
+$inputBorderRadius: 6px;
+$disabledCustomInputTextColor: #aaa;
+$disabledCustomInputBackground: #f3f3f3;
+
+$highlightBackground: #fdf7e9;
+$highlightHoverBackground: #fdf3d9;
+
+// Forms
+
+$errorText: #b55457;
+$errorBackground: lighten(#a2191f, 30%);
+$errorBorder: #a2191f;
+
+$formInfoText: #707070;
+
+$stagesTextColor: #aeaeae;
+$stagesBackground: #EDEDED;
+$stagesTransparentBackground: rgba(237, 237, 237, 0); // Used for arrows.
+$stagesActiveTextColor: #fff;
+$stagesActiveBackground: #8cc68a;
+$stagesActiveTransparentBackground: rgba(140, 198, 138, 0);
+$stagesCompleteTextColor: #eef6ed;
+$stagesCompleteBackground: #c5e2c4;
+$stagesCompleteTransparentBackground: rgba(197, 226, 196, 0);
+$stagesCounterTextColor: #fff;
+$stagesCounterBackground: #aeaeae;
+$stagesCounterActiveTextColor: #8cc68a;
+$stagesCounterActiveBackground: #fff;
+$stagesCounterCompleteTextColor: #c5e2c4;
+$stagesCounterCompleteBackground: #eef6ed;
+
+$codeTextColor: #000;
+
+
+// Datasets
+
+$listingHeadingTextColor: $gray-700;
+$resourceFormatBackground: $gray-500;
+
+// Table
+
+$chunkyTableHeaderTextColor: #fff;
+$chunkyTableHeaderBackgroundColor: #aaa;
+$chunkyTableStripeBackgroundColor: #f2f2f2;
+
+// Twitter Bootstrap Overrides
+$bodyBackground: $layoutBackgroundColor;
+$btnBackground: #ffffff;
+$btnBackgroundHighlight: #eaeaea;
+$btnPrimaryBackground: #30778d;
+$btnPrimaryBackgroundHighlight: #085871;
+$baseFontFamily: $layoutFontFamily;
+$textColor: $layoutTextColor;
+$linkColor: $layoutLinkColor;
+$iconSpritePath: "../images/bootstrap-glyphicons-halflings.png";
+$iconWhiteSpritePath: "../images/bootstrap-glyphicons-halflings-white.png";
+
+// Navigation
+$zindex-navbar: 1;
+
+// Icons
+$chevronActiveIcon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$white}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+$removeStateIcon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'><path d='M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z' stroke='white' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+$addStateIcon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'><path d='M12 8V16M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z' stroke='black' stroke-linecap='round' stroke-linejoin='round'/></svg>");

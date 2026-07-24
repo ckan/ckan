@@ -1,0 +1,2 @@
+Auth functions are expected to return a dictionary with a 'success' key,
+not raise exceptions.

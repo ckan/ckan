@@ -1,0 +1,3 @@
+Switch login by email to case-insensitive mode. Execute `ckan db
+duplicate_emails` CLI command to verify that there are no identical email with
+different letter-case among registered user.

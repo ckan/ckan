@@ -21,8 +21,8 @@ from ckan.lib.redis import is_redis_available
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
+from ckan.lib import files
 from ckan.lib.webassets_tools import webassets_init, register_core_assets
-from ckan.lib.i18n import build_js_translations
 
 from ckan.common import CKANConfig, config, config_declaration
 from ckan.exceptions import CkanConfigurationException
@@ -41,7 +41,7 @@ def load_environment(conf: Union[Config, CKANConfig]):
     """
     os.environ['CKAN_CONFIG'] = cast(str, conf['__file__'])
 
-    valid_base_public_folder_names = ['public']
+    valid_base_public_folder_names = ['public', 'public-midnight-blue']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
 
@@ -51,7 +51,7 @@ def load_environment(conf: Union[Config, CKANConfig]):
             'Possible value is: "public".'
         )
 
-    log.info('Loading static files from %s' % static_files)
+    log.info('Loading static files from %s', static_files)
 
     # Initialize main CKAN config object
     config.update(conf)
@@ -65,18 +65,14 @@ def load_environment(conf: Union[Config, CKANConfig]):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
-    # load all CKAN plugins
-    p.load_all()
+    # load all CKAN plugins and force call to environment.update_config()
+    p.load_all(force_update=True)
 
     # Check Redis availability
     if not is_redis_available():
         log.critical('Could not connect to Redis.')
 
     app_globals.reset()
-
-    # Build JavaScript translations. Must be done after plugins have
-    # been loaded.
-    build_js_translations()
 
 
 # A mapping of config settings that can be overridden by env vars.
@@ -117,8 +113,15 @@ def update_config() -> None:
         if from_env:
             config[option] = from_env
 
+    # adapters must be registered before declarations to properly extend
+    # declarations with adapter-specific options
+    files.reset()
+
+    # collect config declarations
     config_declaration.setup()
+    # add default values for the missing config options
     config_declaration.make_safe(config)
+    # validate/convert config options
     config_declaration.normalize(config)
 
     # these are collections of all template/public paths registered by
@@ -144,21 +147,17 @@ def update_config() -> None:
 
     _, errors = config_declaration.validate(config)
     if errors:
-        if config.get("config.mode") == "strict":
-            msg = "\n".join(
-                "{}: {}".format(key, "; ".join(issues))
-                for key, issues in errors.items()
-            )
-            msg = "Invalid configuration values provided:\n" + msg
-            raise CkanConfigurationException(msg)
-        else:
-            for key, issues in errors.items():
-                log.warning(
-                    "Invalid value for %s (%s): %s",
-                    key,
-                    config.get(key),
-                    "; ".join(issues)
-                )
+        msg = "\n".join(
+            "{}: {}".format(key, "; ".join(issues))
+            for key, issues in errors.items()
+        )
+        msg = "Invalid configuration values provided:\n" + msg
+        raise CkanConfigurationException(msg)
+
+    # Declared storage config options are valid at this point, storages can be
+    # configured
+    files.storages.reset()
+    files.storages.collect()
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -182,13 +181,6 @@ def update_config() -> None:
             "ckan.display_timezone is not 'server' or a valid timezone"
         )
 
-    # Init SOLR settings and check if the schema is compatible
-    # from ckan.lib.search import SolrSettings, check_solr_schema_version
-
-    # lib.search is imported here as we need the config enabled and parsed
-    search.SolrSettings.init(config.get('solr_url'),
-                             config.get('solr_user'),
-                             config.get('solr_password'))
     search.check_solr_schema_version()
 
     lib_plugins.reset_package_plugins()
@@ -202,7 +194,7 @@ def update_config() -> None:
     helpers.load_plugin_helpers()
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates']
+    valid_base_templates_folder_names = ['templates', 'templates-midnight-blue']
     templates = config.get('ckan.base_templates_folder')
     config['ckan.base_templates_folder'] = templates
 
@@ -213,7 +205,7 @@ def update_config() -> None:
         )
 
     jinja2_templates_path = os.path.join(root, templates)
-    log.info('Loading templates from %s' % jinja2_templates_path)
+    log.info('Loading templates from %s', jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
     extra_template_paths = config.get('extra_template_paths')
@@ -228,7 +220,7 @@ def update_config() -> None:
     # to eliminate database errors due to stale pooled connections
     config.setdefault('sqlalchemy.pool_pre_ping', True)
     # Initialize SQLAlchemy
-    engine = engine_from_config(config)
+    engine = engine_from_config(dict(config))
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):
@@ -261,4 +253,4 @@ def update_config() -> None:
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on
     model.Session.remove()
-    model.Session.bind.dispose()
+    model.Session.bind.dispose()  # type: ignore

@@ -95,12 +95,14 @@ https://pytest-factoryboy.readthedocs.io/en/latest/
 from __future__ import annotations
 
 import string
+import operator
 import unittest.mock as mock
 
 from functools import partial
 from typing import Any, Optional
 
 import factory
+import sqlalchemy as sa
 from faker import Faker
 
 import ckan.model
@@ -161,7 +163,7 @@ class CKANOptions(factory.alchemy.SQLAlchemyOptions):
     def _build_default_options(self):
         return super()._build_default_options() + [
             factory.base.OptionDefault("action", None, inherit=True),
-            factory.base.OptionDefault("primary_key", "id", inherit=True),
+            factory.base.OptionDefault("primary_key", None, inherit=True),
         ]
 
 
@@ -204,11 +206,23 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
         return cls._api_postprocess_result(result)
 
     @classmethod
-    def model(cls, **kwargs):
+    def model(cls, **kwargs: Any):
         """Create entity via API and retrieve result directly from the DB."""
         result = cls(**kwargs)
-        return cls._meta.sqlalchemy_session.query(cls._meta.model).get(
-            result[cls._meta.primary_key]
+
+        key = cls._meta.primary_key
+        if not key:
+            # if key is not specified in factory definition, compute it via
+            # model inspection
+            key = tuple(k.name for k in sa.inspect(cls._meta.model).primary_key)
+
+        if isinstance(key, str):
+            key = (key, )
+        getter = operator.itemgetter(*key)
+
+        return cls._meta.sqlalchemy_session.get(
+            cls._meta.model,
+            getter(result),
         )
 
     @classmethod
@@ -442,3 +456,12 @@ class SysadminWithToken(Sysadmin):
             return
         api_token = APIToken(user=obj["id"])
         obj["token"] = api_token["token"]
+
+
+class File(CKANFactory):
+    class Meta:
+        model = ckan.model.File
+        action = "file_create"
+
+    name = factory.LazyFunction(fake.unique.file_name)
+    upload = factory.Faker("binary", length=100)

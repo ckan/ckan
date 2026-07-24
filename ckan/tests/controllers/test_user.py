@@ -171,8 +171,6 @@ class TestUser(object):
         )
         # assert "/user/activity" in response.headers["location"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "activity")
-    @pytest.mark.usefixtures("with_plugins")
     def test_registered_user_login(self, app):
         """
         Registered user can submit valid login details at /user/login and
@@ -191,7 +189,7 @@ class TestUser(object):
             },
         )
         # the response is the user dashboard, right?
-        assert '<a href="/dashboard/">Dashboard</a>' in response
+        assert '<a href="/dashboard/datasets">Dashboard</a>' in response
         assert (
             '<span class="username">{0}</span>'.format(user["fullname"])
             in response
@@ -218,6 +216,33 @@ class TestUser(object):
         # the response is the login page again
         assert '<h1 class="page-heading">Login</h1>' in response
         assert "Login failed. Bad username or password." in response
+        # and we're definitely not on the dashboard.
+        assert '<a href="/dashboard">Dashboard</a>' not in response
+        assert (
+            '<span class="username">{0}</span>'.format(user["fullname"])
+            not in response
+        )
+
+    @pytest.mark.ckan_config("ckan.recaptcha.privatekey", "foo")
+    def test_registered_user_login_bad_password_or_captcha(self, app):
+        """
+        Registered user is redirected to appropriate place if they submit
+        invalid login details at /user/login.
+        Login failure gives a different message if reCAPTCHA is enabled.
+        """
+
+        # make a user
+        user = factories.User()
+
+        # get the form
+        response = app.post(
+            url_for("user.login"),
+            data={"login": user["name"], "password": "BadPass1", "save": ""},
+        )
+
+        # the response is the login page again
+        assert '<h1 class="page-heading">Login</h1>' in response
+        assert "Login failed. Bad username or password or CAPTCHA." in response
         # and we're definitely not on the dashboard.
         assert '<a href="/dashboard">Dashboard</a>' not in response
         assert (
@@ -278,7 +303,7 @@ class TestUser(object):
 
         response = app.get(url=url_for("dashboard.datasets"), headers=headers)
 
-        assert not (dataset_title in response)
+        assert dataset_title not in response
 
     def test_user_edit_no_user(self, app):
 
@@ -318,7 +343,7 @@ class TestUser(object):
             headers=headers
         )
 
-        user = model.Session.query(model.User).get(user["id"])
+        user = model.Session.get(model.User, user["id"])
 
         assert user.fullname == "new full name"
         assert user.email == 'user@ckan.org'
@@ -430,6 +455,24 @@ class TestUser(object):
 
         assert "That login name can not be modified" in response
 
+    def test_edit_user_logged_in_username_change_by_sysadmin(
+            self, app, user, sysadmin):
+
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.post(
+            url=url_for("user.edit", id=user["id"]),
+            data={
+                "email": user["email"],
+                "save": "",
+                "old_password": "correct123",
+                "password1": "",
+                "password2": "",
+                "name": factories.User.stub().name,
+            },
+            headers=headers
+        )
+        assert 'Profile updated' in response
+
     def test_perform_reset_for_key_change(self, app):
         password = "TestPassword1"
         params = {"password1": password, "password2": password}
@@ -488,15 +531,12 @@ class TestUser(object):
         assert "Old Password: incorrect password" in response
 
     def test_user_follow(self, app, user):
-
         user_two = factories.User()
         headers = {"Authorization": user["token"]}
         follow_url = url_for("user.follow", id=user_two["id"])
         response = app.post(follow_url, headers=headers)
-        assert (
-            "You are now following {0}".format(user_two["display_name"])
-            in response
-        )
+        assert "<dt>Followers</dt>\n            <dd><span>1</span>" in response
+        assert 'Unfollow</a>' in response
 
     def test_user_follow_not_exist(self, app, user):
         """Pass an id for a user that doesn't exist"""
@@ -507,7 +547,6 @@ class TestUser(object):
         assert response.status_code == 404
 
     def test_user_unfollow(self, app, user):
-
         user_two = factories.User()
         headers = {"Authorization": user["token"]}
         follow_url = url_for("user.follow", id=user_two["id"])
@@ -515,24 +554,18 @@ class TestUser(object):
 
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are no longer following {0}".format(user_two["display_name"])
-            in unfollow_response
-        )
+        assert "<dt>Followers</dt>\n            <dd><span>0</span>" in unfollow_response
+        assert 'Follow</a>' in unfollow_response
 
     def test_user_unfollow_not_following(self, app, user):
-        """Unfollow a user not currently following"""
+        """It will just return the snippet to follow them."""
 
         user_two = factories.User()
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are not following {0}".format(user_two["id"])
-            in unfollow_response
-        )
+        assert "<dt>Followers</dt>\n            <dd><span>0</span>" in unfollow_response
+        assert 'Follow</a>' in unfollow_response
 
     def test_user_unfollow_not_exist(self, app, user):
         """Unfollow a user that doesn't exist."""
@@ -573,6 +606,18 @@ class TestUser(object):
 
         assert "A reset link has been emailed to you" in response
         assert send_reset_link.call_args[0][0].id == user["id"]
+
+    @mock.patch("ckan.lib.mailer.send_reset_link")
+    def test_request_reset_by_email_case_insensitive(self, send_reset_link, app):
+        """User can request password reset by email in a case-insensitive way."""
+        user = factories.User()
+
+        offset = url_for("user.request_reset")
+        response = app.post(offset, data=dict(user=user["email"].upper()))
+
+        assert "A reset link has been emailed to you" in response
+        assert send_reset_link.call_args[0][0].id == user["id"]
+
 
     @mock.patch("ckan.lib.mailer.send_reset_link")
     def test_request_reset_by_name(self, send_reset_link, app):
@@ -638,12 +683,13 @@ class TestUser(object):
 
     def test_sysadmin_invalid_user(self, app, sysadmin):
         headers = {"Authorization": sysadmin["token"]}
-        app.post(
+        resp = app.post(
             url_for("user.sysadmin"),
             data={"username": "fred", "status": "1"},
             headers=headers,
-            status=404,
+            status=200,
         )
+        assert helpers.body_contains(resp, "User not found")
 
     def test_sysadmin_promote_success(self, app):
 
@@ -884,30 +930,21 @@ class TestCSRFToken:
             assert ctx.g.csrf_field_name == "_csrf_token"
 
     def test_csrf_token_are_different_for_different_users(self, app):
-        password = "RandomPassword123"
-        user1 = factories.User(password=password)
+        user1 = factories.User()
         token_user1 = ""
+
+        app.set_session_user(user1["name"])
         with app.flask_app.app_context() as ctx:
-            app.post(
-                url_for("user.login"),
-                data={
-                    "login": user1["name"],
-                    "password": password
-                },
-            )
+            app.get(url_for("home.index"))
             assert ctx.g._csrf_token is not None
             token_user1 = ctx.g._csrf_token
 
-        user2 = factories.User(password=password)
+        user2 = factories.User()
         token_user2 = ""
+
+        app.set_session_user(user2["name"])
         with app.flask_app.app_context() as ctx:
-            app.post(
-                url_for("user.login"),
-                data={
-                    "login": user2["name"],
-                    "password": password
-                },
-            )
+            app.get(url_for("home.index"))
             assert ctx.g._csrf_token is not None
             token_user2 = ctx.g._csrf_token
         assert token_user1 != token_user2

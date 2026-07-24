@@ -84,6 +84,8 @@ Some view plugins for common formats are included in the main CKAN repository.
 These don't require further setup and can be directly added to the
 :ref:`ckan.plugins` setting.
 
+.. _datatables-view:
+
 DataTables view
 +++++++++++++++
 
@@ -213,7 +215,7 @@ Other view plugins
 There are many more view plugins developed by the CKAN community, which
 are hosted on separate repositories. Some examples include:
 
-* `React Data explorer`_: A modern replacement for Recline, maintained by Datopian.
+* `React Data explorer`_: A modern data explorer, maintained by Datopian.
 * `Ckanext Visualize`_: An extension to easily create user visualization from data in the DataStore, maintained by Keitaro.
 * `Dashboard`_: Allows to combine multiple views into a single dashboard.
 * `PDF viewer`_: Allows to render PDF files on the resource page.
@@ -229,111 +231,9 @@ the :py:class:`~ckan.plugins.interfaces.IResourceView` interface.
 
 .. todo:: Link to a proper tutorial for writing custom views
 
-Deprecated view plugins
------------------------
-
-.. _data-explorer:
-
-Data Explorer
-+++++++++++++
-
-.. warning:: This Recline-based view plugin is deprecated and will be removed in future
-    versions
-
-
-.. image:: /images/recline_view.png
-
-View plugin: ``recline_view``
-
-Adds a rich widget, based on the Recline_ Javascript library. It  allows
-querying, filtering, graphing and mapping data. The Data Explorer is optimized
-for displaying structured data hosted on the :doc:`datastore`.
-
-The Data Explorer can also display certain formats of tabular data (CSV and
-Excel files) without its contents being uploaded to the DataStore. This is
-done via the DataProxy_, an external service that will parse the contents of
-the file and return a response that the view widget understands. However, as
-the resource must be downloaded by the DataProxy service and parsed before it
-is viewed, this option is slower and less reliable than viewing data that is
-in the DataStore. It also does not properly support different encodings, proper
-field type detection, etc so users are strongly encouraged to host data on the
-DataStore instead.
-
-.. note:: Support for the DataProxy will be dropped on future CKAN releases
-
-The three main panes of the Data Explorer are also available as separate views.
-
-DataStore Grid
-++++++++++++++
-
-.. warning:: This Recline-based view plugin is deprecated and will be removed in future
-    versions
-
-.. image:: /images/recline_grid_view.png
-
-View plugin: ``recline_grid_view``
-
-Displays a filterable, sortable, table view of structured data.
-
-This plugin requires data to be in the DataStore.
-
-DataStore Graph
-+++++++++++++++
-
-.. warning:: This Recline-based view plugin is deprecated and will be removed in future
-    versions
-
-.. image:: /images/recline_graph_view.png
-
-View plugin: ``recline_graph_view``
-
-Allows to create graphs from data stored on the DataStore. You can choose the
-graph type (such as lines, bars, columns, etc) and restrict the displayed data,
-by filtering by a certain field value or defining an offset and the number of
-rows.
-
-This plugin requires data to be in the DataStore.
-
-DataStore Map
-+++++++++++++
-
-.. warning:: This Recline-based view plugin is deprecated and will be removed in future
-    versions
-
-.. image:: /images/recline_map_view.png
-
-View plugin: ``recline_map_view``
-
-Shows data stored on the DataStore in an interactive map. It supports plotting
-markers from a pair of latitude / longitude fields or from a field containing
-a GeoJSON_ representation of the geometries. The configuration also allows to
-cluster markers if there is a high density of them and to zoom automatically
-to the rendered features.
-
-This plugin requires data to be in the DataStore.
-
-There is partial support to change the map tiles to a different service, such
-as Mapbox. Look below for an example to add to your configuration file::
-
-    #Mapbox example:
-    ckanext.spatial.common_map.type = mapbox
-    ckanext.spatial.common_map.mapbox.map_id = <id>
-    ckanext.spatial.common_map.mapbox.access_token = <token>
-    ckanext.spatial.common_map.attribution=© <a target=_blank href='https://www.mapbox.com/map-feedback/'>Mapbox</a> © <a target=_blank href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>
-    ckanext.spatial.common_map.subdomains = <subdomains>
-
-    #Custom example:
-    ckanext.spatial.common_map.type = custom
-    ckanext.spatial.common_map.custom.url = <url>
-    ckanext.spatial.common_map.custom.tms = <tms>
-    ckanext.spatial.common_map.attribution = <copyright link>
-    ckanext.spatial.common_map.subdomains = <subdomains>
-
-
 
 .. _React Data explorer: https://github.com/datopian/data-explorer
 .. _Ckanext visualize: https://github.com/keitaroinc/ckanext-visualize
-.. _Recline: https://github.com/okfn/recline/
 .. _DataTables: https://datatables.net/
 .. _DataProxy: https://github.com/okfn/dataproxy
 .. _GeoJSON: http://geojson.org
@@ -365,6 +265,10 @@ as CKAN.
 
 You can modify the maximum allowed size for proxied files using the
 :ref:`ckan.resource_proxy.max_file_size` configuration setting.
+
+.. warning:: To prevent exposing internal network resources via the resource proxy,
+   consider setting up a download proxy and configure CKAN with :ref:`ckan.download_proxy`
+
 
 
 .. _same-origin policy: http://en.wikipedia.org/wiki/Same_origin_policy

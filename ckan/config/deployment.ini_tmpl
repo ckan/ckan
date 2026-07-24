@@ -6,7 +6,7 @@
 # following URL for a description of what they do and the full list of
 # available options:
 #
-# http://docs.ckan.org/en/latest/maintaining/configuration.html
+# https://docs.ckan.org/en/latest/maintaining/configuration.html
 #
 # The %(here)s variable will be replaced with the parent directory of this file
 #

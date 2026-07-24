@@ -4,7 +4,7 @@
 <ul>
   {% for change in changes %}
     {% snippet "snippets/changes/{}.html".format(
-      change.type), change=change %}
+      change.type), change=change, pkg_dict=pkg_dict, dataset_type=activity_diff.activities[1].data.package.type %}
     <br>
   {% endfor %}
 </ul>

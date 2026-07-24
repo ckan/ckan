@@ -1,0 +1,43 @@
+{% ckan_extends %}
+
+{% block dictionary_field_type %}
+  {%- if res.url_type == 'tabledesigner' -%}
+    {%- set ct = h.tabledesigner_column_type(field) -%}
+    {{- _(ct.label) }}
+  {%- else -%}
+    {{- super() -}}
+  {%- endif -%}
+{% endblock %}
+
+{% block dictionary_field_extras %}
+  {{ super() }}
+  {% if res.url_type == 'tabledesigner' %}
+    {% set position = loop.index %}
+
+    {% if field.tdpkreq %}
+      {% call dictionary_field(_('Obligation')) %}
+        {{ _('Primary key') if field.tdpkreq == 'pk' else _('Required') }}
+      {% endcall %}
+    {% endif %}
+    {% set ct = h.tabledesigner_column_type(field) %}
+    {% if ct.view_snippet %}
+      {% snippet 'tabledesigner/view_snippets/' + ct.view_snippet,
+        column_type=ct,
+        position=position,
+        field=field,
+        dictionary_field=dictionary_field
+      %}
+    {% endif %}
+    {% for cc in ct.column_constraints() %}
+      {% if cc.view_snippet %}
+        {% snippet 'tabledesigner/view_snippets/' + cc.view_snippet,
+          column_type=ct,
+          column_constraint=cc,
+          position=position,
+          field=field,
+          dictionary_field=dictionary_field
+        %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}

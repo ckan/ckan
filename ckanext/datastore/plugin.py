@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Callable, Union, cast
+from typing import Any, Callable, Union
 
 import ckan.plugins as p
+from ckan import model
 from ckan.model.core import State
 
 from ckan.types import Action, AuthFunction, Context
@@ -35,6 +36,7 @@ def sql_functions_allowlist_file():
 
 
 @p.toolkit.blanket.config_declarations
+@p.toolkit.blanket.validators
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IConfigurer)
@@ -49,7 +51,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     resource_show_action = None
 
-    def __new__(cls: Any, *args: Any, **kwargs: Any) -> Any:
+    def __new__(cls: Any, *args: Any, **kwargs: Any):
         idatastore_extensions: Any = p.PluginImplementations(
             interfaces.IDatastore)
         idatastore_extensions = idatastore_extensions.extensions()
@@ -60,8 +62,7 @@ class DatastorePlugin(p.SingletonPlugin):
                    '"ckan.plugins" in your CKAN .ini file and try again.')
             raise DatastoreException(msg)
 
-        return cast("DatastorePlugin",
-                    super(cls, cls).__new__(cls, *args, **kwargs))
+        return super().__new__(cls, *args, **kwargs)
 
     # IDatastoreBackend
 
@@ -77,9 +78,8 @@ class DatastorePlugin(p.SingletonPlugin):
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
-        templates_base = config.get('ckan.base_templates_folder')
 
-        p.toolkit.add_template_directory(config, templates_base)
+        p.toolkit.add_template_directory(config, 'templates')
         p.toolkit.add_resource('assets', 'ckanext_datastore')
         self.backend = DatastoreBackend.get_active_backend()
 
@@ -143,7 +143,6 @@ class DatastorePlugin(p.SingletonPlugin):
         return resource_dict
 
     def after_resource_delete(self, context: Context, resources: Any):
-        model = context['model']
         pkg = context['package']
         res_query = model.Session.query(model.Resource)
         query = res_query.filter(
@@ -259,11 +258,15 @@ class DatastorePlugin(p.SingletonPlugin):
         conf_dictionary = datastore_helpers.datastore_dictionary
         conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
         rw_url_types = datastore_helpers.datastore_rw_resource_url_types
+        datastore_show_resource_actions = (
+            datastore_helpers.datastore_show_resource_actions
+        )
 
         return {
             'datastore_dictionary': conf_dictionary,
             'datastore_search_sql_enabled': conf_sql_enabled,
             'datastore_rw_resource_url_types': rw_url_types,
+            'datastore_show_resource_actions': datastore_show_resource_actions,
         }
 
     # IForkObserver

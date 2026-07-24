@@ -1,1 +1,0 @@
-`homepage_style` variable has been removed. `layout1.html` code has been moved into `home/index.html` as it will be the only layout available.

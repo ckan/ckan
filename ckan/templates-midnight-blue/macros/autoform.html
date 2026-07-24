@@ -1,0 +1,70 @@
+{#
+Builds a form from the supplied form_info list/tuple. All form info dicts
+can also contain an "extra_info" key which will add some help text after the
+input element.
+
+form_info     - A list of dicts describing the form field to build.
+data          - The form data object.
+errors        - The form errors object.
+error_summary - A list of errors to display above the fields.
+
+Example
+
+  {% set form_info = [
+      {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},
+      {'name': 'ckan.theme', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
+      {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': ''},
+      {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': ''},
+      {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
+      {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
+      {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
+      ] %}
+
+  {% import 'macros/autoform.html' as autoform %}
+  {{ autoform.generate(form_info, data, errors) }}
+
+#}
+{% import 'macros/form.html' as form %}
+{%- macro generate(form_info=[], data={}, errors={}, error_summary=[]) -%}
+  {{ form.errors(error_summary) if error_summary }}
+
+  {% for item in form_info %}
+    {% set name = item.name %}
+    {% set value = data.get(name) %}
+    {% set error = errors.get(name) %}
+    {% set id = 'field-%s' % (name|lower|replace('_', '-')|replace('.', '-')) %}
+
+    {% set control = item.control or 'input' %}
+    {% set label = item.label %}
+    {% set placeholder = item.placeholder %}
+
+    {% set classes = item.classes or [] %}
+    {% set classes = ['control-medium'] if not classes and control == 'input' %}
+
+    {% if control == 'select' %}
+      {% call form.select(name, id=id, label=label, options=item.options, selected=value, error=error) %}
+        {% if item.extra_info %}{{ form.info(item.extra_info) }}{% endif %}
+      {% endcall %}
+    {% elif control == 'html' %}
+      <div class="form-group control-medium">
+        <div class="controls">
+          {{ item.html }}
+        </div>
+      </div>
+    {% elif control == 'image_upload' %}
+      {% set field_url = item.field_url or 'image_url' %}
+      {% set is_upload = data[field_url] and not data[field_url].startswith('http') %}
+      {% set is_url = data[field_url] and data[field_url].startswith('http') %}
+
+      {% set field_upload = item.field_upload or 'image_upload' %}
+      {% set field_clear = item.field_clear or 'clear_upload' %}
+
+      {{ form.image_upload(data, errors, is_upload_enabled=item.upload_enabled, is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),
+                field_url=field_url, field_upload=field_upload, field_clear=field_clear)}}
+    {% else %}
+      {% call form[control](name, id=id, label=label, placeholder=placeholder, value=value, error=error, classes=classes) %}
+        {% if item.extra_info %}{{ form.info(item.extra_info) }}{% endif %}
+      {% endcall %}
+    {% endif %}
+  {% endfor %}
+{%- endmacro -%}

@@ -1,1 +1,0 @@
-Removes requirement-setuptools.txt since we're compatible with all recent versions of setuptools.

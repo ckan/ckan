@@ -1,1 +1,0 @@
-Fixes missing CSRF token when trying to remove a group from a package.

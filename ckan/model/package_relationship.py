@@ -25,6 +25,7 @@ except:
 
 __all__ = ['PackageRelationship', 'package_relationship_table']
 
+Mapped = orm.Mapped
 
 package_relationship_table = Table('package_relationship', meta.metadata,
      Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -44,15 +45,15 @@ class PackageRelationship(core.StatefulObjectMixin,
     from both packages in the relationship and the type is swapped from
     forward to reverse accordingly, for meaningful display to the user.'''
 
-    id: str
-    subject_package_id: str
-    object_package_id: str
-    type: str
-    comment: str
-    state: str
+    id: Mapped[str]
+    subject_package_id: Mapped[str]
+    object_package_id: Mapped[str]
+    type: Mapped[str]
+    comment: Mapped[str]
+    state: Mapped[str]
 
-    object: _package.Package
-    subject: _package.Package
+    object: Mapped[_package.Package]
+    subject: Mapped[_package.Package]
 
     all_types: Optional[list[str]]
     fwd_types: Optional[list[str]]
@@ -185,10 +186,15 @@ class PackageRelationship(core.StatefulObjectMixin,
                     return cls.types_printable[i][j]
         raise TypeError(type_)
 
-meta.mapper(PackageRelationship, package_relationship_table, properties={
-    'subject':orm.relation(_package.Package, primaryjoin=\
-           package_relationship_table.c["subject_package_id"]==_package.Package.id,
-           backref='relationships_as_subject'),
-    'object':orm.relation(_package.Package, primaryjoin=package_relationship_table.c["object_package_id"]==_package.Package.id,
-           backref='relationships_as_object'),
-    })
+meta.registry.map_imperatively(PackageRelationship, package_relationship_table, properties={
+    'subject':orm.relationship(
+        _package.Package, primaryjoin=\
+        package_relationship_table.c["subject_package_id"]==_package.Package.id,
+        backref=orm.backref('relationships_as_subject', cascade_backrefs=False),
+    ),
+    'object':orm.relationship(
+        _package.Package,
+        primaryjoin=package_relationship_table.c["object_package_id"]==_package.Package.id,
+        backref=orm.backref('relationships_as_object', cascade_backrefs=False)
+    ),
+})

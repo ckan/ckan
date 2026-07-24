@@ -33,7 +33,9 @@ def upgrade():
     if skip_based_on_legacy_engine_version(op, __name__):
         return
     conn = op.get_bind()
-    existing = conn.execute("SELECT COUNT(*) FROM related;").fetchone()
+    existing = conn.execute(
+        sa.text("SELECT COUNT(*) FROM related;")
+    ).fetchone()
     if existing[0] > 0:
         print(WARNING)
         return

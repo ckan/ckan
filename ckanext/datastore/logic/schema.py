@@ -15,11 +15,13 @@ not_missing = get_validator('not_missing')
 not_empty = get_validator('not_empty')
 resource_id_exists = get_validator('resource_id_exists')
 package_id_exists = get_validator('package_id_exists')
+ignore = get_validator('ignore')
 ignore_missing = get_validator('ignore_missing')
 empty = get_validator('empty')
 boolean_validator = get_validator('boolean_validator')
 int_validator = get_validator('int_validator')
 one_of = cast(ValidatorFactory, get_validator('one_of'))
+one_of_or_boolean = cast(ValidatorFactory, get_validator('one_of_or_boolean'))
 unicode_only = get_validator('unicode_only')
 dict_only = get_validator('dict_only')
 default = cast(ValidatorFactory, get_validator('default'))
@@ -110,16 +112,18 @@ def unicode_or_json_validator(value: Any) -> Any:
 
 
 def datastore_create_schema() -> Schema:
+    datastore_field_name = get_validator('datastore_field_name')
     schema = {
         'resource_id': [ignore_missing, unicode_safe, resource_id_exists],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
         'fields': {
-            'id': [not_empty, unicode_safe],
+            'id': [not_empty, unicode_safe, datastore_field_name],
             'type': [ignore_missing],
             'info': [ignore_missing],
         },
+        'delete_fields': [default(False), boolean_validator],
         'primary_key': [ignore_missing, list_of_strings_or_string],
         'indexes': [ignore_missing, list_of_strings_or_string],
         'triggers': {
@@ -133,8 +137,9 @@ def datastore_create_schema() -> Schema:
                 one_of([u'row'])],
             'function': [not_empty, unicode_only],
         },
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'include_records': [default(False), boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -148,8 +153,9 @@ def datastore_upsert_schema() -> Schema:
         'id': [ignore_missing],
         'method': [ignore_missing, unicode_safe, one_of(
             ['upsert', 'insert', 'update'])],
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'include_records': [default(False), boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         'dry_run': [ignore_missing, boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
@@ -162,8 +168,9 @@ def datastore_delete_schema() -> Schema:
         'resource_id': [not_missing, not_empty, unicode_safe],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'include_deleted_records': [default(False), boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -176,8 +183,9 @@ def datastore_records_delete_schema() -> Schema:
         'force': [ignore_missing, boolean_validator],
         'filters': [not_missing, dict_only],
         'id': [ignore_missing],
-        'calculate_record_count': [ignore_missing, default(False),
-                                   boolean_validator],
+        'include_deleted_records': [default(False), boolean_validator],
+        'calculate_record_count': [
+            default('background'), one_of_or_boolean(['background'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -202,10 +210,11 @@ def datastore_search_schema() -> Schema:
         'sort': [ignore_missing, list_of_strings_or_string],
         'distinct': [ignore_missing, boolean_validator],
         'include_total': [default(True), boolean_validator],
-        'total_estimation_threshold': [default(None), int_validator],
+        'total_estimation_threshold': [ignore],
         'records_format': [
             default(u'objects'),
             one_of([u'objects', u'lists', u'csv', u'tsv'])],
+        'include_next_page': [default(False), boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')],
         'full_text': [ignore_missing, unicode_safe]
@@ -221,6 +230,8 @@ def datastore_function_create_schema() -> Schema:
         'arguments': {
             'argname': [unicode_only, not_empty],
             'argtype': [unicode_only, not_empty],
+            'argmode': [ignore_missing, unicode_only, one_of([
+                'in', 'out', 'inout'])],
         },
         'rettype': [default(u'void'), unicode_only],
         'definition': [unicode_only],
@@ -237,4 +248,14 @@ def datastore_function_delete_schema() -> Schema:
 def datastore_analyze_schema() -> Schema:
     return {
         'resource_id': [unicode_safe, resource_id_exists],
+    }
+
+
+def datastore_info_schema() -> Schema:
+    return {
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'id': [ignore_missing],
+        'include_meta': [default(True), boolean_validator],
+        'include_fields_schema': [default(True), boolean_validator],
+        '__before': [rename('id', 'resource_id')]
     }

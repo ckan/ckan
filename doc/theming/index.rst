@@ -56,6 +56,7 @@ appearance of CKAN pages by developing your own CKAN themes.
    css
    webassets
    javascript
+   htmx
    best-practices
    jinja-tags
    variables-and-functions

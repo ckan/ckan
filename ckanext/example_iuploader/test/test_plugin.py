@@ -21,10 +21,11 @@ CONTENT = "data"
 # Would be nicer if we could mock open on a specific module, but because
 # it's a builtin, it's all or nothing (and various template loaders call
 # open)
+@pytest.mark.ckan_config("ckan.files.storage.test.type", "not-a-real-type")
 @pytest.mark.ckan_config("ckan.plugins", "example_iuploader")
 @pytest.mark.ckan_config("ckan.webassets.path", "/tmp/webassets")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
-@patch.object(flask, "send_file", side_effect=[CONTENT])
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@patch.object(flask, "send_file", side_effect=[flask.Response(CONTENT)])
 def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config
 ):
@@ -59,7 +60,7 @@ def test_resource_download_iuploader_called(
             "save": "go-metadata",
             "upload": ("README.rst", CONTENT)
         })
-    assert mock_get_path.call_count == 3
+    assert mock_get_path.call_count == 1
     assert isinstance(mock_get_path.call_args[0][0], plugin.ResourceUpload)
     pkg = model.Package.by_name(dataset_name)
     assert mock_get_path.call_args[0][1] == pkg.resources[0].id

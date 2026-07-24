@@ -17,6 +17,7 @@ def default_create_activity_schema(
     activity_type_exists: Validator,
     ignore_empty: Validator,
     ignore_missing: Validator,
+    list_of_strings: Validator,
 ) -> Schema:
     return {
         "id": [ignore],
@@ -40,6 +41,8 @@ def default_create_activity_schema(
             activity_type_exists,
         ],
         "data": [ignore_empty, ignore_missing],
+        "permission_labels": [ignore_empty, list_of_strings],
+
     }
 
 
@@ -50,7 +53,6 @@ def default_dashboard_activity_list_schema(
     limit_to_configured_maximum: ValidatorFactory,
     ignore_missing: Validator,
     datetime_from_timestamp_validator: Validator,
-
 ):
     schema = default_pagination_schema()
     schema["limit"] = [
@@ -95,3 +97,34 @@ def default_activity_list_schema(
     schema["after"] = [ignore_missing, datetime_from_timestamp_validator]
 
     return schema
+
+
+@validator_args
+def default_activity_delete_schema(
+    ensure_id_or_date_criteria_provided: Validator,
+    ignore_empty: Validator,
+    ignore_missing: Validator,
+    unicode_safe: Validator,
+    isodate: Validator,
+    natural_number_validator: Validator,
+) -> Schema:
+    return {
+        "__before": [ensure_id_or_date_criteria_provided],
+        "id": [ignore_missing, ignore_empty, unicode_safe],
+        "start_date": [ignore_empty, isodate],
+        "end_date": [ignore_empty, isodate],
+        "offset_days": [ignore_empty, natural_number_validator],
+        "keep": [ignore_empty, natural_number_validator],
+        "batch_size": [ignore_empty, natural_number_validator],
+    }
+
+
+@validator_args
+def default_activity_delete_all_schema(
+    ignore_empty: Validator,
+    ignore_missing: Validator,
+    natural_number_validator: Validator,
+) -> Schema:
+    return {
+        "batch_size": [ignore_empty, ignore_missing, natural_number_validator],
+    }

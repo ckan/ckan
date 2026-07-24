@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block resource_item_title %}
+{{ super() }}
+{{ h.popular('views', res.tracking_summary.total, min=10) }}
+{% endblock %}

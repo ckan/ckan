@@ -1,0 +1,35 @@
+name: Docs
+on:
+  workflow_call:
+  workflow_dispatch:
+env:
+  PYTHON_VERSION: '3.10'
+
+permissions: {}
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0  # Fetch all history, including tags
+          persist-credentials: false
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install python deps
+        run: |
+         pip install -U pip
+         pip install -r requirements.txt -r dev-requirements.txt -e .
+         pip check
+
+      - name: Create Docs
+        run: |
+           sphinx-build doc build/sphinx

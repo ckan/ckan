@@ -11,7 +11,6 @@ from ckan.types import AlchemySession
 
 __all__ = ['Session']
 
-
 # SQLAlchemy database engine. Updated by model.init_model()
 engine: Optional[Engine] = None
 
@@ -30,6 +29,11 @@ create_local_session = orm.sessionmaker(
 )
 
 
+def _is_domain_object(v: Any):
+    from ckan.model.domain_object import DomainObject
+    return isinstance(v, DomainObject)
+
+
 @event.listens_for(create_local_session, 'before_flush')
 @event.listens_for(Session, 'before_flush')
 def ckan_before_flush(session: Any, flush_context: Any, instances: Any):
@@ -43,18 +47,23 @@ def ckan_before_flush(session: Any, flush_context: Any, instances: Any):
                                 'deleted': set(),
                                 'changed': set()}
 
-    changed = [obj for obj in session.dirty if
-        session.is_modified(obj, include_collections=False)]
+    changed = [
+        obj for obj in session.dirty
+        if _is_domain_object(obj)
+        and session.is_modified(obj, include_collections=False)
+    ]
 
-    session._object_cache['new'].update(session.new)
-    session._object_cache['deleted'].update(session.deleted)
+    session._object_cache['new'].update(filter(_is_domain_object, session.new))
+    session._object_cache['deleted'].update(
+        filter(_is_domain_object, session.deleted)
+    )
     session._object_cache['changed'].update(changed)
 
 
 @event.listens_for(create_local_session, 'after_commit')
 @event.listens_for(Session, 'after_commit')
 def ckan_after_commit(session: Any):
-    """ Cleans our custom _object_cache attribute after commiting.
+    """ Cleans our custom _object_cache attribute after committing.
     """
     if hasattr(session, '_object_cache'):
         del session._object_cache
@@ -79,9 +88,7 @@ def ckan_after_rollback(session: Any):
         del session._object_cache
 
 
-#mapper = Session.mapper
-mapper = orm.mapper
+mapper = orm.mapper  # type: ignore
 
-# Global metadata. If you have multiple databases with overlapping table
-# names, you'll need a metadata for each database
 metadata = MetaData()
+registry = orm.registry(metadata=metadata)

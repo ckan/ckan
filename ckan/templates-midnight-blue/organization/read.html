@@ -1,0 +1,31 @@
+{% extends "organization/read_base.html" %}
+
+{% block primary_content %}
+  <article class="module">
+    {% block page_header %}
+      {{ super() }}
+    {% endblock %}
+    {% snippet "package/snippets/search_results.html",
+      heading=organization.title or organization.name,
+      dataset_type=dataset_type,
+      fields_grouped=fields_grouped,
+      search_facets=search_facets,
+      facet_titles=facet_titles,
+      translated_fields=translated_fields,
+      remove_field=remove_field,
+      q=q,
+      sort_by_selected=sort_by_selected,
+      page=page,
+      query_error=query_error,
+      fields=fields,
+      state=organization.state
+    %}
+  </article>
+{% endblock %}
+
+{% block organization_facets %}
+  {% snippet "package/snippets/search_facets.html",
+    facet_titles=facet_titles,
+    search_facets=search_facets
+  %}
+{% endblock %}

@@ -7,7 +7,7 @@ Create Date: 2019-05-09 13:38:22.072361
 
 """
 from alembic import op
-
+from sqlalchemy import text
 # revision identifiers, used by Alembic.
 revision = u'3537d5420e0e'
 down_revision = u'ff1b303cab77'
@@ -24,8 +24,10 @@ def upgrade():
     )
 
     conn = op.get_bind()
-    conn.execute(u'''DELETE FROM "package_extra" WHERE state='deleted';''')
-    conn.execute(u'''DELETE FROM "group_extra" WHERE state='deleted';''')
+    conn.execute(text(
+        '''DELETE FROM "package_extra" WHERE state='deleted';'''
+    ))
+    conn.execute(text('''DELETE FROM "group_extra" WHERE state='deleted';'''))
 
 
 def downgrade():

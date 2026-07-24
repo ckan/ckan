@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import uuid
 from bs4 import BeautifulSoup
 from werkzeug.routing import BuildError
 from flask_babel import refresh as refresh_babel
@@ -67,32 +68,26 @@ class TestPackageNew(object):
 
         assert plugin.id_in_dict
 
+    @pytest.mark.ckan_config("solr_url", "http://example.com/badsolrurl")
     @pytest.mark.usefixtures("clean_index")
     def test_new_indexerror(self, app, user):
-        from ckan.lib.search.common import SolrSettings
-        bad_solr_url = "http://example.com/badsolrurl"
-        solr_url = SolrSettings.get()[0]
-        try:
-            SolrSettings.init(bad_solr_url)
-            new_package_name = u"new-package-missing-solr"
-            offset = url_for("dataset.new")
-            headers = {"Authorization": user["token"]}
-            res = app.post(
-                offset,
-                headers=headers,
-                data={"save": "", "name": new_package_name},
-            )
-            assert "Unable to add package to search index" in res, res
-        finally:
-            SolrSettings.init(solr_url)
+        new_package_name = u"new-package-missing-solr"
+        offset = url_for("dataset.new")
+        headers = {"Authorization": user["token"]}
+        res = app.post(
+            offset,
+            headers=headers,
+            data={"save": "", "name": new_package_name},
+        )
+        assert "Unable to add package to search index" in res, res
 
     def test_change_locale(self, app, user):
         url = url_for("dataset.new")
-        env = {"Authorization": user["token"]}
-        res = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        res = app.get(url, headers=headers)
         # See https://github.com/python-babel/flask-babel/issues/214
         refresh_babel()
-        res = app.get("/de/dataset/new", extra_environ=env)
+        res = app.get("/de/dataset/new", headers=headers)
         assert helpers.body_contains(res, "Datensatz")
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
@@ -145,7 +140,7 @@ class TestPackageNew(object):
 
     def test_resource_required(self, app, user):
         url = url_for("dataset.new")
-        name = "one-resource-required"
+        name = "resource-data-required"
         headers = {"Authorization": user["token"]}
         response = app.post(url, headers=headers, data={
             "name": name,
@@ -156,9 +151,9 @@ class TestPackageNew(object):
         response = app.post(location, headers=headers, data={
             "id": "",
             "url": "",
-            "save": "go-metadata",
+            "save": "again",
         })
-        assert "You must add at least one data resource" in response
+        assert "No resource data entered" in response
 
     def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")
@@ -1070,6 +1065,20 @@ class TestResourceNew(object):
                 status=403,
             )
 
+    def test_edit_resource_for_dataset_that_does_not_exist_404s(
+        self, app, user
+    ):
+        headers = {"Authorization": user["token"]}
+        response = app.get(
+            url_for(
+                "dataset_resource.edit",
+                id="does-not-exist",
+                resource_id="does-not-exist",
+            ),
+            headers=headers,
+        )
+        assert response.status_code == 404
+
 
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceDownload(object):
@@ -1091,7 +1100,7 @@ class TestResourceDownload(object):
 
         response = app.get(url)
 
-        assert response.headers[u"Content-Type"] == u"text/csv"
+        assert response.headers[u"Content-Type"] == u"text/csv; charset=utf-8"
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
@@ -1115,7 +1124,7 @@ class TestResourceView(object):
         response = app.post(
             url,
             headers={"Authorization": user["token"]},
-            data={"title": "Test Image View"}
+            data={"title": "Test Image View", "view_type": "image_view"}
         )
         assert helpers.body_contains(response, "Test Image View")
 
@@ -1821,15 +1830,19 @@ class TestPackageFollow(object):
         follow_url = url_for("dataset.follow", id=package["id"])
         headers = {"Authorization": user["token"]}
         response = app.post(follow_url, headers=headers)
-        assert "You are now following {0}".format(package["title"]) in response
+        assert 'Unfollow</a>' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>1</span></dd>
+                ''' in response
 
     def test_package_follow_not_exist(self, app, user):
         """Pass an id for a package that doesn't exist"""
         headers = {"Authorization": user["token"]}
         follow_url = url_for("dataset.follow", id="not-here")
-        response = app.post(follow_url, headers=headers)
-
-        assert "Dataset not found" in response
+        app.post(follow_url, headers=headers, status=404)
 
     def test_package_unfollow(self, app, user):
 
@@ -1839,12 +1852,14 @@ class TestPackageFollow(object):
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are no longer following {0}".format(package["title"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert 'Follow</a>' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>0</span></dd>
+                ''' in response
 
     def test_package_unfollow_not_following(self, app, user):
         """Unfollow a package not currently following"""
@@ -1852,19 +1867,20 @@ class TestPackageFollow(object):
         package = factories.Dataset()
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are not following {0}".format(package["id"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert 'Follow</a>' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>0</span></dd>
+                ''' in response
 
     def test_package_unfollow_not_exist(self, app, user):
         """Unfollow a package that doesn't exist."""
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id="not-here")
-        unfollow_response = app.post(unfollow_url, headers=headers)
-        assert "Dataset not found" in unfollow_response
+        app.post(unfollow_url, headers=headers, status=404)
 
     def test_package_follower_list(self, app, sysadmin):
         """Following users appear on followers list page."""
@@ -1902,7 +1918,8 @@ class TestDatasetRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        dataset = factories.Dataset(id="abc", name="abc")
+        _id = str(uuid.uuid4())
+        dataset = factories.Dataset(id=_id, name=_id)
         app.get(
             url_for("dataset.read", id=dataset["id"]), status=200
         )  # ie no redirect

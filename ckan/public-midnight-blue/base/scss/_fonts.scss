@@ -1,0 +1,7 @@
+$fontPath: "../../../base/fonts";
+@font-face {
+    font-family: 'Noto Sans';
+    src: url('#{$fontPath}/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 100 900;
+}

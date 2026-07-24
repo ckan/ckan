@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import uuid
 import unittest.mock as mock
 from bs4 import BeautifulSoup
 import pytest
@@ -156,17 +157,17 @@ class TestGroupControllerEdit(object):
         group = factories.Group(user=user)
 
         form = {
-            "name": u"all-fields-edited",
-            "title": "Science",
+            "name": u"all-fields-edited-test-group",
+            "title": "Science Test Group Test",
             "description": "Sciencey datasets",
             "image_url": "http://example.com/image.png",
             "save": "",
         }
-        url = url_for("group.edit", id=group["name"])
+        url = url_for("group.edit", id=group["id"])
         app.post(url=url, headers=headers, data=form)
 
-        group = model.Group.by_name(u"all-fields-edited")
-        assert group.title == u"Science"
+        group = model.Group.by_name(u"all-fields-edited-test-group")
+        assert group.title == u"Science Test Group Test"
         assert group.description == "Sciencey datasets"
         assert group.image_url == "http://example.com/image.png"
 
@@ -220,11 +221,11 @@ class TestGroupRead(object):
         assert location == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        name = factories.Group.stub().name
-        group = factories.Group(id=name, name=name)
+        _id = str(uuid.uuid4())
+        factories.Group(id=_id, name=_id)
 
         # 200 == no redirect
-        app.get(url_for("group.read", id=group["id"]), status=200)
+        app.get(url_for("group.read", id=_id), status=200)
 
     def test_search_with_extra_params(self, app):
         group = factories.Group()
@@ -527,25 +528,55 @@ class TestGroupMembership(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestGroupFollow:
-    def test_group_follow(self, app, user):
+    def test_group_follow_and_unfollow(self, app, user):
+        headers = {"Authorization": user["token"]}
 
         group = factories.Group()
+        group_url = url_for("group.read", id=group["id"])
+        response = app.get(group_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+          <dt>Followers</dt>
+          <dd><span>0</span></dd>
+        ''' in response
 
-        headers = {"Authorization": user["token"]}
         follow_url = url_for("group.follow", id=group["id"])
         response = app.post(follow_url, headers=headers)
-        assert (
-            "You are now following {0}".format(group["display_name"])
-            in response
-        )
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+        assert '''
+          <dt>Followers</dt>
+          <dd><span>1</span></dd>
+        ''' in response
+
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
+    def test_group_follow_without_public_user_details(self, app, user):
+        headers = {"Authorization": user["token"]}
+        group = factories.Group()
+
+        follow_url = url_for("group.follow", id=group["id"])
+        response = app.post(follow_url, headers=headers)
+
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+
+        unfollow_url = url_for("group.unfollow", id=group["id"])
+        response = app.post(unfollow_url, headers=headers)
+
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
 
     def test_group_follow_not_exist(self, app, user):
         """Pass an id for a group that doesn't exist"""
 
         headers = {"Authorization": user["token"]}
         follow_url = url_for("group.follow", id="not-here")
-        response = app.post(follow_url, headers=headers, status=404)
-        assert "Group not found" in response
+        app.post(follow_url, headers=headers, status=404)
 
     def test_group_unfollow(self, app, user):
 
@@ -556,12 +587,14 @@ class TestGroupFollow:
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are no longer following {0}".format(group["display_name"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+          <dt>Followers</dt>
+          <dd><span>0</span></dd>
+        ''' in response
 
     def test_group_unfollow_not_following(self, app, user):
         """Unfollow a group not currently following"""
@@ -570,12 +603,14 @@ class TestGroupFollow:
 
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are not following {0}".format(group["id"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#group-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+          <dt>Followers</dt>
+          <dd><span>0</span></dd>
+        ''' in response
 
     def test_group_unfollow_not_exist(self, app, user):
         """Unfollow a group that doesn't exist."""

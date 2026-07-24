@@ -5,7 +5,7 @@
 # but at the same time making it easy to change for example the json lib
 # used.
 #
-# NOTE:  This file is specificaly created for
+# NOTE:  This file is specifically created for
 # from ckan.common import x, y, z to be allowed
 from __future__ import annotations
 
@@ -26,31 +26,31 @@ from flask_login import login_user as _login_user, logout_user as _logout_user
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
-import simplejson as json  # type: ignore # noqa: re-export
-import ckan.lib.maintain as maintain
+import simplejson as json  # type: ignore # noqa
 from ckan.config.declaration import Declaration
-from ckan.types import Model, Request
+from ckan.types import Request
 
 
 if TYPE_CHECKING:
     MutableMapping = MutableMapping[str, Any]
+    import ckan.model as model_
 
 SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
-
-current_user = cast(Union["Model.User", "Model.AnonymousUser"], _cu)
+TCurrentUser = Union["model_.User", "model_.AnonymousUser"]
+current_user = cast(TCurrentUser, _cu)
 login_user = _login_user
-logout_user = _logout_user
 
 
-@maintain.deprecated('All web requests are served by Flask', since="2.10.0")
-def is_flask_request():
-    u'''
-    This function is deprecated. All CKAN requests are now served by Flask
-    '''
-    return True
+def logout_user():
+
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
+    if session.get(field_name):
+        session.pop(field_name)
+
+    return _logout_user()
 
 
 def streaming_response(data: Iterable[Any],
@@ -136,8 +136,7 @@ class CKANConfig(MutableMapping):
         """
         if default is SENTINEL:
             default = None
-            is_strict = super().get("config.mode") == "strict"
-            if is_strict and key not in config_declaration:
+            if len(config_declaration) and key not in config_declaration:
                 log.warning("Option %s is not declared", key)
 
         return super().get(key, default)
@@ -147,25 +146,60 @@ def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy[Request]):
-    u'''Common request object
+class HtmxDetails(object):
+    """Object to access htmx properties from the request headers.
 
-    This is just a wrapper around LocalProxy so we can handle some special
-    cases for backwards compatibility.
+    This object will be added to the CKAN `request` object
+    as `request.htmx`. It adds properties to easily access
+    htmx's request headers defined in
+    https://htmx.org/reference/#headers.
+    """
+
+    def __init__(self, request: Any):
+        self.request = request
+
+    def __bool__(self) -> bool:
+        return self.request.headers.get("HX-Request") == "true"
+
+    @property
+    def boosted(self) -> bool:
+        return self.request.headers.get("HX-Boosted") == "true"
+
+    @property
+    def current_url(self) -> str | None:
+        return self.request.headers.get("HX-Current-URL")
+
+    @property
+    def history_restore_request(self) -> bool:
+        return self.request.headers.get("HX-History-Restore-Request") == "true"
+
+    @property
+    def prompt(self) -> str | None:
+        return self.request.headers.get("HX-Prompt")
+
+    @property
+    def target(self) -> str | None:
+        return self.request.headers.get("HX-Target")
+
+    @property
+    def trigger(self) -> str | None:
+        return self.request.headers.get("HX-Trigger")
+
+    @property
+    def trigger_name(self) -> str | None:
+        return self.request.headers.get("HX-Trigger-Name")
+
+
+class CKANRequest(LocalProxy[Request]):
+    '''CKAN request class.
+
+    This is a subclass of the Flask request object. It adds a new
+    `htmx` property to access htmx properties from the request headers.
     '''
 
     @property
-    @maintain.deprecated('Use `request.args` instead of `request.params`',
-                         since="2.10.0")
-    def params(self):
-        '''This property is deprecated.
-
-        Special case as Pylons' request.params is used all over the place.  All
-        new code meant to be run just in Flask (eg views) should always use
-        request.args
-
-        '''
-        return cast(flask.Request, self).args
+    def htmx(self) -> HtmxDetails:
+        return HtmxDetails(self)
 
 
 def _get_c():
@@ -259,6 +293,15 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return [obj]
 
 
+def repr_untrusted(danger: Any):
+    """
+    repr-format danger and truncate e.g. for logging untrusted input
+    """
+    r = repr(danger)
+    rtrunc = r[:200]
+    return rtrunc + '…' if r != rtrunc else r
+
+
 local = Local()
 
 # This a proxy to the bounded config object
@@ -271,7 +314,7 @@ local("config_declaration")
 config_declaration = local.config_declaration = Declaration()
 
 # Proxies to already thread-local safe objects
-request = cast(flask.Request, CKANRequest(_get_request))
+request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g: Any = LocalProxy(_get_c)
 c = g

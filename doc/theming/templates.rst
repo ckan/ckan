@@ -37,12 +37,12 @@ an extension and plugin. For a detailed explanation of the steps below, see
         example_theme=ckanext.example_theme.plugin:ExampleThemePlugin
     ''',
 
-4. Run ``python setup.py develop``:
+4. Run ``pip install -e .``:
 
    .. parsed-literal::
 
     cd |extension_dir|
-    python setup.py develop
+    pip install -e .
 
 5. Add the plugin to the ``ckan.plugins`` setting in your |ckan.ini|
    file::
@@ -312,8 +312,7 @@ enabled plugins with this code in any template file:
    :start-after: Jinja for-loop example
    :end-before: End example
 
-Other variables, such as :ref:`ckan.tracking_enabled`, are booleans, and can be
-tested using Jinja's ``{% if %}`` tag:
+Other boolean variables can be tested using Jinja's ``{% if %}`` tag:
 
 .. literalinclude:: /../ckanext/example_theme_docs/v03_jinja/templates/home/index.html
    :language: django

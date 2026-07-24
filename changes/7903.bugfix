@@ -1,0 +1,1 @@
+Replace unions with in(list) in activity queries. Replace activity outer join to packages with subselect to allow for a fully indexed query.

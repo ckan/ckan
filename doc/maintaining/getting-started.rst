@@ -5,8 +5,10 @@ Getting started
 Once you've finished :doc:`installing CKAN <installing/index>`, this section
 will walk you through getting started with your new CKAN website, including
 creating a CKAN sysadmin user, some test data, and the basics of configuring
-your CKAN site.
-
+your CKAN site. For this guide, it is assumed that CKAN has been installed 
+from source. If you have not installed from source, some commands in this 
+guide will need to be modified (with the correct location of the `ckan.ini`
+file for example).
 
 .. _create-admin-user:
 

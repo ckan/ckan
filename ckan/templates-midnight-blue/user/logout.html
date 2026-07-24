@@ -1,0 +1,18 @@
+{% extends "user/login.html" %}
+
+{% block subtitle %}{{ _('Logged Out') }}{% endblock %}
+
+{% block breadcrumb_content %}{% endblock %}
+
+{% block primary_content %}
+  <div class="col-md-6 login-container">
+    <div class="login-content mt-4">
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('Logged Out') }}{% endblock %}
+      </h1>
+      <p>{{ _('You are now logged out.') }}</p>
+    </div>
+  </div>
+{% endblock %}
+
+      

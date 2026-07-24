@@ -1,1 +1,0 @@
- The "rank" field is no longer returned in datastore_search results unless explicitly defined in the fields parameter

@@ -16,9 +16,5 @@
 
 {% block secondary_content %}
   {% snippet 'package/snippets/resource_help.html' %}
-{% endblock %}
-
-{% block scripts %}
-  {{ super() }}
-  {% asset 'vendor/fileupload' %}
+  {% snippet 'package/snippets/resources.html', pkg=pkg %}
 {% endblock %}

@@ -1,0 +1,32 @@
+{% ckan_extends %}
+
+{% block page %}
+  {{ super() }}
+  {% if
+      resource.url_type == 'tabledesigner'
+      and h.check_access('datastore_upsert', {'resource_id': resource.id}) %}
+
+    {% asset "ckanext-tabledesigner/datatables_buttons" %}
+
+    <div
+      data-module="tabledesigner_datatables_buttons"
+      data-module-type="delete"
+      data-module-text="{{ _('Delete rows') }}"
+      data-module-url="{{ h.url_for('tabledesigner.delete_rows', id=package.name, resource_id=resource.id) }}"
+    ></div>
+
+    <div
+      data-module="tabledesigner_datatables_buttons"
+      data-module-type="edit"
+      data-module-text="{{ _('Edit row') }}"
+      data-module-url="{{ h.url_for('tabledesigner.edit_row', id=package.name, resource_id=resource.id) }}"
+    ></div>
+
+    <div
+      data-module="tabledesigner_datatables_buttons"
+      data-module-type="add"
+      data-module-text="{{ _('Add row') }}"
+      data-module-url="{{ h.url_for('tabledesigner.add_row', id=package.name, resource_id=resource.id) }}"
+    ></div>
+  {% endif %}
+{% endblock %}

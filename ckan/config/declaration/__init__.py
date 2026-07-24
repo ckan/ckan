@@ -8,7 +8,6 @@ import logging
 from collections import OrderedDict
 from typing import (
     Any,
-    Container,
     Dict,
     Iterator,
     List,
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
 
 
-__all__ = ["Declaration", "Key"]
+__all__ = ["Declaration", "Key", "Flag"]
 
 _non_iterable = Flag.non_iterable()
 
@@ -69,6 +68,9 @@ class Declaration:
 
     def __getitem__(self, key: Key) -> Option[Any]:
         return self._options[key]
+
+    def __len__(self) -> int:
+        return len(self._options)
 
     def get(self, key: Union[str, Key]) -> Optional[Option[Any]]:
         """Return the declaration of config option or `None`.
@@ -117,14 +119,23 @@ class Declaration:
         self._seal()
 
     def make_safe(self, config: "CKANConfig"):
-        """Load defaul values for missing options.
+        """Load default values for missing options.
         """
 
         for key in self.iter_options(exclude=Flag.not_safe()):
-            if key in config or isinstance(key, Pattern):
+            if isinstance(key, Pattern):
                 continue
 
             info = self[key]
+
+            # typechecker cannot detect that key can be used for dictionary
+            # access without typecasting
+            key = cast(Any, key)
+            is_nullable = info.has_flag(Flag.nullable)
+            if key in config:
+                if is_nullable and config[key] == info.null_value:
+                    config[key] = None
+                continue
 
             if info.legacy_key and info.legacy_key in config:
                 log.warning(
@@ -133,6 +144,9 @@ class Declaration:
                     key
                 )
                 config[str(key)] = config[info.legacy_key]
+
+            elif is_nullable:
+                config[str(key)] = None
 
             else:
                 config[str(key)] = info.default
@@ -153,7 +167,7 @@ class Declaration:
             if v is df.missing:
                 continue
 
-            if k not in cast(Container[str], self):
+            if k not in self:
                 # it either __extra or __junk
                 continue
 
@@ -163,7 +177,7 @@ class Declaration:
             if config.get(k) == v:
                 continue
 
-            log.debug(f"Normalized {k} config option: {v}")
+            log.debug("Normalized %s config option: %s", k, v)
             config[k] = v
 
     def validate(
@@ -200,7 +214,27 @@ class Declaration:
             log.debug("Declaration for core is already loaded")
             return
 
+        # static information from config_declaration.yaml
         loader(self, "core")
+
+        # dynamic declarations computed depending on the list of registered
+        # storages. Load such declarations here to make them discoverable via
+        # config CLI. Any other declarations, that cannot be statically defined
+        # inside config_declaration.yaml, must be loaded here in a similar
+        # manner.
+        #
+        # IMPORTANT. If common pattern for dynamic declarations will be
+        # detected in the future, it has sense to introduce special method to
+        # load them. For now, files are the only example of this use-case, so
+        # they will be loaded directly. It looks a bit hacky, but it is not
+        # worth to introduce extra complexity for now.
+        #
+        # Note, plugins do not need similar logic, because
+        # :py:class:`~ckan.plugins.interfaces.IConfigDeclaration` already
+        # supports dynamic declarations via `declare_config_options`.  In case
+        # of core declarations, current method serves similar purpose.
+        loader(self, "files")
+
         self._core_loaded = True
 
     def load_plugin(self, name: str):
@@ -231,10 +265,11 @@ class Declaration:
         """
         return serializer(self, "validation_schema")
 
-    def into_docs(self) -> str:
-        """Serialize declaration into reST documentation.
+    def into_docs(self, fmt: str = "rst") -> str:
         """
-        return serializer(self, "rst")
+        Serialize declaration into one of the supported documentation formats.
+        """
+        return serializer(self, fmt)
 
     def describe(self, fmt: str) -> str:
         """Describe definition of options in the given format.
@@ -269,29 +304,40 @@ class Declaration:
         return option
 
     def declare_bool(
-            self, key: Key, default: Optional[bool] = False) -> Option[bool]:
+            self, key: Key, default: bool = False) -> Option[bool]:
         """Declare boolean option.
         """
         option = self.declare(key, bool(default))
         option.set_validators("boolean_validator")
         return option
 
-    def declare_int(self, key: Key, default: Optional[int]) -> Option[int]:
-        """Declare numeric option.
+    def declare_int(self, key: Key, default: int | None = None) -> Option[int]:
+        """Declare integer option.
         """
+        if default is None:
+            default = 0
         option = self.declare(key, default)
         option.set_validators("convert_int")
         return option
 
+    def declare_float(self, key: Key, default: Optional[float]) -> Option[float]:
+        """Declare float option.
+        """
+        option = self.declare(key, default)
+        option.set_validators("convert_float")
+        return option
+
     def declare_list(
-            self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
+            self, key: Key, default: list[T] | None = None) -> Option[list[T]]:
         """Declare option that accepts space-separated list of values.
         """
+        if default is None:
+            default = []
         option = self.declare(key, default)
         option.set_validators("as_list")
         return option
 
-    def declare_dynamic(self, key: Key, default: Any = None) -> Option[Any]:
+    def declare_dynamic(self, key: Key, default: T = None) -> Option[T]:
         """Declare dynamic option using a Key with `<name>` segment(surrounded
         with angles).
 
@@ -304,7 +350,7 @@ class Declaration:
                 for fragment in key
             ]
         )
-        option: Option[Any] = self.declare(key, default)
+        option = self.declare(key, default)
         return option
 
     def annotate(self, text: str) -> Annotation:

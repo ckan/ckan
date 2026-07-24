@@ -1,1 +1,0 @@
-The language code for the Norwegian language has been updated from ``no`` to ``nb_NO``. There are redirects in place from the old code to the new one for localized URLs, but please update your links. If you were using the old ``no`` code in a config option like ``ckan.default_locale`` or ``ckan.locales_offered`` you will need to update the value to ``nb_NO``.

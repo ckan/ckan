@@ -1,0 +1,17 @@
+{% if activity_types is defined %}
+  {% snippet 'snippets/activity_type_selector.html', id=id, activity_type=activity_type, activity_types=activity_types, blueprint=blueprint %}
+{% endif %}
+
+{% if activity_stream|length > 0 %}
+    {% snippet 'snippets/stream.html', activity_stream=activity_stream, id=id, object_type=object_type %}
+{% else %}
+    <p>
+      {% if activity_type %}
+        {{ _('No activity found for this type') }}
+      {% else %}
+        {{ _('No activity found') }}.
+      {% endif %}
+    </p>
+{% endif %}
+
+{% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}

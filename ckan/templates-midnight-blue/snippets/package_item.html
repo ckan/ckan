@@ -1,0 +1,72 @@
+{#
+  Displays a single of dataset.
+  
+  package        - A package to display.
+  item_class     - The class name to use on the list item.
+  hide_resources - If true hides the resources (default: false).
+  
+  Example:
+  
+    {% snippet 'snippets/package_item.html', package=c.datasets[0] %}
+  
+#}
+{% set title = package.title or package.name %}
+{% set notes = h.markdown_extract(package.notes, extract_length=180) %}
+
+{% block package_item %}
+  <li class="{{ item_class or 'dataset-item' }}">
+    {% block content %}
+      <div class="dataset-content">
+        {% block heading %}
+          <h3 class="dataset-heading">
+            {% block heading_title %}
+              <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}" aria-label="{{ _('Navigate to dataset: {title}').format(title=title|truncate(80)) }}">
+                {{title|truncate(80)}}
+              </a>
+            {% endblock %}
+            {% block heading_private %}
+              {% if package.private %}
+                <span class="dataset-private badge bg-dust-red pull-right">
+                  {{ _('Private') }}
+                </span>
+              {% endif %}
+            {% endblock %}
+            {% block heading_meta %}
+              {% if package.get('state', '').startswith('draft') %}
+                <span class="badge bg-info">{{ _('Draft') }}</span>
+              {% elif package.get('state', '').startswith('deleted') %}
+                <span class="badge bg-danger">{{ _('Deleted') }}</span>
+              {% endif %}
+            {% endblock %}
+          </h3>
+        {% endblock %}
+        {% if package.organization %}
+          {% set organization = package.organization %}
+          <a href="{{ h.url_for(organization.type ~ '.read', id=organization.name) }}" class="dataset-organization">{{ organization.title }}</a>
+        {% endif %}
+        {% block notes %}
+          {% if notes %}
+            <p>{{ notes|urlize }}</p>
+          {% else %}
+            <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no description for this dataset") }}</p>
+          {% endif %}
+        {% endblock %}
+      </div>
+      {% block resources %}
+        {% if package.resources and not hide_resources %}
+          {% block resources_outer %}
+            <ul class="dataset-resources list-unstyled">
+              {% block resources_inner %}
+                {% for resource in h.dict_list_reduce(package.resources, 'format') %}
+                <li>
+                  <span class="badge badge-default" data-format="{{ resource.lower() }}">{{ resource }}</span>
+                </li>
+                {% endfor %}
+              {% endblock %}
+            </ul>
+          {% endblock %}
+        {% endif %}
+      {% endblock %}
+    {% endblock %}
+  </li>
+{% endblock %}

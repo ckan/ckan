@@ -12,7 +12,7 @@ Example:
 
 #}
 
-{% macro errors(errors={}, type="error", classes=[]) %}
+{% macro errors(errors={}, type="danger", classes=[]) %}
 {% if errors %}
 <div class="error-explanation alert alert-{{ type }}{{ " " ~ classes | join(' ') }}">
 <p>{{ _('The form contains invalid entries:') }}</p>

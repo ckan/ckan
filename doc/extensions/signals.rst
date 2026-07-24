@@ -31,7 +31,7 @@ and nothing prevents developers from creating and using
 their own namespaces.
 
 Signal subscribers **MUST** always be defined as callable accepting
-one mandatory argument `sender` and arbitary number of keyword
+one mandatory argument `sender` and arbitrary number of keyword
 arguments::
 
     def subscriber(sender, **kwargs):
@@ -40,9 +40,9 @@ arguments::
 CKAN core doesn't make any guarantees as for the concrete named arguments
 that will be passed to subscriber. For particular CKAN version one can
 use signlal-listing below as a reference, but in future versions
-signature may change. In additon, any event can be fired by
+signature may change. In addition, any event can be fired by
 a third-party plugin, so it is always safer to check whether a particular
-argument is available inisde the provided `kwargs`.
+argument is available inside the provided `kwargs`.
 
 Even though it is possible to register subscribers using decorators::
 
@@ -99,7 +99,7 @@ always use your plugin's name as prefix for the signal.::
   import ckan.plugins.toolkit as tk
 
   # create signal and use it somewhere inside your extension
-  custom_something_happened = tk.signals.ckanext.signal('custom_something_happened)
+  custom_something_happened = tk.signals.ckanext.signal('custom_something_happened')
 
   # after this, you can notify subscribers using following code:
   custom_signal_happened.send(SENDER, ARG1=VALUE1, ARG2=VALUE2, ...)

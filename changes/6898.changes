@@ -1,1 +1,0 @@
-Reverse the order in which IConfigurer plugins are read to be consistent with other hooks.

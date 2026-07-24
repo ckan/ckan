@@ -1,2 +1,0 @@
-CONFIG_FROM_ENV_VARS takes precedence over config file and extensions but
-those settings are not normalized.

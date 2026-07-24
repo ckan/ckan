@@ -20,11 +20,61 @@ tested manually.
 Back-end tests
 --------------
 
-Most of CKAN's testsuite is for the backend Python code.
+Most of CKAN's testsuite is for the backend Python code. You can run
+the code in a dockerized environment that replicates GitHub Actions, or you
+can use a virtual environment based testing.
+
+~~~~~~~~~~~~~~~~
+Dockerized Tests
+~~~~~~~~~~~~~~~~
+
+The ``test-infrastructure`` directory contains a configuration using
+docker compose replicating the GitHub Actions test process on the local
+machine.
+
+Set up the testing environment
+==============================
+.. parsed-literal::
+
+   cd test-infrastructure
+   ./setup.sh
+
+This starts a docker compose environment with the supporting postgres,
+redis, and solr containers from the GitHub Actions test environment. The
+databases are initialized, and the current ckan is installed into a
+python container.
+
+
+Run the tests
+=============
+
+.. parsed-literal::
+
+   ./execute.sh
+
+Or, if you wish to run a specific test, for example
+``test_get_translated`` in ``test_helpers.py``:
+
+.. parsed-literal::
+
+   docker compose exec ckan pytest --ckan-ini=test-core-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
+
+
+Teardown
+========
+
+.. parsed-literal::
+
+   ./teardown.sh
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Install additional dependencies
+Virtual Environment based tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Install additional dependencies
+===============================
 
 Some additional dependencies are needed to run the tests. Make sure you've
 created a config file at |ckan.ini|, then activate your
@@ -43,9 +93,9 @@ environment:
 
 .. _datastore-test-set-permissions:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Set up the test databases
-~~~~~~~~~~~~~~~~~~~~~~~~~
+=========================
 
 Create test databases:
 
@@ -68,9 +118,9 @@ configured in ``test-core.ini`` is different from your production database.
 
 .. _solr-multi-core:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Configure Solr Multi-core
-~~~~~~~~~~~~~~~~~~~~~~~~~
+=========================
 
 The tests assume that Solr is configured 'multi-core', whereas the default
 Solr set-up is often 'single-core'. You can ask Solr for its cores status::
@@ -115,9 +165,9 @@ To enable multi-core:
        solr_url = http://127.0.0.1:8983/solr/ckan
 
 
-~~~~~~~~~~~~~
+
 Run the tests
-~~~~~~~~~~~~~
+=============
 
 To run CKAN's tests using PostgreSQL as the database, you have to give the
 ``--ckan-ini=test-core.ini`` option on the command line. This command will

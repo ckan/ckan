@@ -2,7 +2,7 @@
 Writing documentation
 =====================
 
-.. _docs.ckan.org: http://docs.ckan.org
+.. _docs.ckan.org: https://docs.ckan.org
 
 This section gives some guidelines to help us to write consistent and good
 quality documentation for CKAN.
@@ -69,7 +69,7 @@ terminal:
 
 ::
 
-    virtualenv --no-site-packages pyenv
+    virtualenv pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/ckan/ckan.git#egg=ckan'
     cd pyenv/src/ckan/
@@ -83,12 +83,12 @@ Build the docs
 You should now be able to build the CKAN documentation locally. Make sure your
 virtual environment is activated, and then run this command::
 
-    python setup.py build_sphinx
+    sphinx-build doc build/sphinx
 
 Now you can open the built HTML files in
-``build/sphinx/html``, e.g.::
+``build/sphinx``, e.g.::
 
-    firefox build/sphinx/html/index.html
+    firefox build/sphinx/index.html
 
 
 Edit the reStructuredText files
@@ -96,7 +96,7 @@ Edit the reStructuredText files
 
 To make changes to the documentation, use a text editor to edit the ``.rst``
 files in ``doc/``. Save your changes and then build the docs
-again (``python setup.py build_sphinx``) and open the HTML files in a web
+again (``sphinx-build doc build/sphinx``) and open the HTML files in a web
 browser to preview your changes.
 
 Once your docs are ready to submit to the CKAN project, follow the steps in
@@ -216,7 +216,7 @@ any new ones.
 It's best to delete the ``build`` directory and completely rebuild the docs, to
 check for any warnings::
 
-    rm -rf build; python setup.py build_sphinx
+    rm -rf build; sphinx-build doc build/sphinx
 
 
 Maximum line length

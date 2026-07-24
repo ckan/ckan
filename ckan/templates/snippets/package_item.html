@@ -28,7 +28,7 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}">
+    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}" aria-label="{{ _('Navigate to dataset: {title}').format(title=title|truncate(80)) }}">
       {{title|truncate(80)}}
     </a>
             {% endblock %}
@@ -38,7 +38,6 @@ Example:
               {% elif package.get('state', '').startswith('deleted') %}
                 <span class="badge bg-danger">{{ _('Deleted') }}</span>
               {% endif %}
-              {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
             {% endblock %}
           </h2>
         {% endblock %}
@@ -46,7 +45,7 @@ Example:
           {% if notes %}
             <div>{{ notes|urlize }}</div>
           {% else %}
-            <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no description for this dataset") }}</p>
+            <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no description for this dataset.") }}</p>
           {% endif %}
         {% endblock %}
       </div>

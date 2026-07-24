@@ -28,14 +28,14 @@ def ipython(namespace: Mapping[str, Any], banner: str) -> None:
     from traitlets.config.loader import Config
 
     c = Config()
-    c.TerminalInteractiveShell.banner2 = banner  # type: ignore
+    setattr(c.TerminalInteractiveShell, "banner2", banner)
 
     IPython.start_ipython([], user_ns=namespace, config=c)
 
 
 def python(namespace: Mapping[str, Any], banner: str) -> None:
     import code
-    code.interact(banner=banner, local=namespace)
+    code.interact(banner=banner, local=dict(namespace))
 
 
 @click.command()

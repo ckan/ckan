@@ -16,13 +16,13 @@ def activity_dict_save(
 ) -> "Activity":
 
     session = context["session"]
-    user_id = activity_dict["user_id"]
-    object_id = activity_dict["object_id"]
-    activity_type = activity_dict["activity_type"]
-    if "data" in activity_dict:
-        data = activity_dict["data"]
-    else:
-        data = None
-    activity_obj = Activity(user_id, object_id, activity_type, data)
+
+    activity_obj = Activity(
+        activity_dict["user_id"],
+        activity_dict["object_id"],
+        activity_dict["activity_type"],
+        activity_dict.get("data"),
+        activity_dict.get("permission_labels"),
+    )
     session.add(activity_obj)
     return activity_obj

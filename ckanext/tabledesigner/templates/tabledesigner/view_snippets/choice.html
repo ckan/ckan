@@ -1,0 +1,21 @@
+{% call dictionary_field(_('Choices')) %}
+  {% set choices = column_type.choices() %}
+  <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
+    <thead>
+      <tr>
+        <th scope="col">{{ _('Code') }}</th>
+        {% if choices is mapping %}
+          <th scope="col">{{ _('Description') }}</th>
+        {% endif %}
+      </tr>
+    </thead>
+    {% for c in choices %}
+      <tr>
+        <td>{{ c }}</td>
+        {% if choices is mapping %}
+          <td>{{ choices[c] }}</td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endcall %}

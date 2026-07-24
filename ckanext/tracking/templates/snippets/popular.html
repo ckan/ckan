@@ -1,0 +1,4 @@
+{# show the popularity icon #}
+{% if number >= min %}
+<i class="fa-solid fa-fire-flame-curved" style="color:#f29c2b;" title="{{ _('Popular') }}: {{ title.format(number=number) }}"></i>
+{% endif %}

@@ -2,11 +2,14 @@
 Resource upload form field that allows switching between:
   URL  <->  Unset  <->  File upload (when enabled)
 
-The "url" field is
+The "url" field is used to provide a link to an external file,
+or will be automatically populated for uploaded files after
+saving the resource.
+
 New uploaded files are saved as "upload", and "name" field is
 updated with the file name if not already set.
 
-When removing a file upload a special "clear_upload" field is passed
+When removing a file upload a special "clear_upload" field is passed.
 
 data - resource form data fields
 errors - errors on resource form fields
@@ -40,15 +43,15 @@ placeholder - placeholder text for url field
     <div role="group" aria-labelledby="resource-menu-label">
       {% block url_type_select %}
         {% if is_upload_enabled %}
-          <button type="button" class="btn btn-default" id="resource-upload-button"
-            title="{{ _('Upload a file on your computer') }}"
+          <button type="button" class="btn btn-secondary" id="resource-upload-button"
+            aria-label="{{ _('Upload a file on your computer') }}" data-bs-title="{{ _('Upload a file on your computer') }}" data-bs-toggle="tooltip"
             onclick="
               document.getElementById('resource-url-upload').checked = true;
               document.getElementById('field-resource-upload').click();
             "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
         {% endif %}
-        <button type="button" class="btn btn-default" id="resource-link-button"
-          title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"
+        <button type="button" class="btn btn-secondary" id="resource-link-button"
+          aria-label="{{ _('Link to a URL on the internet (you can also link to an API)') }}" data-bs-title="{{ _('Link to a URL on the internet (you can also link to an API)') }}" data-bs-toggle="tooltip"
             onclick="
               document.getElementById('resource-url-link').checked = true;
               document.getElementById('field-resource-url').focus();

@@ -46,3 +46,5 @@ $response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datasto
   -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
 $response.result.records</code></pre>
 {% endcall %}
+
+{% block custom %}{% endblock %}

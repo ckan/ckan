@@ -5,10 +5,12 @@ import codecs
 import os
 import smtplib
 import socket
+import ssl
 import logging
 import mimetypes
+from urllib.parse import urlparse
 from time import time
-from typing import Any, Iterable, Optional, Tuple, Union, IO, cast
+from typing import Any, Iterable, Optional, Tuple, Union, IO
 
 from email.message import EmailMessage
 from email import utils
@@ -17,6 +19,7 @@ from ckan.common import _, config
 
 
 import ckan
+from ckan import plugins
 import ckan.model as model
 import ckan.lib.helpers as h
 from ckan.lib.base import render
@@ -75,9 +78,9 @@ def _mail_recipient(
 
     for attachment in attachments:
         if len(attachment) == 3:
-            name, _file, media_type = cast(AttachmentWithType, attachment)
+            name, _file, media_type = attachment
         else:
-            name, _file = cast(AttachmentWithoutType, attachment)
+            name, _file = attachment
             media_type = None
 
         if not media_type:
@@ -93,11 +96,22 @@ def _mail_recipient(
     # Send the email using Python's smtplib.
     smtp_server = config.get('smtp.server')
     smtp_starttls = config.get('smtp.starttls')
+    smtp_starttls_verify = config.get('smtp.starttls_verify')
+    smtp_starttls_ca_bundle = config.get('smtp.starttls_ca_bundle')
+    if smtp_starttls_ca_bundle and not os.path.exists(smtp_starttls_ca_bundle):
+        raise MailerException(
+            "SMTP CA bundle path (smtp.starttls_ca_bundle) "
+            f"does not exist: {smtp_starttls_ca_bundle}"
+        )
     smtp_user = config.get('smtp.user')
     smtp_password = config.get('smtp.password')
 
+    host, port = _parse_smtp_server(smtp_server)
+    if not host:
+        raise MailerException('SMTP server hostname is not configured')
+
     try:
-        smtp_connection = smtplib.SMTP(smtp_server)
+        smtp_connection = smtplib.SMTP(host, port)
     except (socket.error, smtplib.SMTPConnectError) as e:
         log.exception(e)
         raise MailerException('SMTP server could not be connected to: "%s" %s'
@@ -111,7 +125,26 @@ def _mail_recipient(
         # connection into TLS mode.
         if smtp_starttls:
             if smtp_connection.has_extn('STARTTLS'):
-                smtp_connection.starttls()
+                if smtp_starttls_verify:
+                    if smtp_starttls_ca_bundle:
+                        if os.path.isfile(smtp_starttls_ca_bundle):
+                            context = ssl.create_default_context(
+                                cafile=smtp_starttls_ca_bundle
+                            )
+                        elif os.path.isdir(smtp_starttls_ca_bundle):
+                            context = ssl.create_default_context(
+                                capath=smtp_starttls_ca_bundle
+                            )
+                        else:
+                            raise MailerException(
+                                "SMTP CA bundle path (smtp.starttls_ca_bundle) "
+                                f"can not be accessed: {smtp_starttls_ca_bundle}"
+                            )
+                    else:
+                        context = ssl.create_default_context()
+                    smtp_connection.starttls(context=context)
+                else:
+                    smtp_connection.starttls()
                 # Re-identify ourselves over TLS connection.
                 smtp_connection.ehlo()
             else:
@@ -124,7 +157,7 @@ def _mail_recipient(
             smtp_connection.login(smtp_user, smtp_password)
 
         smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
-        log.info("Sent email to {0}".format(recipient_email))
+        log.info("Sent email to %s", recipient_email)
 
     except smtplib.SMTPException as e:
         msg = '%r' % e
@@ -180,10 +213,23 @@ def mail_recipient(recipient_name: str,
     '''
     site_title = config.get('ckan.site_title')
     site_url = config.get('ckan.site_url')
-    return _mail_recipient(
-        recipient_name, recipient_email,
-        site_title, site_url, subject, body,
-        body_html=body_html, headers=headers, attachments=attachments)
+    notification_sent = False
+    for plugin in plugins.PluginImplementations(plugins.INotifier):
+        # Allow extensions to use other notification methods
+        notification_sent = plugin.notify_recipient(
+            notification_sent,
+            recipient_name, recipient_email, subject,
+            body, body_html, headers, attachments
+        )
+
+    if not notification_sent:
+        # send an email ONLY if we have smtp settings available
+        if config.get('smtp.server'):
+            _mail_recipient(
+                recipient_name, recipient_email,
+                site_title, site_url, subject, body,
+                body_html, headers, attachments
+            )
 
 
 def mail_user(recipient: model.User,
@@ -296,3 +342,23 @@ def verify_reset_link(user: model.User, key: Optional[str]) -> bool:
     if not user.reset_key or len(user.reset_key) < 5:
         return False
     return key.strip() == user.reset_key
+
+
+def _parse_smtp_server(smtp_server: str) -> tuple[str | None, int]:
+    """Parse SMTP server that may include port.
+
+    Examples:
+        'smtp.example.com' -> ('smtp.example.com', 0)
+        'smtp.example.com:587' -> ('smtp.example.com', 587)
+        '[::1]:587' -> ('::1', 587)
+    """
+    default_port = 0
+
+    if "://" not in smtp_server:
+        smtp_server = f"smtp://{smtp_server}"
+
+    parsed = urlparse(smtp_server)
+    host = parsed.hostname
+    port = parsed.port or default_port
+
+    return host, port

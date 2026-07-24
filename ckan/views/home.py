@@ -10,7 +10,7 @@ from flask import Blueprint, make_response, redirect, request
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.search as search
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 
 from ckan.common import g, config, current_user, _
 from ckan.types import Context, Response

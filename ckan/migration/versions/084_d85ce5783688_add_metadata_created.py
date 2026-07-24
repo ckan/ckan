@@ -24,7 +24,7 @@ def upgrade():
     )
     op.add_column('package', sa.Column('metadata_created', sa.TIMESTAMP))
     conn = op.get_bind()
-    conn.execute(
+    conn.execute(sa.text(
         '''
         UPDATE package SET metadata_created=
             (SELECT revision_timestamp
@@ -33,7 +33,7 @@ def upgrade():
              ORDER BY revision_timestamp ASC
              LIMIT 1);
     '''
-    )
+    ))
 
 
 def downgrade():

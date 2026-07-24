@@ -8,6 +8,7 @@ import copy
 import decimal
 import fractions
 import unittest.mock as mock
+from faker import Faker
 import pytest
 
 import ckan.lib.navl.dictization_functions as df
@@ -155,7 +156,7 @@ def adds_message_to_errors_dict(error_message):
 
     Usage:
 
-        @adds_message_to_errors_dict('That login name is not available.')
+        @adds_message_to_errors_dict('The username is already associated with another account. Please use a different username.')
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors)
@@ -185,6 +186,36 @@ def test_email_is_unique_validator_with_existed_value(app):
     # try to create new user with occupied email
     with pytest.raises(logic.ValidationError):
         factories.User(email=user["email"])
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_email_is_unique_case_insensitive(app):
+    factories.User(username="user01", email="some_email@example.org")
+
+    # Attempt to create a new user with an email that is already in use
+    # testing for case insensitivity
+    with pytest.raises(logic.ValidationError):
+        factories.User(email="Some_Email@example.org")
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_with_allowed_reused_email(faker: Faker):
+    """By default, emails of deleted users can be used again.
+    """
+    email = faker.email()
+    factories.User(state="deleted", email=email)
+    factories.User(email=email)
+
+
+@pytest.mark.ckan_config("ckan.user.unique_email_states", ["active", "deleted"])
+@pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_with_unallowed_reused_email(faker: Faker):
+    """Configuration can prevent reusing deleted email.
+    """
+    email = faker.email()
+    factories.User(state="deleted", email=email)
+    with pytest.raises(logic.ValidationError):
+        factories.User(email=email)
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -414,30 +445,27 @@ def test_user_name_validator_with_non_string_value():
 # END-BEFORE
 
 
-def test_user_name_validator_with_a_name_that_already_exists():
+@pytest.mark.usefixtures("non_clean_db")
+def test_user_name_validator_with_a_name_that_already_exists(user):
     """user_name_validator() should add to the errors dict if given a
     user name that already exists.
 
     """
-    # Mock ckan.model. model.User.get('user_name') will return another mock
-    # object rather than None, which will simulate an existing user with
-    # the same user name in the database.
-    mock_model = mock.MagicMock()
 
     data = validator_data_dict()
     key = ("name",)
-    data[key] = "user_name"
+    data[key] = user["name"]
     errors = validator_errors_dict()
     errors[key] = []
 
     @does_not_modify_other_keys_in_errors_dict
     @t.does_not_modify_data_dict
     @t.returns_none
-    @adds_message_to_errors_dict("That login name is not available.")
+    @adds_message_to_errors_dict('The username is already associated with another account. Please use a different username.')
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
 
-    call_validator(key, data, errors, context={"model": mock_model})
+    call_validator(key, data, errors, context={})
 
 
 def test_user_name_validator_successful():
@@ -899,3 +927,41 @@ def test_tag_string_convert():
     assert convert("") == []
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
+
+
+def test_url_validator():
+    key = ("url",)
+    errors = {(key): []}
+
+    # Test with a valid URL without a port
+    url = {("url",): "https://example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors == {('url',): []}
+
+    # Test with a valid URL with a port
+    url = {("url",): "https://example.com:8080"}
+    validators.url_validator(key, url, errors, {})
+    assert errors == {('url',): []}
+
+    # Test with an invalid URL (invalid characters in hostname)
+    url = {("url",): "https://exa$mple.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (invalid port)
+    url = {("url",): "https://example.com:80a80"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (no scheme)
+    url = {("url",): "example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (unsupported scheme)
+    url = {("url",): "ftp://example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']

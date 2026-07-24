@@ -1,2 +1,0 @@
-Remove unnecessary use of add_public_directory from core extensions.
-Standardize on assets directory as the convention for extension web assets.

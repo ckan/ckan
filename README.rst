@@ -6,19 +6,18 @@ CKAN: The Open Source Data Portal Software
     :alt: License
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
-    :target: http://docs.ckan.org
+    :target: https://docs.ckan.org
     :alt: Documentation
 .. image:: https://img.shields.io/badge/support-StackOverflow-yellowgreen.svg?style=flat
     :target: https://stackoverflow.com/questions/tagged/ckan
     :alt: Support on StackOverflow
 
-.. image:: https://circleci.com/gh/ckan/ckan.svg?style=shield
-    :target: https://circleci.com/gh/ckan/ckan
-    :alt: Build Status
+.. image:: https://github.com/ckan/ckan/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/ckan/ckan/actions/workflows/test.yml
+    :alt: GitHub Actions Build Status
 
-.. image:: https://coveralls.io/repos/github/ckan/ckan/badge.svg?branch=master
-    :target: https://coveralls.io/github/ckan/ckan?branch=master
-    :alt: Coverage Status
+.. image:: https://codecov.io/github/ckan/ckan/graph/badge.svg?token=aXdmn98Yu2
+ :target: https://codecov.io/github/ckan/ckan
 
 .. image:: https://badges.gitter.im/gitterHQ/gitter.svg
     :target: https://gitter.im/ckan/chat
@@ -28,13 +27,13 @@ CKAN: The Open Source Data Portal Software
 CKAN makes it easy to publish, share and work with data. It's a data management
 system that provides a powerful platform for cataloging, storing and accessing
 datasets with a rich front-end, full API (for both data and catalog), visualization
-tools and more. Read more at `ckan.org <http://ckan.org/>`_.
+tools and more. Read more at `ckan.org <https://ckan.org/>`_.
 
 
 Installation
 ------------
 
-See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructions.
+See the `CKAN Documentation <https://docs.ckan.org>`_ for installation instructions.
 
 
 Support
@@ -71,9 +70,9 @@ future plans as well as questions and discussions about CKAN development, deploy
 Community Chat
 ~~~~~~~~~~~~~~
 
-If you want to talk about CKAN development say hi to the CKAN developers and members of
-the CKAN community on the public `CKAN chat on Gitter`_. Gitter is free and open-source;
-you can sign in with your GitHub, GitLab, or Twitter account.
+If you want to talk about CKAN development, say hi to the CKAN developers and members of
+the CKAN community on the public `CKAN chat on Gitter`_. Gitter is free and open-source, and
+you can sign in using your GitHub, GitLab, or X (formerly known as Twitter) account.
 
 The logs for the old `#ckan`_ IRC channel (2014 to 2018) can be found here:
 https://github.com/ckan/irc-logs.

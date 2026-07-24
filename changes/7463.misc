@@ -1,1 +1,0 @@
-Update both Flask and Werkzeug to version 2.2.3. Note: Check packages CHANGELOG for changes that can affect your extensions.

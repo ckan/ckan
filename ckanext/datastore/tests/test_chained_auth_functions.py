@@ -80,13 +80,6 @@ class TestChainedAuth(object):
             )
 
 
-class ExampleExternalProviderPlugin(p.SingletonPlugin):
-    p.implements(p.IAuthFunctions)
-
-    def get_auth_functions(self):
-        return {u"user_create": user_create}
-
-
 @pytest.mark.ckan_config(
     u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
 )

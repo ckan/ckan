@@ -1,0 +1,24 @@
+<div class="module row">
+  <div class="module-content col-md-6">
+    {% snippet 'package/snippets/stages.html', stages=['active'] %}
+  </div>
+  <div class="module-content col-md-6">
+    {% snippet 'package/snippets/stages.html', stages=['complete', 'active'] %}
+  </div>
+</div>
+<div class="module row">
+  <div class="module-content col-md-6">
+    {% snippet 'package/snippets/stages.html', stages=['complete', 'complete', 'active'] %}
+  </div>
+  <div class="module-content col-md-6">
+    {% snippet 'package/snippets/stages.html', stages=['complete', 'active', 'complete'] %}
+  </div>
+</div>
+<div class="module row">
+  <div class="module-content col-md-6">
+    {% snippet 'package/snippets/stages.html', stages=['active', 'complete', 'complete'] %}
+  </div>
+  <div class="module-content col-md-6">
+    {% snippet 'package/snippets/stages.html', stages=['active', 'complete'] %}
+  </div>
+</div>

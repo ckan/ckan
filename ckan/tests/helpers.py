@@ -19,6 +19,7 @@ New in CKAN 2.9: Consider using :ref:`fixtures` whenever possible for setting
 up the initial state of a test or to create helpers objects like client apps.
 
 """
+from __future__ import annotations
 
 import collections
 import contextlib
@@ -28,12 +29,14 @@ import re
 import smtplib
 from typing import Any
 
-from flask.testing import Client as FlaskClient  # type: ignore
+from flask_login import encode_cookie
+from flask_login.test_client import FlaskLoginClient
 from flask.wrappers import Response
 from click.testing import CliRunner
 import pytest
 import unittest.mock as mock
 import rq
+from sqlalchemy.orm import close_all_sessions
 
 from ckan.common import config
 import ckan.lib.jobs as jobs
@@ -77,7 +80,7 @@ def reset_db():
     """
     # Close any database connections that have been left open.
     # This prevents CKAN from hanging waiting for some unclosed connection.
-    model.Session.close_all()
+    close_all_sessions()
 
     model.repo.rebuild_db()
 
@@ -175,6 +178,10 @@ class CKANResponse(Response):
     def body(self):
         return self.get_data(as_text=True)
 
+    @property
+    def bytes(self):
+        return self.get_data(as_text=False)
+
     def __contains__(self, segment):
         return segment in self.body
 
@@ -193,39 +200,69 @@ class CKANTestApp(object):
             self._flask_app = self.app._wsgi_app
         return self._flask_app
 
-    def __init__(self, app):
+    def __init__(self, app: Any):
         self.app = app
+        self.client = self.test_client()
 
-    def test_client(self, use_cookies=True):
-        return CKANTestClient(self.app, CKANResponse, use_cookies=use_cookies)
+    def set_session_user(self, user_id: str | None):
+        """Save user into session."""
+        self.client = self.test_client(user=model.User.get(user_id))
 
-    def options(self, url, *args, **kwargs):
-        res = self.test_client().options(url, *args, **kwargs)
+    def set_remember_user(self, user_id: str | None):
+        """Set user via remember-cookie.
+
+        This option is checked by flask-login if session user is empty.
+        """
+        key = config["REMEMBER_COOKIE_NAME"]
+        domain = config["SESSION_COOKIE_DOMAIN"]
+        if user_id:
+            with self.flask_app.test_request_context():
+                self.client.set_cookie(
+                    key,
+                    encode_cookie(user_id),
+                    domain=domain,
+                )
+        else:
+            self.client.delete_cookie(key, domain=domain)
+
+    def test_client(
+            self,
+            use_cookies: bool = True,
+            user: model.User | None = None
+    ):
+        return CKANTestClient(
+            self.flask_app,
+            CKANResponse,
+            use_cookies=use_cookies,
+            user=user,
+        )
+
+    def options(self, url: str, *args: Any, **kwargs: Any):
+        res = self.client.options(url, *args, **kwargs)
         return res
 
-    def post(self, url, *args, **kwargs):
+    def post(self, url: str, *args: Any, **kwargs: Any):
         params = kwargs.pop("params", None)
         if params:
             kwargs["data"] = params
-        res = self.test_client().post(url, *args, **kwargs)
+        res = self.client.post(url, *args, **kwargs)
         return res
 
-    def get(self, url, *args, **kwargs):
+    def get(self, url: str, *args: Any, **kwargs: Any):
         params = kwargs.pop("params", None)
         if params:
             kwargs["query_string"] = params
 
-        res = self.test_client().get(url, *args, **kwargs)
+        res = self.client.get(url, *args, **kwargs)
         return res
 
 
-class CKANTestClient(FlaskClient):
-    def open(self, *args, **kwargs):
-        # extensions with support of CKAN<2.9 can use this parameter
-        # to make errors of webtest.TestApp more verbose. FlaskClient
-        # doesn't have anything similar, so we'll just drop this
-        # parameter for backward compatibility and ask for updating
-        # the code when possible.
+class CKANTestClient(FlaskLoginClient):
+    def open(self, *args: Any, **kwargs: Any):
+        # extensions with support of CKAN<2.9 can use this parameter to make
+        # errors of webtest.TestApp more verbose. FlaskLoginClient doesn't have
+        # anything similar, so we'll just drop this parameter for backward
+        # compatibility and ask for updating the code when possible.
         if kwargs.pop('expect_errors', None):
             log.warning(
                 '`expect_errors` parameter passed to `test_app.post` '
@@ -346,22 +383,11 @@ class FunctionalTestBase(object):
         config.update(cls._original_config)
 
 
-@pytest.mark.usefixtures("with_test_worker")
+@pytest.mark.usefixtures("with_test_worker", "clean_queues")
 class RQTestBase(object):
     """
     Base class for tests of RQ functionality.
     """
-
-    def setup(self):
-        u"""
-        Delete all RQ queues and jobs.
-        """
-        # See https://github.com/nvie/rq/issues/731
-        redis_conn = connect_to_redis()
-        for queue in rq.Queue.all(connection=redis_conn):
-            queue.empty()
-            redis_conn.srem(rq.Queue.redis_queues_keys, queue._key)
-            redis_conn.delete(queue._key)
 
     def all_jobs(self):
         u"""

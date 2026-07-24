@@ -1,0 +1,79 @@
+name: Backport merged pull request
+on:
+  pull_request_target:
+    types: [closed]
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  backport:
+    permissions:
+      contents: write # so it can comment
+      pull-requests: write # so it can create pull requests
+    environment:
+      name: backports
+      deployment: false
+    name: Backport pull request
+    runs-on: ubuntu-latest
+    # Only run when a pull request is merged
+    # or when a comment starting with `/backport` is created by a Tech Team member
+    if: |-
+      ${{
+        (
+          github.event_name == 'pull_request_target' &&
+          github.event.pull_request.merged
+        ) || (
+          github.event_name == 'issue_comment' &&
+          github.event.issue.pull_request &&
+          contains(fromJSON(vars.TECH_TEAM_USER_IDS), github.event.comment.user.id) &&
+          startsWith(github.event.comment.body, '/backport')
+        )
+      }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Create backport pull requests
+        uses: korthout/backport-action@2e830a1d0b8269505846ddd407a70876913ad1f8 # v4.6.0
+        with:
+          # Token to authenticate requests to GitHub. This is a Personal Access Token
+          # from the ckanbot user
+          github_token: ${{ secrets.BACKPORTS_ACTION_PAT }}
+          # Run when there is one or more "Backport <branch>" labels,
+          # excluding "Backport pending"
+          label_pattern: "Backport (?!pending)([^ ]+)$"
+          merge_commits: skip
+          copy_assignees: true
+          pull_description: |-
+            This is an automated backport pull request 🏗️.
+
+            ### Details
+            |     |     |
+            | --- | --- |
+            | Original pull request | #${pull_number} (${pull_title}) |
+            | Original author | @${pull_author} |
+            | Target branch | **${target_branch}** |
+
+            Please make sure that all relevant checks pass before merging it.
+  backport-labels:
+    name: Backport failed labels
+    runs-on: ubuntu-latest
+    if: |-
+      ${{
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        github.event.comment.user.id == vars.CKANBOT_USER_ID &&
+        startsWith(github.event.comment.body, 'Backport failed for')
+      }}
+    steps:
+      - name: Add Backport failed label to PR
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.BACKPORTS_ACTION_PAT }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["Backport failed"]
+            });

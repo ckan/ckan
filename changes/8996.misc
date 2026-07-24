@@ -1,0 +1,1 @@
+Expose `NotFound` exception in plugins toolkit for consistency with core extensions (it's the same exception as the existing `ObjectNotFound`)

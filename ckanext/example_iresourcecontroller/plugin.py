@@ -13,10 +13,7 @@ class ExampleIResourceControllerPlugin(plugins.SingletonPlugin):
         super().__init__(*args, **kwargs)
         self.counter = defaultdict(int)
 
-    # this method deliberately uses deprecated `before_create` name instead of
-    # `before_resource_create`. Change the name after support for deprecated
-    # names is dropped.
-    def before_create(self, context: Any, resource: Any):
+    def before_resource_create(self, context: Any, resource: Any):
         self.counter['before_resource_create'] += 1
 
     def after_resource_create(self, context: Any, resource: Any):

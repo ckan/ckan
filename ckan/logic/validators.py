@@ -8,13 +8,14 @@ import re
 import mimetypes
 import string
 import json
-from typing import Any, Container, Optional, Union
+import uuid
+from typing import Any, Container, Optional, Union, Iterable
 from urllib.parse import urlparse
 
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 import ckan.lib.navl.dictization_functions as df
-import ckan.logic as logic
+from ckan import authz, logic, model
 import ckan.logic.converters as converters
 import ckan.lib.helpers as h
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
@@ -22,10 +23,9 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
-import ckan.authz as authz
 from ckan.model.core import State
 
-from ckan.common import _
+from ckan.common import _, config
 from ckan.types import (
     FlattenDataDict, FlattenKey, Validator, Context, FlattenErrorDict)
 
@@ -52,7 +52,6 @@ def owner_org_validator(key: FlattenKey, data: FlattenDataDict,
         data.pop(key, None)
         raise df.StopOnError
 
-    model = context['model']
     user = model.User.get(context['user'])
     package = context.get('package')
 
@@ -98,8 +97,9 @@ def package_id_not_changed(value: Any, context: Context) -> Any:
 
     package = context.get('package')
     if package and value != package.id:
-        raise Invalid('Cannot change value of key from %s to %s. '
-                      'This key is read-only' % (package.id, value))
+        raise Invalid(_(
+            'Cannot change value of key from %(old)s to %(new)s. This key is read-only'
+        ) % {'old': package.id, 'new': value})
     return value
 
 def int_validator(value: Any, context: Context) -> Any:
@@ -167,9 +167,11 @@ def boolean_validator(value: Any, context: Context) -> Any:
     '''
     if value is missing or value is None:
         return False
-    if isinstance(value, bool):
-        return value
-    if value.lower() in ['true', 'yes', 't', 'y', '1']:
+    if isinstance(value, (bool, int)):
+        return bool(value)
+    if isinstance(value, str) and value.lower() in [
+        'true', 'yes', 't', 'y', '1'
+    ]:
         return True
     return False
 
@@ -189,22 +191,20 @@ def isodate(value: Any, context: Context) -> Any:
 def package_id_exists(value: str, context: Context) -> Any:
     """Ensures that the value is an existing package's ID or name.
     """
-    model = context['model']
     session = context['session']
 
-    result = session.query(model.Package).get(value)
+    result = session.get(model.Package, value)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+        raise Invalid(_('Dataset not found'))
     return value
 
 def package_id_does_not_exist(value: str, context: Context) -> Any:
     """Ensures that the value is not used as a package's ID or name.
     """
 
-    model = context['model']
     session = context['session']
 
-    result = session.query(model.Package).get(value)
+    result = session.get(model.Package, value)
     if result:
         raise Invalid(_('Dataset id already exists'))
     return value
@@ -214,8 +214,6 @@ def resource_id_does_not_exist(
         key: FlattenKey, data: FlattenDataDict,
         errors: FlattenErrorDict, context: Context) -> Any:
     session = context['session']
-    model = context['model']
-
     if data[key] is missing:
         return
     resource_id = data[key]
@@ -233,18 +231,51 @@ def resource_id_does_not_exist(
     if parent_id != package_id:
         errors[key].append(_('Resource id already exists.'))
 
+def group_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    session = context['session']
+
+    result = session.get(model.Group, value)
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
+
+def user_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    session = context['session']
+
+    result = session.get(model.User, value)
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
+
+
+def resource_view_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    session = context['session']
+
+    result = session.get(model.ResourceView, value)
+    if result:
+        raise Invalid(_('ResourceView id already exists'))
+    return value
+
 
 def package_name_exists(value: str, context: Context) -> Any:
     """Ensures that the value is an existing package's name.
     """
 
-    model = context['model']
     session = context['session']
 
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Not found') + ': %s' % value)
+        raise Invalid(_('Dataset not found: %s') % value)
     return value
 
 def package_id_or_name_exists(
@@ -255,10 +286,9 @@ def package_id_or_name_exists(
         package with the given id or name
 
     '''
-    model = context['model']
     session = context['session']
 
-    result = session.query(model.Package).get(package_id_or_name)
+    result = session.get(model.Package, package_id_or_name)
     if result:
         return package_id_or_name
 
@@ -266,7 +296,7 @@ def package_id_or_name_exists(
             name=package_id_or_name).first()
 
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+        raise Invalid(_('Dataset not found'))
 
     return package_id_or_name
 
@@ -275,19 +305,17 @@ def resource_id_exists(value: Any, context: Context) -> Any:
     """Ensures that the value is not used as a resource's ID or name.
     """
 
-    model = context['model']
     session = context['session']
-    if not session.query(model.Resource).get(value):
-        raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
+    if not session.get(model.Resource, value):
+        raise Invalid(_('Resource not found: %s') % value)
     return value
 
 
-def resource_id_validator(value: Any) -> Any:
-    pattern = re.compile("[^0-9a-zA-Z _-]")
-    if pattern.search(value):
-        raise Invalid(_('Invalid characters in resource id'))
-    if len(value) < 7 or len(value) > 100:
-        raise Invalid(_('Invalid length for resource id'))
+def uuid_validator(value: Any) -> Any:
+    try:
+        uuid.UUID(value, version=4)
+    except ValueError:
+        raise Invalid(_("Invalid id provided"))
     return value
 
 
@@ -296,12 +324,11 @@ def user_id_exists(user_id: str, context: Context) -> Any:
     in the context, otherwise returns the given user_id.
 
     '''
-    model = context['model']
     session = context['session']
 
-    result = session.query(model.User).get(user_id)
+    result = session.get(model.User, user_id)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('User not found: %s') % user_id)
     return user_id
 
 def user_id_or_name_exists(user_id_or_name: str, context: Context) -> Any:
@@ -311,14 +338,13 @@ def user_id_or_name_exists(user_id_or_name: str, context: Context) -> Any:
         found with the given id or user name
 
     '''
-    model = context['model']
     session = context['session']
-    result = session.query(model.User).get(user_id_or_name)
+    result = session.get(model.User, user_id_or_name)
     if result:
         return user_id_or_name
     result = session.query(model.User).filter_by(name=user_id_or_name).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('User not found'))
     return user_id_or_name
 
 def group_id_exists(group_id: str, context: Context) -> Any:
@@ -326,19 +352,17 @@ def group_id_exists(group_id: str, context: Context) -> Any:
     in the context, otherwise returns the given group_id.
 
     '''
-    model = context['model']
     session = context['session']
 
-    result = session.query(model.Group).get(group_id)
+    result = session.get(model.Group, group_id)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Group')))
+        raise Invalid(_('Group not found: %s') % group_id)
     return group_id
 
 def group_id_or_name_exists(reference: str, context: Context) -> Any:
     '''
     Raises Invalid if a group identified by the name or id cannot be found.
     '''
-    model = context['model']
     result = model.Group.get(reference)
     if not result:
         raise Invalid(_('That group name or ID does not exist.'))
@@ -385,7 +409,6 @@ def package_name_validator(key: FlattenKey, data: FlattenDataDict,
                            errors: FlattenErrorDict, context: Context) -> Any:
     """Ensures that value can be used as a package's name
     """
-    model = context['model']
     session = context['session']
     package = context.get('package')
 
@@ -448,7 +471,6 @@ def group_name_validator(key: FlattenKey, data: FlattenDataDict,
     """Ensures that value can be used as a group's name
     """
 
-    model = context['model']
     session = context['session']
     group = context.get('group')
 
@@ -491,7 +513,7 @@ def tag_not_uppercase(value: Any, context: Context) -> Any:
     """
     tagname_uppercase = re.compile('[A-Z]')
     if tagname_uppercase.search(value):
-        raise Invalid(_('Tag "%s" must not be uppercase' % (value)))
+        raise Invalid(_('Tag "%s" must not be uppercase') % value)
     return value
 
 
@@ -562,6 +584,53 @@ def ignore_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
     data.pop(key)
 
 
+def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
+                          errors: FlattenErrorDict, context: Context) -> Any:
+    """
+    Should not be able to modify your own sysadmin privs, or the system user's
+    """
+    value = data.get(key)
+
+    if value is None:
+        # sysadmin key not in data, return here
+        return
+
+    contextual_user = context.get('auth_user_obj')
+    site_id = config.get('ckan.site_id')
+    contextual_user_name = context.get('user')
+
+    if not contextual_user and contextual_user_name:
+        contextual_user = model.User.get(contextual_user_name)
+
+    if not contextual_user:
+        # no auth user supplied, can not check
+        return
+
+    # system user should be able to do anything still
+    if contextual_user_name == site_id:
+        return
+
+    user = context.get('user_obj')
+
+    if not user:
+        # user_obj not set, can not check
+        return
+
+    # sysadmin not being updated, return here
+    if value == user.sysadmin:
+        return
+
+    # cannot change your own sysadmin value
+    if user.name == contextual_user_name:
+        errors[key].append(_('Cannot modify your own sysadmin privileges'))
+
+    # cannot change site user sysadmin value
+    if user.name == site_id:
+        errors[key].append(_('Cannot modify sysadmin privileges for system user'))
+
+    return
+
+
 def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
                            errors: FlattenErrorDict, context: Context) -> Any:
     '''Ignore if the user is not allowed to administer for the group specified.'''
@@ -598,7 +667,6 @@ def user_name_validator(key: FlattenKey, data: FlattenDataDict,
     :rtype: None
 
     '''
-    model = context['model']
     new_user_name = data[key]
 
     if not isinstance(new_user_name, str):
@@ -615,10 +683,14 @@ def user_name_validator(key: FlattenKey, data: FlattenDataDict,
             return
         else:
             # Otherwise return an error: there's already another user with that
-            # name, so you can create a new user with that name or update an
+            # name, so you can't create a new user with that name or update an
             # existing user's name to that name.
-            errors[key].append(_('That login name is not available.'))
+            errors[key].append(_('The username is already associated with another account. Please use a different username.'))
     elif user_obj_from_context:
+        requester = context.get('auth_user_obj', None)
+        ignore_auth = context.get('ignore_auth', None)
+        if ignore_auth or (requester and authz.is_sysadmin(requester.name)):
+            return
         old_user = model.User.get(user_obj_from_context.id)
         if old_user is not None and old_user.state != model.State.PENDING:
             errors[key].append(_('That login name can not be modified.'))
@@ -681,7 +753,7 @@ def user_password_not_empty(key: FlattenKey, data: FlattenDataDict,
             authz.is_sysadmin(context.get('user'))):
         return
 
-    if not ('password1',) in data and not ('password2',) in data:
+    if ('password1',) not in data and ('password2',) not in data:
         password = data.get(('password',),None)
         if not password:
             errors[key].append(_('Missing value'))
@@ -697,7 +769,6 @@ def user_about_validator(value: Any,context: Context) -> Any:
 def vocabulary_name_validator(name: str, context: Context) -> Any:
     """Ensures that the value can be used as a tag vocabulary name.
     """
-    model = context['model']
     session = context['session']
 
     if len(name) < VOCABULARY_NAME_MIN_LENGTH:
@@ -717,16 +788,16 @@ def vocabulary_id_not_changed(value: Any, context: Context) -> Any:
     """
     vocabulary = context.get('vocabulary')
     if vocabulary and value != vocabulary.id:
-        raise Invalid(_('Cannot change value of key from %s to %s. '
-                        'This key is read-only') % (vocabulary.id, value))
+        raise Invalid(_(
+            'Cannot change value of key from %(old)s to %(new)s. This key is read-only'
+        ) % {'old': vocabulary.id, 'new': value})
     return value
 
 def vocabulary_id_exists(value: Any, context: Context) -> Any:
     """Ensures that value contains existing vocabulary's ID or name.
     """
-    model = context['model']
     session = context['session']
-    result = session.query(model.Vocabulary).get(value)
+    result = session.get(model.Vocabulary, value)
     if not result:
         raise Invalid(_('Tag vocabulary was not found.'))
     return value
@@ -734,7 +805,6 @@ def vocabulary_id_exists(value: Any, context: Context) -> Any:
 def tag_in_vocabulary_validator(value: Any, context: Context) -> Any:
     """Ensures that the tag belongs to the vocabulary.
     """
-    model = context['model']
     session = context['session']
     vocabulary = context.get('vocabulary')
     if vocabulary:
@@ -758,7 +828,6 @@ def tag_not_in_vocabulary(key: FlattenKey, tag_dict: FlattenDataDict,
         vocabulary_id = tag_dict[('vocabulary_id',)]
     else:
         vocabulary_id = None
-    model = context['model']
     session = context['session']
 
     query = session.query(model.Tag)
@@ -772,35 +841,46 @@ def tag_not_in_vocabulary(key: FlattenKey, tag_dict: FlattenDataDict,
         return
 
 
-def url_validator(key: FlattenKey, data: FlattenDataDict,
-                  errors: FlattenErrorDict, context: Context) -> Any:
-    ''' Checks that the provided value (if it is present) is a valid URL '''
-
+def url_validator(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+) -> Any:
+    """Checks that the provided value (if it is present) is a valid URL"""
     url = data.get(key, None)
     if not url:
         return
 
     try:
         pieces = urlparse(url)
-        if all([pieces.scheme, pieces.netloc]) and \
-           set(pieces.netloc) <= set(string.ascii_letters + string.digits + '-.') and \
-           pieces.scheme in ['http', 'https']:
-            return
+        if all([pieces.scheme, pieces.netloc]) and pieces.scheme in [
+            "http",
+            "https",
+        ]:
+            hostname, port = (
+                pieces.netloc.split(":")
+                if ":" in pieces.netloc
+                else (pieces.netloc, None)
+            )
+            if set(hostname) <= set(
+                string.ascii_letters + string.digits + "-."
+            ) and (port is None or port.isdigit()):
+                return
     except ValueError:
         # url is invalid
         pass
 
-    errors[key].append(_('Please provide a valid URL'))
+    errors[key].append(_("Please provide a valid URL"))
 
 
 def user_name_exists(user_name: str, context: Context) -> Any:
     """Ensures that user's name exists.
     """
-    model = context['model']
     session = context['session']
     result = session.query(model.User).filter_by(name=user_name).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('User not found: %s') % user_name)
     return result.name
 
 
@@ -851,7 +931,7 @@ def list_of_strings(key: FlattenKey, data: FlattenDataDict,
         raise Invalid(_('Not a list'))
     for x in value:
         if not isinstance(x, str):
-            raise Invalid('%s: %s' % (_('Not a string'), x))
+            raise Invalid(_('Not a string: %s') % x)
 
 
 def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
@@ -889,15 +969,15 @@ def no_loops_in_hierarchy(key: FlattenKey, data: FlattenDataDict,
     a loop in the group hierarchy, and therefore cause the recursion up/down
     the hierarchy to get into an infinite loop.
     '''
-    if not ('id',) in data:
+    if ('id',) not in data:
         # Must be a new group - has no children, so no chance of loops
         return
-    group = context['model'].Group.get(data[('id',)])
+    group = model.Group.get(data[('id',)])
     assert group
     allowable_parents = group.groups_allowed_to_be_its_parent(type=group.type)
     parent_name = data[key]
     # a blank name signifies top level, which is always allowed
-    if parent_name and context['model'].Group.get(parent_name) \
+    if parent_name and model.Group.get(parent_name) \
             not in allowable_parents:
         raise Invalid(_('This parent would create a loop in the '
                         'hierarchy'))
@@ -961,6 +1041,9 @@ def empty_if_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
         return
 
     empty(key, data, errors, context)
+
+    # Prevent further validation on the field now that is empty
+    raise StopOnError()
 
 #pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
 email_pattern = re.compile(
@@ -1032,32 +1115,65 @@ def dict_only(value: Any) -> dict[Any, Any]:
 def email_is_unique(key: FlattenKey, data: FlattenDataDict,
                     errors: FlattenErrorDict, context: Context) -> Any:
     '''Validate email is unique'''
-    model = context['model']
     session = context['session']
 
-    users = session.query(model.User) \
-        .filter(model.User.email == data[key]) \
-        .filter(model.User.state == 'active').all()
-    # if there are no active users with this email, it's free
-    if not users:
+    existing_users = (
+        session.query(model.User)
+        .filter(
+            model.User.email.ilike(data[key]),
+            model.User.state.in_(config["ckan.user.unique_email_states"]),
+        )
+        .all()
+    )
+
+    if not existing_users:
         return
     else:
         # allow user to update their own email
-        for user in users:
+        for user in existing_users:
             if (user.name in (data.get(("name",)), data.get(("id",)))
                     or user.id == data.get(("id",))):
                 return
 
     raise Invalid(
-        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key]))
+        _('The email address \'{email}\' belongs to a registered user.').format(email=data[key].lower()))
 
 
 def one_of(list_of_value: Container[Any]) -> Validator:
     ''' Checks if the provided value is present in a list or is an empty string'''
     def callable(value: Any):
         if value != "" and value not in list_of_value:
-            raise Invalid(_('Value must be one of {}'.format(list_of_value)))
+            raise Invalid(_('Value must be one of %s') % list_of_value)
         return value
+    return callable
+
+
+def one_of_or_boolean(list_of_value: Iterable[Any]) -> Validator:
+    """
+    Checks if the provided value is present in a list, is an empty string
+    or a boolean-appearing value including:
+    True, False, "true", "false", "t", "f", "y", "n", "1", "0", 1, 0
+    (these choices align with boolean_validator)
+
+    Boolean values are converted to True/False, empty strings or matching
+    values are returned as-is. Other values are treated as invalid.
+
+    Note: this validator is more strict than boolean_validator which
+    treats any unrecognized input as False.
+    """
+    def callable(value: Any):
+        if isinstance(value, (bool, int)):
+            return bool(value)
+        if value == "" or value in list_of_value:
+            return value
+        if isinstance(value, str):
+            if value.lower() in ['true', 'yes', 't', 'y', '1']:
+                return True
+            if value.lower() in ['false', 'no', 'f', 'n', '0']:
+                return False
+
+        raise Invalid(_('Value must be boolean or one of: %s') %
+            ', '.join(str(v) for v in list_of_value))
     return callable
 
 

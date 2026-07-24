@@ -1,0 +1,75 @@
+{% ckan_extends %}
+
+{% block field_heading %}
+  {% if res.url_type != 'tabledesigner' %}
+    {{ super() }}
+  {% else %}
+    {{ _("Field {num}.").format(num=position) }}
+    {{ field.id or '' }}
+    ({{ _(h.tabledesigner_column_type(field).label) }})
+  {% endif %}
+{% endblock %}
+
+{% block datapusher_xloader_fields %}
+  {% if res.url_type != 'tabledesigner' %}
+    {{ super() }}
+  {% else %}
+    {# datapusher fields don't apply to our resources #}
+    {% block field_removal_button %}
+      <div class="form-actions">
+        <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
+          >{{ _('Remove field') }}</a>
+      </div>
+    {% endblock %}
+    {% if field.id %}
+      <input type="hidden" name="fields__{{ position }}__id" value="{{ field.id }}">
+    {% endif %}
+    <input type="hidden" name="fields__{{ position }}__tdtype" value="{{ field.tdtype or field.type }}">
+    {% if not field.id %}
+      {% call form.input('fields__' ~ position ~ '__id',
+        is_required=true, value=data.get('id', ''), error=errors.id,
+        label=_('ID'), classes=['control-full']) %}
+        {{ form.info(
+          text=_('Field identifier or column heading when exported to CSV')
+        )}}
+      {% endcall %}
+    {% endif %}
+    {% call form.select(
+      'fields__' ~ position ~ '__tdpkreq',
+      id='field-f' ~ position ~ 'tdpkreq',
+      label=_("Obligation"),
+      options=[
+        {'value': '', 'text': _('Optional')},
+        {'value': 'req', 'text': _('Required')},
+        {'value': 'pk', 'text': _('Primary key')},
+      ],
+      classes=['control-full'],
+      selected=data.get('tdpkreq', field.get('tdpkreq', ''))) %}
+    {% endcall %}
+
+    {% set ct = h.tabledesigner_column_type(field) %}
+    {% if ct.design_snippet %}
+      {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
+        column_type=ct,
+        position=position,
+        field=field,
+        data=data,
+        errors=errors,
+        form=form
+      %}
+    {% endif %}
+    {% for cc in ct.column_constraints() %}
+      {% if cc.constraint_snippet %}
+        {% snippet 'tabledesigner/constraint_snippets/' + cc.constraint_snippet,
+          column_type=ct,
+          column_constraint=cc,
+          position=position,
+          field=field,
+          data=data,
+          errors=errors,
+          form=form
+        %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}

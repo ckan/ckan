@@ -159,8 +159,7 @@ def test_datastore_delete_insecure_filter():
 
 
 def _create_datastore_resource(records):
-    dataset = factories.Dataset()
-    resource = factories.Resource(package=dataset)
+    resource = factories.Resource()
 
     data = {"resource_id": resource["id"], "force": True, "records": records}
 

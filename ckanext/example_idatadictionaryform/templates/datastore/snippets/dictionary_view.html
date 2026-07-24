@@ -1,0 +1,9 @@
+{% ckan_extends %}
+
+{% block dictionary_field_extras %}
+  {{ super() }}
+  {% call dictionary_field(_('An integer')) %}{{ field.an_int }}{% endcall %}
+  {% call dictionary_field(_('JSON object')) %}{{ field.json_obj }}{% endcall %}
+  {% call dictionary_field(_('Always increasing')) %}{{ field.only_up }}{% endcall %}
+  {% call dictionary_field(_('Sticky input')) %}{{ field.sticky }}{% endcall %}
+{% endblock %}

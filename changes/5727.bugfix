@@ -1,1 +1,0 @@
-Fix the datapusher trigger in case of resource_update via API

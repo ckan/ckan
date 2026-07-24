@@ -64,6 +64,7 @@ this.ckan.module('api-info', function (jQuery) {
       this.loadTemplate().done(function (html) {
         module.modal = jQuery(html);
         module.modal.find('.modal-header').append('<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>');
+        module.modal.find('.btn-close').attr("aria-label", module._('Close'));
         module.modal.modal().appendTo(sandbox.body);
         module.modal.modal('show');
         hljs.highlightAll();

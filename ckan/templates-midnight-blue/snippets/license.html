@@ -1,0 +1,41 @@
+{% macro license_string(pkg_dict) %}
+  {% if 'license_url' in pkg_dict %}
+    <a href="{{ pkg_dict.license_url }}" rel="dc:rights">{{ pkg_dict.license_title }}</a>
+  {% else %}
+    {% if pkg_dict.license_id %}
+      <span property="dc:rights">{{ pkg_dict.license_title }}</span>
+    {% else %}
+      <span>{{ _('No License Provided') }}</span>
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
+{% block license %}
+  {% if text_only %}
+    {{ license_string(pkg_dict) }}
+  {% else %}
+    {% block license_wrapper %}
+      <section class="module module-narrow module-shallow license">
+        <div class="module-group">
+          {% block license_title %}
+            <h2 class="module-heading" id="headingLicense">
+              {{ _('License') }}
+            </h2>
+          {% endblock %}
+          {% block license_content %}
+            <p class="module-content">
+              {% block license_content_inner %}
+                {{ license_string(pkg_dict) }}
+                {% if pkg_dict.isopen %}
+                  <a href="http://opendefinition.org/okd/" aria-label="{{_('Open Data (This dataset satisfies the Open Definition.)') }}" data-bs-title="{{ _('This dataset satisfies the Open Definition.') }}" data-bs-toggle="tooltip" class="open-data">
+                    {% trans %}<span class="prefix">Open</span><span class="suffix">Data</span>{% endtrans %}
+                  </a>
+                {% endif %}
+              {% endblock %}
+            </p>
+          {% endblock %}
+        </div>
+      </section>
+    {% endblock %}
+  {% endif %}
+{% endblock %}
