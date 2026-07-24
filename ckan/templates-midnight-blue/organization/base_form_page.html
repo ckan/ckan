@@ -1,7 +1,7 @@
 {% extends "organization/edit_base.html" %}
 
 {% block primary_content_inner %}
-  <h1 class="{% block page_heading_class %}page-heading{% endblock %}">
+  <h1 class="{% block page_heading_class %}sr-only{% endblock %}">
     {% block page_heading %}{{ h.humanize_entity_type('organization', group_type, 'form label') or _('Organization Form') }}{% endblock %}
   </h1>
   {% block form %}

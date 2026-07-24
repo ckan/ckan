@@ -6,7 +6,7 @@
 
   #}
 
-{% set action = h.url_for("user.api_tokens_revoke", id=user['name']) %}
+{% set action = h.url_for("user.api_tokens_revoke", id=user.name) %}
 <div>
 <form hx-post="{{ action }}" class="form" hx-swap="none" autocomplete="off"
     hx-on::after-request="$('#revoke-tokens-button').attr('disabled', true)">

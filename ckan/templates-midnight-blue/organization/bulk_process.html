@@ -10,12 +10,13 @@
   <li class="active">{% link_for _('Edit datasets'), named_route=group_type+'.bulk_process', id=organization.name %}</li>
 {% endblock %}
 
-{% block page_primary_action %}
+{% block content_action %}
+  {{ super() }}
   {% snippet 'snippets/add_dataset.html', group=group_dict.id %}
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h1>{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit Datasets') }}</h1>
+  <h1 class="sr-only">{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit Datasets') }}</h1>
   <div class="primary col-12">
     {% block search_form %}
       {% set sorting = [

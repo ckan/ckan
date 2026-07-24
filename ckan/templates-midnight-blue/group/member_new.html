@@ -10,8 +10,8 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  {% link_for _('Back to all members'), named_route=group_type+'.manage_members', id=group_dict.id, class_='btn btn-secondary all-members', icon='arrow-left' %}
-  <h1 class="page-heading">
+  {% link_for _('Back to all members'), named_route=group_type+'.manage_members', id=group_dict.id, class_='btn btn-secondary mb-3', icon='arrow-left' %}
+  <h1 class="sr-only">
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
   {% block form %}
