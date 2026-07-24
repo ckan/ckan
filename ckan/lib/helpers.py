@@ -1850,7 +1850,7 @@ def group_link(group: dict[str, Any]) -> Markup:
     return link_to(group['title'], url)
 
 
-@deprecated("No replacement is planned; this function will be removed", since="2.12.0")
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def organization_link(organization: dict[str, Any]) -> Markup:
     """DEPRECATED. Return a link to the organization page."""
@@ -2136,7 +2136,7 @@ def roles_translated() -> dict[str, str]:
     return authz.roles_trans()
 
 
-@deprecated("No replacement is planned; this function will be removed", since="2.12.0")
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def user_in_org_or_group(group_id: str) -> bool:
     '''DEPRECATED. Check if user is in a group or organization '''
@@ -2378,7 +2378,7 @@ def rendered_resource_view(resource_view: dict[str, Any],
     return literal(base.render(template, extra_vars=data_dict))
 
 
-@deprecated("No replacement is planned; this function will be removed", since="2.12.0")
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def view_resource_url(
         resource_view: dict[str, Any],
@@ -2824,7 +2824,7 @@ def load_plugin_helpers() -> None:
                 setattr(new_func, attribute, value)
             helper_functions[name] = new_func
 
-@deprecated("No replacement is planned; this function will be removed", since="2.12.0")
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def sanitize_id(id_: str) -> str:
     '''DEPRECATED. Given an id (uuid4), if it has any invalid characters it raises
