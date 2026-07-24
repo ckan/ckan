@@ -10,6 +10,7 @@ import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
 from ckan.common import config
+from ckan.lib.maintain import deprecated
 from ckanext.resourceproxy import blueprint
 
 log = getLogger(__name__)
@@ -56,6 +57,7 @@ class ResourceProxy(p.SingletonPlugin):
     def get_helpers(self) -> dict[str, Callable[..., Any]]:
         return {u'view_resource_url': self.view_resource_url}
 
+    @deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
     def view_resource_url(
         self,
         resource_view: Any,
@@ -64,7 +66,7 @@ class ResourceProxy(p.SingletonPlugin):
         proxy_schemes: Container[str] = ('http', 'https')
     ):
         u'''
-        Returns the proxy url if its availiable
+        DEPRECATED. Returns the proxy url if its availiable
         '''
         data_dict = {
             u'resource_view': resource_view,
