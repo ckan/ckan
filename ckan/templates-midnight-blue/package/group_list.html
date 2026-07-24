@@ -4,7 +4,7 @@
 {% set default_group_type = h.default_group_type('group') %}
 
 {% block primary_content_inner %}
-  <h1>{{ h.humanize_entity_type('group', default_group_type, 'page title') or _('Groups') }}</h2>
+  <h1 class="sr-only">{{ h.humanize_entity_type('group', default_group_type, 'page title') or _('Groups') }}</h1>
 
   {% if group_dropdown %}
     <form class="add-to-group" method="post">

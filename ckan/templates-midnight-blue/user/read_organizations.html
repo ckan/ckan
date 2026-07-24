@@ -5,15 +5,13 @@
 {% set orgs_available = h.organizations_available(permission='manage_group',
   include_dataset_count=True,
   include_member_count=True,
-  user=user['name'])
+  user=user.name)
 %}
 
 {% block primary_content_inner %}
-  <h1>{{ h.humanize_entity_type('organization', org_type, 'facet label') or _('Organizations') }}</h1
+  <h1 class="sr-only">{{ h.humanize_entity_type('organization', org_type, 'facet label') or _('Organizations') }}</h1>
   {% if orgs_available %}
-    <div class="wide">
-      {% snippet "organization/snippets/organization_list.html", organizations=orgs_available, show_capacity=True %}
-    </div>
+    {% snippet "organization/snippets/organization_list.html", organizations=orgs_available, show_capacity=True %}
   {% else %}
     <p class="empty">
       {% if is_myself %}

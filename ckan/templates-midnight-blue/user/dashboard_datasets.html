@@ -1,14 +1,15 @@
 {% extends "user/dashboard.html" %}
 {% set dataset_type = h.default_package_type() %}
 
-{% block page_primary_action %}
+{% block content_action %}
+  {{ super() }}
   {% if h.check_access('package_create') %}
     {% snippet 'snippets/add_dataset.html' %}
   {% endif %}
 {% endblock %}
 
 {% block page_heading %}
-  <h1 class="mt-3 mt-md-0">{{ h.humanize_entity_type('package', dataset_type, 'my label') or _('My Datasets') }}</h1>
+  <h1 class="sr-only">{{ h.humanize_entity_type('package', dataset_type, 'my label') or _('My Datasets') }}</h1>
 {% endblock %}
 
 {% block primary_content_inner %}

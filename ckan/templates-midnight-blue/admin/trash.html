@@ -1,11 +1,11 @@
 {% extends "admin/base.html" %}
 
 {% block primary_content_inner %}
-  <h1>
+  <h1 class="sr-only">
     {% block page_heading %}{{ _('Trash') }}{% endblock %}
   </h1>
   <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-all">
-    {{ h.csrf_input() }} 
+    {{ h.csrf_input() }}
     <div class="form-actions mb-3">
       <input type="hidden" name="action" value="all">
       <a class="btn btn-danger purge-all"

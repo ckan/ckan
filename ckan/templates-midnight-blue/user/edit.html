@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h1>
+  <h1 class="sr-only">
     {% block page_heading %}{{ _('Edit Profile') }}{% endblock %}
   </h1>
   {{ form | safe }}
