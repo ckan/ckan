@@ -82,13 +82,19 @@ Dictionary with search facets
                         </li>
                       {% endfor %}
                     </ul>
-                    <p class="module-footer">
-                      {% if h.has_more_facets(name, search_facets) %}
-                        <a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
-                      {% elif '_%s_limit' % name in request.args %}
-                        <a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
-                      {% endif %}
-                    </p>
+
+                    {% set has_more_facets = h.has_more_facets(name, search_facets) %}
+                    {% set has_more_facets_limit = h.has_more_facets(name, search_facets, limit=limit) %}
+
+                    {% if has_more_facets or has_more_facets_limit %}
+                      <p class="module-footer">
+                        {% if has_more_facets %}
+                          <a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
+                        {% elif has_more_facets_limit %}
+                          <a hx-boost="true" href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
+                        {% endif %}
+                      </p>
+                    {% endif %}
                   </nav>
                 {% else %}
                   <p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>

@@ -1,14 +1,14 @@
 {#
   Displays a single of dataset.
-  
+
   package        - A package to display.
   item_class     - The class name to use on the list item.
   hide_resources - If true hides the resources (default: false).
-  
+
   Example:
-  
+
     {% snippet 'snippets/package_item.html', package=c.datasets[0] %}
-  
+
 #}
 {% set title = package.title or package.name %}
 {% set notes = h.markdown_extract(package.notes, extract_length=180) %}
@@ -26,7 +26,7 @@
             {% endblock %}
             {% block heading_private %}
               {% if package.private %}
-                <span class="dataset-private badge bg-dust-red pull-right">
+                <span class="dataset-private badge bg-dust-red float-end">
                   {{ _('Private') }}
                 </span>
               {% endif %}
