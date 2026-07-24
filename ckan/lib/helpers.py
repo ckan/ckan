@@ -1873,7 +1873,7 @@ def snippet(template_name: str, **kw: Any) -> str:
 
 
 @deprecated(
-    "Use `ckan.lib.dictization.model_dictize.package_dictize` instead of `convert_to_dict`",
+    "Use `model_dictize.package_dictize` instead of `convert_to_dict`",
     since="2.12.0",
 )
 @core_helper
