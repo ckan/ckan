@@ -13,7 +13,7 @@ from ckan.types import Context, DataDict, AuthResult
 
 @logic.auth_allow_anonymous_access
 def package_reindex(context: Context, data_dict: DataDict) -> AuthResult:
-    return package_update(context, data_dict)
+    return authz.is_authorized('package_update', context, data_dict)
 
 
 @logic.auth_allow_anonymous_access

@@ -249,9 +249,8 @@ def package_reindex(
     pkg = model.Package.get(name_or_id)
     if pkg is None:
         raise NotFound(_('Package was not found.'))
-    context["package"] = pkg
 
-    data_dict["id"] = pkg.id
+    data_dict = {"id": pkg.id}
 
     _check_access('package_reindex', context, data_dict)
 
