@@ -5,7 +5,7 @@
       <h1 class="sr-only">
         {{ heading }}
         {% if state == 'deleted' %}
-          [{{ _('Deleted') }}]
+          <span class="badge bg-danger">{{ _('Deleted') }}</span>
         {% endif %}
       </h1>
     {% endif %}
