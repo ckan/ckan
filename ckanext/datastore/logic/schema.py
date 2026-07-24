@@ -265,6 +265,7 @@ def datastore_sequence_create_schema() -> Schema:
     return {
         'name': [unicode_only, not_empty],
         'if_not_exists': [default(False), boolean_validator],
+        'last_value': [ignore_missing, int_validator],
     }
 
 

@@ -246,7 +246,9 @@ class DatastoreBackend:
         a resource.
         """
 
-    def create_sequence(self, name: str, if_not_exists: bool) -> None:
+    def create_sequence(
+        self, name: str, if_not_exists: bool, last_value: int | None
+    ) -> None:
         """Called by `datastore_sequence_create` action.
         """
         raise NotImplementedError()

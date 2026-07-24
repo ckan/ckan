@@ -1566,3 +1566,12 @@ def test_sequences():
     helpers.call_action(
         "datastore_sequence_delete", name=seqname, if_exists=True,
     )
+
+    helpers.call_action("datastore_sequence_create", name=seqname, last_value=10)
+    assert helpers.call_action("datastore_sequence_next", name=seqname) == 11
+    assert helpers.call_action("datastore_sequence_next", name=seqname) == 12
+    helpers.call_action(
+        "datastore_sequence_create", name=seqname, if_not_exists=True, last_value=50
+    )
+    assert helpers.call_action("datastore_sequence_next", name=seqname) == 51
+    assert helpers.call_action("datastore_sequence_next", name=seqname) == 52

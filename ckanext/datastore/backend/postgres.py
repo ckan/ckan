@@ -2582,11 +2582,19 @@ def drop_function(name: str, if_exists: bool):
         raise ValidationError({u'name': [_programming_error_summary(pe)]})
 
 
-def create_sequence(name: str, if_not_exists: bool) -> None:
+def create_sequence(
+    name: str, if_not_exists: bool, last_value: int | None
+) -> None:
     try:
         with get_write_engine().begin() as conn:
             seq = sa.Sequence(name)
             conn.execute(CreateSequence(seq, if_not_exists=if_not_exists))
+
+            if last_value is not None:
+                conn.execute(
+                    sa.text('SELECT setval(:seq, :last_value)'),
+                    {"seq": name, "last_value": last_value}
+                )
     except ProgrammingError as pe:
         raise ValidationError({'name': [_programming_error_summary(pe)]})
 

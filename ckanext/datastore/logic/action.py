@@ -963,19 +963,24 @@ def datastore_function_delete(context: Context, data_dict: dict[str, Any]):
 @logic.validate(dsschema.datastore_sequence_create_schema)
 def datastore_sequence_create(context: Context, data_dict: dict[str, Any]):
     '''
-    Create a sequence for use with trigger functions or
-    datastore_sequence_next
+    Create a sequence or update the last value for a sequence. Sequences
+    may be used with trigger functions or datastore_sequence_next.
 
     :param name: sequence name
     :type name: string
-    :param if_not_exists: True to skip existing sequences
-        (default: False)
+    :param if_not_exists: set True to not fail if the sequence already
+        exists (default: False)
+    :param last_value: set the last value given for a sequence
+        i.e. the number before the next one that will be issued
+        (default: leave unchanged, 0 for new sequences)
     '''
     p.toolkit.check_access('datastore_sequence_create', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
     backend.create_sequence(
         name=data_dict['name'],
-        if_not_exists=data_dict['if_not_exists'])
+        if_not_exists=data_dict['if_not_exists'],
+        last_value=data_dict.get('last_value'),
+    )
 
 
 @logic.validate(dsschema.datastore_sequence_delete_schema)
