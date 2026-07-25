@@ -15,11 +15,8 @@
 }
 
 .main .primary {
-    border-radius: 20px;
+    border-radius: 0.5rem;
     background-color: $layoutPrimaryBackgroundColor;
-    position: relative;
-    float: right;
-    margin-left: 0; // Remove grid margin.
 }
 
 .main .secondary {
@@ -88,10 +85,6 @@
     }
 }
 
-// .primary> :last-child,
-// .secondary> :last-child {
-//     margin-bottom: 0;
-// }
 .primary {
     .primary {
         float: left;

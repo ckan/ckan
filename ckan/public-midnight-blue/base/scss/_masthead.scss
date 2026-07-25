@@ -91,11 +91,9 @@ $notificationsBg: #CF1322;
         position: fixed;
         top: 0;
         left: 0;
-        color: $gray-800;
-        background-color: opacify($color: $primary, $amount: 0.3);
+        color: $white;
+        background-color: $brand-700;
         padding: 2px 4px;
-        border: $gray-300 1px solid;
-        border-left: 0px;
         z-index: 9;
     }
     .navbar {

@@ -28,19 +28,11 @@
 
 .dataset-heading .badge {
     position: relative;
-    top: -1px;
+    top: 3px;
 }
 
 .badge-inverse {
     background-color: $gray-600;
-}
-
-.dataset-private {
-    font-size: 18px;
-    margin-bottom: 0.5rem;
-    &.pull-right {
-        margin-right: 0;
-    }
 }
 
 .dataset-resources {
@@ -355,7 +347,7 @@
       padding-top: 24px;
     }
 }
-  
+
 // Preview text styles
 .preview-text {
     margin-bottom: 24px;

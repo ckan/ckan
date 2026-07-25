@@ -62,15 +62,10 @@
   .accordion-item {
     background-color: transparent;
     border: none;
-    border-radius: 0.5rem;
 
     &:has(.accordion-button:disabled),
     .module-content {
       background-color: $gray-100;
-    }
-
-    &:first-of-type .accordion-button {
-      border-radius: 0.5rem;
     }
 
     .module-content {
@@ -83,6 +78,7 @@
     box-shadow: none;
     background-color: $primary;
     color: $white;
+    border-radius: 0.5rem 0.5rem 0 0;
 
     .filter-svg {
       -webkit-text-stroke: 2px $white;
@@ -117,7 +113,7 @@
     background-color: $gray-100;
     border-radius: 0 0 .5rem .5rem;
   }
-  
+
   .package-accordion .accordion-body {
     background-color: #fff;
     padding: 6px 0;

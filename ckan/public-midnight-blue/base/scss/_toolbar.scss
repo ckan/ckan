@@ -76,16 +76,7 @@
     margin-right: 0;
 }
 
-// .hide-heading {
-//     display: none;
-// }
-
 .page-header {
-    &.module-content{
-        padding-top: math.div($grid-gutter-width, 2);
-        padding-bottom: 0;
-    }
-    margin-top: $grid-gutter-width;
     @include clearfix;
     .nav-tabs {
         float: left;
@@ -121,12 +112,6 @@
         background-color: $moduleBackgroundColor;
     }
 }
-
-// @media (min-width: $screen-sm-min) {
-//     .col-md-9 .page-header {
-//         margin-left: -17px;
-//     }
-// }
 
 @include media-breakpoint-down(sm) {
     .page-header .nav-tabs {
