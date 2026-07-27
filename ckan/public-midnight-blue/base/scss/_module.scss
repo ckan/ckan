@@ -1,29 +1,26 @@
-.module > .module-header {
-    font-size: 48px;
-    line-height: 48px;
-    font-weight: 600;
-    color: #153084;
+.module {
+    .module-heading {
+        @include clearfix;
+        margin: 0;
+        padding: $accordion-button-padding-y 0.9em;
+        font-size: $font-size-base;
+        background-color: $gray-100;
+        border-radius: 8px;
+    }
+
+    .module-content {
+        padding: 1.5rem 0.75rem;
+    }
+
+    .module-footer {
+        padding: 7px 7px 0;
+        margin: 0;
+        text-align: center;
+        font-weight: 500;
+    }
 }
 
-.module-heading {
-    @include clearfix;
-    margin: 0;
-    padding: $accordion-button-padding-y 0.9em;
-    font-size: $font-size-base;
-    background-color: $gray-100;
-    border-radius: 8px;
-}
 
-.module-content {
-    padding: 1.5rem 0.75rem;
-}
-
-.module-footer {
-    padding: 7px 7px 0;
-    margin: 0;
-    text-align: center;
-    font-weight: 500;
-}
 
 .pagination-wrapper {
     text-align: center;
@@ -44,28 +41,24 @@
 }
 
 // Module Shallow
-.module-shallow .module-content {
-    padding: 10px;
-    margin: 0;
-}
-
-.module-shallow .module-tags {
-    margin-top: 0;
-    margin-bottom: 0;
-}
-
-.module-shallow .module-content:first-child {
-    padding-top: 10px;
-}
-
-.module-shallow .module-content:last-child {
-    padding-bottom: 10px;
-}
-
 .module-shallow {
     margin-bottom: 1rem;
     clear: both;
+
+    .module-content {
+        padding: 10px;
+        margin: 0;
+
+        &:first-child {
+            padding-top: 10px;
+        }
+
+        &:last-child {
+            padding-bottom: 10px;
+        }
+    }
 }
+
 
 // Secondary column specific
 .module-narrow {
@@ -105,25 +98,6 @@
     }
 }
 
-// Module Grid
-.module-grid {
-    @include list-unstyled;
-    @extend .media-grid; // @extend media-wide;
-}
-
-.module-item {
-    @extend .media-item;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 50px;
-    overflow: hidden;
-    position: relative;
-}
-
-.module-item.first {
-    clear: left;
-}
-
 // GROUP
 .group .content img {
     margin: 0 -5px 5px;
@@ -133,10 +107,6 @@
 .group .content h3 {
     font-size: 14px;
     line-height: 1.3;
-}
-
-.group-listing {
-    margin-left: -20px; // Same as .row
 }
 
 // PREVIEW
@@ -174,25 +144,6 @@
     h4 {
         margin-bottom: 10px;
     }
-}
-
-.module-resource {
-    z-index: 5; // Fixes overlapping .secondary on the Resource view page
-    position: relative; // Fixes overlapping .secondary on the Resource view page
-    background-color: $layoutTrimBackgroundColor;
-    margin-top: 0;
-    margin-bottom: 0;
-    @include border-radius(3px 3px 0 0);
-    .actions {
-        position: relative;
-        li {
-            margin-right: 0px;
-        }
-    }
-}
-
-.module .module-tags {
-    padding-bottom: 8px;
 }
 
 .no-nav .module:last-child {
