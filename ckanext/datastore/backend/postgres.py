@@ -49,6 +49,9 @@ from ckanext.datastore.backend import (
     DatastoreException,
     _parse_sort_clause
 )
+from ckanext.datastore.backend.postgres_ast_allowlist import NODE_TYPE_ALLOWLIST
+import pglast
+import pglast.stream
 
 log = logging.getLogger(__name__)
 
@@ -1889,6 +1892,101 @@ def search(context: Context, data_dict: dict[str, Any]):
     finally:
         context['connection'].close()
 
+def flatten_tuples(t: Any) -> Iterable[Any]:
+    if isinstance(t, tuple):
+        for value in t:
+            yield from flatten_tuples(value)
+    else:
+        yield t
+
+def nodes(ast: pglast.ast.Node | dict[str, Any]) -> Iterable[dict[str, Any]]:
+    if isinstance(ast, pglast.ast.Node):
+        ast = ast()
+    # Handle enums: '#' tag in dict instead of '@'
+    # Shouldn't need to traverse their interiors
+    if '#' in ast:
+        return
+    yield ast
+    for value in ast.values():
+        if isinstance(value, (tuple, dict)):
+            for node in flatten_tuples(value):
+                if node is None:
+                    continue
+                yield from nodes(node)
+
+def referenced_tables(context: Context, schema: str | None, name: str):
+    """Resolve tables referenced by a relation name:
+        if the name refers to a view, all referenced tables, otherwise the table itself
+    """
+    # Note: not matching on `view_catalog` because it's constant in `view_table_usage`,
+    # and we're unlikely to have a value for it anyway
+    result = context['connection'].execute(sa.text('''
+        SELECT table_catalog, table_schema, table_name
+        FROM information_schema.view_table_usage
+        WHERE view_schema = :schema and view_name = :name
+    ''').bindparams(schema= schema or 'public', name=name))
+
+    return {
+        (table.table_schema, table.table_name) for table in result
+    } or {(schema, name)}
+
+def sanitize_sql(context: Context, query: str) -> tuple[
+    str,
+    set[tuple[str | None, str]],
+    set[tuple[str, ...]]
+]:
+    """Ensure SQL is a single safe query, returning tables and functions used
+
+    Parses the query using the upstream PostgreSQL parser, checks
+    the AST nodes provided against an allow list of safe types, and
+    reserializes the query.
+
+    This doesn't touch the database, so it cannot resolve views into
+    their underlying tables or resolve equivalent names.
+
+    Returned SQL should be safe to execute: it should be a single
+    query, with no mutations, and cleaned of any comments that could
+    lead to differences in parsing.
+
+    Returns:
+        - the parsed & serialized query
+        - the set of referenced tables as (schema, relation)
+        - the set of called functions,
+          as tuples of each component of the provided qualified name
+    """
+    try:
+        stmts = pglast.parser.parse_sql(query)
+    except pglast.parser.ParseError as e:
+        raise toolkit.ValidationError(f'Invalid SQL: {e}')
+
+    if len(stmts) != 1:
+        raise toolkit.ValidationError('Query is not a single statement')
+
+    tables = set()
+    functions = set()
+    for node in nodes(stmts[0]):
+        if node['@'] not in NODE_TYPE_ALLOWLIST:
+            raise toolkit.ValidationError(f'Invalid query AST element: {node["@"]}')
+
+        if node['@'] == 'RangeVar':
+            if node['catalogname'] is not None:
+                # Assume catalog can't be specified
+                raise toolkit.ValidationError(
+                    f'Catalog cannot be provided: {node["catalogname"]}'
+                )
+            tables.update(
+                referenced_tables(context, node['schemaname'], node['relname'])
+            )
+        elif node['@'] == 'FuncCall':
+            funcname = (node['funcname'], ) \
+                if isinstance(node['funcname'], dict) else node['funcname']
+            if not all(part['@'] == 'String' for part in funcname):
+                raise toolkit.ValidationError(f'Invalid function name: {funcname}')
+            functions.add(tuple(n['sval'] for n in funcname))
+
+    serialized = pglast.stream.RawStream()(stmts[0])
+
+    return serialized, tables, functions
 
 def search_sql(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
@@ -1900,29 +1998,32 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
     sql = data_dict['sql']
 
-    # limit the number of results to ckan.datastore.search.rows_max + 1
-    # (the +1 is so that we know if the results went over the limit or not)
-    rows_max = config.get('ckan.datastore.search.rows_max')
-    sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
-
     try:
 
         context['connection'].execute(sa.text(
             f"SET LOCAL statement_timeout TO {timeout}"
         ))
 
-        get_names = datastore_helpers.get_table_and_function_names_from_sql
-        table_names, function_names = get_names(context, sql)
+        sql, table_names, function_names = sanitize_sql(context, sql)
         log.debug('Tables involved in input SQL: %r', table_names)
         log.debug('Functions involved in input SQL: %r', function_names)
 
-        if any(t.startswith('pg_') for t in table_names):
+        if any(t[0] not in (None, 'public') for t in table_names):
+            raise toolkit.NotAuthorized(
+                'Not authorized to access tables in other schemas'
+            )
+        if any(t[1].startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized(
                 'Not authorized to access system tables'
             )
-        context['check_access'](table_names)
+        context['check_access']((t[1] for t in table_names))
 
         for f in function_names:
+            if len(f) != 1:
+                raise toolkit.NotAuthorized(
+                    f'Not authorized to call function {".".join(f)}'
+                )
+            f = f[0]
             for name_variant in [f.lower(), '"{}"'.format(f)]:
                 if name_variant in \
                    backend.allowed_sql_functions:  # type: ignore
@@ -1931,6 +2032,11 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
                 raise toolkit.NotAuthorized(
                     'Not authorized to call function {}'.format(f)
                 )
+
+        # limit the number of results to ckan.datastore.search.rows_max + 1
+        # (the +1 is so that we know if the results went over the limit or not)
+        rows_max = config.get('ckan.datastore.search.rows_max')
+        sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
 
         results: Any = context['connection'].execute(sa.text(sql))
 
@@ -2313,13 +2419,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return search(context, data_dict)
 
     def search_sql(self, context: Context, data_dict: dict[str, Any]):
-        sql = toolkit.get_or_bust(data_dict, 'sql')
-        data_dict['connection_url'] = self.read_url
-
-        if not is_single_statement(sql):
-            raise toolkit.ValidationError({
-                'query': ['Query is not a single statement.']
-            })
         return search_sql(context, data_dict)
 
     def resource_exists(self, id: str) -> bool:
