@@ -9,42 +9,33 @@
     align-items: flex-start;
     align-self: stretch;
     width: 100%;
-}
-.dataset-heading {
-    margin-bottom: 0;
-    font-weight: 500;
-}
 
-.dataset-organization {
-    color: #667085;
-    font-weight: 500;
-}
+    .dataset-content {
+        width: 100%;
 
-@include media-breakpoint-down(sm){
-    .dataset-item {
-        word-wrap: break-word;
+        .dataset-heading {
+            margin-bottom: 0;
+            font-weight: 500;
+
+            .badge {
+                position: relative;
+                top: 3px;
+            }
+        }
+
+        .dataset-organization {
+            color: #667085;
+            font-weight: 500;
+        }
+
+        .dataset-resources {
+            margin-top: 8px;
+
+            li {
+                display: inline;
+            }
+        }
     }
-}
-
-.dataset-heading .badge {
-    position: relative;
-    top: 3px;
-}
-
-.badge-inverse {
-    background-color: $gray-600;
-}
-
-.dataset-resources {
-    margin-top: 8px;
-}
-
-.dataset-resources li {
-    display: inline;
-}
-
-.dataset-content {
-    width: 100%;
 }
 
 // Resource List
@@ -52,42 +43,43 @@
     @include list-unstyled;
     padding-left: 0;
     margin: -10px -10px 10px -10px;
-}
 
-.resource-item {
-    position: relative;
-    padding: 10px 10px 10px 60px;
-    margin-bottom: 0px;
-    display: flex;
-    justify-content: space-between;
-    @include border-radius(3px);
-    &:hover {
-        background-color: $layoutBackgroundColor;
+    .resource-item {
+        position: relative;
+        padding: 10px 10px 10px 60px;
+        margin-bottom: 0px;
+        display: flex;
+        justify-content: space-between;
+        @include border-radius(3px);
+
+        .heading {
+            color: $layoutBoldColor;
+            font-size: 14px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+
+            .format-label {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+            }
+        }
+
+        .description {
+            font-size: 12px;
+            margin-bottom: 0;
+            min-height: 12px;
+        }
+
+        &:hover {
+            background-color: $layoutBackgroundColor;
+        }
     }
-}
 
-.resource-item .heading {
-    color: $layoutBoldColor;
-    font-size: 14px;
-    font-weight: bold;
-    overflow-wrap: anywhere;
-}
-
-.resource-item .format-label {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-}
-
-.resource-item .description {
-    font-size: 12px;
-    margin-bottom: 0;
-    min-height: 12px;
-}
-
-@include media-breakpoint-down(sm) {
-    .resource-item .btn-group {
-        display: none;
+    @include media-breakpoint-down(sm) {
+        .btn-group {
+            display: none;
+        }
     }
 }
 
@@ -141,15 +133,16 @@
     background-color: $gray-100;
     border: 1px solid $genericBorderColor;
     border-radius: 0.25rem;
+
+    li {
+        display: inline-block;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
 }
 
-.tag-list li {
-    display: inline-block;
-}
-
-.tag-list li:last-child {
-    margin-right: 0;
-}
 
 // Additional Info
 .additional-info td,
@@ -348,27 +341,6 @@
     }
 }
 
-// Preview text styles
-.preview-text {
-    margin-bottom: 24px;
-
-    > .value {
-        color: #101828;
-        font-family: $baseFontFamily;
-        font-size: 24px;
-        font-weight: 600;
-        line-height: 32px;
-    }
-
-    > .label {
-        color: #667085;
-        font-family: $baseFontFamily;
-        font-size: 16px;
-        font-weight: 500;
-        line-height: 120%;
-    }
-}
-
 // Slug preview
 .slug-preview-inner {
     padding: 4px 8px;
@@ -384,14 +356,9 @@
     }
 }
 
-.resource-view {
-    margin-top: 20px;
-}
-
 #activity-archive-notice {
   clear: both;
 }
-
 
 /* diff styles */
 table.diff {
@@ -416,10 +383,3 @@ td.diff_header {
 .diff_sub {
   background-color:#ffaaaa;
 }
-// TRASH VIEW accordion
-// --------------------------------------------------
-
-  .purge-all {
-    float: right;
-    margin-bottom: 15px;
-  }
