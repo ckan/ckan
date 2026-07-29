@@ -325,7 +325,7 @@
         }
         &::-webkit-scrollbar-thumb {
             border-radius: 10px;
-            background-color: darken($navActiveBackgroundColor, 20%);
+            background-color: color.adjust($navActiveBackgroundColor, $lightness: -20%);
             &:hover {
                 background-color: $layoutLinkColor;
             }
