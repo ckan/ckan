@@ -5,8 +5,8 @@ python setup.py develop --user
 ckan generate config ckan.ini
 
 # Set up storage
-mkdir /workspace/data
-ckan config-tool ckan.ini ckan.storage_path=/workspace/data
+mkdir -p /workspaces/ckan/data
+ckan config-tool ckan.ini ckan.storage_path=/workspaces/ckan/data
 
 # Set up site URL
 ckan config-tool ckan.ini ckan.site_url=https://$CODESPACE_NAME-5000.$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN
@@ -15,8 +15,12 @@ ckan config-tool ckan.ini ckan.site_url=https://$CODESPACE_NAME-5000.$GITHUB_COD
 ckan db init
 
 # Create sysadmin user
-ckan user add ckan_admin email=admin@example.com password=test1234
-ckan sysadmin add ckan_admin
+if ! ckan user list | grep -q '^name=ckan_admin$'; then
+    ckan user add ckan_admin email=admin@example.com password=test1234
+fi
+if ! ckan sysadmin list | grep -q 'name=ckan_admin '; then
+    ckan sysadmin add ckan_admin
+fi
 
 # Set up DataStore + DataPusher
 ckan config-tool ckan.ini "ckan.datapusher.api_token=$(ckan user token add ckan_admin datapusher | tail -n 1 | tr -d '\t')"

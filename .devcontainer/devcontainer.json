@@ -1,9 +1,9 @@
-// Update the VARIANT arg in docker-compose.yml to pick a Python version: 3, 3.8, 3.7, 3.6
+// Update the VARIANT arg in docker-compose.yml to pick a Python version: 3.10, 3.9, 3.8, 3.7, 3.6
 {
 	"name": "CKAN 2.10",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "ckan",
-	"workspaceFolder": "/workspace",
+	"workspaceFolder": "/workspaces/ckan",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
@@ -55,7 +55,7 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"onCreateCommand": "pip install --user -r requirements.txt && pip install --user -r dev-requirements.txt",
 	"postCreateCommand": "./.devcontainer/setup.sh",
-	"postAttachCommand": "ckan run",
+	"postAttachCommand": "ckan run --host 0.0.0.0 --port 5000",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
