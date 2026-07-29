@@ -97,7 +97,22 @@ else:
         def __init__(self, error_dict: ErrorDict):
             pprint.pprint(error_dict)
 
-is_single_statement = datastore_helpers.is_single_statement
+def is_single_statement(sql: str, params: dict[str, Any] | None = None) -> bool:
+    # Most calls to this have sqlalchemy `:abc` parameters
+    # pglast doesn't support these, since they're not the postgres format
+    # Compile the sqlachemy query to a string with psycopg2-style specifiers,
+    # then get psycopg2 to inline the parameters
+    # See also https://docs.sqlalchemy.org/en/21/faq/sqlexpressions.html#faq-sql-expression-string
+    #
+    # This requires a connection for the cursor, but shouldn't actually execute anything
+    engine = get_read_engine()
+    compiled = sa.text(sql).bindparams(**params or {}).compile(engine)
+    with engine.connect() as conn:
+        sql = conn.connection.cursor().mogrify(str(compiled), compiled.params).decode()
+    try:
+        return len(pglast.parser.parse_sql(sql)) == 1
+    except pglast.parser.ParseError:
+        return False
 
 _engines = {}
 
@@ -803,14 +818,14 @@ def _is_valid_pg_type(context: Context, type_name: str):
 
 def _execute_single_statement(
         context: Context, sql_string: str, where_values: list[dict[str, Any]]):
-    if not datastore_helpers.is_single_statement(sql_string):
-        raise ValidationError({
-            'query': ['Query is not a single statement.']
-        })
-
     params = {}
     for chunk in where_values:
         params.update(chunk)
+
+    if not is_single_statement(sql_string, params):
+        raise ValidationError({
+            'query': ['Query is not a single statement.']
+        })
 
     results = context['connection'].execute(
         sa.text(sql_string),
@@ -1674,14 +1689,14 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 def _execute_single_statement_copy_to(
         context: Context, sql_string: str,
         where_values: list[dict[str, Any]], buf: Any):
-    if not datastore_helpers.is_single_statement(sql_string):
-        raise ValidationError({
-            'query': ['Query is not a single statement.']
-        })
-
     params = {}
     for chunk in where_values:
         params.update(chunk)
+
+    if not is_single_statement(sql_string, params):
+        raise ValidationError({
+            'query': ['Query is not a single statement.']
+        })
 
     clause = sa.text(sql_string).bindparams(
         **params).compile(compile_kwargs={"literal_binds": True})
