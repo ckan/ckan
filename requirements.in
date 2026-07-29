@@ -38,3 +38,4 @@ tzlocal==5.4.4
 webassets==3.0.0
 Werkzeug[watchdog]==3.1.8
 zope.interface==8.5
+pglast==8.4
