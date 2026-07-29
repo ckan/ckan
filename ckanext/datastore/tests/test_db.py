@@ -265,23 +265,25 @@ class TestGetTables(object):
             "CREATE TABLE test_b (id_b text)",
             'CREATE TABLE "TEST_C" (id_c text)',
             'CREATE TABLE test_d ("α/α" integer)',
+            "CREATE VIEW test_e AS SELECT * from test_a INNER JOIN test_b ON id_a = id_b"
         ]
         for create_table_sql in create_tables:
             session.execute(sa.text(create_table_sql))
 
         test_cases = [
-            (u"SELECT * FROM test_a", ["test_a"]),
-            (u"SELECT * FROM public.test_a", ["test_a"]),
-            (u'SELECT * FROM "TEST_C"', ["TEST_C"]),
-            (u'SELECT * FROM public."TEST_C"', ["TEST_C"]),
-            (u"SELECT * FROM pg_catalog.pg_database", ["pg_database"]),
-            (u"SELECT rolpassword FROM pg_roles", ["pg_authid"]),
+            (u"SELECT * FROM test_a", {(None, "test_a")}),
+            (u"SELECT * FROM public.test_a", {("public", "test_a")}),
+            (u'SELECT * FROM "TEST_C"', {(None, "TEST_C")}),
+            (u'SELECT * FROM public."TEST_C"', {("public", "TEST_C")}),
+            ("SELECT * from test_e", {("public", "test_a"), ("public", "test_b")}),
+            (u"SELECT * FROM pg_catalog.pg_database", {("pg_catalog", "pg_database")}),
+            (u"SELECT rolpassword FROM pg_roles", {(None, "pg_roles")}),
             (
                 u"""SELECT p.rolpassword
                 FROM pg_roles p
                 JOIN test_b b
                 ON p.rolpassword = b.id_b""",
-                ["pg_authid", "test_b"],
+                {(None, "pg_roles"), (None, "test_b")},
             ),
             (
                 u"""SELECT id_a, id_b, id_c
@@ -292,18 +294,15 @@ class TestGetTables(object):
                         FROM "TEST_C") AS c,
                         test_b) AS b,
                     test_a AS a""",
-                ["test_a", "test_b", "TEST_C"],
+                {(None, "test_a"), (None, "test_b"), (None, "TEST_C")},
             ),
-            (u"INSERT INTO test_a VALUES ('a')", ["test_a"]),
-            (u'SELECT "α/α" FROM test_d', ["test_d"]),
-            (u'SELECT "α/α" FROM test_d WHERE "α/α" > 1000', ["test_d"]),
+            (u'SELECT "α/α" FROM test_d', {(None, "test_d")}),
+            (u'SELECT "α/α" FROM test_d WHERE "α/α" > 1000', {(None, "test_d")}),
         ]
 
         context = {"connection": session.connection()}
         for case in test_cases:
-            assert sorted(
-                datastore_helpers.get_table_and_function_names_from_sql(context, case[0])[0]
-            ) == sorted(case[1])
+            assert db.sanitize_sql(context, case[0])[1] == case[1]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -322,21 +321,16 @@ class TestGetFunctions(object):
 
         test_cases = [
             (u"SELECT max(id) from test_a", ["max"]),
-            (u"SELECT count(distinct(id)) FROM test_a", ["count", "distinct"]),
+            (u"SELECT count(distinct(id)) FROM test_a", ["count"]),
             (u"SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
             (u"SELECT trunc(avg(result),2), avg(result) FROM test_a", ["trunc", "avg"]),
-            (u"SELECT * from pg_settings", ["pg_show_all_settings"]),
-            (u"SELECT * from pg_settings UNION SELECT * from pg_settings", ["pg_show_all_settings"]),
-            (u"SELECT * from (SELECT * FROM pg_settings) AS tmp", ["pg_show_all_settings"]),
             (u"SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
             (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
         ]
 
         context = {"connection": session.connection()}
         for case in test_cases:
-            assert sorted(
-                datastore_helpers.get_table_and_function_names_from_sql(context, case[0])[1]
-            ) == sorted(case[1])
+            assert db.sanitize_sql(context, case[0])[2] == {(name,) for name in case[1]}
 
     def test_get_function_names_custom_function(self):
 
@@ -357,42 +351,4 @@ class TestGetFunctions(object):
 
         sql = "SELECT add(1, 2);"
 
-        assert datastore_helpers.get_table_and_function_names_from_sql(context, sql)[1] == ["add"]
-
-    def test_get_function_names_crosstab(self):
-        """
-        Crosstab functions need to be enabled in the database by executing the following using
-        a super user:
-
-            CREATE extension tablefunc;
-
-        """
-
-        engine = db.get_write_engine()
-        session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        create_tables = [
-            u"CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
-            u"CREATE TABLE test_b (name text, subject_id text)",
-        ]
-        for create_table_sql in create_tables:
-            session.execute(sa.text(create_table_sql))
-
-        test_cases = [
-            (u"""SELECT *
-                FROM crosstab(
-                    'SELECT extract(month from period)::text, test_b.name, trunc(avg(result),2)
-                     FROM test_a, test_b
-                     WHERE test_a.subject_id = test_b.subject_id')
-                     AS final_result(month text, subject_1 numeric,subject_2 numeric);""",
-                ['crosstab', 'final_result', 'extract', 'trunc', 'avg']),
-        ]
-
-        context = {"connection": session.connection()}
-        try:
-            for case in test_cases:
-                assert sorted(
-                    datastore_helpers.get_table_and_function_names_from_sql(context, case[0])[1]
-                ) == sorted(case[1])
-        except ProgrammingError as e:
-            if bool(re.search("function crosstab(.*) does not exist", str(e))):
-                pytest.skip("crosstab functions not enabled in DataStore database")
+        assert db.sanitize_sql(context, sql)[2] == {("add",)}

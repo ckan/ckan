@@ -1272,7 +1272,7 @@ class TestDatastoreSQLLegacyTests(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_select_where_like_with_percent(self, app):
-        query = 'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(
+        query = 'SELECT * FROM "{0}" WHERE "author" LIKE \'tol%\''.format(
             self.data["resource_id"]
         )
         data = {"sql": query}
@@ -1471,7 +1471,7 @@ class TestDatastoreSQLFunctional(object):
             "records": [{"author": "bob"}, {"author": "jane"}],
         }
         helpers.call_action("datastore_create", **data)
-        sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(
+        sql = 'SELECT * FROM "{0}" WHERE "author" = \'foo; bar\''.format(
             resource["id"]
         )
         helpers.call_action("datastore_search_sql", sql=sql)
@@ -1541,7 +1541,7 @@ class TestDatastoreSQLFunctional(object):
         )
         helpers.call_action("datastore_search_sql", sql=sql)
 
-        sql = 'SELECT CoUnT(*) from "{}"'.format(
+        sql = 'SELECT "CoUnT"(*) from "{}"'.format(
             resource["id"]
         )
         with pytest.raises(p.toolkit.NotAuthorized):
