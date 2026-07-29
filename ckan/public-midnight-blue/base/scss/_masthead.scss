@@ -32,7 +32,7 @@ $notificationsBg: #CF1322;
                     }
                     &:hover {
                         color: $white;
-                        background-color: darken($primary, 15%);
+                        background-color: color.adjust($primary, $lightness: -15%);
                         text-decoration: none;
                     }
                     &.sub {
@@ -44,7 +44,7 @@ $notificationsBg: #CF1322;
                     color: $black;
                     border: 1px solid #d0d5dd;
                     &:hover {
-                        background-color: darken($white, 15%);
+                        background-color: color.adjust($white, $lightness: -15%);
                     }
                 }
             }
@@ -55,14 +55,14 @@ $notificationsBg: #CF1322;
                     font-size: 12px;
                     margin-left: 3px;
                     padding: 1px 6px;
-                    background-color: darken($mastheadBackgroundColor, 15%);
+                    background-color: color.adjust($mastheadBackgroundColor, $lightness: -15%);
                     @include border-radius(4px);
                     text-shadow: none;
-                    color: mix($mastheadBackgroundColor, $mastheadLinkColor, 25%);
+                    color: color.mix($mastheadBackgroundColor, $mastheadLinkColor, 25%);
                 }
                 &:hover span {
                     color: $mastheadLinkColor;
-                    background-color: darken($mastheadBackgroundColor, 20%);
+                    background-color: color.adjust($mastheadBackgroundColor, $lightness: -20%);
                 }
             }
             &.notifications-important a {
@@ -91,11 +91,9 @@ $notificationsBg: #CF1322;
         position: fixed;
         top: 0;
         left: 0;
-        color: $gray-800;
-        background-color: opacify($color: $primary, $amount: 0.3);
+        color: $white;
+        background-color: $brand-700;
         padding: 2px 4px;
-        border: $gray-300 1px solid;
-        border-left: 0px;
         z-index: 9;
     }
     .navbar {

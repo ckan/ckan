@@ -11873,7 +11873,7 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
 }
 
 .filter-svg {
-  font-size: 24px;
+  font-size: 1rem;
   -webkit-text-stroke: 2px #667085;
   color: transparent;
 }
@@ -11923,7 +11923,7 @@ a.open-data span.suffix {
   padding: 1px 10px;
   border: 1px solid rgb(220.5, 220.5, 220.5);
   border-radius: 100px;
-  box-shadow: inset 0 1px 0 white;
+  box-shadow: inset 0 1px 0 hsl(0, 0%, 106.4705882353%);
 }
 
 a.tag:hover {
@@ -11979,15 +11979,6 @@ a.tag:hover {
   display: block;
 }
 
-.module > .page-header {
-  margin-top: 0px;
-}
-.module > .page-header h1, .module > .page-header .h1 {
-  margin-bottom: 0;
-}
-.module > .module-content:nth-child(2n) {
-  padding-top: 1.5rem;
-}
 .module > .module-header {
   font-size: 48px;
   line-height: 48px;
@@ -12009,17 +12000,11 @@ a.tag:hover {
 }
 
 .module-content {
-  padding: 1.5rem;
-}
-.module-content .add-to-group .btn-primary {
-  margin: 1.5rem 0;
-}
-.module-content p a:link {
-  text-decoration: underline;
+  padding: 1.5rem 0.75rem;
 }
 
 .module-footer {
-  padding: 7px 7px;
+  padding: 7px 7px 0;
   margin: 0;
   text-align: center;
   font-weight: 500;
@@ -12416,7 +12401,6 @@ a.tag:hover {
   border-radius: 6px;
   padding: 5px 6px;
   color: #fff;
-  border: 1px solid #fff;
   min-width: 2rem;
 }
 .module-narrow .nav-item > a .item-label,
@@ -12425,7 +12409,6 @@ a.tag:hover {
 }
 .module-narrow .nav-item > a .item-state,
 .module-narrow .nav-aside li a .item-state {
-  float: right;
   position: relative;
   transform: translateY(0);
   left: 10px;
@@ -12480,6 +12463,9 @@ a.tag:hover {
 }
 .filters .module-narrow .nav-simple > li {
   margin-bottom: 4px;
+}
+.filters .module-narrow .nav-simple > li:last-of-type {
+  margin-bottom: 0;
 }
 
 .module-narrow .nav-item.image,
@@ -12603,20 +12589,10 @@ a.tag:hover {
   display: block;
 }
 
-.btn,
-label {
-  font-weight: bold;
-}
-
-.btn-rounded {
-  border-radius: 100px;
-  padding-left: 15px;
-  padding-right: 15px;
-}
-
 label {
   cursor: pointer;
   font-size: 14px;
+  font-weight: bold;
 }
 
 label:after {
@@ -12645,11 +12621,6 @@ textarea {
 
 .form-group {
   margin-bottom: 30px;
-}
-
-.form-group .btn {
-  position: relative;
-  top: -2px;
 }
 
 .unselectable, .checkbox,
@@ -13124,8 +13095,6 @@ select[data-module=autocomplete] {
 .slug-preview {
   font-size: 14px;
   line-height: 1.5;
-  margin-top: 5px;
-  margin-left: 10px;
 }
 
 .slug-preview-value {
@@ -13424,19 +13393,11 @@ select[data-module=autocomplete] {
 }
 .dataset-heading .badge {
   position: relative;
-  top: -1px;
+  top: 3px;
 }
 
 .badge-inverse {
   background-color: #475467;
-}
-
-.dataset-private {
-  font-size: 18px;
-  margin-bottom: 0.5rem;
-}
-.dataset-private.pull-right {
-  margin-right: 0;
 }
 
 .dataset-resources {
@@ -13872,19 +13833,16 @@ td.diff_header {
   width: 100%;
   border-radius: 6px;
   margin-bottom: 10px;
-  padding: 0 5px 5px;
-  background-color: #fff;
+  cursor: pointer;
 }
 .search-form .control-order-by label {
   font-size: 12px;
   font-weight: 500;
-  color: #667085;
   padding-left: 8px;
 }
 @media (min-width: 768px) {
   .search-form .control-order-by {
     float: right;
-    margin-left: 15px;
     min-width: 200px;
     max-width: min-content;
   }
@@ -13907,6 +13865,11 @@ td.diff_header {
   font-weight: 500;
   background-position: right 1rem top;
   background-size: 16px 16px;
+  background-color: transparent;
+  cursor: pointer;
+}
+.search-form .control-order-by .form-select:focus {
+  background-color: transparent;
 }
 .search-form .control-order-by:focus-within {
   box-shadow: 0 0 0 0.25rem rgba(21, 48, 132, 0.25);
@@ -13939,17 +13902,12 @@ td.diff_header {
   border: 0;
   border-radius: 0 3px 3px 0;
   color: #2f4b91;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: unset;
   font-size: 1rem;
-  line-height: 1.56;
   position: absolute;
   right: 0;
-  bottom: 0;
-  top: 2px;
-  height: 92%;
-  cursor: pointer;
+  top: 1px;
+  height: 93%;
 }
 
 .groups-list {
@@ -14069,13 +14027,6 @@ td.diff_header {
   margin-right: 0;
 }
 
-.page-header.module-content {
-  padding-top: 0.75rem;
-  padding-bottom: 0;
-}
-.page-header {
-  margin-top: 1.5rem;
-}
 .page-header::after {
   display: block;
   clear: both;
@@ -14174,11 +14125,8 @@ td.diff_header {
 }
 
 .main .primary {
-  border-radius: 20px;
+  border-radius: 0.5rem;
   background-color: #f2f4f7;
-  position: relative;
-  float: right;
-  margin-left: 0;
 }
 
 .main .secondary {
@@ -14578,11 +14526,9 @@ td.diff_header {
   position: fixed;
   top: 0;
   left: 0;
-  color: #1d2939;
-  background-color: #153084;
+  color: #fff;
+  background-color: #0a1d5e;
   padding: 2px 4px;
-  border: #d0d5dd 1px solid;
-  border-left: 0px;
   z-index: 9;
 }
 .masthead .navbar hgroup h1, .masthead .navbar hgroup .h1,
@@ -15277,6 +15223,7 @@ footer .ckan-footer-logo {
 }
 
 .btn {
+  font-weight: bold;
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
@@ -15389,30 +15336,10 @@ input[id^=lang-].btn-check + label.btn:hover {
   color: #1d2939;
 }
 
-.custom-btn {
-  width: 36px;
-  height: 36px;
-  background-color: #98a2b3;
-  color: white;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  padding: 0;
-  font-size: 16px;
-  line-height: 1;
-}
-.custom-btn .fa {
-  color: white;
-  font-size: 18px;
-}
-.custom-btn .fa.fa-pencil-square-o::before {
-  content: "\f044";
-  color: white;
-}
-.custom-btn:hover {
-  background-color: rgb(122.6536312849, 135.5027932961, 157.3463687151);
+.btn-rounded {
+  border-radius: 100px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .accordion-button {
@@ -15478,14 +15405,10 @@ input[id^=lang-].btn-check + label.btn:hover {
 .secondary .accordion .accordion-item {
   background-color: transparent;
   border: none;
-  border-radius: 0.5rem;
 }
 .secondary .accordion .accordion-item:has(.accordion-button:disabled),
 .secondary .accordion .accordion-item .module-content {
   background-color: #f2f4f7;
-}
-.secondary .accordion .accordion-item:first-of-type .accordion-button {
-  border-radius: 0.5rem;
 }
 .secondary .accordion .accordion-item .module-content {
   padding: 1rem;
@@ -15495,6 +15418,7 @@ input[id^=lang-].btn-check + label.btn:hover {
   box-shadow: none;
   background-color: #153084;
   color: #fff;
+  border-radius: 0.5rem 0.5rem 0 0;
 }
 .secondary .accordion .accordion-button:not(.collapsed) .filter-svg {
   -webkit-text-stroke: 2px #fff;
