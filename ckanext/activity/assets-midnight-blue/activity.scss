@@ -15,6 +15,12 @@ $activityColorEmpty: #6E6E6E;
         padding: 1rem 0;
         border-bottom: 1px solid #e4e7ec;
         display: flex;
+
+        span {
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
         &:last-child {
             border-bottom: none;
         }
