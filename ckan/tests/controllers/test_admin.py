@@ -220,7 +220,7 @@ class TestTrashView(helpers.RQTestBase):
         dataset tab."""
         trash_url = url_for("admin.trash")
         trash_response = app.get(trash_url, headers=sysadmin_headers, status=200)
-        assert "purge-all" in trash_response
+        assert "There are no datasets to purge" in trash_response
 
     def test_trash_unknown_ent_type_404s(self, app, sysadmin_headers):
         trash_url = url_for("admin.trash", ent_type="not-a-real-type")
