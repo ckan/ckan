@@ -1,43 +1,78 @@
 {% extends "admin/base.html" %}
 
 {% block primary_content_inner %}
-  <h1>
-    {% block page_heading %}{{ _('Trash') }}{% endblock %}
-  </h1>
-  <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-all">
-    {{ h.csrf_input() }}
-    <div class="form-actions mb-3">
-      <input type="hidden" name="action" value="all">
-      <a class="btn btn-danger"
-        type="submit"
-        href="{{ h.url_for('admin.trash', name='all') }}"
-        data-module="confirm-action"
-        data-module-with-data=true
-        data-module-content="{{ _('Are you sure you want to purge everything?') }}">
-        {{ _('Purge all') }}
-      </a>
-    </div>
-  </form>
+    <h1>
+        {% block page_heading %}{{ _('Trash') }}{% endblock %}
+    </h1>
 
-  {% for ent_type, entities in data.items() %}
-    {% snippet "admin/snippets/data_type.html", ent_type=ent_type, entities=entities, messages=messages %}
-  {% endfor %}
+    {% set tab_labels = {
+        "dataset": _("Datasets"),
+        "group": _("Groups"),
+        "organization": _("Organizations"),
+    } %}
+
+    <ul class="nav nav-tabs mb-3">
+        {% for tab in ["dataset", "group", "organization"] %}
+            <li class="nav-item">
+                <a class="nav-link {% if tab == ent_type %}active{% endif %}"
+                    href="{{ h.url_for('admin.trash', ent_type=tab) }}">
+                    {{ tab_labels[tab] }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% snippet "admin/snippets/trash_table.html", ent_type=ent_type, page=page, q=q %}
 {% endblock %}
 
 {% block secondary_content %}
-<div class="module module-narrow module-shallow">
-  <div class="module-group">
-    <h2 class="module-heading">
-      <i class="fa fa-info-circle"></i>
-      {{ _("Trash") }}
-    </h2>
-    <div class="module-content">
-      <p>
-        {% trans %}
-        Purge deleted datasets, organizations or groups forever and irreversibly.
-        {% endtrans %}
-      </p>
+    <div class="module module-narrow module-shallow">
+        <div class="module-group">
+            <h2 class="module-heading">
+                <i class="fa fa-info-circle"></i>
+                {{ _("Trash") }}
+            </h2>
+            <div class="module-content">
+                <p>
+                    {% trans %}
+                    Purge deleted datasets, organizations or groups forever and irreversibly.
+                    {% endtrans %}
+                </p>
+                <p>
+                    {% trans %}
+                    Purging a single selected entity happens immediately. Purging more
+                    than one selected entity, or purging everything on a tab, is queued
+                    as a background job instead of blocking the request.
+                    {% endtrans %}
+                </p>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+
+    <div class="module module-narrow module-shallow">
+        <div class="module-group">
+            <h2 class="module-heading">
+                <i class="fa fa-tasks"></i>
+                {{ _("Purge jobs") }}
+            </h2>
+            <div class="module-content">
+                {% if purge_jobs %}
+                <ul class="list-unstyled">
+                    {% for job in purge_jobs %}
+                    <li class="mb-2">
+                        <span
+                            class="badge bg-{{ 'success' if job.status == 'finished' else 'danger' if job.status == 'failed' else 'secondary' }}">
+                            {{ job.status }}
+                        </span>
+                        {{ job.title }}<br>
+                        <small class="text-muted">{{ h.render_datetime(job.created, with_hours=true) }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>{{ _("No purge jobs yet.") }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
