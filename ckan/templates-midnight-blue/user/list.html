@@ -9,14 +9,16 @@
 {% block primary_content %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">
+      <h1 class="sr-only">
         {% block page_heading %}{{ _('Users') }}{% endblock %}
       </h1>
       {% block users_list %}
         <ul class="user-list">
           {% block users_list_inner %}
             {% for user in page.items %}
-              <li>{{ h.linked_user(user.name, maxlength=20) }}</li>
+              <li>{{ h.user_image((user.name), size=20) }} {{ h.linked_user(user.name, maxlength=20) }}</li>
+            {% else %}
+              <li class="empty">{{ _('No matching users found.') }}</li>
             {% endfor %}
           {% endblock %}
         </ul>

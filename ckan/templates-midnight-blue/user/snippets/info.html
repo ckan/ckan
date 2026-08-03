@@ -2,12 +2,12 @@
 {% set orgs_available = h.organizations_available(permission='manage_group',
   include_dataset_count=True,
   include_member_count=True,
-  user=user['name'])
+  user=user.name)
 %}
 {% set groups_available = h.groups_available(am_member=True,
   include_dataset_count=True,
   include_member_count=True,
-  user=user['name'])
+  user=user.name)
 %}
 
 
@@ -18,7 +18,7 @@
         <div class="image">{{ h.user_image(user.id, size=270) }}</div>
         {% endblock %}
         {% block user_heading %}
-        <h2 class="heading">{{ user.display_name }}</h2>
+        <h2 class="heading text-break">{{ user.display_name }}</h2>
         {% endblock %}
         {% block user_about %}
         {% if about_formatted %}
