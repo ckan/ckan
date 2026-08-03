@@ -92,7 +92,7 @@ $secondary:     $gray-500 !default;
 $success:       $green !default;
 $info:          $cyan !default;
 $warning:       $yellow !default;
-$danger:        darken($red, 5%) !default;
+$danger:        color.adjust($red, $lightness: -5%) !default;
 $light:         $gray-100 !default;
 $dark:          $gray-900 !default;
 // scss-docs-end theme-color-variables
@@ -495,7 +495,7 @@ $headings-font-family:        null !default;
 $headings-font-style:         null !default;
 $headings-font-weight:        500 !default;
 $headings-line-height:        1.2 !default;
-$headings-color:              darken($brand-700, 5%) !default;
+$headings-color:              color.adjust($brand-700, $lightness: -5%) !default;
 // scss-docs-end headings-variables
 
 // scss-docs-start display-headings
@@ -1220,7 +1220,7 @@ $popover-arrow-width:               1rem !default;
 $popover-arrow-height:              .5rem !default;
 $popover-arrow-color:               $popover-bg !default;
 
-$popover-arrow-outer-color:         fade-in($popover-border-color, .05) !default;
+$popover-arrow-outer-color:         color.adjust($popover-border-color, $alpha: 0.05) !default;
 // scss-docs-end popover-variables
 
 
