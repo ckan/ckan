@@ -175,7 +175,9 @@
 
         a {
             color: $brand-400;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
 
             &:hover {
                 text-decoration: none;

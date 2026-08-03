@@ -8,7 +8,7 @@
 {% block primary_content_inner %}
   {% set count = members|length %}
   {% set members_count = ungettext('{count} member', '{count} members', count).format(count=count) %}
-  <h1 class="page-heading">{{ _('Members') }}</h1>
+  <h1 class="sr-only">{{ _('Members') }}</h1>
   <h2>{{ members_count }}</h2>
   <table class="table table-header table-hover table-bordered">
     <thead>

@@ -3,7 +3,8 @@
 
 {% block subtitle %}{{ _('View') }} {{ g.template_title_delimiter }} {{ h.resource_display_name(res) }}{% endblock %}
 
-{% block page_primary_action %}
+{% block content_action %}
+  {{ super() }}
   {% if h.check_access('resource_view_create', {'resource_id': resource.id}) %}
     <div class="dropdown btn-group">
       <a class="btn btn-primary dropdown-toggle" role="button" id="dropdownView" data-bs-toggle="dropdown" aria-expanded="false" href="#">
@@ -22,8 +23,10 @@
   {% asset 'vendor/reorder' %}
 {% endblock %}
 
+{% block page_primary_action %}{% endblock %}
+
 {% block primary_content_inner %}
-  <h1>{{ _('Edit Views') }}</h1>
+  <h1 class="sr-only">{{ _('Edit Views') }}</h1>
   {% if views %}
     {% snippet "package/snippets/resource_views_list.html", views=views, pkg=pkg, is_edit=true, extra_attributes='data-module = resource-view-reorder data-module-id=' + resource.id, extra_class='flex-column resource-view-list nav-pills nav-stacked' %}
   {% else %}

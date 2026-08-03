@@ -13,7 +13,7 @@
     <div class="module-content">
       {% block primary_content_inner %}
         {% if self.form_title() %}
-          <h1>{% block form_title %}{% endblock %}</h1>
+          <h1 class="sr-only">{% block form_title %}{% endblock %}</h1>
         {% endif %}
         {% block form %}
           {{- h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) -}}
@@ -51,5 +51,3 @@
     {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
   {% endblock %}
 {% endblock %}
-
-

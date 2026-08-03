@@ -45,7 +45,7 @@
         id="form-purge-{{ ent_type }}">
         {{ h.csrf_input() }}
         <input type="hidden" name="action" value="{{ent_type}}">
-        <a href="{{ h.url_for('admin.trash', name=ent_type) }}" class="btn btn-danger purge-all"
+        <a href="{{ h.url_for('admin.trash', name=ent_type) }}" class="btn btn-danger"
           data-module="confirm-action" data-module-with-data=true
           data-module-content="{{ _(messages.confirm[ent_type]) }}">
           {{ _('Purge') }}

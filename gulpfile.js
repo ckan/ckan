@@ -39,7 +39,10 @@ const buildMidnightBlue = () =>
     __dirname + "/ckan/public-midnight-blue/base/scss/main-rtl.scss",
     ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
-    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
+    .pipe(sass({
+        outputStyle: 'expanded',
+        silenceDeprecations: ['import', 'if-function', 'global-builtin', 'color-functions'] }
+    ).on('error', sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))
     .pipe(rename(renamer))
     .pipe(dest(__dirname + "/ckan/public-midnight-blue/base/css/"));
