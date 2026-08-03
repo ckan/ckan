@@ -1,15 +1,14 @@
 {% extends "user/read_base.html" %}
 
-{% block page_primary_action %}
+{% block content_action %}
+  {{ super() }}
   {% if h.check_access('package_create') and user.datasets %}
     {% snippet 'snippets/add_dataset.html' %}
   {% endif %}
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h1>
-    {% block page_heading %}{{ _('Datasets') }}{% endblock %}
-  </h1>
+  <h1 class="sr-only">{% block page_heading %}{{ _('Datasets') }}{% endblock %}</h1>
   {% block package_list %}
   {% if user.datasets %}
     {% snippet 'snippets/package_list.html', packages=user.datasets %}

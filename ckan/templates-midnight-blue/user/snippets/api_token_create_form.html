@@ -6,7 +6,7 @@
   {{ h.csrf_input() }}
   {% block base_fields %}
     <div class="form-group ">
-        {{ form.input('name', label==_('Name'), is_required=True, value=data.name, error=errors.name) }}
+        {{ form.input('name', label=_('Name'), is_required=True, value=data.name, error=errors.name) }}
     </div>
   {% endblock base_fields %}
   {% block form_actions %}
@@ -31,7 +31,7 @@
             </label>
           </div>
           {% set copy_button %}<button class="btn btn-secondary btn-xs" data-module="copy-into-buffer" data-module-copy-value="{{ created.token }}" type="button"><i class="fa fa-copy"></i></button>{% endset %}
-          {{ _("API Token created: <code style=\"word-break:break-all;\">"
+          {{ _("API Token created: <code style='word-break:break-all;'>"
                "{token}</code> {copy}<br>"
                "Make sure to copy it now, "
                "you won't be able to see it again!").format(
