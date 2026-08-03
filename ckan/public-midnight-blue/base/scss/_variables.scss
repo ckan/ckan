@@ -45,7 +45,7 @@ $navItemActiveBackgroundColor: $gray-500;
 $navItemActiveArrowSize: $spacer-1;
 
 $pillTextColor: $navItemActiveTextColor;
-$pillBackgroundColor: darken($navItemActiveBackgroundColor, 10%);
+$pillBackgroundColor: color.adjust($navItemActiveBackgroundColor, $lightness: -10%);
 
 $footerBackgroundColor: $brand-700;
 $footerTextColor: $white;
@@ -64,7 +64,7 @@ $highlightHoverBackground: #fdf3d9;
 // Forms
 
 $errorText: #b55457;
-$errorBackground: lighten(#a2191f, 30%);
+$errorBackground: color.adjust(#a2191f, $lightness: 30%);
 $errorBorder: #a2191f;
 
 $formInfoText: #707070;

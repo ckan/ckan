@@ -14,7 +14,7 @@ this.ckan.module('resource-view-reorder', function($) {
         '</a>'
       ].join('\n'),
       form_actions: [
-        '<div class="form-actions">',
+        '<div class="form-actions mt-3">',
         '<a href="javascript:;" class="cancel btn btn-danger pull-left"></a>',
         '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
@@ -44,7 +44,7 @@ this.ckan.module('resource-view-reorder', function($) {
         .hide();
       var button = $(this.template.button)
         .on('click', this._onHandleStartReorder)
-        .appendTo('.page_primary_action');
+        .appendTo('.content_action');
       $('span', button).text(labelText);
 
       this.html_form_actions = $(this.template.form_actions)
@@ -83,7 +83,7 @@ this.ckan.module('resource-view-reorder', function($) {
         this.el
           .addClass('reordering')
           .sortable('enable');
-        $('.page_primary_action').hide();
+        $('.content_action').hide();
         this.is_reordering = true;
       }
     },
@@ -132,7 +132,7 @@ this.ckan.module('resource-view-reorder', function($) {
       this.el
         .removeClass('reordering')
         .sortable('disable');
-      $('.page_primary_action').show();
+      $('.content_action').show();
     }
 
   };

@@ -3,32 +3,42 @@
     position: relative;
     margin-bottom: 10px;
     padding: 5px 0;
-}
 
-.toolbar .breadcrumb {
-    @include clearfix;
-    @include box-shadow(none);
-    position: relative;
-    float: left;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: none;
-    font-size: $breadcrumb-font-size;
-}
+    .breadcrumb {
+        @include clearfix;
+        @include box-shadow(none);
+        position: relative;
+        float: left;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+        font-size: $breadcrumb-font-size;
 
-.toolbar .breadcrumb li {
-    &:not(:first-child) {
-        padding-left: $breadcrumb-item-padding-x;
-        &::before {
-            float: left; // Suppress inline spacings and underlining of the separator
-            padding-right: $breadcrumb-item-padding-x;
-            color: $breadcrumb-divider-color;
-            content: var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider)) #{"/* rtl:"} var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider-flipped)) #{"*/"};
-          }
+        a {
+            color: $breadcrumbTextColor;
+        }
+
+        li {
+            &:not(:first-child) {
+                padding-left: $breadcrumb-item-padding-x;
+                &::before {
+                    float: left; // Suppress inline spacings and underlining of the separator
+                    padding-right: $breadcrumb-item-padding-x;
+                    color: $breadcrumb-divider-color;
+                    content: var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider)) #{"/* rtl:"} var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider-flipped)) #{"*/"};
+                }
+            }
+        }
+    }
+
+    @include media-breakpoint-down(sm) {
+        .breadcrumb {
+            color: #fff;
+            text-shadow: none;
+        }
     }
 }
-
 
 
 .toolbar .home a {
@@ -39,16 +49,6 @@
     display: inline;
 }
 
-.toolbar .breadcrumb a {
-    color: $breadcrumbTextColor;
-}
-
-@include media-breakpoint-down(sm) {
-    .toolbar .breadcrumb {
-        color: #fff;
-        text-shadow: none;
-    }
-}
 
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
@@ -61,19 +61,20 @@
     position: absolute;
     top: 10px;
     z-index: 1;
-}
 
-.actions li {
-    display: inline-block;
-    margin-right: 5px;
-    //@extend ie7-inline-block;
-    ul li {
-        display: block;
+    li {
+        display: inline-block;
+        margin-right: 5px;
+        //@extend ie7-inline-block;
+        ul li {
+            display: block;
+        }
+
+        &:last-of-type {
+            margin-right: 0;
+        }
     }
-}
 
-.actions li:last-of-type {
-    margin-right: 0;
 }
 
 .page-header {

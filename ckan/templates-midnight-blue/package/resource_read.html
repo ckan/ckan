@@ -20,9 +20,9 @@
 
 {% block pre_primary %}
   {% block resource %}
-    <section class="module module-resource" role="complementary">
+    <section class="module" role="complementary">
       {% block resource_inner %}
-        <div class="actions">
+        <div class="actions position-relative">
           {% block resource_actions %}
             <ul class="d-flex flex-wrap gap-1 justify-content-end">
               {% block resource_actions_inner %}
@@ -55,7 +55,7 @@
           {% endblock %}
         </div>
         {% block resource_content %}
-          {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          {% block resource_read_title %}<h1 class="page-heading text-break">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
               <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" aria-label="{{ _('Resource URL: {url}').format(url=res.url) }}">{{ res.url }}</a></p>
@@ -87,7 +87,7 @@
            %}
         {% endblock %}
           {% block resource_view_content %}
-            <div class="resource-view">
+            <div class="resource-view mt-3 mb-md-3">
               {% if resource_views %}
                   {% for resource_view in resource_views %}
                     {% if resource_view == current_resource_view %}
@@ -188,7 +188,7 @@
     {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read' %}
   {% endblock %}
 
-  {% block resource_license %}
+  {% block resource_social %}
     {% snippet "snippets/social.html" %}
   {% endblock %}
 {% endblock %}
