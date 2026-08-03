@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.12.0 2026-07-29
+v.2.12.0 2026-08-12
 ===================
 
 Overview
@@ -19,7 +19,7 @@ Overview
 - This version requires a database upgrade with ``ckan db upgrade``.
 - This version requires the DataStore database to be updated by
   running the SQL script produced by ``ckan datastore set-permissions``.
-- Make sure to check the :ref:`migration-notes-2.11`
+- Make sure to check the :ref:`migration-notes-2.12`
 
 
 Major features
@@ -425,6 +425,9 @@ Bugfixes
   (`#8499 <https://github.com/ckan/ckan/pull/8499>`_)
 - Renamed ``.btn-default`` to ``.btn-secondary`` due to Bootstrap conventions. (`#8611
   <https://github.com/ckan/ckan/pull/8611>`_)
+- Allow users to follow and unfollow groups and organizations when
+  ``ckan.auth.public_user_details`` is disabled. (`#9394
+  <https://github.com/ckan/ckan/pull/9394>`_)
 
 
 .. _migration-notes-2.12:
