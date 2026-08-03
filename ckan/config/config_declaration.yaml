@@ -549,7 +549,7 @@ groups:
 
       - key: ckan.auth.user_create_organizations
         type: bool
-        default: true
+        default: false
         example: "false"
         description: Allow users to create organizations.
 

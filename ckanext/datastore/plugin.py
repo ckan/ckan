@@ -102,6 +102,9 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_function_create': action.datastore_function_create,
             'datastore_function_delete': action.datastore_function_delete,
             'datastore_run_triggers': action.datastore_run_triggers,
+            'datastore_sequence_create': action.datastore_sequence_create,
+            'datastore_sequence_delete': action.datastore_sequence_delete,
+            'datastore_sequence_next': action.datastore_sequence_next,
         }
         if getattr(self.backend, 'enable_sql_search', False):
             # Only enable search_sql if the config/backend does not disable it
@@ -125,6 +128,9 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_function_create': auth.datastore_function_create,
             'datastore_function_delete': auth.datastore_function_delete,
             'datastore_run_triggers': auth.datastore_run_triggers,
+            'datastore_sequence_create': auth.datastore_sequence_create,
+            'datastore_sequence_delete': auth.datastore_sequence_delete,
+            'datastore_sequence_next': auth.datastore_sequence_next,
         }
 
     # IResourceController
