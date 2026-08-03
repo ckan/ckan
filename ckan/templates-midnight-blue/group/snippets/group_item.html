@@ -26,7 +26,7 @@ Example:
     </div>
   {% endblock %}
   {% block title %}
-    <h3>{{ group.display_name }}</h3>
+    <h3 class="text-break">{{ group.display_name | truncate(45) }}</h3>
   {% endblock %}
   {% block datasets %}
     {% if group.package_count %}

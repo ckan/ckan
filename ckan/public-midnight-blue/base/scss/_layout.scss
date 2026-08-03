@@ -106,7 +106,7 @@
     // #gradient it breaks the filter property in IE7.
    @include rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
     background-color: $moduleHeadingBackgroundColor;
-    border-bottom: 1px solid darken($moduleHeadingBorderColor, 5%);
+    border-bottom: 1px solid color.adjust($moduleHeadingBorderColor, $lightness: -5%);
     @include border-radius(3px 3px 0 0);
     @include box-shadow(inset 0 -4px 0 rgba(0,0,0,0.03));
     .back:hover {
