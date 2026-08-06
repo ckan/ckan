@@ -28,18 +28,15 @@
 <div class="primary col-md-8 col-lg-9 col-xs-12" role="main">
   <article class="module">
     <div class="module-content">
-      <div class="dashboard-container row">
-        <div class="col-md-8">
-          {% block page_heading %}{% endblock %}
-        </div>
-        {% if self.page_primary_action() | trim %}
+      {% block page_heading %}{% endblock %}
+
+      {% if self.page_primary_action() | trim %}
           <div class="page_primary_action col-md-4">
-            {% block page_primary_action %}{% endblock %}
+          {% block page_primary_action %}{% endblock %}
           </div>
-        {% endif %}
-      </div>
-      {% block primary_content_inner %}
-      {% endblock %}
+      {% endif %}
+
+      {% block primary_content_inner %}{% endblock %}
     </div>
   </article>
 </div>
