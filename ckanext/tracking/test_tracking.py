@@ -4,7 +4,6 @@ import datetime
 import pytest
 import ckan.lib.helpers as h
 
-from ckan.model.meta import engine
 from ckan.tests import factories
 from ckan.tests.helpers import call_action
 
@@ -24,7 +23,7 @@ def export(tmp_path):
     path = tmp_path / "report.csv"
 
     def exporter():
-        export_tracking(engine=engine, output_filename=path)
+        export_tracking(output_filename=path)
 
         return list(csv.DictReader(path.open("r")))
 
@@ -68,7 +67,7 @@ def update_tracking_summary():
     from ckanext.tracking.cli.tracking import update_all
 
     date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-    update_all(engine=engine, start_date=date)
+    update_all(start_date=date)
 
 
 @pytest.mark.ckan_config("ckan.root_path", "/foo/{{LANG}}")
@@ -480,6 +479,7 @@ class TestTracking(object):
 
         package_1 = factories.Dataset(user=admin)
         package_2 = factories.Dataset(user=admin, name="another_package")
+        unviewed_package = factories.Dataset(user=admin, name="unviewed_package")
 
         # View the package_1 three times from different IPs.
         url = h.url_for("dataset.read", id=package_1["name"])
@@ -495,13 +495,35 @@ class TestTracking(object):
         update_tracking_summary()
         lines = export()
 
+        # Keep the export scoped to datasets represented in tracking_summary;
+        # unviewed datasets should not be added with a synthetic zero count.
         assert len(lines) == 2
+        assert unviewed_package["id"] not in {
+            line["dataset id"] for line in lines
+        }
         package_1_data = lines[0]
+        assert package_1_data["dataset id"] == package_1["id"]
+        assert package_1_data["dataset name"] == package_1["name"]
         assert package_1_data["total views"] == "3"
         assert package_1_data["recent views (last 2 weeks)"] == "3"
         package_2_data = lines[1]
+        assert package_2_data["dataset id"] == package_2["id"]
+        assert package_2_data["dataset name"] == package_2["name"]
         assert package_2_data["total views"] == "2"
         assert package_2_data["recent views (last 2 weeks)"] == "2"
+
+    def test_recent_views_include_dataset_name(self, track):
+        package = factories.Dataset()
+        track(h.url_for("dataset.read", id=package["name"]))
+        update_tracking_summary()
+
+        from ckanext.tracking.cli.tracking import ViewCount, _recent_views
+
+        recent_views = _recent_views(
+            datetime.date.today() - datetime.timedelta(days=14)
+        )
+
+        assert recent_views == [ViewCount(package["id"], package["name"], 1)]
 
     def test_post_tracking_does_not_return_method_not_allowed(self, track):
         response = track(url="", type_="page")

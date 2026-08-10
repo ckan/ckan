@@ -80,10 +80,13 @@ def _total_views():
     '''
     stmt = (
         select(
-            ts.package_id,
+            Package.id,
+            Package.name,
             func.coalesce(func.sum(ts.count), 0).label("total_views"),
         )
-        .group_by(ts.package_id)
+        .select_from(ts)
+        .join(Package, ts.package_id == Package.id)
+        .group_by(Package.id, Package.name)
         .order_by(desc("total_views"))
     )
 
@@ -96,11 +99,14 @@ def _recent_views(measure_from: datetime.date):
     '''
     stmt = (
         select(
-            ts.package_id,
+            Package.id,
+            Package.name,
             func.coalesce(func.sum(ts.count), 0).label("total_views"),
         )
+        .select_from(ts)
+        .join(Package, ts.package_id == Package.id)
         .where(ts.tracking_date >= measure_from)
-        .group_by(ts.package_id)
+        .group_by(Package.id, Package.name)
         .order_by(desc("total_views"))
     )
     return [
