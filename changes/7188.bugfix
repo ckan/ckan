@@ -1,0 +1,1 @@
+Add an accessible name to the resource actions dropdown button (the icon-only "wrench" toggle in the resource list) so it has discernible text for screen readers, fixing a WCAG 4.1.2 button-name issue.
