@@ -1,0 +1,1 @@
+Add accessible names to the icon-only user-search submit button and the API-token "copy to clipboard" button so screen readers announce them with discernible text (WCAG 4.1.2).
