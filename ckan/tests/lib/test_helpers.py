@@ -261,8 +261,8 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<foo>moo</foo>", "<foo>moo</foo>", True),
-            ("<foo>moo</foo>", "moo", False),
+            ("<foo>moo</foo>", "<p><foo>moo</foo></p>", True),
+            ("<foo>moo</foo>", "<p>moo</p>", False),
             ("<script>moo</script>", "", False), # script and style tags are removed with content by nh3
             (
                 "http://example.com",
