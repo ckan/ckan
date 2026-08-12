@@ -261,8 +261,9 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<script>moo</script>", "<script>moo</script>", True),
-            ("<script>moo</script>", "moo", False),
+            ("<foo>moo</foo>", "<foo>moo</foo>", True),
+            ("<foo>moo</foo>", "moo", False),
+            ("<script>moo</script>", "", False), # script and style tags are removed with content by nh3
             (
                 "http://example.com",
                 '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
@@ -283,7 +284,7 @@ class TestHelpersRenderMarkdown(object):
                 u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>',
                 False,
             ),
-            (u"[text](javascript: alert(1))", '<p><a rel="noopener noreferrer>text</a></p>', False),
+            (u"[text](javascript: alert(1))", '<p><a rel="noopener noreferrer">text</a></p>', False),
             (
                 u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
                 '<p><img src="image.png"> and text</p>',
