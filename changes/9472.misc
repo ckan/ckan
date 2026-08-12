@@ -1,0 +1,1 @@
+HTML cleaning is done with ``nh3`` instead of ``bleach`` from now on. More tags and attributes are allowed by default and ``clean_html`` now strips unknown tags instead of escaping HTML-entities.
