@@ -77,6 +77,7 @@
      * Returns a jQuery xhr promise.
      */
     getLocaleData: function (locale, success, error) {
+      locale = locale.replace('-', '_');
       var url = this.url('/api/i18n/' + (locale || ''));
       return jQuery.getJSON(url).then(success, error);
     },
