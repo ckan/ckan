@@ -189,7 +189,9 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def resource_fields(self, id: str) -> Any:
+    def resource_fields(
+            self, id: str, include_meta: bool = True,
+            include_fields_schema: bool = True) -> Any:
         """Return dictonary with resource description.
 
         Called by `datastore_info`.
