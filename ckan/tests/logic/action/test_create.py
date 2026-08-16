@@ -1469,9 +1469,11 @@ class TestUserCreate(object):
         assert user["name"] == name
         assert "password" not in user
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_parameters_missing(self):
+        context = {"user": None, "ignore_auth": False}
         with pytest.raises(logic.ValidationError) as err:
-            helpers.call_action("user_create")
+            helpers.call_action("user_create", context=context)
         assert err.value.error_dict == {
             "email": ["Missing value"],
             "name": ["Missing value"],
