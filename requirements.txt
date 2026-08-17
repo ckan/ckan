@@ -88,6 +88,8 @@ packaging==26.2
     # via -r requirements.in
 passlib==1.7.4
     # via -r requirements.in
+pglast==8.4
+    # via -r requirements.in
 pluggy==1.6.0
     # via file-keeper
 polib==1.2.0
@@ -133,8 +135,6 @@ sqlalchemy==2.0.51
     # via
     #   -r requirements.in
     #   alembic
-sqlparse==0.5.5
-    # via -r requirements.in
 tomli==2.4.1
     # via alembic
 typing-extensions==4.16.0
