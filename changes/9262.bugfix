@@ -1,0 +1,2 @@
+datastore: creating tables with field names that conflict with system column
+names now returns the correct validation error
