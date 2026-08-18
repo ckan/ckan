@@ -265,3 +265,43 @@ def datastore_show_resource_actions():
     """
 
     return "midnight-blue" not in tk.config.get("ckan.base_templates_folder")
+
+
+def datastore_dump_formats(
+        resource_id: Optional[str] = None,
+        search_params: Optional[dict[str, Any]] = None,
+) -> list[dict[str, Any]]:
+    """ Return registered dump formats for the download dropdown.
+    Each entry exposes only what templates need: ``name``, ``label``,
+    ``available`` (bool) and ``reason`` (str or None).
+    """
+    from ckanext.datastore.blueprint import (
+        get_dump_format_configs,
+        build_dump_context,
+        evaluate_format_availability,
+    )
+
+    formats = get_dump_format_configs()
+
+    def _has_controls(cfg: dict[str, Any]) -> bool:
+        return any(
+            k in cfg for k in ("max_columns", "max_rows", "validate"))
+
+    # Only resolve the export scope when a format actually has controls.
+    context = None
+    has_controls = any(_has_controls(cfg) for cfg in formats.values())
+    if resource_id is not None and has_controls:
+        context = build_dump_context(resource_id, search_params)
+
+    out = []
+    for name, cfg in formats.items():
+        reason = None
+        if context is not None and _has_controls(cfg):
+            reason = evaluate_format_availability(cfg, context)
+        out.append({
+            "name": name,
+            "label": cfg.get("label", name.upper()),
+            "available": reason is None,
+            "reason": reason,
+        })
+    return out
