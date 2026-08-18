@@ -762,6 +762,28 @@ def test_markdown_extract_measures_visible_length_not_escaped_length():
     assert "&amp;" in str(h.markdown_extract(with_entities, 180))
 
 
+def test_markdown_extract_cuts_a_leading_token_wider_than_the_extract():
+    """A long first word must not swallow the whole extract.
+
+    ``textwrap.shorten`` drops any word that does not fit rather than
+    cutting it, so a description starting with a long URL, DOI or generated
+    identifier used to render as nothing but the placeholder.
+    """
+    long_token = u"B" * 400
+
+    assert str(h.markdown_extract(long_token, 180)) != u"..."
+    assert len(str(h.markdown_extract(long_token, 180))) == 180
+    assert str(h.markdown_extract(long_token, 180)).endswith(u"...")
+
+    # A trailing word does not change the leading token's behaviour.
+    assert str(h.markdown_extract(long_token + u" tail", 180)) != u"..."
+
+    # Text that shorten() can already break on a space is left to it.
+    words = u"word " * 100
+    assert str(h.markdown_extract(words, 180)).endswith(u"...")
+    assert len(str(h.markdown_extract(words, 180))) <= 180
+
+
 @pytest.mark.parametrize("string, date", [
     ("2008-04-13", datetime.datetime(2008, 4, 13)),
     ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),

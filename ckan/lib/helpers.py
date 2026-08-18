@@ -1417,17 +1417,20 @@ def markdown_extract(text: str,
     visible = unescape(plain)
     if not extract_length or len(visible) < extract_length:
         return literal(plain)
-    return literal(
-        str(
-            escape(
-                shorten(
-                    visible,
-                    width=extract_length,
-                    placeholder='...'
-                )
-            )
-        )
-    )
+    placeholder = '...'
+    shortened = shorten(visible, width=extract_length,
+                        placeholder=placeholder)
+    if shortened == placeholder and extract_length > len(placeholder):
+        # ``shorten`` drops any word too wide to fit rather than cutting it,
+        # so a description opening with a long token (a URL, a DOI, a
+        # generated identifier) is left as nothing but the placeholder and
+        # the dataset looks as though it has no description at all. Cut the
+        # token instead of dropping it.
+        collapsed = ' '.join(visible.split())
+        shortened = collapsed[
+            :extract_length - len(placeholder)
+        ].rstrip() + placeholder
+    return literal(str(escape(shortened)))
 
 
 @core_helper
