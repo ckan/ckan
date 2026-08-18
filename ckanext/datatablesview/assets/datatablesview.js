@@ -323,6 +323,8 @@ this.ckan.module('datatables_view', function (jQuery) {
       const resourceurl = dtprv.data('resource-url')
       const defaultview = dtprv.data('default-view')
       const responsivemodal = dtprv.data('responsive-modal')
+      const sortfield = dtprv.data('sort-field')
+      const sortorder = dtprv.data('sort-order')
 
       // get view mode setting from localstorage (table or list/responsive])
       const lastView = getWithExpiry('lastView-' + gresviewId)
@@ -479,6 +481,12 @@ this.ckan.module('datatables_view', function (jQuery) {
           })
       })
 
+      let defaultOrder = [[0, sortorder]]
+      const sortIndex = dynamicCols.findIndex((e) => e.data === sortfield)
+      if (sortIndex !== -1) {
+        defaultOrder = [[sortIndex, sortorder]]
+      }
+
       // init the datatable
       $('#dtprv').on('preInit.dt', function (_event, _settings) {
         // show loading indicator when first painting data into the table.
@@ -514,6 +522,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           }
         },
         columns: dynamicCols,
+        order: defaultOrder,
         ajax: {
           url: ajaxurl,
           type: 'POST',
