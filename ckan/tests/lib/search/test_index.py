@@ -5,7 +5,6 @@ import hashlib
 import json
 from unittest import mock
 import pytest
-import six
 from ckan.common import config
 import ckan.lib.search as search
 from ckan.tests import factories, helpers
@@ -57,9 +56,9 @@ class TestSearchIndex(object):
         assert response.docs[0]["title"] == "Monkey"
 
         index_id = hashlib.md5(
-            six.b("{0}{1}".format(
+            "{0}{1}".format(
                 self.base_package_dict["id"], config["ckan.site_id"]
-            ))
+            ).encode()
         ).hexdigest()
 
         assert response.docs[0]["index_id"] == index_id
