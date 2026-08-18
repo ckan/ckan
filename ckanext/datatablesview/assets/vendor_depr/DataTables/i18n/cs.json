@@ -1,0 +1,22 @@
+{
+    "emptyTable": "Tabulka neobsahuje žádná data",
+    "info": "Zobrazuji _START_ až _END_ z celkem _TOTAL_ záznamů",
+    "infoEmpty": "Zobrazuji 0 až 0 z 0 záznamů",
+    "infoFiltered": "(filtrováno z celkem _MAX_ záznamů)",
+    "infoThousands": " ",
+    "lengthMenu": "Zobraz záznamů _MENU_",
+    "loadingRecords": "Načítám...",
+    "processing": "Provádím...",
+    "search": "Hledat:",
+    "zeroRecords": "Žádné záznamy nebyly nalezeny",
+    "paginate": {
+        "first": "První",
+        "last": "Poslední",
+        "next": "Další",
+        "previous": "Předchozí"
+    },
+    "aria": {
+        "sortAscending": ": aktivujte pro řazení sloupce vzestupně",
+        "sortDescending": ": aktivujte pro řazení sloupce sestupně"
+    }
+}
