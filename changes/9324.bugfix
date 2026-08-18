@@ -1,0 +1,4 @@
+The ``unicode_safe`` validator now silently strips NUL (0x00) characters
+and lone surrogates (U+D800-U+DFFF), which can never be stored (PostgreSQL
+rejects NUL in text fields and lone surrogates cannot be encoded to UTF-8),
+so every schema using it is protected.
