@@ -29,7 +29,7 @@ from typing import (
 
 import dominate.tags as dom_tags
 from markdown import markdown
-from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
+from nh3 import clean as nh3_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
 from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
@@ -67,14 +67,11 @@ Helper = TypeVar("Helper", bound=Callable[..., Any])
 
 log = logging.getLogger(__name__)
 
-MARKDOWN_TAGS = set([
-    'del', 'dd', 'dl', 'dt', 'h1', 'h2',
-    'h3', 'img', 'kbd', 'p', 'pre', 's',
-    'sup', 'sub', 'strike', 'br', 'hr'
-]).union(ALLOWED_TAGS)
+MARKDOWN_TAGS = copy.copy(ALLOWED_TAGS)
 
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
-MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
+MARKDOWN_ATTRIBUTES['img'].add('title')
+MARKDOWN_ATTRIBUTES['a'].add('title')
 
 LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
@@ -1412,7 +1409,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = bleach_clean(markdown(text), tags=(), strip=True)
+    plain = nh3_clean(markdown(text), tags=set())
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(
@@ -2281,8 +2278,8 @@ def render_markdown(data: str,
     if allow_html:
         data = markdown(data.strip())
     else:
-        data = bleach_clean(
-            markdown(data), strip=True,
+        data = nh3_clean(
+            markdown(data),
             tags=MARKDOWN_TAGS,
             attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
@@ -2775,7 +2772,7 @@ def mail_to(email_address: str, name: str) -> Markup:
 
 @core_helper
 def clean_html(html: Any) -> str:
-    return bleach_clean(str(html))
+    return nh3_clean(str(html))
 
 
 core_helper(flash, name='flash')
