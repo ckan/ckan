@@ -1,0 +1,1 @@
+``h.markdown_extract()`` measured the extract length against the HTML-escaped text, so a description containing ``&``, ``<`` or ``>`` was truncated well short of the length requested. The length is now measured against the text as a reader sees it.
