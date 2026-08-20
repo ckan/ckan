@@ -1045,6 +1045,20 @@ def empty_if_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
     # Prevent further validation on the field now that is empty
     raise StopOnError()
 
+
+def not_empty_if_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
+                              errors: FlattenErrorDict,
+                              context: Context) -> Any:
+    '''Require a value unless auth is ignored or the user is a sysadmin.'''
+    from ckan.lib.navl.validators import not_empty
+
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth')
+    if ignore_auth or (user and authz.is_sysadmin(user)):
+        return
+
+    not_empty(key, data, errors, context)
+
 #pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
 email_pattern = re.compile(
                             # additional pattern to reject malformed dots usage
