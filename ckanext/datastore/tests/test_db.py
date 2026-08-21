@@ -271,22 +271,22 @@ class TestGetTables(object):
             session.execute(sa.text(create_table_sql))
 
         test_cases = [
-            (u"SELECT * FROM test_a", {(None, "test_a")}),
-            (u"SELECT * FROM public.test_a", {("public", "test_a")}),
-            (u'SELECT * FROM "TEST_C"', {(None, "TEST_C")}),
-            (u'SELECT * FROM public."TEST_C"', {("public", "TEST_C")}),
+            ("SELECT * FROM test_a", {(None, "test_a")}),
+            ("SELECT * FROM public.test_a", {("public", "test_a")}),
+            ('SELECT * FROM "TEST_C"', {(None, "TEST_C")}),
+            ('SELECT * FROM public."TEST_C"', {("public", "TEST_C")}),
             ("SELECT * from test_e", {("public", "test_a"), ("public", "test_b")}),
-            (u"SELECT * FROM pg_catalog.pg_database", {("pg_catalog", "pg_database")}),
-            (u"SELECT rolpassword FROM pg_roles", {(None, "pg_roles")}),
+            ("SELECT * FROM pg_catalog.pg_database", {("pg_catalog", "pg_database")}),
+            ("SELECT rolpassword FROM pg_roles", {(None, "pg_roles")}),
             (
-                u"""SELECT p.rolpassword
+                """SELECT p.rolpassword
                 FROM pg_roles p
                 JOIN test_b b
                 ON p.rolpassword = b.id_b""",
                 {(None, "pg_roles"), (None, "test_b")},
             ),
             (
-                u"""SELECT id_a, id_b, id_c
+                """SELECT id_a, id_b, id_c
                 FROM (
                     SELECT *
                     FROM (
@@ -296,13 +296,12 @@ class TestGetTables(object):
                     test_a AS a""",
                 {(None, "test_a"), (None, "test_b"), (None, "TEST_C")},
             ),
-            (u'SELECT "α/α" FROM test_d', {(None, "test_d")}),
-            (u'SELECT "α/α" FROM test_d WHERE "α/α" > 1000', {(None, "test_d")}),
+            ('SELECT "α/α" FROM test_d', {(None, "test_d")}),
+            ('SELECT "α/α" FROM test_d WHERE "α/α" > 1000', {(None, "test_d")}),
         ]
 
-        context = {"connection": session.connection()}
         for case in test_cases:
-            assert db.sanitize_sql(context, case[0])[1] == case[1]
+            assert db.sanitize_sql(session.connection(), case[0])[1] == case[1]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -328,9 +327,8 @@ class TestGetFunctions(object):
             (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
         ]
 
-        context = {"connection": session.connection()}
         for case in test_cases:
-            assert db.sanitize_sql(context, case[0])[2] == {(name,) for name in case[1]}
+            assert db.sanitize_sql(session.connection(), case[0])[2] == {(name,) for name in case[1]}
 
     def test_get_function_names_custom_function(self):
 
@@ -347,8 +345,6 @@ class TestGetFunctions(object):
         for create_table_sql in create_tables:
             session.execute(sa.text(create_table_sql))
 
-        context = {"connection": session.connection()}
-
         sql = "SELECT add(1, 2);"
 
-        assert db.sanitize_sql(context, sql)[2] == {("add",)}
+        assert db.sanitize_sql(session.connection(), sql)[2] == {("add",)}

@@ -99,7 +99,7 @@ def get_table_and_function_names_from_sql(context: Context, sql: str):
     :rtype: a tuple with two list of strings, one for table and one for
     function names
     '''
-    (_, tables, functions) = postgres.sanitize_sql(context, sql)
+    (_, tables, functions) = postgres.sanitize_sql(context['connection'], sql)
     return ([table[1] for table in tables], [function[-1] for function in functions])
 
 def datastore_dictionary(
