@@ -1929,13 +1929,13 @@ def nodes(ast: pglast.ast.Node | dict[str, Any]) -> Iterable[dict[str, Any]]:
                     continue
                 yield from nodes(node)
 
-def referenced_tables(context: Context, schema: str | None, name: str):
+def referenced_tables(connection: Any, schema: str | None, name: str):
     """Resolve tables referenced by a relation name:
         if the name refers to a view, all referenced tables, otherwise the table itself
     """
     # Note: not matching on `view_catalog` because it's constant in `view_table_usage`,
     # and we're unlikely to have a value for it anyway
-    result = context['connection'].execute(sa.text('''
+    result = connection.execute(sa.text('''
         SELECT table_catalog, table_schema, table_name
         FROM information_schema.view_table_usage
         WHERE view_schema = :schema and view_name = :name
@@ -1945,7 +1945,7 @@ def referenced_tables(context: Context, schema: str | None, name: str):
         (table.table_schema, table.table_name) for table in result
     } or {(schema, name)}
 
-def sanitize_sql(context: Context, query: str) -> tuple[
+def sanitize_sql(connection: Any, query: str) -> tuple[
     str,
     set[tuple[str | None, str]],
     set[tuple[str, ...]]
@@ -1955,9 +1955,6 @@ def sanitize_sql(context: Context, query: str) -> tuple[
     Parses the query using the upstream PostgreSQL parser, checks
     the AST nodes provided against an allow list of safe types, and
     reserializes the query.
-
-    This doesn't touch the database, so it cannot resolve views into
-    their underlying tables or resolve equivalent names.
 
     Returned SQL should be safe to execute: it should be a single
     query, with no mutations, and cleaned of any comments that could
@@ -1990,7 +1987,7 @@ def sanitize_sql(context: Context, query: str) -> tuple[
                     f'Catalog cannot be provided: {node["catalogname"]}'
                 )
             tables.update(
-                referenced_tables(context, node['schemaname'], node['relname'])
+                referenced_tables(connection, node['schemaname'], node['relname'])
             )
         elif node['@'] == 'FuncCall':
             funcname = (node['funcname'], ) \
@@ -2019,7 +2016,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
             f"SET LOCAL statement_timeout TO {timeout}"
         ))
 
-        sql, table_names, function_names = sanitize_sql(context, sql)
+        sql, table_names, function_names = sanitize_sql(context['connection'], sql)
         log.debug('Tables involved in input SQL: %r', table_names)
         log.debug('Functions involved in input SQL: %r', function_names)
 
