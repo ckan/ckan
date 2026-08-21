@@ -1987,8 +1987,8 @@ def sanitize_sql(connection: Any, query: str) -> tuple[
                 raise toolkit.ValidationError(
                     f'Catalog cannot be provided: {node["catalogname"]}'
                 )
-            tables.update(
-                referenced_tables(connection, node['schemaname'], node['relname'])
+            tables.add(
+                (node['schemaname'], node['relname'])
             )
         elif node['@'] == 'FuncCall':
             funcname = (node['funcname'], ) \
@@ -1998,8 +1998,12 @@ def sanitize_sql(connection: Any, query: str) -> tuple[
             functions.add(tuple(n['sval'] for n in funcname))
 
     serialized = pglast.stream.RawStream()(stmts[0])
-
-    return serialized, tables, functions
+    _referenced_tables = set(
+        table
+        for (schema, relname) in tables
+        for table in referenced_tables(connection, schema, relname)
+    )
+    return serialized, _referenced_tables, functions
 
 def search_sql(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
