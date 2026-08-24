@@ -3,10 +3,24 @@
 {{ form.checkbox(
   'responsive',
   id='field-responsive',
-  label=_('List view/Responsive display'),
+  label=_('Compact table (Responsive display)'),
   value='True',
   checked=data.responsive,
   ) }}
+{# {{ form.checkbox(
+  'show_summary_row',
+  id='field-show-summary-row',
+  label=_('Show Summary Row'),
+  value='True',
+  checked=data.show_summary_row,
+  ) }} #}
+{# {{ form.checkbox(
+  'show_histograms',
+  id='field-show-histograms',
+  label=_('Show Histograms'),
+  value='True',
+  checked=data.show_histograms,
+  ) }} #}
 {% call form.input(
   'ellipsis_length',
   id='field-ellipsis_length',
