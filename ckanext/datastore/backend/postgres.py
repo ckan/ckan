@@ -52,6 +52,7 @@ from ckanext.datastore.backend import (
 )
 from ckanext.datastore.backend.postgres_ast_allowlist import NODE_TYPE_ALLOWLIST
 import pglast
+import pglast.ast
 import pglast.stream
 
 log = logging.getLogger(__name__)
