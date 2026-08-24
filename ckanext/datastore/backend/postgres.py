@@ -6,6 +6,7 @@ import itertools
 from typing_extensions import TypeAlias
 
 from sqlalchemy.engine.base import Engine
+from sqlalchemy.engine import Connection
 from sqlalchemy.dialects.postgresql import REGCLASS
 from ckan.types import Context, ErrorDict
 import copy
@@ -1930,7 +1931,7 @@ def nodes(ast: pglast.ast.Node | dict[str, Any]) -> Iterable[dict[str, Any]]:
                     continue
                 yield from nodes(node)
 
-def referenced_tables(connection: Any, schema: str | None, name: str):
+def referenced_tables(connection: Connection, schema: str | None, name: str):
     """Resolve tables referenced by a relation name:
         if the name refers to a view, all referenced tables, otherwise the table itself
     """
@@ -1946,7 +1947,7 @@ def referenced_tables(connection: Any, schema: str | None, name: str):
         (table.table_schema, table.table_name) for table in result
     } or {(schema, name)}
 
-def sanitize_sql(connection: Any, query: str) -> tuple[
+def sanitize_sql(connection: Connection, query: str) -> tuple[
     str,
     set[tuple[str | None, str]],
     set[tuple[str, ...]]
