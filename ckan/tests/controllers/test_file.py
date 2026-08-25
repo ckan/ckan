@@ -73,6 +73,7 @@ class TestPublicDownload:
         assert resp.status_code == 403
 
     @pytest.mark.ckan_config("ckan.files.storage.public_storage.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.public_storage.path", "public_storage")
     @pytest.mark.ckan_config("ckan.files.storage.public_storage.public", True)
     def test_public_download_from_public_storage(
         self, file_factory: types.TestFactory, app: types.FixtureApp, faker: Faker

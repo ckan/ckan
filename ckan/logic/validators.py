@@ -1214,8 +1214,8 @@ def starts_with(*values: str):
         assert data == {"input": "http://example.com"}
 
     """
-    def validator(value: str):
-        if not value.startswith(values):
+    def validator(value: Any):
+        if isinstance(value, str) and not value.startswith(values):
             if len(values) == 1:
                 msg = _("Must start with {prefix}").format(prefix=values[0])
             else:
