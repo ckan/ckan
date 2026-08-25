@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 from faker import Faker
 
+from ckan.exceptions import CkanConfigurationException
 import ckan.plugins as p
 from ckan.lib import files
 
@@ -108,3 +109,29 @@ class TestLocationTransformers:
         location = faker.file_path()
 
         assert storage.prepare_location(location) == location.upper()
+
+
+def test_public_storages_cannot_include_private_storages(
+    reset_storages: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    ckan_config: dict[str, Any],
+    tmp_path: Any,
+):
+    """Test that public storages cannot include private storages in their configuration."""
+    tmp_path = str(tmp_path)
+    prefix = "ckan.files.storage.test"
+    monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
+    monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path)
+    monkeypatch.setitem(ckan_config, f"{prefix}.public", True)
+
+    prefix = "ckan.files.storage.another"
+    monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
+    monkeypatch.setitem(ckan_config, f"{prefix}.initialize", True)
+    monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path + "/folder")
+
+    with pytest.raises(CkanConfigurationException):
+        reset_storages()
+
+    # storages with different backends do not overlap
+    monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:memory")
+    reset_storages()
