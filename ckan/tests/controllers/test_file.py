@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import os
 from typing import Any
 import pytest
 from faker import Faker
@@ -83,6 +85,33 @@ class TestPublicDownload:
 
         assert resp.status_code == 200
         assert resp.data == content
+
+    def test_public_download_path_traversal(
+            self, file_factory: types.TestFactory, app: types.FixtureApp, faker: Faker,
+            ckan_config: types.FixtureCkanConfig,
+            reset_storages: types.FixtureResetStorages,
+            tmpdir: Any,
+            monkeypatch: pytest.MonkeyPatch,
+    ):
+        """Test that path traversal attempts are blocked when downloading from public storage."""
+        base_path = str(tmpdir)
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.type", "ckan:fs")
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.initialize", "true")
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.public", "true")
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.path", os.path.join(base_path, "folder"))
+        reset_storages()
+
+        with open(os.path.join(base_path, "parent.txt"), "w") as dest:
+            dest.write("test")
+        resp = app.get("/file/public-download/public/../parent.txt")
+        assert resp.status_code == 404
+
+        os.mkdir(os.path.join(base_path, "folder_evil"))
+        with open(os.path.join(base_path, "folder_evil/sibling.txt"), "w") as dest:
+            dest.write("test")
+        resp = app.get("/file/public-download/public/../folder_evil/sibling.txt")
+        assert resp.status_code == 404
+
 
 
 class TestTrustedDownload:
