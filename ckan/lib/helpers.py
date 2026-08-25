@@ -2513,7 +2513,7 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def uploads_enabled(object_type: str | None = None) -> bool:
+def uploads_enabled(storage_name: str | None = None) -> bool:
     """Returns True if uploads are enabled for the given object type.
 
     :param object_type: the type of object to check uploads for, e.g. resource,
@@ -2528,17 +2528,19 @@ def uploads_enabled(object_type: str | None = None) -> bool:
         or any(plugin for plugin in p.PluginImplementations(p.IUploader))
     )
 
-    if not object_type:
+    if not storage_name:
         log.warning(
-            "h.uploads_enabled must be called with object_type. Switch to legacy check"
+            "h.uploads_enabled must be called with object_type."
+            " Swithcing to legacy logic and checking availability of custom uploaders."
+            " In future this call will cause an exception."
         )
         return has_classic_uploader
 
-    storage_name = config.get(f"ckan.files.default_storages.{object_type}")
+    storage_name = config.get(f"ckan.files.default_storages.{storage_name}")
     if not storage_name:
         log.warning(
             "h.uploads_enabled call with an unexpected object_type '%s'",
-            object_type,
+            storage_name,
         )
         return False
 
