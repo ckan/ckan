@@ -1931,21 +1931,28 @@ def nodes(ast: pglast.ast.Node | dict[str, Any]) -> Iterable[dict[str, Any]]:
                     continue
                 yield from nodes(node)
 
-def referenced_tables(connection: Connection, schema: str | None, name: str):
-    """Resolve tables referenced by a relation name:
-        if the name refers to a view, all referenced tables, otherwise the table itself
+def referenced_tables(connection: Connection, tables: set[tuple[str | None, str]]
+) -> set[tuple[str | None, str]]:
     """
+    Resolve set of (schema, name) tuples to the actual schema and table if
+    schema.name refers to a view, otherwise return the same (schema, name)
+    """
+    if not tables:
+        return set()
+
     # Note: not matching on `view_catalog` because it's constant in `view_table_usage`,
     # and we're unlikely to have a value for it anyway
+    tlist = list(tables)
     result = connection.execute(sa.text('''
-        SELECT table_catalog, table_schema, table_name
-        FROM information_schema.view_table_usage
-        WHERE view_schema = :schema and view_name = :name
-    ''').bindparams(schema= schema or 'public', name=name))
+        SELECT coalesce(table_schema, vs) ts, coalesce(table_name, vn) tn
+        FROM unnest(:schemas :: text[], :names) as views(vs, vn)
+        LEFT JOIN information_schema.view_table_usage
+        ON view_schema = coalesce(vs, current_schema) AND view_name = vn
+    ''').bindparams(
+        schemas=[t[0] for t in tlist], names=[t[1] for t in tlist]
+    ))
 
-    return {
-        (table.table_schema, table.table_name) for table in result
-    } or {(schema, name)}
+    return {(table.ts, table.tn) for table in result}
 
 def sanitize_sql(connection: Connection, query: str) -> tuple[
     str,
@@ -1999,11 +2006,8 @@ def sanitize_sql(connection: Connection, query: str) -> tuple[
             functions.add(tuple(n['sval'] for n in funcname))
 
     serialized = pglast.stream.RawStream()(stmts[0])
-    _referenced_tables = set(
-        table
-        for (schema, relname) in tables
-        for table in referenced_tables(connection, schema, relname)
-    )
+    _referenced_tables = referenced_tables(connection, tables)
+
     return serialized, _referenced_tables, functions
 
 def search_sql(context: Context, data_dict: dict[str, Any]):
