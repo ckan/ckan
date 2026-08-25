@@ -125,7 +125,7 @@ def _storages_from_config(
     return result
 
 
-def collect_storages() -> dict[str, fk.Storage]:
+def collect_storages() -> dict[str, fk.Storage]:  # noqa: C901
     """Initialize storages.
 
     :returns: mapping with storages
@@ -204,7 +204,7 @@ def collect_storages() -> dict[str, fk.Storage]:
             # functionality and we are won't interfere
             continue
 
-        path = storage.settings.path or ""
+        path = str(storage.settings.path or "")
 
         # for simplicity, append slash to the path. It allows using
         # `str.startswith` instead of `os.path.commonpath` which will complain

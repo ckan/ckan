@@ -96,8 +96,8 @@ class TestPublicDownload:
         """Test that path traversal attempts are blocked when downloading from public storage."""
         base_path = str(tmpdir)
         monkeypatch.setitem(ckan_config, "ckan.files.storage.public.type", "ckan:fs")
-        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.initialize", "true")
-        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.public", "true")
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.initialize", True)
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.public", True)
         monkeypatch.setitem(ckan_config, "ckan.files.storage.public.path", os.path.join(base_path, "folder"))
         reset_storages()
 
