@@ -2518,12 +2518,19 @@ def uploads_enabled(object_type: str | None = None) -> bool:
         group, user or admin
     :type object_type: string
     """
-    if not object_type:
-        log.warning("h.uploads_enabled call without object_type is non supported")
-        return False
-
     if not config["ckan.uploads_enabled"]:
         return False
+
+    has_classic_uploader = bool(
+        config["ckan.storage_path"]
+        or any(plugin for plugin in p.PluginImplementations(p.IUploader))
+    )
+
+    if not object_type:
+        log.warning(
+            "h.uploads_enabled must be called with object_type. Switch to legacy check"
+        )
+        return has_classic_uploader
 
     storage_name = config.get(f"ckan.files.default_storages.{object_type}")
     if not storage_name:
@@ -2538,10 +2545,7 @@ def uploads_enabled(object_type: str | None = None) -> bool:
     except files.exc.UnknownStorageError:
         # if the storage is not found, then we are using old upload rules: when
         # storage path is configured or uploader is customized, uploads are allowed
-        return bool(
-            config["ckan.storage_path"]
-            or any(plugin for plugin in p.PluginImplementations(p.IUploader))
-        )
+        return has_classic_uploader
 
     return storage.supports(files.Capability.CREATE)
 

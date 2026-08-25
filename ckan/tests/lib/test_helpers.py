@@ -13,8 +13,10 @@ import flask_babel
 from faker import Faker
 import pytest
 
+from ckan import types
 from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
+import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
 
@@ -912,15 +914,19 @@ def test_get_translated(data_dict, locale, result, monkeypatch):
 
 
 class TestUploadsEnabled:
-    def test_disabled_with_no_type(self):
-        """Without upload type, helper returns False."""
+    def test_disabled_with_no_type_no_path_and_no_implementation(self):
+        """In simple case helper returns False."""
         assert not h.uploads_enabled()
 
-    @pytest.mark.ckan_config("ckan.uploads_enabled", False)
-    def test_disabled(self):
-        """When uploads are disabled globally, they are disabled for all types."""
-        for type in ["resource", "group", "user", "admin"]:
-            assert not h.uploads_enabled(type)
+    @pytest.mark.ckan_config("ckan.storage_path", "/tmp")
+    def test_enabled_with_path_and_no_type(self, reset_storages: Any):
+        """With storage_path set, uploads are enabled - that's a classic behavior."""
+        assert h.uploads_enabled()
+
+    @pytest.mark.with_plugins({"test_uploader": type("TestUploader", (p.IUploader, p.SingletonPlugin), {})})
+    def test_enabled_with_implementation_and_no_type(self, provide_plugin: types.FixtureProvidePlugin):
+        """With an implementation of IUploader, uploads are enabled - that's a classic behavior."""
+        assert h.uploads_enabled()
 
     @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
     def test_enabled_with_storage(self):
