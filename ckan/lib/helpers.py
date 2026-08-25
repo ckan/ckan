@@ -873,6 +873,8 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
 
     if icon:
         link.add(dom_tags.i(cls=f"fa fa-{icon}"))   # type: ignore
+        if not inner_span:
+            text = f" {text}"
 
     link.add(dom_tags.span(text) if inner_span else f"{text}")  # type: ignore
 

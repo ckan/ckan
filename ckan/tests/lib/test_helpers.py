@@ -658,7 +658,7 @@ class TestBuildNavMain(object):
 
     def test_build_nav_icon(self):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil')
-        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i>Edit</a></li>'
+        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i> Edit</a></li>'
 
 
 class TestRemoveUrlParam:
