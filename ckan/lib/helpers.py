@@ -58,6 +58,7 @@ from ckan.lib.pagination import Page  # type: ignore # noqa
 from ckan.common import _, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
+from html import unescape
 from markupsafe import Markup, escape
 from textwrap import shorten
 from ckan.types import Context, Response
@@ -1412,17 +1413,26 @@ def markdown_extract(text: str,
     if not text:
         return ''
     plain = nh3_clean(markdown(text), tags=set())
-    if not extract_length or len(plain) < extract_length:
+    # ``nh3`` escapes the text it returns, so ``&``, ``<`` and ``>`` each cost
+    # several characters against the extract length while displaying as one.
+    # Measure and truncate the unescaped text, then escape the result again.
+    visible = unescape(plain)
+    if not extract_length or len(visible) < extract_length:
         return literal(plain)
-    return literal(
-        str(
-            shorten(
-                plain,
-                width=extract_length,
-                placeholder='...'
-            )
-        )
-    )
+    placeholder = '...'
+    shortened = shorten(visible, width=extract_length,
+                        placeholder=placeholder)
+    if shortened == placeholder and extract_length > len(placeholder):
+        # ``shorten`` drops any word too wide to fit rather than cutting it,
+        # so a description opening with a long token (a URL, a DOI, a
+        # generated identifier) is left as nothing but the placeholder and
+        # the dataset looks as though it has no description at all. Cut the
+        # token instead of dropping it.
+        collapsed = ' '.join(visible.split())
+        shortened = collapsed[
+            :extract_length - len(placeholder)
+        ].rstrip() + placeholder
+    return literal(str(escape(shortened)))
 
 
 @core_helper

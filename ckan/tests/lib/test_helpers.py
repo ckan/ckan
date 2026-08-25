@@ -11,6 +11,8 @@ import tzlocal
 from babel import Locale
 import flask_babel
 from faker import Faker
+from html import unescape
+
 import pytest
 
 from ckan.config.middleware import flask_app
@@ -736,6 +738,50 @@ Notes: this is the classic RDF source but historically has had some problems wit
 
     assert "Data exposed" in h.markdown_extract(with_html)
     assert "collects information" in h.markdown_extract(with_unicode)
+
+
+def test_markdown_extract_measures_visible_length_not_escaped_length():
+    """Escaped characters cost one character of the extract, not several.
+
+    ``nh3`` returns escaped text, so an ``&`` arrives as ``&amp;``. Measuring
+    that against the extract length silently shortens any description
+    containing ``&``, ``<`` or ``>``.
+    """
+    prefix = u"Ozone and NO2 columns measured at Uccle. "
+    with_entities = prefix + u"R&D " * 40
+    without_entities = prefix + u"RxD " * 40
+
+    visible = len(unescape(str(h.markdown_extract(with_entities, 180))))
+    plain = len(str(h.markdown_extract(without_entities, 180)))
+
+    # Two descriptions of the same length, differing only in whether a
+    # character needs escaping, keep the same number of visible characters.
+    assert visible == plain
+
+    # The entities themselves survive into the output.
+    assert "&amp;" in str(h.markdown_extract(with_entities, 180))
+
+
+def test_markdown_extract_cuts_a_leading_token_wider_than_the_extract():
+    """A long first word must not swallow the whole extract.
+
+    ``textwrap.shorten`` drops any word that does not fit rather than
+    cutting it, so a description starting with a long URL, DOI or generated
+    identifier used to render as nothing but the placeholder.
+    """
+    long_token = u"B" * 400
+
+    assert str(h.markdown_extract(long_token, 180)) != u"..."
+    assert len(str(h.markdown_extract(long_token, 180))) == 180
+    assert str(h.markdown_extract(long_token, 180)).endswith(u"...")
+
+    # A trailing word does not change the leading token's behaviour.
+    assert str(h.markdown_extract(long_token + u" tail", 180)) != u"..."
+
+    # Text that shorten() can already break on a space is left to it.
+    words = u"word " * 100
+    assert str(h.markdown_extract(words, 180)).endswith(u"...")
+    assert len(str(h.markdown_extract(words, 180))) <= 180
 
 
 @pytest.mark.parametrize("string, date", [
