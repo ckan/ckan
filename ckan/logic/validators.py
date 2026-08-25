@@ -1200,3 +1200,28 @@ def extras_valid_json(extras: Any, context: Context) -> Any:
             raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
                           format(name=extra))
     return extras
+
+
+def starts_with(*values: str):
+    """Returns a validator that checks if the value has one of specified prefixes.
+
+    .. code-block::
+        data, errors = tk.navl_validate(
+            {"input": "http://example.com"},
+            {"input": [starts_with("http://", "https://")]}
+        )
+        assert data == {"input": "http://example.com"}
+
+    """
+    def validator(value: str):
+        if not value.startswith(values):
+            if len(values) == 1:
+                msg = _("Must start with {prefix}").format(prefix=values[0])
+            else:
+                msg = _("Must start with any of the prefixes: {prefixes}").format(
+                    prefixes=', '.join(values)
+                )
+            raise Invalid(msg)
+        return value
+
+    return validator
