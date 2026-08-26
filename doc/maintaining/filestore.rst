@@ -720,6 +720,33 @@ Use location and storage name to generate URL for the ``public_download`` view:
 This URL can be accessed by anyone as long as storage is marked as
 ``public``. Without ``public`` flag, the URL will cause 403 HTTP response.
 
+.. warning:: Marking storage as ``public`` makes **all** files in the storage
+   accessible to everyone. This includes any file from any sub-folder of the
+   storage. Make sure you do not have another non-public storage inside the
+   same folder, or else files from that storage will also be publicly
+   accessible.
+
+   The following example shows the problem. Storage for ``resources`` is
+   private. But the ``shared`` storage points at a folder one level above and it is marked
+   as public, making all the files from the ``resources`` storage accessible to
+   everyone, even though ``resources`` storage is not public::
+
+     ckan.files.storage.resources.path = /var/data/storage/resources
+
+     # DO NOT DO THIS: resources are now not protected
+     ckan.files.storage.shared.path = /var/data/storage
+     ckan.files.storage.shared.public = true
+
+
+   If you need to have a public storage and a non-public storage, make sure
+   they are configured to use different folders in the filesystem::
+
+     ckan.files.storage.resources.path = /var/data/storage/resources
+
+     ckan.files.storage.shared.path = /var/data/storage/shared
+     ckan.files.storage.shared.public = true
+
+
 As an alternative, when writing custom view functions,
 :py:meth:`ckan.lib.files.Storage.as_response` method can be used to create
 Flask's response object with the file content. Depending on the storage
