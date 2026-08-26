@@ -504,6 +504,7 @@ class RegisterView(MethodView):
         # log the user in programmatically
         userobj = model.User.get(user_dict["id"])
         if userobj:
+            regenerate_session()
             login_user(userobj)
             rotate_token()
         resp = h.redirect_to(u'user.me')
@@ -576,9 +577,7 @@ def login() -> Union[Response, str]:
         user_obj = authenticator.ckan_authenticator(identity)
         if user_obj:
             next = request.args.get('next', request.args.get('came_from'))
-            regenerate = getattr(current_app.session_interface, 'regenerate', None)
-            if regenerate is not None:
-                regenerate(session)
+            regenerate_session()
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
@@ -598,6 +597,12 @@ def login() -> Union[Response, str]:
             return base.render("user/login.html", extra_vars)
 
     return base.render("user/login.html", extra_vars)
+
+
+def regenerate_session() -> None:
+    regenerate = getattr(current_app.session_interface, 'regenerate', None)
+    if regenerate is not None:
+        regenerate(session)
 
 
 def logout() -> Response:
