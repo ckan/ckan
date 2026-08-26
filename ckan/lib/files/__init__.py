@@ -223,7 +223,7 @@ def collect_storages() -> dict[str, fk.Storage]:  # noqa: C901
                 msg = (
                     f"{adapter} storage with path {private} is included into another"
                     + " storage with public access. Make sure paths of public"
-                    + " and private storages do not intersect."
+                    + " and private storages do not overlap."
                 )
                 raise CkanConfigurationException(msg)
 
