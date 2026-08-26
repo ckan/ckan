@@ -675,23 +675,6 @@ def ckan_version() -> str:
     return ckan.__version__
 
 
-@deprecated(
-    "Use `ckan.lib.i18n.get_locales_dict()` instead of `lang_native_name`",
-    since="2.12.0"
-)
-@core_helper
-def lang_native_name(lang_: Optional[str] = None) -> Optional[str]:
-    '''DEPRECATED. Return the language name currently used in it's localised form
-        either from parameter or current environ setting'''
-    name = lang_ or lang()
-    if not name:
-        return None
-    locale = i18n.get_locales_dict().get(name)
-    if locale:
-        return locale.display_name or locale.english_name
-    return name
-
-
 @core_helper
 def is_rtl_language() -> bool:
     return lang() in config.get('ckan.i18n.rtl_languages')
@@ -1394,16 +1377,6 @@ def linked_user(user: Union[str, model.User],
     return None
 
 
-@deprecated("Use `model.Group.by_name(name).display_name` instead", since="2.12.0")
-@core_helper
-def group_name_to_title(name: str) -> str:
-    '''DEPRECATED. Convert a group name to a group title.'''
-    group = model.Group.by_name(name)
-    if group is not None:
-        return group.display_name
-    return name
-
-
 @core_helper
 def markdown_extract(text: str,
                      extract_length: int = 190) -> Union[str, Markup]:
@@ -1842,14 +1815,6 @@ def group_link(group: dict[str, Any]) -> Markup:
     return link_to(group['title'], url)
 
 
-@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
-@core_helper
-def organization_link(organization: dict[str, Any]) -> Markup:
-    """DEPRECATED. Return a link to the organization page."""
-    url = url_for('organization.read', id=organization['name'])
-    return link_to(organization['title'], url)
-
-
 @core_helper
 def dump_json(obj: Any, **kw: Any) -> str:
     return json.dumps(obj, **kw)
@@ -1862,26 +1827,6 @@ def snippet(template_name: str, **kw: Any) -> str:
     '''
     import ckan.lib.base as base
     return base.render_snippet(template_name, **kw)
-
-
-@deprecated(
-    "Use `model_dictize.package_dictize` instead of `convert_to_dict`",
-    since="2.12.0",
-)
-@core_helper
-def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
-    '''DEPRECATED. This is a helper function for converting lists of objects into
-    lists of dicts. It is for backwards compatibility only. '''
-
-    import ckan.lib.dictization.model_dictize as md
-    converters = {'package': md.package_dictize}
-    converter = converters[object_type]
-    items = []
-    context: Context = {}
-    for obj in objs:
-        item = converter(obj, context)
-        items.append(item)
-    return items
 
 
 # these are the types of objects that can be followed
@@ -2048,13 +1993,6 @@ def remove_url_param(key: Union[list[str], str],
                                    action=action, extras=extras)
 
 
-@deprecated("Use `pprint.pformat` directly instead of `debug_inspect`", since="2.12.0")
-@core_helper
-def debug_inspect(arg: Any) -> Markup:
-    '''DEPRECATED. Output pprint.pformat view of supplied arg.'''
-    return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
-
-
 @core_helper
 def groups_available(am_member: bool = False,
                      include_dataset_count: bool = False,
@@ -2126,24 +2064,6 @@ def member_count(group: str) -> int:
 def roles_translated() -> dict[str, str]:
     '''Return a dict of available roles with their translations'''
     return authz.roles_trans()
-
-
-@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
-@core_helper
-def user_in_org_or_group(group_id: str) -> bool:
-    '''DEPRECATED. Check if user is in a group or organization '''
-    # we need a user
-    if current_user.is_anonymous:
-        return False
-    # sysadmins can do anything
-    if current_user.sysadmin:  # type: ignore
-        return True
-    query = model.Session.query(model.Member) \
-        .filter(model.Member.state == 'active') \
-        .filter(model.Member.table_name == 'user') \
-        .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)
-    return len(query.all()) != 0
 
 
 @core_helper
@@ -2368,20 +2288,6 @@ def rendered_resource_view(resource_view: dict[str, Any],
 
     import ckan.lib.base as base
     return literal(base.render(template, extra_vars=data_dict))
-
-
-@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
-@core_helper
-def view_resource_url(
-        resource_view: dict[str, Any],
-        resource: dict[str, Any],
-        package: dict[str, Any],
-        **kw: Any) -> str:
-    '''
-    DEPRECATED. Returns url for resource. made to be overridden by extensions. i.e
-    by resource proxy.
-    '''
-    return resource['url']
 
 
 @core_helper
@@ -2822,15 +2728,6 @@ def load_plugin_helpers() -> None:
                 setattr(new_func, attribute, value)
             helper_functions[name] = new_func
 
-@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
-@core_helper
-def sanitize_id(id_: str) -> str:
-    '''DEPRECATED. Given an id (uuid4), if it has any invalid characters it raises
-    ValueError.
-    '''
-    return str(uuid.UUID(id_))
-
-
 @core_helper
 def get_collaborators(package_id: str) -> list[tuple[str, str]]:
     '''Return the collaborators list for a dataset
@@ -2933,34 +2830,6 @@ def check_ckan_version(min_version: Optional[str] = None,
     """
     return p.toolkit.check_ckan_version(min_version=min_version,
                                         max_version=max_version)
-
-
-@deprecated(
-    "Construct the redirect URL manually instead of `make_login_url`",
-    since="2.12.0"
-)
-def make_login_url(
-    login_view: str, next_url: Optional[str] = None, next_field: str = "next"
-) -> str:
-    '''
-    DEPRECATED. Creates a URL for redirecting to a login page. If only `login_view` is
-    provided, this will just return the URL for it. If `next_url` is provided,
-    however, this will append a ``next=URL`` parameter to the query string
-    so that the login view can redirect back to that URL.
-    '''
-    base = login_view
-    if next_url is None:
-        return base
-
-    if url_is_local(next_url):
-        md = {}
-
-        md[next_field] = urlparse(next_url).path
-        parsed_base = urlparse(base)
-        netloc = parsed_base.netloc
-        parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return urlunparse(parsed_base)
-    return base
 
 
 @core_helper
