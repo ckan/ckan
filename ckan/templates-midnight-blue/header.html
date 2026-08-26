@@ -3,12 +3,20 @@
 
 {% block header_wrapper %}
   {% block header_account %}
-    {% if c.userobj %}
-      <div class="account-masthead">
-        <div class="container">
-          {% block header_account_container_content %}
-            <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
-              <ul class="list-unstyled">
+    <div class="account-masthead">
+      <div class="container">
+        {% block header_account_container_content %}
+          <div class="account{% if c.userobj %} avatar authed{% endif %}"{% if c.userobj %} data-module="me" data-me="{{ c.userobj.id }}"{% endif %}>
+            <ul class="list-unstyled">
+              {% block header_account_theme_toggle %}
+                <li>
+                  <button type="button" class="btn btn-primary" data-module="theme-toggle" aria-pressed="false" aria-label="{{ _('Switch to dark theme') }}" data-bs-title="{{ _('Switch to dark theme') }}" data-bs-toggle="tooltip">
+                    <i class="fa fa-moon" aria-hidden="true" data-icon></i>
+                    <span class="text">{{ _('Theme') }}</span>
+                  </button>
+                </li>
+              {% endblock %}
+              {% if c.userobj %}
                 {% block header_account_logged %}
                   {% block header_account_profile %}
                     <li>
@@ -45,12 +53,12 @@
                     </li>
                   {% endblock %}
                 {% endblock %}
-              </ul>
-            </div>
-          {% endblock %}
-        </div>
+              {% endif %}
+            </ul>
+          </div>
+        {% endblock %}
       </div>
-    {% endif %}
+    </div>
   {% endblock %}
   <header class="masthead">
     <div class="container">
@@ -64,8 +72,17 @@
           {% block header_logo %}
             {% if g.site_logo %}
               <a class="logo" href="{{ h.url_for('home.index') }}">
-                <img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}"
-                  aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"/>
+                {% if g.site_logo == '/base/images/ckan-logo.png' %}
+                  <img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}"
+                    aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"
+                    class="logo-light"/>
+                  <img src="{{ h.url_for_static_or_external('/base/images/ckan-logo-white.png') }}" alt="{{ g.site_title }}"
+                    aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"
+                    class="logo-dark" style="display:none"/>
+                {% else %}
+                  <img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}"
+                    aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"/>
+                {% endif %}
               </a>
             {% else %}
               <a href="{{ h.url_for('home.index') }}">{{ g.site_title }}</a>

@@ -45,15 +45,6 @@
             width: 70%;
         }
 
-        .item-state {
-            position: relative;
-            transform: translateY(0);
-            left: 10px;
-            width: 24px;
-            height: 24px;
-            background-image: escape-svg($addStateIcon);
-        }
-
         .item-count-span {
             display: flex;
             align-self: center;
@@ -63,10 +54,6 @@
     .nav-item.active,
     .nav-aside li.active {
         background-color: $primary;
-
-        .item-state {
-            background-image: escape-svg($removeStateIcon);
-        }
     }
 
     .nav-item.active>a,

@@ -1,0 +1,391 @@
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --dm-bg: #0b1220;
+    --dm-surface: #141b2d;
+    --dm-surface-alt: #1c2540;
+    --dm-border: #2a3555;
+    --dm-text: #e6e9f0;
+    --dm-text-muted: #97a0b8;
+    --dm-link: #8ea9e8;
+    --dm-link-hover: #b3c6f2;
+
+    --bs-secondary-color: var(--dm-text-muted);
+
+    background-color: var(--dm-bg);
+    color: var(--dm-text);
+
+    body {
+        background-color: var(--dm-bg);
+        color: var(--dm-text);
+    }
+
+    a:not(.btn) {
+        color: var(--dm-link);
+    }
+
+    a:not(.btn):hover,
+    a:not(.btn):focus {
+        color: var(--dm-link-hover);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--dm-text);
+    }
+
+    hr {
+        border-color: var(--dm-border);
+    }
+
+    .masthead {
+        background: var(--dm-surface);
+        border-bottom-color: var(--dm-border);
+
+        hgroup a,
+        .navbar-toggler .fa {
+            color: var(--dm-text);
+        }
+
+        .logo-light {
+            display: none;
+        }
+
+        .logo-dark {
+            display: inline-block !important;
+        }
+
+        .main-navbar li a {
+            color: var(--dm-text);
+        }
+
+        .main-navbar li:hover a,
+        .main-navbar li:focus a,
+        .main-navbar li.active a {
+            background-color: var(--dm-surface-alt);
+            color: var(--dm-text);
+        }
+    }
+
+    .account-masthead {
+        background: var(--dm-surface-alt);
+        color: var(--dm-text);
+
+        .account li a.image {
+            background-color: var(--dm-surface);
+            color: var(--dm-text);
+            border-color: var(--dm-border);
+        }
+    }
+
+    .main,
+    .main .primary,
+    [role=main] {
+        background-color: var(--dm-bg);
+    }
+
+    .stages li,
+    .list-group-item,
+    .popover,
+    .dropdown-menu,
+    .pagination .page-link,
+    .dataset-item {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .dataset-item {
+        background-color: transparent;
+    }
+
+    .groups-cards {
+        background-color: var(--dm-surface-alt);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .resource-list .resource-item {
+        .heading {
+            color: var(--dm-text);
+        }
+
+        &:hover {
+            background-color: var(--dm-surface-alt);
+        }
+    }
+
+    .resource-view-list li {
+        border-color: var(--dm-border);
+    }
+
+    .login-main {
+        background-color: var(--dm-bg);
+
+        .login-wrapper {
+            background-color: var(--dm-surface);
+        }
+    }
+
+    .homepage .module-feeds:nth-of-type(even) {
+        background: var(--dm-surface);
+    }
+
+    .module,
+    .module-shallow,
+    .package-info,
+    .context-info {
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .context-info .nums dl {
+        color: var(--dm-text);
+    }
+
+    .module-heading,
+    .nav-pills,
+    .secondary .nav-options,
+    .table thead th {
+        background-color: var(--dm-surface-alt);
+    }
+
+    .module-narrow .module-group {
+        border-color: var(--dm-border);
+
+        .module-heading {
+            border-bottom-color: var(--dm-border);
+        }
+    }
+
+    .add-new-res {
+        border-top-color: var(--dm-border);
+    }
+
+    .nav-simple > li,
+    .nav-aside > li {
+        background-color: var(--dm-surface);
+        border-bottom-color: var(--dm-border);
+    }
+
+    .secondary .accordion {
+        .accordion-item:has(.accordion-button:disabled),
+        .accordion-item .module-content {
+            background-color: var(--dm-surface);
+        }
+
+        .accordion-button.collapsed {
+            background-color: var(--dm-surface-alt);
+            color: var(--dm-text);
+        }
+
+        .accordion-collapse.show {
+            background-color: var(--dm-surface);
+        }
+
+        .package-accordion .accordion-body {
+            background-color: var(--dm-surface);
+        }
+    }
+
+    .accordion-button.collapsed::after {
+        background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e6e9f0'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+    }
+
+    .nav-pills li.active {
+        background-color: var(--dm-surface-alt);
+    }
+
+    .module-narrow .nav-item > a,
+    .module-narrow .nav-aside li a,
+    .nav-pills li a,
+    .secondary .nav-options li a,
+    .dropdown-item {
+        color: var(--dm-text);
+    }
+
+    .module-narrow .nav-item:hover > a,
+    .module-narrow .nav-aside li:hover a,
+    .nav-pills li:hover,
+    .secondary .nav-options li:hover,
+    .dropdown-item:hover {
+        background-color: var(--dm-surface-alt);
+    }
+
+    .nav-tabs {
+        --bs-nav-tabs-border-color: var(--dm-border);
+        --bs-nav-tabs-link-hover-border-color: var(--dm-border) var(--dm-border) var(--dm-border);
+        --bs-nav-tabs-link-active-color: var(--dm-text);
+        --bs-nav-tabs-link-active-bg: var(--dm-surface);
+        --bs-nav-tabs-link-active-border-color: var(--dm-border) var(--dm-border) var(--dm-surface);
+    }
+
+    .toolbar .breadcrumb a {
+        color: var(--dm-text-muted);
+    }
+
+    .toolbar .breadcrumb .active a,
+    .toolbar .breadcrumb a.active {
+        color: var(--dm-text);
+    }
+
+    .toolbar .breadcrumb li:not(:first-child)::before {
+        color: var(--dm-text-muted);
+    }
+
+    .table {
+        --bs-table-color: var(--dm-text);
+        --bs-table-bg: var(--dm-surface);
+        --bs-table-striped-bg: var(--dm-surface-alt);
+        --bs-table-striped-color: var(--dm-text);
+        --bs-table-hover-bg: var(--dm-surface-alt);
+        --bs-table-hover-color: var(--dm-text);
+        --bs-table-active-bg: var(--dm-surface-alt);
+        --bs-table-active-color: var(--dm-text);
+        --bs-table-border-color: var(--dm-border);
+    }
+
+    .table-selected td {
+        background-color: var(--dm-surface-alt);
+    }
+
+    .table-bulk-edit .context p {
+        color: var(--dm-text);
+    }
+
+    .form-control,
+    .form-select,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="number"],
+    textarea {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .form-control::placeholder {
+        color: var(--dm-text-muted);
+    }
+
+    .form-select {
+        --bs-form-select-bg-img: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='%23e6e9f0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>");
+    }
+
+    .input-group-text {
+        background-color: var(--dm-surface-alt);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    label {
+        color: var(--dm-text);
+    }
+
+    .select2-container .select2-choice,
+    .select2-container-multi .select2-choices,
+    .select2-dropdown-open .select2-choice {
+        background-color: var(--dm-surface) !important;
+        border-color: var(--dm-border) !important;
+        color: var(--dm-text) !important;
+    }
+
+    .select2-dropdown {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+    }
+
+    .select2-results__option {
+        color: var(--dm-text);
+    }
+
+    .select2-results__option--selected {
+        background-color: var(--dm-surface-alt);
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .select2-container--default .select2-selection--single {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: var(--dm-text);
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: var(--dm-surface-alt);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: var(--dm-text-muted);
+        border-right-color: var(--dm-border);
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover,
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:focus {
+        background-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .editor-info-block {
+        background-color: var(--dm-surface-alt);
+        color: var(--dm-text);
+    }
+
+    .editor-info-block a {
+        color: var(--dm-link);
+    }
+
+    .slug-preview-inner {
+        background-color: var(--dm-surface);
+        color: var(--dm-text);
+    }
+
+    .slug-preview-value {
+        background-color: var(--dm-surface-alt);
+        color: var(--dm-text);
+    }
+
+    .btn:not(.btn-primary):not(.btn-secondary):not(.btn-danger):not(.btn-success):not(.btn-warning):not(.btn-info) {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+    }
+
+    .btn-secondary {
+        background-color: var(--dm-surface);
+        border-color: var(--dm-border);
+        color: var(--dm-text);
+
+        &:hover {
+            background-color: var(--dm-surface-alt) !important;
+            border-color: var(--dm-border);
+            color: var(--dm-text);
+        }
+    }
+
+    code,
+    pre {
+        background-color: var(--dm-surface-alt);
+        color: var(--dm-text);
+    }
+
+    ::selection {
+        background-color: var(--dm-link);
+        color: var(--dm-bg);
+    }
+}
