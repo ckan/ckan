@@ -1735,6 +1735,28 @@ class TestFollowDataset(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_dataset", context, id=dataset["id"])
 
+    def test_cannot_follow_private_dataset_without_read_access(self):
+        owner = factories.User()
+        org = factories.Organization(user=owner)
+        dataset = factories.Dataset(
+            user=owner, owner_org=org["id"], private=True
+        )
+        user = factories.User()
+
+        context = {"user": user["name"], "ignore_auth": False}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action("follow_dataset", context, id=dataset["id"])
+
+    def test_can_follow_private_dataset_with_read_access(self):
+        owner = factories.User()
+        org = factories.Organization(user=owner)
+        dataset = factories.Dataset(
+            user=owner, owner_org=org["id"], private=True
+        )
+
+        context = {"user": owner["name"], "ignore_auth": False}
+        helpers.call_action("follow_dataset", context, id=dataset["id"])
+
     def test_follow_dataset(self):
         user = factories.User()
         dataset = factories.Dataset()

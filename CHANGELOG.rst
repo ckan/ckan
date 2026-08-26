@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.12.0 2026-08-12
+v.2.12.0 2026-08-26
 ===================
 
 Overview
@@ -297,11 +297,21 @@ Minor changes
   <https://github.com/ckan/ckan/pull/8209>`_)
 - Improved JS translations documentation (`#8927
   <https://github.com/ckan/ckan/pull/8927>`_)
+- Use pglast instead of sqlparse to sanitize datastore_search_sql input (`#9475
+  <https://github.com/ckan/ckan/pull/9475>`_)
 
 
 Bugfixes
 --------
 
+- `GHSA-8frv-ccr7-4m2p (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8frv-ccr7-4m2p>`_: Stored XSS via resource fields in Text view
+- `GHSA-5r6j-4c43-7mx6 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-5r6j-4c43-7mx6>`_: Unauthenticated nested Solr QParser allowlist bypass in ``package_search``
+- `GHSA-73fv-x47v-f4j5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-73fv-x47v-f4j5>`_: Authenticated stacked SQL injection in ``datastore_create``
+- `GHSA-8hw7-23gj-5599 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8hw7-23gj-5599>`_: datastore_search_sql Authorization Bypass
+- `GHSA-3g5q-3wf6-p8rc (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3g5q-3wf6-p8rc>`_: ``markdown_extract()`` Stored XSS on Dataset Listings
+- `GHSA-6499-jgj4-2wpf (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf>`_: Session Fixation in Registration View
+- `GHSA-jgwg-vp4m-5xw5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-jgwg-vp4m-5xw5>`_: Exposure of private metadata via follow API actions
+- `GHSA-p5rh-49m9-56vx (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-p5rh-49m9-56vx>`_: Stored XSS vector via resource name in DataTables view
 - Fix "Option lang is not declared" warning at application startup. (`#8777
   <https://github.com/ckan/ckan/pull/8777>`_)
 - Logout link changed to a POST submit so it interacts properly with caching

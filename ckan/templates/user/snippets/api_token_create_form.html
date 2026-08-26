@@ -30,7 +30,7 @@
               </code>
             </label>
           </div>
-          {% set copy_button %}<button class="btn btn-secondary btn-xs" data-module="copy-into-buffer" data-module-copy-value="{{ created.token }}" type="button"><i class="fa fa-copy"></i></button>{% endset %}
+          {% set copy_button %}<button class="btn btn-secondary btn-xs" data-module="copy-into-buffer" data-module-copy-value="{{ created.token }}" type="button" aria-label="{{ _('Copy to clipboard') }}"><i class="fa fa-copy" aria-hidden="true"></i></button>{% endset %}
           {{ _("API Token created: <code style=\"word-break:break-all;\">"
                "{token}</code> {copy}<br>"
                "Make sure to copy it now, "
