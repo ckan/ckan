@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import email.utils
 import datetime
+import html
 import logging
 import re
 import os
@@ -1411,18 +1412,10 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = nh3_clean(markdown(text), tags=set())
+    plain = html.unescape(nh3_clean(markdown(text), tags=set()))
     if not extract_length or len(plain) < extract_length:
-        return literal(plain)
-    return literal(
-        str(
-            shorten(
-                plain,
-                width=extract_length,
-                placeholder='...'
-            )
-        )
-    )
+        return plain
+    return shorten(plain, width=extract_length, placeholder='...')
 
 
 @core_helper
