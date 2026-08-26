@@ -1,31 +1,25 @@
 # encoding: utf-8
 from __future__ import annotations
 
-import json
 import logging
 from typing import (
-    Any, Iterable, Optional, Sequence, Union, cast, overload
+    Any, Optional, Sequence, Union, overload
 )
 from typing_extensions import Literal
 
-import sqlparse
-import sqlalchemy as sa
 import ckan.common as converters
 import ckan.plugins.toolkit as tk
 from ckan.types import Context
 
+from ckanext.datastore.backend import postgres
 import unicodedata
 
 
 log = logging.getLogger(__name__)
 
-
 def is_single_statement(sql: str):
     '''Returns True if received SQL string contains at most one statement'''
-    if "\\'" in sql:
-        return False
-    return len(sqlparse.split(sql)) <= 1
-
+    return postgres.is_single_statement(sql)
 
 def is_valid_field_name(name: str):
     '''
@@ -92,15 +86,9 @@ def should_fts_index_field_type(field_type: str):
     return field_type in tk.config.get(
         'ckan.datastore.default_fts_index_field_types', [])
 
-
 def get_table_and_function_names_from_sql(context: Context, sql: str):
-    '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
-    function names
-
-    It performs an EXPLAIN query against the provided SQL, and parses
-    the output recusively.
-
-    Note that this requires Postgres 9.x.
+    '''Parses the statement looking for function and table names
+    Resolves views to their underlying tables
 
     :param context: a CKAN context dict. It must contain a 'connection' key
         with the current DB connection.
@@ -111,107 +99,8 @@ def get_table_and_function_names_from_sql(context: Context, sql: str):
     :rtype: a tuple with two list of strings, one for table and one for
     function names
     '''
-
-    queries = [sql]
-    table_names: list[str] = []
-    function_names: list[str] = []
-
-    while queries:
-        sql = queries.pop()
-
-        function_names.extend(_get_function_names_from_sql(sql))
-
-        result = context['connection'].scalar(sa.text(
-            f"EXPLAIN (VERBOSE, FORMAT JSON) {sql}"
-        ))
-
-        try:
-            query_plan = json.loads(result)
-            plan = query_plan[0]['Plan']
-
-            t, q, f = _parse_query_plan(plan)
-            table_names.extend(t)
-            queries.extend(q)
-
-            function_names = list(set(function_names) | set(f))
-
-        except ValueError:
-            log.error('Could not parse query plan')
-            raise
-
-    return table_names, function_names
-
-
-def _parse_query_plan(
-        plan: dict[str, Any]) -> tuple[list[str], list[str], list[str]]:
-    '''
-    Given a Postgres Query Plan object (parsed from the output of an EXPLAIN
-    query), returns a tuple with three items:
-
-    * A list of tables involved
-    * A list of remaining queries to parse
-    * A list of function names involved
-    '''
-
-    table_names: list[str] = []
-    queries: list[str] = []
-    functions: list[str] = []
-
-    if plan.get('Relation Name'):
-        table_names.append(plan['Relation Name'])
-    if 'Function Name' in plan:
-        if plan['Function Name'].startswith(
-                'crosstab'):
-            try:
-                queries.append(_get_subquery_from_crosstab_call(
-                    plan['Function Call']))
-            except ValueError:
-                table_names.append('_unknown_crosstab_sql')
-        else:
-            functions.append(plan['Function Name'])
-
-    if 'Plans' in plan:
-        for child_plan in plan['Plans']:
-            t, q, f = _parse_query_plan(child_plan)
-            table_names.extend(t)
-            queries.extend(q)
-            functions.extend(f)
-
-    return table_names, queries, functions
-
-
-def _get_function_names_from_sql(sql: str):
-    function_names: list[str] = []
-
-    def _get_function_names(tokens: Iterable[Any]):
-        for token in tokens:
-            if isinstance(token, sqlparse.sql.Function):
-                function_name = cast(str, token.get_name())
-                if function_name not in function_names:
-                    function_names.append(function_name)
-            if hasattr(token, 'tokens'):
-                _get_function_names(token.tokens)
-
-    parsed = sqlparse.parse(sql)[0]
-    _get_function_names(parsed.tokens)
-
-    return function_names
-
-
-def _get_subquery_from_crosstab_call(ct: str):
-    """
-    Crosstabs are a useful feature some sites choose to enable on
-    their datastore databases. To support the sql parameter passed
-    safely we accept only the simple crosstab(text) form where text
-    is a literal SQL string, otherwise raise ValueError
-    """
-    if not ct.startswith("crosstab('") or not ct.endswith("'::text)"):
-        raise ValueError('only simple crosstab calls supported')
-    ct = ct[10:-8]
-    if "'" in ct.replace("''", ""):
-        raise ValueError('only escaped single quotes allowed in query')
-    return ct.replace("''", "'")
-
+    (_, tables, functions) = postgres.sanitize_sql(context['connection'], sql)
+    return ([table[1] for table in tables], [function[-1] for function in functions])
 
 def datastore_dictionary(
         resource_id: str, include_columns: Optional[list[str]] = None

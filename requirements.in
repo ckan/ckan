@@ -32,9 +32,9 @@ requests==2.34.2
 rq==2.10.0
 simplejson==4.1.1
 SQLAlchemy==2.0.51
-sqlparse==0.5.5
 typing_extensions==4.16.0
 tzlocal==5.4.4
 webassets==3.0.0
 Werkzeug[watchdog]==3.1.8
 zope.interface==8.5
+pglast==8.4
