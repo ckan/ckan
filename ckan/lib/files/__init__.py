@@ -194,7 +194,7 @@ def collect_storages() -> dict[str, fk.Storage]:  # noqa: C901
     # check that there are no public storages that point to the parent folder
     # of another private storage, unintentionally exposing private files in
     # this way
-    grouped: dict[str, dict[bool, set[str]]] = defaultdict(
+    storages_grouped_by_privacy: dict[str, dict[bool, set[str]]] = defaultdict(
         lambda: {True: set(), False: set()}
     )
     for storage in result.values():
