@@ -1839,7 +1839,7 @@ class TestPackageFollow(object):
         """Pass an id for a package that doesn't exist"""
         env = {"Authorization": user["token"]}
         follow_url = url_for("dataset.follow", id="not-here")
-        response = app.post(follow_url, extra_environ=env)
+        response = app.post(follow_url, extra_environ=env, status=404)
 
         assert "Dataset not found" in response
 
