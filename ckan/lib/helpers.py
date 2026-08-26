@@ -15,10 +15,8 @@ import re
 import os
 import pytz
 import tzlocal
-import pprint
 import contextlib
 import copy
-import uuid
 import functools
 import unicodedata
 
@@ -54,7 +52,6 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-from ckan.lib.maintain import deprecated
 from ckan.lib.pagination import Page  # type: ignore # noqa
 from ckan.common import _, g, request, json
 
