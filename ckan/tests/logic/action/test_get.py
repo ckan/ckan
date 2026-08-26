@@ -326,8 +326,8 @@ class TestGroupList(object):
         group_list = helpers.call_action("group_list", all_fields=True)
 
         expected_group = dict(group)
-        for field in ("users", "extras", "groups"):
-            del expected_group[field]
+        del expected_group["extras"]
+        del expected_group["groups"]
 
         assert group_list[0] == expected_group
         assert "extras" not in group_list[0]
