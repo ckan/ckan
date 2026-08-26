@@ -727,8 +727,8 @@ This URL can be accessed by anyone as long as storage is marked as
    accessible.
 
    The following example shows the problem. Storage for ``resources`` is
-   private. But ``shared`` storage points at folder one level above and marked
-   as public, making all the files from ``resources`` storage accessible to
+   private. But the ``shared`` storage points at a folder one level above and it is marked
+   as public, making all the files from the ``resources`` storage accessible to
    everyone, even though ``resources`` storage is not public::
 
      ckan.files.storage.resources.path = /var/data/storage/resources
