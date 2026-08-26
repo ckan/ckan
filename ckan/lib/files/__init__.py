@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-
 import copy
 import logging
 import os
+from collections import defaultdict
 from typing import cast, Any
+
 
 import file_keeper as fk
 from file_keeper import Registry, Upload, adapters, exc, ext, make_storage, make_upload
@@ -124,7 +125,7 @@ def _storages_from_config(
     return result
 
 
-def collect_storages() -> dict[str, fk.Storage]:
+def collect_storages() -> dict[str, fk.Storage]:  # noqa: C901
     """Initialize storages.
 
     :returns: mapping with storages
@@ -182,11 +183,49 @@ def collect_storages() -> dict[str, fk.Storage]:
             config[f"ckan.files.default_storages.{object_type}"] in result
             for object_type in ["resource", "user", "group", "admin"]
         )
+        # storage path is used as fallback for webassets
+        and config["ckan.webassets.path"]
         and config["ckan.storage_path"]
     ):
         log.warning(
             "All uploads are handled by storages. `ckan.storage_path` has no effect"
         )
+
+    # check that there are no public storages that point to the parent folder
+    # of another private storage, unintentionally exposing private files in
+    # this way
+    storages_grouped_by_privacy: dict[str, dict[bool, set[str]]] = defaultdict(
+        lambda: {True: set(), False: set()}
+    )
+    for storage in result.values():
+        if not isinstance(storage, Storage):
+            # it's raw file-keeper storage, not CKAN's wrapped storage. It
+            # means somebody is implementing new features using low-level
+            # functionality and we are won't interfere
+            continue
+
+        path = str(storage.settings.path or "")
+
+        # for simplicity, append slash to the path. It allows using
+        # `str.startswith` instead of `os.path.commonpath` which will complain
+        # about mixing relative and absolute paths.
+        if not path.endswith(os.path.sep):
+            path += os.path.sep
+
+        storages_grouped_by_privacy[storage.settings.type][storage.settings.public].add(path)
+
+    for adapter, group in storages_grouped_by_privacy.items():
+        if not group[False] or not group[True]:
+            continue
+
+        for private in group[False]:
+            if private.startswith(tuple(group[True])):
+                msg = (
+                    f"{adapter} storage with path {private} is included into another"
+                    + " storage with public access. Make sure paths of public"
+                    + " and private storages do not overlap."
+                )
+                raise CkanConfigurationException(msg)
 
     return result
 
