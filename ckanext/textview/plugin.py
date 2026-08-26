@@ -88,9 +88,9 @@ class TextView(p.SingletonPlugin):
         if format_lower in self.jsonp_formats:
             url = data_dict['resource']['url']
 
-        return {'preview_metadata': json.dumps(metadata),
-                'resource_json': json.dumps(data_dict['resource']),
-                'resource_url': json.dumps(url)}
+        return {'preview_metadata': metadata,
+                'resource_json': data_dict['resource'],
+                'resource_url': url}
 
     def view_template(self, context: Context, data_dict: dict[str, Any]):
         return 'text_view.html'
