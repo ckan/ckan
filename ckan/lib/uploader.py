@@ -18,6 +18,7 @@ import ckan.plugins as plugins
 from ckan.common import config
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
+ALLOWED_UPLOAD_TYPES = (FlaskFileStorage,)
 MB = 1 << 20
 
 log = logging.getLogger(__name__)

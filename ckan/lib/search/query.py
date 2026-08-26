@@ -39,6 +39,15 @@ QUERY_FIELDS = "name^4 title^4 tags^2 groups^2 text"
 
 solr_regex = re.compile(r'([\\+\-&|!(){}\[\]^"~*?:])')
 
+# Matches Solr magic fields _query_ and _val_
+MAGIC_FIELD_RE = re.compile(
+    r'\s*(?<![\w\\])\\?_(?:\\?q\\?u\\?e\\?r\\?y|\\?v\\?a\\?l)\\?_\s*:'
+)
+
+# Matches local params and query parser definitons starting with {!
+QUERY_PARSER_RE = re.compile(r'(?:^|[^\\])(?:\\\\)*\{!')
+
+
 def escape_legacy_argument(val: str) -> str:
     # escape special chars \+-&|!(){}[]^"~*?:
     return solr_regex.sub(r'\\\1', val)
@@ -342,7 +351,7 @@ class PackageSearchQuery(SearchQuery):
             'rows': 1,
             'q': 'name:"%s" OR id:"%s"' % (reference, reference),
             'wt': 'json',
-            'fq': 'site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'}
+            'fq': '+site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'}
 
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r', query)
@@ -442,7 +451,23 @@ class PackageSearchQuery(SearchQuery):
         query.setdefault("q.op", "AND")
 
         def _check_query_parser(param: str, value: Any):
-            if isinstance(value, str) and value.strip().startswith("{!"):
+            if not isinstance(value, str):
+                return
+
+            value = value.strip()
+
+            if re.search(MAGIC_FIELD_RE, value):
+               raise SearchError(f"Magic fields are not supported in param '{param}'.")
+
+            match = QUERY_PARSER_RE.findall(value)
+
+            if match:
+                if len(match) > 1:
+                       raise SearchError(f"Query parsers are not supported in param '{param}'.")
+
+                if not value.startswith("{!"):
+                   raise SearchError(f"Local parameters must be defined at the beginning of param '{param}'.")
+
                 if not _get_local_query_parser(value) in config["ckan.search.solr_allowed_query_parsers"]:
                    raise SearchError(f"Local parameters are not supported in param '{param}'.")
 

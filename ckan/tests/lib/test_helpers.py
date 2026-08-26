@@ -931,3 +931,8 @@ class TestUploadsEnabled:
     @pytest.mark.ckan_config(u"ckan.plugins", "example_iuploader")
     def test_uploads_enabled_when_iuploader_plugin_exists(self):
         assert h.uploads_enabled() is True
+
+
+def test_unix_locale_to_bcp47():
+    assert h.unix_locale_to_bcp47('en') == 'en'
+    assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'

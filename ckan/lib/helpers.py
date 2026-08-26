@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import email.utils
 import datetime
+import html
 import logging
 import re
 import os
@@ -1325,18 +1326,10 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = bleach_clean(markdown(text), tags=(), strip=True)
+    plain = html.unescape(bleach_clean(markdown(text), tags=(), strip=True))
     if not extract_length or len(plain) < extract_length:
-        return literal(plain)
-    return literal(
-        str(
-            shorten(
-                plain,
-                width=extract_length,
-                placeholder='...'
-            )
-        )
-    )
+        return plain
+    return shorten(plain, width=extract_length, placeholder='...')
 
 
 @core_helper
@@ -2844,3 +2837,23 @@ def csrf_input():
     '''
     import ckan.lib.base as base
     return literal(base.render('snippets/csrf_input.html'))
+
+
+@core_helper
+def unix_locale_to_bcp47(locale_str: str) -> str:
+    '''
+    Convert a Unix/POSIX locale string from the configurations
+    ckan.locale_default or ckan.locales_available to a BCP-47
+    language tag for use in rendered <html lang="…"> tags.
+
+    Only simple cases are handled, override this helper if language
+    modifier, region or variant handling is required for your site.
+
+    POSIX form:  language[_territory]
+    BCP-47 form: language[-Script]
+
+    Examples:
+        en -> en
+        fr_FR -> fr-FR
+    '''
+    return locale_str.replace('_', '-')

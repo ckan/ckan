@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 def is_single_statement(sql: str):
     '''Returns True if received SQL string contains at most one statement'''
-    if "\\'" in sql:
+    if "\\'" in sql or '#' in sql:
         return False
     return len(sqlparse.split(sql)) <= 1
 

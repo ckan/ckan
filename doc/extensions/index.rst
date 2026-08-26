@@ -22,9 +22,10 @@ features by developing your own CKAN extensions.
 
     **External extensions** are CKAN extensions that don't come packaged with
     CKAN, but must be downloaded and installed separately. Find
-    external extensions at `https://extensions.ckan.org/
-    <https://extensions.ckan.org/>`_.  Again, follow
+    external extensions at `https://ecosystem.ckan.org/extension/
+    <https://ecosystem.ckan.org/extension/>`_.  Again, follow
     each extension's own documentation to install, setup, and use the extension.
+
 
 .. toctree::
    :maxdepth: 2

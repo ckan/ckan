@@ -9,6 +9,70 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.11.6 2026-08-26
+===================
+
+Minor changes
+-------------
+
+- Removed setuptools upper limit requirement
+- Restore ALLOWED_UPLOAD_TYPES variable from `uploader` module
+
+
+Bugfixes
+--------
+- `GHSA-8frv-ccr7-4m2p (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8frv-ccr7-4m2p>`_: Stored XSS via resource fields in Text view
+- `GHSA-5r6j-4c43-7mx6 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-5r6j-4c43-7mx6>`_: Unauthenticated nested Solr QParser allowlist bypass in ``package_search``
+- `GHSA-73fv-x47v-f4j5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-73fv-x47v-f4j5>`_: Authenticated stacked SQL injection in ``datastore_create``
+- `GHSA-8hw7-23gj-5599 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8hw7-23gj-5599>`_: datastore_search_sql Authorization Bypass
+- `GHSA-3g5q-3wf6-p8rc (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3g5q-3wf6-p8rc>`_: ``markdown_extract()`` Stored XSS on Dataset Listings
+- `GHSA-6499-jgj4-2wpf (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf>`_: Session Fixation in Registration View
+- `GHSA-jgwg-vp4m-5xw5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-jgwg-vp4m-5xw5>`_: Exposure of private metadata via follow API actions
+- `GHSA-p5rh-49m9-56vx (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-p5rh-49m9-56vx>`_: Stored XSS vector via resource name in DataTables view
+- Fix organization patch on orgs with extras (`#9386
+  <https://github.com/ckan/ckan/pull/9386>`_)
+- Add an accessible name to the resource actions dropdown button (the icon-only
+  "wrench" toggle in the resource list) so it has discernible text for screen
+  readers, fixing a WCAG 4.1.2 button-name issue. (`#7188
+  <https://github.com/ckan/ckan/pull/7188>`_)
+- Add a ``lang`` attribute to each option in the language selector so assistive
+  technologies announce each language name using that language's pronunciation
+  (WCAG 3.1.2 Language of Parts). (`#7198
+  <https://github.com/ckan/ckan/pull/7198>`_)
+- Fix language code in `html` tag `lang` attribute to use BCP-47
+  with a new `unix_locale_to_bcp47` template helper function. (`#8698
+  <https://github.com/ckan/ckan/pull/8698>`_)
+- Remove unnecessary declare_namespace in ckanext/stats/__init__.py
+  to resolve compatibility with setuptools>=82 (`#9246
+  <https://github.com/ckan/ckan/pull/9246>`_)
+- Fix performance regression in ``PluginImplementations`` on CKAN 2.11 (`#9367
+  <https://github.com/ckan/ckan/pull/9367>`_)
+- Organization admins are allowed to invite new users again, even when public
+  registration is closed. (`#9369 <https://github.com/ckan/ckan/pull/9369>`_)
+- Return a 404 response instead of a 500 error when opening a resource edit
+  page for a dataset that does not exist. (`#9375
+  <https://github.com/ckan/ckan/pull/9375>`_)
+- Reindex datasets after ``member_create`` and ``member_delete`` change package
+  group memberships, ensuring group pages show the correct datasets. (`#9381
+  <https://github.com/ckan/ckan/pull/9381>`_)
+- Restore declare_namespace in ckanext/stats/__init__.py with except block
+  to resolve compatibility with setuptools<82 (`#9414
+  <https://github.com/ckan/ckan/pull/9414>`_)
+- Always return dataset with the current site_id when searching by dataset id
+  (`#9422 <https://github.com/ckan/ckan/pull/9422>`_)
+- Add accessible names to the icon-only user-search submit button and the
+  API-token "copy to clipboard" button so screen readers announce them with
+  discernible text (WCAG 4.1.2). (`#9471
+  <https://github.com/ckan/ckan/pull/9471>`_)
+- Fix JS translations failing for BCP 47 locale codes (`#9473
+  <https://github.com/ckan/ckan/pull/9473>`_)
+
+
+
+
+
+
+
 v.2.11.5 2026-04-29
 ===================
 
