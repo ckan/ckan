@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-
 import os
+import uuid
 import pytest
 
+
 import ckan.config as config
-from ckan.lib.search.common import SearchQueryError
+from ckan.lib.search.common import SearchQueryError, config as ckan_config
 import ckan.tests.factories as factories
 import ckan.model as model
 import ckan.lib.search as search
-from ckan.lib.search import check_solr_schema_version, SearchError
+from ckan.lib.search import check_solr_schema_version, SearchError, make_connection
 from ckan.lib.search.query import _get_local_query_parser
 
 root_dir = os.path.join(os.path.dirname(config.__file__), "solr")
@@ -185,6 +186,97 @@ def test_local_params_with_whitespace_not_allowed_by_default():
     assert str(e.value) == "Local parameters are not supported in param 'q'."
 
 
+@pytest.mark.parametrize(
+    "q",
+    [
+        "_query_:{!bool must=test}",
+        "_query_: {!bool must=test}",
+        "_query_ :{!bool must=test}",
+        "_query_:{!bool must=test} OR name:test",
+        "name:test OR _query_:{!bool must=test}",
+        "name:test OR _query_  :{!bool must=test}",
+        "name:test OR   _query_  :{!bool must=test}",
+        "_val_:{!bool must=test}",
+        "_val_:{!bool must=test} OR name:test",
+        "name:test OR _val_:{!bool must=test}",
+        "{!bool must=test} name:test _query_:{!bool must=test}",
+        r"\_query_:{!bool must=test}",
+        r"_query\_:{!bool must=test}",
+        r"_\q\u\e\r\y_:{!bool must=test}",
+        r"\_\q\u\e\r\y\_:{!bool must=test}",
+        r"+\_query_:{!bool must=test}",
+        r"(\_query_:{!bool must=test})",
+        r"(\  \_query_:{!bool must=test})",
+        r"\_v\a\l\_ : sum(a,b)",
+
+    ]
+
+)
+@pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool")
+def test_magic_fields_not_allowed(q):
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": q})
+
+    assert str(e.value) == "Magic fields are not supported in param 'q'."
+
+
+@pytest.mark.parametrize(
+    "q",
+    [
+        "dataset_query_:test",
+        "dataset_query_store",
+        "_query_store",
+        "_query_store:true",
+        "_query_store: true",
+        "_query_store : true",
+        "new_val_store name:test",
+        "+new_val_inc name:test",
+    ]
+
+)
+def test_magic_fields_dont_interfere(q):
+
+    query = search.query_for(model.Package)
+    assert query.run({"q": q})
+
+
+@pytest.mark.parametrize(
+    "q",
+    [
+        "{!bool must=test} OR name:test {!bool must=test}",
+        "{!bool must=test} {!bool must=test}",
+    ]
+
+)
+def test_query_parsers_not_allowed(q):
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": q})
+
+    assert str(e.value) == "Query parsers are not supported in param 'q'."
+
+
+@pytest.mark.parametrize(
+    "q",
+    [
+        "\\\\{!bool must=test}",
+        "xx{!bool must=test}",
+        "name:test OR {!bool must=test}",
+    ]
+
+)
+def test_local_params_at_the_start(q):
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": q})
+
+    assert str(e.value) == "Local parameters must be defined at the beginning of param 'q'."
+
+
 @pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool")
 @pytest.mark.usefixtures("clean_index")
 def test_allowed_local_params_via_config_not_defined():
@@ -215,3 +307,42 @@ def test_allowed_local_params_via_config():
     # Support dot symbol in keys
     assert query.run({"fq": "{!lucene q.op=AND}bees butterflies"})["count"] == 0
     assert query.run({"fq": "{!lucene q.op=OR}bees butterflies"})["count"] == 2
+
+
+@pytest.mark.usefixtures("clean_index")
+def test_get_index_uses_site_id():
+
+    dataset_id = str(uuid.uuid4())
+
+    conn = make_connection()
+
+    datasets = [
+        {
+            "id": dataset_id,
+            "site_id": "site1",
+            "entity_type": "package",
+            "type": "dataset",
+            "state": "active",
+            "private": False,
+            "index_id": "2",
+        },
+        {
+            "id": dataset_id,
+            "site_id": ckan_config["ckan.site_id"],
+            "entity_type": "package",
+            "type": "dataset",
+            "state": "active",
+            "private": False,
+            "index_id": "1",
+        },
+    ]
+    conn.add(docs=datasets, commit=True)
+
+    # Check both records were indexed in Solr
+    assert conn.search(q=f"id:{dataset_id}").hits == 2
+
+    # Check that our own get_index method returns the dataset for the current site only
+    query = search.query_for(model.Package)
+    result = query.get_index(dataset_id)
+
+    assert result["site_id"] == ckan_config["ckan.site_id"]

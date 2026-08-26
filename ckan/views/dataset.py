@@ -935,6 +935,9 @@ def follow(package_type: str, id: str) -> Response:
         h.flash_error(error_message)
     except NotAuthorized as e:
         h.flash_error(e.message)
+    except NotFound:
+        return base.abort(404, _(u'Dataset not found'))
+
     else:
         h.flash_success(
             _(u"You are now following {0}").format(package_dict[u'title'])

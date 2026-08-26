@@ -654,24 +654,18 @@ def _build_fts_indexes(
         'language', config.get('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
-    def to_tsvector(x: str):
-        return u"to_tsvector('{0}', {1})".format(fts_lang, x)
-
-    def cast_as_text(x: str):
-        return u'cast("{0}" AS text)'.format(x)
-
     full_text_field = {'type': 'tsvector', 'id': '_full_text'}
     for field in [full_text_field] + fields:
         if not datastore_helpers.should_fts_index_field_type(field['type']):
             continue
 
-        field_str = field['id']
+        field_str = identifier(field['id'])
         if field['type'] not in ['text', 'tsvector']:
-            field_str = cast_as_text(field_str)
-        else:
-            field_str = u'"{0}"'.format(field_str)
+            field_str = 'cast({0} AS text)'.format(field_str)
         if field['type'] != 'tsvector':
-            field_str = to_tsvector(field_str)
+            field_str = 'to_tsvector({0}, {1})'.format(
+                literal_string(fts_lang), field_str
+            )
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',

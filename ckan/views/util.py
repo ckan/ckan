@@ -1,12 +1,16 @@
 # encoding: utf-8
 
+import logging
 from flask import Blueprint
+from werkzeug.routing import BuildError as FlaskRouteBuildError
 
 import ckan.lib.base as base
 from ckan.lib.helpers import helper_functions as h
 from ckan.common import _, request
 from ckan.types import Response
 
+
+log = logging.getLogger(__name__)
 util = Blueprint(u'util', __name__)
 
 
@@ -20,7 +24,13 @@ def internal_redirect() -> Response:
 
     url = url.replace('\r', ' ').replace('\n', ' ').replace('\0', ' ')
     if h.url_is_local(url):
-        return h.redirect_to(url)
+        try:
+            response = h.redirect_to(url)
+        except FlaskRouteBuildError:
+            log.error('Error building redirect URL: %s', url)
+            base.abort(400, _('Invalid URL'))
+        return response
+
     else:
         base.abort(403, _(u'Redirecting to external site is not allowed.'))
 
