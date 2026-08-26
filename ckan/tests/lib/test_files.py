@@ -135,27 +135,27 @@ def test_public_storages_cannot_include_private_storages(
     # storages with different backends do not overlap
     monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:memory")
     reset_storages()
-    
-    
+
+
 def test_public_storages_cannot_include_private_storages_startup(
     monkeypatch: pytest.MonkeyPatch,
     ckan_config: dict[str, Any],
     tmp_path: Any,
 ):
     """Test that if public storages include private storages in their configuration
-        CKAN will fail on startup."""
+    CKAN will fail on startup."""
     tmp_path = str(tmp_path)
     prefix = "ckan.files.storage.test"
     monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
     monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path)
     monkeypatch.setitem(ckan_config, f"{prefix}.public", True)
-    
+
     prefix = "ckan.files.storage.another"
     monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
     monkeypatch.setitem(ckan_config, f"{prefix}.initialize", True)
     monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path + "/folder")
 
-    with pytest.raises(CkanConfigurationException) as e:
+    with pytest.raises(CkanConfigurationException):
         files.collect_storages()
 
 
@@ -165,15 +165,15 @@ def test_file_system_storage_path_must_be_absolute(
     ckan_config: dict[str, Any],
     tmp_path: Any,
 ):
-   """Test that public storages cannot include private storages in their configuration."""
+    """Test that public storages cannot include private storages in their configuration."""
     prefix = "ckan.files.storage.test"
     monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
     monkeypatch.setitem(ckan_config, f"{prefix}.path", "some_path")
-    with pytest.raises(CkanConfigurationException) as e:
+    with pytest.raises(CkanConfigurationException):
         files.collect_storages()
 
     tmp_path = str(tmp_path)
     prefix = "ckan.files.storage.another"
     monkeypatch.setitem(ckan_config, f"{prefix}.type", "ckan:fs")
     monkeypatch.setitem(ckan_config, f"{prefix}.initialize", True)
-    monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path + "/folder")    
+    monkeypatch.setitem(ckan_config, f"{prefix}.path", tmp_path + "/folder")
