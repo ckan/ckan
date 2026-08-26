@@ -13323,20 +13323,20 @@ select[data-module=autocomplete] {
 
 .badge[data-format=json],
 .badge[data-format*=json] {
-  border: 1px solid #D63B00;
-  color: #D63B00;
+  border: 1px solid #CD3900;
+  color: #CD3900;
 }
 
 .badge[data-format=xml],
 .badge[data-format*=xml] {
-  border: 1px solid #D63B00;
-  color: #D63B00;
+  border: 1px solid #CD3900;
+  color: #CD3900;
 }
 
 .badge[data-format=text],
 .badge[data-format*=text] {
-  border: 1px solid #1A7EA3;
-  color: #1A7EA3;
+  border: 1px solid #19779A;
+  color: #19779A;
 }
 
 .badge[data-format=csv],
@@ -13359,8 +13359,8 @@ select[data-module=autocomplete] {
 
 .badge[data-format=api],
 .badge[data-format*=api] {
-  border: 1px solid #D22D81;
-  color: #D22D81;
+  border: 1px solid #CB2B7D;
+  color: #CB2B7D;
 }
 
 .badge[data-format=pdf],

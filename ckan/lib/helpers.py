@@ -29,7 +29,7 @@ from typing import (
 
 import dominate.tags as dom_tags
 from markdown import markdown
-from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
+from nh3 import clean as nh3_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
 from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
@@ -53,7 +53,7 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-
+from ckan.lib.maintain import deprecated
 from ckan.lib.pagination import Page  # type: ignore # noqa
 from ckan.common import _, g, request, json
 
@@ -67,14 +67,11 @@ Helper = TypeVar("Helper", bound=Callable[..., Any])
 
 log = logging.getLogger(__name__)
 
-MARKDOWN_TAGS = set([
-    'del', 'dd', 'dl', 'dt', 'h1', 'h2',
-    'h3', 'img', 'kbd', 'p', 'pre', 's',
-    'sup', 'sub', 'strike', 'br', 'hr'
-]).union(ALLOWED_TAGS)
+MARKDOWN_TAGS = copy.copy(ALLOWED_TAGS)
 
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
-MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
+MARKDOWN_ATTRIBUTES['img'].add('title')
+MARKDOWN_ATTRIBUTES['a'].add('title')
 
 LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
@@ -677,9 +674,13 @@ def ckan_version() -> str:
     return ckan.__version__
 
 
+@deprecated(
+    "Use `ckan.lib.i18n.get_locales_dict()` instead of `lang_native_name`",
+    since="2.12.0"
+)
 @core_helper
 def lang_native_name(lang_: Optional[str] = None) -> Optional[str]:
-    ''' Return the language name currently used in it's localised form
+    '''DEPRECATED. Return the language name currently used in it's localised form
         either from parameter or current environ setting'''
     name = lang_ or lang()
     if not name:
@@ -872,6 +873,8 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
 
     if icon:
         link.add(dom_tags.i(cls=f"fa fa-{icon}"))   # type: ignore
+        if not inner_span:
+            text = f" {text}"
 
     link.add(dom_tags.span(text) if inner_span else f"{text}")  # type: ignore
 
@@ -1390,8 +1393,10 @@ def linked_user(user: Union[str, model.User],
     return None
 
 
+@deprecated("Use `model.Group.by_name(name).display_name` instead", since="2.12.0")
 @core_helper
 def group_name_to_title(name: str) -> str:
+    '''DEPRECATED. Convert a group name to a group title.'''
     group = model.Group.by_name(name)
     if group is not None:
         return group.display_name
@@ -1406,7 +1411,7 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = bleach_clean(markdown(text), tags=(), strip=True)
+    plain = nh3_clean(markdown(text), tags=set())
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(
@@ -1844,8 +1849,10 @@ def group_link(group: dict[str, Any]) -> Markup:
     return link_to(group['title'], url)
 
 
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def organization_link(organization: dict[str, Any]) -> Markup:
+    """DEPRECATED. Return a link to the organization page."""
     url = url_for('organization.read', id=organization['name'])
     return link_to(organization['title'], url)
 
@@ -1864,9 +1871,13 @@ def snippet(template_name: str, **kw: Any) -> str:
     return base.render_snippet(template_name, **kw)
 
 
+@deprecated(
+    "Use `model_dictize.package_dictize` instead of `convert_to_dict`",
+    since="2.12.0",
+)
 @core_helper
 def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
-    ''' This is a helper function for converting lists of objects into
+    '''DEPRECATED. This is a helper function for converting lists of objects into
     lists of dicts. It is for backwards compatibility only. '''
 
     import ckan.lib.dictization.model_dictize as md
@@ -2044,9 +2055,10 @@ def remove_url_param(key: Union[list[str], str],
                                    action=action, extras=extras)
 
 
+@deprecated("Use `pprint.pformat` directly instead of `debug_inspect`", since="2.12.0")
 @core_helper
 def debug_inspect(arg: Any) -> Markup:
-    ''' Output pprint.pformat view of supplied arg '''
+    '''DEPRECATED. Output pprint.pformat view of supplied arg.'''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
 
 
@@ -2123,9 +2135,10 @@ def roles_translated() -> dict[str, str]:
     return authz.roles_trans()
 
 
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def user_in_org_or_group(group_id: str) -> bool:
-    ''' Check if user is in a group or organization '''
+    '''DEPRECATED. Check if user is in a group or organization '''
     # we need a user
     if current_user.is_anonymous:
         return False
@@ -2267,8 +2280,8 @@ def render_markdown(data: str,
     if allow_html:
         data = markdown(data.strip())
     else:
-        data = bleach_clean(
-            markdown(data), strip=True,
+        data = nh3_clean(
+            markdown(data),
             tags=MARKDOWN_TAGS,
             attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
@@ -2364,6 +2377,7 @@ def rendered_resource_view(resource_view: dict[str, Any],
     return literal(base.render(template, extra_vars=data_dict))
 
 
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def view_resource_url(
         resource_view: dict[str, Any],
@@ -2371,7 +2385,7 @@ def view_resource_url(
         package: dict[str, Any],
         **kw: Any) -> str:
     '''
-    Returns url for resource. made to be overridden by extensions. i.e
+    DEPRECATED. Returns url for resource. made to be overridden by extensions. i.e
     by resource proxy.
     '''
     return resource['url']
@@ -2760,7 +2774,7 @@ def mail_to(email_address: str, name: str) -> Markup:
 
 @core_helper
 def clean_html(html: Any) -> str:
-    return bleach_clean(str(html))
+    return nh3_clean(str(html))
 
 
 core_helper(flash, name='flash')
@@ -2809,10 +2823,10 @@ def load_plugin_helpers() -> None:
                 setattr(new_func, attribute, value)
             helper_functions[name] = new_func
 
-
+@deprecated("No replacement is planned; this helper will be removed", since="2.12.0")
 @core_helper
 def sanitize_id(id_: str) -> str:
-    '''Given an id (uuid4), if it has any invalid characters it raises
+    '''DEPRECATED. Given an id (uuid4), if it has any invalid characters it raises
     ValueError.
     '''
     return str(uuid.UUID(id_))
@@ -2922,11 +2936,15 @@ def check_ckan_version(min_version: Optional[str] = None,
                                         max_version=max_version)
 
 
+@deprecated(
+    "Construct the redirect URL manually instead of `make_login_url`",
+    since="2.12.0"
+)
 def make_login_url(
     login_view: str, next_url: Optional[str] = None, next_field: str = "next"
 ) -> str:
     '''
-    Creates a URL for redirecting to a login page. If only `login_view` is
+    DEPRECATED. Creates a URL for redirecting to a login page. If only `login_view` is
     provided, this will just return the URL for it. If `next_url` is provided,
     however, this will append a ``next=URL`` parameter to the query string
     so that the login view can redirect back to that URL.

@@ -1,0 +1,3 @@
+HTML cleaning is done with ``nh3`` instead of ``bleach`` from now on. 
+More tags and attributes are allowed by default and ``clean_html`` now strips unknown tags instead of escaping HTML-entities.
+``render_markdown`` with ``allow_html=False`` now strips ``script`` and ``style`` tags alongside with  their content; previously, only the tag was removed, while content was kept.
