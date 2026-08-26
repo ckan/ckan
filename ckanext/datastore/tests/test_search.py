@@ -1541,7 +1541,7 @@ class TestDatastoreSQLFunctional(object):
         )
         helpers.call_action("datastore_search_sql", sql=sql)
 
-        sql = 'SELECT CoUnT(*) from "{}"'.format(
+        sql = 'SELECT "CoUnT"(*) from "{}"'.format(
             resource["id"]
         )
         with pytest.raises(p.toolkit.NotAuthorized):

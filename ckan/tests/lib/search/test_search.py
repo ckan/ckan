@@ -180,6 +180,97 @@ def test_local_params_with_whitespace_not_allowed_by_default():
     assert str(e.value) == "Local parameters are not supported in param 'q'."
 
 
+@pytest.mark.parametrize(
+    "q",
+    [
+        "_query_:{!bool must=test}",
+        "_query_: {!bool must=test}",
+        "_query_ :{!bool must=test}",
+        "_query_:{!bool must=test} OR name:test",
+        "name:test OR _query_:{!bool must=test}",
+        "name:test OR _query_  :{!bool must=test}",
+        "name:test OR   _query_  :{!bool must=test}",
+        "_val_:{!bool must=test}",
+        "_val_:{!bool must=test} OR name:test",
+        "name:test OR _val_:{!bool must=test}",
+        "{!bool must=test} name:test _query_:{!bool must=test}",
+        r"\_query_:{!bool must=test}",
+        r"_query\_:{!bool must=test}",
+        r"_\q\u\e\r\y_:{!bool must=test}",
+        r"\_\q\u\e\r\y\_:{!bool must=test}",
+        r"+\_query_:{!bool must=test}",
+        r"(\_query_:{!bool must=test})",
+        r"(\  \_query_:{!bool must=test})",
+        r"\_v\a\l\_ : sum(a,b)",
+
+    ]
+
+)
+@pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool")
+def test_magic_fields_not_allowed(q):
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": q})
+
+    assert str(e.value) == "Magic fields are not supported in param 'q'."
+
+
+@pytest.mark.parametrize(
+    "q",
+    [
+        "dataset_query_:test",
+        "dataset_query_store",
+        "_query_store",
+        "_query_store:true",
+        "_query_store: true",
+        "_query_store : true",
+        "new_val_store name:test",
+        "+new_val_inc name:test",
+    ]
+
+)
+def test_magic_fields_dont_interfere(q):
+
+    query = search.query_for(model.Package)
+    assert query.run({"q": q})
+
+
+@pytest.mark.parametrize(
+    "q",
+    [
+        "{!bool must=test} OR name:test {!bool must=test}",
+        "{!bool must=test} {!bool must=test}",
+    ]
+
+)
+def test_query_parsers_not_allowed(q):
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": q})
+
+    assert str(e.value) == "Query parsers are not supported in param 'q'."
+
+
+@pytest.mark.parametrize(
+    "q",
+    [
+        "\\\\{!bool must=test}",
+        "xx{!bool must=test}",
+        "name:test OR {!bool must=test}",
+    ]
+
+)
+def test_local_params_at_the_start(q):
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": q})
+
+    assert str(e.value) == "Local parameters must be defined at the beginning of param 'q'."
+
+
 @pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool")
 @pytest.mark.usefixtures("clean_index")
 def test_allowed_local_params_via_config_not_defined():

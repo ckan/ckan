@@ -1,0 +1,11 @@
+The following template helpers are deprecated and will be removed in a future release:
+
+* ``lang_native_name`` - use ``ckan.lib.i18n.get_locales_dict()`` instead
+* ``group_name_to_title`` - use ``model.Group.by_name(name).display_name`` instead
+* ``organization_link`` - no replacement is planned
+* ``convert_to_dict`` - use ``ckan.lib.dictization.model_dictize.package_dictize`` instead
+* ``debug_inspect`` - use ``pprint.pformat`` directly instead
+* ``user_in_org_or_group`` - no replacement is planned
+* ``view_resource_url`` (including the ``resourceproxy`` override) - no replacement is planned
+* ``sanitize_id`` - no replacement is planned
+* ``make_login_url`` - construct the redirect URL manually instead

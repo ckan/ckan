@@ -175,11 +175,15 @@ def download(package_type: str,
             if mimetype:
                 overrides["content_type"] = mimetype
             location = files.Location(filepath)
-            file_data = files.FileData(
-                location,
-                size=storage.size(location),
-                **overrides,
-            )
+            try:
+                file_data = files.FileData(
+                    location,
+                    size=storage.size(location),
+                    **overrides,
+                )
+            except files.exc.LocationError:
+                return base.abort(404, _('No download is available'))
+
             if isinstance(storage, files.Storage):
                 resp = storage.as_response(file_data, filename)
             else:
