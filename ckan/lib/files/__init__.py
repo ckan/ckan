@@ -212,9 +212,9 @@ def collect_storages() -> dict[str, fk.Storage]:  # noqa: C901
         if not path.endswith(os.path.sep):
             path += os.path.sep
 
-        grouped[storage.settings.type][storage.settings.public].add(path)
+        storages_grouped_by_privacy[storage.settings.type][storage.settings.public].add(path)
 
-    for adapter, group in grouped.items():
+    for adapter, group in storages_grouped_by_privacy.items():
         if not group[False] or not group[True]:
             continue
 
