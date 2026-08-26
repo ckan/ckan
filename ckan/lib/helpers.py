@@ -2513,25 +2513,34 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def uploads_enabled(object_type: str | None = None) -> bool:
+def uploads_enabled(storage_name: str | None = None) -> bool:
     """Returns True if uploads are enabled for the given object type.
 
     :param object_type: the type of object to check uploads for, e.g. resource,
         group, user or admin
     :type object_type: string
     """
-    if not object_type:
-        log.warning("h.uploads_enabled call without object_type is non supported")
-        return False
-
     if not config["ckan.uploads_enabled"]:
         return False
 
-    storage_name = config.get(f"ckan.files.default_storages.{object_type}")
+    has_classic_uploader = bool(
+        config["ckan.storage_path"]
+        or any(plugin for plugin in p.PluginImplementations(p.IUploader))
+    )
+
+    if not storage_name:
+        log.warning(
+            "h.uploads_enabled must be called with object_type."
+            " Swithcing to legacy logic and checking availability of custom uploaders."
+            " In future this call will cause an exception."
+        )
+        return has_classic_uploader
+
+    storage_name = config.get(f"ckan.files.default_storages.{storage_name}")
     if not storage_name:
         log.warning(
             "h.uploads_enabled call with an unexpected object_type '%s'",
-            object_type,
+            storage_name,
         )
         return False
 
@@ -2540,10 +2549,7 @@ def uploads_enabled(object_type: str | None = None) -> bool:
     except files.exc.UnknownStorageError:
         # if the storage is not found, then we are using old upload rules: when
         # storage path is configured or uploader is customized, uploads are allowed
-        return bool(
-            config["ckan.storage_path"]
-            or any(plugin for plugin in p.PluginImplementations(p.IUploader))
-        )
+        return has_classic_uploader
 
     return storage.supports(files.Capability.CREATE)
 
