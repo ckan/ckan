@@ -1,20 +1,20 @@
 // Base variables
 $imagePath: "../../../base/images";
-$bgPath: "#{$imagePath}/bg.png";
 
 // Layout Variables
 $layoutFontFamily: $font-family-sans-serif;
-$layoutTextColor: #444;
-$layoutBoldColor: #000;
-$layoutLinkColor: #187794;
-$layoutBackgroundColor: #eee;
-$layoutTrimBackgroundColor: #fff;
-$layoutTrimBorderColor: #ccc;
+$layoutTextColor: $gray-700;
+$layoutBoldColor: $black;
+$layoutLinkColor: $primary;
+$layoutBackgroundColor: $gray-200;
+$layoutTrimBackgroundColor: $white;
+$layoutTrimBorderColor: $gray-400;
+$layoutPrimaryBackgroundColor: $gray-100;
 $logoMaxHeight: 60px;
-$logoMinHeight: 55px;
+$logoMinHeight: 48px;
 
-$navLinkColor: #333;
-$navActiveBackgroundColor: #f6f6f6;
+$navLinkColor: $gray-900;
+$navActiveBackgroundColor: $gray-100;
 
 // Module Variables
 $moduleBackgroundColor: #fff;
@@ -31,31 +31,30 @@ $gutterY: 20px;
 $gutterSmallX: 15px;
 $gutterSmallY: $gutterY;
 
-$emptyTextColor: #6e6e6e;
-$genericBorderColor: #ddd;
+$emptyTextColor: $gray-500;
+$genericBorderColor: $gray-300;
 
 $breadcrumbTextColor: #505050;
 
-$mastheadTextColor: #fff;
+$mastheadTextColor: $black;
 $mastheadLinkColor: $mastheadTextColor;
-$mastheadBackgroundColor: #005d7a;
-$mastheadBackgroundColorStart: #005d7a;
-$mastheadBackgroundColorEnd: #00536b;
+$mastheadBackgroundColor: $white;
 
-$navItemActiveTextColor: #FFF;
-$navItemActiveBackgroundColor: #647A82;
-$navItemActiveArrowSize: 6px;
+$navItemActiveTextColor: $white;
+$navItemActiveBackgroundColor: $gray-500;
+$navItemActiveArrowSize: $spacer-1;
 
 $pillTextColor: $navItemActiveTextColor;
-$pillBackgroundColor: darken($navItemActiveBackgroundColor, 10%);
+$pillBackgroundColor: color.adjust($navItemActiveBackgroundColor, $lightness: -10%);
 
-$footerTextColor: #CCDEE3;
+$footerBackgroundColor: $brand-700;
+$footerTextColor: $white;
 $footerLinkColor: $footerTextColor;
 
 $inputColor: $black;
 $inputBackground: $body-bg;
 $inputBorder: #ccc;
-$inputBorderRadius: 3px;
+$inputBorderRadius: 6px;
 $disabledCustomInputTextColor: #aaa;
 $disabledCustomInputBackground: #f3f3f3;
 
@@ -65,8 +64,8 @@ $highlightHoverBackground: #fdf3d9;
 // Forms
 
 $errorText: #b55457;
-$errorBackground: lighten(#c6898b, 30%);
-$errorBorder: #c6898b;
+$errorBackground: color.adjust(#a2191f, $lightness: 30%);
+$errorBorder: #a2191f;
 
 $formInfoText: #707070;
 
@@ -91,8 +90,8 @@ $codeTextColor: #000;
 
 // Datasets
 
-$listingHeadingTextColor: #333;
-$resourceFormatBackground: #6e6e6e;
+$listingHeadingTextColor: $gray-700;
+$resourceFormatBackground: $gray-500;
 
 // Table
 
@@ -114,3 +113,8 @@ $iconWhiteSpritePath: "../images/bootstrap-glyphicons-halflings-white.png";
 
 // Navigation
 $zindex-navbar: 1;
+
+// Icons
+$chevronActiveIcon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$white}'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+$removeStateIcon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'><path d='M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z' stroke='white' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+$addStateIcon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'><path d='M12 8V16M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z' stroke='black' stroke-linecap='round' stroke-linejoin='round'/></svg>");

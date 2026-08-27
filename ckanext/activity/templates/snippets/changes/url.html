@@ -1,11 +1,10 @@
 <li>
   <p>
     {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id)) %}
-
     {% if change.method == "change" %}
-    {% set old_src_url = 'http://' + change.old_url if not change.old_url[0:4] == 'http' else change.old_url %}
-    {% set new_src_url = 'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url %}
 
+      {% set old_src_url = 'http://' + change.old_url if not change.old_url[0:4] == 'http' else change.old_url %}
+      {% set new_src_url = 'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url %}
       {% trans
         title=change.title
       %}
@@ -25,8 +24,8 @@
       {% endtrans %}
 
     {% elif change.method == "add" %}
-    {% set new_src_url = 'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url %}
 
+      {% set new_src_url = 'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url %}
       {% trans
         title=change.title
       %}
