@@ -3,9 +3,16 @@
     position: relative;
 }
 
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 .main {
     padding: 20px 0;
     background-color: $white;
+    flex: 1;
 }
 
 .main:after,
