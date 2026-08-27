@@ -15231,6 +15231,7 @@ html[data-theme=dark] {
   --dm-link: #8ea9e8;
   --dm-link-hover: #b3c6f2;
   --bs-secondary-color: var(--dm-text-muted);
+  --bs-border-color: var(--dm-border);
   background-color: var(--dm-bg);
   color: var(--dm-text);
 }
@@ -15353,6 +15354,31 @@ html[data-theme=dark] .nav-simple > li,
 html[data-theme=dark] .nav-aside > li {
   background-color: var(--dm-surface);
   border-bottom-color: var(--dm-border);
+}
+html[data-theme=dark] .accordion {
+  --bs-accordion-color: var(--dm-text);
+  --bs-accordion-bg: var(--dm-surface);
+  --bs-accordion-border-color: var(--dm-border);
+  --bs-accordion-btn-color: var(--dm-text);
+  --bs-accordion-btn-bg: var(--dm-surface-alt);
+  --bs-accordion-active-color: var(--dm-text);
+  --bs-accordion-active-bg: var(--dm-surface-alt);
+}
+html[data-theme=dark] .accordion-item {
+  background-color: var(--dm-surface);
+  border-color: var(--dm-border);
+}
+html[data-theme=dark] .accordion-button,
+html[data-theme=dark] .accordion-button:not(.collapsed) {
+  background-color: var(--dm-surface-alt);
+  color: var(--dm-text);
+}
+html[data-theme=dark] .accordion-button::after,
+html[data-theme=dark] .accordion-button:not(.collapsed)::after {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e6e9f0'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>");
+}
+html[data-theme=dark] .accordion-collapse.show {
+  background-color: var(--dm-surface);
 }
 html[data-theme=dark] .secondary .accordion .accordion-item:has(.accordion-button:disabled),
 html[data-theme=dark] .secondary .accordion .accordion-item .module-content {
@@ -15536,6 +15562,17 @@ html[data-theme=dark] ::selection {
 }
 html[data-theme=dark] .card {
   --bs-card-border-color: var(--dm-border);
+}
+html[data-theme=dark] .modal {
+  --bs-modal-bg: var(--dm-surface);
+  --bs-modal-color: var(--dm-text);
+  --bs-modal-border-color: var(--dm-border);
+  --bs-modal-header-border-color: var(--dm-border);
+  --bs-modal-footer-border-color: var(--dm-border);
+  --bs-modal-footer-bg: var(--dm-surface);
+}
+html[data-theme=dark] .modal-header .btn-close {
+  filter: var(--bs-btn-close-white-filter);
 }
 
 @media (min-width: 576px) {
