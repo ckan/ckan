@@ -15534,6 +15534,9 @@ html[data-theme=dark] ::selection {
   background-color: var(--dm-link);
   color: var(--dm-bg);
 }
+html[data-theme=dark] .card {
+  --bs-card-border-color: var(--dm-border);
+}
 
 @media (min-width: 576px) {
   .wrapper:before {

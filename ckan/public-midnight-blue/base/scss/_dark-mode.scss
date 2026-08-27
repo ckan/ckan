@@ -388,4 +388,8 @@ html[data-theme="dark"] {
         background-color: var(--dm-link);
         color: var(--dm-bg);
     }
+
+    .card {
+        --bs-card-border-color: var(--dm-border);
+    }
 }
