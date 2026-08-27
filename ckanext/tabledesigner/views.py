@@ -135,7 +135,11 @@ class _TableDesignerAddRow(MethodView):
         except ValidationError as err:
             rec_err = cast(List[str], err.error_dict.get('records', ['']))[0]
             if rec_err.startswith('duplicate key'):
-                info = get_action('datastore_info')({}, {'id': resource_id})
+                info = get_action('datastore_info')({}, {
+                    'id': resource_id,
+                    'include_meta': False,
+                    'include_fields_schema': False,
+                })
                 pk_fields = [
                     f['id'] for f in info['fields']
                     if f.get('tdpkreq') == 'pk'
@@ -217,7 +221,11 @@ class _TableDesignerEditRow(MethodView):
         except ValidationError as err:
             rec_err = cast(List[str], err.error_dict.get('records', ['']))[0]
             if rec_err.startswith('duplicate key'):
-                info = get_action('datastore_info')({}, {'id': resource_id})
+                info = get_action('datastore_info')({}, {
+                    'id': resource_id,
+                    'include_meta': False,
+                    'include_fields_schema': False,
+                })
                 pk_fields = [
                     f['id'] for f in info['fields']
                     if f.get('tdpkreq') == 'pk'
