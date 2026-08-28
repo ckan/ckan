@@ -2,7 +2,6 @@
     @include clearfix();
     @extend .box;
     position: relative;
-    min-height: 300px;
     background-color: #fff;
     @include media-breakpoint-up(md) {
         &:before {
@@ -29,22 +28,22 @@
     }
 }
 
-// @media (min-width: $screen-md-min) {
-//   .wrapper {
-//     background-position:0px 0px;
-//   }
-// }
-// .wrapper.no-nav {
-//     background-image: none;
-// }
+
 [role=main],
 .main {
     position: relative;
 }
 
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 .main {
     padding: 20px 0;
     background: $layoutBackgroundColor url("#{$bgPath}");
+    flex: 1;
 }
 
 .main:after,

@@ -13821,7 +13821,6 @@ td.diff_header {
 }
 .wrapper {
   position: relative;
-  min-height: 300px;
   background-color: #fff;
 }
 @media (min-width: 768px) {
@@ -13849,9 +13848,16 @@ td.diff_header {
   position: relative;
 }
 
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .main {
   padding: 20px 0;
   background: #eee url("../../../base/images/bg.png");
+  flex: 1;
 }
 
 .main:after,

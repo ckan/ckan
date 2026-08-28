@@ -5,7 +5,7 @@ from ckan.types import Context
 import logging
 from typing import Any
 
-from ckan.common import CKANConfig, aslist, json
+from ckan.common import CKANConfig, aslist
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
 import ckan.lib.datapreview as datapreview
@@ -77,7 +77,7 @@ class TextView(p.SingletonPlugin):
         return False
 
     def setup_template_variables(self, context: Context,
-                                 data_dict: dict[str, Any]):
+                                 data_dict: dict[str, Any]) -> dict[str, Any]:
         metadata = {'text_formats': self.text_formats,
                     'json_formats': self.json_formats,
                     'jsonp_formats': self.jsonp_formats,
