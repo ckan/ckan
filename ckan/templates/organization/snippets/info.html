@@ -18,7 +18,7 @@
       {% block image %}
         <div class="image">
           <a href="{{ url }}">
-            <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" alt="{{ organization.name }}" />
+            <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" alt="" />
           </a>
         </div>
       {% endblock %}
