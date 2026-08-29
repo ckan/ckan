@@ -323,7 +323,8 @@ def _group_or_org_list(
         if errors:
             raise ValidationError(errors)
     sort = data_dict.get('sort') or config.get('ckan.default_group_sort')
-    q = data_dict.get('q', '').strip()
+    # Replace null characters to avoid ValueError in queries.
+    q = data_dict.get('q', '').replace("\x00", "\uFFFD").strip()
 
     all_fields = asbool(data_dict.get('all_fields', None))
 
