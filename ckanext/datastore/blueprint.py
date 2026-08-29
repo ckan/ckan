@@ -8,6 +8,7 @@ from flask import Blueprint, Response
 from flask.views import MethodView
 
 import ckan.lib.navl.dictization_functions as dict_fns
+from ckan import plugins as p
 from ckan.logic import (
     tuplize_dict,
     parse_params,
@@ -16,7 +17,9 @@ from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
     abort, render, g, h, ValidationError, asbool, check_access, config,
 )
-from ckan.types import Schema, ValidatorFactory
+from ckan.types import Context, Schema, ValidatorFactory
+
+from ckanext.datastore.interfaces import IDatastoreDump
 from ckanext.datastore.logic.schema import (
     list_of_strings_or_string,
     json_validator,
@@ -37,17 +40,121 @@ one_of = cast(ValidatorFactory, get_validator(u'one_of'))
 default = cast(ValidatorFactory, get_validator(u'default'))
 unicode_only = get_validator(u'unicode_only')
 
-DUMP_FORMATS = u'csv', u'tsv', u'json', u'xml'
 PAGINATE_BY = 32000
 
 datastore = Blueprint(u'datastore', __name__)
+
+
+def get_dump_format_configs() -> dict[str, dict[str, Any]]:
+    """Get dump format configurations from all plugins"""
+    all_formats = {
+        "csv": {
+            "label": _("CSV"),
+            "writer_factory": csv_writer,
+            "records_format": "csv",
+            "content_type": "text/csv; charset=utf-8",
+            "file_extension": "csv",
+        },
+        "tsv": {
+            "label": _("TSV"),
+            "writer_factory": tsv_writer,
+            "records_format": "tsv",
+            "content_type": "text/tab-separated-values; charset=utf-8",
+            "file_extension": "tsv",
+        },
+        "json": {
+            "label": _("JSON"),
+            "writer_factory": json_writer,
+            "records_format": "lists",
+            "content_type": "application/json; charset=utf-8",
+            "file_extension": "json",
+        },
+        "xml": {
+            "label": _("XML"),
+            "writer_factory": xml_writer,
+            "records_format": "objects",
+            "content_type": "text/xml; charset=utf-8",
+            "file_extension": "xml",
+        },
+    }
+
+    # Plugins can add, override, or remove formats. A None value
+    # removes a default (e.g. {"xml": None}).
+    for plugin in p.PluginImplementations(IDatastoreDump):
+        plugin_formats = plugin.register_dump_formats()
+        for name, cfg in plugin_formats.items():
+            if cfg is None:
+                all_formats.pop(name, None)
+            else:
+                all_formats[name] = cfg
+
+    return all_formats
+
+
+def build_dump_context(
+    resource_id: str,
+    search_params: Optional[dict[str, Any]] = None,
+    user: Optional[str] = None,
+    total: Optional[int] = None,
+    fields: Optional[list[dict[str, Any]]] = None,
+) -> dict[str, Any]:
+    """ Prepare the to `evaluate_format_availability` """
+    sp = search_params or {}
+    if total is None or fields is None:
+        ds_context = cast(Context, {'user': user} if user is not None else {})
+        result = get_action('datastore_search')(
+            ds_context,
+            dict(sp, resource_id=resource_id, limit=0, include_total=True),
+        )
+        total = result['total']
+        fields = result['fields']
+    return {
+        'resource_id': resource_id,
+        'fields': fields,          # exported columns, raw (incl. _id)
+        'total': total,            # post-filter row count
+        'filters': sp.get('filters'),
+        'q': sp.get('q'),
+        'distinct': bool(sp.get('distinct')),
+        'selected_fields': sp.get('fields'),
+        'sort': sp.get('sort'),
+        'user': user,
+    }
+
+
+def evaluate_format_availability(
+    cfg: dict[str, Any], context: dict[str, Any]
+) -> Optional[str]:
+    """ Decide whether a format can be produced for a given dump scope.
+    Returns ``None`` when available, otherwise a translatable reason string
+    """
+    n_cols = len(context['fields'])
+    max_cols = cfg.get('max_columns')
+    if max_cols is not None and n_cols > max_cols:
+        return _(
+            '{label} supports at most {max:,} columns; '
+            'this export has {n:,}.'
+        ).format(label=cfg.get('label', ''), max=max_cols, n=n_cols)
+
+    n_rows = context['total']
+    max_rows = cfg.get('max_rows')
+    if max_rows is not None and n_rows > max_rows:
+        return _(
+            '{label} supports at most {max:,} rows; '
+            'this export has {n:,}.'
+        ).format(label=cfg.get('label', ''), max=max_rows, n=n_rows)
+
+    validate = cfg.get('validate')
+    if validate is not None:
+        return validate(context)
+
+    return None
 
 
 def dump_schema() -> Schema:
     return {
         u'offset': [default(0), int_validator],
         u'limit': [ignore_missing, int_validator],
-        u'format': [default(u'csv'), one_of(DUMP_FORMATS)],
+        u'format': [default(u'csv'), one_of(list(get_dump_format_configs()))],
         u'bom': [default(False), boolean_validator],
         u'filters': [ignore_missing, json_validator],
         u'q': [ignore_missing, unicode_or_json_validator],
@@ -100,27 +207,28 @@ def dump(resource_id: str):
 
     user_context = g.user
 
-    content_type = None
-    content_disposition = None
+    dump_formats = get_dump_format_configs()
 
-    if fmt == 'csv':
-        content_disposition = 'attachment; filename="{name}.csv"'.format(
-            name=resource_id)
-        content_type = b'text/csv; charset=utf-8'
-    elif fmt == 'tsv':
-        content_disposition = 'attachment; filename="{name}.tsv"'.format(
-            name=resource_id)
-        content_type = b'text/tab-separated-values; charset=utf-8'
-    elif fmt == 'json':
-        content_disposition = 'attachment; filename="{name}.json"'.format(
-            name=resource_id)
-        content_type = b'application/json; charset=utf-8'
-    elif fmt == 'xml':
-        content_disposition = 'attachment; filename="{name}.xml"'.format(
-            name=resource_id)
-        content_type = b'text/xml; charset=utf-8'
-    else:
-        abort(404, _('Unsupported format'))
+    if fmt not in dump_formats:
+        abort(400, _("Unsupported format"))
+
+    format_config = dump_formats[fmt]
+    file_extension = format_config["file_extension"]
+    content_type = format_config["content_type"]
+
+    config_to_evaluate = ("max_columns", "max_rows", "validate")
+    evaluation_required = any(k in format_config for k in config_to_evaluate)
+    if evaluation_required:
+        dump_context = build_dump_context(
+            resource_id, search_params, user_context
+        )
+        reason = evaluate_format_availability(format_config, dump_context)
+        if reason:
+            abort(400, reason)
+
+    content_disposition = 'attachment; filename="{name}.{ext}"'.format(
+        name=resource_id, ext=file_extension
+    )
 
     headers = {}
     if content_type:
@@ -137,7 +245,6 @@ def dump(resource_id: str):
                                 sort=sort,
                                 search_params=search_params,
                                 user=user_context),
-                        mimetype='application/octet-stream',
                         headers=headers)
     except ObjectNotFound:
         abort(404, _('DataStore resource not found'))
@@ -244,20 +351,14 @@ def dump_to(
     limit: Optional[int], options: dict[str, Any], sort: str,
     search_params: dict[str, Any], user: str
 ):
-    if fmt == 'csv':
-        writer_factory = csv_writer
-        records_format = 'csv'
-    elif fmt == 'tsv':
-        writer_factory = tsv_writer
-        records_format = 'tsv'
-    elif fmt == 'json':
-        writer_factory = json_writer
-        records_format = 'lists'
-    elif fmt == 'xml':
-        writer_factory = xml_writer
-        records_format = 'objects'
-    else:
-        assert False, 'Unsupported format'
+    dump_formats = get_dump_format_configs()
+
+    if fmt not in dump_formats:
+        abort(400, _("Unsupported format"))
+
+    format_config = dump_formats[fmt]
+    writer_factory = format_config["writer_factory"]
+    records_format = format_config["records_format"]
 
     bom = options.get('bom', False)
 
