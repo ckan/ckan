@@ -683,6 +683,18 @@ def get_rtl_theme() -> str:
 
 
 @core_helper
+def dark_mode_enabled() -> bool:
+    '''Return whether dark theme support is enabled for the ``midnight-blue``
+    theme.
+
+    Controlled by the :ref:`ckan.theme.enable_dark_mode` config option. When
+    disabled, the theme toggle button and the ``prefers-color-scheme``
+    autodetection are turned off.
+    '''
+    return config.get('ckan.theme.enable_dark_mode')
+
+
+@core_helper
 def flash_notice(message: Any, allow_html: bool = False) -> None:
     ''' Show a flash message of type notice '''
     if allow_html:
