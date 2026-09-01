@@ -19,6 +19,7 @@ from sqlalchemy import (
     Index,
     Table,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 
 from ckan.common import config
 import ckan.model as model
@@ -47,7 +48,7 @@ class Activity(domain_object.DomainObject, BaseModel):
         Column("user_id", types.UnicodeText),
         Column("object_id", types.UnicodeText),
         Column("activity_type", types.UnicodeText),
-        Column("data", _types.JsonDictType),
+        Column("data", JSONB),
         Column("permission_labels", types.Text),
     )
 
@@ -192,7 +193,7 @@ class ActivityDetail(domain_object.DomainObject, BaseModel):
     object_id = Column("object_id", types.UnicodeText)
     object_type = Column("object_type", types.UnicodeText)
     activity_type = Column("activity_type", types.UnicodeText)
-    data = Column("data", _types.JsonDictType)
+    data = Column("data", JSONB)
 
     activity: Mapped[Activity] = relationship(
         Activity,
