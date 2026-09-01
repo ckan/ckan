@@ -3,38 +3,41 @@
     position: relative;
     margin-bottom: 10px;
     padding: 5px 0;
-}
 
-.page_primary_action {
-    margin-bottom: 20px;
-}
+    .breadcrumb {
+        @include clearfix;
+        @include box-shadow(none);
+        position: relative;
+        float: left;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+        font-size: $breadcrumb-font-size;
 
-.toolbar .breadcrumb {
-    @include clearfix;
-    @include box-shadow(none);
-    position: relative;
-    float: left;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: none;
-    font-size: $font-size-lg;
-}
+        a {
+            color: $breadcrumbTextColor;
+        }
 
-.toolbar .breadcrumb li {
-    padding-left: $breadcrumb-item-padding-x;
-    &:not(:first-child) {
-        &::before {
-            float: left; // Suppress inline spacings and underlining of the separator
-            padding-right: $breadcrumb-item-padding-x;
-            color: $breadcrumb-divider-color;
-            content: var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider)) #{"/* rtl:"} var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider-flipped)) #{"*/"};
-          }
+        li {
+            &:not(:first-child) {
+                padding-left: $breadcrumb-item-padding-x;
+                &::before {
+                    float: left; // Suppress inline spacings and underlining of the separator
+                    padding-right: $breadcrumb-item-padding-x;
+                    color: $breadcrumb-divider-color;
+                    content: var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider)) #{"/* rtl:"} var(--#{$variable-prefix}breadcrumb-divider, escape-svg($breadcrumb-divider-flipped)) #{"*/"};
+                }
+            }
+        }
     }
-}
 
-.toolbar .breadcrumb .active {
-    color: $breadcrumb-active-color;
+    @include media-breakpoint-down(sm) {
+        .breadcrumb {
+            color: #fff;
+            text-shadow: none;
+        }
+    }
 }
 
 
@@ -43,60 +46,39 @@
 }
 
 .toolbar .home span {
-    display: none;
+    display: inline;
 }
 
-.toolbar .breadcrumb a {
-    color: $breadcrumbTextColor;
-}
-
-@include media-breakpoint-down(sm) {
-    .toolbar .breadcrumb {
-        color: #fff;
-        text-shadow: none;
-    }
-}
 
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
     font-weight: bold;
+    color: $brand-700;
 }
 
 .actions {
     @include list-unstyled;
     position: absolute;
     top: 10px;
-    right: 10px;
     z-index: 1;
-}
 
-.actions li {
-    display: inline-block;
-    margin-right: 5px;
-    //@extend ie7-inline-block;
-    ul li {
-        display: block;
+    li {
+        display: inline-block;
+        margin-right: 5px;
+        //@extend ie7-inline-block;
+        ul li {
+            display: block;
+        }
+
+        &:last-of-type {
+            margin-right: 0;
+        }
     }
-}
 
-.actions li:last-of-type {
-    margin-right: 0;
-}
-
-.hide-heading {
-    display: none;
 }
 
 .page-header {
-    &.module-content{
-        padding-top: math.div($grid-gutter-width, 2);
-        padding-bottom: 0;
-    }
-    margin-top: $grid-gutter-width;
     @include clearfix;
-    border-bottom: 1px solid $moduleHeadingBorderColor;
-    background-color: $moduleHeadingBackgroundColor;
-    @include border-radius(0 3px 0 0);
     .nav-tabs {
         float: left;
         margin-bottom: -1px;
@@ -113,11 +95,11 @@
             border-bottom-color: transparent;
         }
     }
-    .content_action {
-        float: right;
-        margin-top: -3px;
-        // margin-right: -7px;
-    }
+}
+
+.content_action {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .no-nav .page-header {
@@ -131,12 +113,6 @@
         background-color: $moduleBackgroundColor;
     }
 }
-
-// @media (min-width: $screen-sm-min) {
-//     .col-md-9 .page-header {
-//         margin-left: -17px;
-//     }
-// }
 
 @include media-breakpoint-down(sm) {
     .page-header .nav-tabs {
@@ -155,5 +131,12 @@
     .page-header .nav-tabs>.active>a:hover,
     .page-header .nav-tabs>.active>a:focus {
         border-bottom-color: #dddddd;
+    }
+}
+
+// Page Primary Action
+@include media-breakpoint-down(sm) {
+    .page_primary_action {
+        width: 100%;
     }
 }

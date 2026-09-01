@@ -6,8 +6,15 @@
   <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), named_route='%s.search' % dataset_type) }}</li>
 {% endblock %}
 
+{% block content_action %}
+  {% if h.check_access('package_create') %}
+    {% snippet 'snippets/add_dataset.html', dataset_type=dataset_type %}
+  {% endif %}
+{% endblock %}
+
 {% block primary_content %}
   {% snippet "package/snippets/search_results.html",
+    heading=h.humanize_entity_type('dataset', dataset_type, 'page title') or _('Datasets'),
     dataset_type=dataset_type,
     fields_grouped=fields_grouped,
     search_facets=search_facets,
