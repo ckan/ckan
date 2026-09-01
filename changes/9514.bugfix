@@ -1,0 +1,5 @@
+Honour the ``ckan.feeds.author_link`` config option again. It was dropped when the
+feeds controller was ported to a Flask blueprint, so the Atom feeds never emitted an
+``atom:uri`` for the feed author even though the option and the ``IFeed`` contract still
+documented it. Feed classes provided via ``IFeed.get_feed_class`` now receive the
+``author_link`` argument their documented signature already listed.
