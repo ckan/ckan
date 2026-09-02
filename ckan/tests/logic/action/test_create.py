@@ -1469,6 +1469,34 @@ class TestUserCreate(object):
         assert user["name"] == name
         assert "password" not in user
 
+    def test_ignore_auth_can_create_user_without_password(self):
+        stub = factories.User.stub()
+
+        user = helpers.call_action(
+            "user_create",
+            context={"ignore_auth": True},
+            name=stub.name,
+            email=stub.email,
+        )
+
+        assert user["name"] == stub.name
+        assert user["email"] == stub.email
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
+    def test_normal_user_creation_still_requires_password(self):
+        stub = factories.User.stub()
+        context = {"user": None, "ignore_auth": False}
+
+        with pytest.raises(logic.ValidationError) as err:
+            helpers.call_action(
+                "user_create",
+                context=context,
+                name=stub.name,
+                email=stub.email,
+            )
+
+        assert err.value.error_dict == {"password": ["Missing value"]}
+
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_parameters_missing(self):
         context = {"user": None, "ignore_auth": False}

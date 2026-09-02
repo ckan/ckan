@@ -457,7 +457,7 @@ def default_user_schema(
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
         'fullname': [ignore_missing, unicode_safe],
-        'password': [not_empty_if_not_sysadmin, user_password_validator,
+        'password': [user_password_validator, not_empty_if_not_sysadmin,
                      ignore_missing, unicode_safe],
         'password_hash': [ignore_missing, ignore_not_sysadmin, unicode_safe],
         'email': [not_empty, strip_value, email_validator, email_is_unique,
@@ -485,14 +485,10 @@ def create_user_for_user_invite_schema(ignore_missing: Validator):
 
 @validator_args
 def user_new_form_schema(
-        ignore_missing: Validator, unicode_safe: Validator,
-        user_both_passwords_entered: Validator,
-        user_password_validator: Validator, user_password_not_empty: Validator,
-        user_passwords_match: Validator):
+        unicode_safe: Validator, user_both_passwords_entered: Validator,
+        user_password_validator: Validator, user_passwords_match: Validator):
     schema = default_user_schema()
 
-    schema['password'] = [user_password_validator, user_password_not_empty,
-                          ignore_missing, unicode_safe]
     schema['password1'] = [unicode_safe, user_both_passwords_entered,
                            user_password_validator, user_passwords_match]
     schema['password2'] = [unicode_safe]
@@ -502,17 +498,13 @@ def user_new_form_schema(
 
 @validator_args
 def user_perform_reset_form_schema(
-        ignore_missing: Validator, not_empty: Validator,
-        unicode_safe: Validator,
+        not_empty: Validator, unicode_safe: Validator,
         user_both_passwords_entered: Validator,
         user_id_or_name_exists: Validator,
-        user_password_validator: Validator, user_password_not_empty: Validator,
-        user_passwords_match: Validator):
+        user_password_validator: Validator, user_passwords_match: Validator):
     schema = default_user_schema()
 
     schema["id"] = [not_empty, user_id_or_name_exists, unicode_safe]
-    schema['password'] = [user_password_validator, user_password_not_empty,
-                          ignore_missing, unicode_safe]
     schema['password1'] = [unicode_safe, user_both_passwords_entered,
                            user_password_validator, user_passwords_match]
     schema['password2'] = [unicode_safe]
