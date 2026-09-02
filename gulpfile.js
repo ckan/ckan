@@ -21,7 +21,10 @@ const build = () =>
     __dirname + "/ckan/public/base/scss/main-rtl.scss",
     ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
-    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
+      .pipe(sass({
+        outputStyle: 'expanded',
+        loadPaths: ['node_modules'],
+      }).on('error', sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))
     .pipe(rename(renamer))
     .pipe(dest(__dirname + "/ckan/public/base/css/"));
@@ -36,11 +39,6 @@ const watchSource = () =>
 const jquery = () =>
   src(__dirname + "/node_modules/jquery/dist/jquery.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor")
-  );
-
-const bootstrapScss = () =>
-  src([__dirname + "/node_modules/bootstrap/scss/**/*", ]).pipe(
-    dest(__dirname + "/ckan/public/base/vendor/bootstrap/scss")
   );
 
 const bootstrapJS = () =>
@@ -98,7 +96,6 @@ exports.watch = watchSource;
 
 exports.updateVendorLibs = parallel(
   jquery,
-  bootstrapScss,
   bootstrapJS,
   moment,
   fontAwesomeCss,
