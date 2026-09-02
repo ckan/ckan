@@ -442,7 +442,8 @@ def default_update_relationship_schema(
 def default_user_schema(
         ignore_missing: Validator, unicode_safe: Validator,
         name_validator: Validator, user_name_validator: Validator,
-        user_password_validator: Validator, user_password_not_empty: Validator,
+        user_password_validator: Validator,
+        not_empty_if_not_sysadmin: Validator,
         email_is_unique: Validator, ignore_not_sysadmin: Validator,
         not_empty: Validator, strip_value: Validator,
         email_validator: Validator, user_about_validator: Validator,
@@ -456,7 +457,7 @@ def default_user_schema(
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
         'fullname': [ignore_missing, unicode_safe],
-        'password': [user_password_validator, user_password_not_empty,
+        'password': [user_password_validator, not_empty_if_not_sysadmin,
                      ignore_missing, unicode_safe],
         'password_hash': [ignore_missing, ignore_not_sysadmin, unicode_safe],
         'email': [not_empty, strip_value, email_validator, email_is_unique,
