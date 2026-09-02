@@ -22,12 +22,14 @@ Example:
 {%- set extra_html = caller() if caller -%}
 <div class="form-group{{ " " ~ classes | join(" ") }}{% if error %} error{% endif %}">
 <div class="controls">
-    <label class="checkbox" for="{{ id or name }}">
-    <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }} {{ attributes(attrs) }} />
-    {{ label or name }}
-    {% if is_required %}<span class="control-required">*</span> {% endif %}
-    {% if error and error is iterable %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
-    </label>
+    <div class="checkbox">
+        <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }} {{ attributes(attrs) }} />
+        <label class="checkbox" for="{{ id or name }}">
+        {{ label or name }}
+        {% if is_required %}<span class="control-required">*</span> {% endif %}
+        {% if error and error is iterable %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
+        </label>
+    </div>
     {{ extra_html }}
 </div>
 </div>

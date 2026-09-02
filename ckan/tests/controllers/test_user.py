@@ -223,6 +223,31 @@ class TestUser(object):
             not in response
         )
 
+    @pytest.mark.parametrize(
+        "template_folder", ["templates", "templates-midnight-blue"]
+    )
+    def test_login_checkbox_input_is_sibling_of_label(
+        self, make_app, ckan_config, template_folder
+    ):
+        ckan_config["ckan.base_templates_folder"] = template_folder
+        app = make_app()
+
+        response = app.get(url_for("user.login"), status=200)
+        html = BeautifulSoup(response.data, "html.parser")
+
+        checkbox = html.select_one("#field-remember")
+        label = html.select_one('label[for="field-remember"]')
+
+        assert checkbox is not None
+        assert label is not None
+        assert checkbox.find_parent("label") is None
+
+        wrapper = checkbox.parent
+        assert wrapper is label.parent
+        assert "checkbox" in wrapper.get("class", [])
+        assert "checkbox" in label.get("class", [])
+        assert label.get("for") == checkbox.get("id")
+
     @pytest.mark.ckan_config("ckan.recaptcha.privatekey", "foo")
     def test_registered_user_login_bad_password_or_captcha(self, app):
         """
