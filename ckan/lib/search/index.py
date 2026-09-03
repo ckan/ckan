@@ -10,7 +10,6 @@ import re
 from dateutil.parser import parse, ParserError as DateParserError
 from typing import Any, NoReturn, Optional
 
-import six
 import pysolr
 from ckan.common import config
 
@@ -220,7 +219,6 @@ class PackageSearchIndex(SearchIndex):
         # clean the dict fixing keys and dates
         new_dict = {}
         for key, value in pkg_dict.items():
-            key = six.ensure_str(key)
             if key.endswith('_date'):
                 if not value:
                     continue
@@ -262,7 +260,9 @@ class PackageSearchIndex(SearchIndex):
 
         # add a unique index_id to avoid conflicts
         import hashlib
-        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get('ckan.site_id')))).hexdigest()
+        pkg_dict['index_id'] = hashlib.md5(
+            "{}{}".format(pkg_dict["id"], config["ckan.site_id"]).encode()
+        ).hexdigest()
 
         for item in PluginImplementations(IPackageController):
             pkg_dict = item.before_dataset_index(pkg_dict)
