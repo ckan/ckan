@@ -103,6 +103,12 @@ class TestDescribe(object):
                             "validators": "convert_int",
                             "description": mock.ANY,
                         },
+                        {
+                            "key": "ckan.datapusher.requires_validation",
+                            "default": False,
+                            "validators": "boolean_validator",
+                            "description": mock.ANY,
+                        },
                     ],
                 }
             ],
