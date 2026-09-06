@@ -10,6 +10,8 @@ from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
 from sqlalchemy import types, Column, Table, ForeignKey, Index
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -54,7 +56,7 @@ resource_table = Table(
     Column('cache_url', types.UnicodeText),
     Column('cache_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
-    Column('extras', _types.JsonDictType),
+    Column('extras', MutableDict.as_mutable(JSONB)),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
     Index('idx_package_resource_id', 'id'),
     Index('idx_package_resource_package_id', 'package_id'),

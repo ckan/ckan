@@ -16,12 +16,12 @@ ckan/migrations/versions/057_660a5aae527e_tracking.py
 from __future__ import annotations
 
 import datetime
+from typing import Any
 
 from sqlalchemy import types, Column, text, Index, Table
 
 import ckan.model.meta as meta
 import ckan.model.domain_object as domain_object
-import ckan.model.types as _types
 from ckan.model.base import BaseModel
 
 __all__ = ['TrackingSummary', 'TrackingRaw']
@@ -51,13 +51,13 @@ class TrackingRaw(domain_object.DomainObject, BaseModel):
         self.tracking_type = tracking_type
 
     @classmethod
-    def get(cls, **kw: _types.Any) -> TrackingRaw | None:
+    def get(cls, **kw: Any) -> TrackingRaw | None:
         """Get tracking raw entry."""
         query = meta.Session.query(cls).autoflush(False)
         return query.filter_by(**kw).first()
 
     @classmethod
-    def create(cls, **kw: _types.Any) -> TrackingRaw:
+    def create(cls, **kw: Any) -> TrackingRaw:
         """Create a new tracking raw entry."""
         obj = cls(**kw)
         meta.Session.add(obj)
@@ -101,20 +101,20 @@ class TrackingSummary(domain_object.DomainObject, BaseModel):
         self.tracking_date = tracking_date
 
     @classmethod
-    def get(cls, **kw: _types.Any) -> TrackingSummary | None:
+    def get(cls, **kw: Any) -> TrackingSummary | None:
         obj = meta.Session.query(cls).autoflush(False)
         return obj.filter_by(**kw).first()
 
     @classmethod
-    def create(cls, **kwargs: _types.Any) -> TrackingSummary:
+    def create(cls, **kwargs: Any) -> TrackingSummary:
         obj = cls(**kwargs)
         meta.Session.add(obj)
         meta.Session.commit()
         return obj
 
     @classmethod
-    def update(cls, filters: dict[str, _types.Any],
-               **kwargs: _types.Any) -> TrackingSummary | None:
+    def update(cls, filters: dict[str, Any],
+               **kwargs: Any) -> TrackingSummary | None:
         obj = meta.Session.query(cls).filter_by(**filters).first()
         if obj:
             for key, value in kwargs.items():
