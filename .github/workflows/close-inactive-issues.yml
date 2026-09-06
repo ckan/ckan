@@ -1,0 +1,54 @@
+# This workflow does two jobs:
+# * mark issues/PRs that has no activities as stale
+# * close stale issues/PRs
+#
+# If a PR(or an issue, but we'll use only "PR" for simplicity) has no
+# activities(comment or new commits) during X days, it's marked as
+# stale. Starting from this point, if PR has no activities for another Y days,
+# it's closed. But if PR has at least one comment or one commit added during
+# this period, it's no longer marked as stale. I.e. the whole cycle starts from
+# the begining.
+name: Close inactive issues
+on:
+  schedule:
+    - cron: "1 1 1/7 * *"
+
+jobs:
+  close-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          # Process oldest issues first
+          ascending: true
+          # Issue/PR with a milestone will not be marked as stale
+          exempt-all-milestones: true
+          # Skip the stale action for draft PRs
+          exempt-draft-pr: true
+          # By default, stale label will be automatically removed from the
+          # issue/PR once it receives any update. Uncomment the line below and
+          # issues/PRs will remain stale even after an update. Use it if you
+          # want to remove stale label manually
+          #
+          # remove-stale-when-updated: false
+
+          # Use `days-before-issue-stale`/`days-before-pr-stale` if PRs and issues require different settings
+          days-before-stale: 60
+          # Use `days-before-issue-close`/`days-before-pr-close` if PRs and issues require different settings
+          days-before-close: 30
+
+          stale-issue-label: "Inactive?"
+          stale-issue-message: "This issue is stale because it has no recent activity."
+          close-issue-message: "This issue was closed because it has been inactive since being marked as stale."
+          # Issues with these labels won't be marked as stale
+          exempt-issue-labels: WIP,Long-standing,Good for Contribution
+
+          stale-pr-label: "Inactive?"
+          stale-pr-message: "This PR is stale because it has no recent activity."
+          close-pr-message: "This PR was closed because it has been inactive since being marked as stale."
+          # PRs with these labels won't be marked as stale
+          exempt-pr-labels: WIP,Long-standing,Good for Contribution
