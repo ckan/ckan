@@ -122,3 +122,14 @@ documents what the snippet does and what parameters it requires. For example:
 
 .. literalinclude:: /../ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
    :language: django
+
+------------------------------------------------
+Define blocks for content that may be overridden
+------------------------------------------------
+
+Template sections that anticipate being overridden by other plugins should
+be grouped into blocks. They can also define additional empty blocks (eg
+``{% block extra_fields %}{% endblock %}``), in appropriate locations, to
+anticipate content being added. This simplifies the process of extending the
+template in another plugin, since it can just override or extend the block
+without changing any other part of the template.
