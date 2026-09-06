@@ -110,7 +110,7 @@ ask for the following:
 * *Username* -- choose a username using only letters, numbers, - and _ characters.
   For example, "jbloggs" or "joe_bloggs93".
 
-* *Full name* -- to be displayed on your user profile
+* *Displayed name* -- to be displayed on your user profile
 
 * *E-mail address* -- this will not be visible to other users
 
@@ -613,7 +613,7 @@ page.
 
 CKAN displays the user settings page. Here you can change:
 
-* Your full name
+* Your displayed name
 
 * Your e-mail address (note: this is not displayed to other users)
 
