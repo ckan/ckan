@@ -36,6 +36,16 @@
      * Returns the new slug.
      */
     slugify: function (string, trim) {
+      // Normalize to NFC so that Nordic characters such as å, ä and ö are
+      // a single code point regardless of whether they arrived precomposed
+      // (typing on a Nordic keyboard) or decomposed into a base letter
+      // plus a combining mark (for example text pasted from some word
+      // processors, or from applications that use decomposed Unicode
+      // internally). The character map below only has entries for
+      // precomposed code points, so a stray combining mark was silently
+      // turned into a hyphen, e.g. "Åsele" became "a-sele" instead of
+      // "asele" when the title had been pasted rather than typed.
+      string = (string || '').normalize('NFC');
       var str = '';
       var index = 0;
       var length = string.length;
