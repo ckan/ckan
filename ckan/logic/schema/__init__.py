@@ -457,7 +457,7 @@ def default_user_schema(
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
         'fullname': [ignore_missing, unicode_safe],
-        'password': [not_empty_if_not_sysadmin, user_password_validator,
+        'password': [user_password_validator, not_empty_if_not_sysadmin,
                      ignore_missing, unicode_safe],
         'password_hash': [ignore_missing, ignore_not_sysadmin, unicode_safe],
         'email': [not_empty, strip_value, email_validator, email_is_unique,
