@@ -1,0 +1,1 @@
+fallback to None to prevent KeyError in default_extras_schema when validating extras without an explicit id
