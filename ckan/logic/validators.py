@@ -594,7 +594,7 @@ def ignore_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
     if ignore_auth or (user and authz.is_sysadmin(user)):
         return
 
-    data.pop(key)
+    data.pop(key, None)
 
 
 def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
