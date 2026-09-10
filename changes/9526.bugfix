@@ -1,0 +1,1 @@
+Apply the (possibly new) dict returned by `IResourceController.before_resource_show` implementations in `package_show`, instead of discarding it. This was silently breaking the `multilingual_resource` plugin's resource-field translations.
