@@ -12,7 +12,6 @@ import flask_babel
 
 import pytest
 
-from ckan import logic
 from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
 from ckan.exceptions import CkanUrlException
@@ -957,7 +956,7 @@ def test_resource_view_fields(monkeypatch):
 
     # empty list if datastore query fails
     def raise_validation_error():
-        raise logic.ValidationError('test')
+        raise h.logic.ValidationError('test')
     monkeypatch.setattr(
         h.logic, 'get_action',
         lambda name: (lambda context, data_dict: raise_validation_error()))
