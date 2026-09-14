@@ -13,14 +13,11 @@ import flask_babel
 from faker import Faker
 import pytest
 
-from ckan import types
+from ckan import logic, plugins as p, types
 from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
-import ckan.plugins as p
-import ckan.exceptions
+from ckan.exceptions import CkanUrlException
 from ckan.tests import helpers, factories
-
-CkanUrlException = ckan.exceptions.CkanUrlException
 
 
 class BaseUrlFor(object):
@@ -1142,9 +1139,11 @@ def test_unix_locale_to_bcp47():
 
 
 def test_get_facet_items_dict(test_request_context: Any):
-    """get_facet_items_dict returns a list of facet items with the correct active state based on the current request parameters."""
+    """get_facet_items_dict returns a list of facet items
+    with the correct active state based on the current request parameters."""
     facets = [
-        {"name": name, "display_name": name, "count": 1} for name in ["aaa", "bbb", "ccc"]
+        {"name": name, "display_name": name, "count": 1}
+        for name in ["aaa", "bbb", "ccc"]
     ]
 
     with test_request_context("/dataset?test=ccc&test=aaa"):
@@ -1157,3 +1156,30 @@ def test_get_facet_items_dict(test_request_context: Any):
 
         assert result[2]["name"] == "ccc"
         assert result[2]["active"]
+
+
+def test_resource_view_fields(monkeypatch):
+    resource_dict = {'id': 'abcde'}
+    # empty list if datastore is inactive
+    assert h.resource_view_get_fields(resource_dict) == []
+    resource_dict['datastore_active'] = False
+    assert h.resource_view_get_fields(resource_dict) == []
+
+    # populated list if datastore is active
+    resource_dict['datastore_active'] = True
+    monkeypatch.setattr(
+        h.logic, 'get_action',
+        lambda name: (
+            lambda context, data_dict: {
+                'fields': [{'id': 'foo'}, {'id': 'baz'}]
+            }
+        ))
+    assert h.resource_view_get_fields(resource_dict) == ['foo', 'baz']
+
+    # empty list if datastore query fails
+    def raise_validation_error():
+        raise logic.ValidationError('test')
+    monkeypatch.setattr(
+        h.logic, 'get_action',
+        lambda name: (lambda context, data_dict: raise_validation_error()))
+    assert h.resource_view_get_fields(resource_dict) == []
