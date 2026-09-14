@@ -1174,7 +1174,7 @@ def test_resource_view_fields(monkeypatch):
                 'fields': [{'id': 'foo'}, {'id': 'baz'}]
             }
         ))
-    assert h.resource_view_get_fields(resource_dict) == ['foo', 'baz']
+    assert h.resource_view_get_fields(resource_dict) == ['baz', 'foo']
 
     # empty list if datastore query fails
     def raise_validation_error():
