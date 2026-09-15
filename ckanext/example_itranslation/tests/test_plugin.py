@@ -31,7 +31,7 @@ class TestExampleITranslationPlugin(object):
 
         # double check the untranslated strings
         response = app.get(url=plugins.toolkit.url_for(u"home.index"),)
-        assert helpers.body_contains(response, "Log in")
+        assert helpers.body_contains(response, "Login")
         assert not helpers.body_contains(response, "Overwritten string in ckan.mo")
 
         # check that we have only overwritten 'fr'
