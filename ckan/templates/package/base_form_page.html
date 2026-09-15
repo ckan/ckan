@@ -43,7 +43,9 @@
         </div>
       </div>
     </section>
-    {% snippet "package/snippets/resources.html", pkg=pkg_dict or (form_vars.data if form_vars and form_vars.data else None), active=data.id if data else None, no_new_res = true %}
+    {% if pkg_dict %}
+      {% snippet "package/snippets/resources.html", pkg=pkg_dict or (form_vars.data if form_vars and form_vars.data else None), active=data.id if data else None, no_new_res = true %}
+    {% endif %}
   {% endblock %}
 
   {% block resources_module %}

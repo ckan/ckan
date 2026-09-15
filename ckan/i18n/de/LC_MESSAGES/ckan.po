@@ -3633,7 +3633,7 @@ msgid "Remember me"
 msgstr "Passwort merken"
 
 #: ckan/templates/user/logout_first.html:14
-msgid "Log in"
+msgid "Login"
 msgstr "Einloggen"
 
 #: ckan/templates/user/logout_first.html:19

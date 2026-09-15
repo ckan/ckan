@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import re
 import uuid
 
 import pytest
@@ -130,7 +131,7 @@ class TestOrganizationRead(object):
         dataset_count = soup.find('dt', text='Datasets').find_next_sibling('dd').find('span')
         assert dataset_count.text == "2"
 
-        h1_tag = soup.select_one('h1:contains("dataset")')
+        h1_tag = soup.select_one('h2:-soup-contains("dataset")')
         assert h1_tag.text.strip() == f'1 dataset found for "{title}"'
 
 
@@ -385,15 +386,10 @@ class TestOrganizationSearch(object):
 
         index_response = app.get(url_for("organization.index"))
         index_response_html = BeautifulSoup(index_response.body)
-        org_names = index_response_html.select(
-            "ul.media-grid " "li.media-item " "h2.media-heading"
-        )
+        org_names = index_response_html.select(".groups-cards h3")
         org_names = [n.string for n in org_names]
 
-        assert len(org_names) == 3
-        assert "AOrg One" in org_names
-        assert "AOrg Two" in org_names
-        assert "Org Three" in org_names
+        assert set(org_names) == {"AOrg One", "AOrg Two", "Org Three"}
 
     def test_organization_search_results(self, app):
         """Searching via organization search form returns list of expected
@@ -408,15 +404,10 @@ class TestOrganizationSearch(object):
         )
 
         search_response_html = BeautifulSoup(search_response.body)
-        org_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h2.media-heading"
-        )
+        org_names = search_response_html.select('h3')
         org_names = [n.string for n in org_names]
 
-        assert len(org_names) == 2
-        assert "AOrg One" in org_names
-        assert "AOrg Two" in org_names
-        assert "Org Three" not in org_names
+        assert set(org_names) == {"AOrg One", "AOrg Two"}
 
     def test_organization_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
@@ -663,20 +654,20 @@ class TestOrganizationFollow:
         assert '<a class="btn btn-success"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
-        assert '''
-            <dt>Followers</dt>
-            <dd><span>0</span></dd>
-          ''' in response
+        assert re.search(
+            r'<dt>Followers</dt>\s*<dd><span>0</span></dd>',
+            response.text,
+        )
 
         follow_url = url_for("organization.follow", id=organization["id"])
         response = app.post(follow_url, headers=headers)
         assert '<a class="btn btn-danger"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-minus"></i> Unfollow' in response
-        assert '''
-            <dt>Followers</dt>
-            <dd><span>1</span></dd>
-        ''' in response
+        assert re.search(
+            r'<dt>Followers</dt>\s*<dd><span>1</span></dd>',
+            response.text,
+        )
 
     @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
     def test_organization_follow_without_public_user_details(self, app, user):
@@ -733,10 +724,10 @@ class TestOrganizationFollow:
         assert '<a class="btn btn-success"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
-        assert '''
-            <dt>Followers</dt>
-            <dd><span>0</span></dd>
-          ''' in response
+        assert re.search(
+            r'<dt>Followers</dt>\s*<dd><span>0</span></dd>',
+            response.text,
+        )
 
     def test_organization_unfollow_not_exist(self, app, user):
         """Unfollow a organization that doesn't exist."""
