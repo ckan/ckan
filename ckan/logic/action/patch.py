@@ -36,13 +36,7 @@ def package_patch(
     '''
     _check_access('package_patch', context, data_dict)
 
-    show_context: Context = {
-        'session': context.get('session'),
-        'user': context.get('user'),
-        'auth_user_obj': context.get('auth_user_obj'),
-        'ignore_auth': context.get('ignore_auth', False),
-        'for_update': True
-    }
+    show_context: Context = _fresh_context(context, for_update=True)
 
     package_dict = _get_action('package_show')(
         show_context,
@@ -77,8 +71,7 @@ def resource_patch(context: Context,
     if not resource:
         raise NotFound('Resource was not found.')
 
-    show_context: Context = _fresh_context(context)
-    show_context.update({'for_update': True})
+    show_context: Context = _fresh_context(context, for_update=True)
 
     package_dict = _get_action('package_show')(
         show_context,
