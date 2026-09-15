@@ -199,7 +199,10 @@ class TestUser(object):
         )
 
         # and we're definitely not back on the login page.
-        assert '<h1 class="page-heading">Login</h1>' not in response
+        assert re.search(
+            r'<h1 class="page-heading">\s*Login\s*</h1>',
+            response.text,
+        ) is None
 
     def test_registered_user_login_bad_password(self, app):
         """
@@ -217,7 +220,10 @@ class TestUser(object):
         )
 
         # the response is the login page again
-        assert '<h1 class="page-heading">Login</h1>' in response
+        assert re.search(
+            r'<h1 class="page-heading">\s*Login\s*</h1>',
+            response.text,
+        )
         assert "Login failed. Bad username or password." in response
         # and we're definitely not on the dashboard.
         assert '<a href="/dashboard">Dashboard</a>' not in response

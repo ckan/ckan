@@ -413,7 +413,7 @@ class TestGroupMembership(object):
         )
 
         page = BeautifulSoup(response.body)
-        assert page.select_one('.page-heading').text.strip() == 'Edit Member'
+        assert page.select_one('h1').text.strip() == 'Edit Member'
         role_option = page.select_one('#role [selected]')
         assert role_option and role_option.get('value') == 'admin'
         assert page.select_one('#username').get('value') == member['name']
