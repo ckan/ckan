@@ -708,10 +708,10 @@ class TestOrganizationFollow:
         assert '<a class="btn btn-success"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
-        assert '''
-            <dt>Followers</dt>
-            <dd><span>0</span></dd>
-        ''' in response
+        assert re.search(
+            r'<dt>Followers</dt>\s*<dd><span>0</span></dd>',
+            response.text,
+        )
 
     def test_organization_unfollow_not_following(self, app, user):
         """Unfollow a organization not currently following"""

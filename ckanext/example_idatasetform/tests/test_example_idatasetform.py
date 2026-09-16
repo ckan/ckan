@@ -197,10 +197,13 @@ class TestUrlsForCustomDatasetType(object):
         )
         page = bs4.BeautifulSoup(response.body)
         page_header = page.find(class_="page-header")
-        for action in ["edit", "resources", "read"]:
+        for action in ["edit", "resources"]:
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )
+        assert page.find(class_="content_action").find(
+            href=url_for("fancy_type.read", id=pkg["name"])
+        )
 
         assert page.find(id="dataset-edit").find(
             href=url_for("fancy_type.delete", id=pkg["id"],)
@@ -240,7 +243,7 @@ class TestUrlsForCustomDatasetType(object):
             ).body
         )
         page_header = page.find(class_="page-header")
-        for action in ["edit", "views", "read"]:
+        for action in ["edit", "views"]:
             assert page_header.find(
                 href=url_for(
                     "fancy_type_resource." + action,
@@ -248,6 +251,12 @@ class TestUrlsForCustomDatasetType(object):
                     resource_id=res["id"],
                 )
             )
+        assert page.find(class_="content_action").find(
+            href=url_for(
+                "fancy_type_resource.read",
+                id=pkg["name"], resource_id=res["id"],
+            )
+        )
 
         breadcrumbs = page.select_one(".breadcrumb")
         assert breadcrumbs.find(href=url_for("fancy_type.search"))
