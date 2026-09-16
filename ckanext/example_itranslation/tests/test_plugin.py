@@ -27,18 +27,18 @@ class TestExampleITranslationPlugin(object):
             url=plugins.toolkit.url_for(u"home.index", locale="fr"),
         )
         assert helpers.body_contains(response, "Overwritten string in ckan.mo")
-        assert not helpers.body_contains(response, "Connexion")
+        assert not helpers.body_contains(response, "Bienvenue")
 
         # double check the untranslated strings
         response = app.get(url=plugins.toolkit.url_for(u"home.index"),)
-        assert helpers.body_contains(response, "Login")
+        assert helpers.body_contains(response, "Welcome")
         assert not helpers.body_contains(response, "Overwritten string in ckan.mo")
 
         # check that we have only overwritten 'fr'
         response = app.get(
             url=plugins.toolkit.url_for(u"home.index", locale="de"),
         )
-        assert helpers.body_contains(response, "Einloggen")
+        assert helpers.body_contains(response, "Willkommen")
         assert not helpers.body_contains(response, "Overwritten string in ckan.mo")
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
