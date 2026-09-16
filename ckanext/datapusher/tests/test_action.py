@@ -1,10 +1,13 @@
 # encoding: utf-8
 
 import datetime
+import json
 
 import unittest.mock as mock
 import pytest
+import requests
 from ckan.logic import _actions
+import ckan.logic as logic
 
 from ckan.tests import helpers, factories
 from ckanext.datapusher.tests import get_api_token
@@ -339,6 +342,35 @@ class TestSubmit:
                 submit(res, user)
 
                 assert r_mock.call_count == 1
+
+    def test_read_timeout_marks_task_as_error(self, app, monkeypatch):
+        user = factories.User()
+        resource = factories.Resource(user=user)
+        monkeypatch.setattr(
+            "requests.post",
+            mock.Mock(side_effect=requests.exceptions.ReadTimeout(
+                "timed out")),
+        )
+
+        with app.flask_app.test_request_context():
+            with pytest.raises(logic.ValidationError):
+                helpers.call_action(
+                    "datapusher_submit",
+                    context={"user": user["name"]},
+                    resource_id=resource["id"],
+                )
+
+        task = helpers.call_action(
+            "task_status_show",
+            {},
+            entity_id=resource["id"],
+            task_type="datapusher",
+            key="datapusher",
+        )
+        assert task["state"] == "error"
+        assert json.loads(task["error"])["message"] == (
+            "DataPusher request timed out."
+        )
 
     def test_task_status_changes(self, create_with_upload):
         """While updating task status, datapusher commits changes to database.

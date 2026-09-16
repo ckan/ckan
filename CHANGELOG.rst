@@ -9,23 +9,607 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.12.0 (Not yet released)
-===========================
+v.2.12.0 2026-08-26
+===================
 
-Migration notes
----------------
+Overview
+--------
+- CKAN 2.12 supports Python 3.10 and later
+- This version requires a requirements upgrade on source installations
+- This version requires a database upgrade with ``ckan db upgrade``.
+- This version requires the DataStore database to be updated by
+  running the SQL script produced by ``ckan datastore set-permissions``.
+- Make sure to check the :ref:`migration-notes-2.12`
 
-* Going forward, if both ``ckan.upload.[type].mimetypes`` and
-  ``ckan.upload.[type].types`` are empty, no uploads will be allowed
-  for this object type (e.g. ``user`` or ``group``). It previously
-  meant that all file types were allowed. To keep the old behaviour use
-  the string ``*`` as value in both options (this is dangerous and
-  **not** recommended).
+
+Major features
+--------------
+
+New **Midnight Blue** theme available. This theme will become the default in 3.0.
+
+- ``midnight_blue`` templates and public folders for new UI can be enabled in
+  the config with two settings
+  (`#8420 <https://github.com/ckan/ckan/pull/8420>`_):
+
+  .. code:: ini
+
+    ckan.base_public_folder = public-midnight-blue
+    ckan.base_templates_folder = templates-midnight-blue
+
+Files are now **first-class entities** and can be uploaded and managed separately
+from resources. Multiple file storage options are available and may be used
+simultaneously.
+
+- Added support of file storages: :ref:`using-configured-storages`.
+
+  When either ``default`` storage, or individual storages for resource, group,
+  user and admin uploads are configured, :py:class:`~ckan.lib.uploader.Upload`
+  and :py:class:`~ckan.lib.uploader.ResourceUpload` are replaced by
+  :py:class:`~ckan.lib.uploader.FKUpload` and
+  :py:class:`~ckan.lib.uploader.FKResourceUpload`. These new classes use
+  configurable storages and serve the role of the bridge between classic file
+  management system in CKAN and the new one.
+  (`#8745 <https://github.com/ckan/ckan/pull/8745>`_)
+
+- New `file management API actions
+  <https://docs.ckan.org/en/latest/api/index.html#ckan-logic-action-file>`_
+  (`#9026 <https://github.com/ckan/ckan/pull/9026>`_)
+
+New DataStore **keyset pagination** and **advanced filtering** are powerful tools for
+working with large tabular datasets.
+
+- Advanced DataStore filters + fast ``datastore_search`` pagination
+
+  - ``datastore_search`` and ``datastore_delete`` ``filters`` now accept
+    range values and nested AND and OR operations
+  - ``datastore_search`` now returns a ``next_page`` value with
+    filters that can be used for fast keyset pagination when
+    ``"include_next_page": true`` is passed and the records
+    are sorted by their ``_id`` field
+  - datastore dump endpoint now uses fast keyset pagination to more
+    quickly stream large datasets as CSV, JSON, etc.
+    (`#9027 <https://github.com/ckan/ckan/pull/9027>`_)
+
+CKAN UI, updates and queries are **much faster** and dataset and DataStore tables
+use **less storage** in this release.
+
+- Dataset search page facets, sorting and pagination is now faster and no longer
+  requires page reloads. (`#8914 <https://github.com/ckan/ckan/pull/8914>`_)
+
+- Applying filters and paginating through activities now avoids refreshing the page
+  and is much faster.  (`#8129 <https://github.com/ckan/ckan/pull/8129>`_)
+
+- API tokens are now managed faster, without requiring page reloads (`#8728
+  <https://github.com/ckan/ckan/pull/8728>`_)
+
+- Updating dataset metadata is now significantly faster, especially for
+  datasets with many resources, because unchanged resources are no longer
+  revalidated. (`#5713 <https://github.com/ckan/ckan/pull/5713>`_)
+
+- Package Group and Organization models now store extra fields as JSONB
+  for faster updates and reduced storage. (`#8273
+  <https://github.com/ckan/ckan/pull/8273>`_)
+
+- Simplify package indexing by updating index from logic layer instead of an
+  ``IDomainObjectModification`` plugin. Also makes ``package_update`` faster
+  (`#8395 <https://github.com/ckan/ckan/pull/8395>`_)
+
+- Calculating the exact number of rows for large tables dominates the time
+  required to return results from ``datastore_search``. The counts of rows
+  is now computed and cached in the background after every modification so
+  that it can be relied on for much faster search results. (`#9234
+  <https://github.com/ckan/ckan/pull/9234>`_)
+
+- DataStore full text field index field types may now be configured with
+  :ref:`ckan.datastore.default_fts_index_field_types`. The default is an empty
+  list which avoids creating separate full text indexes for any
+  individual columns. The whole-row full text index still exists for all tables.
+
+  Use the ``ckan datastore fts-index`` command to remove existing column indexes
+  and reclaim database space. (`#5847 <https://github.com/ckan/ckan/pull/5847>`_)
+
+**Scheduled jobs** let CKAN work smarter and skip repeated updates.
+
+- Faster dataset metadata updates by detecting changes and only updating
+  resource metadata when dataset fields defined by
+  ``IDatasetForm.resource_validation_dependencies`` have changed (default: None).
+- Activities are created and ``metadata_modified`` updated only if there is a
+  real change.
+- ``metadata_modified`` may now be set by sysadmins which is useful for
+  harvesting or mirroring.
+- ``ckan jobs worker`` CLI now runs a scheduler by default to enqueue
+  scheduled jobs. Use ``--no-scheduler`` to disable the scheduler on this
+  worker. Only one worker can run as a scheduler for each queue so this
+  option may be used on secondary workers.
+
+  ``datastore_create``, ``datastore_upsert`` and ``datastore_delete`` now
+  schedule a job to patch the corresponding resource's ``last_modified``
+  value for datastore-first resources. A scheduled job is used to
+  reduce duplicated metadata updates that would slow down these
+  operations. (`#8980 <https://github.com/ckan/ckan/pull/8980>`_)
+
+Richer APIs report back the **actual changes** made enabling tighter integration
+with other systems.
+
+- ``package_update`` and actions that call it now report whether there was a
+  real change by adding the package id to a new changed_entities context value
+  or changed_entities envelope value for API calls. (`#8407
+  <https://github.com/ckan/ckan/pull/8407>`_)
+
+- ``datastore_create``, ``datastore_upsert``, and ``datastore_delete`` now
+  accept a ``"include_records": true`` parameter to return the *actual* data
+  inserted, updated or deleted in the response including the ``_id`` values
+  and any transformations. (default: ``false``)
+
+  ``datastore_upsert`` no longer includes a copy of the passed ``records``
+  in the response.  (`#8684
+  <https://github.com/ckan/ckan/pull/8684>`_)
+
 
 Minor changes
 -------------
 
-- Remove helper ``get_site_statistics()`` (#8705)
+- Saving a draft dataset is now called "Publish" and an "Unpublish" button is
+  available to move an active dataset back to the draft state. (`#8308
+  <https://github.com/ckan/ckan/pull/8308>`_)
+- Publishing a dataset now does an extra error check, so validators that only
+  apply rules to fields for published datasets (e.g. required-only-when-published)
+  will be properly displayed. (`#8308
+  <https://github.com/ckan/ckan/pull/8308>`_)
+- The internal ``allow_partial_update`` context parameter has been removed.
+  Now normal API users may call ``package_update`` without passing resources and the
+  existing resources will remain untouched instead of being deleted.
+- Sysadmins can no longer demote themselves or the system user. (`#8155
+  <https://github.com/ckan/ckan/pull/8155>`_)
+- Activity plugin now adds an activity tab to the sysadmin panel to purge old
+  activities (predefined options: older than a day/month/year, or delete all).
+  Additionally there is a new CLI command ``ckan clean activities`` with
+  multiple options and an ``activity_delete`` action. (`#8189
+  <https://github.com/ckan/ckan/pull/8189>`_)
+- New interface ``INotifier`` allows notifications beyond simple emails. (`#8200
+  <https://github.com/ckan/ckan/pull/8200>`_)
+- Add ``--max-idle-time`` to the ``ckan jobs worker`` command. (`#8240
+  <https://github.com/ckan/ckan/pull/8240>`_)
+- Adds ``argmode`` to the ``datastore_function_create`` action, allowing
+  custom DataStore SQL functions to support ``inout`` and ``output`` parameters.
+  (`#8279
+  <https://github.com/ckan/ckan/pull/8279>`_)
+- Added a schema and validators for the Perform Password Reset form. (`#8292
+  <https://github.com/ckan/ckan/pull/8292>`_)
+- DataTables view column visibility modal now has ``Show All`` and ``Hide All``
+  buttons and fixes for responsive issues. (`#8341
+  <https://github.com/ckan/ckan/pull/8341>`_)
+- DataStore field names/IDs are now validated at the schema level. Control
+  characters are no longer allowed in DataStore field names/IDs. (`#8342
+  <https://github.com/ckan/ckan/pull/8342>`_)
+- New CKAN logo is used by ``midnight-blue`` theme.
+- New helpers ``endpoint_from_url`` and ``page_is_active``. (`#8492
+  <https://github.com/ckan/ckan/pull/8492>`_)
+- ``datastore_info``: new ``include_meta`` and ``include_fields_schema`` parameters
+  that may be set to ``False`` to avoid computing table size, index size, row
+  count, aliases or per-field index, unique and notnull status (`#8589
+  <https://github.com/ckan/ckan/pull/8589>`_)
+- Allow plugins to set user IDs during user creation. (`#8609
+  <https://github.com/ckan/ckan/pull/8609>`_)
+- Allow plugins to change the user names during ``user_patch`` or
+  ``user_update``, and retrieve restricted properties like ``email`` or ``apikey``
+  from ``user_show``. (`#8622
+  <https://github.com/ckan/ckan/pull/8622>`_)
+- :ref:`ckan.user.unique_email_states` setting can be used to specify statuses of user
+  accounts that are used for checking uniqueness of the email during
+  registration. After changing the value of the option, run ``ckan db
+  duplicate_emails`` CLI command to verify that all existing emails are still
+  unique. (`#8626 <https://github.com/ckan/ckan/pull/8626>`_)
+- ``datatablesview`` plugin now uses the default DataTables responsive view
+  (hidden columns folded below each row) instead of a custom modal dialog.
+  For the old responsive modal behaviour set:
+  ``ckan.datatables.responsive_modal = true`` (`#8754
+  <https://github.com/ckan/ckan/pull/8754>`_)
+- ``IDatasetForm`` and ``IGroupForm`` plugins may now override the new
+  ``search_template_htmx`` and ``read_template_htmx`` methods to control which
+  parts of the page are updated when new search results are displayed.
+  (`#8914 <https://github.com/ckan/ckan/pull/8914>`_)
+- New reusable ``ckan.toast`` module that displays Bootstrap 5 toast
+  notifications across CKAN (`#9016 <https://github.com/ckan/ckan/pull/9016>`_)
+- New reusable ``ckan.confirm`` module that displays Bootstrap 5 confirmation
+  modal windows across CKAN (`#9018 <https://github.com/ckan/ckan/pull/9018>`_)
+- New helper to display Datastore action buttons based on theme being used
+  (i.e.
+  not displaying buttons on "Midnight blue" theme, displaying on default
+  theme). (`#9041 <https://github.com/ckan/ckan/pull/9041>`_)
+- CKAN config options are not shared with Flask application by default. To pass
+  option into Flask application(for example, when configuring Flask extension),
+  add ``flask: true`` to the declaration of the config option. (`#9068
+  <https://github.com/ckan/ckan/pull/9068>`_)
+- New resource icons for common AI/ML and geospatial formats, including:
+  parquet, md, tif, pmtiles, atx, dbf, fgb, gpkg, py, gz, shp, shx, and ipynb.
+  (`#9170 <https://github.com/ckan/ckan/pull/9170>`_)
+- DataStore's global public tables, previously only ``_table_metadata``,
+  are now configurable with :ref:`ckan.datastore.public_table_search` (`#9298
+  <https://github.com/ckan/ckan/pull/9298>`_)
+- Configuration options can be declared with ``nullable`` flag, which set their
+  value to ``None`` when option is missing from the config file. (`#9308
+  <https://github.com/ckan/ckan/pull/9308>`_)
+- New CLI command that reports discrepancies between the real DB schema and
+  model definition: ``ckan db check`` (`#9355
+  <https://github.com/ckan/ckan/pull/9355>`_)
+- New config option :ref:`ckan.webassets.debug` that controls aggregation logic
+  of webassets. When it's disabled(default), webassets are aggregated and served
+  from :ref:`ckan.webassets.path`.
+  When it's enabled, every source file of asset is served separately, allowing
+  easier front-end debugging but substantially increasing the number of additional
+  requests.
+  (`#9379 <https://github.com/ckan/ckan/pull/9379>`_)
+- Login by email is now case-insensitive.
+  (`#8626 <https://github.com/ckan/ckan/pull/8626>`_)
+- The ``include_users`` parameter to ``organization_show`` and
+  ``group_show`` actions now default to False regardless of the
+  :ref:`ckan.auth.public_user_details` configuration setting. (`#9232
+  <https://github.com/ckan/ckan/pull/9232>`_)
+- Improved ``organization_list`` / ``group_list`` API performance with
+  ``"all_fields": true``, resulting in faster load times for Organization/Group List
+  Pages. (`#9278 <https://github.com/ckan/ckan/pull/9278>`_)
+- DataStore now returns milliseconds from timestamp columns by default. To restore
+  the old behavior set :ref:`ckan.datastore.ms_in_timestamp` to ``false``.
+  (`#8202 <https://github.com/ckan/ckan/pull/8202>`_)
+- New config option :ref:`ckan.uploads_enabled` that can be used to
+  disable all uploads. (`#8977 <https://github.com/ckan/ckan/pull/8977>`_)
+- Logging configuration no longer needs to be defined in the configuration ini
+  file when extending a base configuration file. Base logging settings will be
+  used unless the overridden by a higher level configuration file. (`#9002
+  <https://github.com/ckan/ckan/pull/9002>`_)
+- New ``IAuthenticator.identify_user`` method can be used to assign a User
+  object to the current session.
+  (`#8636 <https://github.com/ckan/ckan/pull/8636>`_)
+- ``job_list`` action returns 200 jobs by default.  Use ``limit`` or
+  ``ckan.jobs.default_list_limit`` config option to modify this limit. (`#8070
+  <https://github.com/ckan/ckan/pull/8070>`_)
+- ``user_with_token`` / ``sysadmin_with_token`` factory fixtures added to test
+  suite. (`#7631 <https://github.com/ckan/ckan/pull/7631>`_)
+- Update settings and readme for running cypress tests locally with the
+  test-infrastructure docker compose configuration (`#8724
+  <https://github.com/ckan/ckan/pull/8724>`_)
+- Reintroduced ``email_is_unique`` validator.
+  (`#7723 <https://github.com/ckan/ckan/pull/7723>`_)
+- Add the site user ``id`` to the ``get_site_user`` function response (`#8386
+  <https://github.com/ckan/ckan/pull/8386>`_)
+- Add ``--create`` option to ``ckan sysadmin add`` command to automatically create
+  the user if it doesn't exist (`#8673
+  <https://github.com/ckan/ckan/pull/8673>`_)
+- Register per-test plugin using ``provide_plugin`` fixture or ``ckan_plugin``
+  mark. (`#8786 <https://github.com/ckan/ckan/pull/8786>`_)
+- Extension generator now generates linting workflow using ruff. (`#8969
+  <https://github.com/ckan/ckan/pull/8969>`_)
+- Replace usage of ``pkg_resources.iter_entry_points``, update exception message
+  (`#8992 <https://github.com/ckan/ckan/pull/8992>`_)
+- Expose ``NotFound`` exception in plugins toolkit for consistency with core
+  extensions (it's the same exception as the existing ``ObjectNotFound``) (`#8996
+  <https://github.com/ckan/ckan/pull/8996>`_)
+- Update Twitter to X in CKAN templates. (`#9036
+  <https://github.com/ckan/ckan/pull/9036>`_)
+- Added ``remove_locale_from_url()`` and ``remove_root_path_from_url()`` template
+  helpers (`#9093 <https://github.com/ckan/ckan/pull/9093>`_)
+- Follow and unfollow actions now call their respective authentication
+  methods (`#9229 <https://github.com/ckan/ckan/pull/9229>`_)
+- datatablesview's ``lastView`` local storage key is now suffixed with the view
+  ID,
+  allowing each DataTable view to respect its given ``responsive-flag``. (`#8209
+  <https://github.com/ckan/ckan/pull/8209>`_)
+- Improved JS translations documentation (`#8927
+  <https://github.com/ckan/ckan/pull/8927>`_)
+- Use pglast instead of sqlparse to sanitize datastore_search_sql input (`#9475
+  <https://github.com/ckan/ckan/pull/9475>`_)
+
+
+Bugfixes
+--------
+
+- `GHSA-8frv-ccr7-4m2p (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8frv-ccr7-4m2p>`_: Stored XSS via resource fields in Text view
+- `GHSA-5r6j-4c43-7mx6 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-5r6j-4c43-7mx6>`_: Unauthenticated nested Solr QParser allowlist bypass in ``package_search``
+- `GHSA-73fv-x47v-f4j5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-73fv-x47v-f4j5>`_: Authenticated stacked SQL injection in ``datastore_create``
+- `GHSA-8hw7-23gj-5599 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8hw7-23gj-5599>`_: datastore_search_sql Authorization Bypass
+- `GHSA-3g5q-3wf6-p8rc (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3g5q-3wf6-p8rc>`_: ``markdown_extract()`` Stored XSS on Dataset Listings
+- `GHSA-6499-jgj4-2wpf (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf>`_: Session Fixation in Registration View
+- `GHSA-jgwg-vp4m-5xw5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-jgwg-vp4m-5xw5>`_: Exposure of private metadata via follow API actions
+- `GHSA-p5rh-49m9-56vx (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-p5rh-49m9-56vx>`_: Stored XSS vector via resource name in DataTables view
+- Fix "Option lang is not declared" warning at application startup. (`#8777
+  <https://github.com/ckan/ckan/pull/8777>`_)
+- Logout link changed to a POST submit so it interacts properly with caching
+  and CSRF (`#7892 <https://github.com/ckan/ckan/pull/7892>`_)
+- Activity performance fix replaces unions with ``in(list)`` and activity outer join
+  to packages with subselects. (`#7903 <https://github.com/ckan/ckan/pull/7903>`_)
+- DataTable columns now automatically re-fit after sorting. (`#8065
+  <https://github.com/ckan/ckan/pull/8065>`_)
+- Only show the count of an org's datasets on the dashboard organization list
+  (not harvesters, showcases, etc.). (`#8082
+  <https://github.com/ckan/ckan/pull/8082>`_)
+- Fix 403 error when a user removes themselves from a group (`#8256
+  <https://github.com/ckan/ckan/pull/8256>`_)
+- ``ckan db upgrade`` can now be used after ``ckan db create-from-model`` (`#8336
+  <https://github.com/ckan/ckan/pull/8336>`_)
+- DataStore dump XML format now conforms field names to XML element name
+  conventions. (`#8340 <https://github.com/ckan/ckan/pull/8340>`_)
+- ``ckan db clean`` and ``ckan search-index rebuild`` now remove orphaned
+  entries from search index (`#8347 <https://github.com/ckan/ckan/pull/8347>`_)
+- Fix error message when creating a new user with an existing user name.
+  (`#8388 <https://github.com/ckan/ckan/pull/8388>`_)
+- Fix display of social media links on resource when ckanext-scheming is in
+  use. (`#8454 <https://github.com/ckan/ckan/pull/8454>`_)
+- Add public folder to extension template (`#8565
+  <https://github.com/ckan/ckan/pull/8565>`_)
+- Fix language code in ``html`` tag ``lang`` attribute to use BCP-47
+  with a new ``unix_locale_to_bcp47`` template helper function. (`#8698
+  <https://github.com/ckan/ckan/pull/8698>`_)
+- Fix argument parsing inside ``ckan search-index clear-orphans`` CLI command.
+  (`#8750 <https://github.com/ckan/ckan/pull/8750>`_)
+- Fixed slightly too large slug edit button, as ``.btn-xs`` was dropped from
+  Bootstrap. (`#8835 <https://github.com/ckan/ckan/pull/8835>`_)
+- Fix for historical versions of a custom dataset types using
+  the ``IDatasetForm`` interface. (`#8875
+  <https://github.com/ckan/ckan/pull/8875>`_)
+- Prevent layout shifting in header when logo loads (`#8905
+  <https://github.com/ckan/ckan/pull/8905>`_)
+- Fix for ``datastore_search_sql`` and multithreaded environments. (`#8929
+  <https://github.com/ckan/ckan/pull/8929>`_)
+- Fix server error if session data was not properly encoded (`#8939
+  <https://github.com/ckan/ckan/pull/8939>`_)
+- Remove user data from ``stats`` if the :ref:`ckan.auth.public_user_details`
+  setting is set to ``False``. (`#9030
+  <https://github.com/ckan/ckan/pull/9030>`_)
+- Fix context passed to Table Designer
+  from ``resource_create`` and ``resource_update`` (`#9057
+  <https://github.com/ckan/ckan/pull/9057>`_)
+- Fix handling of plugin order for ``ITemplateHelpers`` to align with
+  ``add_template_directory`` precedence again (first plugin wins). (`#9069
+  <https://github.com/ckan/ckan/pull/9069>`_)
+- Fix the font of the sort indicator in datatablesview (`#9078
+  <https://github.com/ckan/ckan/pull/9078>`_)
+- Fix Preview for resource view create/update pages (`#9128
+  <https://github.com/ckan/ckan/pull/9128>`_)
+- Add handling for ``ObjectNotFound`` to Datapusher: delete-datastore route (`#9130
+  <https://github.com/ckan/ckan/pull/9130>`_)
+- Fix auth check for ``resource_view_reorder`` (`#9131
+  <https://github.com/ckan/ckan/pull/9131>`_)
+- Fix performance issue with DataStore dump startup time affecting large tables (`#9144
+  <https://github.com/ckan/ckan/pull/9144>`_)
+- Enable using helpers that were overridden by plugins in ``model_dictize.py``
+  (`#9155 <https://github.com/ckan/ckan/pull/9155>`_)
+- Fix for markdown_extract tag removal bug (`#9162
+  <https://github.com/ckan/ckan/pull/9162>`_)
+- Fix ``organization_purge`` reporting deleted datasets. (`#9167
+  <https://github.com/ckan/ckan/pull/9167>`_)
+- Fix SMTP TLS error with embedded port (`#9186
+  <https://github.com/ckan/ckan/pull/9186>`_)
+- Display correct errors and leave resource form empty when dataset validation
+  errors
+  are triggered by publishing a dataset (setting state=active) (`#9202
+  <https://github.com/ckan/ckan/pull/9202>`_)
+- Use ``h2`` in sidebar instead of ``h1`` as pages should only have one ``h1`` (`#9219
+  <https://github.com/ckan/ckan/pull/9219>`_)
+- Fix an issue with Resources not uploading new files during ``package_update``
+  (`#9265 <https://github.com/ckan/ckan/pull/9265>`_)
+- Fix ``get_param_int`` helper to return ``0`` instead of ``10`` when the given
+  parameter is not available or cannot be parsed as an integer.
+  (`#9281 <https://github.com/ckan/ckan/pull/9281>`_)
+- Capture the ``undefined_table`` psql error if a DataStore resource table was
+  removed. (`#9286 <https://github.com/ckan/ckan/pull/9286>`_)
+- Fix error when creating an extension by calling cookiecutter directly.
+  (`#9296 <https://github.com/ckan/ckan/pull/9296>`_)
+- Fixed duplicated ``root_path`` in webassets when assets directory is public
+  directory and debug mode is used or ``cssrewrite`` is present in filters. (`#9300
+  <https://github.com/ckan/ckan/pull/9300>`_)
+- Fix ``organization_delete`` incorrectly failing for organizations with no
+  datasets when ``ckan.auth.create_unowned_dataset`` is disabled. (`#9311
+  <https://github.com/ckan/ckan/pull/9311>`_)
+- Fix DataStore distinct queries with limit/offset (`#9365
+  <https://github.com/ckan/ckan/pull/9365>`_)
+- Fix organization admins not being allowed to invite new users when public
+  registration is closed (`#9369 <https://github.com/ckan/ckan/pull/9369>`_)
+- Use case-insensitive email search when requesting password reset. (`#9370
+  <https://github.com/ckan/ckan/pull/9370>`_)
+- Add the missing CSRF token (``h.csrf_input()``) to the Table Designer
+  add-row, edit-row and delete-rows forms (`#9372
+  <https://github.com/ckan/ckan/pull/9372>`_)
+- Return a 404 response instead of a 500 error when opening a resource edit
+  page for a dataset that does not exist. (`#9375
+  <https://github.com/ckan/ckan/pull/9375>`_)
+- Reindex datasets after ``member_create`` and ``member_delete`` change package
+  group memberships, ensuring group pages show the correct datasets. (`#9381
+  <https://github.com/ckan/ckan/pull/9381>`_)
+- Fix resource form allowing creation of completely empty resources. (`#9397
+  <https://github.com/ckan/ckan/pull/9397>`_)
+- Always return dataset with the current ``site_id`` when searching by dataset id
+  (`#9422 <https://github.com/ckan/ckan/pull/9422>`_)
+- DataStore auth function fix (`#9021 <https://github.com/ckan/ckan/pull/9021>`_)
+- Clear CSRF token from session when logging out programmatically. (`#9049
+  <https://github.com/ckan/ckan/pull/9049>`_)
+- Pass ``about_formatted`` to user info snippet to display this value in the sidebar. (`#9148
+  <https://github.com/ckan/ckan/pull/9148>`_)
+- Fix missing string translation for ``Searching...`` in the Select2 JS autocomplete
+  module. (`#9184 <https://github.com/ckan/ckan/pull/9184>`_)
+- Fix server errors on badly formatted requests (`#9201
+  <https://github.com/ckan/ckan/pull/9201>`_)
+- Remove unused ``ckan.static_max_age`` config option (`#9005
+  <https://github.com/ckan/ckan/pull/9005>`_)
+- Avoid exceptions in tracking extension when dataset fields are missing
+  (`#8499 <https://github.com/ckan/ckan/pull/8499>`_)
+- Renamed ``.btn-default`` to ``.btn-secondary`` due to Bootstrap conventions. (`#8611
+  <https://github.com/ckan/ckan/pull/8611>`_)
+- Allow users to follow and unfollow groups and organizations when
+  ``ckan.auth.public_user_details`` is disabled. (`#9394
+  <https://github.com/ckan/ckan/pull/9394>`_)
+
+
+.. _migration-notes-2.12:
+
+Migration notes
+---------------
+
+- The ``migrate_package_activity.py`` script and revision tables have been
+  removed. Migrate your revision data to activities before upgrading to this
+  version or the revision history will be lost. (`#8319
+  <https://github.com/ckan/ckan/pull/8319>`_)
+- The ``ckan datastore set-permissions`` SQL must be run
+  against an existing datastore database to define the new
+  ``fast_table_row_count`` function. (`#9234
+  <https://github.com/ckan/ckan/pull/9234>`_)
+- Extensions must now include the :ref:`CSRF
+  protection <csrf_best_practices>` snippet in their forms.
+  The ``ckan.csrf_protection.ignore_extensions`` config option has been removed.
+  (`#8918 <https://github.com/ckan/ckan/pull/8918>`_)
+- The minimum Python version supported is Python 3.10
+  (`#8998 <https://github.com/ckan/ckan/pull/8998>`_)
+- The unique user email index is now case insensitive. This will prevent
+  duplicate user emails that use different
+  cases. Use the ``ckan db duplicate_emails`` command to confirm any
+  duplicate users you may have in your site. (`#9178
+  <https://github.com/ckan/ckan/pull/9178>`_)
+
+
+
+Removals and deprecations
+-------------------------
+
+- Updating dataset metadata no longer revalidates unchanged resources.
+  This change will affect custom validation rules that access
+  resource metadata from dataset or other resource validators:
+
+  - only changed resources are passed to validation
+  - flattened data the validators receive won't include unchanged resources
+
+  This change does not affect validation of resource fields that depend on
+  package fields. Package metadata fields are always available in flattened
+  data. (`#5713 <https://github.com/ckan/ckan/pull/5713>`_)
+- The ``form_to_db_*`` and ``db_to_form_*`` methods of the ``IGroupForm``
+  interface have been replaced by ``create_group_schema()``,
+  ``update_group_schema()`` and ``show_group_schema()``. (`#9050
+  <https://github.com/ckan/ckan/pull/9050>`_)
+- ``PackageExtra`` and ``GroupExtra`` tables have been removed. Code that
+  accesses these models directly will need to be updated to use the
+  Package.extras and Group.extras dicts for updating and JSON queries like
+  ``query(Package, Package.extras['name'] == '"value"')`` (`#8273
+  <https://github.com/ckan/ckan/pull/8273>`_)
+- The ``page_primary_action``, ``form`` and ``package_search_results_list`` blocks
+  have been moved from ``templates/package/search.html`` to
+  ``templates/package/snippets/search_results.html`` so that dataset search
+  results may be updated without rendering the whole page. Extensions that
+  override these blocks will need to be updated. (`#8914
+  <https://github.com/ckan/ckan/pull/8914>`_)
+- The following deprecated functions and properties have been removed:
+
+  - ``h.truncate()`` (use the builtin jinja2 filter instead)
+  - ``h.get_site_statistics()``
+  - ``common.is_flask_request()``
+  - ``Request.args``
+  - ``views.user.set_repoze_user()``
+  - ``Tag.search_by_name()``
+  - ``PackageTag.by_name()``
+  - ``Package.is_private``
+  - ``IDomainObjectModification.notify_after_commit()``
+- Removed ``activity-stream.js`` module (`#8129
+  <https://github.com/ckan/ckan/pull/8129>`_)
+- Removed ``/api/1/snippet``, ``templates/ajax_snippet``, ``getTemplate``
+  feature: normal views with parameter validation and permission checking
+  should be used instead, possibly combined with HTMX. (`#7619
+  <https://github.com/ckan/ckan/pull/7619>`_)
+- Removed ``_alerts.scss`` and ``alert-error`` class due to deprecated
+  ``alert-variant()`` (`#8427 <https://github.com/ckan/ckan/pull/8427>`_)
+- Removed unused jQuery truncator plugin (`#8481
+  <https://github.com/ckan/ckan/pull/8481>`_)
+- ``context["model"]`` is deprecated in favor of ``ckan.model`` module. (`#8702
+  <https://github.com/ckan/ckan/pull/8702>`_)
+- Removed Organization facet from individual organization pages.
+  Removed Groups facet from individual groups pages. (`#8923
+  <https://github.com/ckan/ckan/pull/8923>`_)
+- Tests no longer support authentication by ``REMOTE_USER`` environment
+  variable. Use ``app.set_session_user`` or ``Authorization`` header with
+  user's API Token instead.  (`#9068
+  <https://github.com/ckan/ckan/pull/9068>`_)
+- Removed old and unused ``ckan.lib.cli`` module (`#8558
+  <https://github.com/ckan/ckan/pull/8558>`_)
+- Removed the ``HostHeaderMiddleware`` flask middleware. (`#9123
+  <https://github.com/ckan/ckan/pull/9123>`_)
+- Global variable ``search_facets_limits`` is no longer available on dataset
+  search
+  pages::
+
+      # before
+      g.search_facets_limits.get("facet")
+
+      # after
+      h.get_param_int(f"_{facet}_limit", config["search.facets.default"])
+
+  (`#9281 <https://github.com/ckan/ckan/pull/9281>`_)
+- ``data-site-root`` and ``data-locale-root`` attributes have been moved to
+  ``site-root``/``locale-root`` meta elements inside ``head``.
+  Front-end code like ``$('body').data('site-root');`` must be replaced with
+  ``$('meta[name=site-root]').attr('content');`` or
+  ``document.head.querySelector(['meta[name=site-root]'])?.content`` (`#9284
+  <https://github.com/ckan/ckan/pull/9284>`_)
+- ``templates/package/new_package_form.html`` content has been merged into its
+  parent template ``templates/package/snippets/package_form.html``.
+  ``templates/package/new_package_form.html`` is now
+  marked as deprecated and will be removed in a future release. (`#8308
+  <https://github.com/ckan/ckan/pull/8308>`_)
+
+
+v.2.11.6 2026-08-26
+===================
+
+Minor changes
+-------------
+
+- Removed setuptools upper limit requirement
+- Restore ALLOWED_UPLOAD_TYPES variable from `uploader` module
+
+
+Bugfixes
+--------
+- `GHSA-8frv-ccr7-4m2p (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8frv-ccr7-4m2p>`_: Stored XSS via resource fields in Text view
+- `GHSA-5r6j-4c43-7mx6 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-5r6j-4c43-7mx6>`_: Unauthenticated nested Solr QParser allowlist bypass in ``package_search``
+- `GHSA-73fv-x47v-f4j5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-73fv-x47v-f4j5>`_: Authenticated stacked SQL injection in ``datastore_create``
+- `GHSA-8hw7-23gj-5599 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8hw7-23gj-5599>`_: datastore_search_sql Authorization Bypass
+- `GHSA-3g5q-3wf6-p8rc (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3g5q-3wf6-p8rc>`_: ``markdown_extract()`` Stored XSS on Dataset Listings
+- `GHSA-6499-jgj4-2wpf (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf>`_: Session Fixation in Registration View
+- `GHSA-jgwg-vp4m-5xw5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-jgwg-vp4m-5xw5>`_: Exposure of private metadata via follow API actions
+- `GHSA-p5rh-49m9-56vx (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-p5rh-49m9-56vx>`_: Stored XSS vector via resource name in DataTables view
+- Fix organization patch on orgs with extras (`#9386
+  <https://github.com/ckan/ckan/pull/9386>`_)
+- Add an accessible name to the resource actions dropdown button (the icon-only
+  "wrench" toggle in the resource list) so it has discernible text for screen
+  readers, fixing a WCAG 4.1.2 button-name issue. (`#7188
+  <https://github.com/ckan/ckan/pull/7188>`_)
+- Add a ``lang`` attribute to each option in the language selector so assistive
+  technologies announce each language name using that language's pronunciation
+  (WCAG 3.1.2 Language of Parts). (`#7198
+  <https://github.com/ckan/ckan/pull/7198>`_)
+- Fix language code in `html` tag `lang` attribute to use BCP-47
+  with a new `unix_locale_to_bcp47` template helper function. (`#8698
+  <https://github.com/ckan/ckan/pull/8698>`_)
+- Remove unnecessary declare_namespace in ckanext/stats/__init__.py
+  to resolve compatibility with setuptools>=82 (`#9246
+  <https://github.com/ckan/ckan/pull/9246>`_)
+- Fix performance regression in ``PluginImplementations`` on CKAN 2.11 (`#9367
+  <https://github.com/ckan/ckan/pull/9367>`_)
+- Organization admins are allowed to invite new users again, even when public
+  registration is closed. (`#9369 <https://github.com/ckan/ckan/pull/9369>`_)
+- Return a 404 response instead of a 500 error when opening a resource edit
+  page for a dataset that does not exist. (`#9375
+  <https://github.com/ckan/ckan/pull/9375>`_)
+- Reindex datasets after ``member_create`` and ``member_delete`` change package
+  group memberships, ensuring group pages show the correct datasets. (`#9381
+  <https://github.com/ckan/ckan/pull/9381>`_)
+- Restore declare_namespace in ckanext/stats/__init__.py with except block
+  to resolve compatibility with setuptools<82 (`#9414
+  <https://github.com/ckan/ckan/pull/9414>`_)
+- Always return dataset with the current site_id when searching by dataset id
+  (`#9422 <https://github.com/ckan/ckan/pull/9422>`_)
+- Add accessible names to the icon-only user-search submit button and the
+  API-token "copy to clipboard" button so screen readers announce them with
+  discernible text (WCAG 4.1.2). (`#9471
+  <https://github.com/ckan/ckan/pull/9471>`_)
+- Fix JS translations failing for BCP 47 locale codes (`#9473
+  <https://github.com/ckan/ckan/pull/9473>`_)
 
 
 v.2.11.5 2026-04-29
@@ -959,6 +1543,43 @@ Removals and deprecations
 
       class SecondPlugin(p.SingletonPlugin, BasePlugin):
           p.implements(IAnything)
+
+
+v.2.10.11 2026-08-26
+====================
+
+Migration notes
+---------------
+
+- This version requires a requirements upgrade on source installations
+
+
+Bugfixes
+--------
+
+- `GHSA-8frv-ccr7-4m2p (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8frv-ccr7-4m2p>`_: Stored XSS via resource fields in Text view
+- `GHSA-5r6j-4c43-7mx6 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-5r6j-4c43-7mx6>`_: Unauthenticated nested Solr QParser allowlist bypass in ``package_search``
+- `GHSA-73fv-x47v-f4j5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-73fv-x47v-f4j5>`_: Authenticated stacked SQL injection in ``datastore_create``
+- `GHSA-8hw7-23gj-5599 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8hw7-23gj-5599>`_: datastore_search_sql Authorization Bypass
+- `GHSA-3g5q-3wf6-p8rc (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3g5q-3wf6-p8rc>`_: ``markdown_extract()`` Stored XSS on Dataset Listings
+- `GHSA-6499-jgj4-2wpf (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf>`_: Session Fixation in Registration View
+- `GHSA-jgwg-vp4m-5xw5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-jgwg-vp4m-5xw5>`_: Exposure of private metadata via follow API actions
+- `GHSA-p5rh-49m9-56vx (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-p5rh-49m9-56vx>`_: Stored XSS vector via resource name in DataTables view
+- Do not respond with a 500 error to external requests (`#9201
+  <https://github.com/ckan/ckan/pull/9201>`_)
+- Fix language code in `html` tag `lang` attribute to use BCP-47
+  with a new `unix_locale_to_bcp47` template helper function. (`#8698
+  <https://github.com/ckan/ckan/pull/8698>`_)
+- Organization admins are allowed to invite new users again, even when public
+  registration is closed. (`#9369 <https://github.com/ckan/ckan/pull/9369>`_)
+- Return a 404 response instead of a 500 error when opening a resource edit
+  page for a dataset that does not exist. (`#9375
+  <https://github.com/ckan/ckan/pull/9375>`_)
+- Always return dataset with the current site_id when searching by dataset id
+  (`#9422 <https://github.com/ckan/ckan/pull/9422>`_)
+- Fix JS translations failing for BCP 47 locale codes (`#9473
+  <https://github.com/ckan/ckan/pull/9473>`_)
+
 
 v.2.10.10 2026-04-29
 ====================

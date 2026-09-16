@@ -709,7 +709,6 @@ class TestDatasetUpdate(object):
 
     def test_groups_unchanged_if_missing(self):
         group = factories.Group()
-        del group['users']  # avoid validation error
         dataset = factories.Dataset(groups=[group])
         assert dataset['groups']
 
@@ -723,7 +722,6 @@ class TestDatasetUpdate(object):
 
     def test_groups_removed_if_empty_list(self):
         group = factories.Group()
-        del group['users']  # avoid validation error
         dataset = factories.Dataset(groups=[group])
         assert dataset['groups']
 
