@@ -99,7 +99,7 @@ else:
         def __init__(self, error_dict: ErrorDict):
             pprint.pprint(error_dict)
 
-def inline_sql_parameters(sql: str, params: dict) -> str:
+def inline_sql_parameters(sql: str, params: dict[str, Any]) -> str:
     """Inline values for sqlalchemy bind parameters
     """
     # Compile the sqlachemy query to a string with psycopg2-style specifiers,
