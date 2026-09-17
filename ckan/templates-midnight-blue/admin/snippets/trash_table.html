@@ -1,0 +1,130 @@
+{% set tab_empty_messages = {
+"dataset": _("There are no datasets to purge"),
+"organization": _("There are no organizations to purge"),
+"group": _("There are no groups to purge"),
+} %}
+
+<form method="GET" action="{{ h.url_for('admin.trash', ent_type=ent_type) }}" class="mb-3">
+    <div class="input-group" style="max-width: 400px">
+        <input type="text" name="q" value="{{ q or '' }}" class="form-control"
+            placeholder="{{ _('Search title or name…') }}">
+        <button type="submit" class="btn btn-primary">{{ _('Search') }}</button>
+        {% if q %}
+        <a class="btn btn-outline-secondary" href="{{ h.url_for('admin.trash', ent_type=ent_type) }}">
+            {{ _('Clear') }}
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+{% if page.items %}
+    <form method="POST" action="{{ h.url_for('admin.trash', ent_type=ent_type) }}" id="form-bulk-{{ ent_type }}">
+        {{ h.csrf_input() }}
+        <input type="hidden" name="action" id="bulk-action-{{ ent_type }}" value="">
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-3">
+                <thead>
+                    <tr>
+                        <th style="width: 2rem">
+                            <input type="checkbox" id="trash-select-all-{{ ent_type }}" aria-label="{{ _('Select all') }}">
+                        </th>
+                        <th>{{ _('Title') }}</th>
+                        <th style="width: 12rem">{{ _('Deleted') }}</th>
+                        <th style="width: 12rem">{{ _('Actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entity in page.items %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="entity_id" value="{{ entity.id }}"
+                                class="trash-entity-checkbox-{{ ent_type }}">
+                        </td>
+                        <td>
+                            <a href="{{ h.url_for(ent_type + '.read', id=entity.name) }}"
+                                aria-label="{{ _('Navigate to {ent_type}: {title}').format(ent_type=ent_type, title=entity.title|truncate(60)) }}">
+                                {{ entity.title|truncate(80) }}
+                            </a>
+                        </td>
+                        <td>{{ h.render_datetime(entity.metadata_created, with_hours=true) }}</td>
+                        <td class="align-content-around">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a class="btn btn-outline-success"
+                                    href="{{ h.url_for('admin.trash', ent_type=ent_type, action='restore_single', entity_id=entity.id) }}"
+                                    data-module="confirm-action" data-module-content="{{ _('Restore this entity?') }}"
+                                    aria-label="{{ _('Restore {title}').format(title=entity.title|truncate(60)) }}">
+                                    {{ _('Restore') }}
+                                </a>
+                                <a class="btn btn-outline-danger"
+                                    href="{{ h.url_for('admin.trash', ent_type=ent_type, action='purge_selected', entity_id=entity.id) }}"
+                                    data-module="confirm-action"
+                                    data-module-content="{{ _('Purge this entity? This cannot be undone.') }}"
+                                    aria-label="{{ _('Purge {title}').format(title=entity.title|truncate(60)) }}">
+                                    {{ _('Purge') }}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end mb-3 w-100">
+            <a class="btn btn-outline-success trash-bulk-trigger" data-action-value="restore_selected"
+                href="{{ h.url_for('admin.trash', ent_type=ent_type) }}" data-module="confirm-action"
+                data-module-with-data=true data-module-content="{{ _('Restore the selected entities?') }}">
+                {{ _('Restore selected') }}
+            </a>
+            <a class="btn btn-outline-danger trash-bulk-trigger" data-action-value="purge_selected"
+                href="{{ h.url_for('admin.trash', ent_type=ent_type) }}" data-module="confirm-action"
+                data-module-with-data=true
+                data-module-content="{{ _('Are you sure you want to purge the selected entities?') }}">
+                {{ _('Purge selected') }}
+            </a>
+            <a class="btn btn-danger trash-bulk-trigger" data-action-value="purge_all"
+                href="{{ h.url_for('admin.trash', ent_type=ent_type) }}" data-module="confirm-action"
+                data-module-with-data=true
+                data-module-content="{{ _('Are you sure you want to purge ALL deleted entities in this tab? This runs as a background job.') }}">
+                {{ _('Purge all') }}
+            </a>
+        </div>
+    </form>
+
+    {{ page.pager(ent_type=ent_type, q=q) }}
+
+    <script>
+        (function () {
+            var actionInput = document.getElementById('bulk-action-{{ ent_type }}');
+            document.querySelectorAll('#form-bulk-{{ ent_type }} .trash-bulk-trigger').forEach(function (el) {
+                el.addEventListener('click', function () {
+                    actionInput.value = el.dataset.actionValue;
+                });
+            });
+
+            var selectAll = document.getElementById('trash-select-all-{{ ent_type }}');
+            if (!selectAll) { return; }
+            selectAll.addEventListener('change', function () {
+                document.querySelectorAll('.trash-entity-checkbox-{{ ent_type }}').forEach(function (cb) {
+                    cb.checked = selectAll.checked;
+                });
+            });
+        })();
+    </script>
+{% else %}
+    <p>{{ _("No results for your search.") if q else tab_empty_messages[ent_type] }}</p>
+
+    {% if not q and page.items %}
+        <form method="POST" action="{{ h.url_for('admin.trash', ent_type=ent_type) }}" id="form-purge-all-{{ ent_type }}"
+            class="d-inline">
+            {{ h.csrf_input() }}
+            <input type="hidden" name="action" value="purge_all">
+            <a class="btn btn-danger purge-all" href="{{ h.url_for('admin.trash', ent_type=ent_type) }}"
+                data-module="confirm-action" data-module-with-data=true
+                data-module-content="{{ _('Are you sure you want to purge ALL deleted entities in this tab? This runs as a background job.') }}">
+                {{ _('Purge all') }}
+            </a>
+        </form>
+    {% endif %}
+{% endif %}
