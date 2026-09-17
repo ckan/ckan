@@ -2310,7 +2310,7 @@ def resource_view_get_fields(resource: dict[str, Any]) -> list["str"]:
     }
     try:
         result = logic.get_action('datastore_search')({}, data)
-    except logic.NotFound:
+    except (logic.NotFound, logic.ValidationError):
         return []
 
     fields = [field['id'] for field in result.get('fields', [])]
