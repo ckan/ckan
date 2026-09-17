@@ -1,171 +1,180 @@
 // Activity Stream base colors
-$activityColorText: #FFFFFF;
-$activityColorBlank: #3B3B3B;
-$activityColorNew: #3A833A;
+$activityColorBlank: #999999;
+$activityColorNew: #69A67A;
 $activityColorNeutral: #767DCE;
-$activityColorModify: #6f42c1;
-$activityColorDelete: #DA1E28;
+$activityColorModify: #767DCE;
+$activityColorDelete: #B95252;
 $activityColorEmpty: #6E6E6E;
 
 .activity {
-    padding: 0;
-    list-style-type: none;
-    .item {
-        position: relative;
-        padding: 1rem 0;
-        border-bottom: 1px solid #e4e7ec;
+    $border: 1px solid #ced4da;
+    $brad: .3rem;
+    padding-left: 0;
+
+    .activity-item {
         display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        position: relative;
 
-        span {
-            word-wrap: break-word;
-            word-break: break-word;
-        }
+        border: $border;
+        border-radius: $brad;
+        padding: 0.3rem;
 
-        &:last-child {
-            border-bottom: none;
-        }
-        .fa-stack {
-            flex: 0 0 auto;
-            margin-right: 5px;
-        }
-        .user-image {
-            border-radius: 100px;
-        }
-
-        .date {
-            color: $activityColorBlank;
-            font-size: 12px;
+        .activity-item--icon {
+            position: absolute;
+            left: -15px;
+            top: -14px;
+            margin: 0;
+            background: white;
+            padding: 3px 6px;
+            border-radius: 50%;
         }
 
-        &.no-avatar p {
-            // Use by datapusher
-            margin-left: 40px;
+        .activity-item--wrapper {
+            display: flex;
+            flex-direction: column;
+
+            width: 100%;
+            padding: 0.3rem;
+
+            .activity-item--meta {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                column-gap: 0.3rem;
+
+                .meta--version,
+                .meta--changes {
+                    margin-top: .5rem;
+                    flex-basis: 100%;
+                    .btn {
+                        width: 100%;
+                    }
+                }
+
+                .meta--date {
+                    color: #757575;
+                    position: absolute;
+                    right: 11px;
+                    top: -11px;
+                    background: #f2f4f7;
+                    padding: 0 5px;
+                }
+            }
         }
-        .icon {
+
+        .activity-item--icon i {
             color: $activityColorBlank ;
         }
 
         // Non defined
-        &.failure .icon {
+        &.failure .activity-item--icon i {
             color: $activityColorDelete;
         }
 
-        &.success .icon {
+        &.success .activity-item--icon i {
             color: $activityColorNew;
         }
 
-        &.added-tag .icon {
-            color: adjust-hue($activityColorNew, 60);
-        }
-
-        &.changed-group .icon {
+        &.changed-group .activity-item--icon i {
             color: $activityColorModify;
         }
 
-        &.changed-package .icon {
+        &.changed-package .activity-item--icon i {
             color: adjust-hue($activityColorModify, 20);
         }
 
-        &.changed-package_extra .icon {
+        &.changed-package_extra .activity-item--icon i {
             color: adjust-hue($activityColorModify, -20);
         }
 
-        &.changed-resource .icon {
-            color: adjust-hue($activityColorModify, 40);
-        }
-
-        &.changed-user .icon {
+        &.changed-user .activity-item--icon i {
             color: adjust-hue($activityColorModify, -40);
         }
 
-        &.changed-organization .icon {
+        &.changed-organization .activity-item--icon i {
             color: adjust-hue($activityColorNew, 50);
         }
 
-        &.deleted-group .icon {
+        &.deleted-group .activity-item--icon i {
             color: $activityColorDelete;
         }
 
-        &.deleted-package .icon {
+        &.deleted-package .activity-item--icon i {
             color: adjust-hue($activityColorDelete, 20);
         }
 
-        &.deleted-package_extra .icon {
+        &.deleted-package_extra .activity-item--icon i {
             color: adjust-hue($activityColorDelete, -20);
         }
 
-        &.deleted-resource .icon {
-            color: adjust-hue($activityColorDelete, 40);
-        }
-
-        &.deleted-organization .icon {
+        &.deleted-organization .activity-item--icon i {
             color: adjust-hue($activityColorDelete, -40);
         }
 
-        &.new-group .icon {
+        &.new-group .activity-item--icon i {
             color: $activityColorNew;
         }
 
-        &.new-package .icon {
+        &.new-package .activity-item--icon i {
             color: adjust-hue($activityColorNew, 20);
         }
 
-        &.new-package_extra .icon {
+        &.new-package_extra .activity-item--icon i {
             color: adjust-hue($activityColorNew, -20);
         }
 
-        &.new-resource .icon {
+        &.new-user .activity-item--icon i {
+            color: adjust-hue($activityColorNew, 40);
+        }
+
+        &.new-organization .activity-item--icon i {
             color: adjust-hue($activityColorNew, -40);
         }
 
-        &.new-user .icon {
-            color: adjust-hue($activityColorNew, 80);
-        }
-
-        &.new-organization .icon {
-            color: adjust-hue($activityColorNew, -40);
-        }
-
-        &.removed-tag .icon {
-            color: adjust-hue($activityColorDelete, -40);
-        }
-
-        &.deleted-related-item .icon {
+        &.deleted-related-item .activity-item--icon i {
             color: adjust-hue($activityColorDelete, 60);
         }
 
-        &.follow-dataset .icon {
+        &.follow-dataset .activity-item--icon i {
             color: $activityColorNeutral;
         }
 
-        &.follow-user .icon {
+        &.follow-user .activity-item--icon i {
             color: adjust-hue($activityColorNeutral, 20);
         }
 
-        &.new-related-item .icon {
+        &.new-related-item .activity-item--icon i {
             color: adjust-hue($activityColorNew, -60);
         }
 
-        &.follow-group .icon {
+        &.follow-group .activity-item--icon i {
             color: adjust-hue($activityColorNew, -50);
         }
     }
 
-    &.activity-empty {
-        background: none;
-    }
-    .user {
-        font-size: 20px;
-        font-weight: 600;
+    @media (min-width: 576px) {
+        .activity-item {
+            .activity-item--wrapper {
+                .activity-item--meta {
+                    .meta--version,
+                    .meta--changes {
+                        flex-basis: auto;
+                    }
+                }
+            }
+        }
     }
 }
 
 .activity_buttons {
     display: flex;
     gap: .5rem;
-    @media (max-width: 768px) {
-        flex-direction: column;
 
+    &>a.btn.disabled {
+        color: inherit;
+        opacity: 0.70;
     }
 }
 
