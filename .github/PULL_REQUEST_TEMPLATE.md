@@ -11,5 +11,4 @@ Fixes #
 - [ ] includes user-visible changes
 - [ ] includes API changes
 - [ ] includes bugfix for possible backport
-
-Please [X] all the boxes above that apply
+- [ ] created with the help of automated tools, author remains responsible for changes
