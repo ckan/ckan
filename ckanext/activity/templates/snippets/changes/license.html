@@ -29,7 +29,7 @@
     {# if only the old one has a URL #}
     {% elif change.new_url == "" and change.old_url != "" %}
 
-      {% trans
+     {% trans
         title=change.title, new_license=change.new_title, old_license=change.old_title,
         old_url=change.old_url
       %}

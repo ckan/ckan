@@ -9,6 +9,9 @@
 {% endblock %}
 
 {% block content_action %}
+  {% if h.check_access('package_create') %}
+    {% snippet 'snippets/add_dataset.html', dataset_type=dataset_type %}
+  {% endif %}
   {% if h.check_access('group_update', {'id': group_dict.id}) %}
     {% link_for _('Manage'), named_route=group_type+'.edit', id=group_dict.name, class_='btn btn-secondary', icon='wrench' %}
   {% endif %}

@@ -7,7 +7,7 @@ this.ckan.module('resource-reorder', function($) {
       id: false
     },
     template: {
-      title: '<h1></h1>',
+      title: '<h1 class="sr-only"></h1>',
       help_text: '<p></p>',
       button: [
         '<a href="javascript:;" class="btn btn-secondary">',
@@ -16,7 +16,7 @@ this.ckan.module('resource-reorder', function($) {
         '</a>'
       ].join('\n'),
       form_actions: [
-        '<div class="form-actions">',
+        '<div class="form-actions mt-3">',
         '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
       ].join('\n'),

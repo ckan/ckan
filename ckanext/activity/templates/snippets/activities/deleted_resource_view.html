@@ -6,13 +6,15 @@
   {% set resource_link = h.link_to(label=activity.data.resource_id,
                                    url=h.url_for('resource.read', id=activity.data.package_id,
                                     resource_id=activity.data.resource_id)) %}
-  {{ _('{actor} deleted resource view "{view_title}" for resource {resource_link}').format(
-    actor=ah.actor(activity),
-    view_title=h.get_translated(activity.data, 'title'),
-    resource_link=resource_link
-  )|safe }}
-  <br />
-  <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
-    {{ h.time_ago_from_timestamp(activity.timestamp) }}
+  <span>
+    {{ _('{actor} deleted resource view "{view_title}" for resource {resource_link}').format(
+      actor=ah.actor(activity),
+      view_title=h.get_translated(activity.data, 'title'),
+      resource_link=resource_link
+    )|safe }}
+    <br />
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+      {{ h.time_ago_from_timestamp(activity.timestamp) }}
+    </span>
   </span>
 </li>
