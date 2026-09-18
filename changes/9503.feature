@@ -1,0 +1,1 @@
+Add dark theme support to the ``midnight-blue`` theme: a theme toggle button in the account masthead lets visitors switch between light and dark mode (persisted in ``localStorage``), and the initial theme follows the browser's ``prefers-color-scheme`` setting. This can be turned off with the new :ref:`ckan.theme.enable_dark_mode` config option, which is enabled by default.

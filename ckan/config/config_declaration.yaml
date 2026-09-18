@@ -1178,6 +1178,20 @@ groups:
           With this option, instead of using the default `css/main` asset with
           the theme, you can use your own.
 
+      - key: ckan.theme.enable_dark_mode
+        type: bool
+        default: true
+        example: false
+        description: |
+          Enables dark theme support for the ``midnight-blue`` theme.
+
+          When enabled (the default), visitors can switch between light and dark
+          mode with the toggle button in the account masthead, and the initial
+          theme follows the browser's ``prefers-color-scheme`` setting.
+
+          When disabled, the toggle button is hidden and the automatic detection
+          is turned off, so the site is always rendered in light mode.
+
       - key: ckan.favicon
         default: /base/images/ckan.ico
         example: http://okfn.org/wp-content/themes/okfn-master-wordpress-theme/images/favicon.ico
