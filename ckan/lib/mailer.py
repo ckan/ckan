@@ -5,6 +5,7 @@ import codecs
 import os
 import smtplib
 import socket
+import ssl
 import logging
 import mimetypes
 from urllib.parse import urlparse
@@ -95,6 +96,13 @@ def _mail_recipient(
     # Send the email using Python's smtplib.
     smtp_server = config.get('smtp.server')
     smtp_starttls = config.get('smtp.starttls')
+    smtp_starttls_verify = config.get('smtp.starttls_verify')
+    smtp_starttls_ca_bundle = config.get('smtp.starttls_ca_bundle')
+    if smtp_starttls_ca_bundle and not os.path.exists(smtp_starttls_ca_bundle):
+        raise MailerException(
+            "SMTP CA bundle path (smtp.starttls_ca_bundle) "
+            f"does not exist: {smtp_starttls_ca_bundle}"
+        )
     smtp_user = config.get('smtp.user')
     smtp_password = config.get('smtp.password')
 
@@ -117,7 +125,26 @@ def _mail_recipient(
         # connection into TLS mode.
         if smtp_starttls:
             if smtp_connection.has_extn('STARTTLS'):
-                smtp_connection.starttls()
+                if smtp_starttls_verify:
+                    if smtp_starttls_ca_bundle:
+                        if os.path.isfile(smtp_starttls_ca_bundle):
+                            context = ssl.create_default_context(
+                                cafile=smtp_starttls_ca_bundle
+                            )
+                        elif os.path.isdir(smtp_starttls_ca_bundle):
+                            context = ssl.create_default_context(
+                                capath=smtp_starttls_ca_bundle
+                            )
+                        else:
+                            raise MailerException(
+                                "SMTP CA bundle path (smtp.starttls_ca_bundle) "
+                                f"can not be accessed: {smtp_starttls_ca_bundle}"
+                            )
+                    else:
+                        context = ssl.create_default_context()
+                    smtp_connection.starttls(context=context)
+                else:
+                    smtp_connection.starttls()
                 # Re-identify ourselves over TLS connection.
                 smtp_connection.ehlo()
             else:
