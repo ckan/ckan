@@ -66,8 +66,12 @@ from ckan.types import CKANApp, Response, Request
 
 log = logging.getLogger(__name__)
 
+
 class CSRFProtectPerRequest(CSRFProtect):
-    """ following flask-wtf csrf.CSRFProtect, provide for exemption for the current request """
+    """
+    following flask-wtf csrf.CSRFProtect, provide for exemption for the current
+    request
+    """
 
     def exempt_this_request(self, ):
         """Mark this request to be excluded from CSRF protection.
@@ -79,7 +83,7 @@ class CSRFProtectPerRequest(CSRFProtect):
 
         g._csrf_exempt_view = True
 
-    def init_app(self, app):
+    def init_app(self, app: Any):
         app.extensions["csrf"] = self
 
         app.config.setdefault("WTF_CSRF_ENABLED", True)
@@ -96,7 +100,7 @@ class CSRFProtectPerRequest(CSRFProtect):
         app.context_processor(lambda: {"csrf_token": generate_csrf})
 
         @app.before_request
-        def csrf_protect():
+        def csrf_protect():  # type: ignore
             if getattr(g, "_csrf_exempt_view", False):
                 return
 
