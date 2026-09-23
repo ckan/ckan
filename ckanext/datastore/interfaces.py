@@ -232,3 +232,50 @@ class IDataDictionaryForm(interfaces.Interface):
         in the data dictionary page.
         """
         return field
+
+
+class IDatastoreDump(interfaces.Interface):
+    """
+    Allow plugins to register custom dump formats and writers for datastore
+    exports
+    """
+
+    _reverse_iteration_order = True
+
+    def register_dump_formats(
+        self,
+    ) -> dict[str, dict[str, Any] | None]:
+        """
+        Register, override, or remove dump formats for datastore exports.
+
+        The initial dump format list is defined at
+        ``ckanext.datastore.blueprint.get_dump_format_configs``.
+        Return a dictionary where each key is a format name. The value
+        is either:
+
+        - A configuration dict to add a new format or replace an
+          existing one (defaults: csv, tsv, json, xml).
+        - ``None``, which acts as a sentinel meaning "remove this format".
+
+        You can see a usage sample at
+        ``ckanext/datastore/tests/sample_dump_plugin.py``
+
+        A configuration dict must include:
+
+        - 'label': Human-readable name
+        - 'writer_factory': A context manager function that creates a writer
+        - 'records_format': The format for records
+        - 'content_type': The MIME type for the response (str)
+        - 'file_extension': The file extension for downloads
+
+        And may optionally include availability controls.
+
+        - 'max_columns': int.
+        - 'max_rows': int.
+        - 'validate': A callable ``(context: dict) -> Optional[str]``
+          for constraints that ``max_rows``/``max_columns`` cannot
+          express. Returns ``None`` if the format can be produced, or a
+          (translatable) reason string if not.
+
+        """
+        return {}
