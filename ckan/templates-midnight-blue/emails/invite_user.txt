@@ -16,4 +16,4 @@ Have a nice day.
 
 --
 Message sent by {{ site_title }} ({{ site_url }})
-{% endtrans %}
+{%- endtrans %}
