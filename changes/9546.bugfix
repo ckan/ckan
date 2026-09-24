@@ -1,0 +1,1 @@
+Keep the paragraph breaks in the invite and reset-password emails. CKAN turns on the Jinja2 i18n trimming policy globally, which collapsed each of these plain-text letters into a single long line; the templates now opt out with ``{% trans notrimmed %}``, so the line breaks survive both extraction and rendering.
