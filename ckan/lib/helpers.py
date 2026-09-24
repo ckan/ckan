@@ -1385,7 +1385,17 @@ def markdown_extract(text: str,
     plain = html.unescape(nh3_clean(markdown(text), tags=set()))
     if not extract_length or len(plain) < extract_length:
         return plain
-    return shorten(plain, width=extract_length, placeholder='...')
+    placeholder = '...'
+    shortened = shorten(plain, width=extract_length, placeholder=placeholder)
+    if shortened == placeholder and extract_length > len(placeholder):
+        # ``shorten`` drops any word too wide to fit rather than cutting it,
+        # so a description opening with a long token (a URL, a DOI, a
+        # generated identifier) is left as nothing but the placeholder and the
+        # dataset looks as though it has no description at all. Cut the token
+        # instead of dropping it.
+        collapsed = ' '.join(plain.split())
+        shortened = collapsed[:extract_length - len(placeholder)] + placeholder
+    return shortened
 
 
 @core_helper
