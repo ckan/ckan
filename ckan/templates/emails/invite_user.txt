@@ -1,4 +1,4 @@
-{% trans %}
+{% trans notrimmed -%}
 Dear {{ user_name }},
 
 You have been invited to {{ site_title }}.
@@ -16,4 +16,4 @@ Have a nice day.
 
 --
 Message sent by {{ site_title }} ({{ site_url }})
-{% endtrans %}
+{%- endtrans %}
