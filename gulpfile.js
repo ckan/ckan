@@ -21,7 +21,10 @@ const build = () =>
     __dirname + "/ckan/public/base/scss/main-rtl.scss",
     ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
-    .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
+      .pipe(sass({
+        outputStyle: 'expanded',
+        loadPaths: ['node_modules'],
+      }).on('error', sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))
     .pipe(rename(renamer))
     .pipe(dest(__dirname + "/ckan/public/base/css/"));
@@ -33,35 +36,9 @@ const watchSource = () =>
     build
   );
 
-const buildMidnightBlue = () =>
-  src([
-    __dirname + "/ckan/public-midnight-blue/base/scss/main.scss",
-    __dirname + "/ckan/public-midnight-blue/base/scss/main-rtl.scss",
-    ])
-    .pipe(if_(with_sourcemaps(), sourcemaps.init()))
-    .pipe(sass({
-        outputStyle: 'expanded',
-        silenceDeprecations: ['import', 'if-function', 'global-builtin', 'color-functions'] }
-    ).on('error', sass.logError))
-    .pipe(if_(with_sourcemaps(), sourcemaps.write()))
-    .pipe(rename(renamer))
-    .pipe(dest(__dirname + "/ckan/public-midnight-blue/base/css/"));
-
-const watchMidnightBlue = () =>
-  watch(
-    __dirname + "/ckan/public-midnight-blue/base/scss/**/*.scss",
-    { ignoreInitial: false },
-    buildMidnightBlue
-  );
-
 const jquery = () =>
   src(__dirname + "/node_modules/jquery/dist/jquery.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor")
-  );
-
-const bootstrapScss = () =>
-  src([__dirname + "/node_modules/bootstrap/scss/**/*", ]).pipe(
-    dest(__dirname + "/ckan/public/base/vendor/bootstrap/scss")
   );
 
 const bootstrapJS = () =>
@@ -117,11 +94,8 @@ const select2 = () =>
 exports.build = build;
 exports.watch = watchSource;
 
-exports.buildMidnightBlue = buildMidnightBlue;
-exports.watchMidnightBlue = watchMidnightBlue;
 exports.updateVendorLibs = parallel(
   jquery,
-  bootstrapScss,
   bootstrapJS,
   moment,
   fontAwesomeCss,

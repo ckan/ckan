@@ -20,44 +20,42 @@
 
 {% block pre_primary %}
   {% block resource %}
-    <section class="module module-resource" role="complementary">
+    <section class="module" role="complementary">
       {% block resource_inner %}
-      <div class="module-content">
-        <div class="actions">
+        <div class="actions position-relative">
           {% block resource_actions %}
             <ul class="d-flex flex-wrap gap-1 justify-content-end">
               {% block resource_actions_inner %}
-                {% block action_manage %}
-                  {% if h.check_access('package_update', {'id':pkg.id }) %}
-                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='pencil' %}</li>
-                    {% block action_manage_inner %}{% endblock %}
-                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='chart-bar' %}</li>
-                  {% endif %}
-                {% endblock action_manage %}
-            {% if res.url and h.is_url(res.url) %}
-              <li>
-                <div class="btn-group">
-                <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
-                  {% if res.resource_type in ('listing', 'service') %}
-                    <i class="fa fa-eye"></i> {{ _('View') }}
-                  {% elif  res.resource_type == 'api' %}
-                    <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.has_views and not res.url_type == 'upload' %}
-                    <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
-                  {% else %}
-                    <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
-                  {% endif %}
-                </a>
-                {% block download_resource_button %}{% endblock download_resource_button %}
-                </div>
-              </li>
-            {% endif %}
+                {% if res.url and h.is_url(res.url) %}
+                  <li>
+                    <div class="btn-group">
+                      <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
+                        {% if res.resource_type in ('listing', 'service') %}
+                          <i class="fa fa-eye"></i> {{ _('View') }}
+                        {% elif  res.resource_type == 'api' %}
+                          <i class="fa fa-key"></i> {{ _('API Endpoint') }}
+                        {% elif not res.has_views and not res.url_type == 'upload' %}
+                          <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
+                        {% else %}
+                          <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
+                        {% endif %}
+                      </a>
+                      {% block download_resource_button %}{% endblock download_resource_button %}
+                    </div>
+                  </li>
+                {% endif %}
             {% endblock %}
+            {% block action_manage %}
+              {% block action_manage_inner %}{% endblock %}
+              {% if h.check_access('package_update', {'id':pkg.id }) %}
+                <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-secondary', icon='wrench' %}</li>
+              {% endif %}
+            {% endblock action_manage %}
           </ul>
           {% endblock %}
         </div>
         {% block resource_content %}
-          {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          {% block resource_read_title %}<h1 class="page-heading text-break">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
               <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" aria-label="{{ _('Resource URL: {url}').format(url=res.url) }}">{{ res.url }}</a></p>
@@ -70,7 +68,7 @@
               {{ h.render_markdown(res.description) }}
             {% endif %}
             {% if not res.description and package.notes %}
-              <h3>{{ _('Dataset description:') }}</h3>
+              <h2>{{ _('Dataset description:') }}</h2>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
               <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}<p>
             {% endif %}
@@ -89,7 +87,7 @@
            %}
         {% endblock %}
           {% block resource_view_content %}
-            <div class="resource-view">
+            <div class="resource-view mt-3 mb-md-3">
               {% if resource_views %}
                   {% for resource_view in resource_views %}
                     {% if resource_view == current_resource_view %}
@@ -124,7 +122,6 @@
               {% endif %}
             </div>
           {% endblock %}
-        </div>
       {% endblock %}
       {% endblock %}
       {% endblock %}
@@ -182,6 +179,10 @@
 {% endblock %}
 
 {% block secondary_content %}
+
+  {% block dataset_wrench %}
+  {% snippet "package/snippets/package_wrench.html", pkg=pkg, active=res.id, action='read' %}
+  {% endblock %}
 
   {% block resources_list %}
     {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read' %}

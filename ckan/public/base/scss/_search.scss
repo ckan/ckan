@@ -1,7 +1,5 @@
 .search-form {
-    margin-bottom: 20px;
     padding-bottom: 25px;
-    border-bottom: 1px dotted $genericBorderColor;
     // Normal search box
     .search-input {
         position: relative;
@@ -16,7 +14,7 @@
             display: block;
             position: absolute;
             top: 50%;
-            margin-top: -10px;
+            margin-top: -12px;
             right: 10px;
             height: 20px;
             padding: 0;
@@ -50,12 +48,46 @@
         }
     }
     .control-order-by {
+        width: 100%;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        cursor: pointer;
+
+        label {
+            font-size: 12px;
+            font-weight: 500;
+            padding-left: 8px;
+        }
+        @include media-breakpoint-up(md) {
+            float: right;
+            min-width:200px;
+            max-width: min-content;
+        }
         label,
         select {
             display: inline;
         }
         .form-control {
             width: auto;
+            @include media-breakpoint-down(md) {
+                width: 100%;
+            }
+        }
+        .form-select {
+            border: unset;
+            padding: 2px 3rem 0.5rem 0.5rem;
+            font-weight: 500;
+            background-position: right 1rem top;
+            background-size: 16px 16px;
+            background-color: transparent;
+            cursor: pointer;
+
+            &:focus {
+                background-color: transparent;
+            }
+        }
+        &:focus-within{
+            box-shadow: 0 0 0 0.25rem rgba(21, 48, 132, 0.25);
         }
     }
 
@@ -79,13 +111,19 @@
     }
     .search-input-group {
         margin-bottom: $grid-gutter-width;
-    }
-}
-
-@include media-breakpoint-up(md) {
-    .search-form .control-order-by {
-        float: right;
-        margin-left: 15px;
-        width: auto;
+        input {
+            padding-right: 45px;
+        }
+        button {
+            border: 0;
+            border-radius: 0 3px 3px 0;
+            color: $brand-500;
+            background: unset;
+            font-size: 1rem;
+            position: absolute;
+            right: 0;
+            top: 1px;
+            height: 93%;
+        }
     }
 }

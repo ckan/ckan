@@ -22,7 +22,8 @@
 
       {# HTML select macro for use below #}
       {% set old_select %}
-        <select class="form-control select-time" form="range_form" name="old_id">
+        <label for="start_date" class="sr-only">{{ _("Start date") }}</label>
+        <select class="form-control select-time" form="range_form" id="start_date" name="old_id">
           <pre>
             {{ select_list1[1:]|join }}
           </pre>
@@ -30,7 +31,8 @@
       {% endset %}
 
       {% set new_select %}
-        <select class="form-control select-time" form="range_form" name="new_id">
+        <label for="end_date" class="sr-only">{{ _("End date") }}</label>
+        <select class="form-control select-time" form="range_form" id="end_date" name="new_id">
           <pre>
             {{ select_list2|join }}
           </pre>
@@ -54,7 +56,7 @@
         {# TODO: display metadata for more than most recent change #}
         {% if i == 0 %}
           {# button to show JSON metadata diff for the most recent change - not shown by default #}
-            <input type="button" data-module="metadata-button" data-module-target="" class="btn btn-primary-outline" value="{{ _('Show metadata diff') }}" id="metadata_button" data-show-text="{{ _('Show metadata diff') }}" data-hide-text="{{ _('Hide metadata diff') }}"></input>
+          <input type="button" data-module="metadata-button" data-module-target="" class="btn btn-primary-outline" value="{{ _('Show metadata diff') }}" id="metadata_button" data-show-text="{{ _('Show metadata diff') }}" data-hide-text="{{ _('Hide metadata diff') }}"></input>
           <div id="metadata_diff" style="display:none;">
           {% block package_changes_diff %}
             <pre>

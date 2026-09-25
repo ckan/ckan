@@ -2,10 +2,10 @@
   <section class="module-content">
     <div class="image">
       <a href="#">
-        <img src="{{ h.url_for_static('/base/images/placeholder-organization.png') }}" width="200">
+        <img src="{{ h.url_for_static('/base/images/placeholder-organization.svg') }}" width="200">
       </a>
     </div>
-    <h2 class="heading">{{ title }}</h2>
+    <h1 class="heading">{{ title }}</h1>
     <p class="description">
       {{ h.markdown_extract(lipsum(1), 160) }}
     </p>

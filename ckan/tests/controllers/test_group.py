@@ -413,7 +413,7 @@ class TestGroupMembership(object):
         )
 
         page = BeautifulSoup(response.body)
-        assert page.select_one('.page-heading').text.strip() == 'Edit Member'
+        assert page.select_one('h1').text.strip() == 'Edit Member'
         role_option = page.select_one('#role [selected]')
         assert role_option and role_option.get('value') == 'admin'
         assert page.select_one('#username').get('value') == member['name']
@@ -646,15 +646,10 @@ class TestGroupSearch(object):
         factories.Group(title="Grp Three")
         index_response = app.get(url_for("group.index"))
         index_response_html = BeautifulSoup(index_response.body)
-        grp_names = index_response_html.select(
-            "ul.media-grid " "li.media-item " "h2.media-heading"
-        )
+        grp_names = index_response_html.select('h3')
         grp_names = [n.string for n in grp_names]
 
-        assert len(grp_names) == 3
-        assert "AGrp One" in grp_names
-        assert "AGrp Two" in grp_names
-        assert "Grp Three" in grp_names
+        assert set(grp_names) == {"AGrp One", "AGrp Two", "Grp Three"}
 
     def test_group_search_results(self, app):
         """Searching via group search form returns list of expected groups."""
@@ -666,15 +661,10 @@ class TestGroupSearch(object):
             url_for("group.index"), query_string={"q": "AGrp"}
         )
         search_response_html = BeautifulSoup(search_response.body)
-        grp_names = search_response_html.select(
-            "ul.media-grid " "li.media-item " "h2.media-heading"
-        )
+        grp_names = search_response_html.select('h3')
         grp_names = [n.string for n in grp_names]
 
-        assert len(grp_names) == 2
-        assert "AGrp One" in grp_names
-        assert "AGrp Two" in grp_names
-        assert "Grp Three" not in grp_names
+        assert set(grp_names) == {"AGrp One", "AGrp Two"}
 
     def test_group_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
