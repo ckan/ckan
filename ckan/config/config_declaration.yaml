@@ -1717,6 +1717,7 @@ groups:
         description: This controls the feed author's name. If unspecified, it'll use :ref:`ckan.site_id`.
 
       - key: ckan.feeds.author_link
+        default: ""
         example: http://okfn.org
         description: This controls the feed author's link. If unspecified, it'll use :ref:`ckan.site_url`.
 
