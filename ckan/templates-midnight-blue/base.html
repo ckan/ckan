@@ -21,6 +21,26 @@
     {% endblock %}
 
     #}
+    {% block theme_mode_script %}
+      {% if h.dark_mode_enabled() %}
+        {# Applies the saved light/dark theme preference before the page renders
+           so there is no flash of the wrong theme #}
+        <script>
+          (function () {
+            try {
+              var stored = localStorage.getItem('ckan.theme-mode');
+              var dark = stored
+                ? stored === 'dark'
+                : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (dark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+              }
+            } catch (e) {}
+          })();
+        </script>
+      {% endif %}
+    {% endblock %}
+
     {%- block meta -%}
       <meta charset="utf-8" />
       <meta name="csrf_field_name" content="{{ g.csrf_field_name }}" />
