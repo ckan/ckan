@@ -1,0 +1,1 @@
+Exclude ``tracking_summary`` from ``format_resource_items()`` again, so a resource page with the tracking plugin enabled no longer lists the raw summary dict under Additional Information.
