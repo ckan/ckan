@@ -134,12 +134,17 @@
     &:last-child { border-bottom: 0; }
 
     // stylelint-disable selector-max-class
-    > .accordion-collapse,
-    > .accordion-header .accordion-button,
-    > .accordion-header .accordion-button.collapsed {
-      @include border-radius(0);
+    > .accordion-header .accordion-button {
+      &,
+      &.collapsed {
+        @include border-radius(0);
+      }
     }
     // stylelint-enable selector-max-class
+
+    > .accordion-collapse {
+      @include border-radius(0);
+    }
   }
 }
 

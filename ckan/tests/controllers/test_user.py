@@ -1,4 +1,7 @@
 # encoding: utf-8
+
+import re
+
 import unittest.mock as mock
 import pytest
 from bs4 import BeautifulSoup
@@ -83,7 +86,7 @@ class TestUserListings:
 
         search_response_html = BeautifulSoup(search_response.data)
         user_list = search_response_html.select("ul.user-list li")
-        assert len(user_list) == 0
+        assert 'No matching users found' in str(user_list)
 
     def test_user_page_sysadmin_user(self, app):
         """Sysadmin can search for users by email."""
@@ -196,7 +199,10 @@ class TestUser(object):
         )
 
         # and we're definitely not back on the login page.
-        assert '<h1 class="page-heading">Login</h1>' not in response
+        assert re.search(
+            r'<h1 class="page-heading">\s*Login\s*</h1>',
+            response.text,
+        ) is None
 
     def test_registered_user_login_bad_password(self, app):
         """
@@ -214,7 +220,10 @@ class TestUser(object):
         )
 
         # the response is the login page again
-        assert '<h1 class="page-heading">Login</h1>' in response
+        assert re.search(
+            r'<h1 class="page-heading">\s*Login\s*</h1>',
+            response.text,
+        )
         assert "Login failed. Bad username or password." in response
         # and we're definitely not on the dashboard.
         assert '<a href="/dashboard">Dashboard</a>' not in response
@@ -241,7 +250,10 @@ class TestUser(object):
         )
 
         # the response is the login page again
-        assert '<h1 class="page-heading">Login</h1>' in response
+        assert re.search(
+            r'<h1 class="page-heading">\s*Login\s*</h1>',
+            response.text,
+        )
         assert "Login failed. Bad username or password or CAPTCHA." in response
         # and we're definitely not on the dashboard.
         assert '<a href="/dashboard">Dashboard</a>' not in response

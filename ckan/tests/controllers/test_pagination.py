@@ -84,7 +84,7 @@ def test_group_index(app):
     assert "/group/?q=&sort=name&page=2" == href
     names = [
         link["href"].rsplit("/", 1)[-1]
-        for link in page.select(".primary .media-view")
+        for link in page.select(".groups-cards a")
     ]
 
     assert all_names[:20] == names
@@ -95,7 +95,7 @@ def test_group_index(app):
     assert "/group/?q=&sort=name&page=1" == href
     names = [
         link["href"].rsplit("/", 1)[-1]
-        for link in page.select(".primary .media-view")
+        for link in page.select(".groups-cards a")
     ]
     assert all_names[20:] == names
 
