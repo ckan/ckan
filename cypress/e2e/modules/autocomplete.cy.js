@@ -86,7 +86,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         templateResult: this.module.templateResult,
         createTag: this.module.formatTerm,
         dataAdapter: dataAdapter,
-        tokenSeparators: [','],
+        tokenSeparators: [',', '\n'],
         minimumInputLength: 0
       });
     });
@@ -130,7 +130,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         createTag: this.module.formatTerm,
         dataAdapter: {},
         multiple: "multiple",
-        tokenSeparators: [','],
+        tokenSeparators: [',', '\n'],
         minimumInputLength: 0
       });
     })
@@ -157,7 +157,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         templateResult: this.module.templateResult,
         createTag: this.module.formatTerm,
         dataAdapter: {},
-        tokenSeparators: [','],
+        tokenSeparators: [',', '\n'],
         minimumInputLength: 0
       });
     });
@@ -184,7 +184,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         templateResult: this.module.templateResult,
         createTag: this.module.formatTerm,
         dataAdapter: {},
-        tokenSeparators: [','],
+        tokenSeparators: [',', '\n'],
         minimumInputLength: 0
       });
     });
@@ -210,7 +210,7 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         templateResult: this.module.templateResult,
         createTag: this.module.formatTerm,
         dataAdapter: {},
-        tokenSeparators: [','],
+        tokenSeparators: [',', '\n'],
         minimumInputLength: 3
       });
     });
@@ -438,6 +438,53 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
       this.clock.tick(100);
 
       expect(this.Event).to.not.be.called;
+    });
+  });
+
+  describe('._onBlur(event)', {testIsolation: false}, function () {
+    beforeEach(function () {
+      cy.window().then(win => {
+        this.fakeEvent = {};
+        this.Event = cy.stub(win.jQuery, 'Event').returns(this.fakeEvent);
+        this.trigger = cy.stub(win.jQuery.fn, 'trigger');
+      })
+    });
+
+    it('should trigger a fake "return" keypress if unterminated text is left in the field', function () {
+      var blurEvent = {target: {value: 'zeta'}};
+
+      this.module._onBlur(blurEvent);
+
+      expect(this.Event).to.be.calledWith("keydown", {which: 13});
+      expect(this.trigger).to.be.called;
+      expect(this.trigger).to.be.calledWith(this.fakeEvent);
+    });
+
+    it('should trim the value before deciding whether to commit it', function () {
+      var blurEvent = {target: {value: '  zeta  '}};
+
+      this.module._onBlur(blurEvent);
+
+      expect(this.Event).to.be.called;
+      expect(this.trigger).to.be.called;
+    });
+
+    it('should do nothing if the field is empty', function () {
+      var blurEvent = {target: {value: ''}};
+
+      this.module._onBlur(blurEvent);
+
+      expect(this.Event).to.not.be.called;
+      expect(this.trigger).to.not.be.called;
+    });
+
+    it('should do nothing if the field only contains whitespace', function () {
+      var blurEvent = {target: {value: '   '}};
+
+      this.module._onBlur(blurEvent);
+
+      expect(this.Event).to.not.be.called;
+      expect(this.trigger).to.not.be.called;
     });
   });
 });

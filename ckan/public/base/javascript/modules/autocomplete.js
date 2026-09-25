@@ -10,7 +10,10 @@
  * label    - A string of the label you want to appear within the dropdown for
  *            returned results
  * tokensep - A string that contains characters which will be interpreted
- *            as separators for tags when typed or pasted (default ",").
+ *            as separators for tags when typed or pasted (default ",\n" --
+ *            a comma or a newline, so pasting a newline-separated list of
+ *            tags -- such as text copied from another tag field -- is
+ *            split into separate tags too).
  * Examples
  *
  *   // <input name="tags" data-module="autocomplete" data-module-source="http://" />
@@ -25,7 +28,7 @@ this.ckan.module('autocomplete', function (jQuery) {
       key: false,
       label: false,
       source: null,
-      tokensep: ',',
+      tokensep: ',\n',
       interval: 300,
       dropdownClass: '',
       containerClass: '',
@@ -128,6 +131,18 @@ this.ckan.module('autocomplete', function (jQuery) {
         // find the "fake" input created by select2 and add the keypress event.
         // This is not part of the plugins API and so may break at any time.
         select2.search.on('keydown', this._onKeydown);
+
+        // Typing a comma (see _onKeydown below) commits the current search
+        // text as a tag, and select2's own tokenSeparators handling does
+        // the same for text arriving via paste -- but only up to the last
+        // separator. Pasting "a, b, c" with no trailing comma (the usual
+        // case when copying from a spreadsheet or a document) leaves "c"
+        // sitting unconverted in the search box. If the form is submitted
+        // like that, the trailing tag is silently dropped: it was never
+        // added to the underlying select, so nothing warns the user.
+        // Commit any such leftover text as a final tag when the field
+        // loses focus, the same way a typed separator would.
+        select2.search.on('blur', this._onBlur);
       }
 
       // This prevents Internet Explorer from causing a window.onbeforeunload
@@ -348,6 +363,22 @@ this.ckan.module('autocomplete', function (jQuery) {
           var e = jQuery.Event("keydown", { which: 13 });
           jQuery(event.target).trigger(e);
         }, 10);
+      }
+    },
+
+    /* Commits any unterminated text left in a tags-mode search box as a
+     * final tag when the field loses focus. Reuses the trick _onKeydown()
+     * above uses for a typed comma: fire a synthetic Enter keydown, which
+     * select2's own tag-input handling treats as "add the current search
+     * text as a tag". Without this, a pasted list of tags with no
+     * trailing separator silently loses its last entry.
+     *
+     * event - The blur event triggered on the select2 search input.
+     */
+    _onBlur: function (event) {
+      if (jQuery.trim(event.target.value)) {
+        var e = jQuery.Event("keydown", { which: 13 });
+        jQuery(event.target).trigger(e);
       }
     },
 
