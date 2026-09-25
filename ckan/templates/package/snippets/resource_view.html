@@ -56,8 +56,9 @@
               view_id=resource_view['id'], qualified=true)  %}
           {% endif %}
         {% else %}
-          {# When previewing we need to stick the whole resource_view as a param as there is no other way to pass to information on to the iframe #}
-          {% set src = h.url_for(package['type'] ~ '_resource.view', id=package['name'], resource_id=resource['id'], qualified=true) + '?' + h.urlencode({'resource_view': h.dump_json(resource_view)}) %}
+          {% trans %}
+            Sorry, Resource View cannot be displayed if it doesn't provide its own iframe.
+          {% endtrans %}
         {% endif %}
         <iframe title="Data viewer" src="{{ src }}" frameborder="0" width="100%" data-module="data-viewer">
           <p>{{ _('Your browser does not support iframes.') }}</p>
