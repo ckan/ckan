@@ -1,0 +1,3 @@
+Add an index on ``tracking_summary`` (``package_id``, ``tracking_date``) so that
+creating a dataset no longer reads the whole table when the ``tracking`` plugin
+is enabled. Run ``ckan db upgrade`` to apply it.

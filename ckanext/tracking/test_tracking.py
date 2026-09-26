@@ -528,3 +528,24 @@ class TestTracking(object):
     def test_post_tracking_does_not_return_method_not_allowed(self, track):
         response = track(url="", type_="page")
         assert response.status_code == 200
+
+    def test_tracking_summary_has_package_id_date_index(self, migrate_db_for):
+        """A dataset with no views must not cost a scan of tracking_summary.
+
+        get_for_package() filters on package_id and orders by tracking_date,
+        which needs an index on both columns (#9538).
+        """
+        import sqlalchemy as sa
+        from ckan import model
+
+        migrate_db_for("tracking")
+        indexes = {
+            index["name"]: index["column_names"]
+            for index in sa.inspect(model.meta.engine).get_indexes(
+                "tracking_summary"
+            )
+        }
+        assert indexes.get("tracking_summary_package_id_date") == [
+            "package_id",
+            "tracking_date",
+        ]
