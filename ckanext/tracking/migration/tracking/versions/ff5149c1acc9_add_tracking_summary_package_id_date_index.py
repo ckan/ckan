@@ -28,7 +28,19 @@ def upgrade():
     # CONCURRENTLY keeps the table writable while the index builds, which can
     # take a while on a large table, and cannot run inside a transaction.
     # IF NOT EXISTS lets sites that already created this index by hand upgrade.
+    # A failed CONCURRENTLY build leaves an invalid index behind that IF NOT
+    # EXISTS would keep and the planner would ignore, so drop that first.
+    invalid = op.get_bind().execute(sa.text(
+        "SELECT 1 FROM pg_index "
+        "WHERE indexrelid = to_regclass(:name) AND NOT indisvalid"
+    ), {"name": INDEX_NAME}).scalar()
     with op.get_context().autocommit_block():
+        if invalid:
+            op.drop_index(
+                INDEX_NAME,
+                table_name='tracking_summary',
+                postgresql_concurrently=True,
+            )
         op.create_index(
             INDEX_NAME,
             'tracking_summary',
