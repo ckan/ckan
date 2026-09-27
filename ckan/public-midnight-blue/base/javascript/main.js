@@ -32,7 +32,13 @@ this.ckan = this.ckan || {};
 
     // Convert all datetimes to the users timezone
     jQuery('.automatic-local-datetime').each(function() {
-        moment.locale(locale);
+        let momentLocale = locale;
+        if (locale === 'zh_Hant_TW') {
+            momentLocale = 'zh-tw';
+        } else if (momentLocale === 'zh_Hans_CN') {
+            momentLocale = 'zh-cn';
+        }
+        moment.locale(momentLocale);
         var date = moment(jQuery(this).data('datetime'));
         if (date.isValid()) {
             jQuery(this).html(date.format("LL, LT ([UTC]Z)"));
