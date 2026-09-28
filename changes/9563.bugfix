@@ -1,0 +1,1 @@
+Fix the 404 for the filter clear icon in the DataTables view by inlining it in the CSS.
