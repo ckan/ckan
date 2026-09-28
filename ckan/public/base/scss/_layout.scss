@@ -1,34 +1,3 @@
-.wrapper {
-    @include clearfix();
-    @extend .box;
-    position: relative;
-    background-color: #fff;
-    @include media-breakpoint-up(md) {
-        &:before {
-            content: '';
-            display: block;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 25%;
-            border-right: 1px solid $genericBorderColor;
-            z-index: 1; // Fixes overlapping .secondary on the Resource view page
-        }
-        &.no-nav {
-            &:before {
-                display: none;
-            }
-            .module {
-                >.page-header {
-                    margin-top: 0;
-                }
-            }
-        }
-    }
-}
-
-
 [role=main],
 .main {
     position: relative;
@@ -42,7 +11,7 @@ body {
 
 .main {
     padding: 20px 0;
-    background: $layoutBackgroundColor url("#{$bgPath}");
+    background-color: $white;
     flex: 1;
 }
 
@@ -53,15 +22,12 @@ body {
 }
 
 .main .primary {
-    position: relative;
-    float: right;
-    margin-left: 0; // Remove grid margin.
+    border-radius: 0.5rem;
+    background-color: $layoutPrimaryBackgroundColor;
 }
 
 .main .secondary {
-    padding: 0;
     z-index: 1;
-    padding-right: 1px;
 }
 
 
@@ -75,33 +41,19 @@ body {
     overflow: hidden;
 }
 
+.show-filters.btn {
+    background-color: $gray-50;
+    font-weight: 500;
+}
+
 .show-filters.btn,
 .hide-filters {
     display: none;
 }
 
 @include media-breakpoint-down(md) {
-    .wrapper {
-        border-width: 0;
-        @include box-shadow(0);
-        @include border-radius(0);
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -moz-box-orient: vertical;
-        -webkit-flex-direction: column-reverse;
-        flex-direction: column-reverse;
-        -webkit-box-align: start;
-        -moz-box-align: start;
-        -webkit-align-items: flex-start;
-        align-items: flex-start;
-    }
-    .main .secondary {
-        -webkit-box-ordinal-group: 2;
-        -moz-box-ordinal-group: 2;
-        -webkit-order: 2;
-        order: 2;
+.main .secondary {
+        margin: 1rem 0;
     }
     .js .main .secondary .filters {
         display: none;
@@ -112,9 +64,8 @@ body {
         right: 0;
         bottom: 0;
         z-index: 1000;
-        padding: 10px;
-        background-color: rgb(0, 0, 0);
-        background-color: rgba(0, 0, 0, 0.50);
+        padding: 40px 10px 0;
+        background-color: $white;
     }
     .js body.filters-modal .secondary .filters {
         display: block;
@@ -125,18 +76,15 @@ body {
         -moz-border-radius: 4px;
         border-radius: 4px;
         overflow: hidden;
-    }
-    .js .main .secondary .filters>div .module-footer {
-        display: none;
+        padding: 0 10px;
     }
     .js body.filters-modal .secondary .filters .hide-filters {
         display: inline-block;
         position: absolute;
         top: 14px;
         right: 17px;
-        opacity: 0.6;
         i {
-            font-size: 18px;
+            font-size: 24px;
         }
     }
     .js .show-filters.btn {
@@ -144,10 +92,6 @@ body {
     }
 }
 
-// .primary> :last-child,
-// .secondary> :last-child {
-//     margin-bottom: 0;
-// }
 .primary {
     .primary {
         float: left;
@@ -164,18 +108,12 @@ body {
     }
 }
 
-@include media-breakpoint-up(sm) {
-    .hero {
-        background: url("#{$imagePath}/background-tile.png");
-    }
-}
-
 .hero:after {
     // Need to manually declare this here@mixin  If you pass rgba() through to
     // #gradient it breaks the filter property in IE7.
    @include rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
     background-color: $moduleHeadingBackgroundColor;
-    border-bottom: 1px solid darken($moduleHeadingBorderColor, 5%);
+    border-bottom: 1px solid color.adjust($moduleHeadingBorderColor, $lightness: -5%);
     @include border-radius(3px 3px 0 0);
     @include box-shadow(inset 0 -4px 0 rgba(0,0,0,0.03));
     .back:hover {
@@ -188,7 +126,17 @@ body {
 
 .context-info {
     .module-content {
-        padding: 15px;
+        padding: 1rem 0;
+    }
+    @include media-breakpoint-down(md) {
+        .module-content {
+            padding: 1rem 1.5rem;
+        }
+        .image {
+            margin-right: .5rem;
+            width: 50%;
+            float: left;
+        }
     }
     .image {
         margin-bottom: 10px;
@@ -202,8 +150,7 @@ body {
     }
     .description {
         word-wrap: break-word;
-        word-break: break-all;
-        overflow: auto;
+        overflow: visible;
     }
     code {
         display: block;
@@ -212,16 +159,15 @@ body {
         margin: 0;
         overflow: auto;
     }
-    h1.heading {
+    h1.heading, span.heading {
         margin: 0 0 5px 0;
         font-size: 18px;
         line-height: 1.3;
+        font-weight: 600;
         @include break-word();
     }
     .info {
-        margin-top: 15px;
         padding-top: 10px;
-        border-top: 1px dotted #DDD;
         word-break: break-word;
         dl dd {
             margin-top: 3px;
@@ -229,22 +175,21 @@ body {
         }
     }
     .nums {
-        @include clearfix;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        display: grid;
+        grid-auto-flow: row;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 15%;
         padding-top: 10px;
-        border-top: 1px dotted #DDD;
+        clear: both;
         dl {
             color: $layoutTextColor;
             dt {
-                font-size: 13px;
-                font-weight: 300;
+                font-weight: 400;
             }
             dd {
-                font-size: 30px;
-                font-weight: 700;
-                line-height: 36px;
+                font-size: 1.5rem;
+                font-weight: 500;
             }
         }
     }

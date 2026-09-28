@@ -41,7 +41,7 @@ def load_environment(conf: Union[Config, CKANConfig]):
     """
     os.environ['CKAN_CONFIG'] = cast(str, conf['__file__'])
 
-    valid_base_public_folder_names = ['public', 'public-midnight-blue']
+    valid_base_public_folder_names = ['public']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
 
@@ -194,7 +194,7 @@ def update_config() -> None:
     helpers.load_plugin_helpers()
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates', 'templates-midnight-blue']
+    valid_base_templates_folder_names = ['templates']
     templates = config.get('ckan.base_templates_folder')
     config['ckan.base_templates_folder'] = templates
 

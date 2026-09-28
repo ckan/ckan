@@ -272,12 +272,14 @@ class TestCustomGroupBlueprint(object):
         headers = {"Authorization": user["token"]}
         resp = app.get("/grup", headers=headers, status=200)
         page = bs4.BeautifulSoup(resp.body)
-        btn = page.select_one('.page_primary_action .btn')
+        btn = page.select_one('.content_action .btn')
         assert btn.text.strip() == 'Add Grup'
 
         resp = app.get("/grup/new", headers=headers, status=200)
         page = bs4.BeautifulSoup(resp.body)
-        assert page.select_one('.page-heading').text.strip() == 'Create Grup'
+
+        assert page.select_one('.toolbar .breadcrumb .active'
+            ).text.strip() == 'Create Grup'
         assert page.select_one(
             '.form-actions .btn').text.strip() == 'Create Grup'
 
@@ -287,4 +289,4 @@ class TestCustomGroupBlueprint(object):
         page = bs4.BeautifulSoup(resp.body)
         link = page.select_one('.masthead .navbar-nav a[href="/grup/"]')
         assert link
-        assert link.text == 'Grups'
+        assert link.text.strip() == 'Grups'

@@ -67,10 +67,12 @@
       'Edit': 'Edit'
     },
     template: [
-      '<div class="slug-preview">',
+      '<div class="slug-preview ms-2 mt-2">',
+      '<span class="slug-preview-inner">',
       '<strong></strong>',
       '<span class="slug-preview-prefix"></span><span class="slug-preview-value"></span>',
-      '<button class="btn btn-secondary btn-sm"></button>',
+      '</span>',
+      '<button class="btn btn-sm btn-secondary"><i class="fa fa-edit" aria-hidden="true"></i></button>',
       '</div>'
     ].join('\n')
   };

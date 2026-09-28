@@ -28,6 +28,6 @@ Examples:
 {%- set extra_html = caller() if caller -%}
 {% call input_block(id or name, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
 <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
-<span class="editor-info-block">{% trans %}You can use <a href="#markdown" title="Markdown quick reference" data-bs-toggle="popover" data-bs-content="{{ markdown_tooltip }}" data-bs-html="true">Markdown formatting</a> here{% endtrans %}</span>
+<span class="editor-info-block">{% trans %}you can use <a href="#markdown" title="Markdown quick reference" data-bs-toggle="popover" data-bs-content="{{ markdown_tooltip }}" data-bs-html="true">markdown formatting</a> here{% endtrans %}</span>
 {% endcall %}
 {% endmacro %}
