@@ -703,6 +703,47 @@ class TestPackage:
         )
         assert helpers.body_contains(response, "Original title")
 
+    @pytest.mark.with_plugins("tracking")
+    def test_read_dataset_as_it_used_to_be_with_tracking(self, app):
+        dataset = factories.Dataset(title="Dataset title")
+        resource = factories.Resource(package_id=dataset["id"])
+        activity = (
+            model.Session.query(Activity)
+            .filter_by(object_id=dataset["id"])
+            .order_by(Activity.timestamp.desc())
+            .limit(1)
+            .one()
+        )
+
+        # Older activity snapshots do not contain the optional tracking fields.
+        archived_package = dict(activity.data["package"])
+        archived_package.pop("tracking_summary", None)
+        archived_package["resources"] = [
+            {
+                key: value
+                for key, value in archived_resource.items()
+                if key != "tracking_summary"
+            }
+            for archived_resource in archived_package["resources"]
+        ]
+        assert archived_package["resources"]
+        assert "tracking_summary" not in archived_package["resources"][0]
+        activity.data = {**activity.data, "package": archived_package}
+        model.repo.commit()
+
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for(
+                "activity.package_history",
+                id=dataset["name"],
+                activity_id=activity.id,
+            ),
+            headers=headers,
+        )
+        assert response.status_code == 200
+        assert helpers.body_contains(response, resource["name"])
+
     def test_read_dataset_as_it_used_to_be_but_is_unmigrated(self, app):
         # Renders the dataset using the activity detail, when that Activity was
         # created with an earlier version of CKAN, and it has not been migrated

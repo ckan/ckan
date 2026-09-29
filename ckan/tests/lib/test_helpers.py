@@ -13,8 +13,10 @@ import flask_babel
 from faker import Faker
 import pytest
 
+from ckan import types
 from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
+import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
 
@@ -261,8 +263,9 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<script>moo</script>", "<script>moo</script>", True),
-            ("<script>moo</script>", "moo", False),
+            ("<foo>moo</foo>", "<p><foo>moo</foo></p>", True),
+            ("<foo>moo</foo>", "<p>moo</p>", False),
+            ("<script>moo</script>", "", False), # script and style tags are removed with content by nh3
             (
                 "http://example.com",
                 '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
@@ -283,7 +286,7 @@ class TestHelpersRenderMarkdown(object):
                 u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>',
                 False,
             ),
-            (u"[text](javascript: alert(1))", u"<p><a>text</a></p>", False),
+            (u"[text](javascript: alert(1))", '<p><a rel="noopener noreferrer">text</a></p>', False),
             (
                 u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
                 '<p><img src="image.png"> and text</p>',
@@ -309,7 +312,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 u"[link](/url?a=1&b=2)",
-                u'<p><a href="/url?a=1&amp;b=2">link</a></p>',
+                u'<p><a href="/url?a=1&amp;b=2" rel="noopener noreferrer">link</a></p>',
                 False,
             ),
             (
@@ -383,7 +386,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 "<a href=\u201dsomelink\u201d>somelink</a>",
-                '<p><a href="\u201dsomelink\u201d">somelink</a></p>',
+                '<p><a href="\u201dsomelink\u201d" rel="noopener noreferrer">somelink</a></p>',
                 False,
             ),
         ],
@@ -565,7 +568,7 @@ def test_time_ago_from_timestamp(date, exp):
 
 
 def test_clean_html_disallowed_tag():
-    assert h.clean_html("<b><bad-tag>Hello") == u"<b>&lt;bad-tag&gt;Hello</b>"
+    assert h.clean_html("<b><bad-tag>Hello") == u"<b>Hello</b>"
 
 
 def test_clean_html_non_string():
@@ -657,7 +660,7 @@ class TestBuildNavMain(object):
 
     def test_build_nav_icon(self):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil')
-        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i>Edit</a></li>'
+        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i> Edit</a></li>'
 
 
 class TestRemoveUrlParam:
@@ -911,15 +914,19 @@ def test_get_translated(data_dict, locale, result, monkeypatch):
 
 
 class TestUploadsEnabled:
-    def test_disabled_with_no_type(self):
-        """Without upload type, helper returns False."""
+    def test_disabled_with_no_type_no_path_and_no_implementation(self):
+        """In simple case helper returns False."""
         assert not h.uploads_enabled()
 
-    @pytest.mark.ckan_config("ckan.uploads_enabled", False)
-    def test_disabled(self):
-        """When uploads are disabled globally, they are disabled for all types."""
-        for type in ["resource", "group", "user", "admin"]:
-            assert not h.uploads_enabled(type)
+    @pytest.mark.ckan_config("ckan.storage_path", "/tmp")
+    def test_enabled_with_path_and_no_type(self, reset_storages: Any):
+        """With storage_path set, uploads are enabled - that's a classic behavior."""
+        assert h.uploads_enabled()
+
+    @pytest.mark.with_plugins({"test_uploader": type("TestUploader", (p.IUploader, p.SingletonPlugin), {})})
+    def test_enabled_with_implementation_and_no_type(self, provide_plugin: types.FixtureProvidePlugin):
+        """With an implementation of IUploader, uploads are enabled - that's a classic behavior."""
+        assert h.uploads_enabled()
 
     @pytest.mark.ckan_config("ckan.files.storage.test.type", "ckan:memory")
     def test_enabled_with_storage(self):

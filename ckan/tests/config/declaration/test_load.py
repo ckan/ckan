@@ -100,6 +100,7 @@ class TestFilesLoader:
                 prefix.max_size,
                 prefix.hashing_algorithm,
                 prefix.supported_types,
+                prefix.follow_symlinks,
                 prefix.overwrite_existing,
                 prefix.name,
                 prefix.location_transformers,

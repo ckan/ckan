@@ -41,11 +41,24 @@ class FsStorage(base.Storage, fs.FsStorage):
 
     settings: Settings
     SettingsFactory = Settings
-    UploaderFactory = type(
-        "Uploader", (base.Uploader, fs.Uploader), {}
-    )
+    UploaderFactory = type("Uploader", (base.Uploader, fs.Uploader), {})
     ReaderFactory = Reader
     ManagerFactory = type("Manager", (base.Manager, fs.Manager), {})
+
+    @override
+    @classmethod
+    def declare_config_options(cls, declaration: Declaration, key: Key):
+        super().declare_config_options(declaration, key)
+
+        declaration[key.path].required().append_validators(
+            'starts_with("/")'
+        ).set_description(
+            "Absolute path to the storage's root."
+            "\nWill cause a configuration error if not absolute."
+        )
+        declaration.declare_bool(key.follow_symlinks).set_description(
+            "Whether to follow symlinks when accessing a file."
+        )
 
 
 @dataclasses.dataclass

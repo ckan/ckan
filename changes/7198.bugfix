@@ -1,0 +1,1 @@
+Add a ``lang`` attribute to each option in the language selector so assistive technologies announce each language name using that language's pronunciation (WCAG 3.1.2 Language of Parts).

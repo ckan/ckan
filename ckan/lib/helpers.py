@@ -9,15 +9,14 @@ from __future__ import annotations
 
 import email.utils
 import datetime
+import html
 import logging
 import re
 import os
 import pytz
 import tzlocal
-import pprint
 import contextlib
 import copy
-import uuid
 import functools
 import unicodedata
 
@@ -29,7 +28,7 @@ from typing import (
 
 import dominate.tags as dom_tags
 from markdown import markdown
-from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
+from nh3 import clean as nh3_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
 from flask import flash, has_request_context, current_app
 from flask import get_flashed_messages as _flask_get_flashed_messages
@@ -53,7 +52,6 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-
 from ckan.lib.pagination import Page  # type: ignore # noqa
 from ckan.common import _, g, request, json
 
@@ -67,14 +65,11 @@ Helper = TypeVar("Helper", bound=Callable[..., Any])
 
 log = logging.getLogger(__name__)
 
-MARKDOWN_TAGS = set([
-    'del', 'dd', 'dl', 'dt', 'h1', 'h2',
-    'h3', 'img', 'kbd', 'p', 'pre', 's',
-    'sup', 'sub', 'strike', 'br', 'hr'
-]).union(ALLOWED_TAGS)
+MARKDOWN_TAGS = copy.copy(ALLOWED_TAGS)
 
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
-MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
+MARKDOWN_ATTRIBUTES['img'].add('title')
+MARKDOWN_ATTRIBUTES['a'].add('title')
 
 LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
@@ -678,19 +673,6 @@ def ckan_version() -> str:
 
 
 @core_helper
-def lang_native_name(lang_: Optional[str] = None) -> Optional[str]:
-    ''' Return the language name currently used in it's localised form
-        either from parameter or current environ setting'''
-    name = lang_ or lang()
-    if not name:
-        return None
-    locale = i18n.get_locales_dict().get(name)
-    if locale:
-        return locale.display_name or locale.english_name
-    return name
-
-
-@core_helper
 def is_rtl_language() -> bool:
     return lang() in config.get('ckan.i18n.rtl_languages')
 
@@ -872,6 +854,8 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
 
     if icon:
         link.add(dom_tags.i(cls=f"fa fa-{icon}"))   # type: ignore
+        if not inner_span:
+            text = f" {text}"
 
     link.add(dom_tags.span(text) if inner_span else f"{text}")  # type: ignore
 
@@ -1391,14 +1375,6 @@ def linked_user(user: Union[str, model.User],
 
 
 @core_helper
-def group_name_to_title(name: str) -> str:
-    group = model.Group.by_name(name)
-    if group is not None:
-        return group.display_name
-    return name
-
-
-@core_helper
 def markdown_extract(text: str,
                      extract_length: int = 190) -> Union[str, Markup]:
     ''' return the plain text representation of markdown encoded text.  That
@@ -1406,18 +1382,10 @@ def markdown_extract(text: str,
     will not be truncated.'''
     if not text:
         return ''
-    plain = bleach_clean(markdown(text), tags=(), strip=True)
+    plain = html.unescape(nh3_clean(markdown(text), tags=set()))
     if not extract_length or len(plain) < extract_length:
-        return literal(plain)
-    return literal(
-        str(
-            shorten(
-                plain,
-                width=extract_length,
-                placeholder='...'
-            )
-        )
-    )
+        return plain
+    return shorten(plain, width=extract_length, placeholder='...')
 
 
 @core_helper
@@ -1845,12 +1813,6 @@ def group_link(group: dict[str, Any]) -> Markup:
 
 
 @core_helper
-def organization_link(organization: dict[str, Any]) -> Markup:
-    url = url_for('organization.read', id=organization['name'])
-    return link_to(organization['title'], url)
-
-
-@core_helper
 def dump_json(obj: Any, **kw: Any) -> str:
     return json.dumps(obj, **kw)
 
@@ -1862,22 +1824,6 @@ def snippet(template_name: str, **kw: Any) -> str:
     '''
     import ckan.lib.base as base
     return base.render_snippet(template_name, **kw)
-
-
-@core_helper
-def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
-    ''' This is a helper function for converting lists of objects into
-    lists of dicts. It is for backwards compatibility only. '''
-
-    import ckan.lib.dictization.model_dictize as md
-    converters = {'package': md.package_dictize}
-    converter = converters[object_type]
-    items = []
-    context: Context = {}
-    for obj in objs:
-        item = converter(obj, context)
-        items.append(item)
-    return items
 
 
 # these are the types of objects that can be followed
@@ -2045,12 +1991,6 @@ def remove_url_param(key: Union[list[str], str],
 
 
 @core_helper
-def debug_inspect(arg: Any) -> Markup:
-    ''' Output pprint.pformat view of supplied arg '''
-    return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
-
-
-@core_helper
 def groups_available(am_member: bool = False,
                      include_dataset_count: bool = False,
                      include_member_count: bool = False,
@@ -2121,23 +2061,6 @@ def member_count(group: str) -> int:
 def roles_translated() -> dict[str, str]:
     '''Return a dict of available roles with their translations'''
     return authz.roles_trans()
-
-
-@core_helper
-def user_in_org_or_group(group_id: str) -> bool:
-    ''' Check if user is in a group or organization '''
-    # we need a user
-    if current_user.is_anonymous:
-        return False
-    # sysadmins can do anything
-    if current_user.sysadmin:  # type: ignore
-        return True
-    query = model.Session.query(model.Member) \
-        .filter(model.Member.state == 'active') \
-        .filter(model.Member.table_name == 'user') \
-        .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)
-    return len(query.all()) != 0
 
 
 @core_helper
@@ -2267,8 +2190,8 @@ def render_markdown(data: str,
     if allow_html:
         data = markdown(data.strip())
     else:
-        data = bleach_clean(
-            markdown(data), strip=True,
+        data = nh3_clean(
+            markdown(data),
             tags=MARKDOWN_TAGS,
             attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
@@ -2362,19 +2285,6 @@ def rendered_resource_view(resource_view: dict[str, Any],
 
     import ckan.lib.base as base
     return literal(base.render(template, extra_vars=data_dict))
-
-
-@core_helper
-def view_resource_url(
-        resource_view: dict[str, Any],
-        resource: dict[str, Any],
-        package: dict[str, Any],
-        **kw: Any) -> str:
-    '''
-    Returns url for resource. made to be overridden by extensions. i.e
-    by resource proxy.
-    '''
-    return resource['url']
 
 
 @core_helper
@@ -2499,25 +2409,34 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def uploads_enabled(object_type: str | None = None) -> bool:
+def uploads_enabled(storage_name: str | None = None) -> bool:
     """Returns True if uploads are enabled for the given object type.
 
     :param object_type: the type of object to check uploads for, e.g. resource,
         group, user or admin
     :type object_type: string
     """
-    if not object_type:
-        log.warning("h.uploads_enabled call without object_type is non supported")
-        return False
-
     if not config["ckan.uploads_enabled"]:
         return False
 
-    storage_name = config.get(f"ckan.files.default_storages.{object_type}")
+    has_classic_uploader = bool(
+        config["ckan.storage_path"]
+        or any(plugin for plugin in p.PluginImplementations(p.IUploader))
+    )
+
+    if not storage_name:
+        log.warning(
+            "h.uploads_enabled must be called with object_type."
+            " Swithcing to legacy logic and checking availability of custom uploaders."
+            " In future this call will cause an exception."
+        )
+        return has_classic_uploader
+
+    storage_name = config.get(f"ckan.files.default_storages.{storage_name}")
     if not storage_name:
         log.warning(
             "h.uploads_enabled call with an unexpected object_type '%s'",
-            object_type,
+            storage_name,
         )
         return False
 
@@ -2526,10 +2445,7 @@ def uploads_enabled(object_type: str | None = None) -> bool:
     except files.exc.UnknownStorageError:
         # if the storage is not found, then we are using old upload rules: when
         # storage path is configured or uploader is customized, uploads are allowed
-        return bool(
-            config["ckan.storage_path"]
-            or any(plugin for plugin in p.PluginImplementations(p.IUploader))
-        )
+        return has_classic_uploader
 
     return storage.supports(files.Capability.CREATE)
 
@@ -2760,7 +2676,7 @@ def mail_to(email_address: str, name: str) -> Markup:
 
 @core_helper
 def clean_html(html: Any) -> str:
-    return bleach_clean(str(html))
+    return nh3_clean(str(html))
 
 
 core_helper(flash, name='flash')
@@ -2808,15 +2724,6 @@ def load_plugin_helpers() -> None:
             for attribute, value in func.__dict__.items():
                 setattr(new_func, attribute, value)
             helper_functions[name] = new_func
-
-
-@core_helper
-def sanitize_id(id_: str) -> str:
-    '''Given an id (uuid4), if it has any invalid characters it raises
-    ValueError.
-    '''
-    return str(uuid.UUID(id_))
-
 
 @core_helper
 def get_collaborators(package_id: str) -> list[tuple[str, str]]:
@@ -2920,30 +2827,6 @@ def check_ckan_version(min_version: Optional[str] = None,
     """
     return p.toolkit.check_ckan_version(min_version=min_version,
                                         max_version=max_version)
-
-
-def make_login_url(
-    login_view: str, next_url: Optional[str] = None, next_field: str = "next"
-) -> str:
-    '''
-    Creates a URL for redirecting to a login page. If only `login_view` is
-    provided, this will just return the URL for it. If `next_url` is provided,
-    however, this will append a ``next=URL`` parameter to the query string
-    so that the login view can redirect back to that URL.
-    '''
-    base = login_view
-    if next_url is None:
-        return base
-
-    if url_is_local(next_url):
-        md = {}
-
-        md[next_field] = urlparse(next_url).path
-        parsed_base = urlparse(base)
-        netloc = parsed_base.netloc
-        parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return urlunparse(parsed_base)
-    return base
 
 
 @core_helper

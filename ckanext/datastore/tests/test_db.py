@@ -3,6 +3,9 @@
 import unittest.mock as mock
 import pytest
 
+import sqlalchemy as sa
+import sqlalchemy.orm as orm
+
 import ckan.lib.jobs as jobs
 import ckan.plugins as p
 import ckan.tests.factories as factories
@@ -249,3 +252,99 @@ class TestBackgroundJobs(helpers.RQTestBase):
         # that accessing the Datastore still works in the main process.
         result = helpers.call_action("datastore_search", resource_id=res_id)
         assert [0, 1, 2] == [r["value"] for r in result["records"]]
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestGetTables(object):
+    def test_get_table_names(self):
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            "CREATE TABLE test_a (id_a text)",
+            "CREATE TABLE test_b (id_b text)",
+            'CREATE TABLE "TEST_C" (id_c text)',
+            'CREATE TABLE test_d ("α/α" integer)',
+            "CREATE VIEW test_e AS SELECT * from test_a INNER JOIN test_b ON id_a = id_b"
+        ]
+        for create_table_sql in create_tables:
+            session.execute(sa.text(create_table_sql))
+
+        test_cases = [
+            ("SELECT * FROM test_a", {(None, "test_a")}),
+            ("SELECT * FROM public.test_a", {("public", "test_a")}),
+            ('SELECT * FROM "TEST_C"', {(None, "TEST_C")}),
+            ('SELECT * FROM public."TEST_C"', {("public", "TEST_C")}),
+            ("SELECT * from test_e", {("public", "test_a"), ("public", "test_b")}),
+            ("SELECT * FROM pg_catalog.pg_database", {("pg_catalog", "pg_database")}),
+            ("SELECT rolpassword FROM pg_roles", {(None, "pg_roles")}),
+            (
+                """SELECT p.rolpassword
+                FROM pg_roles p
+                JOIN test_b b
+                ON p.rolpassword = b.id_b""",
+                {(None, "pg_roles"), (None, "test_b")},
+            ),
+            (
+                """SELECT id_a, id_b, id_c
+                FROM (
+                    SELECT *
+                    FROM (
+                        SELECT *
+                        FROM "TEST_C") AS c,
+                        test_b) AS b,
+                    test_a AS a""",
+                {(None, "test_a"), (None, "test_b"), (None, "TEST_C")},
+            ),
+            ('SELECT "α/α" FROM test_d', {(None, "test_d")}),
+            ('SELECT "α/α" FROM test_d WHERE "α/α" > 1000', {(None, "test_d")}),
+        ]
+
+        for case in test_cases:
+            assert db.sanitize_sql(session.connection(), case[0])[1] == case[1]
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestGetFunctions(object):
+    def test_get_function_names(self):
+
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            u"CREATE TABLE test_a (id int, period date, subject_id text, result decimal)",
+            u"CREATE TABLE test_b (name text, subject_id text)",
+        ]
+        for create_table_sql in create_tables:
+            session.execute(sa.text(create_table_sql))
+
+        test_cases = [
+            (u"SELECT max(id) from test_a", ["max"]),
+            (u"SELECT count(distinct(id)) FROM test_a", ["count"]),
+            (u"SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
+            (u"SELECT trunc(avg(result),2), avg(result) FROM test_a", ["trunc", "avg"]),
+            (u"SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
+            (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
+        ]
+
+        for case in test_cases:
+            assert db.sanitize_sql(session.connection(), case[0])[2] == {(name,) for name in case[1]}
+
+    def test_get_function_names_custom_function(self):
+
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        create_tables = [
+            u"""CREATE FUNCTION add(integer, integer) RETURNS integer
+                AS 'select $1 + $2;'
+                    LANGUAGE SQL
+                        IMMUTABLE
+                            RETURNS NULL ON NULL INPUT;
+            """
+        ]
+        for create_table_sql in create_tables:
+            session.execute(sa.text(create_table_sql))
+
+        sql = "SELECT add(1, 2);"
+
+        assert db.sanitize_sql(session.connection(), sql)[2] == {("add",)}
