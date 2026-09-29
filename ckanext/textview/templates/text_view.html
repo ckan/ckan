@@ -13,9 +13,9 @@
 
   {% block scripts %}
     <script>
-      var preload_resource = {{ h.literal(resource_json) }};
-      var resource_url = {{ h.literal(resource_url) }};
-      var preview_metadata = {{ h.literal(preview_metadata) }};
+      var preload_resource = {{ resource | tojson }};
+      var resource_url = {{ resource_url | tojson }};
+      var preview_metadata = {{ preview_metadata | tojson }};
     </script>
   {% endblock %}
 

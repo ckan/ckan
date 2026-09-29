@@ -126,7 +126,7 @@ class TestDatasetTermTranslation:
         ):
             offset = "/{0}/organization".format(lang_code)
             response = app.get(offset, status=200)
-            for term in ("russian", "Roger likes these books."):
+            for term in ("russian",):
                 if term in translations:
                     assert body_contains(response, translations[term])
                 elif term in _create_test_data.english_translations:

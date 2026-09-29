@@ -312,31 +312,34 @@ def _check_follow_auth(context: Context) -> bool:
 def follow_group(context: Context,
                  data_dict: DataDict) -> AuthResult:
     """
-    Only logged in users can follow a group.
+    Only logged in users who can read a group can follow it.
     """
-    if _check_follow_auth(context):
-        return {'success': True}
-    return {'success': False,
-            'msg': _("You must be logged in to follow groups")}
+    if not _check_follow_auth(context):
+        return {'success': False,
+                'msg': _("You must be logged in to follow groups")}
+
+    return authz.is_authorized('group_show', context, data_dict)
 
 
 def follow_dataset(context: Context,
                    data_dict: DataDict) -> AuthResult:
     """
-    Only logged in users can follow a dataset.
+    Only logged in users who can read a dataset can follow it.
     """
-    if _check_follow_auth(context):
-        return {'success': True}
-    return {'success': False,
-            'msg': _("You must be logged in to follow datasets")}
+    if not _check_follow_auth(context):
+        return {'success': False,
+                'msg': _("You must be logged in to follow datasets")}
+
+    return authz.is_authorized('package_show', context, data_dict)
 
 
 def follow_user(context: Context,
                 data_dict: DataDict) -> AuthResult:
     """
-    Only logged in users can follow a dataset.
+    Only logged in users can follow a user.
     """
-    if _check_follow_auth(context):
-        return {'success': True}
-    return {'success': False,
-            'msg': _("You must be logged in to follow users")}
+    if not _check_follow_auth(context):
+        return {'success': False,
+                'msg': _("You must be logged in to follow users")}
+
+    return authz.is_authorized('user_show', context, data_dict)

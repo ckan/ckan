@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.11.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-12 14:56+0200\n"
+"POT-Creation-Date: 2026-08-27 19:41+0000\n"
 "PO-Revision-Date: 2024-05-23 14:04+0000\n"
 "Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2024\n"
 "Language: my_MM\n"
@@ -27,7 +27,7 @@ msgstr ""
 msgid "Authorization function not found: %s"
 msgstr "ခွင့်ပြုချက် function ကို မတွေ့ရှိခဲ့ပါ : %s"
 
-#: ckan/authz.py:266 ckan/templates/header.html:13
+#: ckan/authz.py:266 ckan/templates/header.html:25
 msgid "Admin"
 msgstr "စီမံခန့်ခွဲသူ"
 
@@ -39,9 +39,9 @@ msgstr "တည်းဖြတ်သူ"
 msgid "Member"
 msgstr "အဖွဲ့ဝင်"
 
-#: ckan/lib/datapreview.py:215 ckan/templates/group/edit_base.html:9
-#: ckan/templates/organization/edit_base.html:9
-#: ckan/templates/package/resource_read.html:42
+#: ckan/lib/datapreview.py:215 ckan/templates/group/edit_base.html:10
+#: ckan/templates/organization/edit_base.html:14
+#: ckan/templates/package/resource_read.html:34
 #: ckan/templates/package/resource_views.html:4
 msgid "View"
 msgstr "ကြည့်မည်"
@@ -120,126 +120,125 @@ msgstr "{z}Z"
 msgid "{y}Y"
 msgstr "{y}Y"
 
-#: ckan/lib/helpers.py:1136
+#: ckan/lib/helpers.py:1140
 #, python-brace-format
 msgid "Add {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1137
+#: ckan/lib/helpers.py:1141
 #, python-brace-format
 msgid "Add to {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1138 ckan/lib/helpers.py:1139 ckan/lib/helpers.py:1147
-#: ckan/lib/helpers.py:1149 ckan/lib/helpers.py:1160
+#: ckan/lib/helpers.py:1142 ckan/lib/helpers.py:1143 ckan/lib/helpers.py:1151
+#: ckan/lib/helpers.py:1153 ckan/lib/helpers.py:1164
 #, python-brace-format
 msgid "{object_type}s"
 msgstr ""
 
-#: ckan/lib/helpers.py:1140 ckan/lib/helpers.py:1141
+#: ckan/lib/helpers.py:1144 ckan/lib/helpers.py:1145
 #, python-brace-format
 msgid "Create {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1143
+#: ckan/lib/helpers.py:1147
 #, python-brace-format
 msgid "Are you sure you want to delete this {object_type}?"
 msgstr ""
 
-#: ckan/lib/helpers.py:1145
+#: ckan/lib/helpers.py:1149
 #, python-brace-format
 msgid "A little information about my {object_type}..."
 msgstr ""
 
-#: ckan/lib/helpers.py:1146
+#: ckan/lib/helpers.py:1150
 #, python-brace-format
 msgid "Edit {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1148
+#: ckan/lib/helpers.py:1152
 #, python-brace-format
 msgid "{object_type} Form"
 msgstr ""
 
-#: ckan/lib/helpers.py:1150
+#: ckan/lib/helpers.py:1154
 #, python-brace-format
 msgid "My {object_type}s"
 msgstr ""
 
-#: ckan/lib/helpers.py:1151
+#: ckan/lib/helpers.py:1155
 #, python-brace-format
 msgid "View {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1152
+#: ckan/lib/helpers.py:1156
 #, python-brace-format
 msgid "My {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1154
+#: ckan/lib/helpers.py:1158
 #, python-brace-format
 msgid "There are currently no {object_type}s for this site."
 msgstr ""
 
-#: ckan/lib/helpers.py:1156
+#: ckan/lib/helpers.py:1160
 #, python-brace-format
 msgid "There are no {object_type}s associated with this dataset."
 msgstr ""
 
-#: ckan/lib/helpers.py:1158
+#: ckan/lib/helpers.py:1162
 #, python-brace-format
 msgid "There is no description for this {object_type}."
 msgstr ""
 
-#: ckan/lib/helpers.py:1159
+#: ckan/lib/helpers.py:1163
 #, python-brace-format
 msgid "No {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1161
+#: ckan/lib/helpers.py:1165
 #, python-brace-format
 msgid "Save {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1162
+#: ckan/lib/helpers.py:1166
 #, python-brace-format
 msgid "Search {object_type}s..."
 msgstr ""
 
-#: ckan/lib/helpers.py:1163
+#: ckan/lib/helpers.py:1167
 #, python-brace-format
 msgid "You are not a member of any {object_type}s."
 msgstr ""
 
-#: ckan/lib/helpers.py:1164
+#: ckan/lib/helpers.py:1168
 #, python-brace-format
 msgid "User isn't a member of any {object_type}s."
 msgstr ""
 
-#: ckan/lib/helpers.py:1165
+#: ckan/lib/helpers.py:1169
 #, python-brace-format
 msgid "Update {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1771
+#: ckan/lib/helpers.py:1769
 msgid "Unknown"
 msgstr "မသိရှိပါ။"
 
-#: ckan/lib/helpers.py:1821
-#: ckanext/activity/templates-midnight-blue/snippets/changes/new_resource.html:9
+#: ckan/lib/helpers.py:1819
 #: ckanext/activity/templates/snippets/changes/new_resource.html:9
 msgid "Unnamed resource"
 msgstr "အမည်မသိ resource"
 
-#: ckan/lib/mailer.py:226
+#: ckan/lib/mailer.py:253
 msgid "No recipient email address available!"
 msgstr "လက်ခံမည့်သူ၏ email လိပ်စာမရှိပါ။"
 
-#: ckan/lib/mailer.py:256
+#: ckan/lib/mailer.py:283
 msgid "organization"
 msgstr "အဖွဲ့အစည်း"
 
-#: ckan/lib/mailer.py:257
+#: ckan/lib/mailer.py:284
 msgid "group"
 msgstr "အုပ်စု"
 
@@ -275,7 +274,7 @@ msgstr "Unicode string တန်ဖိုးဖြစ်ရပါမည်။"
 
 #: ckan/logic/__init__.py:129 ckan/logic/action/__init__.py:70
 #: ckan/templates/package/resources.html:5
-#: ckan/templates/package/snippets/resources.html:21
+#: ckan/templates/package/snippets/resources.html:24
 #: ckan/templates/snippets/context/dataset.html:13
 msgid "Resources"
 msgstr "Resource များ"
@@ -307,17 +306,18 @@ msgstr "Tag ဝေါဟာရ \"%s\" မရှိပါ။"
 msgid "Not found"
 msgstr "မတွေ့ရှိခဲ့ပါ။"
 
-#: ckan/logic/converters.py:145 ckan/templates/admin/index.html:9
-#: ckan/templates/group/manage_members.html:15
-#: ckan/templates/group/members.html:12
-#: ckan/templates/organization/manage_members.html:22
-#: ckan/templates/organization/members.html:15
-#: ckan/templates/package/collaborators/collaborators.html:19
+#: ckan/logic/converters.py:145 ckan/templates/admin/index.html:12
+#: ckan/templates/group/manage_members.html:22
+#: ckan/templates/group/members.html:13
+#: ckan/templates/organization/manage_members.html:28
+#: ckan/templates/organization/members.html:16
+#: ckan/templates/package/collaborators/collaborators.html:21
 #: ckanext/stats/templates/ckanext/stats/index.html:143
 msgid "User"
 msgstr "အသုံးပြုသူ"
 
-#: ckan/logic/converters.py:172 ckan/templates/package/read_base.html:22
+#: ckan/logic/converters.py:172 ckan/templates/package/read_base.html:23
+#: ckan/templates/package/snippets/package_wrench.html:8
 #: ckan/tests/config/test_middleware.py:27
 #: ckanext/stats/templates/ckanext/stats/index.html:63
 msgid "Dataset"
@@ -373,15 +373,16 @@ msgstr ""
 msgid "Date format incorrect"
 msgstr "ရက်စွဲ format မှန်ကန်မှုမရှိပါ။"
 
-#: ckan/logic/action/create.py:654 ckan/logic/validators.py:198
+#: ckan/logic/action/create.py:657 ckan/logic/validators.py:198
 #: ckan/logic/validators.py:299 ckan/views/dataset.py:382
 #: ckan/views/dataset.py:393 ckan/views/dataset.py:607
 #: ckan/views/dataset.py:744 ckan/views/dataset.py:781
 #: ckan/views/dataset.py:872 ckan/views/dataset.py:887
 #: ckan/views/dataset.py:981 ckan/views/dataset.py:1012
-#: ckan/views/dataset.py:1092 ckan/views/resource.py:69
-#: ckan/views/resource.py:83 ckan/views/resource.py:571
-#: ckan/views/resource.py:623 ckan/views/resource.py:673
+#: ckan/views/dataset.py:1092 ckan/views/resource.py:67
+#: ckan/views/resource.py:81 ckan/views/resource.py:392
+#: ckan/views/resource.py:439 ckan/views/resource.py:578
+#: ckan/views/resource.py:630 ckan/views/resource.py:680
 #: ckanext/activity/views.py:110 ckanext/activity/views.py:117
 #: ckanext/activity/views.py:216 ckanext/activity/views.py:248
 #: ckanext/activity/views.py:330
@@ -423,13 +424,13 @@ msgstr ""
 msgid "User not found: %s"
 msgstr ""
 
-#: ckan/logic/action/create.py:658 ckan/logic/action/create.py:1213
-#: ckan/logic/action/create.py:1266 ckan/logic/action/create.py:1399
-#: ckan/logic/action/delete.py:353 ckan/logic/action/delete.py:649
+#: ckan/logic/action/create.py:661 ckan/logic/action/create.py:1216
+#: ckan/logic/action/create.py:1269 ckan/logic/action/create.py:1402
+#: ckan/logic/action/delete.py:356 ckan/logic/action/delete.py:652
 #: ckan/logic/auth/update.py:199 ckan/logic/validators.py:347
 #: ckan/views/dataset.py:1171 ckan/views/group.py:651 ckan/views/user.py:60
 #: ckan/views/user.py:360 ckan/views/user.py:391 ckan/views/user.py:451
-#: ckan/views/user.py:766 ckan/views/user.py:808 ckan/views/user.py:917
+#: ckan/views/user.py:768 ckan/views/user.py:810 ckan/views/user.py:919
 msgid "User not found"
 msgstr "အသုံးပြုသူ ရှာမတွေ့ခဲ့ပါ။"
 
@@ -669,47 +670,57 @@ msgstr "မှန်ကန်သော JSON object အနေဖြင့် တ�
 msgid "Could not parse extra '{name}' as valid JSON"
 msgstr "မှန်ကန်သော JSON အနေဖြင့် အပို '{name}' ကို ခွဲခြမ်းစိတ်ဖြာ၍မရနိုင်ခဲ့ပါ။"
 
+#: ckan/logic/validators.py:1220
+#, python-brace-format
+msgid "Must start with {prefix}"
+msgstr ""
+
+#: ckan/logic/validators.py:1222
+#, python-brace-format
+msgid "Must start with any of the prefixes: {prefixes}"
+msgstr ""
+
 #: ckan/logic/action/__init__.py:72 ckan/views/util.py:23
 msgid "Missing Value"
 msgstr "ပျောက်ဆုံးနေသာ တန်ဖိုး"
 
-#: ckan/logic/action/create.py:647
+#: ckan/logic/action/create.py:650
 #, python-brace-format
 msgid "Role must be one of \"{}\""
 msgstr "Role သည် \"{}\" ထဲမှ တစ်ခု ဖြစ်ရမည်။"
 
-#: ckan/logic/action/create.py:662 ckan/logic/action/delete.py:345
+#: ckan/logic/action/create.py:665 ckan/logic/action/delete.py:348
 #: ckan/logic/action/get.py:230 ckan/logic/action/get.py:273
 msgid "Dataset collaborators not enabled"
 msgstr "Dataset ပူးပေါင်းဆောင်ရွက်သူများကို enable မလုပ်ထားပါ။"
 
-#: ckan/logic/action/create.py:825
+#: ckan/logic/action/create.py:828
 msgid "Trying to create an organization as a group"
 msgstr "အဖွဲ့အစည်းတစ်ခုကို အုပ်စုတစ်စုကဲ့သို့ ဖန်တီးရန်ကြိုးစားနေသည်။"
 
-#: ckan/logic/action/create.py:1093
+#: ckan/logic/action/create.py:1096
 #, python-brace-format
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
 
-#: ckan/logic/action/create.py:1221
+#: ckan/logic/action/create.py:1224
 msgid "Error validating the schema of the user to follow."
 msgstr ""
 
-#: ckan/logic/action/create.py:1226
+#: ckan/logic/action/create.py:1229
 msgid "You cannot follow yourself"
 msgstr "သင့်ကိုယ်သင် follow လုပ်၍မရပါ။"
 
-#: ckan/logic/action/create.py:1272
+#: ckan/logic/action/create.py:1275
 msgid "Error validating the schema of the dataset to follow."
 msgstr ""
 
-#: ckan/logic/action/create.py:1313 ckan/views/feed.py:220
+#: ckan/logic/action/create.py:1316 ckan/views/feed.py:220
 #: ckan/views/group.py:380 ckan/views/group.py:570
 msgid "Organization not found"
 msgstr "အဖွဲ့အစည်း ရှာမတွေ့ခဲ့ပါ။"
 
-#: ckan/logic/action/create.py:1313 ckan/views/dataset.py:1028
+#: ckan/logic/action/create.py:1316 ckan/views/dataset.py:1028
 #: ckan/views/dataset.py:1045 ckan/views/feed.py:203 ckan/views/group.py:382
 #: ckan/views/group.py:417 ckan/views/group.py:466 ckan/views/group.py:501
 #: ckan/views/group.py:541 ckan/views/group.py:572 ckan/views/group.py:677
@@ -719,40 +730,40 @@ msgstr "အဖွဲ့အစည်း ရှာမတွေ့ခဲ့ပါ�
 msgid "Group not found"
 msgstr "အုပ်စု ရှာမတွေ့ခဲ့ပါ။"
 
-#: ckan/logic/action/create.py:1319
+#: ckan/logic/action/create.py:1322
 #, python-brace-format
 msgid "User {username} does not exist."
 msgstr "User {username} မရှိပါ။"
 
-#: ckan/logic/action/create.py:1406
+#: ckan/logic/action/create.py:1409
 msgid "Error validating the schema of the group to follow."
 msgstr ""
 
-#: ckan/logic/action/delete.py:349 ckan/logic/action/get.py:224
+#: ckan/logic/action/delete.py:352 ckan/logic/action/get.py:224
 msgid "Package not found"
 msgstr "Package ရှာမတွေ့ခဲ့ပါ။"
 
-#: ckan/logic/action/delete.py:403
+#: ckan/logic/action/delete.py:406
 msgid "Organization cannot be deleted while it still has datasets"
 msgstr "Dataset များရှိနေသေးသောကြောင့် အဖွဲ့အစည်းကို ဖျက်၍မရနိုင်ပါ။"
 
-#: ckan/logic/action/delete.py:601 ckan/logic/action/delete.py:625
+#: ckan/logic/action/delete.py:604 ckan/logic/action/delete.py:628
 #: ckan/logic/action/get.py:2432 ckan/logic/action/update.py:1119
 msgid "id not in data"
 msgstr "data ထဲတွင် ID မရှိပါ။"
 
-#: ckan/logic/action/delete.py:605 ckan/logic/action/get.py:2435
+#: ckan/logic/action/delete.py:608 ckan/logic/action/get.py:2435
 #: ckan/logic/action/update.py:1123
 #, python-format
 msgid "Could not find vocabulary \"%s\""
 msgstr "\"%s\" ဝေါဟာရကို ရှာမတွေ့နိုင်ခဲ့ပါ။"
 
-#: ckan/logic/action/delete.py:633
+#: ckan/logic/action/delete.py:636
 #, python-format
 msgid "Could not find tag \"%s\""
 msgstr "\"%s\" tag ကို ရှာမတွေ့နိုင်ခဲ့ပါ။"
 
-#: ckan/logic/action/delete.py:655
+#: ckan/logic/action/delete.py:658
 msgid "Error validating the schema of the object to unfollow."
 msgstr ""
 
@@ -932,7 +943,7 @@ msgstr ""
 "အသုံးပြုသူ %s သည် ဤ dataset သို့ ပူးပေါင်းဆောင်ရွက်သူများထည့်သွင်းရန် "
 "အခွင့်မရှိပါ။"
 
-#: ckan/logic/auth/create.py:320
+#: ckan/logic/auth/create.py:319
 msgid "You must be logged in to follow groups"
 msgstr ""
 
@@ -940,7 +951,7 @@ msgstr ""
 msgid "You must be logged in to follow datasets"
 msgstr ""
 
-#: ckan/logic/auth/create.py:342
+#: ckan/logic/auth/create.py:343
 msgid "You must be logged in to follow users"
 msgstr "အသုံးပြုသူများကို follow လုပ်ရန်အတွက် သင့်အနေဖြင့် login လုပ်ထားရမည်။"
 
@@ -1184,186 +1195,6 @@ msgstr "%s ၏မိခင်ဖြစ်သည်။"
 msgid "has sibling %s"
 msgstr "%s ၏မွေးချင်းဖြစ်သည်။"
 
-#: ckan/public-midnight-blue/base/javascript/confirm.js:46
-msgid "Please Confirm"
-msgstr ""
-
-#: ckan/public-midnight-blue/base/javascript/confirm.js:48
-#: ckan/templates/user/new_user_form.html:14
-#: ckan/templates/user/perform_reset.html:27
-msgid "Confirm"
-msgstr "အတည်ပြုပါသည်"
-
-#: ckan/public-midnight-blue/base/javascript/confirm.js:49
-#: ckan/public-midnight-blue/base/javascript/modules/resource-reorder.js:67
-#: ckan/public-midnight-blue/base/javascript/modules/resource-view-reorder.js:57
-#: ckan/templates/admin/confirm_reset.html:10
-#: ckan/templates/group/confirm_delete.html:15
-#: ckan/templates/group/confirm_delete_member.html:16
-#: ckan/templates/organization/confirm_delete.html:15
-#: ckan/templates/organization/confirm_delete_member.html:16
-#: ckan/templates/package/collaborators/confirm_delete.html:15
-#: ckan/templates/package/confirm_delete.html:16
-#: ckan/templates/package/confirm_delete_resource.html:15
-#: ckan/templates/user/confirm_delete.html:15
-msgid "Cancel"
-msgstr "ပယ်ဖျက်မည်"
-
-#: ckan/public-midnight-blue/base/javascript/htmx-ckan.js:92
-msgid "Notification"
-msgstr ""
-
-#: ckan/public-midnight-blue/base/javascript/notify.js:55
-#: ckanext/datastore/assets/js/api-info.js:67
-msgid "Close"
-msgstr ""
-
-#: ckan/public-midnight-blue/base/javascript/modules/autocomplete.js:251
-msgid "Start typing…"
-msgstr "စာစရိုက်ပါ...။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/autocomplete.js:251
-#: ckan/public-midnight-blue/base/javascript/modules/autocomplete.js:254
-msgid "No matches found"
-msgstr "ကိုက်ညီမှုများကို ရှာမတွေ့ခဲ့ပါ။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/autocomplete.js:264
-#, python-format
-msgid "Input is too short, must be at least one character"
-msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-"Input သည် အလွန်တိုသည်၊ အနည်းဆုံး စာလုံးတစ်လုံးရှိရမည်။\n"
-"Input သည် အလွန်တိုသည်၊ အနည်းဆုံး စာလုံး %(num)d လုံးရှိရမည်။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/autocomplete.js:277
-msgid "Searching..."
-msgstr ""
-
-#: ckan/public-midnight-blue/base/javascript/modules/basic-form.js:4
-msgid "There are unsaved modifications to this form"
-msgstr "ဤဖောင်ထဲတွင် မသိမ်းဆည်းထားရသေးသော ပြုပြင်ပြောင်းလဲမှုများ ရှိသည်။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/confirm-action.js:50
-msgid "Are you sure you want to perform this action?"
-msgstr "ဤလုပ်ဆောင်ချက်ကို ပြုလုပ်လိုသည်မှာ သေချာပါသလား။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:62
-#: ckan/templates/package/snippets/resource_upload_field.html:58
-msgid "Link"
-msgstr "ချိတ်ဆက်မည်"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:63
-#: ckan/templates/package/snippets/resource_upload_field.html:54
-msgid "Link to a URL on the internet (you can also link to an API)"
-msgstr ""
-"အင်တာနက်ပေါ်တွင် ရှိသော URL တစ်ခုသို့ ချိတ်ဆက်မည်။ (API တစ်ခုသို့လည်း "
-"ချိတ်ဆက်နိုင်ပါသည်။)"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:70
-#: ckan/templates/package/snippets/resource_upload_field.html:51
-msgid "Upload"
-msgstr "Upload လုပ်မည်"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:75
-msgid "Please select the file to upload again"
-msgstr "ထပ်ပြီး upload ရန် ဖိုင်ကို ရွေးချယ်ပါ။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:79
-#: ckan/templates/group/snippets/group_item.html:58
-#: ckan/templates/macros/form/custom.html:50
-#: ckan/templates/package/snippets/resource_upload_field.html:34
-#: ckan/templates/snippets/search_form.html:69
-msgid "Remove"
-msgstr "ဖယ်ရှားမည်"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:87
-#: ckan/templates/macros/form/image_upload.html:17
-#: ckanext/imageview/plugin.py:29 ckanext/imageview/plugin.py:34
-msgid "Image"
-msgstr "ပုံ"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:94
-#: ckan/templates/package/snippets/resource_upload_field.html:47
-msgid "Upload a file on your computer"
-msgstr "သင့်ကွန်ပြူတာထဲမှ ဖိုင်တစ်ဖိုင်ကို upload လုပ်ပါ။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:117
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:185
-#: ckan/public-midnight-blue/base/javascript/modules/slug-preview.js:56
-#: ckan/templates/group/snippets/group_form.html:20
-#: ckan/templates/organization/snippets/organization_form.html:20
-#: ckan/templates/package/snippets/package_basic_fields.html:15
-#: ckan/templates/package/snippets/resource_form.html:30
-#: ckan/templates/package/snippets/resource_upload_field.html:107
-msgid "URL"
-msgstr "URL"
-
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:126
-#: ckan/public-midnight-blue/base/javascript/modules/image-upload.js:226
-#: ckan/templates/package/snippets/resource_form.html:31
-#: ckan/templates/package/snippets/resource_upload_field.html:78
-#: ckan/templates/package/snippets/resource_upload_field.html:90
-msgid "File"
-msgstr "ဖိုင်"
-
-#: ckan/public-midnight-blue/base/javascript/modules/resource-reorder.js:41
-#: ckan/templates/package/edit_base.html:18
-msgid "Reorder resources"
-msgstr "Resource များကို ပြန်စီမည်"
-
-#: ckan/public-midnight-blue/base/javascript/modules/resource-reorder.js:42
-msgid ""
-"You can rearrange the resources by dragging them using the arrow icon. "
-"Drag the resource to the right and place it to the desired location on "
-"the list. When you are done, click the \"Save order\" -button."
-msgstr ""
-"မြှားပုံကို အသုံးပြုပြီး drag လုပ်ခြင်းဖြင့် resource များကို ပြန်၍ "
-"အစီအစဥ်ချနိုင်ပါသည်။ resource ကို ညာသို့ drag လုပ်ပြီး list ပေါ်ရှိ "
-"ကြိုက်နှစ်သက်ရာ နေရာသို့ ထားပါ။ ပြီးသောအခါ \"Save order\" -ခလုပ်ကို "
-"နှိပ်ပါ။"
-
-#: ckan/public-midnight-blue/base/javascript/modules/resource-reorder.js:64
-#: ckan/public-midnight-blue/base/javascript/modules/resource-view-reorder.js:54
-msgid "Save order"
-msgstr "အစီအစဥ်ကို သိမ်းဆည်းမည်"
-
-#: ckan/public-midnight-blue/base/javascript/modules/resource-reorder.js:77
-#: ckan/public-midnight-blue/base/javascript/modules/resource-view-reorder.js:67
-msgid "Saving..."
-msgstr "သိမ်းနေသည်..."
-
-#: ckan/public-midnight-blue/base/javascript/modules/resource-view-filters.js:9
-#: ckan/templates/package/snippets/view_form_filters.html:16
-msgid "Add Filter"
-msgstr "Filter ထည့်ပါ"
-
-#: ckan/public-midnight-blue/base/javascript/modules/resource-view-filters.js:52
-msgid "Select a field"
-msgstr "Field တစ်ခုကို ရွေးချယ်ပါ"
-
-#: ckan/public-midnight-blue/base/javascript/modules/resource-view-reorder.js:40
-msgid "Reorder resource view"
-msgstr ""
-
-#: ckan/public-midnight-blue/base/javascript/modules/slug-preview.js:57
-#: ckan/templates/group/edit_base.html:13
-#: ckan/templates/organization/bulk_process.html:88
-#: ckan/templates/organization/edit.html:3
-#: ckan/templates/organization/edit_base.html:14
-#: ckan/templates/package/edit_base.html:8
-#: ckan/templates/package/resource_edit.html:3
-#: ckan/templates/package/resource_edit_base.html:12
-msgid "Edit"
-msgstr "ပြင်မည်"
-
-#: ckan/public-midnight-blue/base/javascript/modules/table-toggle-more.js:24
-msgid "Show more"
-msgstr "ပို၍ ပြပါ"
-
-#: ckan/public-midnight-blue/base/javascript/modules/table-toggle-more.js:25
-msgid "Hide"
-msgstr "ဖျောက်ပါ"
-
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
@@ -1377,84 +1208,25 @@ msgstr ""
 msgid "Click here to login"
 msgstr ""
 
-#: ckan/templates/footer.html:9
-#, python-brace-format
-msgid "About {0}"
-msgstr "{0} အကြောင်း"
-
-#: ckan/templates/footer.html:15
-msgid "CKAN API"
-msgstr "CKAN API"
-
-#: ckan/templates/footer.html:16
-msgid "CKAN Association"
-msgstr "CKAN အဖွဲ့အစည်း"
-
-#: ckan/templates/footer.html:24
-msgid ""
-"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a><strong>မှပံ့ပိုးသည်။</strong>"
-
-#: ckan/templates/header.html:11
-msgid "Sysadmin settings"
-msgstr "Sysadmin ၏ setting များ"
-
-#: ckan/templates/header.html:19
-msgid "View profile"
-msgstr "ပရိုဖိုင်းကို ကြည့်မည်"
-
-#: ckan/templates/header.html:27
-msgid "View dashboard"
+#: ckan/templates/footer.html:12
+msgid "CKAN logo"
 msgstr ""
 
-#: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:10
-#: ckanext/activity/templates-midnight-blue/header.html:11
-#: ckanext/activity/templates-midnight-blue/user/dashboard.html:4
-#: ckanext/activity/templates/header.html:11
-#: ckanext/activity/templates/user/dashboard.html:4
-msgid "Dashboard"
-msgstr "Dashboard"
-
-#: ckan/templates/header.html:35 ckan/templates/header.html:37
-#: ckan/templates/user/dashboard.html:20
-msgid "Profile settings"
-msgstr "ပရိုဖိုင်း setting များ"
-
-#: ckan/templates/header.html:44
-msgid "Log out"
-msgstr "ထွက်မည်"
-
-#: ckan/templates/header.html:53
-msgid "Account"
-msgstr "အကောင့်"
-
-#: ckan/templates/header.html:56 ckan/templates/user/logout_first.html:14
-msgid "Log in"
-msgstr "ဝင်မည်"
-
-#: ckan/templates/header.html:58 ckan/templates/user/new.html:3
-msgid "Register"
-msgstr "မှတ်ပုံတင်မည်"
-
-#: ckan/templates/header.html:78
-#, python-brace-format
-msgid "Navigate to Home - {site_title}"
+#: ckan/templates/footer.html:13
+msgid "The open-source data management system that powers data portals worldwide."
 msgstr ""
 
-#: ckan/templates/header.html:92
-msgid "Toggle navigation"
-msgstr ""
+#: ckan/templates/footer.html:20
+#: ckan/templates/snippets/home_breadcrumb_item.html:2
+msgid "Home"
+msgstr "မူလစာမျက်နှာ"
 
-#: ckan/templates/group/read_base.html:18
-#: ckan/templates/group/snippets/info.html:42 ckan/templates/header.html:104
-#: ckan/templates/organization/bulk_process.html:34
-#: ckan/templates/organization/edit_base.html:15
-#: ckan/templates/organization/read_base.html:19
-#: ckan/templates/organization/snippets/info.html:53
-#: ckan/templates/package/snippets/new_package_breadcrumb.html:1
+#: ckan/templates/footer.html:21 ckan/templates/group/read_base.html:21
+#: ckan/templates/group/snippets/info.html:44 ckan/templates/header.html:89
+#: ckan/templates/organization/edit_base.html:20
+#: ckan/templates/organization/read_base.html:22
+#: ckan/templates/organization/snippets/info.html:63
+#: ckan/templates/package/search.html:17
 #: ckan/templates/snippets/context/group.html:19
 #: ckan/templates/snippets/context/user.html:21
 #: ckan/templates/user/read.html:11 ckan/templates/user/read_base.html:22
@@ -1462,29 +1234,31 @@ msgstr ""
 msgid "Datasets"
 msgstr "Dataset များ"
 
-#: ckan/templates/header.html:106 ckan/templates/organization/edit.html:6
+#: ckan/templates/footer.html:22 ckan/templates/header.html:90
+#: ckan/templates/home/snippets/featured_organization.html:3
 #: ckan/templates/organization/edit_base.html:5
+#: ckan/templates/organization/edit_base.html:8
 #: ckan/templates/organization/index.html:3
 #: ckan/templates/organization/index.html:6
-#: ckan/templates/organization/index.html:18
-#: ckan/templates/organization/new.html:11
+#: ckan/templates/organization/index.html:19
 #: ckan/templates/organization/read_base.html:5
 #: ckan/templates/organization/read_base.html:8
 #: ckan/templates/package/base.html:16 ckan/templates/user/read_base.html:23
-#: ckan/templates/user/read_organizations.html:11
+#: ckan/templates/user/read_organizations.html:12
 #: ckan/templates/user/snippets/info.html:48 ckan/views/dataset.py:279
 #: ckan/views/group.py:278 ckan/views/home.py:48
 msgid "Organizations"
 msgstr "အဖွဲ့အစည်းများ"
 
-#: ckan/templates/group/edit.html:4 ckan/templates/group/edit_base.html:4
-#: ckan/templates/group/index.html:4 ckan/templates/group/index.html:7
-#: ckan/templates/group/index.html:19
+#: ckan/templates/footer.html:23 ckan/templates/group/edit_base.html:4
+#: ckan/templates/group/edit_base.html:15 ckan/templates/group/index.html:4
+#: ckan/templates/group/index.html:7 ckan/templates/group/index.html:20
 #: ckan/templates/group/manage_members.html:3
-#: ckan/templates/group/members.html:3 ckan/templates/group/new.html:12
-#: ckan/templates/group/read_base.html:4 ckan/templates/group/read_base.html:7
-#: ckan/templates/header.html:108 ckan/templates/package/group_list.html:7
-#: ckan/templates/package/read_base.html:23
+#: ckan/templates/group/members.html:3 ckan/templates/group/read_base.html:4
+#: ckan/templates/group/read_base.html:7 ckan/templates/header.html:91
+#: ckan/templates/home/snippets/featured_group.html:2
+#: ckan/templates/package/group_list.html:7
+#: ckan/templates/package/read_base.html:24
 #: ckan/templates/user/read_base.html:24
 #: ckan/templates/user/read_groups.html:12
 #: ckan/templates/user/snippets/info.html:52 ckan/views/dataset.py:284
@@ -1492,37 +1266,79 @@ msgstr "အဖွဲ့အစည်းများ"
 msgid "Groups"
 msgstr "အုပ်စုများ"
 
-#: ckan/templates/admin/config.html:26 ckan/templates/group/about.html:3
-#: ckan/templates/group/read_base.html:20 ckan/templates/header.html:109
-#: ckan/templates/home/about.html:3 ckan/templates/home/about.html:6
-#: ckan/templates/home/about.html:16 ckan/templates/organization/about.html:3
-#: ckan/templates/organization/read_base.html:21
+#: ckan/templates/admin/config.html:29 ckan/templates/footer.html:24
+#: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:23
+#: ckan/templates/header.html:92 ckan/templates/home/about.html:3
+#: ckan/templates/home/about.html:6 ckan/templates/home/about.html:13
+#: ckan/templates/organization/about.html:3
+#: ckan/templates/organization/read_base.html:24
 #: ckan/templates/user/edit_user_form.html:21
 msgid "About"
 msgstr "အကြောင်း"
 
-#: ckan/templates/header.html:116
-msgid "Search Datasets..."
+#: ckan/templates/footer.html:30
+msgid "CKAN API"
+msgstr "CKAN API"
+
+#: ckan/templates/footer.html:31
+msgid "CKAN Association"
+msgstr "CKAN အဖွဲ့အစည်း"
+
+#: ckan/templates/footer.html:32 ckan/templates/snippets/license.html:31
+msgid "<span class=\"prefix\">Open</span><span class=\"suffix\">Data</span>"
 msgstr ""
 
-#: ckan/templates/header.html:117 ckan/templates/home/snippets/search.html:12
-#: ckan/templates/snippets/simple_search.html:5
-#: ckan/templates/user/snippets/user_search.html:6
-msgid "Search"
-msgstr "ရှာမည်"
+# | msgid "" "<strong>Powered by</strong> <a class=\"hide-text
+# | ckan-footer-logo\" " "href=\"http://ckan.org\">CKAN</a>"
+#: ckan/templates/footer.html:46
+#, fuzzy
+msgid ""
+"<strong>Powered by <a target=\"_blank\" rel=\"noopener noreferrer\" "
+"href=\"http://ckan.org\">CKAN</a></strong>"
+msgstr ""
+"<a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a><strong>မှပံ့ပိုးသည်။</strong>"
 
-#: ckan/templates/header.html:117
-#: ckan/templates/package/snippets/search_results.html:25
-#: ckan/templates/snippets/search_form.html:3
-#: ckanext/tracking/templates/group/read.html:19
-#: ckanext/tracking/templates/organization/read.html:19
-#: ckanext/tracking/templates/package/search.html:19
-msgid "Search datasets..."
-msgstr "Dataset များရှာမည်..."
+#: ckan/templates/header.html:15
+msgid "View profile"
+msgstr "ပရိုဖိုင်းကို ကြည့်မည်"
 
-#: ckan/templates/header.html:118 ckan/templates/snippets/search_form.html:15
-msgid "Submit"
-msgstr "တင်သွင်းမည်"
+#: ckan/templates/header.html:23
+msgid "Sysadmin settings"
+msgstr "Sysadmin ၏ setting များ"
+
+#: ckan/templates/header.html:31
+msgid "View dashboard"
+msgstr ""
+
+#: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:14
+#: ckanext/activity/templates/header.html:11
+#: ckanext/activity/templates/user/dashboard.html:4
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: ckan/templates/header.html:41
+msgid "Log out"
+msgstr "ထွက်မည်"
+
+#: ckan/templates/header.html:68
+#, python-brace-format
+msgid "Navigate to Home - {site_title}"
+msgstr ""
+
+#: ckan/templates/header.html:79
+msgid "Toggle navigation"
+msgstr ""
+
+#: ckan/templates/header.html:100 ckan/templates/user/login.html:3
+#: ckan/templates/user/login.html:6 ckan/templates/user/login.html:21
+#: ckan/templates/user/snippets/login_form.html:38
+msgid "Login"
+msgstr "Login"
+
+#: ckan/templates/header.html:106 ckan/templates/user/new.html:3
+msgid "Register"
+msgstr "မှတ်ပုံတင်မည်"
 
 #: ckan/templates/page.html:6
 msgid "Skip to main content"
@@ -1536,73 +1352,86 @@ msgstr "Breadcrumb"
 msgid "Administration"
 msgstr "စီမံခန့်ခွဲခြင်း"
 
-#: ckan/templates/admin/base.html:8
+# | msgid "Sysadmin settings"
+#: ckan/templates/admin/base.html:6
+#, fuzzy
+msgid "Sysadmins settings"
+msgstr "Sysadmin ၏ setting များ"
+
+#: ckan/templates/admin/base.html:10
 msgid "Sysadmins"
 msgstr "Sysadmin များ"
 
-#: ckan/templates/admin/base.html:9
+#: ckan/templates/admin/base.html:11
 msgid "Config"
 msgstr "Config"
 
-#: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:28
+#: ckan/templates/admin/base.html:12 ckan/templates/admin/trash.html:5
+#: ckan/templates/admin/trash.html:32
 msgid "Trash"
 msgstr "အမှိုက်"
 
-#: ckan/templates/admin/config.html:15
+# | msgid "Update Config"
+#: ckan/templates/admin/config.html:9
+#, fuzzy
+msgid "Edit Config"
+msgstr "Config ကို ပြင်ဆင်မည်"
+
+#: ckan/templates/admin/config.html:18
 msgid "Site Title"
 msgstr "ဆိုက်အမည်"
 
-#: ckan/templates/admin/config.html:17
+#: ckan/templates/admin/config.html:20
 msgid "Custom Stylesheet"
 msgstr ""
 
-#: ckan/templates/admin/config.html:19
+#: ckan/templates/admin/config.html:22
 msgid "Site Tag Line"
 msgstr "Site Tag Line"
 
-#: ckan/templates/admin/config.html:24 ckan/templates/macros/autoform.html:62
+#: ckan/templates/admin/config.html:27 ckan/templates/macros/autoform.html:62
 msgid "Site logo"
 msgstr "Site logo"
 
-#: ckan/templates/admin/config.html:26
+#: ckan/templates/admin/config.html:29
 msgid "About page text"
 msgstr "အကြောင်း စာမျက်နှာရှိ စာသား"
 
-#: ckan/templates/admin/config.html:28
+#: ckan/templates/admin/config.html:31
 msgid "Intro Text"
 msgstr "Intro စာသား"
 
-#: ckan/templates/admin/config.html:28
+#: ckan/templates/admin/config.html:31
 msgid "Text on home page"
 msgstr "ပင်မစာမျက်နှာရှိ စာသား"
 
-#: ckan/templates/admin/config.html:30
+#: ckan/templates/admin/config.html:33
 msgid "Custom CSS"
 msgstr "စိတ်ကြိုက် CSS"
 
-#: ckan/templates/admin/config.html:30
+#: ckan/templates/admin/config.html:33
 msgid "Customisable css inserted into the page header"
 msgstr "စိတ်ကြိုက်ပြုပြင်နိုင်သော css ကို page header သို့ထည့်မည်။"
 
-#: ckan/templates/admin/config.html:34
+#: ckan/templates/admin/config.html:37
 #: ckan/templates/admin/confirm_reset.html:8
 msgid "Are you sure you want to reset the config?"
 msgstr "ဤ config ကို reset လုပ်လိုသည်မှာ သေချာပါသလား။"
 
-#: ckan/templates/admin/config.html:34
-#: ckanext/datatablesview/assets/datatablesview.js:820
+#: ckan/templates/admin/config.html:37
+#: ckanext/datatablesview/assets/datatablesview.js:824
 msgid "Reset"
 msgstr "Reset လုပ်မည်"
 
-#: ckan/templates/admin/config.html:35
+#: ckan/templates/admin/config.html:38
 msgid "Update Config"
 msgstr "Config ကို ပြင်ဆင်မည်"
 
-#: ckan/templates/admin/config.html:44
+#: ckan/templates/admin/config.html:48
 msgid "CKAN config options"
 msgstr "CKAN config option များ"
 
-#: ckan/templates/admin/config.html:51
+#: ckan/templates/admin/config.html:55
 #, python-format
 msgid ""
 "<p><strong>Site Title:</strong> This is the title of this CKAN instance "
@@ -1625,27 +1454,46 @@ msgstr ""
 msgid "Confirm Reset"
 msgstr "Reset လုပ်မည်ကို အတည်ပြုသည်"
 
-#: ckan/templates/admin/index.html:4
+#: ckan/templates/admin/confirm_reset.html:10
+#: ckan/templates/admin/snippets/confirm_delete.html:17
+#: ckan/templates/group/confirm_delete.html:15
+#: ckan/templates/group/confirm_delete_member.html:16
+#: ckan/templates/organization/confirm_delete.html:15
+#: ckan/templates/organization/confirm_delete_member.html:16
+#: ckan/templates/package/collaborators/confirm_delete.html:15
+#: ckan/templates/package/confirm_delete.html:16
+#: ckan/templates/package/confirm_delete_resource.html:15
+#: ckan/templates/user/confirm_delete.html:15
+msgid "Cancel"
+msgstr "ပယ်ဖျက်မည်"
+
+# | msgid "Manage"
+#: ckan/templates/admin/index.html:5
+#, fuzzy
+msgid "Manage Admins"
+msgstr "စီမံမည်"
+
+#: ckan/templates/admin/index.html:7
 msgid "Current Sysadmins"
 msgstr ""
 
-#: ckan/templates/admin/index.html:26 ckan/templates/admin/index.html:27
+#: ckan/templates/admin/index.html:29 ckan/templates/admin/index.html:30
 msgid "Revoke Sysadmin permission"
 msgstr ""
 
-#: ckan/templates/admin/index.html:42 ckan/templates/admin/index.html:62
+#: ckan/templates/admin/index.html:43 ckan/templates/admin/index.html:63
 msgid "Promote user to Sysadmin"
 msgstr ""
 
-#: ckan/templates/admin/index.html:63
+#: ckan/templates/admin/index.html:64
 msgid "Promote"
 msgstr ""
 
-#: ckan/templates/admin/index.html:75
+#: ckan/templates/admin/index.html:77
 msgid "Administer CKAN"
 msgstr "CKAN ကို စီမံခန့်ခွဲခြင်း"
 
-#: ckan/templates/admin/index.html:80
+#: ckan/templates/admin/index.html:81
 #, python-format
 msgid ""
 "<p>As a sysadmin user you have full control over this CKAN instance. "
@@ -1654,15 +1502,15 @@ msgid ""
 "rel=\"noreferrer\">sysadmin guide</a></p>"
 msgstr ""
 
-#: ckan/templates/admin/trash.html:13 ckan/views/admin.py:130
+#: ckan/templates/admin/trash.html:16 ckan/views/admin.py:130
 msgid "Are you sure you want to purge everything?"
 msgstr "အားလုံးကို purge လုပ်ချင်သည်မှာ သေချာပါသလား။"
 
-#: ckan/templates/admin/trash.html:14
+#: ckan/templates/admin/trash.html:17
 msgid "Purge all"
 msgstr "အားလုံးကို purge လုပ်ပါ"
 
-#: ckan/templates/admin/trash.html:32
+#: ckan/templates/admin/trash.html:36
 msgid "Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr ""
 "ဖျက်ထားသော dataset များ၊ အဖွဲ့အစည်းများ သို့မဟုတ် အုပ်စုများကို "
@@ -1702,7 +1550,7 @@ msgid "Deleted groups"
 msgstr "ဖျက်ထားသော အုပ်စုများ"
 
 #: ckan/templates/admin/snippets/data_type.html:31
-#: ckan/templates/snippets/package_item.html:31
+#: ckan/templates/snippets/package_item.html:23
 #, python-brace-format
 msgid "Navigate to dataset: {title}"
 msgstr ""
@@ -1710,6 +1558,18 @@ msgstr ""
 #: ckan/templates/admin/snippets/data_type.html:51
 msgid "Purge"
 msgstr "Purge လုပ်မည်"
+
+# | msgid "Not a list"
+#: ckan/templates/development/snippets/facet.html:11
+#, fuzzy
+msgid "Facet List"
+msgstr "List မဟုတ်ပါ။"
+
+# | msgid "read more"
+#: ckan/templates/development/snippets/facet.html:21
+#, fuzzy
+msgid "Read More"
+msgstr "ဆက်ဖတ်မည်"
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard"
@@ -1803,6 +1663,12 @@ msgstr ""
 msgid "Reset your password - %(site_title)s"
 msgstr ""
 
+# | msgid "There is no API data to load for this resource"
+#: ckan/templates/group/about.html:11
+#, fuzzy
+msgid "There is no description for this group"
+msgstr "ဤ resource ကို load ရန်အတွက် API ဒေတာမရှိပါ။"
+
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
 #: ckan/templates/organization/admins.html:3
 #: ckan/templates/organization/admins.html:6
@@ -1824,37 +1690,51 @@ msgstr "{name} အုပ်စုကို ဖျက်ချင်သည်မ�
 msgid "Are you sure you want to delete member - {name}?"
 msgstr "{name} အဖွဲ့ဝင်ကို ဖျက်ချင်သည်မှာ သေချာပါသလား။"
 
-#: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:4
-#: ckan/templates/group/read_base.html:13
-#: ckan/templates/organization/edit.html:9
-#: ckan/templates/organization/read_base.html:14
-#: ckan/templates/package/read_base.html:17 ckan/templates/user/edit.html:8
+#: ckan/templates/group/edit.html:5 ckan/templates/group/edit_base.html:4
+#: ckan/templates/group/read_base.html:16
+#: ckan/templates/organization/edit.html:7
+#: ckan/templates/organization/read_base.html:17
+#: ckan/templates/package/read_base.html:18
+#: ckan/templates/package/resource_read.html:51 ckan/templates/user/edit.html:8
 #: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:17
 msgid "Manage"
 msgstr "စီမံမည်"
 
-#: ckan/templates/group/edit.html:12
+#: ckan/templates/group/edit.html:9
 msgid "Edit Group"
 msgstr "အုပ်စုကို edit လုပ်မည်"
 
-#: ckan/templates/group/edit_base.html:14
+#: ckan/templates/group/edit_base.html:20
+#: ckan/templates/organization/bulk_process.html:70
+#: ckan/templates/organization/edit.html:3
+#: ckan/templates/organization/edit_base.html:19
+#: ckan/templates/package/edit_base.html:8
+#: ckan/templates/package/resource_edit.html:3
+#: ckan/templates/package/resource_edit_base.html:12
+msgid "Edit"
+msgstr "ပြင်မည်"
+
+#: ckan/templates/group/edit_base.html:21
 #: ckan/templates/group/manage_members.html:3
-#: ckan/templates/group/members.html:3 ckan/templates/group/read_base.html:19
-#: ckan/templates/group/snippets/info.html:46
-#: ckan/templates/organization/edit_base.html:16
+#: ckan/templates/group/manage_members.html:17
+#: ckan/templates/group/members.html:3 ckan/templates/group/members.html:8
+#: ckan/templates/group/read_base.html:22
+#: ckan/templates/group/snippets/info.html:48
+#: ckan/templates/organization/edit_base.html:21
 #: ckan/templates/organization/manage_members.html:3
 #: ckan/templates/organization/members.html:3
-#: ckan/templates/organization/read_base.html:20
-#: ckan/templates/organization/snippets/info.html:57
+#: ckan/templates/organization/members.html:11
+#: ckan/templates/organization/read_base.html:23
+#: ckan/templates/organization/snippets/info.html:67
 msgid "Members"
 msgstr "အဖွဲ့ဝင်များ"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
-#: ckan/templates/group/snippets/info.html:38
-#: ckan/templates/organization/snippets/info.html:49
+#: ckan/templates/group/snippets/info.html:40
+#: ckan/templates/organization/snippets/info.html:59
 #: ckan/templates/package/followers.html:3
 #: ckan/templates/package/followers.html:6
-#: ckan/templates/package/snippets/info.html:25
+#: ckan/templates/package/snippets/info.html:29
 #: ckan/templates/snippets/context/group.html:15
 #: ckan/templates/snippets/context/user.html:17
 #: ckan/templates/user/followers.html:3 ckan/templates/user/followers.html:7
@@ -1862,21 +1742,20 @@ msgstr "အဖွဲ့ဝင်များ"
 msgid "Followers"
 msgstr "Follower များ"
 
-#: ckan/templates/group/index.html:14
-#: ckan/templates/user/dashboard_groups.html:7
+#: ckan/templates/group/index.html:12
+#: ckan/templates/user/dashboard_groups.html:8
 msgid "Add Group"
 msgstr "အုပ်စုထည့်မည်"
 
-#: ckan/templates/group/index.html:21
+#: ckan/templates/group/index.html:22
 msgid "Search groups..."
 msgstr "အုပ်စုရှာမည်..."
 
-#: ckan/templates/group/index.html:21
-#: ckan/templates/organization/bulk_process.html:41
-#: ckan/templates/organization/index.html:20
-#: ckan/templates/package/snippets/search_results.html:20
+#: ckan/templates/group/index.html:22
+#: ckan/templates/organization/bulk_process.html:23
+#: ckan/templates/organization/index.html:21
+#: ckan/templates/package/snippets/search_results.html:24
 #: ckan/templates/snippets/search_form.html:4
-#: ckan/templates/snippets/simple_search.html:10
 #: ckanext/example_idatasetform/templates/package/search.html:13
 #: ckanext/tracking/templates/group/read.html:13
 #: ckanext/tracking/templates/organization/read.html:13
@@ -1884,12 +1763,11 @@ msgstr "အုပ်စုရှာမည်..."
 msgid "Name Ascending"
 msgstr "အမည် ငယ်စဥ်ကြီးလိုက်"
 
-#: ckan/templates/group/index.html:21
-#: ckan/templates/organization/bulk_process.html:42
-#: ckan/templates/organization/index.html:20
-#: ckan/templates/package/snippets/search_results.html:21
+#: ckan/templates/group/index.html:22
+#: ckan/templates/organization/bulk_process.html:24
+#: ckan/templates/organization/index.html:21
+#: ckan/templates/package/snippets/search_results.html:25
 #: ckan/templates/snippets/search_form.html:4
-#: ckan/templates/snippets/simple_search.html:10
 #: ckanext/example_idatasetform/templates/package/search.html:14
 #: ckanext/tracking/templates/group/read.html:14
 #: ckanext/tracking/templates/organization/read.html:14
@@ -1897,155 +1775,155 @@ msgstr "အမည် ငယ်စဥ်ကြီးလိုက်"
 msgid "Name Descending"
 msgstr "အမည် ကြီးစဥ်ငယ်လိုက်"
 
-#: ckan/templates/group/index.html:30
+#: ckan/templates/group/index.html:31
 msgid "There are currently no groups for this site."
 msgstr ""
 
-#: ckan/templates/group/index.html:32 ckan/templates/organization/index.html:31
-msgid "How about creating one?"
-msgstr "အသစ်တစ်ခု ဖန်တီးလိုပါသလား။"
+# | msgid "Update Member"
+#: ckan/templates/group/manage_members.html:7
+#: ckan/templates/organization/manage_members.html:7
+#: ckan/templates/organization/manage_members.html:23
+#, fuzzy
+msgid "Manage members"
+msgstr "အဖွဲ့ဝင်ကို update လုပ်မည်"
 
-#: ckan/templates/group/manage_members.html:6
-#: ckan/templates/group/member_new.html:10
-#: ckan/templates/group/member_new.html:78
-#: ckan/templates/organization/manage_members.html:8
+#: ckan/templates/group/manage_members.html:12
+#: ckan/templates/group/member_new.html:9
+#: ckan/templates/group/member_new.html:15
+#: ckan/templates/group/member_new.html:83
+#: ckan/templates/organization/manage_members.html:13
 #: ckan/templates/organization/member_new.html:7
-#: ckan/templates/organization/member_new.html:12
-#: ckan/templates/organization/member_new.html:80
+#: ckan/templates/organization/member_new.html:11
+#: ckan/templates/organization/member_new.html:17
+#: ckan/templates/organization/member_new.html:85
 msgid "Add Member"
 msgstr "အဖွဲ့ဝင်အသစ် ထည့်ခြင်း"
 
-#: ckan/templates/group/manage_members.html:7
-#: ckan/templates/organization/manage_members.html:9
+#: ckan/templates/group/manage_members.html:13
+#: ckan/templates/organization/manage_members.html:14
 msgid "CSV"
 msgstr ""
 
-#: ckan/templates/group/manage_members.html:16
-#: ckan/templates/group/member_new.html:63
-#: ckan/templates/group/member_new.html:67 ckan/templates/group/members.html:13
-#: ckan/templates/organization/manage_members.html:23
-#: ckan/templates/organization/member_new.html:65
-#: ckan/templates/organization/member_new.html:69
-#: ckan/templates/organization/members.html:16
+#: ckan/templates/group/manage_members.html:23
+#: ckan/templates/group/member_new.html:68
+#: ckan/templates/group/member_new.html:72 ckan/templates/group/members.html:14
+#: ckan/templates/organization/manage_members.html:29
+#: ckan/templates/organization/member_new.html:70
+#: ckan/templates/organization/member_new.html:74
+#: ckan/templates/organization/members.html:17
 #: ckan/templates/package/collaborators/collaborator_new.html:42
-#: ckan/templates/package/collaborators/collaborators.html:20
+#: ckan/templates/package/collaborators/collaborators.html:22
 #: ckan/views/group.py:598
 msgid "Role"
 msgstr "Role"
 
-#: ckan/templates/group/manage_members.html:29
-#: ckan/templates/organization/manage_members.html:40
-#: ckan/templates/package/collaborators/collaborators.html:33
+#: ckan/templates/group/manage_members.html:36
+#: ckan/templates/organization/manage_members.html:46
+#: ckan/templates/package/collaborators/collaborators.html:35
 msgid "Edit role"
 msgstr ""
 
-#: ckan/templates/group/manage_members.html:29
+#: ckan/templates/group/manage_members.html:36
 msgid "Edit the role of the user within the group"
 msgstr ""
 
-#: ckan/templates/group/manage_members.html:32
-#: ckan/templates/group/member_new.html:72
-#: ckan/templates/organization/manage_members.html:46
-#: ckan/templates/organization/member_new.html:74
+#: ckan/templates/group/manage_members.html:39
+#: ckan/templates/group/member_new.html:77
+#: ckan/templates/organization/manage_members.html:52
+#: ckan/templates/organization/member_new.html:79
 msgid "Are you sure you want to delete this member?"
 msgstr "ဤအဖွဲ့ဝင်ကို ဖျက်လိုသည်မှာ သေချာပါသလား။"
 
-#: ckan/templates/group/manage_members.html:32
-#: ckan/templates/organization/manage_members.html:46
+#: ckan/templates/group/manage_members.html:39
+#: ckan/templates/organization/manage_members.html:52
 msgid "Delete member"
 msgstr ""
 
-#: ckan/templates/group/manage_members.html:32
+#: ckan/templates/group/manage_members.html:39
 msgid "Delete this member from the group"
 msgstr ""
 
-#: ckan/templates/group/member_new.html:8
-#: ckan/templates/organization/member_new.html:10
-msgid "Back to all members"
-msgstr "အဖွဲ့ဝင်များထံသို့ ပြန်သွားမည်"
-
-#: ckan/templates/group/member_new.html:10
+#: ckan/templates/group/member_new.html:9
+#: ckan/templates/group/member_new.html:15
 #: ckan/templates/organization/member_new.html:7
-#: ckan/templates/organization/member_new.html:12
+#: ckan/templates/organization/member_new.html:11
+#: ckan/templates/organization/member_new.html:17
 msgid "Edit Member"
 msgstr "အဖွဲ့ဝင်ကို edit လုပ်ခြင်း"
 
-#: ckan/templates/group/member_new.html:20
-#: ckan/templates/organization/member_new.html:22
+#: ckan/templates/group/member_new.html:13
+#: ckan/templates/organization/member_new.html:15
+msgid "Back to all members"
+msgstr "အဖွဲ့ဝင်များထံသို့ ပြန်သွားမည်"
+
+#: ckan/templates/group/member_new.html:25
+#: ckan/templates/organization/member_new.html:27
 #: ckan/templates/package/collaborators/collaborator_new.html:20
 msgid "Existing User"
 msgstr "ရှိပြီးသား အသုံးပြုသူ"
 
-#: ckan/templates/group/member_new.html:23
-#: ckan/templates/organization/member_new.html:25
+#: ckan/templates/group/member_new.html:28
+#: ckan/templates/organization/member_new.html:30
 #: ckan/templates/package/collaborators/collaborator_new.html:23
 msgid "If you wish to add an existing user, search for their username below."
 msgstr ""
 "ရှိပြီးသားအသုံးပြုသူတစ်ဦးကို ထည့်သွင်းလိုပါက အသုံးပြုသူအမည်ကို "
 "အောက်တွင်ရှာဖွေပါ။"
 
-#: ckan/templates/group/member_new.html:32
-#: ckan/templates/organization/member_new.html:34
+#: ckan/templates/group/member_new.html:37
+#: ckan/templates/organization/member_new.html:39
 #: ckan/templates/package/collaborators/collaborator_new.html:32
 #: ckan/templates/user/edit_user_form.html:12
 #: ckan/templates/user/edit_user_form.html:14
 #: ckan/templates/user/logout_first.html:10
 #: ckan/templates/user/new_user_form.html:10
-#: ckan/templates/user/perform_reset.html:23
-#: ckan/templates/user/snippets/info.html:74 ckan/views/group.py:598
+#: ckan/templates/user/perform_reset.html:16
+#: ckan/templates/user/snippets/info.html:78 ckan/views/group.py:598
 msgid "Username"
 msgstr "Username"
 
-#: ckan/templates/group/member_new.html:42
-#: ckan/templates/organization/member_new.html:44
+#: ckan/templates/group/member_new.html:47
+#: ckan/templates/organization/member_new.html:49
 msgid "or"
 msgstr "သို့မဟုတ်"
 
-#: ckan/templates/group/member_new.html:48
-#: ckan/templates/organization/member_new.html:50
+#: ckan/templates/group/member_new.html:53
+#: ckan/templates/organization/member_new.html:55
 msgid "New User"
 msgstr "အသုံးပြုသူ အသစ်"
 
-#: ckan/templates/group/member_new.html:51
-#: ckan/templates/organization/member_new.html:53
+#: ckan/templates/group/member_new.html:56
+#: ckan/templates/organization/member_new.html:58
 msgid "If you wish to invite a new user, enter their email address."
 msgstr "အသုံးပြုသူအသစ်တစ်ဦးကို ဖိတ်ခေါ်လိုပါက email လိပ်စာကို ထည့်ပါ။"
 
-#: ckan/templates/group/member_new.html:54
-#: ckan/templates/organization/member_new.html:56
-msgid "Email address"
-msgstr "Email လိပ်စာ"
-
-#: ckan/templates/group/member_new.html:72
+#: ckan/templates/group/member_new.html:77
 #: ckan/templates/group/snippets/group_form.html:40
-#: ckan/templates/organization/bulk_process.html:72
-#: ckan/templates/organization/member_new.html:74
+#: ckan/templates/organization/bulk_process.html:54
+#: ckan/templates/organization/member_new.html:79
 #: ckan/templates/organization/snippets/organization_form.html:40
 #: ckan/templates/package/collaborators/collaborator_new.html:45
 #: ckan/templates/package/edit_view.html:20
-#: ckan/templates/package/snippets/package_form.html:44
+#: ckan/templates/package/snippets/package_form.html:45
 #: ckan/templates/package/snippets/resource_form.html:73
 #: ckan/templates/user/edit_user_form.html:93
-#: ckanext/activity/templates/admin/activities.html:20
-#: ckanext/activity/templates/admin/activities.html:31
-#: ckanext/activity/templates/admin/activities.html:42
-#: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:29
+#: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:30
 msgid "Delete"
 msgstr "ဖျက်မည်"
 
-#: ckan/templates/group/member_new.html:74
+#: ckan/templates/group/member_new.html:79
 #: ckanext/datastore/templates/datastore/dictionary.html:30
-#: ckanext/tabledesigner/templates/tabledesigner/add_row.html:30
-#: ckanext/tabledesigner/templates/tabledesigner/edit_row.html:30
+#: ckanext/tabledesigner/templates/tabledesigner/add_row.html:31
+#: ckanext/tabledesigner/templates/tabledesigner/edit_row.html:31
 msgid "Save"
 msgstr "သိမ်းဆည်းမည်"
 
-#: ckan/templates/group/member_new.html:91
-#: ckan/templates/organization/member_new.html:93
+#: ckan/templates/group/member_new.html:97
+#: ckan/templates/organization/member_new.html:99
 msgid "What are roles?"
 msgstr "Role တွေက ဘာလဲ။"
 
-#: ckan/templates/group/member_new.html:94
+#: ckan/templates/group/member_new.html:101
 msgid ""
 "<p><strong>Admin:</strong> Can edit group information, as well as manage "
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
@@ -2070,7 +1948,7 @@ msgstr "အုပ်စု ဖန်တီးမည်"
 
 #: ckan/templates/group/snippets/group_form.html:12
 #: ckan/templates/organization/snippets/organization_form.html:12
-#: ckan/templates/package/snippets/resource_form.html:36
+#: ckan/templates/package/snippets/resource_form.html:34
 #: ckan/templates/user/snippets/api_token_create_form.html:9
 #: ckan/views/group.py:598
 msgid "Name"
@@ -2080,10 +1958,18 @@ msgstr "အမည်"
 msgid "My Group"
 msgstr "ကျွန်ုပ်၏ အုပ်စု"
 
+#: ckan/templates/group/snippets/group_form.html:20
+#: ckan/templates/organization/snippets/organization_form.html:20
+#: ckan/templates/package/snippets/package_basic_fields.html:15
+#: ckan/templates/package/snippets/resource_form.html:28
+#: ckan/templates/package/snippets/resource_upload_field.html:105
+msgid "URL"
+msgstr "URL"
+
 #: ckan/templates/group/snippets/group_form.html:22
 #: ckan/templates/organization/snippets/organization_form.html:22
 #: ckan/templates/package/snippets/package_basic_fields.html:21
-#: ckan/templates/package/snippets/resource_form.html:40
+#: ckan/templates/package/snippets/resource_form.html:38
 #: ckan/templates/package/snippets/view_form.html:9
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:38
 #: ckanext/datastore/templates/datastore/snippets/dictionary_view.html:22
@@ -2103,8 +1989,13 @@ msgstr "ဤအုပ်စုကို သင်ဖျက်လိုသည်�
 msgid "Save Group"
 msgstr "အုပ်စုကို သိမ်းမည်"
 
-#: ckan/templates/group/snippets/group_item.html:32
-#: ckan/templates/organization/snippets/organization_item.html:31
+#: ckan/templates/group/snippets/group_item.html:20
+#, python-brace-format
+msgid "Open details page for {group_name}"
+msgstr ""
+
+#: ckan/templates/group/snippets/group_item.html:33
+#: ckan/templates/organization/snippets/organization_item.html:32
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
 #, python-brace-format
@@ -2112,46 +2003,40 @@ msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
 msgstr[0] "Dataset {num} ခု"
 
-#: ckan/templates/group/snippets/group_item.html:34
-#: ckan/templates/organization/snippets/organization_item.html:33
+#: ckan/templates/group/snippets/group_item.html:35
+#: ckan/templates/organization/snippets/organization_item.html:34
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
 msgid "0 Datasets"
 msgstr "0 dataset များ"
 
-#: ckan/templates/group/snippets/group_item.html:39
-#: ckan/templates/organization/snippets/organization_item.html:38
+#: ckan/templates/group/snippets/group_item.html:40
 #, python-brace-format
 msgid "{num} Member"
 msgid_plural "{num} Members"
 msgstr[0] ""
 
-#: ckan/templates/group/snippets/group_item.html:41
-#: ckan/templates/organization/snippets/organization_item.html:40
+#: ckan/templates/group/snippets/group_item.html:42
 msgid "0 Members"
 msgstr ""
 
-#: ckan/templates/group/snippets/group_item.html:51
-#: ckan/templates/organization/snippets/organization_item.html:49
-#, python-brace-format
-msgid "Open details page for {name}"
-msgstr ""
-
-#: ckan/templates/group/snippets/group_item.html:53
-#, python-brace-format
-msgid "View {name}"
-msgstr "{name} ကိုကြည့်မည်"
-
-#: ckan/templates/group/snippets/group_item.html:57
+#: ckan/templates/group/snippets/group_item.html:54
 #, python-brace-format
 msgid "Unlink {name} from the dataset"
 msgstr ""
 
-#: ckan/templates/group/snippets/helper.html:15
+#: ckan/templates/group/snippets/group_item.html:55
+#: ckan/templates/macros/form/custom.html:50
+#: ckan/templates/package/snippets/resource_upload_field.html:34
+#: ckan/templates/snippets/search_form.html:71
+msgid "Remove"
+msgstr "ဖယ်ရှားမည်"
+
+#: ckan/templates/group/snippets/helper.html:16
 msgid "What are Groups?"
 msgstr "အုပ်စုတွေက ဘာလဲ။"
 
-#: ckan/templates/group/snippets/helper.html:19
+#: ckan/templates/group/snippets/helper.html:20
 msgid ""
 "You can use CKAN Groups to create and manage collections of datasets. "
 "This could be to catalogue datasets for a particular project or team, or "
@@ -2165,18 +2050,33 @@ msgstr ""
 "အကူအညီဖြစ်စေရန် အလွန်ရိုးရှင်းသော နည်းလမ်းတစ်ခု ဖြစ်ပါသည်။"
 
 #: ckan/templates/group/snippets/info.html:19
-#: ckan/templates/organization/bulk_process.html:97
-#: ckan/templates/organization/snippets/info.html:28
+#: ckan/templates/organization/bulk_process.html:79
+#: ckan/templates/organization/snippets/info.html:36
 #: ckan/templates/package/read.html:19
 #: ckan/templates/package/snippets/package_basic_fields.html:117
-#: ckan/templates/snippets/package_item.html:39
+#: ckan/templates/package/snippets/search_results.html:8
+#: ckan/templates/snippets/package_item.html:38
 msgid "Deleted"
 msgstr "ဖျက်ပြီးပါပြီ။"
 
 #: ckan/templates/group/snippets/info.html:29
-#: ckan/templates/organization/snippets/info.html:38
+#: ckan/templates/organization/snippets/info.html:46
 msgid "read more"
 msgstr "ဆက်ဖတ်မည်"
+
+#: ckan/templates/group/snippets/info.html:59
+#: ckan/templates/organization/snippets/info.html:77
+#: ckan/templates/snippets/follow_button.html:4
+#: ckan/templates/user/snippets/info.html:64
+msgid "Unfollow"
+msgstr "Unfollow လုပ်မည်"
+
+#: ckan/templates/group/snippets/info.html:61
+#: ckan/templates/organization/snippets/info.html:79
+#: ckan/templates/snippets/follow_button.html:9
+#: ckan/templates/user/snippets/info.html:66
+msgid "Follow"
+msgstr "Follow လုပ်မည်"
 
 #: ckan/templates/home/index.html:3
 msgid "Welcome"
@@ -2205,11 +2105,23 @@ msgid ""
 "href=\"https://ckan.org/features/\">https://ckan.org/features/</a></p>"
 msgstr ""
 
-#: ckan/templates/home/snippets/promoted.html:8
+# | msgid "What are Groups?"
+#: ckan/templates/home/snippets/featured_group.html:10
+#, fuzzy
+msgid "View all groups"
+msgstr "အုပ်စုတွေက ဘာလဲ။"
+
+# | msgid "What are Organizations?"
+#: ckan/templates/home/snippets/featured_organization.html:10
+#, fuzzy
+msgid "View all organizations"
+msgstr "အဖွဲ့အစည်းတွေက ဘာလဲ။"
+
+#: ckan/templates/home/snippets/promoted.html:7
 msgid "Welcome to CKAN"
 msgstr "CKAN မှ ကြိုဆိုပါတယ်။"
 
-#: ckan/templates/home/snippets/promoted.html:10
+#: ckan/templates/home/snippets/promoted.html:9
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. "
 "We don't have any copy to go here yet but soon we will"
@@ -2217,41 +2129,43 @@ msgstr ""
 "This is a nice introductory paragraph about CKAN or the site in general. "
 "We don't have any copy to go here yet but soon we will"
 
-#: ckan/templates/home/snippets/promoted.html:19
-msgid "This is a featured section"
-msgstr "ဤသည်မှာ အထူးကဏ္ဍတစ်ခု ဖြစ်သည်။"
+# | msgid "Edit datasets"
+#: ckan/templates/home/snippets/recent_datasets.html:2
+#, fuzzy
+msgid "Recent Datasets"
+msgstr "Dataset များကို ပြင်မည်"
 
-#: ckan/templates/home/snippets/promoted.html:22
-msgid "Placeholder"
-msgstr ""
+# | msgid "View dataset"
+#: ckan/templates/home/snippets/recent_datasets.html:11
+#, fuzzy
+msgid "View all datasets"
+msgstr "Dataset ကြည့်မည်"
 
-#: ckan/templates/home/snippets/search.html:2
-msgid "E.g. environment"
-msgstr "ဥပမာ၊ ပတ်ဝန်းကျင်"
-
-#: ckan/templates/home/snippets/search.html:7
-msgid "Search data"
-msgstr "ဒေတာ ရှာမည်"
-
+#: ckan/templates/home/snippets/search.html:1
 #: ckan/templates/home/snippets/search.html:9
 msgid "Search datasets"
 msgstr "Dataset များရှာမည်"
 
-#: ckan/templates/home/snippets/search.html:17
-msgid "Popular tags"
-msgstr "ရေပန်းစားသော tag များ"
+#: ckan/templates/home/snippets/search.html:7
+#: ckanext/activity/templates/snippets/activities/changed_package.html:10
+#: ckanext/activity/templates/snippets/activities/deleted_package.html:11
+#: ckanext/activity/templates/snippets/activities/new_package.html:10
+#, fuzzy
+msgid "dataset"
+msgid_plural "datasets"
+msgstr[0] "dataset"
 
-#: ckan/templates/home/snippets/search.html:19
-#, python-brace-format
-msgid "Search datasets with the tag: {tag}"
-msgstr ""
+#: ckan/templates/home/snippets/search.html:12
+#: ckan/templates/user/snippets/user_search.html:7
+msgid "Search"
+msgstr "ရှာမည်"
 
 #: ckan/templates/macros/form/custom.html:42
 msgid "Key"
 msgstr "Key"
 
 #: ckan/templates/macros/form/custom.html:54
-#: ckan/templates/package/resource_read.html:146
+#: ckan/templates/package/resource_read.html:143
 #: ckan/templates/package/snippets/additional_info.html:7
 #: ckan/templates/snippets/additional_info.html:12
 msgid "Value"
@@ -2269,8 +2183,13 @@ msgstr "http://example.com/my-image.jpg"
 msgid "Image URL"
 msgstr "ပုံ URL"
 
+#: ckan/templates/macros/form/image_upload.html:17
+#: ckanext/imageview/plugin.py:29 ckanext/imageview/plugin.py:34
+msgid "Image"
+msgstr "ပုံ"
+
 #: ckan/templates/macros/form/image_upload.html:52
-#: ckan/templates/package/snippets/resource_upload_field.html:77
+#: ckan/templates/package/snippets/resource_upload_field.html:75
 msgid "Clear Upload"
 msgstr "Upload ကိုဖျက်မည်"
 
@@ -2281,44 +2200,40 @@ msgstr "စိတ်ကြိုက်"
 #: ckan/templates/macros/form/markdown.html:31
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
+"you can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
 "data-bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-"
-"bs-html=\"true\">Markdown formatting</a> here"
+"bs-html=\"true\">markdown formatting</a> here"
 msgstr ""
 
 #: ckan/templates/macros/form/required_message.html:11
 msgid "Required field"
 msgstr "လိုအပ်သော field"
 
+# | msgid "A little information about my organization..."
+#: ckan/templates/organization/about.html:11
+#: ckan/templates/organization/snippets/info.html:49
+#, fuzzy
+msgid "There is no description for this organization"
+msgstr "ကျွန်ုပ်၏ အဖွဲ့အစည်းအကြောင်း သတင်းအချက်အချို့..."
+
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
 msgstr "အဖွဲ့အစည်းဖောင်"
 
-#: ckan/templates/organization/bulk_process.html:5
-#: ckan/templates/organization/bulk_process.html:13
+# | msgid "Edit datasets"
+#: ckan/templates/organization/bulk_process.html:6
+#: ckan/templates/organization/bulk_process.html:19
+#, fuzzy
+msgid "Edit Datasets"
+msgstr "Dataset များကို ပြင်မည်"
+
+#: ckan/templates/organization/bulk_process.html:10
 msgid "Edit datasets"
 msgstr "Dataset များကို ပြင်မည်"
 
-#: ckan/templates/organization/bulk_process.html:19
-#, python-format
-msgid "%(count)s dataset found for \"%(query)s\"."
-msgid_plural "%(count)s datasets found for \"%(query)s\"."
-msgstr[0] ""
-
 #: ckan/templates/organization/bulk_process.html:25
-#, python-format
-msgid "%(count)s dataset found."
-msgid_plural "%(count)s datasets found."
-msgstr[0] ""
-
-#: ckan/templates/organization/bulk_process.html:32
-#, python-brace-format
-msgid "Sorry no datasets found for \"{query}\""
-msgstr "ဝမ်းနည်ပါတယ်၊ \"{query}\" အတွက် dataset များ ရှာမတွေ့ခဲ့ပါ။"
-
-#: ckan/templates/organization/bulk_process.html:43
-#: ckan/templates/package/snippets/resource_form.html:59
-#: ckan/templates/package/snippets/search_results.html:22
+#: ckan/templates/package/snippets/resource_form.html:57
+#: ckan/templates/package/snippets/search_results.html:26
 #: ckanext/example_idatasetform/templates/package/search.html:15
 #: ckanext/tracking/templates/group/read.html:15
 #: ckanext/tracking/templates/organization/read.html:15
@@ -2326,35 +2241,34 @@ msgstr "ဝမ်းနည်ပါတယ်၊ \"{query}\" အတွက် data
 msgid "Last Modified"
 msgstr "နောက်ဆုံး ပြုပြင်ခဲ့သော အချိန်"
 
-#: ckan/templates/organization/bulk_process.html:62
+#: ckan/templates/organization/bulk_process.html:44
 msgid "Make public"
 msgstr "Public ပြုလုပ်မည်"
 
-#: ckan/templates/organization/bulk_process.html:66
+#: ckan/templates/organization/bulk_process.html:48
 msgid "Make private"
 msgstr "Private ပြုလုပ်မည်"
 
-#: ckan/templates/organization/bulk_process.html:91
+#: ckan/templates/organization/bulk_process.html:73
 #, python-brace-format
 msgid "Open details page for dataset - {title}"
 msgstr ""
 
-#: ckan/templates/organization/bulk_process.html:95
+#: ckan/templates/organization/bulk_process.html:77
 #: ckan/templates/package/read.html:16
-#: ckan/templates/snippets/package_item.html:37
+#: ckan/templates/snippets/package_item.html:36
 msgid "Draft"
 msgstr "မူကြမ်း"
 
-#: ckan/templates/organization/bulk_process.html:100
+#: ckan/templates/organization/bulk_process.html:82
 #: ckan/templates/package/read.html:9
 #: ckan/templates/package/snippets/package_basic_fields.html:97
-#: ckan/templates/snippets/package_item.html:26
-#: ckan/templates/snippets/private.html:2
-#: ckan/templates/user/snippets/info.html:80
+#: ckan/templates/snippets/package_item.html:30
+#: ckan/templates/user/snippets/info.html:84
 msgid "Private"
 msgstr "Private"
 
-#: ckan/templates/organization/bulk_process.html:113
+#: ckan/templates/organization/bulk_process.html:95
 msgid "This organization has no datasets associated to it"
 msgstr "ဤ အရာနှင့်ဆက်နွှယ်သော dataset များ ဤအဖွဲ့အစည်းတွင် မရှိပါ။"
 
@@ -2363,43 +2277,47 @@ msgstr "ဤ အရာနှင့်ဆက်နွှယ်သော dataset �
 msgid "Are you sure you want to delete organization - {name}?"
 msgstr "{name} အဖွဲ့အစည်းကို ဖျက်လိုသည်မှာ သေချာပါသလား။"
 
-#: ckan/templates/organization/edit.html:14
+#: ckan/templates/organization/edit.html:11
 msgid "Edit Organization"
 msgstr "အဖွဲ့အစည်းကို edit လုပ်မည်"
 
-#: ckan/templates/organization/index.html:13
-#: ckan/templates/user/dashboard_organizations.html:7
+#: ckan/templates/organization/index.html:11
+#: ckan/templates/user/dashboard_organizations.html:8
 msgid "Add Organization"
 msgstr "အဖွဲ့အစည်း ထည့်သွင်းမည်"
 
-#: ckan/templates/organization/index.html:20
+#: ckan/templates/organization/index.html:21
 msgid "Search organizations..."
 msgstr "အဖွဲ့အစည်းများကို ရှာဖွေမည်..."
 
-#: ckan/templates/organization/index.html:29
+#: ckan/templates/organization/index.html:30
 msgid "There are currently no organizations for this site"
 msgstr "လောလောဆယ်တွင် ဤ site အတွက် အဖွဲ့အစည်းများ မရှိသေးပါ။"
 
-#: ckan/templates/organization/manage_members.html:15
+#: ckan/templates/organization/manage_members.html:20
 #: ckan/templates/organization/members.html:10
 #, python-brace-format
 msgid "{count} member"
 msgid_plural "{count} members"
 msgstr[0] "အဖွဲ့ဝင်"
 
-#: ckan/templates/organization/manage_members.html:40
+#: ckan/templates/organization/manage_members.html:46
 msgid "Edit the role of the user within the organization"
 msgstr ""
 
-#: ckan/templates/organization/manage_members.html:46
+#: ckan/templates/organization/manage_members.html:52
 msgid "Delete this member from the organization"
 msgstr ""
 
-#: ckan/templates/organization/member_new.html:76
+#: ckan/templates/organization/member_new.html:61
+msgid "Email address"
+msgstr "Email လိပ်စာ"
+
+#: ckan/templates/organization/member_new.html:81
 msgid "Update Member"
 msgstr "အဖွဲ့ဝင်ကို update လုပ်မည်"
 
-#: ckan/templates/organization/member_new.html:96
+#: ckan/templates/organization/member_new.html:103
 msgid ""
 "<p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
@@ -2429,11 +2347,11 @@ msgstr "အဖွဲ့အစည်းကို update လုပ်မည်"
 msgid "Create Organization"
 msgstr "အဖွဲ့အစည်း ဖန်တီးမည်"
 
-#: ckan/templates/organization/snippets/helper.html:16
+#: ckan/templates/organization/snippets/helper.html:17
 msgid "What are Organizations?"
 msgstr "အဖွဲ့အစည်းတွေက ဘာလဲ။"
 
-#: ckan/templates/organization/snippets/helper.html:20
+#: ckan/templates/organization/snippets/helper.html:21
 msgid ""
 "CKAN Organizations are used to create, manage and publish collections of "
 "datasets. Users can have different roles within an Organization, "
@@ -2444,10 +2362,6 @@ msgstr ""
 "ဖန်တီးခွင့်၊ စီမံခန့်ခွဲခွင့်နှင့် ထုတ်ဝေခွင့် စသော "
 "ခွင့်ပြုချက်အဆင့်များပေါ်တွင် မူတည်၍ အဖွဲ့အစည်းတစ်ခု၌ မတူညီသော role များ "
 "ရှိနိုင်သည်။"
-
-#: ckan/templates/organization/snippets/info.html:41
-msgid "There is no description for this organization."
-msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:12
 msgid "My Organization"
@@ -2470,32 +2384,18 @@ msgstr ""
 msgid "Save Organization"
 msgstr "အဖွဲ့အစည်းကို သိမ်းဆည်းမည်"
 
-#: ckan/templates/organization/snippets/organization_item.html:51
+#: ckan/templates/organization/snippets/organization_item.html:19
 #, python-brace-format
-msgid "View {organization_name}"
-msgstr "{organization_name} ကိုကြည့်မည်"
+msgid "Open details page for {name}"
+msgstr ""
 
-#: ckan/templates/package/base.html:24 ckan/templates/package/new.html:9
-#: ckan/templates/package/snippets/new_package_breadcrumb.html:2
-#: ckan/templates/package/snippets/stages.html:25
-#: ckan/templates/package/snippets/stages.html:27
+#: ckan/templates/package/base.html:24
+#: ckan/templates/package/base_form_page.html:32
+#: ckan/templates/package/new.html:9 ckan/templates/package/new.html:10
+#: ckan/templates/package/snippets/stages.html:37
+#: ckan/templates/package/snippets/stages.html:41
 msgid "Create Dataset"
 msgstr "Dataset ဖန်တီးခြင်း"
-
-#: ckan/templates/package/base_form_page.html:19
-msgid "What are datasets?"
-msgstr "Dataset တွေက ဘာလဲ။"
-
-#: ckan/templates/package/base_form_page.html:22
-msgid ""
-"A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data."
-msgstr ""
-"CKAN Dataset ဆိုသည်မှာ သတ်မှတ်ထားသော URL တွင် ဖော်ပြချက်နှင့် "
-"အခြားသတင်းအချက်အလက်များနှင့်တကွ ဒေတာ resource များ (ဥပမာ ဖိုင်များ) "
-"ကိုစုဆောင်းထားသော အစုတစ်ခုဖြစ်သည်။ ဒေတာများကို ရှာဖွေသောအခါတွင် dataset "
-"များသည် အသုံးပြုသူများမြင်ရသော အရာများဖြစ်သည်။"
 
 #: ckan/templates/package/confirm_delete.html:12
 #, python-brace-format
@@ -2507,6 +2407,13 @@ msgstr "{name} - dataset ကို ဖျက်လိုသည်မှာ သ�
 msgid "Are you sure you want to delete resource - {name}?"
 msgstr "{name} - resource ကို ဖျက်လိုသည်မှာ သေချာပါသလား။"
 
+# | msgid "Edit datasets"
+#: ckan/templates/package/edit.html:4
+#: ckan/templates/package/snippets/package_wrench.html:17
+#, fuzzy
+msgid "Edit Dataset"
+msgstr "Dataset များကို ပြင်မည်"
+
 #: ckan/templates/package/edit_base.html:13
 msgid "View dataset"
 msgstr "Dataset ကြည့်မည်"
@@ -2514,6 +2421,10 @@ msgstr "Dataset ကြည့်မည်"
 #: ckan/templates/package/edit_base.html:17
 msgid "Edit metadata"
 msgstr "Metadata ပြင်မည်"
+
+#: ckan/templates/package/edit_base.html:18
+msgid "Reorder resources"
+msgstr "Resource များကို ပြန်စီမည်"
 
 #: ckan/templates/package/collaborators/collaborators.html:3
 #: ckan/templates/package/edit_base.html:20
@@ -2529,7 +2440,8 @@ msgstr "View ပြင်မည်"
 
 #: ckan/templates/package/edit_view.html:21
 #: ckan/templates/package/new_view.html:20
-#: ckan/templates/package/snippets/resource_item.html:47
+#: ckan/templates/package/snippets/resource_form.html:87
+#: ckan/templates/package/snippets/resource_item.html:49
 msgid "Preview"
 msgstr "Preview ကြည့်မည်"
 
@@ -2549,11 +2461,12 @@ msgstr "အုပ်စုသို့ ထည့်သွင်းမည်"
 msgid "There are no groups associated with this dataset."
 msgstr ""
 
-#: ckan/templates/package/new_resource.html:5
+#: ckan/templates/package/new_resource.html:6
 msgid "Add data to the dataset"
 msgstr "Dataset အတွင်းသို့ ဒေတာ ထည့်သွင်းမည်"
 
-#: ckan/templates/package/new_resource.html:11
+#: ckan/templates/package/new_resource.html:12
+#: ckan/templates/package/new_resource.html:16
 #: ckan/templates/package/new_resource_not_draft.html:8
 msgid "Add New Resource"
 msgstr "Resource အသစ်ထည့်သွင်းမည်"
@@ -2575,97 +2488,105 @@ msgid "Add view"
 msgstr "View ထည့်သွင်းမည်"
 
 #: ckan/templates/package/new_view.html:21
-#: ckan/templates/package/snippets/resource_form.html:91
+#: ckan/templates/package/snippets/resource_form.html:97
 msgid "Add"
 msgstr "ထည့်မည်"
+
+#: ckan/templates/package/read_base.html:17
+#: ckan/templates/package/snippets/resources.html:58
+msgid "Add new resource"
+msgstr "Resource အသစ်ထည့်သွင်းမည်"
 
 #: ckan/templates/package/resource_edit_base.html:18
 msgid "View resource"
 msgstr "Resource ကို ကြည့်မည်"
 
 #: ckan/templates/package/resource_edit_base.html:23
-#: ckan/templates/package/resource_edit_base.html:29
-#: ckan/templates/package/resource_read.html:32
-#: ckan/templates/package/snippets/resource_item.html:70
-#: ckan/templates/package/snippets/resources.html:37
+#: ckan/templates/package/snippets/resource_item.html:72
+#: ckan/templates/package/snippets/resources.html:43
 msgid "Edit resource"
 msgstr "Resource ကို edit လုပ်မည်"
 
 #: ckan/templates/package/resource_edit_base.html:25
-#: ckan/templates/package/resource_read.html:34
-#: ckan/templates/package/snippets/resource_item.html:72
-#: ckan/templates/package/snippets/resources.html:39
+#: ckan/templates/package/snippets/resource_item.html:74
+#: ckan/templates/package/snippets/resources.html:45
 msgid "Views"
 msgstr "View များ"
+
+# | msgid "Edit resource"
+#: ckan/templates/package/resource_edit_base.html:29
+#, fuzzy
+msgid "Edit Resource"
+msgstr "Resource ကို edit လုပ်မည်"
 
 #: ckan/templates/package/resource_read.html:18
 #, python-brace-format
 msgid "Current resource: {name}"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:44
+#: ckan/templates/package/resource_read.html:36
 msgid "API Endpoint"
 msgstr "API Endpoint"
 
-#: ckan/templates/package/resource_read.html:46
-#: ckan/templates/package/snippets/resource_item.html:64
+#: ckan/templates/package/resource_read.html:38
+#: ckan/templates/package/snippets/resource_item.html:66
 msgid "Go to resource"
 msgstr "Resource သို့သွားမည်"
 
-#: ckan/templates/package/resource_read.html:48
-#: ckan/templates/package/snippets/resource_item.html:61
+#: ckan/templates/package/resource_read.html:40
+#: ckan/templates/package/snippets/resource_item.html:63
 msgid "Download"
 msgstr "Download လုပ်မည်"
 
+#: ckan/templates/package/resource_read.html:61
 #: ckan/templates/package/resource_read.html:63
-#: ckan/templates/package/resource_read.html:65
 msgid "URL:"
 msgstr "URL -"
 
-#: ckan/templates/package/resource_read.html:63
+#: ckan/templates/package/resource_read.html:61
 #, python-brace-format
 msgid "Resource URL: {url}"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:73
+#: ckan/templates/package/resource_read.html:71
 msgid "Dataset description:"
 msgstr "Dataset ဖော်ပြချက် -"
 
-#: ckan/templates/package/resource_read.html:75
+#: ckan/templates/package/resource_read.html:73
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 
-#: ckan/templates/package/resource_read.html:106
+#: ckan/templates/package/resource_read.html:104
 msgid "There are no views created for this resource yet."
 msgstr "ဤ resource အတွက် view များ မရှိသေးပါ။"
 
-#: ckan/templates/package/resource_read.html:110
+#: ckan/templates/package/resource_read.html:108
 msgid "Not seeing the views you were expecting?"
 msgstr "သင်မျှော်လင့်ထားသည့် view များကို မမြင်ပါသလား။"
 
-#: ckan/templates/package/resource_read.html:112
+#: ckan/templates/package/resource_read.html:110
 #: ckan/templates/package/snippets/resource_view.html:35
 msgid "Click here for more information."
 msgstr "ထပ်မံသိလိုသော သတင်းအချက်အလက်များအတွက် ဒီမှာနှိပ်ပါ။"
 
-#: ckan/templates/package/resource_read.html:115
+#: ckan/templates/package/resource_read.html:113
 msgid "Here are some reasons you may not be seeing expected views:"
 msgstr ""
 "မျှော်လင့်ထားသည့် view များကို သင်မမြင်တွေ့ရနိုင်သည့် "
 "အကြောင်းရင်းအချို့ရှိသည် -"
 
-#: ckan/templates/package/resource_read.html:117
+#: ckan/templates/package/resource_read.html:115
 msgid "No view has been created that is suitable for this resource"
 msgstr "ဤ resource အတွက် သင့်လျှော်သော view မရှိပါ။"
 
-#: ckan/templates/package/resource_read.html:118
+#: ckan/templates/package/resource_read.html:116
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
 "ဤ site ကို စီမံခန့်ခွဲသူများသည် သင့်လျှော်သော view plugin များကို "
 "မဖွင့်ထားခဲ့ခြင်း ဖြစ်နိုင်သည်။"
 
-#: ckan/templates/package/resource_read.html:119
+#: ckan/templates/package/resource_read.html:117
 msgid ""
 "If a view requires the DataStore, the DataStore plugin may not be "
 "enabled, or the data may not have been pushed to the DataStore, or the "
@@ -2676,28 +2597,25 @@ msgstr ""
 "မရနိုင်ခဲ့ခြင်းကြောင့်၊ သို့မဟုတ် DataStore သည် ဒေတာများကို processing "
 "လုပ်၍ မပြီးသေးခြင်းကြောင့် ဖြစ်နိုင်သည်။"
 
-#: ckan/templates/package/resource_read.html:141
+#: ckan/templates/package/resource_read.html:138
 msgid "Additional Information"
 msgstr "နောက်ဆက်တွဲ သတင်းအချက်အလက်များ"
 
-#: ckan/templates/package/resource_read.html:145
+#: ckan/templates/package/resource_read.html:142
 #: ckan/templates/package/snippets/additional_info.html:6
 #: ckan/templates/snippets/additional_info.html:11
 msgid "Field"
 msgstr "Field"
 
-#: ckan/templates/package/resource_read.html:151
+#: ckan/templates/package/resource_read.html:148
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:88
 msgid "Data last updated"
 msgstr "နောက်ဆုံး ပြင်ဆင်ခဲ့သော ဒေတာ"
 
-#: ckan/templates/package/resource_read.html:152
-#: ckan/templates/package/resource_read.html:156
-#: ckan/templates/package/resource_read.html:160
-#: ckan/templates/package/resource_read.html:164
-#: ckanext/activity/templates-midnight-blue/snippets/stream.html:11
-#: ckanext/activity/templates-midnight-blue/snippets/stream.html:19
-#: ckanext/activity/templates-midnight-blue/snippets/stream.html:32
+#: ckan/templates/package/resource_read.html:149
+#: ckan/templates/package/resource_read.html:153
+#: ckan/templates/package/resource_read.html:157
+#: ckan/templates/package/resource_read.html:161
 #: ckanext/activity/templates/snippets/stream.html:11
 #: ckanext/activity/templates/snippets/stream.html:19
 #: ckanext/activity/templates/snippets/stream.html:32
@@ -2705,57 +2623,59 @@ msgstr "နောက်ဆုံး ပြင်ဆင်ခဲ့သော ဒ�
 msgid "unknown"
 msgstr "အမည်မသိ/ မသိရှိပါ။"
 
-#: ckan/templates/package/resource_read.html:155
+#: ckan/templates/package/resource_read.html:152
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:89
 msgid "Metadata last updated"
 msgstr "နောက်ဆုံး ပြင်ဆင်ခဲ့သော metadata"
 
-#: ckan/templates/package/resource_read.html:159
+#: ckan/templates/package/resource_read.html:156
 #: ckan/templates/package/snippets/additional_info.html:74
 #: ckan/templates/user/snippets/api_token_list.html:20
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:90
 msgid "Created"
 msgstr "ဖန်တီးခဲ့သော အချိန်"
 
-#: ckan/templates/package/resource_read.html:163
-#: ckan/templates/package/snippets/resource_form.html:45
-#: ckan/templates/package/snippets/resource_info.html:19
+#: ckan/templates/package/resource_read.html:160
+#: ckan/templates/package/snippets/resource_form.html:43
+#: ckan/templates/package/snippets/resource_info.html:23
 msgid "Format"
 msgstr "ပုံစံ"
 
-#: ckan/templates/package/resource_read.html:167
+#: ckan/templates/package/resource_read.html:164
 #: ckan/templates/package/snippets/package_basic_fields.html:32
-#: ckan/templates/snippets/license.html:20
+#: ckan/templates/snippets/license.html:22
 msgid "License"
 msgstr "လိုင်စင်"
 
-#: ckan/templates/package/resource_views.html:11
+#: ckan/templates/package/resource_views.html:12
 msgid "New view"
 msgstr "View အသစ်"
 
+# | msgid "Edit view"
 #: ckan/templates/package/resource_views.html:29
+#, fuzzy
+msgid "Edit Views"
+msgstr "View ပြင်မည်"
+
+#: ckan/templates/package/resource_views.html:33
 msgid "This resource has no views"
 msgstr "ဤ resource တွင် view များ မရှိပါ။"
 
+# | msgid "This dataset has no data"
 #: ckan/templates/package/resources.html:19
-#: ckan/templates/package/snippets/resources_list.html:28
-#, python-format
-msgid ""
-"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p>"
-msgstr ""
-"<p class=\"empty\">ဤ dataset တွင် ဒေတာ မရှိပါ။ <a "
-"href=\"%(url)s\">ဘာကြောင့် အချို့ မထည့်သွင်းပါသလဲ။</a></p>"
+#, fuzzy
+msgid "<p class=\"empty\">This dataset has no data.</p>"
+msgstr "ဤ dataset တွင် ဒေတာ မရှိပါ။"
 
-#: ckan/templates/package/search.html:29
+#: ckan/templates/package/search.html:36
 msgid "API"
 msgstr "API"
 
-#: ckan/templates/package/search.html:30
+#: ckan/templates/package/search.html:37
 msgid "API Docs"
 msgstr "API စာရွက်စာတမ်းများ"
 
-#: ckan/templates/package/search.html:31
+#: ckan/templates/package/search.html:38
 #, python-format
 msgid ""
 "You can also access this registry using the %(api_link)s (see "
@@ -2792,7 +2712,7 @@ msgid "Back to all collaborators"
 msgstr "ပူးပေါင်းဆောင်ရွက်သူများထံသို့ ပြန်သွားမည်"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:45
-#: ckan/templates/package/collaborators/collaborators.html:36
+#: ckan/templates/package/collaborators/collaborators.html:38
 msgid "Are you sure you want to delete this collaborator?"
 msgstr "ဤ ပူးပေါင်းဆောင်ရွက်သူကို ဖျက်လိုသည်မှာ သေချာပါသလား။"
 
@@ -2826,21 +2746,21 @@ msgstr ""
 "private ဖြစ်နေသော dataset ကို access လုပ်နိုင်သည်၊ သို့သော် ၎င်းကို edit "
 "မလုပ်နိုင်ပါ။</p>"
 
-#: ckan/templates/package/collaborators/collaborators.html:7
+#: ckan/templates/package/collaborators/collaborators.html:9
 msgid "Add Collaborators"
 msgstr "ပူးပေါင်းဆောင်ရွက်သူများကို ထည့်သွင်းမည်"
 
-#: ckan/templates/package/collaborators/collaborators.html:14
+#: ckan/templates/package/collaborators/collaborators.html:16
 #, python-brace-format
 msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
 msgstr[0] "{count} အဖွဲ့ဝင်"
 
-#: ckan/templates/package/collaborators/collaborators.html:36
+#: ckan/templates/package/collaborators/collaborators.html:38
 msgid "Delete collaborator"
 msgstr ""
 
-#: ckan/templates/package/collaborators/collaborators.html:36
+#: ckan/templates/package/collaborators/collaborators.html:38
 msgid "Delete this collaborator from the dataset"
 msgstr ""
 
@@ -2878,7 +2798,7 @@ msgstr "Version"
 
 #: ckan/templates/package/snippets/additional_info.html:60
 #: ckan/templates/package/snippets/package_basic_fields.html:113
-#: ckan/templates/user/snippets/info.html:95
+#: ckan/templates/user/snippets/info.html:99
 msgid "State"
 msgstr "အခြေအနေ"
 
@@ -2890,15 +2810,15 @@ msgstr "နောက်ဆုံး ပြင်ဆင်ခဲ့သော အ�
 msgid "Before you can create a dataset you need to create an organization."
 msgstr "Dataset တစ်ခုကို မဖန်တီးခင် အဖွဲ့အစည်းတစ်ခုကို ဖန်တီးရန် လိုအပ်သည်။"
 
-#: ckan/templates/package/snippets/cannot_create_package.html:13
+#: ckan/templates/package/snippets/cannot_create_package.html:14
 msgid "Create a new organization"
 msgstr "အဖွဲ့အစည်းအသစ်တစ်ခု ဖန်တီးမည်"
 
-#: ckan/templates/package/snippets/cannot_create_package.html:18
+#: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid "There are no organizations to which you can assign this dataset."
 msgstr "ဤ dataset ကို သင် assign လုပ်နိုင်မည့် အဖွဲ့အစည်းများ မရှိပါ။"
 
-#: ckan/templates/package/snippets/cannot_create_package.html:19
+#: ckan/templates/package/snippets/cannot_create_package.html:20
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
@@ -2960,7 +2880,7 @@ msgstr "Public"
 msgid "Active"
 msgstr "Active"
 
-#: ckan/templates/package/snippets/package_form.html:33
+#: ckan/templates/package/snippets/package_form.html:34
 msgid ""
 "The <i>data license</i> you select above only applies to the contents of "
 "any resource files that you add to this dataset. By submitting this form,"
@@ -2975,19 +2895,19 @@ msgstr ""
 "<a href=\"http://opendatacommons.org/licenses/odbl/1-0/\"> Open Database "
 "License</a>အောက်တွင် ထုတ်ပြန်ရန် သင်သဘောတူသည်။"
 
-#: ckan/templates/package/snippets/package_form.html:44
+#: ckan/templates/package/snippets/package_form.html:45
 msgid "Are you sure you want to delete this dataset?"
 msgstr "ဤ dataset ကို ဖျက်လိုသည်မှာ သေချာပါသလား။"
 
-#: ckan/templates/package/snippets/package_form.html:49
+#: ckan/templates/package/snippets/package_form.html:50
 msgid "Unpublish"
 msgstr ""
 
-#: ckan/templates/package/snippets/package_form.html:56
+#: ckan/templates/package/snippets/package_form.html:57
 msgid "Update Dataset"
 msgstr "Dataset update လုပ်မည်"
 
-#: ckan/templates/package/snippets/package_form.html:58
+#: ckan/templates/package/snippets/package_form.html:59
 msgid "Next: Add Data"
 msgstr "နောက်သို့ - ဒေတာ ထည့်သွင်းမည်"
 
@@ -3001,7 +2921,6 @@ msgstr "1.0"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
-#: ckan/templates/user/new_user_form.html:11
 msgid "Joe Bloggs"
 msgstr "Joe Bloggs"
 
@@ -3011,7 +2930,6 @@ msgstr "ရေးသားသူ၏ email လိပ်စာ"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
-#: ckan/templates/user/new_user_form.html:12
 msgid "joe@example.com"
 msgstr "joe@example.com"
 
@@ -3019,51 +2937,69 @@ msgstr "joe@example.com"
 msgid "Maintainer Email"
 msgstr "ထိန်းသိမ်းသူ၏ email လိပ်စာ"
 
+#: ckan/templates/package/snippets/package_wrench.html:12
+#, python-brace-format
+msgid "Navigate to package: {name}"
+msgstr ""
+
+# | msgid "CKAN config options"
+#: ckan/templates/package/snippets/package_wrench.html:15
+#: ckan/templates/package/snippets/resources.html:41
+#, fuzzy, python-brace-format
+msgid "Manage {name} options"
+msgstr "CKAN config option များ"
+
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
 msgstr "Resource ကို update လုပ်မည်"
 
-#: ckan/templates/package/snippets/resource_form.html:32
+#: ckan/templates/package/snippets/resource_form.html:29
+#: ckan/templates/package/snippets/resource_upload_field.html:76
+#: ckan/templates/package/snippets/resource_upload_field.html:88
+msgid "File"
+msgstr "ဖိုင်"
+
+#: ckan/templates/package/snippets/resource_form.html:30
 msgid "http://example.com/external-data.csv"
 msgstr "http://example.com/external-data.csv"
 
-#: ckan/templates/package/snippets/resource_form.html:36
+#: ckan/templates/package/snippets/resource_form.html:34
 msgid "eg. January 2011 Gold Prices"
 msgstr "ဥပမာ၊ ဇန်နဝါရီ ၂၀၁၁ ရွှေဈေး"
 
-#: ckan/templates/package/snippets/resource_form.html:40
+#: ckan/templates/package/snippets/resource_form.html:38
 msgid "Some useful notes about the data"
 msgstr "ဒေတာအကြောင်း အသုံးဝင်သော မှတ်စုအချို့များ"
 
-#: ckan/templates/package/snippets/resource_form.html:45
+#: ckan/templates/package/snippets/resource_form.html:43
 msgid "eg. CSV, XML or JSON"
 msgstr "ဥပမာ၊ CSV, XML သို့မဟုတ် JSON"
 
-#: ckan/templates/package/snippets/resource_form.html:48
+#: ckan/templates/package/snippets/resource_form.html:46
 msgid "This will be guessed automatically. Leave blank if you wish"
 msgstr ""
 "ဤဟာကို အလိုအလျောက် မှန်းဆလိမ့်မည်။ အလိုအလျောက် မှန်းဆစေချင်ပါက "
 "ကွက်လပ်ချန်ထားပါ။"
 
-#: ckan/templates/package/snippets/resource_form.html:59
+#: ckan/templates/package/snippets/resource_form.html:57
 msgid "eg. 2012-06-05"
 msgstr "ဥပမာ၊ ၂၀၁၂၊၀၆၊၀၅"
 
-#: ckan/templates/package/snippets/resource_form.html:61
+#: ckan/templates/package/snippets/resource_form.html:59
 msgid "File Size"
 msgstr "ဖိုင်အရွယ်အစား"
 
-#: ckan/templates/package/snippets/resource_form.html:61
+#: ckan/templates/package/snippets/resource_form.html:59
 msgid "eg. 1024"
 msgstr "ဥပမာ၊ ၁၀၂၄"
 
+#: ckan/templates/package/snippets/resource_form.html:61
 #: ckan/templates/package/snippets/resource_form.html:63
-#: ckan/templates/package/snippets/resource_form.html:65
 msgid "MIME Type"
 msgstr "MIME အမျိုးအစား"
 
+#: ckan/templates/package/snippets/resource_form.html:61
 #: ckan/templates/package/snippets/resource_form.html:63
-#: ckan/templates/package/snippets/resource_form.html:65
 msgid "eg. application/json"
 msgstr "ဥပမာ၊ application/json"
 
@@ -3079,38 +3015,51 @@ msgstr "ရှေ့သို့"
 msgid "Save & add another"
 msgstr "သိမ်းပြီး အခြားတစ်ခုထည့်သွင်းမည်"
 
-#: ckan/templates/package/snippets/resource_form.html:87
+#: ckan/templates/package/snippets/resource_form.html:92
 msgid "Publish"
 msgstr ""
 
-#: ckan/templates/package/snippets/resource_help.html:2
+#: ckan/templates/package/snippets/resource_help.html:5
 msgid "What's a resource?"
 msgstr "Resource ဆိုတာ ဘာလဲ။"
 
-#: ckan/templates/package/snippets/resource_help.html:4
+#: ckan/templates/package/snippets/resource_help.html:8
 msgid "A resource can be any file or link to a file containing useful data."
 msgstr ""
 "Resource ဆိုသည်မှာ မည်သည့်ဖိုင်မဆို သို့မဟုတ် အသုံးဝင်သည့် "
 "ဒေတာများပါဝင်သည့် ဖိုင်တစ်ခု၏ link ဖြစ်သည်။"
 
-#: ckan/templates/package/snippets/resource_item.html:21
+#: ckan/templates/package/snippets/resource_item.html:22
 #, python-brace-format
 msgid "Navigate to resource: {name_or_id}"
 msgstr ""
 
-#: ckan/templates/package/snippets/resource_item.html:37
+#: ckan/templates/package/snippets/resource_item.html:39
 msgid "Explore"
 msgstr "ထပ်မံရှာဖွေမည်"
 
-#: ckan/templates/package/snippets/resource_item.html:50
-#: ckanext/activity/templates-midnight-blue/package/snippets/resource_item.html:8
+#: ckan/templates/package/snippets/resource_item.html:52
 #: ckanext/activity/templates/package/snippets/resource_item.html:8
 msgid "More information"
 msgstr "ထပ်မံသိလိုသော သတင်းအချက်အလက်များ"
 
-#: ckan/templates/package/snippets/resource_upload_field.html:42
-msgid "Data"
-msgstr "ဒေတာ"
+#: ckan/templates/package/snippets/resource_upload_field.html:45
+msgid "Upload a file on your computer"
+msgstr "သင့်ကွန်ပြူတာထဲမှ ဖိုင်တစ်ဖိုင်ကို upload လုပ်ပါ။"
+
+#: ckan/templates/package/snippets/resource_upload_field.html:49
+msgid "Upload"
+msgstr "Upload လုပ်မည်"
+
+#: ckan/templates/package/snippets/resource_upload_field.html:52
+msgid "Link to a URL on the internet (you can also link to an API)"
+msgstr ""
+"အင်တာနက်ပေါ်တွင် ရှိသော URL တစ်ခုသို့ ချိတ်ဆက်မည်။ (API တစ်ခုသို့လည်း "
+"ချိတ်ဆက်နိုင်ပါသည်။)"
+
+#: ckan/templates/package/snippets/resource_upload_field.html:56
+msgid "Link"
+msgstr "ချိတ်ဆက်မည်"
 
 #: ckan/templates/package/snippets/resource_view.html:11
 msgid "Fullscreen"
@@ -3162,32 +3111,40 @@ msgstr "Height"
 msgid "Code"
 msgstr "Code"
 
-#: ckan/templates/package/snippets/resources.html:29
-#: ckan/templates/package/snippets/resources.html:33
-#: ckan/templates/package/snippets/resources.html:45
+#: ckan/templates/package/snippets/resources.html:37
 #, python-brace-format
 msgid "Navigate to resource: {name}"
 msgstr ""
 
-#: ckan/templates/package/snippets/resources.html:58
-msgid "Add new resource"
-msgstr "Resource အသစ်ထည့်သွင်းမည်"
+# | msgid "No download is available"
+#: ckan/templates/package/snippets/resources.html:54
+#, fuzzy
+msgid "No resources available."
+msgstr "Download လုပ်၍မရနိုင်ပါ။"
 
 #: ckan/templates/package/snippets/resources_list.html:14
 msgid "Data and Resources"
 msgstr "ဒေတာနှင့် resource များ"
 
+#: ckan/templates/package/snippets/resources_list.html:28
+#, python-format
+msgid ""
+"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p>"
+msgstr ""
+"<p class=\"empty\">ဤ dataset တွင် ဒေတာ မရှိပါ။ <a "
+"href=\"%(url)s\">ဘာကြောင့် အချို့ မထည့်သွင်းပါသလဲ။</a></p>"
+
 #: ckan/templates/package/snippets/resources_list.html:32
-#: ckanext/activity/templates-midnight-blue/package/snippets/resources_list.html:14
 #: ckanext/activity/templates/package/snippets/resources_list.html:14
 msgid "This dataset has no data"
 msgstr "ဤ dataset တွင် ဒေတာ မရှိပါ။"
 
-#: ckan/templates/package/snippets/search_facets.html:7
+#: ckan/templates/package/snippets/search_facets.html:9
 msgid "close"
 msgstr ""
 
-#: ckan/templates/package/snippets/search_results.html:19
+#: ckan/templates/package/snippets/search_results.html:23
 #: ckanext/example_idatasetform/templates/package/search.html:12
 #: ckanext/tracking/templates/group/read.html:12
 #: ckanext/tracking/templates/organization/read.html:12
@@ -3195,9 +3152,21 @@ msgstr ""
 msgid "Relevance"
 msgstr "သင့်လျော်မှု"
 
-#: ckan/templates/package/snippets/stages.html:32
-#: ckan/templates/package/snippets/stages.html:36
-#: ckan/templates/package/snippets/stages.html:38
+#: ckan/templates/package/snippets/search_results.html:29
+#: ckan/templates/snippets/search_form.html:3
+#: ckanext/tracking/templates/group/read.html:19
+#: ckanext/tracking/templates/organization/read.html:19
+#: ckanext/tracking/templates/package/search.html:19
+msgid "Search datasets..."
+msgstr "Dataset များရှာမည်..."
+
+#: ckan/templates/package/snippets/stages.html:21
+#, python-brace-format
+msgid "Step {step}"
+msgstr ""
+
+#: ckan/templates/package/snippets/stages.html:48
+#: ckan/templates/package/snippets/stages.html:52
 msgid "Add data"
 msgstr "ဒေတာ ထည့်သွင်းမည်"
 
@@ -3209,6 +3178,10 @@ msgstr "ဥပမာ၊ ကျွန်ုပ်၏ View"
 msgid "eg. Information about my view"
 msgstr "ဥပမာ၊ ကျွန်ုပ်၏ view အကြောင်း သတင်းအချက်"
 
+#: ckan/templates/package/snippets/view_form_filters.html:16
+msgid "Add Filter"
+msgstr "Filter ထည့်ပါ"
+
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
 msgstr "Filter ဖယ်ရှားမည်"
@@ -3217,11 +3190,11 @@ msgstr "Filter ဖယ်ရှားမည်"
 msgid "Filters"
 msgstr "Filter များ"
 
-#: ckan/templates/package/snippets/view_help.html:2
+#: ckan/templates/package/snippets/view_help.html:3
 msgid "What's a view?"
 msgstr "View ဆိုတာ ဘာလဲ။"
 
-#: ckan/templates/package/snippets/view_help.html:4
+#: ckan/templates/package/snippets/view_help.html:5
 msgid "A view is a representation of the data held against a resource"
 msgstr "View ဆိုသည်မှာ resource တစ်ခုကို ကိုယ်စားပြုသော ဒေတာဖြစ်သည်။"
 
@@ -3229,59 +3202,37 @@ msgstr "View ဆိုသည်မှာ resource တစ်ခုကို က�
 msgid "Add Dataset"
 msgstr "Dataset ထည့်သွင်းမည်"
 
-#: ckan/templates/snippets/datapusher_status.html:8
-#, python-brace-format
-msgid "Datapusher status: {status}."
-msgstr "Datapusher အခြေအနေ - {status}။"
-
-#: ckan/templates/snippets/disqus_trackback.html:2
-msgid "Trackback URL"
-msgstr "နောက်ကြောင်းပြန်လိုက်သော URL"
-
-#: ckan/templates/snippets/facet_list.html:54
+#: ckan/templates/snippets/facet_list.html:67
 #, python-brace-format
 msgid "Filter by: {title}"
 msgstr ""
 
-#: ckan/templates/snippets/facet_list.html:62
+#: ckan/templates/snippets/facet_list.html:75
 #, python-brace-format
 msgid "Search datasets by {name}: {label}"
 msgstr ""
 
-#: ckan/templates/snippets/facet_list.html:76
+#: ckan/templates/snippets/facet_list.html:92
 #, python-brace-format
 msgid "Show More {facet_type}"
 msgstr "{facet_type} ထပ်ပြပေးပါ။"
 
-#: ckan/templates/snippets/facet_list.html:78
+#: ckan/templates/snippets/facet_list.html:94
 #, python-brace-format
 msgid "Show Only Popular {facet_type}"
 msgstr "{facet_type} လူကြိုက်များတာ ပြပါ။"
 
-#: ckan/templates/snippets/facet_list.html:82
+#: ckan/templates/snippets/facet_list.html:100
 #, python-brace-format
 msgid "There are no {facet_type} that match this search"
 msgstr "ဤရှာဖွေမှုနှင့် ကိုက်ညီသော {facet_type} မရှိပါ။"
-
-#: ckan/templates/snippets/follow_button.html:5
-msgid "Unfollow"
-msgstr "Unfollow လုပ်မည်"
-
-#: ckan/templates/snippets/follow_button.html:7
-msgid "Follow"
-msgstr "Follow လုပ်မည်"
-
-#: ckan/templates/snippets/home_breadcrumb_item.html:2
-msgid "Home"
-msgstr "မူလစာမျက်နှာ"
 
 #: ckan/templates/snippets/language_selector.html:5
 msgid "Language"
 msgstr "ဘာသာစကား"
 
 #: ckan/templates/snippets/language_selector.html:14
-#: ckan/templates/snippets/search_form.html:40
-#: ckan/templates/snippets/simple_search.html:15
+#: ckan/templates/snippets/search_form.html:42
 msgid "Go"
 msgstr "သွားမည်"
 
@@ -3289,33 +3240,44 @@ msgstr "သွားမည်"
 msgid "No License Provided"
 msgstr "လိုင်စင် မရှိပါ။"
 
-#: ckan/templates/snippets/license.html:27
+# | msgid "This dataset satisfies the Open Definition."
+#: ckan/templates/snippets/license.html:30
+#, fuzzy
+msgid "Open Data (This dataset satisfies the Open Definition.)"
+msgstr "ဤ dataset သည် Open Definition နှင့် ကိုက်ညီမှုရှိပါသည်။"
+
+#: ckan/templates/snippets/license.html:30
 msgid "This dataset satisfies the Open Definition."
 msgstr "ဤ dataset သည် Open Definition နှင့် ကိုက်ညီမှုရှိပါသည်။"
 
-#: ckan/templates/snippets/package_item.html:48
-msgid "There is no description for this dataset."
-msgstr ""
+# | msgid "There are no views created for this resource yet."
+#: ckan/templates/snippets/package_item.html:51
+#, fuzzy
+msgid "There is no description for this dataset"
+msgstr "ဤ resource အတွက် view များ မရှိသေးပါ။"
 
-#: ckan/templates/snippets/search_form.html:31
-#: ckan/templates/snippets/simple_search.html:8
+#: ckan/templates/snippets/search_form.html:16
+msgid "Submit"
+msgstr "တင်သွင်းမည်"
+
+#: ckan/templates/snippets/search_form.html:33
 msgid "Order by"
 msgstr "အလိုက်စီမည်"
 
-#: ckan/templates/snippets/search_form.html:69
+#: ckan/templates/snippets/search_form.html:71
 #, python-brace-format
 msgid "Remove applied filter: {value}"
 msgstr ""
 
-#: ckan/templates/snippets/search_form.html:74
+#: ckan/templates/snippets/search_form.html:76
 msgid "Filter Results"
 msgstr "ရလဒ်များ စစ်ထုတ်မည်"
 
-#: ckan/templates/snippets/search_form.html:81
+#: ckan/templates/snippets/search_form.html:83
 msgid "<p class=\"extra\">Please try another search.</p>"
 msgstr "<p class=\"extra\">ကျေးဇူးပြု၍ နောက်ထပ်ရှာဖွေကြည့်ပါ။</p>"
 
-#: ckan/templates/snippets/search_form.html:87
+#: ckan/templates/snippets/search_form.html:89
 msgid ""
 "<p id=\"search-error\"><strong>There was an error while "
 "searching.</strong> Please try again.</p>"
@@ -3386,16 +3348,16 @@ msgstr[0] "အဖွဲ့အစည်း {number} ခု တွေ့ရှိ�
 msgid "No organizations found"
 msgstr "အဖွဲ့အစည်းများ မတွေ့ရှိခဲ့ပါ။"
 
-#: ckan/templates/snippets/social.html:5
+#: ckan/templates/snippets/social.html:6
 msgid "Social"
 msgstr "Social"
 
 #. This is a link to the social network service X, formally known as Twitter.
-#: ckan/templates/snippets/social.html:10
+#: ckan/templates/snippets/social.html:11
 msgid "X"
 msgstr ""
 
-#: ckan/templates/snippets/social.html:11
+#: ckan/templates/snippets/social.html:12
 msgid "Facebook"
 msgstr ""
 
@@ -3404,14 +3366,13 @@ msgstr ""
 msgid "Search datasets with the tag: {name}"
 msgstr ""
 
-#: ckan/templates/tests/mock_json_resource_preview_template.html:7
 #: ckan/templates/tests/mock_resource_preview_template.html:7
 #: ckanext/datastore/templates/package/snippets/data_api_button.html:7
 #: ckanext/textview/templates/text_view.html:9
 msgid "Loading..."
 msgstr "Loading လုပ်နေသည်..."
 
-#: ckan/templates/user/api_tokens.html:12 ckan/templates/user/read_base.html:26
+#: ckan/templates/user/api_tokens.html:4 ckan/templates/user/read_base.html:26
 msgid "API Tokens"
 msgstr "API Token များ"
 
@@ -3420,55 +3381,65 @@ msgstr "API Token များ"
 msgid "Are you sure you want to delete user - {name}?"
 msgstr ""
 
-#: ckan/templates/user/dashboard.html:25
-#: ckan/templates/user/dashboard_datasets.html:11
+#: ckan/templates/user/dashboard.html:10
+msgid "Profile settings"
+msgstr "ပရိုဖိုင်း setting များ"
+
+#: ckan/templates/user/dashboard.html:20
+#: ckan/templates/user/dashboard_datasets.html:12
 msgid "My Datasets"
 msgstr "ကျွန်ုပ်၏ dataset များ"
 
-#: ckan/templates/user/dashboard.html:26
-#: ckan/templates/user/dashboard_organizations.html:12
+#: ckan/templates/user/dashboard.html:21
+#: ckan/templates/user/dashboard_organizations.html:13
 msgid "My Organizations"
 msgstr "ကျွန်ုပ်၏ အဖွဲ့အစည်းများ"
 
-#: ckan/templates/user/dashboard.html:27
-#: ckan/templates/user/dashboard_groups.html:12
+#: ckan/templates/user/dashboard.html:22
+#: ckan/templates/user/dashboard_groups.html:13
 msgid "My Groups"
 msgstr "ကျွန်ုပ်၏ အုပ်စုများ"
 
-#: ckan/templates/user/dashboard_datasets.html:16
-#: ckan/templates/user/read.html:20
+#: ckan/templates/user/dashboard_datasets.html:20
+#: ckan/templates/user/read.html:19
 msgid "You haven't created any datasets."
 msgstr "Dataset များ မဖန်တီးရသေးပါ။"
 
-#: ckan/templates/user/dashboard_datasets.html:18
-#: ckan/templates/user/dashboard_groups.html:24
-#: ckan/templates/user/dashboard_organizations.html:24
-#: ckan/templates/user/read.html:22
+#: ckan/templates/user/dashboard_datasets.html:22
+#: ckan/templates/user/dashboard_groups.html:26
+#: ckan/templates/user/dashboard_organizations.html:26
+#: ckan/templates/user/read.html:21
 msgid "Create one now?"
 msgstr "တစ်ခုစတင် ဖန်တီးကြည့်မလား။"
 
-#: ckan/templates/user/dashboard_groups.html:22
-#: ckan/templates/user/read_groups.html:20
+#: ckan/templates/user/dashboard_groups.html:24
+#: ckan/templates/user/read_groups.html:18
 msgid "You are not a member of any groups."
 msgstr "သင်သည် မည်သည့်အုပ်စု၏ အဖွဲ့ဝင်မဟုတ်ပါ။"
 
-#: ckan/templates/user/dashboard_organizations.html:22
-#: ckan/templates/user/read_organizations.html:19
+#: ckan/templates/user/dashboard_organizations.html:24
+#: ckan/templates/user/read_organizations.html:18
 msgid "You are not a member of any organizations."
 msgstr "သင်သည် မည်သည့်အဖွဲ့အစည်း၏ အဖွဲ့ဝင်မဟုတ်ပါ။"
 
 #: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
 #: ckan/templates/user/read_base.html:8 ckan/templates/user/read_base.html:11
-#: ckan/templates/user/snippets/user_search.html:2
+#: ckan/templates/user/snippets/user_search.html:3
 msgid "Users"
 msgstr "အသုံးပြုသူများ"
 
-#: ckan/templates/user/edit.html:17
+# | msgid "Update Profile"
+#: ckan/templates/user/edit.html:13
+#, fuzzy
+msgid "Edit Profile"
+msgstr "Profile update လုပ်မည်"
+
+#: ckan/templates/user/edit.html:21
 msgid "Account Info"
 msgstr "အကောင့် အချက်အလက်များ"
 
-#: ckan/templates/user/edit.html:19
+#: ckan/templates/user/edit.html:23
 msgid "Your profile lets other CKAN users know about who you are and what you do."
 msgstr ""
 "သင်၏ပရိုဖိုင်းသည် အခြား CKAN အသုံးပြုသူများအား သင်မည်သူဖြစ်ကြောင်းနှင့် "
@@ -3487,8 +3458,8 @@ msgid "eg. Joe Bloggs"
 msgstr "ဥပမာ၊ Joe Bloggs။"
 
 #: ckan/templates/user/edit_user_form.html:19
-#: ckan/templates/user/new_user_form.html:12
-#: ckan/templates/user/snippets/info.html:80 ckan/views/group.py:598
+#: ckan/templates/user/new_user_form.html:11
+#: ckan/templates/user/snippets/info.html:84 ckan/views/group.py:598
 msgid "Email"
 msgstr "Email"
 
@@ -3501,12 +3472,10 @@ msgid "A little information about yourself"
 msgstr "သင့်အကြောင်း သတင်းအချက်အလက်အချို့"
 
 #: ckan/templates/user/edit_user_form.html:26
-#: ckan/templates/user/new_user_form.html:20
 msgid "Profile picture"
 msgstr "ပရိုဖိုင်းပုံ"
 
 #: ckan/templates/user/edit_user_form.html:26
-#: ckan/templates/user/new_user_form.html:20
 msgid "Profile picture URL"
 msgstr "ပရိုဖိုင်းပုံ URL"
 
@@ -3523,8 +3492,8 @@ msgstr ""
 #: ckan/templates/user/edit_user_form.html:43
 #: ckan/templates/user/edit_user_form.html:78
 #: ckan/templates/user/logout_first.html:11
-#: ckan/templates/user/new_user_form.html:13
-#: ckan/templates/user/perform_reset.html:26
+#: ckan/templates/user/new_user_form.html:12
+#: ckan/templates/user/perform_reset.html:19
 #: ckan/templates/user/snippets/login_form.html:23
 msgid "Password"
 msgstr "Password"
@@ -3563,47 +3532,21 @@ msgid "Update Profile"
 msgstr "Profile update လုပ်မည်"
 
 #: ckan/templates/user/list.html:3
-#: ckan/templates/user/snippets/user_search.html:11
+#: ckan/templates/user/snippets/user_search.html:12
 msgid "All Users"
 msgstr "အသုံးပြုသူများအားလုံး"
 
-#: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
-#: ckan/templates/user/login.html:12
-#: ckan/templates/user/snippets/login_form.html:33
-msgid "Login"
-msgstr "Login"
+# | msgid "No matches found"
+#: ckan/templates/user/list.html:21
+#, fuzzy
+msgid "No matching users found."
+msgstr "ကိုက်ညီမှုများကို ရှာမတွေ့ခဲ့ပါ။"
 
-#: ckan/templates/user/login.html:25
-msgid "Need an Account?"
-msgstr "အကောင့်တစ်ခု လိုအပ်ပါသလား။"
-
-#: ckan/templates/user/login.html:27
-msgid "Then sign right up, it only takes a minute."
-msgstr "ဒါဆိုရင် တစ်မိနစ်လောက်အချိန်ပေးပြီး Sign up လုပ်လိုက်ပါ။"
-
-#: ckan/templates/user/login.html:30
-msgid "Create an Account"
-msgstr "အကောင့်တစ်ခု ဖန်တီးမည်"
-
-#: ckan/templates/user/login.html:42
-msgid "Forgotten your password?"
-msgstr "Password မေ့သွားပါသလား။"
-
-#: ckan/templates/user/login.html:44
-msgid "No problem, use our password recovery form to reset it."
-msgstr ""
-"ကိစ္စမရှိပါဘူး၊ ကျွန်ုပ်တို့ရဲ့ password recovery ကို အသုံးပြုပြီး reset "
-"ပြန်လုပ်လိုက်ပါ။"
-
-#: ckan/templates/user/login.html:47
-msgid "Forgot your password?"
-msgstr "Password မေ့သွားပါသလား။"
-
-#: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
+#: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:11
 msgid "Logged Out"
 msgstr "ထွက်ပြီးပြီ။"
 
-#: ckan/templates/user/logout.html:11
+#: ckan/templates/user/logout.html:13
 msgid "You are now logged out."
 msgstr "သင် ယခု ထွက်ပြီးပါပြီ။"
 
@@ -3612,24 +3555,20 @@ msgstr "သင် ယခု ထွက်ပြီးပါပြီ။"
 msgid "You're already logged in as {user}."
 msgstr "သင်ယခု {user} အနေဖြင့် logged in လုပ်ထားပါတယ်။"
 
-#: ckan/templates/user/logout_first.html:9
-msgid "Logout"
-msgstr "Logout"
-
 #: ckan/templates/user/logout_first.html:12
 #: ckan/templates/user/snippets/login_form.html:25
 msgid "Remember me"
 msgstr "ကျွန်ုပ်ကို မှတ်မိနေပါ"
 
-#: ckan/templates/user/logout_first.html:20
-msgid "You're already logged in"
-msgstr "သင် logged in လုပ်ပြီးပါပြီ။"
+#: ckan/templates/user/logout_first.html:14
+msgid "Log in"
+msgstr "ဝင်မည်"
 
-#: ckan/templates/user/logout_first.html:22
+#: ckan/templates/user/logout_first.html:19
 msgid "You need to log out before you can log in with another account."
 msgstr "သင်အခြား account တစ်ခုဖြင့် log in လုပ်လိုပါက log out လုပ်ထားရန်လိုပါသည်။"
 
-#: ckan/templates/user/logout_first.html:23
+#: ckan/templates/user/logout_first.html:20
 msgid "Log out now"
 msgstr "ယခု log out လုပ်မည်"
 
@@ -3637,85 +3576,77 @@ msgstr "ယခု log out လုပ်မည်"
 msgid "Registration"
 msgstr "မှတ်ပုံတင်ခြင်း"
 
-#: ckan/templates/user/new.html:14
+#: ckan/templates/user/new.html:9
 msgid "Register for an Account"
 msgstr "အကောင့်တစ်ခု မှတ်ပုံတင်ခြင်း"
 
-#: ckan/templates/user/new.html:26
-msgid "Why Sign Up?"
-msgstr "ဘာကြောင့် sign up လုပ်မလဲ။"
-
-#: ckan/templates/user/new.html:28
+#: ckan/templates/user/new.html:18
 msgid "Create datasets, groups and other exciting things"
 msgstr "Dataset များ၊ အုပ်စုများ နှင့် အခြားစိတ်လှုပ်ရှားစရာအရာများ ဖန်တီးမည်။"
 
-#: ckan/templates/user/new_user_form.html:10
-msgid "username"
-msgstr "username"
+#: ckan/templates/user/new_user_form.html:13
+#: ckan/templates/user/perform_reset.html:20
+msgid "Confirm"
+msgstr "အတည်ပြုပါသည်"
 
-#: ckan/templates/user/new_user_form.html:11
-msgid "Full Name"
-msgstr "နာမည်အပြည့်အစုံ"
-
-#: ckan/templates/user/new_user_form.html:37
+#: ckan/templates/user/new_user_form.html:30
 msgid "Create Account"
 msgstr "အကောင့် ဖန်တီးမယ်"
 
 #: ckan/templates/user/perform_reset.html:4
-#: ckan/templates/user/perform_reset.html:15
+#: ckan/templates/user/perform_reset.html:5
 msgid "Reset Your Password"
 msgstr "Password reset လုပ်မည်"
 
 #: ckan/templates/user/perform_reset.html:7
-#: ckan/templates/user/request_reset.html:6
+#: ckan/templates/user/request_reset.html:8
 msgid "Password Reset"
 msgstr "Password reset လုပ်မည်"
 
-#: ckan/templates/user/perform_reset.html:22
+#: ckan/templates/user/perform_reset.html:15
 msgid "You can also change username. It can not be modified later."
 msgstr "Username ကိုလည်း ပြောင်းလဲနိုင်သည်။ နောက်မှပြင်လို့မရနိုင်ပါ။"
 
-#: ckan/templates/user/perform_reset.html:30
+#: ckan/templates/user/perform_reset.html:23
 msgid "Update Password"
 msgstr "Password update လုပ်မည်"
 
-#: ckan/templates/user/perform_reset.html:44
-#: ckan/templates/user/request_reset.html:42
+#: ckan/templates/user/perform_reset.html:32
 msgid "How does this work?"
 msgstr "ဒါ ဘယ်လို အလုပ်လုပ်သလဲ။"
 
-#: ckan/templates/user/perform_reset.html:46
+#: ckan/templates/user/perform_reset.html:33
 msgid "Simply enter a new password and we'll update your account"
 msgstr ""
 "Password အသစ်ကို ထည့်သွင်းပြီးနောက် သင့် အကောင့်ကို ကျွန်ုပ်တို့ update "
 "ပြုလုပ်ပေးပါမည်။"
 
-#: ckan/templates/user/read.html:27
+#: ckan/templates/user/read.html:26
 msgid "User hasn't created any datasets."
 msgstr "Dataset များ မဖန်တီးရသေးပါ။"
 
-#: ckan/templates/user/read_groups.html:22
+#: ckan/templates/user/read_groups.html:20
 msgid "User isn't a member of any groups."
 msgstr ""
 
-#: ckan/templates/user/read_organizations.html:21
+#: ckan/templates/user/read_organizations.html:20
 msgid "User isn't a member of any organizations."
 msgstr ""
 
 #: ckan/templates/user/request_reset.html:3
-#: ckan/templates/user/request_reset.html:13
+#: ckan/templates/user/request_reset.html:5
 msgid "Reset your password"
 msgstr "Password reset လုပ်မည်"
 
-#: ckan/templates/user/request_reset.html:18
+#: ckan/templates/user/request_reset.html:15
 msgid "Email or username"
 msgstr "Email သို့မဟုတ် username"
 
-#: ckan/templates/user/request_reset.html:28
+#: ckan/templates/user/request_reset.html:23
 msgid "Request Reset"
 msgstr "Reset လုပ်ရန် တောင်းဆိုမည်"
 
-#: ckan/templates/user/request_reset.html:44
+#: ckan/templates/user/request_reset.html:32
 msgid ""
 "Enter your email address or username into the box and we will send you an"
 " email with a link to enter a new password."
@@ -3728,10 +3659,13 @@ msgstr ""
 msgid "Create API Token"
 msgstr "API Token ဖန်တီးမည်"
 
+# | msgid "" "API Token created: <code
+# | style=\"word-break:break-all;\">{token}</code> " "{copy}<br>Make sure to
+# | copy it now, you won't be able to see it again!"
 #: ckan/templates/user/snippets/api_token_create_form.html:34
-#, python-brace-format
+#, fuzzy, python-brace-format
 msgid ""
-"API Token created: <code style=\"word-break:break-all;\">{token}</code> "
+"API Token created: <code style='word-break:break-all;'>{token}</code> "
 "{copy}<br>Make sure to copy it now, you won't be able to see it again!"
 msgstr ""
 "ဖန်တီးခဲ့သော API Token: <code style=\"word-break:break-"
@@ -3771,19 +3705,19 @@ msgstr "သင်၏ ကိုယ်ရေးအကျဉ်းကို မထ�
 msgid "This user has no biography."
 msgstr "ဤ user တွင် ကိုယ်ရေးအကျဉ်းမရှိပါ။"
 
-#: ckan/templates/user/snippets/info.html:71
+#: ckan/templates/user/snippets/info.html:75
 msgid "Open ID"
 msgstr "Open ID"
 
-#: ckan/templates/user/snippets/info.html:80
-msgid "This information is visible to you and admins"
+#: ckan/templates/user/snippets/info.html:84
+msgid "This information is private and visible only to you"
 msgstr ""
 
-#: ckan/templates/user/snippets/info.html:85
+#: ckan/templates/user/snippets/info.html:89
 msgid "Member Since"
 msgstr "အဖွဲ့ဝင်စဖြစ်သောရက်စွဲ"
 
-#: ckan/templates/user/snippets/info.html:90
+#: ckan/templates/user/snippets/info.html:94
 msgid "Last Active"
 msgstr ""
 
@@ -3791,7 +3725,17 @@ msgstr ""
 msgid "Username or Email"
 msgstr ""
 
-#: ckan/templates/user/snippets/user_search.html:5
+#: ckan/templates/user/snippets/login_form.html:24
+msgid "Forgotten your password?"
+msgstr "Password မေ့သွားပါသလား။"
+
+# | msgid "Create Account"
+#: ckan/templates/user/snippets/login_form.html:34
+#, fuzzy
+msgid "Create account"
+msgstr "အကောင့် ဖန်တီးမယ်"
+
+#: ckan/templates/user/snippets/user_search.html:6
 msgid "Search Users"
 msgstr "အသုံးပြုသူများ ရှာမည်"
 
@@ -3896,8 +3840,8 @@ msgid "Invalid search query: {error_message}"
 msgstr "မမှန်ကန်သော ရှာဖွေမှု - {error_message}"
 
 #: ckan/views/dataset.py:386 ckan/views/dataset.py:807 ckan/views/group.py:892
-#: ckan/views/resource.py:387 ckan/views/resource.py:564
-#: ckan/views/resource.py:665
+#: ckan/views/resource.py:389 ckan/views/resource.py:571
+#: ckan/views/resource.py:672
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "အသုံးပြုသူ %r သည် %s ကို edit လုပ်ရန် အခွင့်မရှိပါ။"
@@ -3926,7 +3870,7 @@ msgstr "Package တစ်ခု ဖန်တီးရန် အခွင့်�
 
 #: ckan/views/dataset.py:527 ckan/views/dataset.py:723
 #: ckan/views/dataset.py:1166 ckan/views/group.py:986 ckan/views/group.py:1090
-#: ckan/views/user.py:301 ckan/views/user.py:437 ckan/views/user.py:810
+#: ckan/views/user.py:301 ckan/views/user.py:437 ckan/views/user.py:812
 msgid "Integrity Error"
 msgstr "Integrity အမှား"
 
@@ -3974,11 +3918,11 @@ msgstr "{} ပူးပေါင်းဆောင်ရွက်သူမျာ
 msgid "User added to collaborators"
 msgstr "ပူးပေါင်းဆောင်ရွက်သူများသို့ အသုံးပြုသူကို ထည့်သွင်းခဲ့သည်။"
 
-#: ckan/views/dataset.py:1193 ckan/views/resource.py:92
-#: ckan/views/resource.py:165 ckan/views/resource.py:441
-#: ckan/views/resource.py:490 ckan/views/resource.py:518
-#: ckan/views/resource.py:535 ckan/views/resource.py:582
-#: ckan/views/resource.py:628 ckan/views/resource.py:681
+#: ckan/views/dataset.py:1193 ckan/views/resource.py:90
+#: ckan/views/resource.py:163 ckan/views/resource.py:448
+#: ckan/views/resource.py:497 ckan/views/resource.py:525
+#: ckan/views/resource.py:542 ckan/views/resource.py:589
+#: ckan/views/resource.py:635 ckan/views/resource.py:688
 #: ckanext/activity/views.py:142 ckanext/datapusher/views.py:50
 #: ckanext/datastore/blueprint.py:170 ckanext/resourceproxy/blueprint.py:33
 msgid "Resource not found"
@@ -4019,7 +3963,7 @@ msgstr ""
 msgid "Group member has been deleted."
 msgstr "အုပ်စုအဖွဲ့ဝင်ကို ဖျက်ပြီးပါပြီ။"
 
-#: ckan/views/group.py:778 ckan/views/user.py:896
+#: ckan/views/group.py:778 ckan/views/user.py:898
 #, python-format
 msgid "Unauthorized to view followers %s"
 msgstr "%s ၏ follower များကို ကြည့်ရှုရန် အခွင့်မရှိပါ။"
@@ -4081,81 +4025,81 @@ msgstr ""
 msgid "%s uses your email address if you need to reset your password."
 msgstr "အကယ်၍ password reset လုပ်လိုပါက %s သည် သင့် email ကို အသုံးပြုသည်။"
 
-#: ckan/views/resource.py:74 ckan/views/resource.py:584
+#: ckan/views/resource.py:72 ckan/views/resource.py:591
 #, python-format
 msgid "Unauthorized to read resource %s"
 msgstr "%s resource ကို ဖတ်ရန် အခွင့်မရှိပါ။"
 
-#: ckan/views/resource.py:119 ckan/views/resource.py:640
+#: ckan/views/resource.py:117 ckan/views/resource.py:647
 #: ckanext/activity/views.py:173
 msgid "Resource view not found"
 msgstr "Resource view ရှာမတွေ့ခဲ့ပါ။"
 
-#: ckan/views/resource.py:167
+#: ckan/views/resource.py:165
 msgid "Not authorized to download resource"
 msgstr ""
 
-#: ckan/views/resource.py:206
+#: ckan/views/resource.py:185 ckan/views/resource.py:208
 msgid "No download is available"
 msgstr "Download လုပ်၍မရနိုင်ပါ။"
 
-#: ckan/views/resource.py:241 ckanext/datapusher/helpers.py:26
+#: ckan/views/resource.py:243 ckanext/datapusher/helpers.py:26
 msgid "Error"
 msgstr "အမှား"
 
-#: ckan/views/resource.py:241
+#: ckan/views/resource.py:243
 msgid "No resource data entered"
 msgstr ""
 
-#: ckan/views/resource.py:252
+#: ckan/views/resource.py:254
 msgid "Unauthorized to update dataset"
 msgstr "Dataset ကို update လုပ်ရန် အခွင့်မရှိပါ။"
 
-#: ckan/views/resource.py:256 ckan/views/resource.py:282
-#: ckan/views/resource.py:347
+#: ckan/views/resource.py:258 ckan/views/resource.py:284
+#: ckan/views/resource.py:349
 #, python-brace-format
 msgid "The dataset {id} could not be found."
 msgstr "Dataset {id} ရှာမတွေ့နိုင်ခဲ့ပါ။"
 
-#: ckan/views/resource.py:279
+#: ckan/views/resource.py:281
 msgid "Unauthorized to create a resource"
 msgstr "Resource တစ်ခု ဖန်တီးရန် အခွင့်မရှိပါ။"
 
-#: ckan/views/resource.py:340
+#: ckan/views/resource.py:342
 msgid "Unauthorized to create a resource for this package"
 msgstr "ဤ package အတွက် resource တစ်ခု ဖန်တီးရန် အခွင့် မရှိပါ။"
 
-#: ckan/views/resource.py:418
+#: ckan/views/resource.py:422
 msgid "Unauthorized to edit this resource"
 msgstr "ဤ resource ကို edit လုပ်ရန် အခွင့် မရှိပါ။"
 
-#: ckan/views/resource.py:487 ckan/views/resource.py:515
-#: ckan/views/resource.py:532
+#: ckan/views/resource.py:494 ckan/views/resource.py:522
+#: ckan/views/resource.py:539
 #, python-format
 msgid "Unauthorized to delete resource %s"
 msgstr "%s resource ကိုဖျက်ရန် အခွင့်မရှိပါ။"
 
-#: ckan/views/resource.py:503
+#: ckan/views/resource.py:510
 msgid "Resource has been deleted."
 msgstr "Resource ကို ဖျက်ပြီးပါပြီ။"
 
-#: ckan/views/resource.py:635
+#: ckan/views/resource.py:642
 msgid "Bad resource view data"
 msgstr "မှားယွင်းသော resource view ဒေတာ"
 
-#: ckan/views/resource.py:643
+#: ckan/views/resource.py:650
 msgid "Resource view not supplied"
 msgstr "Resource view မထောက်ပံ့ပေးခဲ့ပါ။"
 
-#: ckan/views/resource.py:738
+#: ckan/views/resource.py:745
 msgid "Unauthorized to edit resource"
 msgstr "Resource ကို edit လုပ်ရန် အခွင့်မရှိပါ။"
 
-#: ckan/views/resource.py:786
+#: ckan/views/resource.py:793
 msgid "View not found"
 msgstr "View ရှာမတွေ့ခဲ့ပါ။"
 
-#: ckan/views/resource.py:796
+#: ckan/views/resource.py:803
 msgid "View Type Not found"
 msgstr "View အမျိုးအစား ရှာမတွေ့ခဲ့ပါ။"
 
@@ -4187,7 +4131,7 @@ msgstr "ရိုက်ထည့်ခဲ့သော password သည် မမ�
 msgid "incorrect password"
 msgstr "မမှန်ကန်သော password"
 
-#: ckan/views/user.py:358 ckan/views/user.py:389 ckan/views/user.py:806
+#: ckan/views/user.py:358 ckan/views/user.py:389 ckan/views/user.py:808
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr "အသုံးပြုသူ %s ကို edit လုပ်ခွင့်မရှိပါ။\""
@@ -4200,7 +4144,7 @@ msgstr "ပရိုဖိုင်းကို update လုပ်ပြီး�
 msgid "Unauthorized to register as a user."
 msgstr "အသုံးပြုသူတစ်ယောက်အနေဖြင့် register လုပ်ခွင့်မရှိပါ။"
 
-#: ckan/views/user.py:442 ckan/views/user.py:669
+#: ckan/views/user.py:442 ckan/views/user.py:671
 msgid "Bad Captcha. Please try again."
 msgstr "Bad Captcha. နောက်တစ်ကြိမ်ထပ်ကြိုးစားပါ။"
 
@@ -4226,20 +4170,20 @@ msgstr ""
 msgid "Login failed. Bad username or password."
 msgstr "Login လုပ်ခြင်းမအောင်မြင်ပါ။ Username သို့မဟုတ် password မှားယွင်းနေပါသည်။"
 
-#: ckan/views/user.py:616
+#: ckan/views/user.py:618
 #, python-brace-format
 msgid "Unauthorized to delete user with id \"{user_id}\"."
 msgstr "ID \"{user_id}\" ရှိသော အသုံးပြုသူကို ဖျက်ခွင့်မရှိပါ။"
 
-#: ckan/views/user.py:650
+#: ckan/views/user.py:652
 msgid "Unauthorized to request reset password."
 msgstr "Password reset လုပ်ရန် အခွင့်မရှိပါ။"
 
-#: ckan/views/user.py:675
+#: ckan/views/user.py:677
 msgid "Email is required"
 msgstr "Email လိုအပ်ပါသည်။"
 
-#: ckan/views/user.py:730
+#: ckan/views/user.py:732
 msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
@@ -4247,7 +4191,7 @@ msgstr ""
 "Email ပို့ရာတွင် အမှားအယွင်းဖြစ်သွားသည်။ နောက်မှထပ်ကြိုးစားပါ (သို့မဟုတ်)"
 " စီမံခန့်ခွဲသူကို အကူအညီတောင်းပါ။"
 
-#: ckan/views/user.py:739
+#: ckan/views/user.py:741
 msgid ""
 "A reset link has been emailed to you (unless the account specified does "
 "not exist)"
@@ -4255,28 +4199,28 @@ msgstr ""
 "Reset link တစ်ခုကို သင့်ထံ email ပို့ပြီး ဖြစ်သည် (သတ်မှတ်ထားသော "
 "အကောင့်ရှိခဲ့ပါက)။"
 
-#: ckan/views/user.py:761
+#: ckan/views/user.py:763
 msgid "Unauthorized to reset password."
 msgstr "Password reset ပြုလုပ်ရန်အခွင့်မရှိပါ။"
 
-#: ckan/views/user.py:770
+#: ckan/views/user.py:772
 msgid "Invalid reset key. Please try again."
 msgstr "မမှန်ကန်သော reset key ဖြစ်နေသည်။ နောက်တစ်ကြိမ်ထပ်မံကြိုးစားပါ။"
 
-#: ckan/views/user.py:801
+#: ckan/views/user.py:803
 msgid "Your password has been reset."
 msgstr "သင့် password ကို reset ပြုလုပ်ပြီးပါပြီ။"
 
-#: ckan/views/user.py:914
+#: ckan/views/user.py:916
 msgid "Not authorized to promote user to sysadmin"
 msgstr ""
 
-#: ckan/views/user.py:925
+#: ckan/views/user.py:927
 #, python-brace-format
 msgid "Promoted {} to sysadmin"
 msgstr ""
 
-#: ckan/views/user.py:930
+#: ckan/views/user.py:932
 #, python-brace-format
 msgid "Revoked sysadmin permission from {}"
 msgstr ""
@@ -4330,8 +4274,7 @@ msgstr "Follow item ကိုရှာမတွေ့ခဲ့ပါ။"
 msgid "{0} not found"
 msgstr "{0} ကို ရှာမတွေ့ခဲ့ပါ။"
 
-#: ckanext/activity/templates-midnight-blue/user/snippets/followee_dropdown.html:37
-#: ckanext/activity/templates/user/snippets/followee_dropdown.html:34
+#: ckanext/activity/templates/user/snippets/followee_dropdown.html:37
 #: ckanext/activity/views.py:980
 msgid "Everything"
 msgstr "အားလုံး"
@@ -4366,153 +4309,63 @@ msgid "You must be logged in to access your dashboard."
 msgstr "သင်၏ dashboard ကို access လုပ်ရန် သင့်အနေဖြင့် login လုပ်ထားရမည်။"
 
 #: ckanext/activity/logic/validators.py:28
-#: ckanext/activity/templates-midnight-blue/snippets/activity_type_selector.html:14
 #: ckanext/activity/templates/snippets/activity_type_selector.html:14
 msgid "Activity type"
 msgstr "Activity အမျိုးအစား"
 
-#: ckanext/activity/templates-midnight-blue/header.html:6
 #: ckanext/activity/templates/header.html:6
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Dashboard (item အသစ် %(num)d ခု)"
 
-#: ckanext/activity/templates/admin/activities.html:4
-#: ckanext/activity/templates/admin/activities.html:64
-#: ckanext/activity/templates/admin/base.html:5
-msgid "Activities"
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:7
-msgid ""
-"Purge activities by age. Use 'ckan clean activities' via CLI for more "
-"options."
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:14
-msgid "Delete activities older than a day"
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:17
-#, python-brace-format
-msgid "Delete {count} activities older than a day? This cannot be undone."
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:25
-msgid "Delete activities older than a month"
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:28
-#, python-brace-format
-msgid "Delete {count} activities older than a month? This cannot be undone."
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:36
-msgid "Delete activities older than a year"
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:39
-#, python-brace-format
-msgid "Delete {count} activities older than a year? This cannot be undone."
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:47
-msgid "Delete all activities"
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:50
-#, python-brace-format
-msgid "Delete all {count} activities? This cannot be undone."
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:53
-msgid "Delete all"
-msgstr ""
-
-#: ckanext/activity/templates/admin/activities.html:68
-msgid ""
-"Purge activity stream entries by age. Each option shows how many "
-"activities would be deleted. Purging is irreversible."
-msgstr ""
-
-#: ckanext/activity/templates-midnight-blue/group/activity_stream.html:3
-#: ckanext/activity/templates-midnight-blue/group/read_base.html:5
-#: ckanext/activity/templates-midnight-blue/organization/activity_stream.html:3
-#: ckanext/activity/templates-midnight-blue/organization/read_base.html:5
-#: ckanext/activity/templates-midnight-blue/package/activity_stream.html:3
-#: ckanext/activity/templates-midnight-blue/package/read_base.html:5
-#: ckanext/activity/templates-midnight-blue/snippets/activity_stream.html:2
-#: ckanext/activity/templates-midnight-blue/user/activity_stream.html:3
-#: ckanext/activity/templates-midnight-blue/user/activity_stream.html:8
-#: ckanext/activity/templates-midnight-blue/user/read_base.html:5
 #: ckanext/activity/templates/group/activity_stream.html:3
 #: ckanext/activity/templates/group/read_base.html:5
 #: ckanext/activity/templates/organization/activity_stream.html:3
 #: ckanext/activity/templates/organization/read_base.html:5
 #: ckanext/activity/templates/package/activity_stream.html:3
 #: ckanext/activity/templates/package/read_base.html:5
+#: ckanext/activity/templates/snippets/activity_stream.html:1
 #: ckanext/activity/templates/user/activity_stream.html:3
-#: ckanext/activity/templates/user/activity_stream.html:8
+#: ckanext/activity/templates/user/activity_stream.html:6
 #: ckanext/activity/templates/user/read_base.html:5
 msgid "Activity Stream"
 msgstr "Activity Stream"
 
-#: ckanext/activity/templates-midnight-blue/group/changes.html:9
-#: ckanext/activity/templates-midnight-blue/group/changes.html:17
-#: ckanext/activity/templates-midnight-blue/organization/changes.html:9
-#: ckanext/activity/templates-midnight-blue/organization/changes.html:17
-#: ckanext/activity/templates-midnight-blue/package/changes.html:9
-#: ckanext/activity/templates-midnight-blue/package/changes.html:17
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_group.html:17
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_organization.html:17
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_package.html:23
 #: ckanext/activity/templates/group/changes.html:9
 #: ckanext/activity/templates/group/changes.html:17
 #: ckanext/activity/templates/organization/changes.html:9
 #: ckanext/activity/templates/organization/changes.html:17
 #: ckanext/activity/templates/package/changes.html:9
 #: ckanext/activity/templates/package/changes.html:17
-#: ckanext/activity/templates/snippets/activities/changed_group.html:16
-#: ckanext/activity/templates/snippets/activities/changed_organization.html:16
-#: ckanext/activity/templates/snippets/activities/changed_package.html:22
+#: ckanext/activity/templates/snippets/activities/changed_group.html:17
+#: ckanext/activity/templates/snippets/activities/changed_organization.html:17
+#: ckanext/activity/templates/snippets/activities/changed_package.html:23
 msgid "Changes"
 msgstr "ပြုပြင်ပြောင်းလဲမှုများ"
 
 #. old_select and new_select are placeholders for HTML select elements for
 #. choosing
 #. the range of changes to view
-#: ckanext/activity/templates-midnight-blue/group/changes.html:44
-#: ckanext/activity/templates-midnight-blue/organization/changes.html:44
-#: ckanext/activity/templates-midnight-blue/package/changes.html:46
 #: ckanext/activity/templates/group/changes.html:44
 #: ckanext/activity/templates/organization/changes.html:44
-#: ckanext/activity/templates/package/changes.html:44
+#: ckanext/activity/templates/package/changes.html:46
 #, python-format
 msgid "View changes from %(old_select)s to %(new_select)s"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/group/changes.html:57
-#: ckanext/activity/templates-midnight-blue/organization/changes.html:57
-#: ckanext/activity/templates-midnight-blue/package/changes.html:59
 #: ckanext/activity/templates/group/changes.html:57
 #: ckanext/activity/templates/organization/changes.html:57
-#: ckanext/activity/templates/package/changes.html:57
+#: ckanext/activity/templates/package/changes.html:59
 msgid "Show metadata diff"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/group/changes.html:57
-#: ckanext/activity/templates-midnight-blue/organization/changes.html:57
-#: ckanext/activity/templates-midnight-blue/package/changes.html:59
 #: ckanext/activity/templates/group/changes.html:57
 #: ckanext/activity/templates/organization/changes.html:57
-#: ckanext/activity/templates/package/changes.html:57
+#: ckanext/activity/templates/package/changes.html:59
 msgid "Hide metadata diff"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/group/snippets/item_group.html:1
-#: ckanext/activity/templates-midnight-blue/organization/snippets/item_organization.html:1
-#: ckanext/activity/templates-midnight-blue/package/snippets/change_item.html:1
 #: ckanext/activity/templates/group/snippets/item_group.html:1
 #: ckanext/activity/templates/organization/snippets/item_organization.html:1
 #: ckanext/activity/templates/package/snippets/change_item.html:1
@@ -4520,8 +4373,14 @@ msgstr ""
 msgid "On %(timestamp)s, %(username)s:"
 msgstr "On %(timestamp)s, %(username)s:"
 
-#: ckanext/activity/templates-midnight-blue/package/history.html:6
-#: ckanext/activity/templates-midnight-blue/package/resource_history.html:10
+#: ckanext/activity/templates/package/changes.html:25
+msgid "Start date"
+msgstr ""
+
+#: ckanext/activity/templates/package/changes.html:34
+msgid "End date"
+msgstr ""
+
 #: ckanext/activity/templates/package/history.html:6
 #: ckanext/activity/templates/package/resource_history.html:10
 #, python-format
@@ -4531,277 +4390,194 @@ msgid ""
 "current version</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activity_stream.html:13
-#: ckanext/activity/templates-midnight-blue/snippets/stream.html:62
-#: ckanext/activity/templates/snippets/activity_stream.html:10
+#: ckanext/activity/templates/snippets/activity_stream.html:12
 #: ckanext/activity/templates/snippets/stream.html:62
 msgid "No activity found for this type"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activity_stream.html:15
-#: ckanext/activity/templates/snippets/activity_stream.html:12
+#: ckanext/activity/templates/snippets/activity_stream.html:14
 msgid "No activity found"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activity_type_selector.html:18
 #: ckanext/activity/templates/snippets/activity_type_selector.html:18
 msgid "All activity types"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/pagination.html:8
-#: ckanext/activity/templates/snippets/pagination.html:7
+#: ckanext/activity/templates/snippets/pagination.html:8
 msgid "Newer activities"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/pagination.html:11
-#: ckanext/activity/templates/snippets/pagination.html:10
+#: ckanext/activity/templates/snippets/pagination.html:11
 msgid "Older activities"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/added_tag.html:7
-#: ckanext/activity/templates/snippets/activities/added_tag.html:6
+#: ckanext/activity/templates/snippets/activities/added_tag.html:7
 #, python-brace-format
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
 msgstr "{actor} သည် {dataset} dataset သို့ {tag} tag ကို ထည့်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/added_tag.html:13
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_group.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_organization.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_package.html:14
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_resource.html:13
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_user.html:11
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_group.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_organization.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_package.html:15
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_resource.html:13
-#: ckanext/activity/templates-midnight-blue/snippets/activities/fallback.html:36
-#: ckanext/activity/templates-midnight-blue/snippets/activities/follow_dataset.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/follow_group.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/follow_user.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_group.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_organization.html:12
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_package.html:14
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_resource.html:13
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_user.html:11
-#: ckanext/activity/templates-midnight-blue/snippets/activities/removed_tag.html:13
-#: ckanext/activity/templates/snippets/activities/added_tag.html:12
-#: ckanext/activity/templates/snippets/activities/changed_group.html:11
-#: ckanext/activity/templates/snippets/activities/changed_organization.html:11
-#: ckanext/activity/templates/snippets/activities/changed_package.html:13
-#: ckanext/activity/templates/snippets/activities/changed_resource.html:12
-#: ckanext/activity/templates/snippets/activities/changed_user.html:10
-#: ckanext/activity/templates/snippets/activities/deleted_group.html:11
-#: ckanext/activity/templates/snippets/activities/deleted_organization.html:11
-#: ckanext/activity/templates/snippets/activities/deleted_package.html:14
-#: ckanext/activity/templates/snippets/activities/deleted_resource.html:12
-#: ckanext/activity/templates/snippets/activities/fallback.html:35
-#: ckanext/activity/templates/snippets/activities/follow_dataset.html:11
-#: ckanext/activity/templates/snippets/activities/follow_group.html:11
-#: ckanext/activity/templates/snippets/activities/follow_user.html:11
-#: ckanext/activity/templates/snippets/activities/new_group.html:11
-#: ckanext/activity/templates/snippets/activities/new_organization.html:11
-#: ckanext/activity/templates/snippets/activities/new_package.html:13
-#: ckanext/activity/templates/snippets/activities/new_resource.html:12
-#: ckanext/activity/templates/snippets/activities/new_user.html:10
-#: ckanext/activity/templates/snippets/activities/removed_tag.html:12
+#: ckanext/activity/templates/snippets/activities/added_tag.html:13
+#: ckanext/activity/templates/snippets/activities/changed_group.html:12
+#: ckanext/activity/templates/snippets/activities/changed_organization.html:12
+#: ckanext/activity/templates/snippets/activities/changed_package.html:14
+#: ckanext/activity/templates/snippets/activities/changed_resource.html:13
+#: ckanext/activity/templates/snippets/activities/changed_user.html:11
+#: ckanext/activity/templates/snippets/activities/deleted_group.html:12
+#: ckanext/activity/templates/snippets/activities/deleted_organization.html:12
+#: ckanext/activity/templates/snippets/activities/deleted_package.html:15
+#: ckanext/activity/templates/snippets/activities/deleted_resource.html:13
+#: ckanext/activity/templates/snippets/activities/fallback.html:36
+#: ckanext/activity/templates/snippets/activities/follow_dataset.html:12
+#: ckanext/activity/templates/snippets/activities/follow_group.html:12
+#: ckanext/activity/templates/snippets/activities/follow_user.html:12
+#: ckanext/activity/templates/snippets/activities/new_group.html:12
+#: ckanext/activity/templates/snippets/activities/new_organization.html:12
+#: ckanext/activity/templates/snippets/activities/new_package.html:14
+#: ckanext/activity/templates/snippets/activities/new_resource.html:13
+#: ckanext/activity/templates/snippets/activities/new_user.html:11
+#: ckanext/activity/templates/snippets/activities/removed_tag.html:13
 #, python-brace-format
 msgid "Activity occurred on: {time}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_group.html:7
-#: ckanext/activity/templates/snippets/activities/changed_group.html:6
+#: ckanext/activity/templates/snippets/activities/changed_group.html:7
 #, python-brace-format
 msgid "{actor} updated the group {group}"
 msgstr "{actor} သည် {group} အုပ်စုကို ပြင်ဆင်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_organization.html:7
-#: ckanext/activity/templates/snippets/activities/changed_organization.html:6
+#: ckanext/activity/templates/snippets/activities/changed_organization.html:7
 #, python-brace-format
 msgid "{actor} updated the organization {organization}"
 msgstr "{actor} သည် {organization} အဖွဲ့အစည်းကို ပြင်ဆင်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_package.html:8
-#: ckanext/activity/templates/snippets/activities/changed_package.html:7
+#: ckanext/activity/templates/snippets/activities/changed_package.html:8
 #, python-brace-format
 msgid "{actor} updated the {dataset_type} {dataset}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_package.html:10
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_package.html:11
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_package.html:10
-#: ckanext/activity/templates/snippets/activities/changed_package.html:9
-#: ckanext/activity/templates/snippets/activities/deleted_package.html:10
-#: ckanext/activity/templates/snippets/activities/new_package.html:9
-msgid "dataset"
-msgstr "dataset"
-
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_package.html:19
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_package.html:19
-#: ckanext/activity/templates/snippets/activities/changed_package.html:18
-#: ckanext/activity/templates/snippets/activities/new_package.html:18
+#: ckanext/activity/templates/snippets/activities/changed_package.html:19
+#: ckanext/activity/templates/snippets/activities/new_package.html:19
 msgid "View this version"
 msgstr "ဤဗားရှင်းကိုကြည့်မည်"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_resource.html:7
-#: ckanext/activity/templates/snippets/activities/changed_resource.html:6
+#: ckanext/activity/templates/snippets/activities/changed_resource.html:7
 #, python-brace-format
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
 msgstr ""
 "{actor} သည် {dataset} dataset တွင် ရှိသော {resource} resource ကို "
 "ပြင်ဆင်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_resource_view.html:10
-#: ckanext/activity/templates/snippets/activities/changed_resource_view.html:9
+#: ckanext/activity/templates/snippets/activities/changed_resource_view.html:10
 #, python-brace-format
 msgid "{actor} updated resource view {view_link}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/changed_user.html:7
-#: ckanext/activity/templates/snippets/activities/changed_user.html:6
+#: ckanext/activity/templates/snippets/activities/changed_user.html:7
 #, python-brace-format
 msgid "{actor} updated their profile"
 msgstr "{actor} သည် ၎င်း၏ profile ကို ပြင်ဆင်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_group.html:7
-#: ckanext/activity/templates/snippets/activities/deleted_group.html:6
+#: ckanext/activity/templates/snippets/activities/deleted_group.html:7
 #, python-brace-format
 msgid "{actor} deleted the group {group}"
 msgstr "{actor} သည် {group} group ကို ဖျက်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_organization.html:7
-#: ckanext/activity/templates/snippets/activities/deleted_organization.html:6
+#: ckanext/activity/templates/snippets/activities/deleted_organization.html:7
 #, python-brace-format
 msgid "{actor} deleted the organization {organization}"
 msgstr "{actor} သည် {organization} အဖွဲ့အစည်းကို ဖျက်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_package.html:9
-#: ckanext/activity/templates/snippets/activities/deleted_package.html:8
+#: ckanext/activity/templates/snippets/activities/deleted_package.html:9
 #, python-brace-format
 msgid "{actor} deleted the {dataset_type} {dataset}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_resource.html:7
-#: ckanext/activity/templates/snippets/activities/deleted_resource.html:6
+#: ckanext/activity/templates/snippets/activities/deleted_resource.html:7
 #, python-brace-format
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
 msgstr ""
 "{actor} သည် {dataset} dataset တွင် ရှိသော {resource} resource ကို "
 "ဖျက်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/deleted_resource_view.html:10
-#: ckanext/activity/templates/snippets/activities/deleted_resource_view.html:9
+#: ckanext/activity/templates/snippets/activities/deleted_resource_view.html:10
 #, python-brace-format
 msgid ""
 "{actor} deleted resource view \"{view_title}\" for resource "
 "{resource_link}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/fallback.html:17
-#: ckanext/activity/templates/snippets/activities/fallback.html:16
+#: ckanext/activity/templates/snippets/activities/fallback.html:17
 #, python-brace-format
 msgid "{actor} {activity_type}"
 msgstr "{actor} {activity_type}"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/follow_dataset.html:7
-#: ckanext/activity/templates/snippets/activities/follow_dataset.html:6
+#: ckanext/activity/templates/snippets/activities/follow_dataset.html:7
 #, python-brace-format
 msgid "{actor} started following {dataset}"
 msgstr "{actor} သည် {dataset} ကို စ၍ follow လုပ်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/follow_group.html:7
-#: ckanext/activity/templates/snippets/activities/follow_group.html:6
+#: ckanext/activity/templates/snippets/activities/follow_group.html:7
 #, python-brace-format
 msgid "{actor} started following {group}"
 msgstr "{actor} သည် {group} ကို စ၍ follow လုပ်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/follow_user.html:7
-#: ckanext/activity/templates/snippets/activities/follow_user.html:6
+#: ckanext/activity/templates/snippets/activities/follow_user.html:7
 #, python-brace-format
 msgid "{actor} started following {user}"
 msgstr "{actor} သည် {user} ကို စ၍ follow လုပ်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_group.html:7
-#: ckanext/activity/templates/snippets/activities/new_group.html:6
+#: ckanext/activity/templates/snippets/activities/new_group.html:7
 #, python-brace-format
 msgid "{actor} created the group {group}"
 msgstr "{actor} သည် {group} အုပ်စုကို ဖန်တီးခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_organization.html:7
-#: ckanext/activity/templates/snippets/activities/new_organization.html:6
+#: ckanext/activity/templates/snippets/activities/new_organization.html:7
 #, python-brace-format
 msgid "{actor} created the organization {organization}"
 msgstr "{actor} သည် {organization} အဖွဲ့အစည်းကို ဖန်တီးခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_package.html:8
-#: ckanext/activity/templates/snippets/activities/new_package.html:7
+#: ckanext/activity/templates/snippets/activities/new_package.html:8
 #, python-brace-format
 msgid "{actor} created the {dataset_type} {dataset}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_resource.html:7
-#: ckanext/activity/templates/snippets/activities/new_resource.html:6
+#: ckanext/activity/templates/snippets/activities/new_resource.html:7
 #, python-brace-format
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
 msgstr ""
 "{actor} သည် {dataset} dataset သို့ {resource} resource ကို "
 "ထည့်သွင်းခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_resource_view.html:10
-#: ckanext/activity/templates/snippets/activities/new_resource_view.html:9
+#: ckanext/activity/templates/snippets/activities/new_resource_view.html:10
 #, python-brace-format
 msgid "{actor} created resource view {view_link}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/new_user.html:7
-#: ckanext/activity/templates/snippets/activities/new_user.html:6
+#: ckanext/activity/templates/snippets/activities/new_user.html:7
 #, python-brace-format
 msgid "{actor} signed up"
 msgstr "{actor} sign up လုပ်ခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/activities/removed_tag.html:7
-#: ckanext/activity/templates/snippets/activities/removed_tag.html:6
+#: ckanext/activity/templates/snippets/activities/removed_tag.html:7
 #, python-brace-format
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
 msgstr "{actor} သည် {dataset} dataset မှ {tag} tag ကို ဖယ်ရှားခဲ့ပါသည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author.html:5
 #: ckanext/activity/templates/snippets/changes/author.html:5
 #, python-brace-format
 msgid "Set author of {pkg_link} to {new_author} (previously {old_author})"
 msgstr "{pkg_link} ၏ ရေးသားသူကို {new_author} သို့ထားခဲ့သည် (ယခင်က {old_author})။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author.html:13
 #: ckanext/activity/templates/snippets/changes/author.html:13
 #, python-brace-format
 msgid "Set author of {pkg_link} to {new_author}"
 msgstr "{pkg_link} ၏ ရေးသားသူကို {new_author} သို့ထားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author.html:20
 #: ckanext/activity/templates/snippets/changes/author.html:20
 #, python-brace-format
 msgid "Removed author from {pkg_link}"
 msgstr "{pkg_link} မှ ရေးသားသူကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author.html:26
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author_email.html:37
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:81
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer.html:26
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer_email.html:37
-#: ckanext/activity/templates-midnight-blue/snippets/changes/no_change.html:3
-#: ckanext/activity/templates-midnight-blue/snippets/changes/notes.html:26
-#: ckanext/activity/templates-midnight-blue/snippets/changes/org.html:26
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_desc.html:35
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:108
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_format.html:41
-#: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:55
-#: ckanext/activity/templates-midnight-blue/snippets/changes/url.html:39
-#: ckanext/activity/templates-midnight-blue/snippets/changes/version.html:26
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/description.html:26
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/image_url.html:39
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/no_change.html:3
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/description.html:26
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/image_url.html:40
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/no_change.html:3
 #: ckanext/activity/templates/snippets/changes/author.html:26
 #: ckanext/activity/templates/snippets/changes/author_email.html:37
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:81
@@ -4814,10 +4590,10 @@ msgstr "{pkg_link} မှ ရေးသားသူကို ဖယ်ရှာ�
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:108
 #: ckanext/activity/templates/snippets/changes/resource_format.html:41
 #: ckanext/activity/templates/snippets/changes/tags.html:55
-#: ckanext/activity/templates/snippets/changes/url.html:40
+#: ckanext/activity/templates/snippets/changes/url.html:39
 #: ckanext/activity/templates/snippets/changes/version.html:26
 #: ckanext/activity/templates/snippets/group_changes/description.html:26
-#: ckanext/activity/templates/snippets/group_changes/image_url.html:40
+#: ckanext/activity/templates/snippets/group_changes/image_url.html:39
 #: ckanext/activity/templates/snippets/group_changes/no_change.html:3
 #: ckanext/activity/templates/snippets/organization_changes/description.html:26
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:40
@@ -4827,7 +4603,6 @@ msgstr ""
 "Field များ update မလုပ်ခဲ့ပါ။ အသေးစိတ်အတွက် metadata ကွဲပြားခြားနားမှုကို"
 " ကြည့်ပါ။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author_email.html:6
 #: ckanext/activity/templates/snippets/changes/author_email.html:6
 #, python-format
 msgid ""
@@ -4836,7 +4611,6 @@ msgid ""
 "href=\"mailto:%(old_email)s\">%(old_email)s</a>)."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author_email.html:18
 #: ckanext/activity/templates/snippets/changes/author_email.html:18
 #, python-format
 msgid ""
@@ -4844,19 +4618,16 @@ msgid ""
 "href=\"mailto:%(new_email)s\">%(new_email)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/author_email.html:28
 #: ckanext/activity/templates/snippets/changes/author_email.html:28
 #, python-format
 msgid "Removed author email from <a href=\"%(pkg_link)s\">%(title)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/delete_resource.html:3
 #: ckanext/activity/templates/snippets/changes/delete_resource.html:3
 #, python-brace-format
 msgid "Deleted resource {resource_link} from {pkg_link}"
 msgstr "{pkg_link} မှ {resource_link} resource ကို ဖျက်ခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extension_fields.html:3
 #: ckanext/activity/templates/snippets/changes/extension_fields.html:3
 #, python-brace-format
 msgid "Changed value of field <q>{key}</q> to <q>{value}</q> in {pkg_link}"
@@ -4864,7 +4635,6 @@ msgstr ""
 "{pkg_link} ရှိ field <q>{key}</q> ၏ တန်ဖိုးကို <q>{value}</q>သို့ "
 "ပြောင်းလဲခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:5
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:5
 #, python-brace-format
 msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
@@ -4872,29 +4642,22 @@ msgstr ""
 "{pkg_link} သို့ field <q>{key}</q>နှင့်တန်ဖိုး <q>{value}</q> ကို "
 "ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:13
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:13
 #, python-brace-format
 msgid "Added field <q>{key}</q> to {pkg_link}"
 msgstr "{pkg_link} သို့ field <q>{key}</q> ကို ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:20
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:20
 #, python-brace-format
 msgid "Added the following fields to {pkg_link}"
 msgstr "{pkg_link} သို့ အောက်ပါ field များကို ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:27
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:35
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:27
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:35
 #, python-brace-format
 msgid "{key} with value {value}"
 msgstr "{key} နှင့် တန်ဖိုး {value}"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:32
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:40
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:67
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:32
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:40
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:67
@@ -4902,7 +4665,6 @@ msgstr "{key} နှင့် တန်ဖိုး {value}"
 msgid "{key}"
 msgstr "{key}"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:42
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:42
 #, python-brace-format
 msgid ""
@@ -4912,7 +4674,6 @@ msgstr ""
 "{pkg_link} ရှိ field <q>{key}</q> ၏ တန်ဖိုးကို <q>{new_val}</q>သို့ "
 "ပြောင်းလဲခဲ့သည် (ယခင်က <q>{old_val}</q>)။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:51
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:51
 #, python-brace-format
 msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
@@ -4920,25 +4681,21 @@ msgstr ""
 "{pkg_link} ရှိ field <q>{key}</q> ၏ တန်ဖိုးကို <q>{new_val}</q>သို့ "
 "ပြောင်းလဲခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:59
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:59
 #, python-brace-format
 msgid "Removed field <q>{key}</q> from {pkg_link}"
 msgstr "{pkg_link} မှ field <q>{key}</q> ကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:66
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:66
 #, python-brace-format
 msgid "Removed the following fields from {pkg_link}"
 msgstr "{pkg_link} မှ အောက်ပါ field များကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/extra_fields.html:72
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:72
 #, python-brace-format
 msgid "<q>{key}</q>"
 msgstr "<q>{key}</q>"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/license.html:7
 #: ckanext/activity/templates/snippets/changes/license.html:7
 #, python-format
 msgid ""
@@ -4947,7 +4704,6 @@ msgid ""
 "href=\"%(old_url)s\">%(old_license)s</a>)."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/license.html:20
 #: ckanext/activity/templates/snippets/changes/license.html:20
 #, python-format
 msgid ""
@@ -4955,7 +4711,6 @@ msgid ""
 "href=\"%(new_url)s\">%(new_license)s</a> (previously %(old_license)s)."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/license.html:32
 #: ckanext/activity/templates/snippets/changes/license.html:32
 #, python-format
 msgid ""
@@ -4963,7 +4718,6 @@ msgid ""
 "%(new_license)s (previously <a href=\"%(old_url)s\">%(old_license)s</a>)."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/license.html:44
 #: ckanext/activity/templates/snippets/changes/license.html:44
 #, python-format
 msgid ""
@@ -4971,7 +4725,6 @@ msgid ""
 "%(new_license)s (previously %(old_license)s)."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer.html:5
 #: ckanext/activity/templates/snippets/changes/maintainer.html:5
 #, python-brace-format
 msgid ""
@@ -4981,19 +4734,16 @@ msgstr ""
 "{pkg_link} ၏ ထိန်းသိမ်းသူကို {new_maintainer} သို့ ထားခဲ့သည် (ယခင်က "
 "{old_maintainer})။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer.html:13
 #: ckanext/activity/templates/snippets/changes/maintainer.html:13
 #, python-brace-format
 msgid "Set maintainer of {pkg_link} to {new_maintainer}"
 msgstr "{pkg_link} ၏ ထိန်းသိမ်းသူကို {new_maintainer} သို့ ထားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer.html:20
 #: ckanext/activity/templates/snippets/changes/maintainer.html:20
 #, python-brace-format
 msgid "Removed maintainer from {pkg_link}"
 msgstr "{pkg_link} မှ ထိန်းသိမ်းသူကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer_email.html:6
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:6
 #, python-format
 msgid ""
@@ -5003,7 +4753,6 @@ msgid ""
 "href=\"mailto:%(old_maintainer_email)s\">%(old_maintainer_email)s</a>)."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer_email.html:18
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:18
 #, python-format
 msgid ""
@@ -5011,13 +4760,11 @@ msgid ""
 "href=\"mailto:%(new_maintainer_email)s\">%(new_maintainer_email)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/maintainer_email.html:28
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:28
 #, python-format
 msgid "Removed maintainer email from <a href=\"%(pkg_link)s\">%(title)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/name.html:7
 #: ckanext/activity/templates/snippets/changes/name.html:7
 #, python-format
 msgid ""
@@ -5026,7 +4773,6 @@ msgid ""
 "href=\"%(new_url)s\">%(new_url)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/new_file.html:3
 #: ckanext/activity/templates/snippets/changes/new_file.html:3
 #, python-brace-format
 msgid "Uploaded a new file to resource {resource_link} in {pkg_link}"
@@ -5034,13 +4780,11 @@ msgstr ""
 "{pkg_link} ရှိ {resource_link} resource သို့ ဖိုင်အသစ်တစ်ဖိုင်ကို upload "
 "တင်ခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/new_resource.html:14
 #: ckanext/activity/templates/snippets/changes/new_resource.html:14
 #, python-brace-format
 msgid "Added resource {resource_link} to {pkg_link}"
 msgstr "{resource_link} resource ကို {pkg_link} သို့ ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/notes.html:5
 #: ckanext/activity/templates/snippets/changes/notes.html:5
 #, python-brace-format
 msgid ""
@@ -5052,7 +4796,6 @@ msgstr ""
 "height2\"><blockquote>{old_notes}</blockquote> မှ <br class=\"line-"
 "height2\"><blockquote>{new_notes}</blockquote> သို့ ပြင်ဆင်ခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/notes.html:13
 #: ckanext/activity/templates/snippets/changes/notes.html:13
 #, python-brace-format
 msgid ""
@@ -5062,13 +4805,11 @@ msgstr ""
 "{pkg_link} ၏ ဖော်ပြချက်ကို <br class=\"line-"
 "height2\"><blockquote>{new_notes}</blockquote> သို့ ပြင်ဆင်ခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/notes.html:20
 #: ckanext/activity/templates/snippets/changes/notes.html:20
 #, python-brace-format
 msgid "Removed description from {pkg_link}"
 msgstr "{pkg_link} မှ ဖော်ပြချက်ကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/org.html:5
 #: ckanext/activity/templates/snippets/changes/org.html:5
 #, python-brace-format
 msgid ""
@@ -5078,25 +4819,21 @@ msgstr ""
 "အဖွဲ့အစည်း {old_org_link} မှ အဖွဲ့အစည်း {old_org_link} သို့ {pkg_link} "
 "ကို ရွှေ့ပြောင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/org.html:13
 #: ckanext/activity/templates/snippets/changes/org.html:13
 #, python-brace-format
 msgid "Removed {pkg_link} from organization {old_org_link}"
 msgstr "အ‌ဖွဲ့အစည်း {old_org_link} မှ ကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/org.html:20
 #: ckanext/activity/templates/snippets/changes/org.html:20
 #, python-brace-format
 msgid "Added {pkg_link} to organization {new_org_link}"
 msgstr "အဖွဲ့အစည်း {new_org_link} သို့ {pkg_link} ကို ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/private.html:3
 #: ckanext/activity/templates/snippets/changes/private.html:3
 #, python-brace-format
 msgid "Set visibility of {pkg_link} to {visibility}"
 msgstr "{pkg_link} ၏ visibility ကို {visibility} သို့ ထားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_desc.html:5
 #: ckanext/activity/templates/snippets/changes/resource_desc.html:5
 #, python-brace-format
 msgid ""
@@ -5106,13 +4843,11 @@ msgstr ""
 "{pkg_link} ရှိ {resource_link} resource ၏ ဖော်ပြချက်ကို <br class=\"line-"
 "height2\"><blockquote>{new_desc}</blockquote> သို့ ပြင်ဆင်ခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_desc.html:15
 #: ckanext/activity/templates/snippets/changes/resource_desc.html:15
 #, python-brace-format
 msgid "Removed description from resource {resource_link} in {pkg_link}"
 msgstr "{pkg_link} ရှိ {resource_link} resource ၏ ဖော်ပြချက်ကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_desc.html:24
 #: ckanext/activity/templates/snippets/changes/resource_desc.html:24
 #, python-brace-format
 msgid ""
@@ -5124,7 +4859,6 @@ msgstr ""
 "height2\"><blockquote>{old_desc}</blockquote> မှ <br class=\"line-"
 "height2\"><blockquote>{new_desc}</blockquote> သို့ ပြင်ဆင်ခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:5
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:5
 #, python-brace-format
 msgid ""
@@ -5134,7 +4868,6 @@ msgstr ""
 "Field <q>{key}</q> နှင့်တန်ဖိုး <q>{value}</q> ကို {pkg_link} ရှိ "
 "{resource_link} resource သို့ ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:16
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:16
 #, python-brace-format
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
@@ -5142,7 +4875,6 @@ msgstr ""
 "Field <q>{key}</q> ကို {pkg_link} ရှိ {resource_link} resource သို့ "
 "ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:26
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:26
 #, python-brace-format
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
@@ -5150,7 +4882,6 @@ msgstr ""
 "အောက်ပါ field များကို {pkg_link} ရှိ {resource_link} resource သို့ "
 "ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:49
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:49
 #, python-brace-format
 msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
@@ -5158,7 +4889,6 @@ msgstr ""
 "Field <q>{key}</q> ကို {pkg_link} ရှိ {resource_link} resource မှ "
 "ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:59
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:59
 #, python-brace-format
 msgid "Removed the following fields from resource {resource_link} in {pkg_link}"
@@ -5166,7 +4896,6 @@ msgstr ""
 "အောက်ပါ field များကို {pkg_link} ရှိ {resource_link} resource မှ "
 "ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:75
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:75
 #, python-brace-format
 msgid ""
@@ -5176,7 +4905,6 @@ msgstr ""
 "{pkg_link} ရှိ {resource_link} resource ၏ field <q>{key}</q> တန်ဖိုးကို "
 "<q>{new_val}</q> သို့ ပြောင်းလဲခဲ့သည် (ယခင်က <q>{old_val}</q>)။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:87
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:87
 #, python-brace-format
 msgid ""
@@ -5186,7 +4914,6 @@ msgstr ""
 "{pkg_link} ရှိ {resource_link} resource ၏ field <q>{key}</q> တန်ဖိုးကို "
 "<q>{new_val}</q> သို့ ပြောင်းလဲခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_extras.html:98
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:98
 #, python-brace-format
 msgid ""
@@ -5196,7 +4923,6 @@ msgstr ""
 "Field <q>{key}</q> ၏တန်ဖိုးကို {pkg_link} ရှိ {resource_link} resource မှ"
 " ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_format.html:17
 #: ckanext/activity/templates/snippets/changes/resource_format.html:17
 #, python-format
 msgid ""
@@ -5205,7 +4931,6 @@ msgid ""
 "href=\"%(pkg_link)s\">%(title)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_format.html:30
 #: ckanext/activity/templates/snippets/changes/resource_format.html:30
 #, python-format
 msgid ""
@@ -5214,7 +4939,6 @@ msgid ""
 "href=\"%(old_format_url)s\">%(old_format)s</a>)."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/resource_name.html:3
 #: ckanext/activity/templates/snippets/changes/resource_name.html:3
 #, python-brace-format
 msgid "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
@@ -5222,41 +4946,32 @@ msgstr ""
 "{pkg_link} ရှိ resource ကို {old_resource_link} မှ {new_resource_link} "
 "သို့ အမည်ပြောင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:5
 #: ckanext/activity/templates/snippets/changes/tags.html:5
 #, python-brace-format
 msgid "Removed tag {tag_link} from {pkg_link}"
 msgstr "{pkg_link} မှ {tag_link} tag ကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:16
 #: ckanext/activity/templates/snippets/changes/tags.html:16
 #, python-brace-format
 msgid "Removed the following tags from {pkg_link}"
 msgstr "{pkg_link} မှ အောက်ပါ tag များကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:23
-#: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:46
 #: ckanext/activity/templates/snippets/changes/tags.html:23
 #: ckanext/activity/templates/snippets/changes/tags.html:46
 #, python-brace-format
 msgid "{tag_link}"
 msgstr "{tag_link}"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:32
 #: ckanext/activity/templates/snippets/changes/tags.html:32
 #, python-brace-format
 msgid "Added tag {tag_link} to {pkg_link}"
 msgstr "{pkg_link} သို့ {tag_link} tag ကို ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/tags.html:39
 #: ckanext/activity/templates/snippets/changes/tags.html:39
 #, python-brace-format
 msgid "Added the following tags to {pkg_link}"
 msgstr "{pkg_link} သို့ အောက်ပါ tag များကို ထည့်သွင်းခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/title.html:3
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/title.html:3
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/title.html:3
 #: ckanext/activity/templates/snippets/changes/title.html:3
 #: ckanext/activity/templates/snippets/group_changes/title.html:3
 #: ckanext/activity/templates/snippets/organization_changes/title.html:3
@@ -5264,8 +4979,7 @@ msgstr "{pkg_link} သို့ အောက်ပါ tag များကို 
 msgid "Changed title to {title_link} (previously {old_title})"
 msgstr "ခေါင်းစဥ်ကို {title_link} သို့ ပြောင်းလဲခဲ့သည် (ယခင်က {old_title})။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/url.html:8
-#: ckanext/activity/templates/snippets/changes/url.html:9
+#: ckanext/activity/templates/snippets/changes/url.html:8
 #, python-format
 msgid ""
 "Changed the source URL of <a href=\"%(pkg_link)s\">%(title)s</a> from <a "
@@ -5273,21 +4987,18 @@ msgid ""
 "href=\"%(new_src_url)s\">%(new_src_url)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/url.html:19
-#: ckanext/activity/templates/snippets/changes/url.html:20
+#: ckanext/activity/templates/snippets/changes/url.html:19
 #, python-format
 msgid "Removed the source URL from <a href=\"%(pkg_link)s\">%(title)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/url.html:29
-#: ckanext/activity/templates/snippets/changes/url.html:30
+#: ckanext/activity/templates/snippets/changes/url.html:29
 #, python-format
 msgid ""
 "Changed the source URL of <a href=\"%(pkg_link)s\">%(title)s</a> to <a "
 "href=\"%(new_src_url)s\">%(new_src_url)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/version.html:5
 #: ckanext/activity/templates/snippets/changes/version.html:5
 #, python-brace-format
 msgid ""
@@ -5297,19 +5008,16 @@ msgstr ""
 "{pkg_link} ၏ ဗားရှင်းကို {new_version} သို့ ပြောင်းလဲခဲ့သည် (ယခင်က "
 "{old_version})။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/version.html:13
 #: ckanext/activity/templates/snippets/changes/version.html:13
 #, python-brace-format
 msgid "Removed the version from {pkg_link}"
 msgstr "{pkg_link} မှ ‌ဗားရှင်းကို ဖယ်ရှားခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/changes/version.html:19
 #: ckanext/activity/templates/snippets/changes/version.html:19
 #, python-brace-format
 msgid "Changed the version of {pkg_link} to {new_version}"
 msgstr "{pkg_link} ၏ ဗားရှင်းကို {new_version} သို့ ပြောင်းလဲခဲ့သည်။"
 
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/description.html:5
 #: ckanext/activity/templates/snippets/group_changes/description.html:5
 #, python-brace-format
 msgid ""
@@ -5318,7 +5026,6 @@ msgid ""
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/description.html:13
 #: ckanext/activity/templates/snippets/group_changes/description.html:13
 #, python-brace-format
 msgid ""
@@ -5326,14 +5033,12 @@ msgid ""
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/description.html:20
 #: ckanext/activity/templates/snippets/group_changes/description.html:20
 #, python-brace-format
 msgid "Removed description from {group_link}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/image_url.html:8
-#: ckanext/activity/templates/snippets/group_changes/image_url.html:9
+#: ckanext/activity/templates/snippets/group_changes/image_url.html:8
 #, python-format
 msgid ""
 "Changed the image URL of <a href=\"%(group_link)s\">%(title)s</a> from <a"
@@ -5341,21 +5046,18 @@ msgid ""
 "href=\"%(new_url)s\">%(new_url)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/image_url.html:19
-#: ckanext/activity/templates/snippets/group_changes/image_url.html:20
+#: ckanext/activity/templates/snippets/group_changes/image_url.html:19
 #, python-format
 msgid "Removed the image URL from <a href=\"%(group_link)s\">%(title)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/group_changes/image_url.html:29
-#: ckanext/activity/templates/snippets/group_changes/image_url.html:30
+#: ckanext/activity/templates/snippets/group_changes/image_url.html:29
 #, python-format
 msgid ""
 "Changed the image URL of <a href=\"%(group_link)s\">%(title)s</a> to <a "
 "href=\"%(new_url)s\">%(new_url)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/description.html:5
 #: ckanext/activity/templates/snippets/organization_changes/description.html:5
 #, python-brace-format
 msgid ""
@@ -5364,7 +5066,6 @@ msgid ""
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/description.html:13
 #: ckanext/activity/templates/snippets/organization_changes/description.html:13
 #, python-brace-format
 msgid ""
@@ -5372,13 +5073,11 @@ msgid ""
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/description.html:20
 #: ckanext/activity/templates/snippets/organization_changes/description.html:20
 #, python-brace-format
 msgid "Removed description from {org_link}"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/image_url.html:9
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:9
 #, python-format
 msgid ""
@@ -5387,13 +5086,11 @@ msgid ""
 "href=\"%(new_url)s\">%(new_url)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/image_url.html:20
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:20
 #, python-format
 msgid "Removed the image URL from <a href=\"%(org_link)s\">%(title)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/snippets/organization_changes/image_url.html:30
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:30
 #, python-format
 msgid ""
@@ -5401,52 +5098,35 @@ msgid ""
 "href=\"%(new_url)s\">%(new_url)s</a>."
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/user/dashboard.html:8
-#: ckanext/activity/templates-midnight-blue/user/dashboard.html:13
 #: ckanext/activity/templates/user/dashboard.html:8
-#: ckanext/activity/templates/user/snippets/news_feed.html:5
+#: ckanext/activity/templates/user/dashboard.html:13
 msgid "News feed"
 msgstr "News feed"
 
-#: ckanext/activity/templates-midnight-blue/user/edit_user_form.html:5
+#: ckanext/activity/templates/user/dashboard.html:20
+msgid "Activity from items that I'm following"
+msgstr "ကျွန်ုပ် follow လုပ်ထားသော item များ၏ activity"
+
 #: ckanext/activity/templates/user/edit_user_form.html:5
 msgid "Subscribe to notification emails"
 msgstr "အကြောင်းကြားသည့် email ရယူမည်။"
 
-#: ckanext/activity/templates-midnight-blue/user/snippets/followee_dropdown.html:16
-#: ckanext/activity/templates-midnight-blue/user/snippets/followee_dropdown.html:18
 #: ckanext/activity/templates/user/snippets/followee_dropdown.html:16
-#: ckanext/activity/templates/user/snippets/followee_dropdown.html:17
+#: ckanext/activity/templates/user/snippets/followee_dropdown.html:18
 msgid "Activity from:"
 msgstr "၏ activity -"
 
-#: ckanext/activity/templates-midnight-blue/user/snippets/followee_dropdown.html:28
-#: ckanext/activity/templates/user/snippets/followee_dropdown.html:25
+#: ckanext/activity/templates/user/snippets/followee_dropdown.html:28
 msgid "Search list..."
 msgstr "စာရင်း ရှာဖွေမည်..."
 
-#: ckanext/activity/templates-midnight-blue/user/snippets/followee_dropdown.html:29
-#: ckanext/activity/templates/user/snippets/followee_dropdown.html:26
+#: ckanext/activity/templates/user/snippets/followee_dropdown.html:29
 msgid "Search followee"
 msgstr ""
 
-#: ckanext/activity/templates-midnight-blue/user/snippets/followee_dropdown.html:52
-#: ckanext/activity/templates/user/snippets/followee_dropdown.html:49
+#: ckanext/activity/templates/user/snippets/followee_dropdown.html:52
 msgid "You are not following anything"
 msgstr "သင်မည်သည့်အရာကိုမျှ follow မလုပ်ထားပါ။"
-
-#: ckanext/activity/templates-midnight-blue/user/dashboard.html:14
-#: ckanext/activity/templates/user/snippets/news_feed.html:7
-msgid "Activity from items that I'm following"
-msgstr "ကျွန်ုပ် follow လုပ်ထားသော item များ၏ activity"
-
-#: ckanext/activity/templates-midnight-blue/package/changes.html:25
-msgid "Start date"
-msgstr ""
-
-#: ckanext/activity/templates-midnight-blue/package/changes.html:34
-msgid "End date"
-msgstr ""
 
 #: ckanext/audioview/plugin.py:28 ckanext/audioview/plugin.py:33
 msgid "Audio"
@@ -5569,6 +5249,10 @@ msgstr ""
 "Data Dictionary ကိုသိမ်းဆည်းထားခဲ့သည်။ Resource ကို DataStore သို့ "
 "နောက်တစ်ကြိမ် upload လုပ်သောအခါတွင် မည်သည့် အမျိုးအစားကို မဆို override "
 "လုပ်ခြင်းသည် အကျိုးသက်ရောက်ပါလိမ့်မည်။"
+
+#: ckanext/datastore/assets/js/api-info.js:67
+msgid "Close"
+msgstr ""
 
 #: ckanext/datastore/assets/js/api-info.js:99
 msgid "There is no API data to load for this resource"
@@ -5716,7 +5400,7 @@ msgid "Table"
 msgstr "ဇယား"
 
 #: ckanext/datatablesview/assets/datatablesview.js:276
-#: ckanext/datatablesview/assets/datatablesview.js:831
+#: ckanext/datatablesview/assets/datatablesview.js:835
 msgid "Print"
 msgstr ""
 
@@ -5736,56 +5420,56 @@ msgstr ""
 msgid "Double-click to reset filters"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:712
+#: ckanext/datatablesview/assets/datatablesview.js:716
 msgid "Table/List toggle"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:732
+#: ckanext/datatablesview/assets/datatablesview.js:736
 msgid "Copy to clipboard"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:746
+#: ckanext/datatablesview/assets/datatablesview.js:750
 msgid "Toggle column visibility"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:752
+#: ckanext/datatablesview/assets/datatablesview.js:756
 msgid "Restore visibility"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:755
+#: ckanext/datatablesview/assets/datatablesview.js:759
 msgid "Show all"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:759
+#: ckanext/datatablesview/assets/datatablesview.js:763
 msgid "Show none"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:769
+#: ckanext/datatablesview/assets/datatablesview.js:773
 msgid "Filtered"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:784
+#: ckanext/datatablesview/assets/datatablesview.js:788
 msgid "Filtered download"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:847
-#: ckanext/datatablesview/assets/datatablesview.js:852
+#: ckanext/datatablesview/assets/datatablesview.js:851
+#: ckanext/datatablesview/assets/datatablesview.js:856
 msgid "Share current view"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:852
+#: ckanext/datatablesview/assets/datatablesview.js:856
 msgid "Copied deeplink to clipboard"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:879
+#: ckanext/datatablesview/assets/datatablesview.js:883
 msgid "(estimated)"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:908
+#: ckanext/datatablesview/assets/datatablesview.js:912
 msgid "Sort"
 msgstr ""
 
-#: ckanext/datatablesview/assets/datatablesview.js:909
+#: ckanext/datatablesview/assets/datatablesview.js:913
 msgid ""
 "Press SHIFT key while clicking on\n"
 "sort control for multi-column sort"
@@ -6663,4 +6347,229 @@ msgstr ""
 #~ msgstr ""
 #~ "ဥပမာ၊ http://example.com (အကယ်၍ ကွက်လပ်ဆိုပါက "
 #~ "resource url ကို အသုံးပြုသည်)။"
+
+#~ msgid "Please Confirm"
+#~ msgstr ""
+
+#~ msgid "Notification"
+#~ msgstr ""
+
+#~ msgid "Start typing…"
+#~ msgstr "စာစရိုက်ပါ...။"
+
+#~ msgid "Input is too short, must be at least one character"
+#~ msgid_plural "Input is too short, must be at least %(num)d characters"
+#~ msgstr[0] ""
+#~ "Input သည် အလွန်တိုသည်၊ အနည်းဆုံး စာလုံးတစ်လုံးရှိရမည်။\n"
+#~ "Input သည် အလွန်တိုသည်၊ အနည်းဆုံး စာလုံး %(num)d လုံးရှိရမည်။"
+
+#~ msgid "Searching..."
+#~ msgstr ""
+
+#~ msgid "There are unsaved modifications to this form"
+#~ msgstr "ဤဖောင်ထဲတွင် မသိမ်းဆည်းထားရသေးသော ပြုပြင်ပြောင်းလဲမှုများ ရှိသည်။"
+
+#~ msgid "Are you sure you want to perform this action?"
+#~ msgstr "ဤလုပ်ဆောင်ချက်ကို ပြုလုပ်လိုသည်မှာ သေချာပါသလား။"
+
+#~ msgid "Please select the file to upload again"
+#~ msgstr "ထပ်ပြီး upload ရန် ဖိုင်ကို ရွေးချယ်ပါ။"
+
+#~ msgid ""
+#~ "You can rearrange the resources by "
+#~ "dragging them using the arrow icon. "
+#~ "Drag the resource to the right and"
+#~ " place it to the desired location "
+#~ "on the list. When you are done,"
+#~ " click the \"Save order\" -button."
+#~ msgstr ""
+#~ "မြှားပုံကို အသုံးပြုပြီး drag လုပ်ခြင်းဖြင့် "
+#~ "resource များကို ပြန်၍ အစီအစဥ်ချနိုင်ပါသည်။ "
+#~ "resource ကို ညာသို့ drag လုပ်ပြီး list"
+#~ " ပေါ်ရှိ ကြိုက်နှစ်သက်ရာ နေရာသို့ ထားပါ။ "
+#~ "ပြီးသောအခါ \"Save order\" -ခလုပ်ကို နှိပ်ပါ။"
+
+#~ msgid "Save order"
+#~ msgstr "အစီအစဥ်ကို သိမ်းဆည်းမည်"
+
+#~ msgid "Saving..."
+#~ msgstr "သိမ်းနေသည်..."
+
+#~ msgid "Select a field"
+#~ msgstr "Field တစ်ခုကို ရွေးချယ်ပါ"
+
+#~ msgid "Reorder resource view"
+#~ msgstr ""
+
+#~ msgid "Show more"
+#~ msgstr "ပို၍ ပြပါ"
+
+#~ msgid "Hide"
+#~ msgstr "ဖျောက်ပါ"
+
+#~ msgid "About {0}"
+#~ msgstr "{0} အကြောင်း"
+
+#~ msgid "Account"
+#~ msgstr "အကောင့်"
+
+#~ msgid "Search Datasets..."
+#~ msgstr ""
+
+#~ msgid "How about creating one?"
+#~ msgstr "အသစ်တစ်ခု ဖန်တီးလိုပါသလား။"
+
+#~ msgid "View {name}"
+#~ msgstr "{name} ကိုကြည့်မည်"
+
+#~ msgid "This is a featured section"
+#~ msgstr "ဤသည်မှာ အထူးကဏ္ဍတစ်ခု ဖြစ်သည်။"
+
+#~ msgid "Placeholder"
+#~ msgstr ""
+
+#~ msgid "E.g. environment"
+#~ msgstr "ဥပမာ၊ ပတ်ဝန်းကျင်"
+
+#~ msgid "Search data"
+#~ msgstr "ဒေတာ ရှာမည်"
+
+#~ msgid "Popular tags"
+#~ msgstr "ရေပန်းစားသော tag များ"
+
+#~ msgid "Search datasets with the tag: {tag}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You can use <a href=\"#markdown\" "
+#~ "title=\"Markdown quick reference\" data-bs-"
+#~ "toggle=\"popover\" data-bs-"
+#~ "content=\"%(markdown_tooltip)s\" data-bs-"
+#~ "html=\"true\">Markdown formatting</a> here"
+#~ msgstr ""
+
+#~ msgid "%(count)s dataset found for \"%(query)s\"."
+#~ msgid_plural "%(count)s datasets found for \"%(query)s\"."
+#~ msgstr[0] ""
+
+#~ msgid "%(count)s dataset found."
+#~ msgid_plural "%(count)s datasets found."
+#~ msgstr[0] ""
+
+#~ msgid "Sorry no datasets found for \"{query}\""
+#~ msgstr "ဝမ်းနည်ပါတယ်၊ \"{query}\" အတွက် dataset များ ရှာမတွေ့ခဲ့ပါ။"
+
+#~ msgid "There is no description for this organization."
+#~ msgstr ""
+
+#~ msgid "View {organization_name}"
+#~ msgstr "{organization_name} ကိုကြည့်မည်"
+
+#~ msgid "What are datasets?"
+#~ msgstr "Dataset တွေက ဘာလဲ။"
+
+#~ msgid ""
+#~ "A CKAN Dataset is a collection of"
+#~ " data resources (such as files), "
+#~ "together with a description and other"
+#~ " information, at a fixed URL. "
+#~ "Datasets are what users see when "
+#~ "searching for data."
+#~ msgstr ""
+#~ "CKAN Dataset ဆိုသည်မှာ သတ်မှတ်ထားသော URL "
+#~ "တွင် ဖော်ပြချက်နှင့် အခြားသတင်းအချက်အလက်များနှင့်တကွ "
+#~ "ဒေတာ resource များ (ဥပမာ ဖိုင်များ) "
+#~ "ကိုစုဆောင်းထားသော အစုတစ်ခုဖြစ်သည်။ ဒေတာများကို "
+#~ "ရှာဖွေသောအခါတွင် dataset များသည် "
+#~ "အသုံးပြုသူများမြင်ရသော အရာများဖြစ်သည်။"
+
+#~ msgid "Data"
+#~ msgstr "ဒေတာ"
+
+#~ msgid "Datapusher status: {status}."
+#~ msgstr "Datapusher အခြေအနေ - {status}။"
+
+#~ msgid "Trackback URL"
+#~ msgstr "နောက်ကြောင်းပြန်လိုက်သော URL"
+
+#~ msgid "There is no description for this dataset."
+#~ msgstr ""
+
+#~ msgid "Need an Account?"
+#~ msgstr "အကောင့်တစ်ခု လိုအပ်ပါသလား။"
+
+#~ msgid "Then sign right up, it only takes a minute."
+#~ msgstr "ဒါဆိုရင် တစ်မိနစ်လောက်အချိန်ပေးပြီး Sign up လုပ်လိုက်ပါ။"
+
+#~ msgid "Create an Account"
+#~ msgstr "အကောင့်တစ်ခု ဖန်တီးမည်"
+
+#~ msgid "No problem, use our password recovery form to reset it."
+#~ msgstr ""
+#~ "ကိစ္စမရှိပါဘူး၊ ကျွန်ုပ်တို့ရဲ့ password recovery"
+#~ " ကို အသုံးပြုပြီး reset ပြန်လုပ်လိုက်ပါ။"
+
+#~ msgid "Forgot your password?"
+#~ msgstr "Password မေ့သွားပါသလား။"
+
+#~ msgid "Logout"
+#~ msgstr "Logout"
+
+#~ msgid "You're already logged in"
+#~ msgstr "သင် logged in လုပ်ပြီးပါပြီ။"
+
+#~ msgid "Why Sign Up?"
+#~ msgstr "ဘာကြောင့် sign up လုပ်မလဲ။"
+
+#~ msgid "username"
+#~ msgstr "username"
+
+#~ msgid "Full Name"
+#~ msgstr "နာမည်အပြည့်အစုံ"
+
+#~ msgid "This information is visible to you and admins"
+#~ msgstr ""
+
+#~ msgid "Activities"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Purge activities by age. Use 'ckan "
+#~ "clean activities' via CLI for more "
+#~ "options."
+#~ msgstr ""
+
+#~ msgid "Delete activities older than a day"
+#~ msgstr ""
+
+#~ msgid "Delete {count} activities older than a day? This cannot be undone."
+#~ msgstr ""
+
+#~ msgid "Delete activities older than a month"
+#~ msgstr ""
+
+#~ msgid "Delete {count} activities older than a month? This cannot be undone."
+#~ msgstr ""
+
+#~ msgid "Delete activities older than a year"
+#~ msgstr ""
+
+#~ msgid "Delete {count} activities older than a year? This cannot be undone."
+#~ msgstr ""
+
+#~ msgid "Delete all activities"
+#~ msgstr ""
+
+#~ msgid "Delete all {count} activities? This cannot be undone."
+#~ msgstr ""
+
+#~ msgid "Delete all"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Purge activity stream entries by age."
+#~ " Each option shows how many "
+#~ "activities would be deleted. Purging is"
+#~ " irreversible."
+#~ msgstr ""
 

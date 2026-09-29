@@ -1,0 +1,10 @@
+The following deprecated template helpers have been removed:
+* ``lang_native_name``
+* ``group_name_to_title``
+* ``organization_link``
+* ``convert_to_dict``
+* ``debug_inspect``
+* ``user_in_org_or_group``
+* ``view_resource_url``
+* ``sanitize_id``
+* ``make_login_url``

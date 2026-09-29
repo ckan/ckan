@@ -19,6 +19,8 @@ log = logging.getLogger(__name__)
 
 def is_single_statement(sql: str):
     '''Returns True if received SQL string contains at most one statement'''
+    if "\\'" in sql or '#' in sql:
+        return False
     return postgres.is_single_statement(sql)
 
 def is_valid_field_name(name: str):

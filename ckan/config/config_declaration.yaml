@@ -1183,7 +1183,7 @@ groups:
         default: true
         example: false
         description: |
-          Enables dark theme support for the ``midnight-blue`` theme.
+          Enables dark theme support for the default theme.
 
           When enabled (the default), visitors can switch between light and dark
           mode with the toggle button in the account masthead, and the initial
