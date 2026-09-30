@@ -143,3 +143,8 @@ class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
 Index('tracking_summary_url', TrackingSummary.url)
 Index('tracking_summary_package_id', TrackingSummary.package_id)  # type: ignore
 Index('tracking_summary_date', 'tracking_date')
+Index(
+    'tracking_summary_package_id_date',
+    TrackingSummary.package_id,
+    TrackingSummary.tracking_date.desc(),
+)

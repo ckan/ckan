@@ -1,0 +1,1 @@
+Add an index on ``tracking_summary`` (``package_id``, ``tracking_date``)

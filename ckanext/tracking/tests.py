@@ -544,3 +544,19 @@ class TestTracking(object):
         package_2_data = lines[1]
         assert package_2_data["total views"] == "2"
         assert package_2_data["recent views (last 2 weeks)"] == "2"
+
+    def test_tracking_summary_has_package_id_date_index(self, migrate_db_for):
+        import sqlalchemy as sa
+        from ckan import model
+
+        migrate_db_for("tracking")
+        indexes = {
+            index["name"]: index["column_names"]
+            for index in sa.inspect(model.meta.engine).get_indexes(
+                "tracking_summary"
+            )
+        }
+        assert indexes.get("tracking_summary_package_id_date") == [
+            "package_id",
+            "tracking_date",
+        ]
