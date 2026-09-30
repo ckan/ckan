@@ -1,0 +1,1 @@
+The docs build now stops with a clear error instead of a ``RecursionError`` when there are no ``ckan-*`` release tags.

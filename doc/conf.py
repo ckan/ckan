@@ -221,9 +221,13 @@ def get_latest_release_tag():
 
     if release_tags_:
         return release_tags_[-1]
-    else:
-        # Un-released tag (eg master or a beta version), use the latest one
-        return get_latest_release_version()
+
+    # Without release tags there is nothing to fall back on (#9556).
+    raise RuntimeError(
+        'No "ckan-*" release tags found in this git checkout, and the docs '
+        'build needs them. Fetch them with `git fetch --tags` (in a fork, '
+        '`git fetch upstream --tags`, then `git push origin --tags`).'
+    )
 
 
 def get_latest_release_version():
