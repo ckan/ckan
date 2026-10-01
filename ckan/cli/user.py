@@ -5,6 +5,7 @@ import logging
 from typing import Optional
 
 import click
+import sqlalchemy as sa
 
 import ckan.logic as logic
 import ckan.model as model
@@ -244,3 +245,102 @@ def list_tokens(username: str):
                 name=token[u"name"], id=token[u"id"], accessed=accessed
             )
         )
+
+
+@user.command("resend-invite")
+@click.option(
+    "--user-email",
+    "-e",
+    type=click.STRING,
+    help="Email of the user to resend invitation for",
+)
+@click.pass_context
+def resend_invite(ctx: click.Context, user_email: Optional[str]):
+    """
+    Resend invitations for users.
+
+    If --user-email is provided, it will resend the invitation for
+    the specific user. Otherwise, it will resend invitations for all pending
+    users.
+    """
+    users_to_process = []
+
+    if user_email:
+        user = model.User.by_email(user_email)
+        if not user:
+            click.secho(
+                f"User with email '{user_email}' not found.", fg="yellow"
+            )
+            return
+        users_to_process = [user]
+    else:
+        users_to_process = (
+            model.Session.query(model.User)
+            .filter(
+                sa.and_(
+                    model.User.state == "deleted",
+                    model.User.reset_key.is_not(None),
+                    model.User.password.is_(None),
+                )
+            )
+            .all()
+        )
+
+    if not users_to_process:
+        click.secho(
+            "No pending user invitations found to resend.", fg="yellow"
+        )
+        return
+
+    for user in users_to_process:
+        process_user_invitation_resend(ctx, user)
+
+    click.secho("Invitation resend process completed.", fg="green")
+
+
+def process_user_invitation_resend(ctx: click.Context, user: "model.User"):
+    """
+    Handles the process of resending an invitation for a user.
+    Removes the user and associated member records before retrying the
+    invitation to prevent duplication in case of failures.
+    """
+    result = (
+        model.Session.query(
+            model.Member.id, model.Member.group_id, model.Member.capacity
+        )
+        .filter(
+            sa.and_(
+                model.Member.table_id == user.id,
+                model.Member.state == "deleted",
+                model.Member.table_name == "user",
+            )
+        )
+        .first()
+    )
+
+    member_table_id, group_id, capacity = result  # type: ignore
+    data_dict = {
+        "email": user.email,
+        "group_id": group_id,
+        "role": capacity,
+    }
+    with ctx.meta["flask_app"].test_request_context():
+        try:
+            user.purge()
+            model.Session.query(model.Member).filter(
+                model.Member.id == member_table_id
+            ).delete()
+            model.Session.commit()
+
+            logic.get_action("user_invite")(
+                {"ignore_auth": True}, data_dict
+            )
+            click.secho(
+                f"Invitation resent for user: {data_dict['email']}", fg="green"
+            )
+        except logic.ValidationError as e:
+            click.secho(
+                f"Error resending invitation for {data_dict['email']}: "
+                f"{e.error_summary}",
+                fg="red",
+            )
