@@ -99,9 +99,9 @@ else:
         def __init__(self, error_dict: ErrorDict):
             pprint.pprint(error_dict)
 
-def is_single_statement(sql: str, params: dict[str, Any] | None = None) -> bool:
-    # Most calls to this have sqlalchemy `:abc` parameters
-    # pglast doesn't support these, since they're not the postgres format
+def inline_sql_parameters(sql: str, params: dict[str, Any]) -> str:
+    """Inline values for sqlalchemy bind parameters
+    """
     # Compile the sqlachemy query to a string with psycopg2-style specifiers,
     # then get psycopg2 to inline the parameters
     # See also https://docs.sqlalchemy.org/en/21/faq/sqlexpressions.html#faq-sql-expression-string
@@ -110,7 +110,11 @@ def is_single_statement(sql: str, params: dict[str, Any] | None = None) -> bool:
     engine = get_read_engine()
     compiled = sa.text(sql).bindparams(**params or {}).compile(engine)
     with engine.connect() as conn:
-        sql = conn.connection.cursor().mogrify(str(compiled), compiled.params).decode()
+        return conn.connection.cursor().mogrify(str(compiled), compiled.params).decode()
+
+def is_single_statement(sql: str) -> bool:
+    # Most calls to this have sqlalchemy `:abc` parameters
+    # pglast doesn't support these, since they're not the postgres format
     try:
         return len(pglast.parser.parse_sql(sql)) == 1
     except pglast.parser.ParseError:
@@ -818,7 +822,7 @@ def _execute_single_statement(
     for chunk in where_values:
         params.update(chunk)
 
-    if not is_single_statement(sql_string, params):
+    if not is_single_statement(inline_sql_parameters(sql_string, params)):
         raise ValidationError({
             'query': ['Query is not a single statement.']
         })
@@ -1689,16 +1693,15 @@ def _execute_single_statement_copy_to(
     for chunk in where_values:
         params.update(chunk)
 
-    if not is_single_statement(sql_string, params):
+    clause = inline_sql_parameters(sql_string, params)
+
+    if not is_single_statement(clause):
         raise ValidationError({
             'query': ['Query is not a single statement.']
         })
 
-    clause = sa.text(sql_string).bindparams(
-        **params).compile(compile_kwargs={"literal_binds": True})
-
     cursor = context['connection'].connection.cursor()
-    cursor.copy_expert(str(clause), buf)
+    cursor.copy_expert(clause, buf)
     cursor.close()
 
 
