@@ -1141,6 +1141,15 @@ def test_unix_locale_to_bcp47():
     assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'
 
 
+class TestDarkModeEnabled(object):
+    def test_enabled_by_default(self):
+        assert h.dark_mode_enabled() is True
+
+    @pytest.mark.ckan_config("ckan.theme.enable_dark_mode", False)
+    def test_can_be_disabled(self):
+        assert h.dark_mode_enabled() is False
+
+
 def test_get_facet_items_dict(test_request_context: Any):
     """get_facet_items_dict returns a list of facet items with the correct active state based on the current request parameters."""
     facets = [
