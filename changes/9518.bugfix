@@ -1,0 +1,1 @@
+Fix the URL slug preview for pasted text with decomposed accented letters, such as å, ä and ö.

@@ -63,12 +63,7 @@ describe('jQuery.url', {testIsolation: false}, function () {
 
     it('should produce the same slug for precomposed and decomposed Nordic characters', function () {
       cy.window().then(win => {
-        // "Åsele" with a precomposed å (U+00E5) vs the same visible text
-        // with å built from a decomposed base "a" (U+0061) + COMBINING
-        // RING ABOVE (U+030A). Text pasted from some word processors or
-        // PDF extractors delivers the decomposed form, which used to be
-        // mangled into "a-sele" instead of "asele" because the character
-        // map only has an entry for the precomposed code point.
+        // Precomposed å (U+00E5) vs "a" + combining ring (U+030A), as in some pasted text.
         let precomposed = win.jQuery.url.slugify('\u00E5sele');
         let decomposed = win.jQuery.url.slugify('\u0061\u030Asele');
 
