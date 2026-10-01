@@ -1,0 +1,1 @@
+Skip the Data Explorer view when there are field errors, instead of breaking the whole resource view page
