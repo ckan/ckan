@@ -231,17 +231,6 @@ class TestMailer(MailerBase):
 
     @pytest.mark.usefixtures("with_request_context")
     def test_emails_keep_their_paragraph_breaks(self):
-        """Regression test for #9545.
-
-        CKAN turns the Jinja2 i18n trimming policy on globally
-        (ckan/config/middleware/flask_app.py), which collapsed these
-        plain-text letters into one long line. The templates opt out with
-        ``{% trans notrimmed %}``.
-
-        The other mailer tests cannot catch this: they render the body and
-        compare it with the body that was sent, so they pass whether the
-        letter has its paragraphs or not.
-        """
         user = factories.User()
         user_obj = model.User.by_name(user["name"])
 
