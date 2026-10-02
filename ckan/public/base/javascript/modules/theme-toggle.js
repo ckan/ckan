@@ -41,6 +41,9 @@ ckan.module('theme-toggle', function (jQuery) {
       var label = dark ? this._('Switch to light theme') : this._('Switch to dark theme');
       this.el.attr('aria-label', label);
       this.el.attr('data-bs-original-title', label);
+      
+      let tooltip = bootstrap.Tooltip.getInstance(this.el);
+      tooltip.setContent({'.tooltip-inner': label});
 
       this.el.find('[data-icon]')
         .toggleClass('fa-moon', !dark)
