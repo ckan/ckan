@@ -18,12 +18,14 @@ describe('ckan.modules.AutocompleteModule() with select2 tags', function () {
   }
 
   it('keeps the last typed tag when the field loses focus', function () {
-    cy.get('.select2-search__field').type('delta, epsilon, zeta').blur();
+    cy.get('.select2-search__field').type('delta, epsilon, zeta');
+    cy.get('.select2-search__field').blur();
     tagsShouldBe(['delta', 'epsilon', 'zeta']);
   });
 
   it('keeps the last pasted tag when the field loses focus', function () {
-    cy.get('.select2-search__field').invoke('val', 'delta, epsilon, zeta').trigger('input').blur();
+    cy.get('.select2-search__field').invoke('val', 'delta, epsilon, zeta').trigger('input');
+    cy.get('.select2-search__field').blur();
     tagsShouldBe(['delta', 'epsilon', 'zeta']);
   });
 
