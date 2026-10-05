@@ -74,9 +74,9 @@ Dictionary with search facets
                         <li class="nav-item {% if item.active %} active{% endif %}">
                         <a hx-boost="true" href="{{ href }}" aria-label="{{ _('Search datasets by {name}: {label}').format(name=name, label=label_truncated) }}" {% if label != label_truncated %} data-bs-title="{{ label }}" data-bs-toggle="tooltip" {% endif %}>
                           <span class="item-label">{{ label_truncated }}</span>
-                          <span class="item-count-span">
+                          <span class="item-count-span align-items-center gap-2">
                             <span class="item-count badge">{{ count }}</span>
-                            <span class="item-state"></span>
+                            <span class="fa {{ 'fa-minus-circle' if active_facet else 'fa-plus-circle' }}"></span>
                           </span>
                         </a>
                         </li>
