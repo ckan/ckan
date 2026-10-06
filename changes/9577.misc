@@ -1,0 +1,1 @@
+Remove redundant queries and a function-local import from ``dataset_purge``.
