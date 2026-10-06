@@ -646,12 +646,12 @@ class TestOrganizationMembership(object):
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationFollow:
     def test_organization_follow_and_unfollow(self, app, user):
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
 
         organization = factories.Organization()
         organization_url = url_for("organization.read", id=organization["id"])
-        response = app.get(organization_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        response = app.get(organization_url, headers={"Authorization": user["token"]})
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert re.search(
@@ -661,7 +661,7 @@ class TestOrganizationFollow:
 
         follow_url = url_for("organization.follow", id=organization["id"])
         response = app.post(follow_url, headers=headers)
-        assert '<a class="btn btn-danger"' in response
+        assert '<button type="submit" class="btn btn-danger"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-minus"></i> Unfollow' in response
         assert re.search(
@@ -671,27 +671,27 @@ class TestOrganizationFollow:
 
     @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
     def test_organization_follow_without_public_user_details(self, app, user):
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         organization = factories.Organization()
 
         follow_url = url_for("organization.follow", id=organization["id"])
         response = app.post(follow_url, headers=headers)
 
-        assert '<a class="btn btn-danger"' in response
+        assert '<button type="submit" class="btn btn-danger"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-minus"></i> Unfollow' in response
 
         unfollow_url = url_for("organization.unfollow", id=organization["id"])
         response = app.post(unfollow_url, headers=headers)
 
-        assert '<a class="btn btn-success"' in response
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
 
     def test_organization_follow_not_exist(self, app, user):
         """Pass an id for a organization that doesn't exist"""
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("organization.follow", id="not-here")
         app.post(follow_url, headers=headers, status=404)
 
@@ -699,13 +699,13 @@ class TestOrganizationFollow:
 
         organization = factories.Organization()
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("organization.follow", id=organization["id"])
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("organization.unfollow", id=organization["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert re.search(
@@ -718,10 +718,10 @@ class TestOrganizationFollow:
 
         organization = factories.Organization()
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("organization.unfollow", id=organization["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#organization-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert re.search(
@@ -732,7 +732,7 @@ class TestOrganizationFollow:
     def test_organization_unfollow_not_exist(self, app, user):
         """Unfollow a organization that doesn't exist."""
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("organization.unfollow", id="not-here")
         app.post(unfollow_url, headers=headers, status=404)
 

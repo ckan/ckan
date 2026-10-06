@@ -832,7 +832,7 @@ class PerformResetView(MethodView):
         })
 
 
-def follow(id: str) -> str:
+def follow(id: str) -> Union[Response, str]:
     '''Start following this user.'''
     error_message = ''
     am_following = False
@@ -851,10 +851,15 @@ def follow(id: str) -> str:
         'group_type': h.default_group_type('group'),
         'org_type': h.default_group_type('organization'),
     })
+    if not request.htmx:
+        if error_message:
+            h.flash_error(error_message)
+        return h.redirect_to('user.read', id=id)
+
     return base.render('user/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str) -> str:
+def unfollow(id: str) -> Union[Response, str]:
     '''Stop following this user.'''
     error_message = ''
     am_following = True
@@ -873,6 +878,11 @@ def unfollow(id: str) -> str:
         'group_type': h.default_group_type('group'),
         'org_type': h.default_group_type('organization'),
     })
+
+    if not request.htmx:
+        if error_message:
+            h.flash_error(error_message)
+        return h.redirect_to('user.read', id=id)
 
     return base.render('user/snippets/info.html', extra_vars)
 

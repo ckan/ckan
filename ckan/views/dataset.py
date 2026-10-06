@@ -928,6 +928,11 @@ def follow(package_type: str, id: str) -> Union[Response, str]:
         'error_message': error_message
     }
 
+    if not request.htmx:
+        if error_message:
+            h.flash_error(error_message)
+        return h.redirect_to(package_type + '.read', id=id)
+
     return base.render('package/snippets/info.html', extra_vars)
 
 
@@ -954,6 +959,11 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
         'current_user': current_user,
         'error_message': error_message
     }
+
+    if not request.htmx:
+        if error_message:
+            h.flash_error(error_message)
+        return h.redirect_to(package_type + '.read', id=id)
 
     return base.render('package/snippets/info.html', extra_vars)
 
