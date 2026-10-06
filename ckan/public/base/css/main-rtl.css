@@ -13184,10 +13184,7 @@ select[data-module=autocomplete] {
   color: #667085;
   font-weight: 500;
 }
-.dataset-item .dataset-content .dataset-resources {
-  margin-top: 8px;
-}
-.dataset-item .dataset-content .dataset-resources li {
+.dataset-item .dataset-resources li {
   display: inline;
 }
 
