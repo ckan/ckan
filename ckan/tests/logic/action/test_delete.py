@@ -552,6 +552,27 @@ class TestDatasetPurge(object):
 
         assert model.Session.query(model.PackageRelationship).all() == []
 
+    @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+    def test_purged_dataset_with_collaborators(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        helpers.call_action(
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity="editor",
+        )
+
+        helpers.call_action("dataset_purge", id=dataset["id"])
+
+        assert not model.Package.get(dataset["id"])
+        assert (
+            model.Session.query(model.PackageMember)
+            .filter_by(package_id=dataset["id"])
+            .all()
+            == []
+        )
+
     def test_missing_id_returns_error(self):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("dataset_purge")

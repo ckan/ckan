@@ -145,6 +145,9 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
         for m in members.all():
             m.purge()
 
+    model.Session.query(model.PackageMember).filter(
+        model.PackageMember.package_id == pkg.id).delete()
+
     for r in model.Session.query(model.PackageRelationship).filter(
             or_(model.PackageRelationship.subject_package_id == pkg.id,
                 model.PackageRelationship.object_package_id == pkg.id)).all():
