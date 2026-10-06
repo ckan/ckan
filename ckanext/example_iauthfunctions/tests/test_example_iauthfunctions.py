@@ -204,7 +204,7 @@ class TestExampleIAuthFunctionsPluginV3(object):
         '''Test that group_create returns 403 when no one is logged in.
 
         Since #1210 non-logged in requests are automatically rejected, unless
-        the auth function has the appropiate decorator
+        the auth function has the appropriate decorator
         '''
 
         context = {'ignore_auth': False, 'user': None}

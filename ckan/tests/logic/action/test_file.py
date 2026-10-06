@@ -36,7 +36,7 @@ class TestFileCreate:
             file_factory()
 
     def test_name_explicit(self, file_factory: types.TestFactory):
-        """Name can be overriden even when upload contains filename."""
+        """Name can be overridden even when upload contains filename."""
         name = fake.unique.file_name().capitalize()
         ignored_name = fake.unique.file_name()
         upload = FileStorage(io.BytesIO(fake.binary(100)), ignored_name)
@@ -396,7 +396,7 @@ class TestFileOwnershipTransfer:
     def test_transfer_unowned(
         self, faker: Faker, file_factory: types.TestFactory[model.File]
     ):
-        """Unowned file can be transfered without additional conditions."""
+        """Unowned file can be transferred without additional conditions."""
         file = file_factory.model(user="")
         assert not file.owner
 

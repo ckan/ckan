@@ -185,7 +185,7 @@ class TestActivityPagination(object):
     def test_after_returns_closer_elements_order_time_desc(self, activities):
         """
         Given [4, 3, 2, 1, 0]
-        Whith after 0 and limit 2
+        With after 0 and limit 2
         Returns [2, 1]
         """
         dataset, time = activities

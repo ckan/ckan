@@ -18,7 +18,7 @@ There are three type of fixtures available in CKAN:
   one may use function-fixture - late initialization or repeatable
   execution(ex.: cleaning database more than once in a single
   test). But presence of these fixtures in test usually signals that
-  is's a good time to refactor this test.
+  it's a good time to refactor this test.
 
 Deeper explanation can be found in `official documentation
 <https://docs.pytest.org/en/latest/fixture.html>`_
@@ -157,7 +157,7 @@ def ckan_config(
     """
     _original = copy.deepcopy(config)
 
-    # storages are chached upon first access. When storage-level configuration
+    # storages are cached upon first access. When storage-level configuration
     # patch detected, storage cache is dropped before the test to apply changes
     # and after the test to restore original state of the storage.
     storage_changed = False
@@ -442,7 +442,7 @@ def provide_plugin(
             assert plugins.load("list_plugin") == []
 
     Alternatively, test plugins can be added with `provide_plugin` mark, which
-    inernally relies on the current fixture::
+    internally relies on the current fixture::
 
         @pytest.mark.provide_plugin("list_plugin", list)
         @pytest.mark.ckan_config("ckan.plugins", "list_plugin")
@@ -528,7 +528,7 @@ def with_plugins(
             ...
 
     This will automatically enable ``with_plugins`` for every test, even if
-    it's not required explicitely.
+    it's not required explicitly.
 
     The fixture can be used as mark. It iterates over all arguments and appends
     them to the list of ``ckan.plugins`` before loading. This can be used to
@@ -655,7 +655,7 @@ def non_clean_db(reset_db_once: types.FixtureResetDb):
 
 class FakeFileStorage(FlaskFileStorage):
     def __init__(self, stream: IO[bytes], filename: str):
-        super(FakeFileStorage, self).__init__(stream, filename, "uplod")
+        super(FakeFileStorage, self).__init__(stream, filename, "upload")
 
 
 @pytest.fixture(scope="session")

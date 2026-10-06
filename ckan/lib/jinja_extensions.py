@@ -90,7 +90,7 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
 
 class CkanExtend(ext.Extension):
     ''' Custom {% ckan_extends <template> %} tag that allows templates
-    to inherit from the ckan template futher down the template search path
+    to inherit from the ckan template further down the template search path
     if no template provided we assume the same template name. '''
 
     tags = set(['ckan_extends'])

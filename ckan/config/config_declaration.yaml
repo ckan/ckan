@@ -1494,7 +1494,7 @@ groups:
           passes ``package_update``/``resource_update`` can modify files owned
           by the package/resource; anyone who passes
           ``package_delete``/``resource_delete`` can delete files owned by the
-          package/resoure.
+          package/resource.
 
           The type of owner by itself grants corresponding permission to all
           files uploaded into any storage. To allow operation only for specific

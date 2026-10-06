@@ -1,7 +1,7 @@
 # encoding: utf-8
 """ Tracking models
 
-Tracking functinoality used to be implemented in core CKAN and it was
+Tracking functionality used to be implemented in core CKAN and it was
 later moved to an extension during the development of CKAN 2.11.
 
 Even when tracking models are defined here, the tables are still
