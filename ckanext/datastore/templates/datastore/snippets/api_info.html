@@ -43,7 +43,7 @@ Example
 
         {{ _("Code examples:") }}
         {% for clang in code_languages %}
-          {# these checkboxes must be preceeding div below (not nested) for show/hide css #}
+          {# these checkboxes must be preceding div below (not nested) for show/hide css #}
           <input class="btn-check" type="radio" name="lang-choice" id="lang-{{ clang }}"
             {% if loop.first %}checked{% endif %}>
           <label class="btn btn-secondary radio" for="lang-{{ clang }}">

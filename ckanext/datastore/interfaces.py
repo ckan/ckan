@@ -181,7 +181,7 @@ class IDatastoreBackend(interfaces.Interface):
         will raise assertion error.
 
 
-        :returns: the dictonary with backend name as key and backend class as
+        :returns: the dictionary with backend name as key and backend class as
                   value
         """
         return {}

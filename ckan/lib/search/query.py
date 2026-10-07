@@ -44,7 +44,7 @@ MAGIC_FIELD_RE = re.compile(
     r'\s*(?<![\w\\])\\?_(?:\\?q\\?u\\?e\\?r\\?y|\\?v\\?a\\?l)\\?_\s*:'
 )
 
-# Matches local params and query parser definitons starting with {!
+# Matches local params and query parser definitions starting with {!
 QUERY_PARSER_RE = re.compile(r'(?:^|[^\\])(?:\\\\)*\{!')
 
 

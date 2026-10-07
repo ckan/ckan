@@ -54,7 +54,7 @@ def reset():
     """Reset and collect file_keeper extensions.
 
     Because CKAN extends file-keeper as well, this call collects all adapters
-    and location transformers registered throught IFiles interface.
+    and location transformers registered through IFiles interface.
     """
     ext.register(reset=True)
 

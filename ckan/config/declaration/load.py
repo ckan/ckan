@@ -184,7 +184,7 @@ def load_files(declaration: "Declaration", /, config: Any = None):
     # declaration --core`
     for name, settings in storages.items():
         # make base key so that storage can declare options by extending. I.e.,
-        # `storage_key.option_name`, instead of logner form
+        # `storage_key.option_name`, instead of longer form
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
         storage_key = Key().from_string(files.STORAGE_PREFIX + name)
 

@@ -282,7 +282,7 @@ def storage_transfer(  # noqa: C901
     """Move files between storages.
 
     Files that are not registered in DB are simply moved between
-    storages. Files that has correspoinding record in database got their
+    storages. Files that has corresponding record in database got their
     fields, including ``storage``, updated as if file was directly uploaded
     into the target storage.
     """

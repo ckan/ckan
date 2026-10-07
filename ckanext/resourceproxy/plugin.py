@@ -69,7 +69,7 @@ class ResourceProxy(p.SingletonPlugin):
         proxy_schemes: Container[str] = ('http', 'https')
     ):
         u'''
-        DEPRECATED. Returns the proxy url if its availiable
+        DEPRECATED. Returns the proxy url if it's available
         '''
         data_dict = {
             u'resource_view': resource_view,

@@ -101,9 +101,9 @@ def get_unique_constraints(table: Table, context: Context) -> list[list[str]]:
 
     list_of_constraints: list[list[str]] = []
 
-    for contraint in table.constraints:
-        if isinstance(contraint, sqlalchemy.UniqueConstraint):
-            columns = [column.name for column in contraint.columns]
+    for constraint in table.constraints:
+        if isinstance(constraint, sqlalchemy.UniqueConstraint):
+            columns = [column.name for column in constraint.columns]
             list_of_constraints.append(columns)
 
     return list_of_constraints
