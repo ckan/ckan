@@ -2,12 +2,17 @@
 
 import unittest.mock as mock
 import json
+import urllib.parse
 import pytest
+import ckan.plugins.toolkit as toolkit
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import xml.etree.ElementTree as ET
 
+from ckan.lib.helpers import url_for
 from ckanext.datastore.backend.postgres import search_data
+from ckanext.datastore.tests.sample_dump_plugin import ALWAYS_INVALID_REASON
+
 
 class TestDatastoreDump(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -911,3 +916,270 @@ def get_csv_record_values(response_body):
 
 def get_json_record_values(response_body):
     return [record[1] for record in json.loads(response_body)["records"]]
+
+
+class TestDatastoreDumpInterface(object):
+    """Tests for the IDatastoreDump plugin interface.
+
+    Uses ``sample_dump_plugin`` (see
+    ``ckanext/datastore/tests/sample_dump_plugin.py``), which adds a
+    ``faux`` format and removes the built-in ``xml`` format.
+    """
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_unknown_format_rejected(self, app):
+        resource = factories.Resource(url_type='datastore')
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        app.get(
+            f"/datastore/dump/{resource['id']}?format=bogus", status=400
+        )
+
+    @pytest.mark.ckan_config(
+        "ckan.plugins", "datastore sample_dump_plugin"
+    )
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_custom_format_added_via_plugin(self, app):
+        resource = factories.Resource(url_type='datastore')
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}, {"book": "warandpeace"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=faux"
+        )
+        assert response.status_code == 200
+        assert (
+            response.headers["Content-Type"]
+            == "application/x-faux; charset=utf-8"
+        )
+        assert (
+            f'filename="{resource["id"]}.faux"'
+            in response.headers["Content-disposition"]
+        )
+
+    @pytest.mark.ckan_config(
+        "ckan.plugins", "datastore sample_dump_plugin"
+    )
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_dump_xml_disabled_via_plugin(self, app):
+        # {"xml": None} removes the format, so ?format=xml is rejected.
+        resource = factories.Resource(url_type='datastore')
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        app.get(
+            f"/datastore/dump/{resource['id']}?format=xml", status=400
+        )
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore sample_dump_plugin")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestDatastoreDumpValidate(object):
+    """Tests for the optional ``validate`` callable on a format config.
+
+    Uses the ``gated`` format from ``sample_dump_plugin`` (its
+    validator always rejects with :data:`ALWAYS_INVALID_REASON`) so the contract
+    can be exercised without needing a real extension installed.
+    """
+
+    def test_helper_marks_format_unavailable_with_reason(self, app):
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"]
+        )
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["gated"]["available"] is False
+        assert by_name["gated"]["reason"] == ALWAYS_INVALID_REASON
+
+        # Validator present but returns None => available.
+        assert by_name["passes"]["available"] is True
+        assert by_name["passes"]["reason"] is None
+
+        # No validator at all => available.
+        for name in ("csv", "tsv", "json", "faux"):
+            assert by_name[name]["available"] is True
+            assert by_name[name]["reason"] is None
+
+    def test_helper_skips_validators_when_no_resource_id(self):
+        # Without a resource_id no validators run; every format still
+        # appears as available.
+        formats = toolkit.h.datastore_dump_formats()
+        by_name = {f["name"]: f for f in formats}
+
+        assert "gated" in by_name
+        assert by_name["gated"]["available"] is True
+        assert by_name["gated"]["reason"] is None
+
+    def test_dump_endpoint_rejects_with_400(self, app):
+        # A gated dump returns HTTP 400 with the reason in the body.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=gated",
+            status=400,
+        )
+        assert ALWAYS_INVALID_REASON in response.get_data(as_text=True)
+
+    def test_dump_endpoint_allows_format_without_validator(self, app):
+        # The gated validator must not affect other formats.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=faux"
+        )
+        assert response.status_code == 200
+
+    def test_dump_endpoint_allows_format_whose_validator_approves(self, app):
+        # validate defined but returning None -> normal dump.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=passes"
+        )
+        assert response.status_code == 200
+        assert (
+            response.headers["Content-Type"]
+            == "application/x-passes; charset=utf-8"
+        )
+
+    def test_resource_read_page_renders_disabled_dropdown_item(self, app):
+        # The dropdown renders gated as a disabled item carrying the
+        # reason as title, with other formats as normal links.
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=[{"book": "annakarenina"}],
+        )
+
+        url = url_for(
+            "dataset_resource.read",
+            id=resource["package_id"],
+            resource_id=resource["id"],
+        )
+        response = app.get(url)
+        body = response.get_data(as_text=True)
+
+        assert response.status_code == 200
+        assert 'class="dropdown-item disabled"' in body
+        assert f'title="{ALWAYS_INVALID_REASON}"' in body
+        # CSV still renders as an active link.
+        assert 'class="dropdown-item"' in body
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore sample_dump_plugin")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestDatastoreDumpDeclarativeLimits(object):
+    """Tests for declarative ``max_rows``/``max_columns`` controls.
+
+    Uses the ``capped`` format (``max_rows`` 1, ``max_columns`` 5) to
+    check the framework-evaluated path and that the decision uses the
+    filtered export scope, not the resource totals.
+    """
+
+    def _make_resource(self, records):
+        resource = factories.Resource(url_type="datastore")
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource["id"],
+            records=records,
+        )
+        return resource
+
+    def test_helper_marks_over_row_limit_unavailable(self):
+        # 2 rows > max_rows=1 -> capped unavailable, reason mentions rows.
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"])
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["capped"]["available"] is False
+        assert "rows" in by_name["capped"]["reason"].lower()
+        # Formats without controls stay available.
+        assert by_name["csv"]["available"] is True
+
+    def test_helper_within_limit_available(self):
+        # 1 row == max_rows=1 (rejected only when strictly greater).
+        resource = self._make_resource([{"book": "annakarenina"}])
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"])
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["capped"]["available"] is True
+        assert by_name["capped"]["reason"] is None
+
+    def test_dump_endpoint_rejects_over_limit_with_400(self, app):
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        response = app.get(
+            f"/datastore/dump/{resource['id']}?format=capped",
+            status=400,
+        )
+        assert "rows" in response.get_data(as_text=True).lower()
+
+    def test_dump_endpoint_filtered_under_limit_succeeds(self, app):
+        # 2-row resource is over the cap, but a filter brings the export
+        # to one row, so the capped download succeeds.
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        qs = urllib.parse.urlencode({
+            "format": "capped",
+            "filters": json.dumps({"book": "annakarenina"}),
+        })
+        response = app.get(f"/datastore/dump/{resource['id']}?{qs}")
+
+        assert response.status_code == 200
+        assert "annakarenina" in response.get_data(as_text=True)
+        assert "warandpeace" not in response.get_data(as_text=True)
+
+    def test_helper_filtered_scope_marks_available(self):
+        # Same via the helper: a filter to one row makes capped available.
+        resource = self._make_resource(
+            [{"book": "annakarenina"}, {"book": "warandpeace"}])
+
+        formats = toolkit.h.datastore_dump_formats(
+            resource_id=resource["id"],
+            search_params={"filters": {"book": "annakarenina"}},
+        )
+        by_name = {f["name"]: f for f in formats}
+
+        assert by_name["capped"]["available"] is True
+        assert by_name["capped"]["reason"] is None
