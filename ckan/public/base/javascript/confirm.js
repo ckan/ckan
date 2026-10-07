@@ -1,4 +1,7 @@
-(function (ckan, $) {
+(function (ckan) {
+
+  // Modal that is fading out and is about to be removed from the DOM
+  let closingEl = null;
 
   /**
    * Displays a Bootstrap 5 confirmation modal window
@@ -57,21 +60,31 @@
       keyboard: options.keyboard ?? false,
     };
 
-    const style = confirm.styles[opts.type] || confirm.styles.primary;
+    const style = confirm.styles[opts.type] || confirm.styles.default;
     const select = confirm.selectors;
+    const titleId = `${select.modal.slice(1)}-title`;
 
-    if (document.querySelector(select.modal)) {
-      return console.error("Confirm: Modal already exists.");
+    const existingEl = document.querySelector(select.modal);
+
+    if (existingEl) {
+      if (existingEl !== closingEl) {
+        return console.error("Confirm: Modal already exists.");
+      }
+
+      // Previous modal is still fading out (e.g. confirm called from its
+      // callback), so wait until it's gone
+      existingEl.addEventListener("hidden.bs.modal", () => confirm(options), { once: true });
+      return;
     }
 
     const modalHTML = `
-      <div class="modal fade" id="${select.modal.slice(1)}" tabindex="-1" aria-hidden="true">
+      <div class="modal fade" id="${select.modal.slice(1)}" tabindex="-1" aria-labelledby="${titleId}" aria-hidden="true">
         <div class="modal-dialog ${opts.centered ? 'modal-dialog-centered' : ''} ${opts.scrollable ? 'modal-dialog-scrollable' : ''} ${opts.fullscreen ? 'modal-fullscreen' : ''}">
           <div class="modal-content">
             <div class="modal-header ${style.main}">
               ${opts.icon}
-              <h3 class="modal-title">${opts.title}</h3>
-              <button type="button" class="btn-close ${style.btnClose}" data-bs-dismiss="modal" aria-label="Close"></button>
+              <h3 class="modal-title" id="${titleId}">${opts.title}</h3>
+              <button type="button" class="btn-close ${style.btnClose}" aria-label="Close"></button>
             </div>
             <div class="modal-body">${opts.message}</div>
             <div class="modal-footer">
@@ -90,26 +103,74 @@
       backdrop: opts.backdrop, keyboard: opts.keyboard
     });
 
+    const previouslyFocused = document.activeElement;
+    let shown = false;
+    let settled = false;
+
+    // Bootstrap ignores hide() while the modal is still fading in
+    const hide = () => {
+      if (shown) {
+        return modal.hide();
+      }
+
+      modalEl.addEventListener("shown.bs.modal", () => modal.hide(), { once: true });
+    };
+
+    // Closes the modal and runs the callback, only once per modal
+    const settle = (callback, hiding) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      closingEl = modalEl;
+
+      if (!hiding) {
+        hide();
+      }
+
+      callback();
+    };
+
+    modalEl.addEventListener("shown.bs.modal", () => {
+      shown = true;
+    });
+
     modal.show();
+
+    modalEl.addEventListener("hide.bs.modal", () => {
+      // Bootstrap sets aria-hidden on the modal once it's hidden, so focus
+      // must leave it first
+      if (modalEl.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
+
+      // Closed with escape or a backdrop click
+      settle(opts.onCancel, true);
+    });
 
     // Confirm button click
     document.querySelector(select.confirmBtn)?.addEventListener("click", () => {
-      modal.hide();
-      opts.onConfirm();
+      settle(opts.onConfirm);
     });
 
     // Cancel button or close
     document.querySelectorAll(`${select.cancelBtn}, ${select.modal} ${select.closeBtn}`)
       .forEach(el => {
         el.addEventListener("click", () => {
-          modal.hide();
-          opts.onCancel();
+          settle(opts.onCancel);
         });
       });
 
     // Cleanup after modal hidden
     modalEl.addEventListener("hidden.bs.modal", () => {
+      modal.dispose();
       modalEl.remove();
+      closingEl = null;
+
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus();
+      }
     });
   };
 
@@ -137,4 +198,4 @@
   ckan.sandbox && ckan.sandbox.extend({ confirm: confirm });
   ckan.confirm = confirm;
 
-})(this.ckan, this.jQuery);
+})(this.ckan);

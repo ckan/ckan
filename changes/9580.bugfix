@@ -1,0 +1,1 @@
+Fix several ``ckan.confirm()`` issues: callbacks firing more than once on repeated clicks, confirms opened from a callback of a previous confirm being rejected, ``onCancel`` not being called when the modal is dismissed with Esc or a backdrop click, and an ``aria-hidden`` console warning when the modal closes.
