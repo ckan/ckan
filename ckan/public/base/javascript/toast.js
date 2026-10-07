@@ -25,7 +25,7 @@
    * - subtitle  (string)  Optional.  Text shown in the header's small subtitle area.
    * - delay     (number)  Optional.  Time in milliseconds before auto-hide. Default: 3000.
    * - position  (string)  Optional.  Position key controlling toast placement. Default: "bottom-right".
-   * - showProgress  (boolean) Optional.  Whether to show a progress bar. Default: false.
+   * - showProgress  (boolean) Optional.  Whether to show a progress bar. Default: true.
    * - stacking  (boolean) Optional.  Whether to stack toasts on top of each other. Default: true.
   */
   var toast = function (options) {
@@ -42,9 +42,18 @@
       delay: 3000,
       position: "bottom-right",
       showProgress: true,
-      stacking: true,
-      ...options
+      stacking: true
     };
+
+    // options that are explicitly null/undefined must not override the defaults
+    Object.keys(options).forEach(key => {
+      if (options[key] != null) opts[key] = options[key];
+    });
+
+    // unknown positions share the default container instead of creating a new one
+    if (!Object.hasOwn(toast.options.positions, opts.position)) {
+      opts.position = "bottom-right";
+    }
 
     const style = toast.styles[opts.type] || toast.styles.default;
     const containerEl = toast._createToastContainer(opts);
@@ -52,8 +61,8 @@
     const toastID = `toast-${++toast.count}`;
 
     toastEl.setAttribute("id", toastID);
-    toastEl.setAttribute("role", "alert");
-    toastEl.setAttribute("aria-live", "assertive");
+    toastEl.setAttribute("role", opts.type === "danger" ? "alert" : "status");
+    toastEl.setAttribute("aria-live", opts.type === "danger" ? "assertive" : "polite");
     toastEl.setAttribute("aria-atomic", "true");
     toastEl.classList.add("toast", "align-items-center");
     style.border && toastEl.classList.add(style.border);
@@ -69,18 +78,18 @@
         `;
 
     if (!opts.stacking) {
-      containerEl.querySelectorAll(".toast").forEach(el => el.remove());
+      containerEl.querySelectorAll(".toast").forEach(toast._removeToast);
     }
 
     containerEl.appendChild(toastEl);
-
-    toastEl.addEventListener("hidden.bs.toast", (e) => e.target.remove());
 
     const hasDelay = typeof opts.delay === "number" && opts.delay > 0;
     const toastInstance = new bootstrap.Toast(toastEl, {
       autohide: hasDelay,
       delay: hasDelay ? opts.delay : 0
     });
+
+    toastEl.addEventListener("hidden.bs.toast", (e) => toast._removeToast(e.target));
 
     if (hasDelay && opts.showProgress) {
       const progressEl = toast._createProgressBar(opts, style);
@@ -155,14 +164,26 @@
     const positionClasses = toast.options.positions[position] || toast.options.positions["bottom-right"];
 
     wrapper.classList.add("position-relative");
-    wrapper.setAttribute("role", opts.style === "danger" ? "alert" : "status");
-    wrapper.setAttribute("aria-live", opts.style === "danger" ? "assertive" : "polite");
-    wrapper.setAttribute("aria-atomic", "true");
 
     wrapper.innerHTML = `<div id="${containerID}" class="toast-container position-fixed pb-1 ${positionClasses}"></div>`;
     document.body.appendChild(wrapper);
 
     return document.getElementById(containerID);
+  };
+
+  /**
+   * Removes a toast element from the DOM
+   *
+   * The Bootstrap instance is disposed first, otherwise it keeps a reference
+   * to the element and its autohide timer stays active.
+   *
+   * @param {HTMLElement} toastEl - the toast element
+  */
+  toast._removeToast = function (toastEl) {
+    const instance = bootstrap.Toast.getInstance(toastEl);
+
+    instance && instance.dispose();
+    toastEl.remove();
   };
 
   /**
