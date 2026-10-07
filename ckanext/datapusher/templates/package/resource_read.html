@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+{% block action_manage_inner %}
+  {{ super() }}
+  {% if h.is_resource_supported_by_datapusher(res) %}
+    <li>{% link_for _('DataStore'), named_route='datapusher.resource_data', id=pkg.name, resource_id=res.id, class_='btn btn-light', icon='cloud-upload' %}</li>
+  {% endif %}
+{% endblock %}
