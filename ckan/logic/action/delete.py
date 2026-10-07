@@ -127,8 +127,6 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     :type id: string
 
     '''
-    from sqlalchemy import or_
-
     id = _get_or_bust(data_dict, 'id')
 
     pkg = model.Package.get(id)
@@ -141,19 +139,17 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     members = model.Session.query(model.Member) \
                    .filter(model.Member.table_id == pkg.id) \
                    .filter(model.Member.table_name == 'package')
-    if members.count() > 0:
-        for m in members.all():
-            m.purge()
+    for m in members.all():
+        m.purge()
 
     for r in model.Session.query(model.PackageRelationship).filter(
-            or_(model.PackageRelationship.subject_package_id == pkg.id,
-                model.PackageRelationship.object_package_id == pkg.id)).all():
+            sqla.or_(
+                model.PackageRelationship.subject_package_id == pkg.id,
+                model.PackageRelationship.object_package_id == pkg.id,
+            )).all():
         r.purge()
 
-    pkg = model.Package.get(id)
-    assert pkg
-
-    ckan.logic.index_remove_package(id)
+    ckan.logic.index_remove_package(pkg.id)
 
     pkg.purge()
     model.repo.commit_and_remove()
