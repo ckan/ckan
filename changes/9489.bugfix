@@ -1,0 +1,1 @@
+``h.markdown_extract()`` returned nothing but the ``...`` placeholder when a description began with a single token longer than the extract length, so the dataset appeared in search listings with no description at all. A leading token that cannot fit is now cut rather than dropped.
