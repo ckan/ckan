@@ -111,6 +111,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     resources[resource.position] = data_dict
 
     try:
+        context['use_cache'] = False
         updated_pkg_dict = _get_action('package_update')(
             update_context, pkg_dict)
     except ValidationError as e:
@@ -122,6 +123,8 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         raise ValidationError(error_dict)
 
     resource = updated_pkg_dict['resources'][resource.position]
+    if 'original_package' in context:
+        context['original_package'] = updated_pkg_dict
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(
@@ -469,8 +472,9 @@ def package_update(
     pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
         context, pkg.id)
 
-    if not context.get('defer_commit'):
-        logic.index_update_package_dicts((pkg_default, pkg_custom))
+    if change:
+        if not context.get('defer_commit'):
+            logic.index_update_package_dicts((pkg_default, pkg_custom))
 
         nested.commit()
         if not context.get('defer_commit'):
