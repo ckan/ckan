@@ -1,6 +1,6 @@
 {% import 'macros/form.html' as form %}
 
-<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form"
+<form hx-post="{{ h.url_for('user.api_tokens', id=user.id ) }}" hx-swap="outerHTML" class="form mb-3"
   autocomplete="off"
   {% if created %}hx-on:htmx:after-settle="document.getElementById('token-{{ created.id }}').scrollIntoView(false)"{% endif %}>
   {{ h.csrf_input() }}
@@ -30,8 +30,8 @@
               </code>
             </label>
           </div>
-          {% set copy_button %}<button class="btn btn-secondary btn-xs" data-module="copy-into-buffer" data-module-copy-value="{{ created.token }}" type="button" aria-label="{{ _('Copy to clipboard') }}"><i class="fa fa-copy" aria-hidden="true"></i></button>{% endset %}
-          {{ _("API Token created: <code style=\"word-break:break-all;\">"
+          {% set copy_button %}<button class="btn btn-secondary btn-xs" data-module="copy-into-buffer" data-module-copy-value="{{ created.token }}" type="button"><i class="fa fa-copy"></i></button>{% endset %}
+          {{ _("API Token created: <code style='word-break:break-all;'>"
                "{token}</code> {copy}<br>"
                "Make sure to copy it now, "
                "you won't be able to see it again!").format(

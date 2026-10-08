@@ -17,14 +17,14 @@ describe('jQuery.inherit()', {testIsolation: false}, function () {
     })
   });
 
-  it('should set the childs prototype object', function () {
+  it("should set the child's prototype object", function () {
     cy.window().then(win => {
       let target = new (win.jQuery.inherit(this.MyClass))();
       assert.isFunction(target.method);
     })
   });
 
-  it('should copy over the childs static properties', function () {
+  it("should copy over the child's static properties", function () {
     cy.window().then(win => {
       let Target = win.jQuery.inherit(this.MyClass);
       assert.isFunction(Target.static);

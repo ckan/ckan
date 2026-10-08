@@ -683,6 +683,17 @@ def get_rtl_theme() -> str:
 
 
 @core_helper
+def dark_mode_enabled() -> bool:
+    '''Return whether dark theme support is enabled.
+
+    Controlled by the :ref:`ckan.theme.enable_dark_mode` config option. When
+    disabled, the theme toggle button and the ``prefers-color-scheme``
+    autodetection are turned off.
+    '''
+    return config.get('ckan.theme.enable_dark_mode')
+
+
+@core_helper
 def flash_notice(message: Any, allow_html: bool = False) -> None:
     ''' Show a flash message of type notice '''
     if allow_html:
@@ -2427,7 +2438,7 @@ def uploads_enabled(storage_name: str | None = None) -> bool:
     if not storage_name:
         log.warning(
             "h.uploads_enabled must be called with object_type."
-            " Swithcing to legacy logic and checking availability of custom uploaders."
+            " Switching to legacy logic and checking availability of custom uploaders."
             " In future this call will cause an exception."
         )
         return has_classic_uploader

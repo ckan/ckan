@@ -1725,7 +1725,7 @@ class IAuthenticator(Interface):
 
     Instead of using :py:meth:`.identify` in this role, it's recommended to use
     :py:class:`~ckan.plugins.interfaces.IMiddleware` interfaces. Its
-    :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` accpets
+    :py:meth:`~ckan.plugins.interfaces.IMiddleware.make_middleware` accepts
     ``app`` object that can be supplied with before-request callback::
 
         p.implements(IMiddleware, inherit=True)

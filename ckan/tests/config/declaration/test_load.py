@@ -53,7 +53,7 @@ class TestConfigTree:
 
 class TestFilesLoader:
     def test_no_file_declarations_by_default(self):
-        """If storages are not configred, new declarations do not appear."""
+        """If storages are not configured, new declarations do not appear."""
         decl = Declaration()
         loader(decl, "files", config=CKANConfig())
         assert not decl

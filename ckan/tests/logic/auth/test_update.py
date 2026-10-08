@@ -291,6 +291,8 @@ class TestUpdateAuthWithCollaborators(object):
         ('package_update', False),
         ('package_update', True),
         ('package_update', True),
+        ('package_reindex', False),
+        ('package_reindex', True),
         ('package_delete', False),
         ('package_delete', False),
         ('package_delete', True),

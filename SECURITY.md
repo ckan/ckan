@@ -22,9 +22,11 @@ release for a minor version. To find out the currently supported versions and le
 
 https://docs.ckan.org/en/latest/maintaining/releases.html
 
+
 Fixed security vulnerabilities are assigned a CVE and registered using
 [GitHub Security Advisories](https://github.com/ckan/ckan/security/advisories), and also included in
 the [CHANGELOG.rst](CHANGELOG.rst).
+
 
 Again, only the latest patch release contains all security patches, so please ensure your
 CKAN instance is running on a supported version to avoid exposing your users and your data.

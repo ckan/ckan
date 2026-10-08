@@ -898,7 +898,7 @@ def test_decode_view_request_filters(test_request_context):
     # no matching local returns base
     ({"notes": "untranslated",
       "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'es', 'untranslated'),
-    # specific returns specfic
+    # specific returns specific
     ({"notes": "untranslated",
       "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'en_GB', 'en_GB'),
     # variant returns base
@@ -1139,6 +1139,15 @@ class TestHasMoreFacets:
 def test_unix_locale_to_bcp47():
     assert h.unix_locale_to_bcp47('en') == 'en'
     assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'
+
+
+class TestDarkModeEnabled(object):
+    def test_enabled_by_default(self):
+        assert h.dark_mode_enabled() is True
+
+    @pytest.mark.ckan_config("ckan.theme.enable_dark_mode", False)
+    def test_can_be_disabled(self):
+        assert h.dark_mode_enabled() is False
 
 
 def test_get_facet_items_dict(test_request_context: Any):

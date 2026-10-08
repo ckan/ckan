@@ -445,6 +445,8 @@ Bugfixes
 Migration notes
 ---------------
 
+- The minimum Python version supported is Python 3.10
+  (`#8998 <https://github.com/ckan/ckan/pull/8998>`_)
 - The ``migrate_package_activity.py`` script and revision tables have been
   removed. Migrate your revision data to activities before upgrading to this
   version or the revision history will be lost. (`#8319
@@ -457,13 +459,18 @@ Migration notes
   protection <csrf_best_practices>` snippet in their forms.
   The ``ckan.csrf_protection.ignore_extensions`` config option has been removed.
   (`#8918 <https://github.com/ckan/ckan/pull/8918>`_)
-- The minimum Python version supported is Python 3.10
-  (`#8998 <https://github.com/ckan/ckan/pull/8998>`_)
 - The unique user email index is now case insensitive. This will prevent
   duplicate user emails that use different
   cases. Use the ``ckan db duplicate_emails`` command to confirm any
   duplicate users you may have in your site. (`#9178
   <https://github.com/ckan/ckan/pull/9178>`_)
+- Setting  ``debug=true`` in your configuration does no longer make assets files to
+  be served individually. To enable this in a development environment you need to use
+  the new :ref:`ckan.webassets.debug` config option (disabled by default).
+  When it's enabled, every asset file is served separately, allowing
+  easier front-end debugging but substantially increasing the number of additional
+  requests. (`#9379 <https://github.com/ckan/ckan/pull/9379>`_)
+
 
 
 
