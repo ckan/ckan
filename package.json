@@ -22,10 +22,8 @@
     "cypress": "^15.18.0",
     "cypress-axe": "^1.6.0",
     "gulp": "^5.0.1",
-    "gulp-if": "^3.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^6.0.1",
-    "gulp-sourcemaps": "^2.6.5",
     "pyright": "^1.1.402",
     "sass": "^1.101.3"
   },
