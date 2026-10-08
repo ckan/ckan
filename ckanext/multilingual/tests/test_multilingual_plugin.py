@@ -7,6 +7,7 @@ import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers as h
 import ckan.lib.create_test_data
 import ckan.model as model
+import ckan.tests.factories as factories
 from ckan.tests.helpers import body_contains, call_action
 
 _create_test_data = ckan.lib.create_test_data
@@ -237,3 +238,40 @@ class TestDatasetSearchIndex(object):
             u"title_it": u"italian david",
             "text_ru": "",
         }, result
+
+
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+class TestResourceTermTranslation:
+    """Regression test for the `multilingual_resource` plugin's
+    before_resource_show hook: package_show must apply the (possibly new)
+    dict the hook returns, not just whatever mutations it made in place.
+    """
+
+    def test_resource_name_is_translated_on_read_page(self, app):
+        dataset = factories.Dataset()
+        factories.Resource(
+            package_id=dataset["id"], name="original-resource-name"
+        )
+
+        call_action(
+            "term_translation_update",
+            term="original-resource-name",
+            term_translation="translated-resource-name",
+            lang_code="de",
+        )
+
+        ckan.plugins.load("multilingual_resource")
+        try:
+            offset = h.url_for("dataset.read", id=dataset["name"])
+            response = app.get(
+                offset,
+                status=200,
+                environ_overrides={
+                    "CKAN_LANG": "de",
+                    "CKAN_CURRENT_URL": offset,
+                },
+            )
+            assert body_contains(response, "translated-resource-name")
+            assert not body_contains(response, "original-resource-name")
+        finally:
+            ckan.plugins.unload("multilingual_resource")

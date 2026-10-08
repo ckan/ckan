@@ -1034,8 +1034,14 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         item.read(pkg)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
-        for resource_dict in package_dict['resources']:
-            item.before_resource_show(resource_dict)
+        for i, resource_dict in enumerate(package_dict['resources']):
+            new_resource_dict = item.before_resource_show(resource_dict)
+            # Plugins are documented to return the (possibly new) resource
+            # dict, but some existing implementations mutate the dict in
+            # place and return nothing. Treat None as "no change" so we
+            # don't clobber resources with those implementations.
+            if new_resource_dict is not None:
+                package_dict['resources'][i] = new_resource_dict
 
     if not package_dict_validated:
         package_plugin = lib_plugins.lookup_package_plugin(
