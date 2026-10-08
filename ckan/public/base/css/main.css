@@ -15578,3 +15578,21 @@ html[data-theme=dark] .modal {
 html[data-theme=dark] .modal-header .btn-close {
   filter: var(--bs-btn-close-white-filter);
 }
+html[data-theme=dark] .toast {
+  --bs-toast-color: var(--dm-text);
+  --bs-toast-bg: var(--dm-surface);
+  --bs-toast-border-color: var(--dm-border);
+  --bs-toast-header-color: var(--dm-text-muted);
+  --bs-toast-header-bg: var(--dm-surface-alt);
+  --bs-toast-header-border-color: var(--dm-border);
+}
+html[data-theme=dark] .toast.border-dark,
+html[data-theme=dark] .toast .toast-header.border-dark {
+  border-color: var(--dm-border) !important;
+}
+html[data-theme=dark] .toast .progress-bar-timer.bg-dark {
+  background-color: var(--dm-text-muted) !important;
+}
+html[data-theme=dark] .toast-header:not(.bg-light):not(.bg-white) .btn-close {
+  filter: var(--bs-btn-close-white-filter);
+}

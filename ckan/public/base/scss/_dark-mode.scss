@@ -436,4 +436,29 @@ html[data-theme="dark"] {
     .modal-header .btn-close {
         filter: var(--bs-btn-close-white-filter);
     }
+
+    .toast {
+        --bs-toast-color: var(--dm-text);
+        --bs-toast-bg: var(--dm-surface);
+        --bs-toast-border-color: var(--dm-border);
+        --bs-toast-header-color: var(--dm-text-muted);
+        --bs-toast-header-bg: var(--dm-surface-alt);
+        --bs-toast-header-border-color: var(--dm-border);
+
+        // the dark border and progress bar of the light, white and dark
+        // toast types are invisible on a dark surface
+        &.border-dark,
+        .toast-header.border-dark {
+            border-color: var(--dm-border) !important;
+        }
+
+        .progress-bar-timer.bg-dark {
+            background-color: var(--dm-text-muted) !important;
+        }
+    }
+
+    // light and white toast types keep a light header, so their close button stays dark
+    .toast-header:not(.bg-light):not(.bg-white) .btn-close {
+        filter: var(--bs-btn-close-white-filter);
+    }
 }
