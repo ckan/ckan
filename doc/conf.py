@@ -223,7 +223,7 @@ def get_latest_release_tag():
         return release_tags_[-1]
     else:
         # Un-released tag (eg master or a beta version), use the latest one
-        return get_latest_release_version()
+        return None
 
 
 def get_latest_release_version():
@@ -232,7 +232,8 @@ def get_latest_release_version():
     e.g. "2.1.1"
 
     '''
-    version = get_latest_release_tag()[len('ckan-'):]
+    latest_release_tag = get_latest_release_tag()
+    version = latest_release_tag[len('ckan-'):] if latest_release_tag else None
 
     # TODO: We could assert here that latest_version matches X.Y.Z.
 
@@ -245,7 +246,8 @@ def get_current_release_version():
     e.g. "2.1.1"
 
     '''
-    version = get_current_release_tag()[len('ckan-'):]
+    current_release_tag = get_current_release_tag()
+    version = current_release_tag[len('ckan-'):] if current_release_tag else None
 
     # TODO: We could assert here that latest_version matches X.Y.Z.
 
@@ -258,15 +260,18 @@ def get_previous_release_version() -> str:
     eg if the latest release is 2.9.5, it returns 2.8.10
 
     """
-    current_version = version_parse(get_current_release_version())
+    current_release_version = get_current_release_version()
+    if current_release_version:
+        current_version = version_parse(current_release_version)
 
-    previous_tag_prefix = f"ckan-{current_version.major}.{current_version.minor - 1}"
+        previous_tag_prefix = f"ckan-{current_version.major}.{current_version.minor - 1}"
 
-    previous_version_tags = [
-        r for r in get_release_tags() if r.startswith(previous_tag_prefix)
-    ]
-    previous_release_version = previous_version_tags[-1][len("ckan-"):]
-    return previous_release_version
+        previous_version_tags = [
+            r for r in get_release_tags() if r.startswith(previous_tag_prefix)
+        ]
+        previous_release_version = previous_version_tags[-1][len("ckan-"):]
+        return previous_release_version
+    return None
 
 
 def get_latest_package_name(distro, py_version=None):
@@ -308,15 +313,17 @@ def get_current_package_name(distro, py_version=None):
     # instead we just update the existing 2.1 package. So package names only
     # have the X.Y part of the version number in them, not X.Y.Z.
     version = get_current_release_version()
-    current_minor_version = version[:version.find(".", 3)]
+    if version:
+        current_minor_version = version[:version.find(".", 3)]
 
-    if py_version:
-        name = 'python-ckan_{version}-py{py_version}-{distro}_amd64.deb'.format(
-            version=current_minor_version, distro=distro, py_version=py_version)
-    else:
-        name = 'python-ckan_{version}-{distro}_amd64.deb'.format(
-            version=current_minor_version, distro=distro)
-    return name
+        if py_version:
+            name = 'python-ckan_{version}-py{py_version}-{distro}_amd64.deb'.format(
+                version=current_minor_version, distro=distro, py_version=py_version)
+        else:
+            name = 'python-ckan_{version}-{distro}_amd64.deb'.format(
+                version=current_minor_version, distro=distro)
+        return name
+    return None
 
 
 def config_defaults_from_declaration():
@@ -386,26 +393,26 @@ def write_substitutions_file(**kwargs):
 current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
 previous_release_version = get_previous_release_version()
-previous_release_version_format = f"**CKAN {previous_release_version}**"
-current_minor_version = current_release_version[:current_release_version.find(".", 3)]
+previous_release_version_format = f"**CKAN {previous_release_version}**" if previous_release_version else f"**Unknown**"
+current_minor_version = current_release_version[:current_release_version.find(".", 3)] if current_release_version else f"**Unknown**"
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
-latest_release_version_format = f"**CKAN {latest_release_version}**"
+latest_release_version_format = f"**CKAN {latest_release_version}**" if latest_release_version else f"**Unknown**"
 latest_minor_version = latest_release_version[:latest_release_version.find(".", 3)]
 is_master = "a" in release.split(".")[-1]
 is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
+current_package_name_jammy = get_current_package_name('jammy')
+current_package_name_focal = get_current_package_name('focal')
 
 write_substitutions_file(
-    current_release_tag=current_release_tag_value,
+    current_release_tag=current_release_tag_value if current_release_tag_value else f"master",
     current_release_version=current_release_version,
-    previous_release_version=previous_release_version,
     previous_release_version_format=previous_release_version_format,
-    latest_release_tag=latest_release_tag_value,
-    latest_release_version=latest_release_version,
+    latest_release_tag=latest_release_tag_value if latest_release_tag_value else f"master",
     latest_release_version_format=latest_release_version_format,
-    current_package_name_jammy=get_current_package_name('jammy'),
-    current_package_name_focal=get_current_package_name('focal'),
+    current_package_name_jammy=current_package_name_jammy if current_package_name_jammy else f"**Unknown ckan package version for jammy**",
+    current_package_name_focal=current_package_name_focal if current_package_name_focal else f"**Unknown ckan package version for focal**",
     **config_defaults_from_declaration()
 )
 
@@ -463,7 +470,6 @@ html_sidebars = {
 }
 
 html_context = {
-    'latest_release_tag_value': latest_release_tag_value,
     'is_master': is_master,
     'is_supported': is_supported,
     'is_latest_version': is_latest_version,
@@ -569,6 +575,6 @@ latex_documents = [
 #latex_use_modindex = True
 
 extlinks = {'source-blob': (
-    f'https://github.com/ckan/ckan/blob/{current_release_tag_value}/%s',
+    f'https://github.com/ckan/ckan/blob/{current_release_tag_value if current_release_tag_value else "master"}/%s',
     'source for %s'
 )}

@@ -6,6 +6,7 @@
       {{ super() }}
     {% endblock %}
     {% snippet "package/snippets/search_results.html",
+      heading=organization.title or organization.name,
       dataset_type=dataset_type,
       fields_grouped=fields_grouped,
       search_facets=search_facets,
@@ -16,7 +17,8 @@
       sort_by_selected=sort_by_selected,
       page=page,
       query_error=query_error,
-      fields=fields
+      fields=fields,
+      state=organization.state
     %}
   </article>
 {% endblock %}

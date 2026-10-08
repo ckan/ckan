@@ -97,7 +97,7 @@ class PublicFsStorage(FsStorage):
     relies on this assumption when producing permanent links to the file.
 
     Example:
-        ```pyhon
+        ```python
         # inside plugin's update config
         tk.add_public_directory(config, "/var/shared_folder")
 
@@ -122,7 +122,7 @@ class PublicFsStorage(FsStorage):
         super().declare_config_options(declaration, key)
 
         declaration.declare(key.public_prefix, "").set_description(
-            "URL prefix to use when builing public file's URL.\nFor example,"
+            "URL prefix to use when building public file's URL.\nFor example,"
             " if storage has path `/var/data/storage/location`,\nand the directory"
             " `/var/data` is registered as Flask static directory,\nthe correct"
             " prefix is `storage/location`"

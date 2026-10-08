@@ -23,7 +23,9 @@ def test_build_and_clean(
             continue
         assert folder.listdir()
 
-    cli.invoke(ckan, ["asset", "clean"])
+    result = cli.invoke(ckan, ["asset", "clean"])
+    assert not result.stderr
+
     for folder in tmpdir.listdir():
         if not folder.isdir():
             continue
