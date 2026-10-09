@@ -3,9 +3,11 @@
 import pytest
 from bs4 import BeautifulSoup
 
+import ckan.lib.jobs as jobs
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+import ckan.views.admin as admin_view
 from ckan.common import config
 from ckan.lib.helpers import url_for
 from ckan.model.system_info import get_system_info
@@ -190,8 +192,15 @@ class TestConfig(object):
         assert len(style_tag) == 0
 
 
+ENT_TYPE_FACTORY = {
+    "dataset": factories.Dataset,
+    "group": factories.Group,
+    "organization": factories.Organization,
+}
+
+
 @pytest.mark.usefixtures("clean_db", "clean_index")
-class TestTrashView(object):
+class TestTrashView(helpers.RQTestBase):
     """View tests for permanently deleting datasets with Admin Trash."""
 
     def test_trash_view_anon_user(self, app):
@@ -207,319 +216,324 @@ class TestTrashView(object):
         assert trash_response.status_code == 403
 
     def test_trash_view_sysadmin(self, app, sysadmin_headers):
-        """A sysadmin should be able to access trash view."""
+        """A sysadmin should be able to access trash view, defaulting to the
+        dataset tab."""
         trash_url = url_for("admin.trash")
         trash_response = app.get(trash_url, headers=sysadmin_headers, status=200)
-        # On the purge page
-        assert "purge-all" in trash_response
+        assert "There are no datasets to purge" in trash_response
 
-    def test_trash_no_datasets(self, app, sysadmin_headers):
-        """Getting the trash view with no 'deleted' datasets should list no
-        datasets."""
-        factories.Dataset()
+    def test_trash_unknown_ent_type_404s(self, app, sysadmin_headers):
+        trash_url = url_for("admin.trash", ent_type="not-a-real-type")
+        app.get(trash_url, headers=sysadmin_headers, status=404)
 
-        trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, headers=sysadmin_headers, status=200)
+    @pytest.mark.parametrize("ent_type", ["dataset", "group", "organization"])
+    def test_trash_empty_tab_has_no_entities(self, app, sysadmin_headers, ent_type):
+        """An active (non-deleted) entity should never show up in its tab."""
+        ENT_TYPE_FACTORY[ent_type]()
 
-        response_html = BeautifulSoup(trash_response.body)
-        trash_pkg_list = response_html.select("ul.package-list li")
-        # no packages available to purge
-        assert len(trash_pkg_list) == 0
-
-    def test_trash_no_groups(self, app, sysadmin_headers):
-        """Getting the trash view with no 'deleted' groups should list no
-        groups."""
-        factories.Group()
-
-        trash_url = url_for("admin.trash")
+        trash_url = url_for("admin.trash", ent_type=ent_type)
         trash_response = app.get(trash_url, headers=sysadmin_headers, status=200)
 
         response_html = BeautifulSoup(trash_response.body)
-        trash_grp_list = response_html.select("ul.group-list li")
-        # no packages available to purge
-        assert len(trash_grp_list) == 0
+        assert len(response_html.select('input[name="entity_id"]')) == 0
+        assert f"form-bulk-{ent_type}" not in trash_response
 
-    def test_trash_no_organizations(self, app, sysadmin_headers):
-        """Getting the trash view with no 'deleted' organizations should list no
-        organizations."""
-        factories.Organization()
+    @pytest.mark.parametrize("ent_type", ["group", "organization"])
+    def test_trash_tab_lists_only_deleted_entities_of_that_type(
+        self, app, sysadmin_headers, ent_type
+    ):
+        factory = ENT_TYPE_FACTORY[ent_type]
+        factory(state="deleted")
+        factory(state="deleted")
+        factory()
 
-        trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, headers=sysadmin_headers, status=200)
+        trash_url = url_for("admin.trash", ent_type=ent_type)
+        response = app.get(trash_url, headers=sysadmin_headers, status=200)
 
-        response_html = BeautifulSoup(trash_response.body)
-        trash_org_list = response_html.select("ul.organization-list li")
-        # no packages available to purge
-        assert len(trash_org_list) == 0
+        response_html = BeautifulSoup(response.body)
+        assert len(response_html.select('input[name="entity_id"]')) == 2
+        assert f"form-bulk-{ent_type}" in response
 
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
-    def test_trash_with_deleted_datasets(self, app, sysadmin_headers):
-        """Getting the trash view with 'deleted' datasets should list the
-        datasets."""
+    def test_trash_dataset_tab_from_db(self, app, sysadmin_headers):
         factories.Dataset(state="deleted")
         factories.Dataset(state="deleted")
         factories.Dataset()
 
-        trash_url = url_for("admin.trash")
+        trash_url = url_for("admin.trash", ent_type="dataset")
         response = app.get(trash_url, headers=sysadmin_headers, status=200)
 
         response_html = BeautifulSoup(response.body)
-        trash_pkg_list = response_html.select("ul.package-list li")
-        # Two packages in the list to purge
-        assert len(trash_pkg_list) == 2
+        assert len(response_html.select('input[name="entity_id"]')) == 2
 
     @pytest.mark.usefixtures("clean_index")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
-    def test_trash_with_deleted_datasets_no_remove_deleted_packages(self, app, sysadmin_headers):
-        """Getting the trash view with 'deleted' datasets should list the
-        datasets."""
+    def test_trash_dataset_tab_from_search_index(self, app, sysadmin_headers):
         factories.Dataset(state="deleted")
         factories.Dataset(state="deleted")
         factories.Dataset()
 
-        trash_url = url_for("admin.trash")
-
+        trash_url = url_for("admin.trash", ent_type="dataset")
         response = app.get(trash_url, headers=sysadmin_headers, status=200)
 
         response_html = BeautifulSoup(response.body)
-        trash_pkg_list = response_html.select("ul.package-list li")
-        # Two packages in the list to purge
-        assert len(trash_pkg_list) == 2
-
-    def test_trash_with_deleted_groups(self, app, sysadmin_headers):
-        """Getting the trash view with "deleted" groups should list the
-        groups."""
-        factories.Group(state="deleted")
-        factories.Group(state="deleted")
-        factories.Group()
-
-        trash_url = url_for("admin.trash")
-        response = app.get(trash_url, headers=sysadmin_headers, status=200)
-
-        response_html = BeautifulSoup(response.body)
-        trash_grp_list = response_html.select("ul.group-list li")
-        # Two groups in the list to purge
-        assert len(trash_grp_list) == 2
-
-    def test_trash_with_deleted_organizations(self, app, sysadmin_headers):
-        """Getting the trash view with 'deleted' organizations should list the
-        organizations."""
-        factories.Organization(state="deleted")
-        factories.Organization(state="deleted")
-        factories.Organization()
-
-        trash_url = url_for("admin.trash")
-        response = app.get(trash_url, headers=sysadmin_headers, status=200)
-
-        response_html = BeautifulSoup(response.body)
-        trash_org_list = response_html.select("ul.organization-list li")
-        # Two organizations in the list to purge
-        assert len(trash_org_list) == 2
-
-    def test_trash_with_deleted_entities(self, app, sysadmin_headers):
-        """Getting the trash view with 'deleted' entities should list the
-        all types of entities."""
-        factories.Dataset(state="deleted")
-        factories.Group(state="deleted")
-        factories.Organization(state="deleted")
-        factories.Organization()
-
-        trash_url = url_for("admin.trash")
-        response = app.get(trash_url, headers=sysadmin_headers, status=200)
-
-        response_html = BeautifulSoup(response.body)
-
-        # Getting the amount of entity of each type to purge
-        trash_pkg_list = len(response_html.select("ul.package-list li"))
-        trash_grp_list = len(response_html.select("ul.group-list li"))
-        trash_org_list = len(response_html.select("ul.organization-list li"))
-        entities_amount = trash_pkg_list + trash_grp_list + trash_org_list
-
-        # One entity of each type in the list to purge
-        assert entities_amount == 3
-
-    def test_trash_purge_custom_ds_type(self, app, sysadmin_headers):
-        """Posting the trash view with 'deleted' datasets, purges the
-        datasets."""
-        factories.Dataset(state="deleted", type="custom_dataset")
-        # how many datasets before purge
-        pkgs_before_purge = model.Session.query(model.Package).count()
-        assert pkgs_before_purge == 1
-
-        trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "package"}, headers=sysadmin_headers)
-        # check for flash success msg
-        assert "datasets have been purged" in response.body
-
-        # how many datasets after purge
-        pkgs_after_purge = model.Session.query(model.Package).count()
-        assert pkgs_after_purge == 0
+        assert len(response_html.select('input[name="entity_id"]')) == 2
 
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
-    def test_trash_purge_deleted_datasets(self, app, sysadmin_headers):
-        """Posting the trash view with 'deleted' datasets, purges the
-        datasets."""
-        factories.Dataset(state="deleted")
-        factories.Dataset(state="deleted")
+    def test_trash_dataset_tab_search_filters_by_title(self, app, sysadmin_headers):
+        factories.Dataset(state="deleted", title="alpha dataset")
+        factories.Dataset(state="deleted", title="beta dataset")
+
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        response = app.get(
+            trash_url, headers=sysadmin_headers, status=200, params={"q": "alpha"}
+        )
+
+        response_html = BeautifulSoup(response.body)
+        assert len(response_html.select('input[name="entity_id"]')) == 1
+        assert "alpha dataset" in response.body
+        assert "beta dataset" not in response.body
+
+    @pytest.mark.parametrize("ent_type", ["group", "organization"])
+    def test_trash_search_filters_group_or_org_by_title(
+        self, app, sysadmin_headers, ent_type
+    ):
+        factory = ENT_TYPE_FACTORY[ent_type]
+        factory(state="deleted", title="alpha")
+        factory(state="deleted", title="beta")
+
+        trash_url = url_for("admin.trash", ent_type=ent_type)
+        response = app.get(
+            trash_url, headers=sysadmin_headers, status=200, params={"q": "alpha"}
+        )
+
+        response_html = BeautifulSoup(response.body)
+        assert len(response_html.select('input[name="entity_id"]')) == 1
+
+    def test_trash_search_no_results_hides_purge_all(self, app, sysadmin_headers):
+        factories.Dataset(state="deleted", title="alpha dataset")
+
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        response = app.get(
+            trash_url, headers=sysadmin_headers, status=200, params={"q": "no-match"}
+        )
+
+        assert "No results for your search." in response.body
+        assert "purge-all" not in response.body
+
+    def test_trash_purge_single_selected_is_synchronous(self, app, sysadmin_headers):
+        """Selecting exactly one entity purges it immediately, no
+        background job involved."""
+        dataset = factories.Dataset(state="deleted", type="custom_dataset")
+        assert model.Session.query(model.Package).count() == 1
+
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        response = app.post(
+            trash_url,
+            data={"action": "purge_selected", "entity_id": dataset["id"]},
+            headers=sysadmin_headers,
+        )
+        assert "Entity has been purged" in response.body
+
+        assert model.Session.query(model.Package).count() == 0
+        assert self.all_jobs() == []
+
+    def test_trash_restore_single_dataset(self, app, sysadmin_headers):
+        """Restoring a deleted entity via the row action sets it back to
+        active instead of purging it."""
+        dataset = factories.Dataset(state="deleted")
+
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        response = app.post(
+            trash_url,
+            data={"action": "restore_single", "entity_id": dataset["id"]},
+            headers=sysadmin_headers,
+        )
+
+        pkg = model.Package.get(dataset["id"])
+
+        assert pkg
+        assert "Entity has been restored" in response.body
+        assert pkg.state == model.State.ACTIVE
+
+    @pytest.mark.parametrize("ent_type", ["group", "organization"])
+    def test_trash_restore_single_group_or_org(self, app, sysadmin_headers, ent_type):
+        entity = ENT_TYPE_FACTORY[ent_type](state="deleted")
+
+        trash_url = url_for("admin.trash", ent_type=ent_type)
+        response = app.post(
+            trash_url,
+            data={"action": "restore_single", "entity_id": entity["id"]},
+            headers=sysadmin_headers,
+        )
+
+        group = model.Group.get(entity["id"])
+
+        assert group
+        assert "Entity has been restored" in response.body
+        assert group.state == model.State.ACTIVE
+
+    def test_trash_restore_single_not_found(self, app, sysadmin_headers):
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        response = app.post(
+            trash_url,
+            data={"action": "restore_single", "entity_id": "does-not-exist"},
+            headers=sysadmin_headers,
+        )
+        assert "Entity not found" in response.body
+
+    def test_trash_purge_selected_multiple_is_queued(self, app, sysadmin_headers):
+        """Selecting more than one entity enqueues a background job instead
+        of purging inline."""
+        ds1 = factories.Dataset(state="deleted")
+        ds2 = factories.Dataset(state="deleted")
         factories.Dataset()
-        # how many datasets before purge
-        pkgs_before_purge = model.Session.query(model.Package).count()
-        assert pkgs_before_purge == 3
+        assert model.Session.query(model.Package).count() == 3
 
-        trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "package"}, headers=sysadmin_headers)
-        # check for flash success msg
-        assert "datasets have been purged" in response.body
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        response = app.post(
+            trash_url,
+            data={
+                "action": "purge_selected",
+                "entity_id": [ds1["id"], ds2["id"]],
+            },
+            headers=sysadmin_headers,
+        )
+        assert "Purge job for 2 dataset(s) has been queued" in response.body
 
-        # how many datasets after purge
-        pkgs_after_purge = model.Session.query(model.Package).count()
-        assert pkgs_after_purge == 1
+        # nothing purged yet: the job hasn't been run, only enqueued
+        assert model.Session.query(model.Package).count() == 3
+        assert len(self.all_jobs()) == 1
 
-    @pytest.mark.usefixtures("clean_index")
-    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
-    def test_trash_purge_deleted_datasets_no_remove_deleted_packages(self, app, sysadmin_headers):
-        """Posting the trash view with 'deleted' datasets, purges the
-        datasets."""
+    def test_trash_purge_selected_no_ids_flashes_error(self, app, sysadmin_headers):
         factories.Dataset(state="deleted")
-        factories.Dataset(state="deleted")
-        factories.Dataset()
-        # how many datasets before purge
-        pkgs_before_purge = model.Session.query(model.Package).count()
-        assert pkgs_before_purge == 3
 
-        trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "package"}, headers=sysadmin_headers)
-        # check for flash success msg
-        assert "datasets have been purged" in response.body
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        response = app.post(
+            trash_url, data={"action": "purge_selected"}, headers=sysadmin_headers
+        )
+        assert "No entities selected" in response.body
+        assert self.all_jobs() == []
 
-        # how many datasets after purge
-        pkgs_after_purge = model.Session.query(model.Package).count()
-        assert pkgs_after_purge == 1
+    @pytest.mark.parametrize("ent_type", ["dataset", "group", "organization"])
+    def test_trash_purge_all_is_queued(self, app, sysadmin_headers, ent_type):
+        factory = ENT_TYPE_FACTORY[ent_type]
+        factory(state="deleted")
+        factory(state="deleted")
+        factory()
 
-    def test_trash_purge_deleted_groups(self, app, sysadmin_headers):
-        """Posting the trash view with 'deleted' groups, purges the
-        groups."""
-        factories.Group(state="deleted")
-        factories.Group(state="deleted")
-        factories.Group()
-        # how many groups before purge
-        grps_before_purge = model.Session.query(model.Group).count()
-        assert grps_before_purge == 3
-
-        trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "group"}, headers=sysadmin_headers)
-        # check for flash success msg
-        assert "groups have been purged" in response
-
-        # how many groups after purge
-        grps_after_purge = model.Session.query(model.Group).count()
-        assert grps_after_purge == 1
-
-    def test_trash_purge_deleted_organization(self, app, sysadmin_headers):
-        """Posting the trash view with 'deleted' organizations, purges the
-        organizations."""
-        factories.Organization(state="deleted")
-        factories.Organization(state="deleted")
-        factories.Organization()
-        # how many organizations before purge
-        orgs_before_purge = model.Session.query(model.Group).filter_by(
-            is_organization=True).count()
-        assert orgs_before_purge == 3
-
-        trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "organization"}, headers=sysadmin_headers)
-        # check for flash success msg
-        assert "organizations have been purged" in response
-
-        # how many organizations after purge
-        orgs_after_purge = model.Session.query(model.Group).filter_by(
-            is_organization=True).count()
-        assert orgs_after_purge == 1
-
-    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
-    def test_trash_purge_all(self, app, sysadmin_headers):
-        """Posting the trash view with 'deleted' entities and
-        purge all button purges everything"""
-        factories.Dataset(state="deleted", type="custom_dataset")
-        factories.Group(state="deleted")
-        factories.Organization(state="deleted")
-        factories.Organization(state="deleted", type="custom_org")
-        factories.Organization()
-        # how many entities before purge
-        pkgs_before_purge = model.Session.query(model.Package).count()
-        orgs_and_grps_before_purge = model.Session.query(model.Group).count()
-        assert pkgs_before_purge + orgs_and_grps_before_purge == 5
-
-        trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "all"}, headers=sysadmin_headers)
-        # check for flash success msg
-        assert "Massive purge complete" in response
-
-        # how many entities after purge
-        pkgs_after_purge = model.Session.query(model.Package).count()
-        orgs_and_grps_after_purge = model.Session.query(model.Group).count()
-        assert pkgs_after_purge + orgs_and_grps_after_purge == 1
-
-    @pytest.mark.usefixtures("clean_index")
-    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
-    def test_trash_purge_all_no_remove_deleted_packages(self, app, sysadmin_headers):
-        """Posting the trash view with 'deleted' entities and
-        purge all button purges everything"""
-        factories.Dataset(state="deleted", type="custom_dataset")
-        factories.Group(state="deleted")
-        factories.Organization(state="deleted")
-        factories.Organization(state="deleted", type="custom_org")
-        factories.Organization()
-
-        # how many entities before purge
-        pkgs_before_purge = model.Session.query(model.Package).count()
-        orgs_and_grps_before_purge = model.Session.query(model.Group).count()
-        assert pkgs_before_purge + orgs_and_grps_before_purge == 5
-        trash_url = url_for("admin.trash")
-        response = app.post(trash_url, data={"action": "all"}, headers=sysadmin_headers)
-        # check for flash success msg
-        assert "Massive purge complete" in response
-
-        # how many entities after purge
-        pkgs_after_purge = model.Session.query(model.Package).count()
-        orgs_and_grps_after_purge = model.Session.query(model.Group).count()
-        assert pkgs_after_purge + orgs_and_grps_after_purge == 1
+        trash_url = url_for("admin.trash", ent_type=ent_type)
+        response = app.post(
+            trash_url, data={"action": "purge_all"}, headers=sysadmin_headers
+        )
+        assert "has been queued" in response.body
+        assert len(self.all_jobs()) == 1
 
     def test_trash_cancel_purge(self, app, sysadmin_headers):
         """Cancelling purge doesn't purge anything."""
         factories.Organization(state="deleted")
         factories.Organization(state="deleted")
 
-        # how many organizations before purge
-        orgs_before_purge = model.Session.query(model.Group).filter_by(
-            is_organization=True).count()
+        orgs_before_purge = (
+            model.Session.query(model.Group).filter_by(is_organization=True).count()
+        )
         assert orgs_before_purge == 2
 
-        trash_url = url_for("admin.trash", name="purge-organization")
-        response = app.post(trash_url, data={"cancel": ""}, headers=sysadmin_headers, status=200)
-        # flash success msg should be absent
+        trash_url = url_for("admin.trash", ent_type="organization")
+        response = app.post(
+            trash_url, data={"cancel": ""}, headers=sysadmin_headers, status=200
+        )
         assert "Organizations have been purged" not in response
 
-        # how many organizations after cancel purge
-        orgs_after_purge = model.Session.query(model.Group).filter_by(
-            is_organization=True).count()
+        orgs_after_purge = (
+            model.Session.query(model.Group).filter_by(is_organization=True).count()
+        )
         assert orgs_after_purge == 2
+        assert self.all_jobs() == []
 
-    def test_trash_no_button_with_no_deleted_datasets(self, app, sysadmin_headers):
-        """Getting the trash view with no 'deleted' datasets should not
-        contain the purge button."""
+    def test_trash_page_shows_empty_purge_jobs_panel(self, app, sysadmin_headers):
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, headers=sysadmin_headers, status=200)
-        assert "form-purge-package" not in trash_response
+        response = app.get(trash_url, headers=sysadmin_headers, status=200)
+        assert "No purge jobs yet." in response.body
 
-    def test_trash_button_with_deleted_datasets(self, app, sysadmin_headers):
-        """Getting the trash view with 'deleted' datasets should
-        contain the purge button."""
-        factories.Dataset(state="deleted")
+    def test_trash_page_lists_queued_purge_job(self, app, sysadmin_headers):
+        ds1 = factories.Dataset(state="deleted")
+        ds2 = factories.Dataset(state="deleted")
 
-        trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, headers=sysadmin_headers, status=200)
-        assert "form-purge-package" in trash_response
+        trash_url = url_for("admin.trash", ent_type="dataset")
+        app.post(
+            trash_url,
+            data={
+                "action": "purge_selected",
+                "entity_id": [ds1["id"], ds2["id"]],
+            },
+            headers=sysadmin_headers,
+        )
+
+        response = app.get(trash_url, headers=sysadmin_headers, status=200)
+        assert "Purge 2 dataset(s)" in response.body
+        assert "queued" in response.body
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPurgeJobStatuses(helpers.RQTestBase):
+    """Unit tests for the trash page's job-status panel data."""
+
+    def test_purge_job_statuses_reports_queued_job(self):
+        job = jobs.enqueue(
+            admin_view.purge_entities_job,
+            args=["dataset", []],
+            title="Purge 0 dataset(s)",
+            queue=admin_view._purge_queue_name(),
+        )
+
+        statuses = admin_view._purge_job_statuses()
+
+        assert any(
+            s["id"] == job.id and s["status"] == "queued" and s["title"] == job.meta["title"]
+            for s in statuses
+        )
+
+    def test_purge_job_statuses_ignores_other_queues(self):
+        jobs.enqueue(jobs.test_job, title="unrelated job")
+
+        statuses = admin_view._purge_job_statuses()
+
+        assert statuses == []
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPurgeEntitiesJob(object):
+    """Unit tests for the background purge job itself, run inline (not
+    via an RQ worker)."""
+
+    def test_purge_entities_job_purges_given_ids(self):
+        ds1 = factories.Dataset(state="deleted")
+        ds2 = factories.Dataset(state="deleted")
+        factories.Dataset()
+        assert model.Session.query(model.Package).count() == 3
+
+        admin_view.purge_entities_job("dataset", [ds1["id"], ds2["id"]])
+
+        assert model.Session.query(model.Package).count() == 1
+
+    def test_purge_entities_job_none_ids_purges_all_deleted(self):
+        factories.Group(state="deleted")
+        factories.Group(state="deleted")
+        factories.Group()
+        assert model.Session.query(model.Group).count() == 3
+
+        admin_view.purge_entities_job("group", None)
+
+        assert model.Session.query(model.Group).count() == 1
+
+    def test_purge_entities_job_skips_missing_ids(self):
+        ds = factories.Dataset(state="deleted")
+
+        # one bad id should not prevent the good one from being purged
+        admin_view.purge_entities_job("dataset", ["does-not-exist", ds["id"]])
+
+        assert model.Session.query(model.Package).count() == 0
 
 
 @pytest.mark.usefixtures("clean_db")
