@@ -285,6 +285,7 @@ Usage
   ckan config search [PATTERN]         - Print all declared config options that match pattern.
   ckan config undeclared               - Print config options that has no declaration.
   ckan config validate                 - Validate global configuration object against declaration.
+  ckan config show [NAME...]           - Show values for specified config options.
 
 
 

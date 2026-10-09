@@ -93,7 +93,7 @@ def load_plugin(declaration: "Declaration", name: str):
         return
 
     if not IConfigDeclaration.implemented_by(type(plugin)):
-        log.error("Plugin %s does not declare config options", name)
+        log.debug("Plugin %s does not declare config options", name)
         return
 
     plugin.declare_config_options(declaration, Key())
