@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import itertools
-from typing import Iterable
+import difflib
+from collections.abc import Iterable
 import click
 
 from ckan.config.declaration import Declaration, Flag
@@ -260,3 +260,37 @@ def _declaration(
         decl.load_plugin(name)
 
     return decl
+
+
+@config.command()
+@click.argument("names", nargs=-1)
+@click.option("--only-declared", is_flag=True)
+def show(names: Iterable[str], only_declared: bool):
+    """Show values for specified config options."""
+    names = set(names)
+
+    decl = _declaration([], True, True)
+    for k, v in sorted(cfg.items()):
+        if not names:
+            info = decl.get(k)
+            if info and info.has_flag(Flag.internal|Flag.ignored):
+                continue
+
+            elif not info and only_declared:
+                continue
+
+        elif k in names:
+            names.remove(k)
+
+        else:
+            continue
+
+        # without repr values such as empty string or some objects may look
+        # misleading.
+        click.secho(f"{k} = {click.style(repr(v), bold=True)}")
+
+    for missing in names:
+        msg = f"Option {click.style(missing, bold=True)} not found."
+        if similar := difflib.get_close_matches(missing, cfg.keys(), 1):
+            msg += f" Did you mean {click.style(similar[0], bold=True)}?"
+        click.secho(msg)
