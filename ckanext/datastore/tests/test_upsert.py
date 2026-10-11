@@ -495,19 +495,17 @@ class TestDatastoreUpsert(object):
             fields=[{u"id": u"spam", u"type": u"numeric"}],
             primary_key=u"spam",
         )
-        try:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action(
-                u"datastore_upsert",
+                "datastore_upsert",
                 resource_id=table["resource_id"],
-                records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
+                records=[{"spam": 42}, {"spam": "SPAM"}, {"spam": 0}],
                 dry_run=True,
             )
-        except ValidationError as ve:
-            assert ve.error_dict["records"] == [
-                u'invalid input syntax for type numeric: "SPAM"'
-            ]
-        else:
-            assert 0, "error not raised"
+        assert exc.value.error_dict == {
+            "records": ['invalid input syntax for type numeric: "SPAM"'],
+            "records_row": 1,
+        }
 
     def test_dry_run_trigger_error(self):
         ds = factories.Dataset()
@@ -530,17 +528,17 @@ class TestDatastoreUpsert(object):
             primary_key=u"spam",
             triggers=[{u"function": u"spamexception_trigger"}],
         )
-        try:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action(
-                u"datastore_upsert",
+                "datastore_upsert",
                 resource_id=table["resource_id"],
-                records=[{u"spam": u"EGGS"}],
+                records=[{"spam": "spam"}, {"spam": "EGGS"}, {"spam", "spam"}],
                 dry_run=True,
             )
-        except ValidationError as ve:
-            assert ve.error_dict["records"] == [u'"EGGS"? Yeeeeccch!']
-        else:
-            assert 0, "error not raised"
+        assert exc.value.error_dict == {
+            "records": ['"EGGS"? Yeeeeccch!'],
+            "records_row": 1,
+        }
 
     def test_calculate_record_count_is_false(self):
         resource = factories.Resource()
@@ -868,11 +866,11 @@ class TestDatastoreInsert(object):
                 }
             ],
         }
-        with pytest.raises(ValidationError) as context:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action("datastore_upsert", **data)
-        assert u"duplicate key value violates unique constraint" in str(
-            context.value
-        )
+        assert "duplicate key value violates unique constraint" in str(
+            exc.value.error_dict['records'])
+        assert exc.value.error_dict['records_row'] == 0
 
     def test_empty_string_instead_of_null(self):
         resource = factories.Resource()
@@ -921,14 +919,16 @@ class TestDatastoreInsert(object):
             "force": True,
             "method": "insert",
             "records": [
-                {"num": "notanumber"}
+                {"num": 1}, {"num": 2}, {"num": "notanumber"}, {"num": 4},
             ],
         }
 
-        with pytest.raises(ValidationError) as context:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action("datastore_upsert", **data)
-        assert 'invalid input syntax for ' in str(context.value)
-        assert ' integer: "notanumber"' in str(context.value)
+        assert exc.value.error_dict == {
+            'records': ['invalid input syntax for type integer: "notanumber"'],
+            'records_row': 2,
+        }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
