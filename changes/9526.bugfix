@@ -1,1 +1,1 @@
-Apply the (possibly new) dict returned by `IResourceController.before_resource_show` implementations in `package_show`, instead of discarding it. This was silently breaking the `multilingual_resource` plugin's resource-field translations.
+The ``multilingual_resource`` plugin now applies its resource translations in place, since ``package_show`` ignores the value returned by ``IResourceController.before_resource_show``. The interface documentation now says changes must be made to the resource dict in place.

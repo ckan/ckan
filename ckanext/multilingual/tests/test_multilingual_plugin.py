@@ -243,8 +243,8 @@ class TestDatasetSearchIndex(object):
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestResourceTermTranslation:
     """Regression test for the `multilingual_resource` plugin's
-    before_resource_show hook: package_show must apply the (possibly new)
-    dict the hook returns, not just whatever mutations it made in place.
+    before_resource_show hook: package_show ignores the hook's return value,
+    so the translations must be applied to the resource dict in place.
     """
 
     def test_resource_name_is_translated_on_read_page(self, app):
