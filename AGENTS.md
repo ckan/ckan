@@ -25,8 +25,23 @@ CKAN is an open-source data portal platform built with Python.
 * Once a PR exists, add a changelog fragment in the `changes` directory in the form `changes/{pr_number}.{type}`
   where `type` is one of `bugfix`, `feature`, `misc` or `removal`.
 * Run linting and type checking commands before submitting (see sections below).
-* Do not add code comments unless they provide context that isn't apparent from the code itself.
-* Unless it is a trivial change, provide tests covering the suggested changes.
+
+## Coding standards
+
+* Follow existing patterns in the codebase. Before adding a new helper, validator or
+  utility, check whether an equivalent already exists and reuse it.
+* Comments are a code smell. Only add comments when a code side effect is likely to be surprising.
+  Intent of code should be clear from its structure, function and variable names.
+* Every line of code added is future technical debt. Every change is a future merge conflict.
+  Limit these future costs when implementing features.
+* Actions live in `ckan/logic/action/` and must have a matching auth function in
+  `ckan/logic/auth/`. Validate input with schemas (`ckan/logic/schema.py`) and
+  validators (`ckan/logic/validators.py`) rather than ad hoc checks.
+* Action docstrings are rendered into the API reference. They document action API parameters
+  and return values using sphinx format.
+* Code under `ckanext` should use `ckan.plugins.toolkit` instead of importing CKAN internals directly.
+* Update existing tests to cover changes. Create new tests to cover new functionality. Tests should
+  be as simple and short as possible.
 
 ## Development Commands
 
