@@ -21,7 +21,7 @@ packaging==26.2
 passlib==1.7.4
 polib==1.2.0
 psycopg2==2.9.12
-PyJWT==2.13.0
+PyJWT==2.15.1
 pyparsing==3.3.2
 python-magic==0.4.27
 pysolr==3.11.0
@@ -35,6 +35,6 @@ SQLAlchemy==2.0.51
 typing_extensions==4.16.0
 tzlocal==5.4.4
 webassets==3.0.0
-Werkzeug[watchdog]==3.1.8
+Werkzeug[watchdog]==3.1.9
 zope.interface==8.5
 pglast==8.4
