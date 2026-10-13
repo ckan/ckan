@@ -10,11 +10,11 @@
     "@highlightjs/cdn-assets": "^11.11.1",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.6",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.16",
     "htmx.org": "^2.0.10",
     "jquery": "^3.7.1",
-    "moment": "^2.30.1",
-    "qs": "^6.15",
+    "moment": "^2.31.0",
+    "qs": "^6.16",
     "select2": "^4.1.0-rc.0"
   },
   "devDependencies": {
