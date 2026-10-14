@@ -5,8 +5,6 @@ from __future__ import annotations
 
 
 
-from .group import group_member_create
-
 from ckan import model
 
 from ckan.common import _, config
@@ -202,7 +200,7 @@ def user_create(context: Context,
 
 def user_invite(context: Context, data_dict: DataDict) -> AuthResult:
     data_dict['id'] = data_dict['group_id']
-    return group_member_create(context, data_dict)
+    return authz.is_authorized('group_member_create', context, data_dict)
 
 def api_token_create(context: Context, data_dict: DataDict) -> AuthResult:
     """Create new token for current user.
