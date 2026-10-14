@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import ckan.logic as logic
-
-
 from ckan.types import AuthResult, Context, DataDict
 
 

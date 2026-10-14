@@ -1,23 +1,15 @@
 from __future__ import annotations
 
-
-from ckan import model
-
-from ckan.common import _
-
-from ckan.lib.plugins import get_permission_labels
-
-from ckan.logic.auth import get_package_object
-
-from ckan.types import AuthResult, Context, DataDict
-
 from typing import Optional
 
 import ckan.authz as authz
-
 import ckan.logic as logic
-
 import ckan.logic.auth as logic_auth
+from ckan import model
+from ckan.common import _
+from ckan.lib.plugins import get_permission_labels
+from ckan.logic.auth import get_package_object
+from ckan.types import AuthResult, Context, DataDict
 
 
 @logic.auth_allow_anonymous_access

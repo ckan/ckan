@@ -6,9 +6,9 @@ import ckan.logic as logic
 from ckan.common import config
 from ckan.logic import (
     NotFound,
-    check_access as _check_access,
     side_effect_free,
 )
+from ckan.logic import check_access as _check_access
 from ckan.types import ActionResult, Context, DataDict
 
 
