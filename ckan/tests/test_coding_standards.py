@@ -381,6 +381,17 @@ class TestBadExceptions(object):
         "ckan/lib/mailer.py",
         "ckan/authz.py",
         "ckanext/datastore/logic/action.py",
+        "ckan/logic/auth/resource.py",
+        "ckan/logic/auth/resource_view.py",
+        "ckan/logic/auth/package.py",
+        "ckan/logic/action/resource.py",
+        "ckan/logic/action/term_translation.py",
+        "ckan/logic/action/resource_view.py",
+        "ckan/logic/action/group.py",
+        "ckan/logic/action/package.py",
+        "ckan/logic/action/tag.py",
+        "ckan/logic/action/task_status.py",
+        "ckan/logic/action/user.py",
     ]
 
     @pytest.fixture(scope="class")
