@@ -1,3 +1,23 @@
+from __future__ import annotations
+
+import ckan
+import ckan.lib.datapreview as datapreview
+import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.dictization.model_save as model_save
+import ckan.logic.schema as schema_
+import ckan.model as model
+from ckan.common import asbool, _
+from ckan.lib.navl.dictization_functions import validate as _validate
+from ckan.logic import (
+    NotFound,
+    ValidationError,
+    check_access as _check_access,
+    get_or_bust as _get_or_bust,
+    side_effect_free,
+)
+from ckan.types import ActionResult, Context, DataDict, Schema
+
+
 def resource_view_create(
         context: Context,
         data_dict: DataDict) -> ActionResult.ResourceViewCreate:
@@ -336,4 +356,3 @@ def resource_view_clear(context: Context, data_dict: DataDict) -> ActionResult.R
     view_types = data_dict.get('view_types', [])
     model.ResourceView.delete_all(view_types)
     model.repo.commit()
-
