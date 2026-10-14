@@ -20,6 +20,74 @@ from ckan.types import AuthResult, AuthFunction, DataDict, Context
 
 log = getLogger(__name__)
 
+_GET_AUTH_FUNCTIONS = {
+    'am_following_dataset',
+    'am_following_group',
+    'am_following_user',
+    'api_token_list',
+    'config_option_list',
+    'config_option_show',
+    'current_package_list_with_resources',
+    'dataset_followee_count',
+    'dataset_followee_list',
+    'dataset_follower_count',
+    'dataset_follower_list',
+    'followee_count',
+    'followee_list',
+    'format_autocomplete',
+    'get_site_user',
+    'group_autocomplete',
+    'group_followee_count',
+    'group_followee_list',
+    'group_follower_count',
+    'group_follower_list',
+    'group_list',
+    'group_list_authz',
+    'group_package_show',
+    'group_show',
+    'help_show',
+    'job_list',
+    'job_show',
+    'license_list',
+    'member_list',
+    'member_roles_list',
+    'organization_autocomplete',
+    'organization_followee_count',
+    'organization_followee_list',
+    'organization_follower_count',
+    'organization_follower_list',
+    'organization_list',
+    'organization_list_for_user',
+    'organization_show',
+    'package_autocomplete',
+    'package_collaborator_list',
+    'package_collaborator_list_for_user',
+    'package_list',
+    'package_relationships_list',
+    'package_search',
+    'package_show',
+    'resource_search',
+    'resource_show',
+    'resource_view_list',
+    'resource_view_show',
+    'status_show',
+    'tag_autocomplete',
+    'tag_list',
+    'tag_search',
+    'tag_show',
+    'task_status_show',
+    'term_translation_show',
+    'user_autocomplete',
+    'user_followee_count',
+    'user_followee_list',
+    'user_follower_count',
+    'user_follower_list',
+    'user_list',
+    'user_show',
+    'vocabulary_list',
+    'vocabulary_show',
+}
+
 
 def get_local_functions(module: ModuleType, include_private: bool = False):
     """Return list of (name, func) tuples.
@@ -76,20 +144,19 @@ class AuthFunctions:
         module_root = 'ckan.logic.auth'
 
         for auth_module_name in [
-                'get', 'create', 'update', 'delete', 'patch',
-                'file',
+                'get', 'create', 'update', 'delete', 'patch', 'file',
+                'package', 'resource', 'resource_view', 'group',
+                'organization', 'user', 'tag', 'status', 'job',
+                'task_status', 'term_translation', 'config_option',
         ]:
             module = importlib.import_module(
                 '.' + auth_module_name, module_root)
 
             for key, v in get_local_functions(module):
-                # Whitelist all auth functions defined in
-                # logic/auth/get.py as not requiring an authorized user,
-                # as well as ensuring that the rest do. In both cases, do
-                # nothing if a decorator has already been used to define
-                # the behaviour
+                # Preserve anonymous access defaults for auth functions moved
+                # from get.py, as well as ensuring the rest do not allow it.
                 if not hasattr(v, 'auth_allow_anonymous_access'):
-                    if auth_module_name == 'get':
+                    if auth_module_name == 'get' or key in _GET_AUTH_FUNCTIONS:
                         v.auth_allow_anonymous_access = True
                     else:
                         v.auth_allow_anonymous_access = False
