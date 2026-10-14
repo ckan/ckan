@@ -441,7 +441,7 @@ def _unpick_search(
     return sorts
 
 
-def _group_or_org_list(context: Context, data_dict: DataDict, is_org: bool = False):
+def _group_or_org_list(context: Context, data_dict: DataDict, is_org: bool = False):  # noqa: C901
     api = context.get("api_version")
     groups = data_dict.get("groups")
     group_type = data_dict.get("type", "group")
@@ -690,7 +690,7 @@ def group_list_authz(
 
     q = (
         model.Session.query(model.Group)
-        .filter(model.Group.is_organization == False)
+        .filter(model.Group.is_organization == False)  # noqa: E712
         .filter(model.Group.state == "active")
     )
 
@@ -713,7 +713,7 @@ def group_list_authz(
     return group_list
 
 
-def _group_or_org_show(
+def _group_or_org_show(  # noqa: C901
     context: Context, data_dict: DataDict, is_org: bool = False
 ) -> dict[str, Any]:
     id = _get_or_bust(data_dict, "id")
@@ -1090,7 +1090,7 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
             rebuild(obj.id)
 
 
-def _group_or_org_delete(context: Context, data_dict: DataDict, is_org: bool = False):
+def _group_or_org_delete(context: Context, data_dict: DataDict, is_org: bool = False):  # noqa: C901
     """Delete a group.
 
     You must be authorized to delete the group.
@@ -1174,7 +1174,7 @@ def group_delete(context: Context, data_dict: DataDict) -> ActionResult.GroupDel
     return _group_or_org_delete(context, data_dict)
 
 
-def _group_or_org_purge(context: Context, data_dict: DataDict, is_org: bool = False):
+def _group_or_org_purge(context: Context, data_dict: DataDict, is_org: bool = False):  # noqa: C901
     """Purge a group or organization.
 
     The group or organization will be completely removed from the database.
