@@ -455,7 +455,7 @@ def api_token_create(
 
 
 @side_effect_free
-def user_list(context: Context, data_dict: DataDict) -> ActionResult.UserList:
+def user_list(context: Context, data_dict: DataDict) -> ActionResult.UserList:   # noqa: C901
     """Return a list of the site's user accounts.
 
     :param q: filter the users returned to those whose names contain a string
@@ -500,7 +500,7 @@ def user_list(context: Context, data_dict: DataDict) -> ActionResult.UserList:
             .where(
                 model.Package.creator_user_id == model.User.id,
                 model.Package.state == "active",
-                model.Package.private == False,
+                model.Package.private == False,  # noqa: E712
             )
             .label("number_created_packages"),
         )

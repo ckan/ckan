@@ -147,10 +147,12 @@ def config_option_show(
     :param key: The configuration option key
     :type key: string
 
-    :returns: The value of the config option from either the system_info table or ini file.
+    :returns: The value of the config option from either the system_info table or ini
+              file.
     :rtype: string
 
-    :raises: :class:`ckan.logic.ValidationError`: if config option is not in the schema (whitelisted as editable).
+    :raises: :class:`ckan.logic.ValidationError`: if config option is not in the schema
+             (whitelisted as editable).
     """
 
     _check_access("config_option_show", context, data_dict)

@@ -208,7 +208,7 @@ def organization_list_for_user(
 
     orgs_q = (
         model.Session.query(model.Group)
-        .filter(model.Group.is_organization == True)
+        .filter(model.Group.is_organization == True)  # noqa: E712
         .filter(model.Group.state == "active")
     )
 
@@ -363,8 +363,8 @@ def organization_update(
     You must be authorized to edit the organization.
 
     .. note:: Update methods may delete parameters not explicitly provided in the
-        data_dict. If you want to edit only a specific attribute use `organization_patch`
-        instead.
+        data_dict. If you want to edit only a specific attribute use
+        `organization_patch` instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.

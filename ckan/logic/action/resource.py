@@ -145,7 +145,8 @@ def resource_show(context: Context, data_dict: DataDict) -> ActionResult.Resourc
             break
     else:
         log.error(
-            "Resource %s exists but it is not found in the package it should belong to.",
+            "Resource %s exists but it is not found in the package "
+            "it should belong to.",
             id,
         )
         raise NotFound(_("Resource was not found."))
@@ -198,7 +199,7 @@ def format_autocomplete(
 
 @side_effect_free
 @logic.validate(ckan.logic.schema.default_resource_search_schema)
-def resource_search(
+def resource_search(  # noqa: C901
     context: Context, data_dict: DataDict
 ) -> ActionResult.ResourceSearch:
     """
@@ -288,7 +289,7 @@ def resource_search(
         model.Session.query(model.Resource)
         .join(model.Package)
         .filter(model.Package.state == "active")
-        .filter(model.Package.private == False)
+        .filter(model.Package.private == False)  # noqa: E712
         .filter(model.Resource.state == "active")
     )
     resource_fields = model.Resource.get_columns()
@@ -357,7 +358,7 @@ def resource_search(
     return {"count": count, "results": results}
 
 
-def resource_update(
+def resource_update(  # noqa: C901
     context: Context, data_dict: DataDict
 ) -> ActionResult.ResourceUpdate:
     """Update a resource.

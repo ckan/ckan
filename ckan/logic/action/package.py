@@ -42,7 +42,7 @@ from ckan.types import ActionResult, Context, DataDict, Schema
 log = logging.getLogger("ckan.logic")
 
 
-def package_create(context: Context, data_dict: DataDict) -> ActionResult.PackageCreate:
+def package_create(context: Context, data_dict: DataDict) -> ActionResult.PackageCreate:  # noqa: C901
     """Create a new dataset (package).
 
     You must be authorized to create new datasets. If you specify any groups
@@ -396,7 +396,7 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
     query = query.where(
         _and_(
             package_table.c["state"] == "active",
-            package_table.c["private"] == False,
+            package_table.c["private"] == False,  # noqa: E712
         )
     )
     query = query.order_by(col)
@@ -440,7 +440,7 @@ def current_package_list_with_resources(
     offset = data_dict.get("offset", 0)
     user = context["user"]
 
-    if not "offset" in data_dict and "page" in data_dict:
+    if "offset" not in data_dict and "page" in data_dict:
         log.warning(
             '"page" parameter is deprecated.  Use the "offset" parameter instead'
         )
@@ -596,7 +596,7 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licenses = [l.license_dictize() for l in licenses]
+    licenses = [lic.license_dictize() for lic in licenses]
     return licenses
 
 
@@ -653,7 +653,7 @@ def package_relationships_list(
 
 
 @side_effect_free
-def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageShow:
+def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageShow:  # noqa: C901
     """Return the metadata of a dataset (package) and its resources.
 
     :param id: the id or name of the dataset
@@ -817,7 +817,7 @@ def package_autocomplete(
 
 
 @side_effect_free
-def package_search(context: Context, data_dict: DataDict) -> ActionResult.PackageSearch:
+def package_search(context: Context, data_dict: DataDict) -> ActionResult.PackageSearch:  # noqa: C901
     """
     Searches for packages satisfying a given search criteria.
 
@@ -1153,7 +1153,7 @@ def package_reindex(context: Context, data_dict: DataDict) -> None:
     logic.index_update_package(context, pkg.id)
 
 
-def package_update(context: Context, data_dict: DataDict) -> ActionResult.PackageUpdate:
+def package_update(context: Context, data_dict: DataDict) -> ActionResult.PackageUpdate:  # noqa: C901
     """Update a dataset (package).
 
     You must be authorized to edit the dataset and the groups that it belongs
@@ -1396,7 +1396,7 @@ def package_update(context: Context, data_dict: DataDict) -> ActionResult.Packag
     return pkg_custom
 
 
-def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:
+def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:  # noqa: C901
     """Revise a dataset (package) selectively with match, filter and
     update parameters.
 
@@ -1426,14 +1426,15 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :type include: comma-separated-string patterns or list of string patterns
 
     ``match`` and ``update`` parameters may also be passed as "flattened keys", using
-    either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
-    ``update__resources__1f9ab__description="guidebook"`` would set the
+    either the item numeric index or its unique id (with a minimum of 5 characters),
+    e.g. ``update__resources__1f9ab__description="guidebook"`` would set the
     description of the resource with id starting with "1f9ab" to "guidebook", and
     ``update__resources__-1__description="guidebook"`` would do the same
     on the last resource in the dataset.
 
     The ``extend`` suffix can also be used on the update parameter to add
-    a new item to a list, e.g. ``update__resources__extend=[{"name": "new resource", "url": "https://example.com"}]``
+    a new item to a list, e.g.
+    ``update__resources__extend=[{"name": "new", "url": "https://example.com"}]``
     will add a new resource to the dataset with the provided ``name`` and ``url``.
 
     Usage examples:
@@ -1478,7 +1479,8 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
         update__resources__1492a={"name": "edits here", "url": "http://example.com"}
 
 
-    :returns: a dict containing 'package':the updated dataset with fields filtered by include parameter
+    :returns: a dict containing 'package':the updated dataset with fields filtered by
+              include parameter
     :rtype: dictionary
 
     """
