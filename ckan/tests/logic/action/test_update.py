@@ -11,7 +11,7 @@ import sqlalchemy as sa
 import ckan.lib.app_globals as app_globals
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
-from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic.action.package import package_show as core_package_show
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
