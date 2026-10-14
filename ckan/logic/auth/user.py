@@ -1,21 +1,14 @@
 from __future__ import annotations
 
-
-from ckan import model
-
-from ckan.common import _, config
-
-from ckan.logic.auth import restrict_anon
-
-from ckan.types import AuthResult, Context, DataDict
-
 from typing import Optional
 
 import ckan.authz as authz
-
 import ckan.logic as logic
-
 import ckan.logic.auth as logic_auth
+from ckan import model
+from ckan.common import _, config
+from ckan.logic.auth import restrict_anon
+from ckan.types import AuthResult, Context, DataDict
 
 
 @logic.auth_allow_anonymous_access
