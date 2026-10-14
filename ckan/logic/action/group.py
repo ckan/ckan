@@ -7,13 +7,13 @@ import six
 import sqlalchemy
 import sqlalchemy as sqla
 
-import ckan
 import ckan.authz as authz
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
+import ckan.logic.schema as schema_
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, asbool, aslist, config
@@ -276,7 +276,7 @@ def _group_or_org_member_create(
     # this needs to be after the repo.commit or else revisions break
     user = context["user"]
 
-    schema = ckan.logic.schema.member_schema()
+    schema = schema_.member_schema()
     _data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -455,7 +455,7 @@ def _group_or_org_list(context: Context, data_dict: DataDict, is_org: bool = Fal
         pagination_dict["offset"] = data_dict["offset"]
     if pagination_dict:
         pagination_dict, errors = _validate(
-            data_dict, ckan.logic.schema.default_pagination_schema(), context
+            data_dict, schema_.default_pagination_schema(), context
         )
         if errors:
             raise ValidationError(errors)
@@ -1068,7 +1068,7 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
     if not group:
         raise NotFound("Group was not found.")
 
-    obj_class = ckan.logic.model_name_to_class(model, obj_type)
+    obj_class = logic.model_name_to_class(model, obj_type)
     obj = obj_class.get(obj_id)
     if not obj:
         raise NotFound("%s was not found." % obj_type.title())
@@ -1133,7 +1133,7 @@ def _group_or_org_delete(context: Context, data_dict: DataDict, is_org: bool = F
 
             for d in dataset_ids:
                 _get_action("package_patch")(
-                    ckan.logic.fresh_context(context), {"id": d, "owner_org": ""}
+                    logic.fresh_context(context), {"id": d, "owner_org": ""}
                 )
 
     # The group's Member objects are deleted
@@ -1147,7 +1147,7 @@ def _group_or_org_delete(context: Context, data_dict: DataDict, is_org: bool = F
         member.delete()
         if not is_org and member.table_name == "package":
             assert member.table_id
-            ckan.logic.index_update_package(context, member.table_id)
+            logic.index_update_package(context, member.table_id)
 
     group.delete()
 
@@ -1222,7 +1222,7 @@ def _group_or_org_purge(context: Context, data_dict: DataDict, is_org: bool = Fa
                 )
             for d in dataset_ids:
                 _get_action("package_patch")(
-                    ckan.logic.fresh_context(context), {"id": d, "owner_org": ""}
+                    logic.fresh_context(context), {"id": d, "owner_org": ""}
                 )
 
     # Delete related Memberships
@@ -1239,7 +1239,7 @@ def _group_or_org_purge(context: Context, data_dict: DataDict, is_org: bool = Fa
 
     if reindex:
         for r in reindex:
-            ckan.logic.index_update_package(context, r)
+            logic.index_update_package(context, r)
 
     group = model.Group.get(id)
     assert group
