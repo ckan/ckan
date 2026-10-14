@@ -18,6 +18,7 @@ import re
 import subprocess
 import sys
 import pytest
+import pkgutil
 
 
 FILESYSTEM_ENCODING = str(
@@ -265,23 +266,25 @@ class TestActionAuth(object):
     accepts (context, data_dict) as parameters."""
 
     ACTION_NO_AUTH_BLACKLIST = [
-        "get: roles_show",
-        "update: task_status_update_many",
-        "update: term_translation_update_many",
+        "task_status: task_status_update_many",
+        "term_translation: term_translation_update_many",
     ]
 
     AUTH_NO_ACTION_BLACKLIST = [
-        "create: file_upload",
-        "delete: revision_delete",
-        "delete: revision_undelete",
-        "get: group_list_available",
-        "get: sysadmin",
-        "get: request_reset",
-        "get: user_reset",
-        "update: group_change_state",
-        "update: group_edit_permissions",
-        "update: package_change_state",
-        "update: revision_change_state",
+        "file: file_upload",
+        "file: permission_delete_file",
+        "file: permission_download_file",
+        "file: permission_edit_file",
+        "file: permission_manage_files",
+        "file: permission_owns_file",
+        "file: permission_read_file",
+        "group: group_list_available",
+        "user: sysadmin",
+        "user: request_reset",
+        "user: user_reset",
+        "group: group_change_state",
+        "group: group_edit_permissions",
+        "package: package_change_state",
     ]
 
     ACTION_NO_DOC_STR_BLACKLIST = ["get: get_site_user"]
@@ -292,18 +295,13 @@ class TestActionAuth(object):
             import ckan.authz as authz
 
             fns = {}
-            for auth_module_name in [
-                "get",
-                "create",
-                "update",
-                "delete",
-                "patch",
-            ]:
-                module_path = "%s.%s" % (module_root, auth_module_name)
+            package = importlib.import_module(module_root)
+            for info in pkgutil.iter_modules(package.__path__):
+                module_path = "%s.%s" % (module_root, info.name)
                 module = importlib.import_module(module_path)
                 members = authz.get_local_functions(module)
                 for key, v in members:
-                    name = "%s: %s" % (auth_module_name, key)
+                    name = "%s: %s" % (info.name, key)
                     fns[name] = v
             return fns
 
@@ -381,13 +379,6 @@ class TestBadExceptions(object):
 
     NASTY_EXCEPTION_BLACKLIST_FILES = [
         "ckan/lib/mailer.py",
-        "ckan/logic/action/create.py",
-        "ckan/logic/action/delete.py",
-        "ckan/logic/action/get.py",
-        "ckan/logic/action/update.py",
-        "ckan/logic/auth/create.py",
-        "ckan/logic/auth/delete.py",
-        "ckan/logic/auth/get.py",
         "ckan/authz.py",
         "ckanext/datastore/logic/action.py",
     ]
