@@ -6,6 +6,7 @@ import functools
 import logging
 import re
 import importlib
+import pkgutil
 
 from collections import defaultdict
 from typing import (Any, Callable, Container, Iterable, Optional,
@@ -504,19 +505,11 @@ def get_action(action: str) -> Action:
     # than writing them out in full will use importlib.import_module
     # to load anything from ckan.logic.action that looks like it might
     # be an action
-    for action_module_name in [
-            'get', 'create', 'update', 'delete', 'patch',
-            'file',
-    ]:
-        module = importlib.import_module(
-            '.' + action_module_name, 'ckan.logic.action')
+    import ckan.logic.action
+    for info in pkgutil.iter_modules(ckan.logic.action.__path__):
+        module = importlib.import_module(f'ckan.logic.action.{info.name}')
         for k, v in authz.get_local_functions(module):
             _actions[k] = v
-            # Allow all actions defined in logic/action/get.py to
-            # be side-effect free.
-            if action_module_name == 'get' and \
-               not hasattr(v, 'side_effect_free'):
-                v.side_effect_free = True
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins: dict[str, str] = {}
