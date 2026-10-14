@@ -19,9 +19,9 @@ from ckan.types import ActionResult, Context, DataDict, Schema
 
 
 def resource_view_create(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.ResourceViewCreate:
-    '''Creates a new resource view.
+    context: Context, data_dict: DataDict
+) -> ActionResult.ResourceViewCreate:
+    """Creates a new resource view.
 
     :param resource_id: id of the resource
     :type resource_id: string
@@ -37,22 +37,23 @@ def resource_view_create(
     :returns: the newly created resource view
     :rtype: dictionary
 
-    '''
-    resource_id = _get_or_bust(data_dict, 'resource_id')
-    view_type = _get_or_bust(data_dict, 'view_type')
+    """
+    resource_id = _get_or_bust(data_dict, "resource_id")
+    view_type = _get_or_bust(data_dict, "view_type")
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
 
     if not view_plugin:
         raise ValidationError(
-            {"view_type": "No plugin found for view_type {view_type}".format(
-                view_type=view_type
-            )}
+            {
+                "view_type": "No plugin found for view_type {view_type}".format(
+                    view_type=view_type
+                )
+            }
         )
 
-    default: Schema = ckan.logic.schema.default_create_resource_view_schema(
-        view_plugin)
-    schema: Schema = context.get('schema', default)
-    plugin_schema: Schema = view_plugin.info().get('schema', {})
+    default: Schema = ckan.logic.schema.default_create_resource_view_schema(view_plugin)
+    schema: Schema = context.get("schema", default)
+    plugin_schema: Schema = view_plugin.info().get("schema", {})
     schema.update(plugin_schema)
 
     data, errors = _validate(data_dict, schema, context)
@@ -60,34 +61,34 @@ def resource_view_create(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    _check_access('resource_view_create', context, data_dict)
+    _check_access("resource_view_create", context, data_dict)
 
-    if context.get('preview'):
+    if context.get("preview"):
         return data
 
-    last_view = model.Session.query(model.ResourceView)\
-        .filter_by(resource_id=resource_id) \
-        .order_by(
-            model.ResourceView.order.desc()
-        ).first()
+    last_view = (
+        model.Session.query(model.ResourceView)
+        .filter_by(resource_id=resource_id)
+        .order_by(model.ResourceView.order.desc())
+        .first()
+    )
 
     if not last_view:
         order = 0
     else:
         order = last_view.order + 1
-    data['order'] = order
+    data["order"] = order
 
     resource_view = model_save.resource_view_dict_save(data, context)
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
     return model_dictize.resource_view_dictize(resource_view, context)
 
 
 def resource_create_default_resource_views(
-        context: Context,
-        data_dict: DataDict
+    context: Context, data_dict: DataDict
 ) -> ActionResult.ResourceCreateDefaultResourceViews:
-    '''
+    """
     Creates the default views (if necessary) on the provided resource
 
     The function will get the plugins for the default views defined in
@@ -114,29 +115,29 @@ def resource_create_default_resource_views(
 
     :returns: a list of resource views created (empty if none were created)
     :rtype: list of dictionaries
-    '''
+    """
 
-    resource_dict = _get_or_bust(data_dict, 'resource')
+    resource_dict = _get_or_bust(data_dict, "resource")
 
-    _check_access('resource_create_default_resource_views', context, data_dict)
+    _check_access("resource_create_default_resource_views", context, data_dict)
 
-    dataset_dict = data_dict.get('package')
+    dataset_dict = data_dict.get("package")
 
-    create_datastore_views = asbool(
-        data_dict.get('create_datastore_views', False))
+    create_datastore_views = asbool(data_dict.get("create_datastore_views", False))
 
     return ckan.lib.datapreview.add_views_to_resource(
         context,
         resource_dict,
         dataset_dict,
         view_types=[],
-        create_datastore_views=create_datastore_views)
+        create_datastore_views=create_datastore_views,
+    )
 
 
 def package_create_default_resource_views(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.PackageCreateDefaultResourceViews:
-    '''
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageCreateDefaultResourceViews:
+    """
     Creates the default views on all resources of the provided dataset
 
     By default only view plugins that don't require the resource data to be in
@@ -155,79 +156,83 @@ def package_create_default_resource_views(
 
     :returns: a list of resource views created (empty if none were created)
     :rtype: list of dictionaries
-    '''
+    """
 
-    dataset_dict = _get_or_bust(data_dict, 'package')
+    dataset_dict = _get_or_bust(data_dict, "package")
 
-    _check_access('package_create_default_resource_views', context, data_dict)
+    _check_access("package_create_default_resource_views", context, data_dict)
 
-    create_datastore_views = asbool(
-        data_dict.get('create_datastore_views', False))
+    create_datastore_views = asbool(data_dict.get("create_datastore_views", False))
 
     return ckan.lib.datapreview.add_views_to_dataset_resources(
         context,
         dataset_dict,
         view_types=[],
-        create_datastore_views=create_datastore_views)
+        create_datastore_views=create_datastore_views,
+    )
 
 
 @side_effect_free
-def resource_view_show(context: Context, data_dict: DataDict) -> ActionResult.ResourceViewShow:
-    '''
+def resource_view_show(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ResourceViewShow:
+    """
     Return the metadata of a resource_view.
 
     :param id: the id of the resource_view
     :type id: string
 
     :rtype: dictionary
-    '''
-    id = _get_or_bust(data_dict, 'id')
+    """
+    id = _get_or_bust(data_dict, "id")
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
-        _check_access('resource_view_show', context, data_dict)
+        _check_access("resource_view_show", context, data_dict)
         raise NotFound
 
-    context['resource_view'] = resource_view
+    context["resource_view"] = resource_view
     resource = model.Resource.get(resource_view.resource_id)
     if not resource:
         raise NotFound
-    context['resource'] = resource
+    context["resource"] = resource
 
-    _check_access('resource_view_show', context, data_dict)
+    _check_access("resource_view_show", context, data_dict)
     return model_dictize.resource_view_dictize(resource_view, context)
 
 
 @side_effect_free
-def resource_view_list(context: Context,
-                       data_dict: DataDict) -> ActionResult.ResourceViewList:
-    '''
+def resource_view_list(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ResourceViewList:
+    """
     Return the list of resource views for a particular resource.
 
     :param id: the id of the resource
     :type id: string
 
     :rtype: list of dictionaries.
-    '''
-    id = _get_or_bust(data_dict, 'id')
+    """
+    id = _get_or_bust(data_dict, "id")
     resource = model.Resource.get(id)
     if not resource:
         raise NotFound
-    context['resource'] = resource
-    _check_access('resource_view_list', context, data_dict)
+    context["resource"] = resource
+    _check_access("resource_view_list", context, data_dict)
     q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
     ## only show views when there is the correct plugin enabled
     resource_views = [
-        resource_view for resource_view
-        in q.order_by(model.ResourceView.order).all()
+        resource_view
+        for resource_view in q.order_by(model.ResourceView.order).all()
         if datapreview.get_view_plugin(resource_view.view_type)
     ]
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
 
 def resource_view_update(
-        context: Context, data_dict: DataDict) -> ActionResult.ResourceViewUpdate:
-    '''Update a resource view.
+    context: Context, data_dict: DataDict
+) -> ActionResult.ResourceViewUpdate:
+    """Update a resource view.
 
     To update a resource_view you must be authorized to update the resource
     that the resource_view belongs to.
@@ -240,18 +245,19 @@ def resource_view_update(
     :returns: the updated resource_view
     :rtype: string
 
-    '''
+    """
     id = _get_or_bust(data_dict, "id")
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
-        raise NotFound(_('Resource view was not found.'))
+        raise NotFound(_("Resource view was not found."))
 
     view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
-    schema = (context.get('schema') or
-              schema_.default_update_resource_view_schema(view_plugin))
+    schema = context.get("schema") or schema_.default_update_resource_view_schema(
+        view_plugin
+    )
     assert view_plugin
-    plugin_schema = view_plugin.info().get('schema', {})
+    plugin_schema = view_plugin.info().get("schema", {})
     schema.update(plugin_schema)
 
     data, errors = _validate(data_dict, schema, context)
@@ -259,26 +265,27 @@ def resource_view_update(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    context['resource_view'] = resource_view
+    context["resource_view"] = resource_view
     resource = model.Resource.get(resource_view.resource_id)
     if resource is None:
-        raise NotFound(_('Resource was not found.'))
-    context['resource'] = resource
+        raise NotFound(_("Resource was not found."))
+    context["resource"] = resource
 
-    _check_access('resource_view_update', context, data_dict)
+    _check_access("resource_view_update", context, data_dict)
 
-    if context.get('preview'):
+    if context.get("preview"):
         return data
 
     resource_view = model_save.resource_view_dict_save(data, context)
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
     return model_dictize.resource_view_dictize(resource_view, context)
 
 
 def resource_view_reorder(
-        context: Context, data_dict: DataDict) -> ActionResult.ResourceViewReorder:
-    '''Reorder resource views.
+    context: Context, data_dict: DataDict
+) -> ActionResult.ResourceViewReorder:
+    """Reorder resource views.
 
     :param id: the id of the resource
     :type id: string
@@ -287,22 +294,21 @@ def resource_view_reorder(
 
     :returns: the updated order of the view
     :rtype: dictionary
-    '''
+    """
     id, order = _get_or_bust(data_dict, ["id", "order"])
     if not isinstance(order, list):
-        raise ValidationError({"order": _('Must supply order as a list')})
+        raise ValidationError({"order": _("Must supply order as a list")})
     if len(order) != len(set(order)):
-        raise ValidationError({"order": _('No duplicates allowed in order')})
+        raise ValidationError({"order": _("No duplicates allowed in order")})
     resource = model.Resource.get(id)
     if resource is None:
-        raise NotFound(_('Resource was not found.'))
-    context['resource'] = resource
+        raise NotFound(_("Resource was not found."))
+    context["resource"] = resource
 
-    _check_access('resource_view_reorder', context, {'resource_id': id})
+    _check_access("resource_view_reorder", context, {"resource_id": id})
 
     q = model.Session.query(model.ResourceView.id).filter_by(resource_id=id)
-    existing_views = [res[0] for res in
-                      q.order_by(model.ResourceView.order).all()]
+    existing_views = [res[0] for res in q.order_by(model.ResourceView.order).all()]
     ordered_views = []
     for view in order:
         try:
@@ -310,49 +316,54 @@ def resource_view_reorder(
             ordered_views.append(view)
         except ValueError:
             raise ValidationError(
-                {"order": _('View %(view)s does not exist') % {'view': view}}
+                {"order": _("View %(view)s does not exist") % {"view": view}}
             )
     new_order = ordered_views + existing_views
 
     for num, view in enumerate(new_order):
-        model.Session.query(model.ResourceView).\
-            filter_by(id=view).update({"order": num + 1})
+        model.Session.query(model.ResourceView).filter_by(id=view).update(
+            {"order": num + 1}
+        )
     model.Session.commit()
-    return {'id': id, 'order': new_order}
+    return {"id": id, "order": new_order}
 
 
-def resource_view_delete(context: Context, data_dict: DataDict) -> ActionResult.ResourceViewDelete:
-    '''Delete a resource_view.
+def resource_view_delete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ResourceViewDelete:
+    """Delete a resource_view.
 
     :param id: the id of the resource_view
     :type id: string
 
-    '''
-    id = _get_or_bust(data_dict, 'id')
+    """
+    id = _get_or_bust(data_dict, "id")
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
         raise NotFound
 
-    _check_access('resource_view_delete', context, {'id': id})
+    _check_access("resource_view_delete", context, {"id": id})
 
     resource_view.delete()
     model.repo.commit()
 
     # resource_view_changed in ckanext/activity/subscriptions.py
     # needs the resource id
-    return {'resource_id': resource_view.resource_id}
+    return {"resource_id": resource_view.resource_id}
 
 
-def resource_view_clear(context: Context, data_dict: DataDict) -> ActionResult.ResourceViewClear:
-    '''Delete all resource views, or all of a particular type.
+def resource_view_clear(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ResourceViewClear:
+    """Delete all resource views, or all of a particular type.
 
     :param view_types: specific types to delete (optional)
     :type view_types: list
 
-    '''
-    _check_access('resource_view_clear', context, data_dict)
+    """
+    _check_access("resource_view_clear", context, data_dict)
 
-    view_types = data_dict.get('view_types', [])
+    view_types = data_dict.get("view_types", [])
     model.ResourceView.delete_all(view_types)
     model.repo.commit()

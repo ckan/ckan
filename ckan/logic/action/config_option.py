@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import logging
@@ -20,12 +19,13 @@ from ckan.logic import (
 )
 from ckan.types import ActionResult, Context, DataDict
 
-log = logging.getLogger('ckan.logic')
+log = logging.getLogger("ckan.logic")
 
 
 def config_option_update(
-        context: Context, data_dict: DataDict) -> ActionResult.ConfigOptionUpdate:
-    '''
+    context: Context, data_dict: DataDict
+) -> ActionResult.ConfigOptionUpdate:
+    """
 
     .. versionadded:: 2.4
 
@@ -68,8 +68,8 @@ def config_option_update(
         they can be edited during runtime, such as ones you've added in your
         own extension, or have reviewed the use of in core CKAN.
 
-    '''
-    _check_access('config_option_update', context, data_dict)
+    """
+    _check_access("config_option_update", context, data_dict)
 
     schema = schema_.update_configuration_schema()
 
@@ -79,14 +79,17 @@ def config_option_update(
 
     unsupported_options = set(provided_options) - set(available_options)
     if unsupported_options:
-        opts = ' '.join(unsupported_options)
-        msg = _('Configuration option(s) \'%(opts)s\' can not be updated') % {'opts': opts}
+        opts = " ".join(unsupported_options)
+        msg = _("Configuration option(s) '%(opts)s' can not be updated") % {
+            "opts": opts
+        }
 
-        raise ValidationError({'message': msg})
+        raise ValidationError({"message": msg})
 
-    upload = uploader.get_uploader('admin')
-    upload.update_data_dict(data_dict, 'ckan.site_logo',
-                            'logo_upload', 'clear_logo_upload')
+    upload = uploader.get_uploader("admin")
+    upload.update_data_dict(
+        data_dict, "ckan.site_logo", "logo_upload", "clear_logo_upload"
+    )
     upload.upload(uploader.get_max_image_size())
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -94,18 +97,21 @@ def config_option_update(
         raise ValidationError(errors)
 
     for key, value in data.items():
-
         # Set full Logo url
-        if key == 'ckan.site_logo' and value and not value.startswith('http')\
-                and not value.startswith('/'):
+        if (
+            key == "ckan.site_logo"
+            and value
+            and not value.startswith("http")
+            and not value.startswith("/")
+        ):
             try:
                 storage = files.get_storage(config["ckan.files.default_storages.admin"])
             except files.exc.UnknownStorageError:
                 pass
             else:
-                if link := storage.permanent_link(files.FileData(
-                    files.Location(value)
-                )):
+                if link := storage.permanent_link(
+                    files.FileData(files.Location(value))
+                ):
                     value = link
 
         # Save value in database
@@ -121,17 +127,18 @@ def config_option_update(
             app_globals.set_app_global(key, value)
 
     # Update the config update timestamp
-    model.set_system_info('ckan.config_update', str(time.time()))
+    model.set_system_info("ckan.config_update", str(time.time()))
 
-    log.info('Updated config options: %s', data)
+    log.info("Updated config options: %s", data)
 
     return data
 
 
 @side_effect_free
-def config_option_show(context: Context,
-                       data_dict: DataDict) -> ActionResult.ConfigOptionShow:
-    '''Show the current value of a particular configuration option.
+def config_option_show(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ConfigOptionShow:
+    """Show the current value of a particular configuration option.
 
     Only returns runtime-editable config options (the ones returned by
     :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
@@ -144,35 +151,36 @@ def config_option_show(context: Context,
     :rtype: string
 
     :raises: :class:`ckan.logic.ValidationError`: if config option is not in the schema (whitelisted as editable).
-    '''
+    """
 
-    _check_access('config_option_show', context, data_dict)
+    _check_access("config_option_show", context, data_dict)
 
-    key = _get_or_bust(data_dict, 'key')
+    key = _get_or_bust(data_dict, "key")
 
     schema = ckan.logic.schema.update_configuration_schema()
 
     # Only return whitelisted keys
     if key not in schema:
-        raise ValidationError({
-            'message': f"Configuration option '{key}' can not be shown"})
-
+        raise ValidationError(
+            {"message": f"Configuration option '{key}' can not be shown"}
+        )
 
     # return the value from config
     return config.get(key, None)
 
 
 @side_effect_free
-def config_option_list(context: Context,
-                       data_dict: DataDict) -> ActionResult.ConfigOptionList:
-    '''Return a list of runtime-editable config options keys that can be
+def config_option_list(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ConfigOptionList:
+    """Return a list of runtime-editable config options keys that can be
        updated with :py:func:`~ckan.logic.action.update.config_option_update`.
 
     :returns: A list of config option keys.
     :rtype: list
-    '''
+    """
 
-    _check_access('config_option_list', context, data_dict)
+    _check_access("config_option_list", context, data_dict)
 
     schema = ckan.logic.schema.update_configuration_schema()
 

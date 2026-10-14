@@ -16,13 +16,13 @@ from ckan.logic import (
 )
 from ckan.types import ActionResult, Context, DataDict
 
-log = logging.getLogger('ckan.logic')
+log = logging.getLogger("ckan.logic")
 
 
 @side_effect_free
 @logic.validate(ckan.logic.schema.job_list_schema)
 def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
-    '''List enqueued background jobs.
+    """List enqueued background jobs.
 
     :param list queues: Queues to list jobs from. If not given then the
         jobs from all queues are listed.
@@ -39,13 +39,14 @@ def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
     before the next right non-empty one.
 
     .. versionadded:: 2.7
-    '''
-    _check_access(u'job_list', context, data_dict)
+    """
+    _check_access("job_list", context, data_dict)
     jobs_list: ActionResult.JobList = []
-    queues: Any = data_dict.get(u'queues')
-    limit = data_dict.get('limit', config.get('ckan.jobs.default_list_limit',
-                                              jobs.DEFAULT_JOB_LIST_LIMIT))
-    ids_only = asbool(data_dict.get('ids_only', False))
+    queues: Any = data_dict.get("queues")
+    limit = data_dict.get(
+        "limit", config.get("ckan.jobs.default_list_limit", jobs.DEFAULT_JOB_LIST_LIMIT)
+    )
+    ids_only = asbool(data_dict.get("ids_only", False))
     if queues:
         queues = [jobs.get_queue(q) for q in queues]
     else:
@@ -55,8 +56,10 @@ def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
             jobs_list += queue.job_ids[:limit]
         else:
             # type_ignore_reason: pyright does not know return from queue.jobs
-            jobs_list += [jobs.dictize_job(j)  # type: ignore
-                          for j in queue.jobs[:limit]]
+            jobs_list += [
+                jobs.dictize_job(j)  # type: ignore
+                for j in queue.jobs[:limit]
+            ]
         if limit > 0 and len(jobs_list) > limit:
             # we need to return here if there is a limit
             # and it has been surpassed
@@ -66,7 +69,7 @@ def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
 
 @side_effect_free
 def job_show(context: Context, data_dict: DataDict) -> ActionResult.JobShow:
-    '''Show details for a background job.
+    """Show details for a background job.
 
     :param string id: The ID of the background job.
 
@@ -74,9 +77,9 @@ def job_show(context: Context, data_dict: DataDict) -> ActionResult.JobShow:
     :rtype: dict
 
     .. versionadded:: 2.7
-    '''
-    _check_access(u'job_show', context, data_dict)
-    id = _get_or_bust(data_dict, u'id')
+    """
+    _check_access("job_show", context, data_dict)
+    id = _get_or_bust(data_dict, "id")
     try:
         return jobs.dictize_job(jobs.job_from_id(id))
     except KeyError:
@@ -85,7 +88,7 @@ def job_show(context: Context, data_dict: DataDict) -> ActionResult.JobShow:
 
 @ckan.logic.validate(ckan.logic.schema.job_clear_schema)
 def job_clear(context: Context, data_dict: DataDict) -> list[str]:
-    '''Clear background job queues.
+    """Clear background job queues.
 
     Does not affect jobs that are already being processed.
 
@@ -96,9 +99,9 @@ def job_clear(context: Context, data_dict: DataDict) -> list[str]:
     :rtype: list
 
     .. versionadded:: 2.7
-    '''
-    _check_access(u'job_clear', context, data_dict)
-    queues = data_dict.get(u'queues')
+    """
+    _check_access("job_clear", context, data_dict)
+    queues = data_dict.get("queues")
     if queues:
         queues = [jobs.get_queue(q) for q in queues]
     else:
@@ -111,18 +114,18 @@ def job_clear(context: Context, data_dict: DataDict) -> list[str]:
 
 
 def job_cancel(context: Context, data_dict: DataDict) -> None:
-    '''Cancel a queued background job.
+    """Cancel a queued background job.
 
     Removes the job from the queue and deletes it.
 
     :param string id: The ID of the background job.
 
     .. versionadded:: 2.7
-    '''
-    _check_access(u'job_cancel', context, data_dict)
-    id = _get_or_bust(data_dict, u'id')
+    """
+    _check_access("job_cancel", context, data_dict)
+    id = _get_or_bust(data_dict, "id")
     try:
         jobs.job_from_id(id).delete()
-        log.info('Cancelled background job %s', id)
+        log.info("Cancelled background job %s", id)
     except KeyError:
         raise NotFound

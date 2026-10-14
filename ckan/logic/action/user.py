@@ -37,12 +37,11 @@ from ckan.lib.navl.dictization_functions import validate as _validate
 from sqlalchemy import case as _case, func as _func, or_ as _or_
 from sqlalchemy.sql import select as _select
 
-log = logging.getLogger('ckan.logic')
+log = logging.getLogger("ckan.logic")
 
 
-def user_create(context: Context,
-                data_dict: DataDict) -> ActionResult.UserCreate:
-    '''Create a new user.
+def user_create(context: Context, data_dict: DataDict) -> ActionResult.UserCreate:
+    """Create a new user.
 
     You must be authorized to create users.
 
@@ -89,24 +88,23 @@ def user_create(context: Context,
     :returns: the newly created user
     :rtype: dictionary
 
-    '''
-    schema = context.get('schema') or ckan.logic.schema.default_user_schema()
-    session = context['session']
+    """
+    schema = context.get("schema") or ckan.logic.schema.default_user_schema()
+    session = context["session"]
     with_apitoken = data_dict.pop("with_apitoken", False)
 
-    _check_access('user_create', context, data_dict)
+    _check_access("user_create", context, data_dict)
 
-    author_obj = model.User.get(context.get('user'))
+    author_obj = model.User.get(context.get("user"))
     if data_dict.get("id"):
-        is_sysadmin = (author_obj and author_obj.sysadmin)
-        ignore_auth = context.get('ignore_auth')
+        is_sysadmin = author_obj and author_obj.sysadmin
+        ignore_auth = context.get("ignore_auth")
         if not (ignore_auth or is_sysadmin) or model.User.get(data_dict["id"]):
             data_dict.pop("id", None)
     context.pop("user_obj", None)
 
-    upload = uploader.get_uploader('user')
-    upload.update_data_dict(data_dict, 'image_url',
-                            'image_upload', 'clear_upload')
+    upload = uploader.get_uploader("user")
+    upload.update_data_dict(data_dict, "image_url", "image_upload", "clear_upload")
     data, errors = _validate(data_dict, schema, context)
 
     if errors:
@@ -114,15 +112,15 @@ def user_create(context: Context,
         raise ValidationError(errors)
 
     # user schema prevents non-sysadmins from providing password_hash
-    if 'password_hash' in data:
-        data['_password'] = data.pop('password_hash')
+    if "password_hash" in data:
+        data["_password"] = data.pop("password_hash")
 
     user = model_save.user_dict_save(data, context)
     signals.user_created.send(user.name, user=user)
 
     upload.upload(uploader.get_max_image_size())
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         with logic.guard_against_duplicated_email(data["email"]):
             model.repo.commit()
     else:
@@ -136,29 +134,28 @@ def user_create(context: Context,
     #
     # The context is copied so as not to clobber the caller's context dict.
     user_dictize_context = context.copy()
-    user_dictize_context['keep_apikey'] = True
-    user_dictize_context['keep_email'] = True
+    user_dictize_context["keep_apikey"] = True
+    user_dictize_context["keep_email"] = True
 
     include_plugin_extras = False
     if author_obj:
-        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+        include_plugin_extras = author_obj.sysadmin and "plugin_extras" in data
     user_dict = model_dictize.user_dictize(
-        user, user_dictize_context,
-        include_plugin_extras=include_plugin_extras
+        user, user_dictize_context, include_plugin_extras=include_plugin_extras
     )
 
-    context['user_obj'] = user
-    context['id'] = user.id
+    context["user_obj"] = user
+    context["id"] = user.id
 
     # Create dashboard for user.
     dashboard = model.Dashboard(user.id)
 
     session.add(dashboard)
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
 
     if with_apitoken:
-        if not context['user']:
+        if not context["user"]:
             context["user"] = user.name
 
         # Create apitoken for user.
@@ -167,13 +164,12 @@ def user_create(context: Context,
         )
         user_dict["token"] = api_token["token"]
 
-    log.debug('Created user %s', user.name)
+    log.debug("Created user %s", user.name)
     return user_dict
 
 
-def user_invite(context: Context,
-                data_dict: DataDict) -> ActionResult.UserInvite:
-    '''Invite a new user.
+def user_invite(context: Context, data_dict: DataDict) -> ActionResult.UserInvite:
+    """Invite a new user.
 
     You must be authorized to create group members.
 
@@ -187,71 +183,63 @@ def user_invite(context: Context,
 
     :returns: the newly created user
     :rtype: dictionary
-    '''
-    _check_access('user_invite', context, data_dict)
+    """
+    _check_access("user_invite", context, data_dict)
 
-    schema = context.get('schema',
-                         ckan.logic.schema.default_user_invite_schema())
+    schema = context.get("schema", ckan.logic.schema.default_user_invite_schema())
     data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
-    group = model.Group.get(data['group_id'])
+    group = model.Group.get(data["group_id"])
     if not group:
         raise NotFound()
 
-    name = _get_random_username_from_email(data['email'])
+    name = _get_random_username_from_email(data["email"])
 
-    data['name'] = name
+    data["name"] = name
     # send the proper schema when creating a user from here
     # so the password field would be ignored.
     invite_schema = ckan.logic.schema.create_user_for_user_invite_schema()
 
-    data['state'] = model.State.PENDING
-    user_dict = _get_action('user_create')(
-        Context(context, schema=invite_schema, ignore_auth=True),
-        data)
-    user = model.User.get(user_dict['id'])
+    data["state"] = model.State.PENDING
+    user_dict = _get_action("user_create")(
+        Context(context, schema=invite_schema, ignore_auth=True), data
+    )
+    user = model.User.get(user_dict["id"])
     assert user
-    member_dict = {
-        'username': user.id,
-        'id': data['group_id'],
-        'role': data['role']
-    }
+    member_dict = {"username": user.id, "id": data["group_id"], "role": data["role"]}
 
-    org_or_group = 'organization' if group.is_organization else 'group'
-    _get_action(f'{org_or_group}_member_create')(context, member_dict)
-    group_dict = _get_action(f'{org_or_group}_show')(
-        context, {'id': data['group_id']})
+    org_or_group = "organization" if group.is_organization else "group"
+    _get_action(f"{org_or_group}_member_create")(context, member_dict)
+    group_dict = _get_action(f"{org_or_group}_show")(context, {"id": data["group_id"]})
 
     try:
         notification_sent = False
         for plugin in plugins.PluginImplementations(plugins.INotifier):
             notification_sent = plugin.notify_about_topic(
                 notification_sent,
-                'user_invited',
-                {'user': user,
-                 'group': group_dict,
-                 'role': data['role']}
+                "user_invited",
+                {"user": user, "group": group_dict, "role": data["role"]},
             )
         if not notification_sent:
-            mailer.send_invite(user, group_dict, data['role'])
+            mailer.send_invite(user, group_dict, data["role"])
     except (socket_error, mailer.MailerException) as error:
         # Email could not be sent, delete the pending user
 
-        _get_action('user_delete')(context, {'id': user.id})
+        _get_action("user_delete")(context, {"id": user.id})
 
         message = _(
-            'Error sending the invite email, '
-            'the user was not created: {0}').format(error)
+            "Error sending the invite email, the user was not created: {0}"
+        ).format(error)
         raise ValidationError(message)
 
     return model_dictize.user_dictize(user, context)
 
 
 def _get_random_username_from_email(email: str):
-    localpart = email.split('@')[0]
-    cleaned_localpart = re.sub(r'[^\w]', '-', localpart).lower()
+    localpart = email.split("@")[0]
+    cleaned_localpart = re.sub(r"[^\w]", "-", localpart).lower()
 
     # if we can't create a unique user name within this many attempts
     # then something else is probably wrong and we should give up
@@ -259,15 +247,15 @@ def _get_random_username_from_email(email: str):
 
     for _i in range(max_name_creation_attempts):
         random_number = random.SystemRandom().random() * 10000
-        name = '%s-%d' % (cleaned_localpart, random_number)
+        name = "%s-%d" % (cleaned_localpart, random_number)
         if not model.User.get(name):
             return name
 
     return cleaned_localpart
 
-def follow_user(context: Context,
-                data_dict: DataDict) -> ActionResult.FollowUser:
-    '''Start following another user.
+
+def follow_user(context: Context, data_dict: DataDict) -> ActionResult.FollowUser:
+    """Start following another user.
 
     You must provide your API key in the Authorization header.
 
@@ -278,49 +266,47 @@ def follow_user(context: Context,
         and the other user
     :rtype: dictionary
 
-    '''
-    _check_access('follow_user', context, data_dict)
+    """
+    _check_access("follow_user", context, data_dict)
 
-    userobj = model.User.get(context['user'])
+    userobj = model.User.get(context["user"])
     if not userobj:
         raise NotFound(_("User not found"))
 
-    schema = context.get('schema',
-                         ckan.logic.schema.default_follow_user_schema())
+    schema = context.get("schema", ckan.logic.schema.default_follow_user_schema())
 
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
-        msg = _('Error validating the schema of the user to follow.')
+        msg = _("Error validating the schema of the user to follow.")
         raise ValidationError(msg)
 
     # Don't let a user follow herself.
-    if userobj.id == validated_data_dict['id']:
-        message = _('You cannot follow yourself')
-        raise ValidationError({'message': message})
+    if userobj.id == validated_data_dict["id"]:
+        message = _("You cannot follow yourself")
+        raise ValidationError({"message": message})
 
     # If the user is already following, return the existing follower object
-    follower = model.UserFollowingUser.get(
-        userobj.id, validated_data_dict['id']
-        )
+    follower = model.UserFollowingUser.get(userobj.id, validated_data_dict["id"])
     if follower:
         return model_dictize.user_following_user_dictize(follower, context)
 
     follower = model_save.follower_dict_save(
-        validated_data_dict, context, model.UserFollowingUser)
+        validated_data_dict, context, model.UserFollowingUser
+    )
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
 
-    log.debug('User %s started following user %s',
-              follower.follower_id, follower.object_id)
+    log.debug(
+        "User %s started following user %s", follower.follower_id, follower.object_id
+    )
 
     return model_dictize.user_following_user_dictize(follower, context)
 
 
-def follow_dataset(context: Context,
-                   data_dict: DataDict) -> ActionResult.FollowDataset:
-    '''Start following a dataset.
+def follow_dataset(context: Context, data_dict: DataDict) -> ActionResult.FollowDataset:
+    """Start following a dataset.
 
     You must provide your API key in the Authorization header.
 
@@ -331,43 +317,40 @@ def follow_dataset(context: Context,
         and the dataset
     :rtype: dictionary
 
-    '''
-    _check_access('follow_dataset', context, data_dict)
+    """
+    _check_access("follow_dataset", context, data_dict)
 
-    userobj = model.User.get(context['user'])
+    userobj = model.User.get(context["user"])
     if not userobj:
         raise NotFound(_("User not found"))
 
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_follow_dataset_schema())
+    schema = context.get("schema") or ckan.logic.schema.default_follow_dataset_schema()
     validated_data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        message = _('Error validating the schema of the dataset to follow.')
-        raise ValidationError({'message': message})
+        message = _("Error validating the schema of the dataset to follow.")
+        raise ValidationError({"message": message})
 
     # If the user is already following, return the existing follower object.
-    follower = model.UserFollowingDataset.get(
-        userobj.id, validated_data_dict['id']
-        )
+    follower = model.UserFollowingDataset.get(userobj.id, validated_data_dict["id"])
     if follower:
         return model_dictize.user_following_dataset_dictize(follower, context)
 
     follower = model_save.follower_dict_save(
         validated_data_dict, context, model.UserFollowingDataset
-        )
+    )
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
 
-    log.debug('User %s started following dataset %s',
-              follower.follower_id, follower.object_id)
+    log.debug(
+        "User %s started following dataset %s", follower.follower_id, follower.object_id
+    )
 
     return model_dictize.user_following_dataset_dictize(follower, context)
 
 
-def follow_group(context: Context,
-                 data_dict: DataDict) -> ActionResult.FollowGroup:
-    '''Start following a group.
+def follow_group(context: Context, data_dict: DataDict) -> ActionResult.FollowGroup:
+    """Start following a group.
 
     You must provide your API key in the Authorization header.
 
@@ -378,42 +361,42 @@ def follow_group(context: Context,
         and the group
     :rtype: dictionary
 
-    '''
-    _check_access('follow_group', context, data_dict)
+    """
+    _check_access("follow_group", context, data_dict)
 
-    userobj = model.User.get(context['user'])
+    userobj = model.User.get(context["user"])
     if not userobj:
         raise NotFound(_("User not found"))
 
-    schema = context.get('schema',
-                         ckan.logic.schema.default_follow_group_schema())
+    schema = context.get("schema", ckan.logic.schema.default_follow_group_schema())
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
-        message = _('Error validating the schema of the group to follow.')
-        raise ValidationError({'message': message})
+        message = _("Error validating the schema of the group to follow.")
+        raise ValidationError({"message": message})
 
     # If it's already following, return the existing follower object.
-    follower = model.UserFollowingGroup.get(
-        userobj.id, validated_data_dict['id']
-        )
+    follower = model.UserFollowingGroup.get(userobj.id, validated_data_dict["id"])
     if follower:
         return model_dictize.user_following_group_dictize(follower, context)
 
-    follower = model_save.follower_dict_save(validated_data_dict, context,
-                                             model.UserFollowingGroup)
+    follower = model_save.follower_dict_save(
+        validated_data_dict, context, model.UserFollowingGroup
+    )
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
 
-    log.debug('User %s started following group %s',
-              follower.follower_id, follower.object_id)
+    log.debug(
+        "User %s started following group %s", follower.follower_id, follower.object_id
+    )
 
     return model_dictize.user_following_group_dictize(follower, context)
 
 
-def api_token_create(context: Context,
-                     data_dict: DataDict) -> ActionResult.ApiTokenCreate:
+def api_token_create(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ApiTokenCreate:
     """Create new API Token for current user.
 
     Apart from the `user` and `name` field that are required by
@@ -441,14 +424,14 @@ def api_token_create(context: Context,
     :rtype: dictionary
 
     """
-    user, _name = _get_or_bust(data_dict, [u'user', u'name'])
+    user, _name = _get_or_bust(data_dict, ["user", "name"])
 
     if model.User.get(user) is None:
         raise NotFound("User not found")
 
-    _check_access(u'api_token_create', context, data_dict)
+    _check_access("api_token_create", context, data_dict)
 
-    schema = context.get(u'schema')
+    schema = context.get("schema")
     if not schema:
         schema = api_token.get_schema()
 
@@ -457,27 +440,20 @@ def api_token_create(context: Context,
     if errors:
         raise ValidationError(errors)
 
-    token_obj = model_save.api_token_save(
-        validated_data_dict, context
-    )
+    token_obj = model_save.api_token_save(validated_data_dict, context)
     model.Session.commit()
-    data = {
-        u'jti': token_obj.id,
-        u'iat': api_token.into_seconds(token_obj.created_at)
-    }
+    data = {"jti": token_obj.id, "iat": api_token.into_seconds(token_obj.created_at)}
 
     data = api_token.postprocess(data, token_obj.id, validated_data_dict)
     token = api_token.encode(data)
 
-    result = api_token.add_extra({'token': token, 'id': token_obj.id})
+    result = api_token.add_extra({"token": token, "id": token_obj.id})
     return result
 
 
 @side_effect_free
-def user_list(
-        context: Context, data_dict: DataDict
-) -> ActionResult.UserList:
-    '''Return a list of the site's user accounts.
+def user_list(context: Context, data_dict: DataDict) -> ActionResult.UserList:
+    """Return a list of the site's user accounts.
 
     :param q: filter the users returned to those whose names contain a string
       (optional)
@@ -501,62 +477,68 @@ def user_list(
       ``number_created_packages`` which excludes datasets which are private
       or draft state.
 
-    '''
-    _check_access('user_list', context, data_dict)
+    """
+    _check_access("user_list", context, data_dict)
 
-    q = data_dict.get('q', '')
-    email = data_dict.get('email')
-    order_by = data_dict.get('order_by', 'display_name')
-    all_fields = asbool(data_dict.get('all_fields', True))
+    q = data_dict.get("q", "")
+    email = data_dict.get("email")
+    order_by = data_dict.get("order_by", "display_name")
+    all_fields = asbool(data_dict.get("all_fields", True))
 
     if all_fields:
-        query: 'Query[Any]' = model.Session.query(
+        query: "Query[Any]" = model.Session.query(
             model.User,
-            model.User.name.label('name'),
-            model.User.fullname.label('fullname'),
-            model.User.about.label('about'),
-            model.User.email.label('email'),
-            model.User.created.label('created'),
-            _select(_func.count(model.Package.id)).where(
+            model.User.name.label("name"),
+            model.User.fullname.label("fullname"),
+            model.User.about.label("about"),
+            model.User.email.label("email"),
+            model.User.created.label("created"),
+            _select(_func.count(model.Package.id))
+            .where(
                 model.Package.creator_user_id == model.User.id,
-                model.Package.state == 'active',
+                model.Package.state == "active",
                 model.Package.private == False,
-            ).label('number_created_packages')
+            )
+            .label("number_created_packages"),
         )
     else:
         query = model.Session.query(model.User.name)
 
-    if not asbool(data_dict.get('include_site_user', False)):
-        site_id = config.get('ckan.site_id')
+    if not asbool(data_dict.get("include_site_user", False)):
+        site_id = config.get("ckan.site_id")
         query = query.filter(model.User.name != site_id)
 
     if q:
-        query = model.User.search(q, query, user_name=context.get('user'))
+        query = model.User.search(q, query, user_name=context.get("user"))
     if email:
         query = query.filter(_func.lower(model.User.email) == email.lower())
 
     order_by_field = None
-    if order_by == 'edits':
-        raise ValidationError({
-            'message': 'order_by=edits is no longer supported'
-        })
-    elif order_by == 'number_created_packages':
+    if order_by == "edits":
+        raise ValidationError({"message": "order_by=edits is no longer supported"})
+    elif order_by == "number_created_packages":
         order_by_field = order_by
-    elif order_by != 'display_name':
+    elif order_by != "display_name":
         try:
             order_by_field = getattr(model.User, order_by)
         except AttributeError:
             pass
-    if order_by == 'display_name' or order_by_field is None:
+    if order_by == "display_name" or order_by_field is None:
         query = query.order_by(
-            _case((_or_(
-                model.User.fullname.is_(None),
-                model.User.fullname == ''
-            ), model.User.name), else_=model.User.fullname)
+            _case(
+                (
+                    _or_(model.User.fullname.is_(None), model.User.fullname == ""),
+                    model.User.name,
+                ),
+                else_=model.User.fullname,
+            )
         )
-    elif order_by_field == 'number_created_packages' \
-         or order_by_field == 'fullname' \
-         or order_by_field == 'about' or order_by_field == 'sysadmin':
+    elif (
+        order_by_field == "number_created_packages"
+        or order_by_field == "fullname"
+        or order_by_field == "about"
+        or order_by_field == "sysadmin"
+    ):
         query = query.order_by(order_by_field, model.User.name)
     else:
         query = query.order_by(order_by_field)
@@ -565,7 +547,7 @@ def user_list(
     query = query.filter(model.User.state != model.State.DELETED)
 
     ## hack for pagination
-    if context.get('return_query'):
+    if context.get("return_query"):
         return query
 
     users_list: ActionResult.UserList = []
@@ -583,7 +565,7 @@ def user_list(
 
 @side_effect_free
 def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
-    '''Return a user account.
+    """Return a user account.
 
     Either the ``id`` should be passed or the user should be logged in.
 
@@ -612,76 +594,79 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
         sysadmin requesting, the email and apikey are included.
     :rtype: dictionary
 
-    '''
-    if 'user' in context and 'id' not in data_dict:
-        data_dict['id'] = context.get('user')
+    """
+    if "user" in context and "id" not in data_dict:
+        data_dict["id"] = context.get("user")
 
-    id = data_dict.get('id', None)
+    id = data_dict.get("id", None)
     if id:
         user_obj = model.User.get(id)
     else:
         user_obj = None
 
     if user_obj:
-        context['user_obj'] = user_obj
+        context["user_obj"] = user_obj
 
-    _check_access('user_show', context, data_dict)
+    _check_access("user_show", context, data_dict)
 
     if not user_obj:
         raise NotFound
 
     # include private and draft datasets?
-    requester = context.get('user')
+    requester = context.get("user")
     sysadmin = False
     if requester:
         sysadmin = authz.is_sysadmin(requester)
         requester_looking_at_own_account = requester == user_obj.name
         include_private_and_draft_datasets = (
-            sysadmin or requester_looking_at_own_account)
+            sysadmin or requester_looking_at_own_account
+        )
     else:
         include_private_and_draft_datasets = False
-    context['count_private_and_draft_datasets'] = \
-        include_private_and_draft_datasets
+    context["count_private_and_draft_datasets"] = include_private_and_draft_datasets
 
     include_password_hash = sysadmin and asbool(
-        data_dict.get('include_password_hash', False))
+        data_dict.get("include_password_hash", False)
+    )
 
     include_plugin_extras = sysadmin and asbool(
-        data_dict.get('include_plugin_extras', False))
+        data_dict.get("include_plugin_extras", False)
+    )
 
     user_dict = model_dictize.user_dictize(
-        user_obj, context, include_password_hash, include_plugin_extras)
+        user_obj, context, include_password_hash, include_plugin_extras
+    )
 
-    if asbool(data_dict.get('include_datasets', False)):
-        user_dict['datasets'] = []
+    if asbool(data_dict.get("include_datasets", False)):
+        user_dict["datasets"] = []
 
-        fq = "+creator_user_id:{0}".format(user_dict['id'])
+        fq = "+creator_user_id:{0}".format(user_dict["id"])
 
-        search_dict: dict[str, Any] = {'rows': 50}
+        search_dict: dict[str, Any] = {"rows": 50}
 
         if include_private_and_draft_datasets:
-            search_dict.update({
-                'include_private': True,
-                'include_drafts': True})
+            search_dict.update({"include_private": True, "include_drafts": True})
 
-        search_dict.update({'fq': fq})
+        search_dict.update({"fq": fq})
 
-        user_dict['datasets'] = \
-            logic.get_action('package_search')(context, search_dict) \
-            .get('results')
+        user_dict["datasets"] = logic.get_action("package_search")(
+            context, search_dict
+        ).get("results")
 
-    if asbool(data_dict.get('include_num_followers', False)):
-        user_dict['num_followers'] = logic.get_action('user_follower_count')(
-            {'session': model.Session},
-            {'id': user_dict['id']})
+    if asbool(data_dict.get("include_num_followers", False)):
+        user_dict["num_followers"] = logic.get_action("user_follower_count")(
+            {"session": model.Session}, {"id": user_dict["id"]}
+        )
 
     return user_dict
 
 
 @side_effect_free
 @logic.validate(ckan.logic.schema.default_autocomplete_schema)
-def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.UserAutocomplete:
-    '''Return a list of user names that contain a string.
+def user_autocomplete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.UserAutocomplete:
+    """Return a list of user names that contain a string.
 
     :param q: the string to search for
     :type q: string
@@ -692,14 +677,14 @@ def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.Use
     :rtype: a list of user dictionaries each with keys ``'name'``,
         ``'fullname'``, and ``'id'``
 
-    '''
-    user = context['user']
+    """
+    user = context["user"]
 
-    _check_access('user_autocomplete', context, data_dict)
+    _check_access("user_autocomplete", context, data_dict)
 
-    q = data_dict['q']
-    limit = data_dict.get('limit', 20)
-    ignore_self = data_dict.get('ignore_self', False)
+    q = data_dict["q"]
+    limit = data_dict.get("limit", 20)
+    ignore_self = data_dict.get("ignore_self", False)
 
     query = model.User.search(q, user_name=user)
     query = query.filter(model.User.state != model.State.DELETED)
@@ -712,7 +697,7 @@ def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.Use
     user_list: ActionResult.UserAutocomplete = []
     for user in query.all():
         result_dict = {}
-        for k in ['id', 'name', 'fullname']:
+        for k in ["id", "name", "fullname"]:
             result_dict[k] = getattr(user, k)
 
         user_list.append(result_dict)
@@ -721,98 +706,110 @@ def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.Use
 
 
 def _follower_count(
-        context: Context, data_dict: DataDict, default_schema: Schema,
-        ModelClass: Type["ModelFollowingModel[Any, Any]"]):
-    schema = context.get('schema', default_schema)
+    context: Context,
+    data_dict: DataDict,
+    default_schema: Schema,
+    ModelClass: Type["ModelFollowingModel[Any, Any]"],
+):
+    schema = context.get("schema", default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
-    return ModelClass.follower_count(data_dict['id'])
+    return ModelClass.follower_count(data_dict["id"])
 
 
 @side_effect_free
 def user_follower_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.UserFollowerCount:
-    '''Return the number of followers of a user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.UserFollowerCount:
+    """Return the number of followers of a user.
 
     :param id: the id or name of the user
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('user_follower_count', context, data_dict)
+    """
+    _check_access("user_follower_count", context, data_dict)
     return _follower_count(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_user_schema(),
-        model.UserFollowingUser)
+        model.UserFollowingUser,
+    )
 
 
 @side_effect_free
 def dataset_follower_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.DatasetFollowerCount:
-    '''Return the number of followers of a dataset.
+    context: Context, data_dict: DataDict
+) -> ActionResult.DatasetFollowerCount:
+    """Return the number of followers of a dataset.
 
     :param id: the id or name of the dataset
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('dataset_follower_count', context, data_dict)
+    """
+    _check_access("dataset_follower_count", context, data_dict)
     return _follower_count(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
-        model.UserFollowingDataset)
+        model.UserFollowingDataset,
+    )
 
 
 @side_effect_free
 def group_follower_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.GroupFollowerCount:
-    '''Return the number of followers of a group.
+    context: Context, data_dict: DataDict
+) -> ActionResult.GroupFollowerCount:
+    """Return the number of followers of a group.
 
     :param id: the id or name of the group
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('group_follower_count', context, data_dict)
+    """
+    _check_access("group_follower_count", context, data_dict)
     return _follower_count(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        model.UserFollowingGroup)
+        model.UserFollowingGroup,
+    )
 
 
 @side_effect_free
 def organization_follower_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationFollowerCount:
-    '''Return the number of followers of an organization.
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationFollowerCount:
+    """Return the number of followers of an organization.
 
     :param id: the id or name of the organization
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('organization_follower_count', context, data_dict)
+    """
+    _check_access("organization_follower_count", context, data_dict)
     return group_follower_count(context, data_dict)
 
 
 def _follower_list(
-        context: Context, data_dict: DataDict, default_schema: Schema,
-        FollowerClass: Type["ModelFollowingModel[Any, Any]"]):
-    schema = context.get('schema', default_schema)
+    context: Context,
+    data_dict: DataDict,
+    default_schema: Schema,
+    FollowerClass: Type["ModelFollowingModel[Any, Any]"],
+):
+    schema = context.get("schema", default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
     # Get the list of Follower objects.
-    object_id = data_dict.get('id')
+    object_id = data_dict.get("id")
     followers = FollowerClass.follower_list(object_id)
 
     # Convert the list of Follower objects to a list of User objects.
@@ -825,163 +822,182 @@ def _follower_list(
 
 @side_effect_free
 def user_follower_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.UserFollowerList:
-    '''Return the list of users that are following the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.UserFollowerList:
+    """Return the list of users that are following the given user.
 
     :param id: the id or name of the user
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('user_follower_list', context, data_dict)
+    """
+    _check_access("user_follower_list", context, data_dict)
     return _follower_list(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_user_schema(),
-        model.UserFollowingUser)
+        model.UserFollowingUser,
+    )
 
 
 @side_effect_free
 def dataset_follower_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.DatasetFollowerList:
-    '''Return the list of users that are following the given dataset.
+    context: Context, data_dict: DataDict
+) -> ActionResult.DatasetFollowerList:
+    """Return the list of users that are following the given dataset.
 
     :param id: the id or name of the dataset
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('dataset_follower_list', context, data_dict)
+    """
+    _check_access("dataset_follower_list", context, data_dict)
     return _follower_list(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
-        model.UserFollowingDataset)
+        model.UserFollowingDataset,
+    )
 
 
 @side_effect_free
 def group_follower_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.GroupFollowerList:
-    '''Return the list of users that are following the given group.
+    context: Context, data_dict: DataDict
+) -> ActionResult.GroupFollowerList:
+    """Return the list of users that are following the given group.
 
     :param id: the id or name of the group
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('group_follower_list', context, data_dict)
+    """
+    _check_access("group_follower_list", context, data_dict)
     return _follower_list(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        model.UserFollowingGroup)
+        model.UserFollowingGroup,
+    )
 
 
 @side_effect_free
 def organization_follower_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationFollowerList:
-    '''Return the list of users that are following the given organization.
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationFollowerList:
+    """Return the list of users that are following the given organization.
 
     :param id: the id or name of the organization
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('organization_follower_list', context, data_dict)
+    """
+    _check_access("organization_follower_list", context, data_dict)
     return _follower_list(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        model.UserFollowingGroup)
+        model.UserFollowingGroup,
+    )
 
 
 def _am_following(
-        context: Context, data_dict: DataDict, default_schema: Schema,
-        FollowerClass: Type["ModelFollowingModel[Any, Any]"]):
-    schema = context.get('schema', default_schema)
+    context: Context,
+    data_dict: DataDict,
+    default_schema: Schema,
+    FollowerClass: Type["ModelFollowingModel[Any, Any]"],
+):
+    schema = context.get("schema", default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
-    if 'user' not in context:
+    if "user" not in context:
         raise NotAuthorized
 
-    userobj = model.User.get(context['user'])
+    userobj = model.User.get(context["user"])
     if not userobj:
         raise NotAuthorized
 
-    object_id: Optional[str] = data_dict.get('id')
+    object_id: Optional[str] = data_dict.get("id")
 
     return FollowerClass.is_following(userobj.id, object_id)
 
 
 @side_effect_free
-def am_following_user(context: Context,
-                      data_dict: DataDict) -> ActionResult.AmFollowingUser:
-    '''Return ``True`` if you're following the given user, ``False`` if not.
+def am_following_user(
+    context: Context, data_dict: DataDict
+) -> ActionResult.AmFollowingUser:
+    """Return ``True`` if you're following the given user, ``False`` if not.
 
     :param id: the id or name of the user
     :type id: string
 
     :rtype: bool
 
-    '''
-    _check_access('am_following_user', context, data_dict)
+    """
+    _check_access("am_following_user", context, data_dict)
     return _am_following(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_user_schema(),
-        model.UserFollowingUser)
+        model.UserFollowingUser,
+    )
 
 
 @side_effect_free
 def am_following_dataset(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.AmFollowingDataset:
-    '''Return ``True`` if you're following the given dataset, ``False`` if not.
+    context: Context, data_dict: DataDict
+) -> ActionResult.AmFollowingDataset:
+    """Return ``True`` if you're following the given dataset, ``False`` if not.
 
     :param id: the id or name of the dataset
     :type id: string
 
     :rtype: bool
 
-    '''
-    _check_access('am_following_dataset', context, data_dict)
+    """
+    _check_access("am_following_dataset", context, data_dict)
     return _am_following(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
-        model.UserFollowingDataset)
+        model.UserFollowingDataset,
+    )
 
 
 @side_effect_free
-def am_following_group(context: Context,
-                       data_dict: DataDict) -> ActionResult.AmFollowingGroup:
-    '''Return ``True`` if you're following the given group, ``False`` if not.
+def am_following_group(
+    context: Context, data_dict: DataDict
+) -> ActionResult.AmFollowingGroup:
+    """Return ``True`` if you're following the given group, ``False`` if not.
 
     :param id: the id or name of the group
     :type id: string
 
     :rtype: bool
 
-    '''
-    _check_access('am_following_group', context, data_dict)
+    """
+    _check_access("am_following_group", context, data_dict)
     return _am_following(
-        context, data_dict,
+        context,
+        data_dict,
         ckan.logic.schema.default_follow_group_schema(),
-        model.UserFollowingGroup)
+        model.UserFollowingGroup,
+    )
 
 
 def _followee_count(
-        context: Context, data_dict: DataDict,
-        FollowerClass: Type['ModelFollowingModel[Any ,Any]'],
-        is_org: bool = False
-        ) -> int:
-    if not context.get('skip_validation'):
-        schema = context.get('schema',
-                             ckan.logic.schema.default_follow_user_schema())
+    context: Context,
+    data_dict: DataDict,
+    FollowerClass: Type["ModelFollowingModel[Any ,Any]"],
+    is_org: bool = False,
+) -> int:
+    if not context.get("skip_validation"):
+        schema = context.get("schema", ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -992,9 +1008,8 @@ def _followee_count(
 
 
 @side_effect_free
-def followee_count(context: Context,
-                   data_dict: DataDict) -> ActionResult.FolloweeCount:
-    '''Return the number of objects that are followed by the given user.
+def followee_count(context: Context, data_dict: DataDict) -> ActionResult.FolloweeCount:
+    """Return the number of objects that are followed by the given user.
 
     Counts all objects, of any type, that the given user is following
     (e.g. followed users, followed datasets, followed groups).
@@ -1004,102 +1019,88 @@ def followee_count(context: Context,
 
     :rtype: int
 
-    '''
-    _check_access('followee_count', context, data_dict)
-    followee_users = _followee_count(context, data_dict,
-                                     model.UserFollowingUser)
+    """
+    _check_access("followee_count", context, data_dict)
+    followee_users = _followee_count(context, data_dict, model.UserFollowingUser)
 
     # followee_users has validated data_dict so the following functions don't
     # need to validate it again.
-    context['skip_validation'] = True
+    context["skip_validation"] = True
 
-    followee_datasets = _followee_count(context, data_dict,
-                                        model.UserFollowingDataset)
-    followee_groups = _followee_count(context, data_dict,
-                                      model.UserFollowingGroup)
+    followee_datasets = _followee_count(context, data_dict, model.UserFollowingDataset)
+    followee_groups = _followee_count(context, data_dict, model.UserFollowingGroup)
 
     return sum((followee_users, followee_datasets, followee_groups))
 
 
 @side_effect_free
 def user_followee_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.UserFolloweeCount:
-    '''Return the number of users that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.UserFolloweeCount:
+    """Return the number of users that are followed by the given user.
 
     :param id: the id of the user
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('user_followee_count', context, data_dict)
-    return _followee_count(
-        context, data_dict,
-        model.UserFollowingUser)
+    """
+    _check_access("user_followee_count", context, data_dict)
+    return _followee_count(context, data_dict, model.UserFollowingUser)
 
 
 @side_effect_free
 def dataset_followee_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.DatasetFolloweeCount:
-    '''Return the number of datasets that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.DatasetFolloweeCount:
+    """Return the number of datasets that are followed by the given user.
 
     :param id: the id of the user
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('dataset_followee_count', context, data_dict)
-    return _followee_count(
-        context, data_dict,
-        model.UserFollowingDataset)
+    """
+    _check_access("dataset_followee_count", context, data_dict)
+    return _followee_count(context, data_dict, model.UserFollowingDataset)
 
 
 @side_effect_free
 def group_followee_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.GroupFolloweeCount:
-    '''Return the number of groups that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.GroupFolloweeCount:
+    """Return the number of groups that are followed by the given user.
 
     :param id: the id of the user
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('group_followee_count', context, data_dict)
-    return _followee_count(
-        context, data_dict,
-        model.UserFollowingGroup,
-        is_org = False)
+    """
+    _check_access("group_followee_count", context, data_dict)
+    return _followee_count(context, data_dict, model.UserFollowingGroup, is_org=False)
 
 
 @side_effect_free
 def organization_followee_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationFolloweeCount:
-    '''Return the number of organizations that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationFolloweeCount:
+    """Return the number of organizations that are followed by the given user.
 
     :param id: the id of the user
     :type id: string
 
     :rtype: int
 
-    '''
-    _check_access('organization_followee_count', context, data_dict)
-    return _followee_count(
-        context, data_dict,
-        model.UserFollowingGroup,
-        is_org = True)
+    """
+    _check_access("organization_followee_count", context, data_dict)
+    return _followee_count(context, data_dict, model.UserFollowingGroup, is_org=True)
 
 
-@side_effect_free   
+@side_effect_free
 @logic.validate(ckan.logic.schema.default_follow_user_schema)
-def followee_list(
-        context: Context, data_dict: DataDict) -> ActionResult.FolloweeList:
-    '''Return the list of objects that are followed by the given user.
+def followee_list(context: Context, data_dict: DataDict) -> ActionResult.FolloweeList:
+    """Return the list of objects that are followed by the given user.
 
     Returns all objects, of any type, that the given user is following
     (e.g. followed users, followed datasets, followed groups.. ).
@@ -1119,43 +1120,43 @@ def followee_list(
         that would be returned by :py:func:`user_show`,
         :py:func:`package_show` or :py:func:`group_show`)
 
-    '''
-    _check_access('followee_list', context, data_dict)
+    """
+    _check_access("followee_list", context, data_dict)
 
     def display_name(followee: dict[str, Any]) -> Optional[str]:
-        '''Return a display name for the given user, group or dataset dict.'''
-        display_name = followee.get('display_name')
-        fullname = followee.get('fullname')
-        title = followee.get('title')
-        name = followee.get('name')
+        """Return a display name for the given user, group or dataset dict."""
+        display_name = followee.get("display_name")
+        fullname = followee.get("fullname")
+        title = followee.get("title")
+        name = followee.get("name")
         return display_name or fullname or title or name
 
     # Get the followed objects.
     # TODO: Catch exceptions raised by these *_followee_list() functions?
     # FIXME should we be changing the context like this it seems dangerous
     followee_dicts: ActionResult.FolloweeList = []
-    context['skip_validation'] = True
-    context['ignore_auth'] = True
+    context["skip_validation"] = True
+    context["ignore_auth"] = True
     for followee_list_function, followee_type in (
-            (user_followee_list, 'user'),
-            (dataset_followee_list, 'dataset'),
-            (group_followee_list, 'group'),
-            (organization_followee_list, 'organization')):
+        (user_followee_list, "user"),
+        (dataset_followee_list, "dataset"),
+        (group_followee_list, "group"),
+        (organization_followee_list, "organization"),
+    ):
         dicts = followee_list_function(context, data_dict)
         for d in dicts:
             followee_dicts.append(
-                {'type': followee_type,
-                 'display_name': display_name(d),
-                 'dict': d})
+                {"type": followee_type, "display_name": display_name(d), "dict": d}
+            )
 
-    followee_dicts.sort(key=lambda d: d['display_name'])
+    followee_dicts.sort(key=lambda d: d["display_name"])
 
-    q = data_dict.get('q')
+    q = data_dict.get("q")
     if q:
         q = q.strip().lower()
         matching_followee_dicts = []
         for followee_dict in followee_dicts:
-            if followee_dict['display_name'].strip().lower().startswith(q):
+            if followee_dict["display_name"].strip().lower().startswith(q):
                 matching_followee_dicts.append(followee_dict)
         followee_dicts = matching_followee_dicts
 
@@ -1164,27 +1165,28 @@ def followee_list(
 
 @side_effect_free
 def user_followee_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.UserFolloweeList:
-    '''Return the list of users that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.UserFolloweeList:
+    """Return the list of users that are followed by the given user.
 
     :param id: the id of the user
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('user_followee_list', context, data_dict)
+    """
+    _check_access("user_followee_list", context, data_dict)
 
-    if not context.get('skip_validation'):
-        schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
+    if not context.get("skip_validation"):
+        schema = context.get("schema") or (
+            ckan.logic.schema.default_follow_user_schema()
+        )
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
 
     # Get the list of Follower objects.
-    user_id = _get_or_bust(data_dict, 'id')
+    user_id = _get_or_bust(data_dict, "id")
     followees = model.UserFollowingUser.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of User objects.
@@ -1197,86 +1199,86 @@ def user_followee_list(
 
 @side_effect_free
 def dataset_followee_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.DatasetFolloweeList:
-    '''Return the list of datasets that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.DatasetFolloweeList:
+    """Return the list of datasets that are followed by the given user.
 
     :param id: the id or name of the user
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('dataset_followee_list', context, data_dict)
+    """
+    _check_access("dataset_followee_list", context, data_dict)
 
-    if not context.get('skip_validation'):
-        schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
+    if not context.get("skip_validation"):
+        schema = context.get("schema") or (
+            ckan.logic.schema.default_follow_user_schema()
+        )
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
 
     # Get the list of Follower objects.
-    user_id = _get_or_bust(data_dict, 'id')
+    user_id = _get_or_bust(data_dict, "id")
     followees = model.UserFollowingDataset.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of Package objects.
-    datasets = [model.Package.get(followee.object_id)
-                for followee in followees]
+    datasets = [model.Package.get(followee.object_id) for followee in followees]
     datasets = [dataset for dataset in datasets if dataset is not None]
 
     # Safety check: check which datasets the user can actually access
     check_context = logic.fresh_context(context, ignore_auth=False)
     datasets = [
-        dataset for dataset in datasets
+        dataset
+        for dataset in datasets
         if authz.is_authorized_boolean(
-            'package_show', check_context, {'id': dataset.id})
+            "package_show", check_context, {"id": dataset.id}
+        )
     ]
 
     # Dictize the list of Package objects.
-    return [model_dictize.package_dictize(dataset, context)
-            for dataset in datasets]
+    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
 
 
 @side_effect_free
 def group_followee_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.GroupFolloweeList:
-    '''Return the list of groups that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.GroupFolloweeList:
+    """Return the list of groups that are followed by the given user.
 
     :param id: the id or name of the user
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('group_followee_list', context, data_dict)
+    """
+    _check_access("group_followee_list", context, data_dict)
 
     return _group_or_org_followee_list(context, data_dict, is_org=False)
 
 
 @side_effect_free
 def organization_followee_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationFolloweeList:
-    '''Return the list of organizations that are followed by the given user.
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationFolloweeList:
+    """Return the list of organizations that are followed by the given user.
 
     :param id: the id or name of the user
     :type id: string
 
     :rtype: list of dictionaries
 
-    '''
+    """
 
-    _check_access('organization_followee_list', context, data_dict)
+    _check_access("organization_followee_list", context, data_dict)
 
     return _group_or_org_followee_list(context, data_dict, is_org=True)
 
 
 @side_effect_free
-def api_token_list(
-        context: Context, data_dict: DataDict) -> ActionResult.ApiTokenList:
-    '''Return list of all available API Tokens for current user.
+def api_token_list(context: Context, data_dict: DataDict) -> ActionResult.ApiTokenList:
+    """Return list of all available API Tokens for current user.
 
     :param string user_id: The user ID or name
 
@@ -1284,13 +1286,13 @@ def api_token_list(
     :rtype: list
 
     .. versionadded:: 2.9
-    '''
+    """
     # Support "user" for backwards compatibility
     id_or_name = data_dict.get("user_id", data_dict.get("user"))
     if not id_or_name:
         raise ValidationError({"user_id": ["Missing value"]})
 
-    _check_access(u'api_token_list', context, data_dict)
+    _check_access("api_token_list", context, data_dict)
     user = model.User.get(id_or_name)
     if user is None:
         raise NotFound("User not found")
@@ -1300,30 +1302,33 @@ def api_token_list(
 
 
 def _group_or_org_followee_list(
-        context: Context, data_dict: DataDict, is_org: bool = False):
+    context: Context, data_dict: DataDict, is_org: bool = False
+):
 
-    if not context.get('skip_validation'):
-        schema = context.get('schema',
-                             ckan.logic.schema.default_follow_user_schema())
+    if not context.get("skip_validation"):
+        schema = context.get("schema", ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
 
     # Get the list of UserFollowingGroup objects.
-    user_id = _get_or_bust(data_dict, 'id')
+    user_id = _get_or_bust(data_dict, "id")
     followees = model.UserFollowingGroup.followee_list(user_id)
 
     # Convert the UserFollowingGroup objects to a list of Group objects.
     groups = [model.Group.get(followee.object_id) for followee in followees]
-    groups = [group for group in groups
-              if group is not None and group.is_organization == is_org]
+    groups = [
+        group
+        for group in groups
+        if group is not None and group.is_organization == is_org
+    ]
 
     # Dictize the list of Group objects.
     return [model_dictize.group_dictize(group, context) for group in groups]
 
 
 def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdate:
-    '''Update a user account.
+    """Update a user account.
 
     Normal users can only update their own user accounts. Sysadmins can update
     any user account and modify existing usernames.
@@ -1341,22 +1346,21 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     :returns: the updated user account
     :rtype: dictionary
 
-    '''
-    user = context['user']
-    session = context['session']
-    schema = context.get('schema') or schema_.default_update_user_schema()
-    id = _get_or_bust(data_dict, 'id')
+    """
+    user = context["user"]
+    session = context["session"]
+    schema = context.get("schema") or schema_.default_update_user_schema()
+    id = _get_or_bust(data_dict, "id")
 
     user_obj = model.User.get(id)
     if user_obj is None:
-        raise NotFound(_('User was not found.'))
-    context['user_obj'] = user_obj
+        raise NotFound(_("User was not found."))
+    context["user_obj"] = user_obj
 
-    _check_access('user_update', context, data_dict)
+    _check_access("user_update", context, data_dict)
 
-    upload = uploader.get_uploader('user')
-    upload.update_data_dict(data_dict, 'image_url',
-                            'image_upload', 'clear_upload')
+    upload = uploader.get_uploader("user")
+    upload.update_data_dict(data_dict, "image_url", "image_upload", "clear_upload")
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -1364,30 +1368,30 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
         raise ValidationError(errors)
 
     # user schema prevents non-sysadmins from providing password_hash
-    if 'password_hash' in data:
-        data['_password'] = data.pop('password_hash')
+    if "password_hash" in data:
+        data["_password"] = data.pop("password_hash")
 
     user = model_save.user_dict_save(data, context)
 
     upload.upload(uploader.get_max_image_size())
 
-    if not context.get('defer_commit'):
-        with logic.guard_against_duplicated_email(data_dict['email']):
+    if not context.get("defer_commit"):
+        with logic.guard_against_duplicated_email(data_dict["email"]):
             model.repo.commit()
 
-    author_obj = model.User.get(context.get('user'))
+    author_obj = model.User.get(context.get("user"))
     include_plugin_extras = False
     if author_obj:
-        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+        include_plugin_extras = author_obj.sysadmin and "plugin_extras" in data
     user_dict = model_dictize.user_dictize(
-        user, context, include_plugin_extras=include_plugin_extras)
+        user, context, include_plugin_extras=include_plugin_extras
+    )
 
     return user_dict
 
 
-def user_patch(context: Context,
-               data_dict: DataDict) -> ActionResult.UserPatch:
-    '''Patch a user
+def user_patch(context: Context, data_dict: DataDict) -> ActionResult.UserPatch:
+    """Patch a user
 
     :param id: the id or name of the user
     :type id: string
@@ -1396,33 +1400,33 @@ def user_patch(context: Context,
     perform an update of the provided parameters, while leaving all other
     parameters unchanged, whereas the update methods deletes all parameters
     not explicitly provided in the data_dict
-    '''
-    _check_access('user_patch', context, data_dict)
+    """
+    _check_access("user_patch", context, data_dict)
 
     show_context: Context = _fresh_context(context)
 
-    user_dict = _get_action('user_show')(
-        show_context,
-        {'id': _get_or_bust(data_dict, 'id')})
+    user_dict = _get_action("user_show")(
+        show_context, {"id": _get_or_bust(data_dict, "id")}
+    )
 
     patched = dict(user_dict)
-    patched.pop('display_name', None)
+    patched.pop("display_name", None)
     patched.update(data_dict)
-    return _get_action('user_update')(context, patched)
+    return _get_action("user_update")(context, patched)
 
 
 def user_delete(context: Context, data_dict: DataDict) -> ActionResult.UserDelete:
-    '''Delete a user.
+    """Delete a user.
 
     Only sysadmins can delete users.
 
     :param id: the id or name of the user to delete
     :type id: string
-    '''
+    """
 
-    _check_access('user_delete', context, data_dict)
+    _check_access("user_delete", context, data_dict)
 
-    user_id = _get_or_bust(data_dict, 'id')
+    user_id = _get_or_bust(data_dict, "id")
     user = model.User.get(user_id)
 
     if user is None:
@@ -1430,15 +1434,18 @@ def user_delete(context: Context, data_dict: DataDict) -> ActionResult.UserDelet
 
     user.delete()
 
-    user_memberships = model.Session.query(model.Member).filter(
-        model.Member.table_id == user.id).all()
+    user_memberships = (
+        model.Session.query(model.Member).filter(model.Member.table_id == user.id).all()
+    )
 
     for membership in user_memberships:
         membership.delete()
 
-    datasets_where_user_is_collaborator = model.Session.query(
-        model.PackageMember).filter(
-            model.PackageMember.user_id == user.id).all()
+    datasets_where_user_is_collaborator = (
+        model.Session.query(model.PackageMember)
+        .filter(model.PackageMember.user_id == user.id)
+        .all()
+    )
     for collaborator in datasets_where_user_is_collaborator:
         collaborator.delete()
 
@@ -1446,10 +1453,13 @@ def user_delete(context: Context, data_dict: DataDict) -> ActionResult.UserDelet
 
 
 def _unfollow(
-        context: Context, data_dict: DataDict, schema: Schema,
-        FollowerClass: Type['ModelFollowingModel[Any, Any]']):
+    context: Context,
+    data_dict: DataDict,
+    schema: Schema,
+    FollowerClass: Type["ModelFollowingModel[Any, Any]"],
+):
 
-    userobj = model.User.get(context['user'])
+    userobj = model.User.get(context["user"])
     if not userobj:
         raise NotFound(_("User not found"))
 
@@ -1460,7 +1470,7 @@ def _unfollow(
         msg = _("Error validating the schema of the object to unfollow.")
         raise ValidationError(msg)
 
-    object_id = validated_data_dict.get('id')
+    object_id = validated_data_dict.get("id")
     follower_id = userobj.id
     follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
@@ -1472,47 +1482,46 @@ def _unfollow(
 
 
 def unfollow_user(context: Context, data_dict: DataDict) -> None:
-    '''Stop following a user.
+    """Stop following a user.
 
     :param id: the id or name of the user to stop following
     :type id: string
 
-    '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    _check_access('unfollow_user', context, data_dict)
+    """
+    schema = context.get("schema") or (ckan.logic.schema.default_follow_user_schema())
+    _check_access("unfollow_user", context, data_dict)
     _unfollow(context, data_dict, schema, model.UserFollowingUser)
 
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
-    '''Stop following a dataset.
+    """Stop following a dataset.
 
     :param id: the id or name of the dataset to stop following
     :type id: string
 
-    '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_dataset_schema())
-    _check_access('unfollow_dataset', context, data_dict)
-    _unfollow(context, data_dict, schema,
-            model.UserFollowingDataset)
+    """
+    schema = context.get("schema") or (
+        ckan.logic.schema.default_follow_dataset_schema()
+    )
+    _check_access("unfollow_dataset", context, data_dict)
+    _unfollow(context, data_dict, schema, model.UserFollowingDataset)
 
 
 def unfollow_group(context: Context, data_dict: DataDict) -> None:
-    '''Stop following a group.
+    """Stop following a group.
 
     :param id: the id or name of the group to stop following
     :type id: string
 
-    '''
-    schema = context.get('schema',
-            ckan.logic.schema.default_follow_group_schema())
-    _check_access('unfollow_group', context, data_dict)
-    _unfollow(context, data_dict, schema,
-            model.UserFollowingGroup)
+    """
+    schema = context.get("schema", ckan.logic.schema.default_follow_group_schema())
+    _check_access("unfollow_group", context, data_dict)
+    _unfollow(context, data_dict, schema, model.UserFollowingGroup)
 
 
-def api_token_revoke(context: Context, data_dict: DataDict) -> ActionResult.ApiTokenRevoke:
+def api_token_revoke(
+    context: Context, data_dict: DataDict
+) -> ActionResult.ApiTokenRevoke:
     """Delete API Token.
 
     :param string token: Token to remove (required if `jti` not specified).
@@ -1521,9 +1530,9 @@ def api_token_revoke(context: Context, data_dict: DataDict) -> ActionResult.ApiT
 
     .. versionadded:: 3.0
     """
-    jti = data_dict.get(u'jti')
+    jti = data_dict.get("jti")
     if not jti:
-        token = _get_or_bust(data_dict, u'token')
+        token = _get_or_bust(data_dict, "token")
         decoders = plugins.PluginImplementations(plugins.IApiToken)
         for plugin in decoders:
             data = plugin.decode_api_token(token)
@@ -1533,15 +1542,15 @@ def api_token_revoke(context: Context, data_dict: DataDict) -> ActionResult.ApiT
             data = api_token.decode(token)
 
         if data:
-            jti = data.get(u'jti')
+            jti = data.get("jti")
 
-    _check_access(u'api_token_revoke', context, {u'jti': jti})
+    _check_access("api_token_revoke", context, {"jti": jti})
     model.ApiToken.revoke(jti)
 
 
 # Only internal services are allowed to call get_site_user.
 def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSiteUser:
-    '''Return the ckan site user
+    """Return the ckan site user
 
     :param defer_commit: by default (or if set to false) get_site_user will
         commit and clean up the current transaction. If set to true, caller
@@ -1549,24 +1558,22 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
         called. Leaving open connections can cause cli commands to hang!
         (optional, default: ``False``)
     :type defer_commit: bool
-    '''
-    _check_access('get_site_user', context, data_dict)
-    site_id = config.get('ckan.site_id')
+    """
+    _check_access("get_site_user", context, data_dict)
+    site_id = config.get("ckan.site_id")
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
-        user = model.User(name=site_id,
-                          password=apikey,
-                          apikey=apikey)
+        user = model.User(name=site_id, password=apikey, apikey=apikey)
         # make sysadmin
         user.sysadmin = True
         model.Session.add(user)
         model.Session.flush()
-        if not context.get('defer_commit'):
+        if not context.get("defer_commit"):
             model.repo.commit()
 
     return {
-        'name': user.name,
-        'id': user.id,
-        'apikey': user.apikey,
+        "name": user.name,
+        "id": user.id,
+        "apikey": user.apikey,
     }

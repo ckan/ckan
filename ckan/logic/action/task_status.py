@@ -21,8 +21,10 @@ _and_ = sqlalchemy.and_
 
 
 @side_effect_free
-def task_status_show(context: Context, data_dict: DataDict) -> ActionResult.TaskStatusShow:
-    '''Return a task status.
+def task_status_show(
+    context: Context, data_dict: DataDict
+) -> ActionResult.TaskStatusShow:
+    """Return a task status.
 
     Either the ``id`` parameter *or* the ``entity_id``, ``task_type`` *and*
     ``key`` parameters must be given.
@@ -37,35 +39,34 @@ def task_status_show(context: Context, data_dict: DataDict) -> ActionResult.Task
     :type key: string
 
     :rtype: dictionary
-    '''
-    id = data_dict.get('id')
+    """
+    id = data_dict.get("id")
 
     if id:
         task_status = model.TaskStatus.get(id)
     else:
-        query = model.Session.query(model.TaskStatus)\
-            .filter(_and_(
-                model.TaskStatus.entity_id
-                == _get_or_bust(data_dict, 'entity_id'),
-                model.TaskStatus.task_type
-                == _get_or_bust(data_dict, 'task_type'),
-                model.TaskStatus.key
-                == _get_or_bust(data_dict, 'key')
-            ))
+        query = model.Session.query(model.TaskStatus).filter(
+            _and_(
+                model.TaskStatus.entity_id == _get_or_bust(data_dict, "entity_id"),
+                model.TaskStatus.task_type == _get_or_bust(data_dict, "task_type"),
+                model.TaskStatus.key == _get_or_bust(data_dict, "key"),
+            )
+        )
         task_status = query.first()
 
     if task_status is None:
         raise NotFound
-    context['task_status'] = task_status
-    _check_access('task_status_show', context, data_dict)
+    context["task_status"] = task_status
+    _check_access("task_status_show", context, data_dict)
 
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
 
 
 def task_status_update(
-        context: Context, data_dict: DataDict) -> ActionResult.TaskStatusUpdate:
-    '''Update a task status.
+    context: Context, data_dict: DataDict
+) -> ActionResult.TaskStatusUpdate:
+    """Update a task status.
 
     :param id: the id of the task status to update
     :type id: string
@@ -89,19 +90,19 @@ def task_status_update(
     :returns: the updated task status
     :rtype: dictionary
 
-    '''
-    session = context['session']
+    """
+    session = context["session"]
 
     id = data_dict.get("id")
-    schema = context.get('schema') or schema_.default_task_status_schema()
+    schema = context.get("schema") or schema_.default_task_status_schema()
 
     if id:
         task_status = model.TaskStatus.get(id)
         if task_status is None:
-            raise NotFound(_('TaskStatus was not found.'))
+            raise NotFound(_("TaskStatus was not found."))
         context["task_status"] = task_status
 
-    _check_access('task_status_update', context, data_dict)
+    _check_access("task_status_update", context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -116,8 +117,9 @@ def task_status_update(
 
 
 def task_status_update_many(
-        context: Context, data_dict: DataDict) -> ActionResult.TaskStatusUpdateMany:
-    '''Update many task statuses at once.
+    context: Context, data_dict: DataDict
+) -> ActionResult.TaskStatusUpdateMany:
+    """Update many task statuses at once.
 
     :param data: the task_status dictionaries to update, for the format of task
         status dictionaries see
@@ -127,37 +129,37 @@ def task_status_update_many(
     :returns: the updated task statuses
     :rtype: list of dictionaries
 
-    '''
+    """
     results = []
-    deferred = context.get('defer_commit')
-    context['defer_commit'] = True
+    deferred = context.get("defer_commit")
+    context["defer_commit"] = True
 
-    for data in data_dict['data']:
-        results.append(_get_action('task_status_update')(context, data))
+    for data in data_dict["data"]:
+        results.append(_get_action("task_status_update")(context, data))
     if not deferred:
-        context.pop('defer_commit')
-    if not context.get('defer_commit'):
+        context.pop("defer_commit")
+    if not context.get("defer_commit"):
         model.Session.commit()
-    return {'results': results}
+    return {"results": results}
 
 
 def task_status_delete(context: Context, data_dict: DataDict) -> None:
-    '''Delete a task status.
+    """Delete a task status.
 
     You must be a sysadmin to delete task statuses.
 
     :param id: the id of the task status to delete
     :type id: string
 
-    '''
-    id = _get_or_bust(data_dict, 'id')
+    """
+    id = _get_or_bust(data_dict, "id")
 
     entity = model.TaskStatus.get(id)
 
     if entity is None:
         raise NotFound
 
-    _check_access('task_status_delete', context, data_dict)
+    _check_access("task_status_delete", context, data_dict)
 
     entity.delete()
     model.Session.commit()
