@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import ckan
 import ckan.lib.datapreview as datapreview
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
@@ -40,7 +39,7 @@ def resource_view_create(
     """
     resource_id = _get_or_bust(data_dict, "resource_id")
     view_type = _get_or_bust(data_dict, "view_type")
-    view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
+    view_plugin = datapreview.get_view_plugin(view_type)
 
     if not view_plugin:
         raise ValidationError(
@@ -51,7 +50,7 @@ def resource_view_create(
             }
         )
 
-    default: Schema = ckan.logic.schema.default_create_resource_view_schema(view_plugin)
+    default: Schema = schema_.default_create_resource_view_schema(view_plugin)
     schema: Schema = context.get("schema", default)
     plugin_schema: Schema = view_plugin.info().get("schema", {})
     schema.update(plugin_schema)
@@ -125,7 +124,7 @@ def resource_create_default_resource_views(
 
     create_datastore_views = asbool(data_dict.get("create_datastore_views", False))
 
-    return ckan.lib.datapreview.add_views_to_resource(
+    return datapreview.add_views_to_resource(
         context,
         resource_dict,
         dataset_dict,
@@ -164,7 +163,7 @@ def package_create_default_resource_views(
 
     create_datastore_views = asbool(data_dict.get("create_datastore_views", False))
 
-    return ckan.lib.datapreview.add_views_to_dataset_resources(
+    return datapreview.add_views_to_dataset_resources(
         context,
         dataset_dict,
         view_types=[],
@@ -252,7 +251,7 @@ def resource_view_update(
     if not resource_view:
         raise NotFound(_("Resource view was not found."))
 
-    view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
+    view_plugin = datapreview.get_view_plugin(resource_view.view_type)
     schema = context.get("schema") or schema_.default_update_resource_view_schema(
         view_plugin
     )

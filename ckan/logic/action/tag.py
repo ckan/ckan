@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Any, Union
 
-import ckan
 import ckan.lib.dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
@@ -15,6 +14,7 @@ from ckan.lib.navl.dictization_functions import validate as _validate
 from ckan.logic import (
     NotFound,
     ValidationError,
+    index_update_package,
     side_effect_free,
 )
 from ckan.logic import check_access as _check_access
@@ -43,7 +43,7 @@ def vocabulary_create(
 
     """
     schema = (
-        context.get("schema") or ckan.logic.schema.default_create_vocabulary_schema()
+        context.get("schema") or schema_.default_create_vocabulary_schema()
     )
 
     _check_access("vocabulary_create", context, data_dict)
@@ -89,7 +89,7 @@ def tag_create(context: Context, data_dict: DataDict) -> ActionResult.TagCreate:
     """
     _check_access("tag_create", context, data_dict)
 
-    schema = context.get("schema") or ckan.logic.schema.default_create_tag_schema()
+    schema = context.get("schema") or schema_.default_create_tag_schema()
     _data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -442,4 +442,4 @@ def tag_delete(context: Context, data_dict: DataDict) -> None:
     tag_obj.delete()
     model.repo.commit()
     for p in update_packages:
-        ckan.logic.index_update_package(context, p.id)
+        index_update_package(context, p.id)
