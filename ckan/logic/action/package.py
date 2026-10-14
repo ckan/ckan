@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import datetime
@@ -39,12 +38,11 @@ from ckan.types import ActionResult, Context, DataDict, Schema
 from sqlalchemy import and_ as _and_
 from sqlalchemy.sql import select as _select
 
-log = logging.getLogger('ckan.logic')
+log = logging.getLogger("ckan.logic")
 
 
-def package_create(
-        context: Context, data_dict: DataDict) -> ActionResult.PackageCreate:
-    '''Create a new dataset (package).
+def package_create(context: Context, data_dict: DataDict) -> ActionResult.PackageCreate:
+    """Create a new dataset (package).
 
     You must be authorized to create new datasets. If you specify any groups
     for the new dataset, you must also be authorized to edit these groups.
@@ -142,64 +140,67 @@ def package_create(
               be returned)
     :rtype: dictionary
 
-    '''
-    user = context['user']
+    """
+    user = context["user"]
 
-    if 'type' not in data_dict:
+    if "type" not in data_dict:
         package_plugin = lib_plugins.lookup_package_plugin()
         try:
             # use first type as default if user didn't provide type
             package_type = package_plugin.package_types()[0]
         except (AttributeError, IndexError):
-            package_type = 'dataset'
+            package_type = "dataset"
             # in case a 'dataset' plugin was registered w/o fallback
             package_plugin = lib_plugins.lookup_package_plugin(package_type)
-        data_dict['type'] = package_type
+        data_dict["type"] = package_type
     else:
-        package_plugin = lib_plugins.lookup_package_plugin(data_dict['type'])
+        package_plugin = lib_plugins.lookup_package_plugin(data_dict["type"])
 
-    schema: Schema = context.get(
-        'schema') or package_plugin.create_package_schema()
+    schema: Schema = context.get("schema") or package_plugin.create_package_schema()
 
-    _check_access('package_create', context, data_dict)
+    _check_access("package_create", context, data_dict)
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema, 'package_create')
-    log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
-              errors, context.get('user'),
-              data.get('name'), data_dict)
+        package_plugin, context, data_dict, schema, "package_create"
+    )
+    log.debug(
+        "package_create validate_errs=%r user=%s package=%s data=%r",
+        errors,
+        context.get("user"),
+        data.get("name"),
+        data_dict,
+    )
 
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
-    plugin_data = data.get('plugin_data', False)
+    plugin_data = data.get("plugin_data", False)
     include_plugin_data = False
     if user:
         user_obj = model.User.by_name(six.ensure_text(user))
         if user_obj:
-            data['creator_user_id'] = user_obj.id
+            data["creator_user_id"] = user_obj.id
             include_plugin_data = user_obj.sysadmin and plugin_data
 
-    pkg, _change = model_save.package_dict_save(
-        data, context, include_plugin_data)
+    pkg, _change = model_save.package_dict_save(data, context, include_plugin_data)
 
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
-    data['id'] = pkg.id
-    if data.get('resources'):
-        for index, resource in enumerate(data['resources']):
-            resource['id'] = pkg.resources[index].id
+    data["id"] = pkg.id
+    if data.get("resources"):
+        for index, resource in enumerate(data["resources"]):
+            resource["id"] = pkg.resources[index].id
 
-    if not data.get('metadata_modified'):
+    if not data.get("metadata_modified"):
         pkg.metadata_modified = datetime.datetime.utcnow()
 
     context_org_update = context.copy()
-    context_org_update['ignore_auth'] = True
-    context_org_update['defer_commit'] = True
-    _get_action('package_owner_org_update')(context_org_update,
-                                            {'id': pkg.id,
-                                             'organization_id': pkg.owner_org})
+    context_org_update["ignore_auth"] = True
+    context_org_update["defer_commit"] = True
+    _get_action("package_owner_org_update")(
+        context_org_update, {"id": pkg.id, "organization_id": pkg.owner_org}
+    )
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
@@ -207,20 +208,21 @@ def package_create(
         item.after_dataset_create(context, data)
 
     # Create default views for resources if necessary
-    if data.get('resources'):
-        logic.get_action('package_create_default_resource_views')(
-            fresh_context(context, ignore_auth=True),
-            {'package': data})
+    if data.get("resources"):
+        logic.get_action("package_create_default_resource_views")(
+            fresh_context(context, ignore_auth=True), {"package": data}
+        )
 
-    return_id_only = context.get('return_id_only', False)
+    return_id_only = context.get("return_id_only", False)
 
-    if return_id_only and context.get('defer_commit'):
+    if return_id_only and context.get("defer_commit"):
         return pkg.id
 
     pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
-        context, pkg.id)
+        context, pkg.id
+    )
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         logic.index_insert_package_dicts((pkg_default, pkg_custom))
         model.repo.commit()
 
@@ -231,9 +233,9 @@ def package_create(
 
 
 def package_relationship_create(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.PackageRelationshipCreate:
-    '''Create a relationship between two datasets (packages).
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageRelationshipCreate:
+    """Create a relationship between two datasets (packages).
 
     You must be authorized to edit both the subject and the object datasets.
 
@@ -252,47 +254,47 @@ def package_relationship_create(
     :returns: the newly created package relationship
     :rtype: dictionary
 
-    '''
-    schema = context.get('schema') \
-        or ckan.logic.schema.default_create_relationship_schema()
-    api = context.get('api_version')
-    ref_package_by = 'id' if api == 2 else 'name'
+    """
+    schema = (
+        context.get("schema") or ckan.logic.schema.default_create_relationship_schema()
+    )
+    api = context.get("api_version")
+    ref_package_by = "id" if api == 2 else "name"
 
-    id, id2, rel_type = _get_or_bust(data_dict, ['subject', 'object', 'type'])
-    comment = data_dict.get('comment', u'')
+    id, id2, rel_type = _get_or_bust(data_dict, ["subject", "object", "type"])
+    comment = data_dict.get("comment", "")
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise NotFound("Subject package %r was not found." % id)
     if not pkg2:
-        raise NotFound('Object package %r was not found.' % id2)
+        raise NotFound("Object package %r was not found." % id2)
 
     _data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
-    _check_access('package_relationship_create', context, data_dict)
+    _check_access("package_relationship_create", context, data_dict)
 
     # Create a Package Relationship.
     existing_rels = pkg1.get_relationships_with(pkg2, rel_type)
     if existing_rels:
-        return _update_package_relationship(existing_rels[0],
-                                            comment, context)
+        return _update_package_relationship(existing_rels[0], comment, context)
     rel = pkg1.add_relationship(rel_type, pkg2, comment=comment)
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit_and_remove()
-    context['relationship'] = rel
+    context["relationship"] = rel
 
     relationship_dicts = rel.as_dict(ref_package_by=ref_package_by)
     return relationship_dicts
 
 
 def package_collaborator_create(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.PackageCollaboratorCreate:
-    '''Make a user a collaborator in a dataset.
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageCollaboratorCreate:
+    """Make a user a collaborator in a dataset.
 
     If the user is already a collaborator in the dataset then their
     capacity will be updated.
@@ -315,47 +317,54 @@ def package_collaborator_create(
 
     :returns: the newly created (or updated) collaborator
     :rtype: dictionary
-    '''
+    """
     package_id, user_id, capacity = _get_or_bust(
-        data_dict,
-        ['id', 'user_id', 'capacity']
+        data_dict, ["id", "user_id", "capacity"]
     )
 
     allowed_capacities = authz.get_collaborator_capacities()
     if capacity not in allowed_capacities:
-        raise ValidationError({
-            'message': _('Role must be one of "{}"').format(', '.join(
-                allowed_capacities))})
+        raise ValidationError(
+            {
+                "message": _('Role must be one of "{}"').format(
+                    ", ".join(allowed_capacities)
+                )
+            }
+        )
 
-    _check_access('package_collaborator_create', context, data_dict)
+    _check_access("package_collaborator_create", context, data_dict)
 
     package = model.Package.get(package_id)
     if not package:
-        raise NotFound(_('Dataset not found'))
+        raise NotFound(_("Dataset not found"))
 
     user = model.User.get(user_id)
     if not user:
-        raise NotFound(_('User not found'))
+        raise NotFound(_("User not found"))
 
-    if not authz.check_config_permission('allow_dataset_collaborators'):
-        raise ValidationError({
-            'message': _('Dataset collaborators not enabled')})
+    if not authz.check_config_permission("allow_dataset_collaborators"):
+        raise ValidationError({"message": _("Dataset collaborators not enabled")})
 
     # Check if collaborator already exists
-    collaborator = model.Session.query(model.PackageMember). \
-        filter(model.PackageMember.package_id == package.id). \
-        filter(model.PackageMember.user_id == user.id).one_or_none()
+    collaborator = (
+        model.Session.query(model.PackageMember)
+        .filter(model.PackageMember.package_id == package.id)
+        .filter(model.PackageMember.user_id == user.id)
+        .one_or_none()
+    )
     if not collaborator:
-        collaborator = model.PackageMember(
-            package_id=package.id,
-            user_id=user.id)
+        collaborator = model.PackageMember(package_id=package.id, user_id=user.id)
     collaborator.capacity = capacity
     collaborator.modified = datetime.datetime.utcnow()
     model.Session.add(collaborator)
     model.repo.commit()
 
-    log.info('User %s added as collaborator in package %s (%s)',
-             user.name, package.id, capacity)
+    log.info(
+        "User %s added as collaborator in package %s (%s)",
+        user.name,
+        package.id,
+        capacity,
+    )
 
     return model_dictize.member_dictize(collaborator, context)
 
@@ -363,7 +372,7 @@ def package_collaborator_create(
 @side_effect_free
 @logic.validate(ckan.logic.schema.default_pagination_schema)
 def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageList:
-    '''Return a list of the names of the site's datasets (packages).
+    """Return a list of the names of the site's datasets (packages).
 
     :param limit: if given, the list of datasets will be broken into pages of
         at most ``limit`` datasets per page and only one page will be returned
@@ -375,40 +384,40 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
 
     :rtype: list of strings
 
-    '''
+    """
     api = context.get("api_version", 1)
 
-    _check_access('package_list', context, data_dict)
+    _check_access("package_list", context, data_dict)
 
     package_table = model.package_table
-    col = (package_table.c["id"]
-           if api == 2 else package_table.c["name"])
+    col = package_table.c["id"] if api == 2 else package_table.c["name"]
     query = _select(col)
-    query = query.where(_and_(
-        package_table.c["state"] == 'active',
-        package_table.c["private"] == False,
-    ))
+    query = query.where(
+        _and_(
+            package_table.c["state"] == "active",
+            package_table.c["private"] == False,
+        )
+    )
     query = query.order_by(col)
 
-    limit = data_dict.get('limit')
+    limit = data_dict.get("limit")
     if limit:
         query = query.limit(limit)
 
-    offset = data_dict.get('offset')
+    offset = data_dict.get("offset")
     if offset:
         query = query.offset(offset)
 
     ## Returns the first field in each result record
-    return context["session"].scalars(
-        query
-    ).all()
+    return context["session"].scalars(query).all()
 
 
 @side_effect_free
 @logic.validate(ckan.logic.schema.default_package_list_schema)
 def current_package_list_with_resources(
-        context: Context, data_dict: DataDict) -> ActionResult.CurrentPackageListWithResources:
-    '''Return a list of the site's datasets (packages) and their resources.
+    context: Context, data_dict: DataDict
+) -> ActionResult.CurrentPackageListWithResources:
+    """Return a list of the site's datasets (packages) and their resources.
 
     The list is sorted most-recently-modified first.
 
@@ -425,32 +434,40 @@ def current_package_list_with_resources(
 
     :rtype: list of dictionaries
 
-    '''
-    limit = data_dict.get('limit')
-    offset = data_dict.get('offset', 0)
-    user = context['user']
+    """
+    limit = data_dict.get("limit")
+    offset = data_dict.get("offset", 0)
+    user = context["user"]
 
-    if not 'offset' in data_dict and 'page' in data_dict:
-        log.warning('"page" parameter is deprecated.  '
-                    'Use the "offset" parameter instead')
-        page = data_dict['page']
+    if not "offset" in data_dict and "page" in data_dict:
+        log.warning(
+            '"page" parameter is deprecated.  Use the "offset" parameter instead'
+        )
+        page = data_dict["page"]
         if limit:
             offset = (page - 1) * limit
         else:
             offset = 0
 
-    _check_access('current_package_list_with_resources', context, data_dict)
+    _check_access("current_package_list_with_resources", context, data_dict)
 
-    search = package_search(context, {
-        'q': '', 'rows': limit, 'start': offset,
-        'include_private': authz.is_sysadmin(user) })
-    return search.get('results', [])
+    search = package_search(
+        context,
+        {
+            "q": "",
+            "rows": limit,
+            "start": offset,
+            "include_private": authz.is_sysadmin(user),
+        },
+    )
+    return search.get("results", [])
 
 
 @side_effect_free
-def package_collaborator_list(context: Context,
-                              data_dict: DataDict) -> ActionResult.PackageCollaboratorList:
-    '''Return the list of all collaborators for a given package.
+def package_collaborator_list(
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageCollaboratorList:
+    """Return the list of all collaborators for a given package.
 
     Currently you must be an Admin on the package owner organization to
     manage collaborators.
@@ -468,29 +485,32 @@ def package_collaborator_list(context: Context,
         user id, the capacity and the last modified date
     :rtype: list of dictionaries
 
-    '''
-    package_id = _get_or_bust(data_dict, 'id')
+    """
+    package_id = _get_or_bust(data_dict, "id")
 
     package = model.Package.get(package_id)
     if not package:
-        raise NotFound(_('Package not found'))
+        raise NotFound(_("Package not found"))
 
-    _check_access('package_collaborator_list', context, data_dict)
+    _check_access("package_collaborator_list", context, data_dict)
 
-    if not authz.check_config_permission('allow_dataset_collaborators'):
-        raise ValidationError({
-            'message': _('Dataset collaborators not enabled')
-        })
+    if not authz.check_config_permission("allow_dataset_collaborators"):
+        raise ValidationError({"message": _("Dataset collaborators not enabled")})
 
-    capacity = data_dict.get('capacity')
+    capacity = data_dict.get("capacity")
 
     allowed_capacities = authz.get_collaborator_capacities()
     if capacity and capacity not in allowed_capacities:
         raise ValidationError(
-            {'message': _('Capacity must be one of "{}"').format(', '.join(
-                allowed_capacities))})
-    q = model.Session.query(model.PackageMember).\
-        filter(model.PackageMember.package_id == package.id)
+            {
+                "message": _('Capacity must be one of "{}"').format(
+                    ", ".join(allowed_capacities)
+                )
+            }
+        )
+    q = model.Session.query(model.PackageMember).filter(
+        model.PackageMember.package_id == package.id
+    )
 
     if capacity:
         q = q.filter(model.PackageMember.capacity == capacity)
@@ -502,8 +522,9 @@ def package_collaborator_list(context: Context,
 
 @side_effect_free
 def package_collaborator_list_for_user(
-        context: Context, data_dict: DataDict) -> ActionResult.PackageCollaboratorListForUser:
-    '''Return a list of all package the user is a collaborator in
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageCollaboratorListForUser:
+    """Return a list of all package the user is a collaborator in
 
     Note: This action requires the collaborators feature to be enabled with
     the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
@@ -518,28 +539,32 @@ def package_collaborator_list_for_user(
         capacity and the last modified date
     :rtype: list of dictionaries
 
-    '''
-    user_id = _get_or_bust(data_dict, 'id')
+    """
+    user_id = _get_or_bust(data_dict, "id")
 
-    if not authz.check_config_permission('allow_dataset_collaborators'):
-        raise ValidationError({
-            'message': _('Dataset collaborators not enabled')})
+    if not authz.check_config_permission("allow_dataset_collaborators"):
+        raise ValidationError({"message": _("Dataset collaborators not enabled")})
 
-    _check_access('package_collaborator_list_for_user', context, data_dict)
+    _check_access("package_collaborator_list_for_user", context, data_dict)
 
     user = model.User.get(user_id)
     if not user:
-        raise NotAuthorized(_('Not allowed to retrieve collaborators'))
+        raise NotAuthorized(_("Not allowed to retrieve collaborators"))
 
-    capacity = data_dict.get('capacity')
+    capacity = data_dict.get("capacity")
     allowed_capacities = authz.get_collaborator_capacities()
     if capacity and capacity not in allowed_capacities:
         raise ValidationError(
-            {'message': _('Capacity must be one of "{}"').format(', '.join(
-            allowed_capacities))})
+            {
+                "message": _('Capacity must be one of "{}"').format(
+                    ", ".join(allowed_capacities)
+                )
+            }
+        )
 
-    q = model.Session.query(model.PackageMember).\
-        filter(model.PackageMember.user_id == user.id)
+    q = model.Session.query(model.PackageMember).filter(
+        model.PackageMember.user_id == user.id
+    )
 
     if capacity:
         q = q.filter(model.PackageMember.capacity == capacity)
@@ -548,23 +573,25 @@ def package_collaborator_list_for_user(
 
     out: list[dict[str, str]] = []
     for collaborator in collaborators:
-        out.append({
-            'package_id': collaborator.package_id,
-            'capacity': collaborator.capacity,
-            'modified': collaborator.modified.isoformat(),
-        })
+        out.append(
+            {
+                "package_id": collaborator.package_id,
+                "capacity": collaborator.capacity,
+                "modified": collaborator.modified.isoformat(),
+            }
+        )
 
     return out
 
 
 @side_effect_free
 def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseList:
-    '''Return the list of licenses available for datasets on the site.
+    """Return the list of licenses available for datasets on the site.
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('license_list', context, data_dict)
+    """
+    _check_access("license_list", context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
@@ -573,9 +600,10 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
 
 
 @side_effect_free
-def package_relationships_list(context: Context,
-                               data_dict: DataDict) -> ActionResult.PackageRelationshipsList:
-    '''Return a dataset (package)'s relationships.
+def package_relationships_list(
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageRelationshipsList:
+    """Return a dataset (package)'s relationships.
 
     :param id: the id or name of the first package
     :type id: string
@@ -587,46 +615,45 @@ def package_relationships_list(context: Context,
 
     :rtype: list of dictionaries
 
-    '''
+    """
     ##TODO needs to work with dictization layer
-    api = context.get('api_version')
+    api = context.get("api_version")
 
     id = _get_or_bust(data_dict, "id")
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
-    ref_package_by = 'id' if api == 2 else 'name'
+    ref_package_by = "id" if api == 2 else "name"
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
-        raise NotFound('First package named in request was not found.')
+        raise NotFound("First package named in request was not found.")
     if id2:
         pkg2 = model.Package.get(id2)
         if not pkg2:
-            raise NotFound('Second package named in address was not found.')
+            raise NotFound("Second package named in address was not found.")
 
-    if rel == 'relationships':
+    if rel == "relationships":
         rel = None
 
-    _check_access('package_relationships_list', context, data_dict)
+    _check_access("package_relationships_list", context, data_dict)
 
     # TODO: How to handle this object level authz?
     # Currently we don't care
     relationships = pkg1.get_relationships(with_package=pkg2, type=rel)
 
     if rel and not relationships:
-        raise NotFound('Relationship "%s %s %s" not found.'
-                       % (id, rel, id2))
+        raise NotFound('Relationship "%s %s %s" not found.' % (id, rel, id2))
 
     relationship_dicts = [
-        rel.as_dict(pkg1, ref_package_by=ref_package_by)
-        for rel in relationships]
+        rel.as_dict(pkg1, ref_package_by=ref_package_by) for rel in relationships
+    ]
 
     return relationship_dicts
 
 
 @side_effect_free
 def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageShow:
-    '''Return the metadata of a dataset (package) and its resources.
+    """Return the metadata of a dataset (package) and its resources.
 
     :param id: the id or name of the dataset
     :type id: string
@@ -637,12 +664,12 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :type: include_plugin_data: bool
     :rtype: dictionary
 
-    '''
-    user_obj = context.get('auth_user_obj')
-    context['session'] = model.Session
-    name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
+    """
+    user_obj = context.get("auth_user_obj")
+    context["session"] = model.Session
+    name_or_id = data_dict.get("id") or _get_or_bust(data_dict, "name_or_id")
 
-    include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
+    include_plugin_data = asbool(data_dict.get("include_plugin_data", False))
     if user_obj and user_obj.is_authenticated:
         include_plugin_data = (
             user_obj.sysadmin  # type: ignore
@@ -650,23 +677,21 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         )
 
         if include_plugin_data:
-            context['use_cache'] = False
+            context["use_cache"] = False
 
-    pkg = model.Package.get(
-        name_or_id,
-        for_update=context.get('for_update', False))
+    pkg = model.Package.get(name_or_id, for_update=context.get("for_update", False))
 
     if pkg is None:
         raise NotFound
 
-    context['package'] = pkg
-    _check_access('package_show', context, data_dict)
+    context["package"] = pkg
+    _check_access("package_show", context, data_dict)
 
-    if asbool(data_dict.get('use_default_schema', False)):
-        context['schema'] = ckan.logic.schema.default_show_package_schema()
+    if asbool(data_dict.get("use_default_schema", False)):
+        context["schema"] = ckan.logic.schema.default_show_package_schema()
 
     package_dict = None
-    use_cache = (context.get('use_cache', True))
+    use_cache = context.get("use_cache", True)
     package_dict_validated = False
 
     if use_cache:
@@ -675,28 +700,26 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         except (search.SearchError, socket.error):
             pass
         else:
-            use_validated_cache = 'schema' not in context
-            if use_validated_cache and 'validated_data_dict' in search_result:
-                package_json = search_result['validated_data_dict']
+            use_validated_cache = "schema" not in context
+            if use_validated_cache and "validated_data_dict" in search_result:
+                package_json = search_result["validated_data_dict"]
                 package_dict = json.loads(package_json)
                 package_dict_validated = True
             else:
-                package_dict = json.loads(search_result['data_dict'])
+                package_dict = json.loads(search_result["data_dict"])
                 package_dict_validated = False
             metadata_modified = pkg.metadata_modified.isoformat()
-            search_metadata_modified = search_result['metadata_modified']
+            search_metadata_modified = search_result["metadata_modified"]
             # solr stores less precise datetime,
             # truncate to 22 characters to get good enough match
             if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
 
     if not package_dict:
-        package_dict = model_dictize.package_dictize(
-            pkg, context, include_plugin_data
-        )
+        package_dict = model_dictize.package_dictize(pkg, context, include_plugin_data)
         package_dict_validated = False
 
-    if context.get('for_view'):
+    if context.get("for_view"):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             package_dict = item.before_dataset_view(package_dict)
 
@@ -704,18 +727,17 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         item.read(pkg)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
-        for resource_dict in package_dict['resources']:
+        for resource_dict in package_dict["resources"]:
             item.before_resource_show(resource_dict)
 
     if not package_dict_validated:
-        package_plugin = lib_plugins.lookup_package_plugin(
-            package_dict['type'])
-        schema = context.get('schema') or package_plugin.show_package_schema()
+        package_plugin = lib_plugins.lookup_package_plugin(package_dict["type"])
+        schema = context.get("schema") or package_plugin.show_package_schema()
 
-        if bool(schema) and context.get('validate', True):
+        if bool(schema) and context.get("validate", True):
             package_dict, _errors = lib_plugins.plugin_validate(
-                package_plugin, context, package_dict, schema,
-                'package_show')
+                package_plugin, context, package_dict, schema, "package_show"
+            )
         else:
             # up to caller to apply after_dataset_show plugins
             return package_dict
@@ -727,8 +749,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 @side_effect_free
 @logic.validate(ckan.logic.schema.default_autocomplete_schema)
 def package_autocomplete(
-        context: Context, data_dict: DataDict) -> ActionResult.PackageAutocomplete:
-    '''Return a list of datasets (packages) that match a string.
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageAutocomplete:
+    """Return a list of datasets (packages) that match a string.
 
     Datasets with names or titles that contain the query string will be
     returned.
@@ -741,49 +764,52 @@ def package_autocomplete(
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('package_autocomplete', context, data_dict)
-    user = context.get('user')
+    """
+    _check_access("package_autocomplete", context, data_dict)
+    user = context.get("user")
 
-    limit = data_dict.get('limit', 10)
-    q = data_dict['q']
+    limit = data_dict.get("limit", 10)
+    q = data_dict["q"]
 
     # enforce permission filter based on user
-    if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+    if context.get("ignore_auth") or (user and authz.is_sysadmin(user)):
         labels = None
     else:
         labels = lib_plugins.get_permission_labels().get_user_dataset_labels(
-            context['auth_user_obj']
+            context["auth_user_obj"]
         )
 
     data_dict = {
-        'q': ' OR '.join([
-            'name_ngram:{0}',
-            'title_ngram:{0}',
-            'name:{0}',
-            'title:{0}',
-        ]).format(solr_literal(q)),
-        'fl': 'name,title',
-        'rows': limit
+        "q": " OR ".join(
+            [
+                "name_ngram:{0}",
+                "title_ngram:{0}",
+                "name:{0}",
+                "title:{0}",
+            ]
+        ).format(solr_literal(q)),
+        "fl": "name,title",
+        "rows": limit,
     }
     query = search.query_for(model.Package)
 
-    results = query.run(data_dict, permission_labels=labels)['results']
+    results = query.run(data_dict, permission_labels=labels)["results"]
 
     q_lower = q.lower()
     pkg_list: ActionResult.PackageAutocomplete = []
     for package in results:
-        if q_lower in package['name']:
-            match_field = 'name'
-            match_displayed = package['name']
+        if q_lower in package["name"]:
+            match_field = "name"
+            match_displayed = package["name"]
         else:
-            match_field = 'title'
-            match_displayed = '%s (%s)' % (package['title'], package['name'])
+            match_field = "title"
+            match_displayed = "%s (%s)" % (package["title"], package["name"])
         result_dict: dict[str, Any] = {
-            'name': package['name'],
-            'title': package['title'],
-            'match_field': match_field,
-            'match_displayed': match_displayed}
+            "name": package["name"],
+            "title": package["title"],
+            "match_field": match_field,
+            "match_displayed": match_displayed,
+        }
         pkg_list.append(result_dict)
 
     return pkg_list
@@ -791,7 +817,7 @@ def package_autocomplete(
 
 @side_effect_free
 def package_search(context: Context, data_dict: DataDict) -> ActionResult.PackageSearch:
-    '''
+    """
     Searches for packages satisfying a given search criteria.
 
     This action accepts solr search query parameters (details below), and
@@ -921,31 +947,30 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         fl can be  None or a list of result fields, such as
         ['id', 'extras_custom_field'].
         if fl = None, datasets are returned as a list of full dictionary.
-    '''
+    """
     # sometimes context['schema'] is None
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_package_search_schema())
+    schema = context.get("schema") or ckan.logic.schema.default_package_search_schema()
     data_dict, errors = _validate(data_dict, schema, context)
     # put the extras back into the data_dict so that the search can
     # report needless parameters
-    data_dict.update(data_dict.get('__extras', {}))
-    data_dict.pop('__extras', None)
+    data_dict.update(data_dict.get("__extras", {}))
+    data_dict.pop("__extras", None)
     if errors:
         raise ValidationError(errors)
 
-    session = context['session']
-    user = context.get('user')
+    session = context["session"]
+    user = context.get("user")
 
-    _check_access('package_search', context, data_dict)
+    _check_access("package_search", context, data_dict)
 
     # Move ext_ params to extras and remove them from the root of the search
     # params, so they don't cause and error
-    data_dict['extras'] = data_dict.get('extras', {})
-    for key in [key for key in data_dict.keys() if key.startswith('ext_')]:
-        data_dict['extras'][key] = data_dict.pop(key)
+    data_dict["extras"] = data_dict.get("extras", {})
+    for key in [key for key in data_dict.keys() if key.startswith("ext_")]:
+        data_dict["extras"][key] = data_dict.pop(key)
 
     # set default search field
-    data_dict['df'] = 'text'
+    data_dict["df"] = "text"
 
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -953,67 +978,68 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     # the extension may have decided that it is not necessary to perform
     # the query
-    abort = data_dict.get('abort_search', False)
+    abort = data_dict.get("abort_search", False)
 
-    if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = config.get('ckan.search.default_package_sort')
+    if data_dict.get("sort") in (None, "rank"):
+        data_dict["sort"] = config.get("ckan.search.default_package_sort")
 
     results: list[dict[str, Any]] = []
     facets: dict[str, Any] = {}
     count = 0
 
     if not abort:
-        if asbool(data_dict.get('use_default_schema')):
-            data_source = 'data_dict'
+        if asbool(data_dict.get("use_default_schema")):
+            data_source = "data_dict"
         else:
-            data_source = 'validated_data_dict'
-        data_dict.pop('use_default_schema', None)
+            data_source = "validated_data_dict"
+        data_dict.pop("use_default_schema", None)
 
-        result_fl = data_dict.get('fl')
+        result_fl = data_dict.get("fl")
         if not result_fl:
-            data_dict['fl'] = 'id {0}'.format(data_source)
+            data_dict["fl"] = "id {0}".format(data_source)
         else:
-            data_dict['fl'] = ' '.join(result_fl)
+            data_dict["fl"] = " ".join(result_fl)
 
-        data_dict.setdefault('fq', '')
+        data_dict.setdefault("fq", "")
 
         # Remove before these hit solr FIXME: whitelist instead
-        include_private = asbool(data_dict.pop('include_private', False))
-        include_drafts = asbool(data_dict.pop('include_drafts', False))
-        include_deleted = asbool(data_dict.pop('include_deleted', False))
+        include_private = asbool(data_dict.pop("include_private", False))
+        include_drafts = asbool(data_dict.pop("include_drafts", False))
+        include_deleted = asbool(data_dict.pop("include_deleted", False))
 
         if not include_private:
-            data_dict['fq'] = '+capacity:public ' + data_dict['fq']
+            data_dict["fq"] = "+capacity:public " + data_dict["fq"]
 
-        if '+state' not in data_dict['fq']:
-            states = ['active']
+        if "+state" not in data_dict["fq"]:
+            states = ["active"]
             if include_drafts:
-                states.append('draft')
+                states.append("draft")
             if include_deleted:
-                states.append('deleted')
-            data_dict['fq'] += ' +state:({})'.format(' OR '.join(states))
+                states.append("deleted")
+            data_dict["fq"] += " +state:({})".format(" OR ".join(states))
 
         # Pop these ones as Solr does not need them
-        extras = data_dict.pop('extras', None)
+        extras = data_dict.pop("extras", None)
 
         # enforce permission filter based on user
-        if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+        if context.get("ignore_auth") or (user and authz.is_sysadmin(user)):
             labels = None
         else:
-            labels = lib_plugins.get_permission_labels(
-                ).get_user_dataset_labels(context['auth_user_obj'])
+            labels = lib_plugins.get_permission_labels().get_user_dataset_labels(
+                context["auth_user_obj"]
+            )
 
         query = search.query_for(model.Package)
         query.run(data_dict, permission_labels=labels)
 
         # Add them back so extensions can use them on after_search
-        data_dict['extras'] = extras
+        data_dict["extras"] = extras
 
         if result_fl:
             for package in query.results:
                 if isinstance(package, str):
                     package = {result_fl[0]: package}
-                extras = cast("dict[str, Any]", package.pop('extras', {}))
+                extras = cast("dict[str, Any]", package.pop("extras", {}))
                 package.update(extras)
                 results.append(package)
         else:
@@ -1024,67 +1050,67 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
                 if package_dict:
                     # the package_dict still needs translating when being viewed
                     package_dict = json.loads(package_dict)
-                    if context.get('for_view'):
+                    if context.get("for_view"):
                         for item in plugins.PluginImplementations(
-                                plugins.IPackageController):
-                            package_dict = item.before_dataset_view(
-                                package_dict)
+                            plugins.IPackageController
+                        ):
+                            package_dict = item.before_dataset_view(package_dict)
                     results.append(package_dict)
                 else:
-                    log.error('No package_dict is coming from solr for package '
-                              'id %s', package['id'])
+                    log.error(
+                        "No package_dict is coming from solr for package id %s",
+                        package["id"],
+                    )
 
         count = query.count
         facets = query.facets
 
     search_results: dict[str, Any] = {
-        'count': count,
-        'facets': facets,
-        'results': results,
-        'sort': data_dict['sort']
+        "count": count,
+        "facets": facets,
+        "results": results,
+        "sort": data_dict["sort"],
     }
 
     # create a lookup table of group name to title for all the groups and
     # organizations in the current search's facets.
     group_names = []
-    for field_name in ('groups', 'organization'):
+    for field_name in ("groups", "organization"):
         group_names.extend(facets.get(field_name, {}).keys())
 
-    groups = (session.query(model.Group.name, model.Group.title)
-              .filter(model.Group.name.in_(group_names))
-              .all()
-              if group_names else [])
-    group_titles_by_name = {
-        row[0]: row[1]
-        for row in groups
-    }
+    groups = (
+        session.query(model.Group.name, model.Group.title)
+        .filter(model.Group.name.in_(group_names))
+        .all()
+        if group_names
+        else []
+    )
+    group_titles_by_name = {row[0]: row[1] for row in groups}
 
     # Transform facets into a more useful data structure.
     restructured_facets: dict[str, Any] = {}
     for key, value in facets.items():
-        restructured_facets[key] = {
-            'title': key,
-            'items': []
-        }
+        restructured_facets[key] = {"title": key, "items": []}
         for key_, value_ in value.items():
             new_facet_dict = {}
-            new_facet_dict['name'] = key_
-            if key in ('groups', 'organization'):
+            new_facet_dict["name"] = key_
+            if key in ("groups", "organization"):
                 display_name = group_titles_by_name.get(key_, key_)
-                display_name = display_name \
-                    if display_name and display_name.strip() else key_
-                new_facet_dict['display_name'] = display_name
-            elif key == 'license_id':
+                display_name = (
+                    display_name if display_name and display_name.strip() else key_
+                )
+                new_facet_dict["display_name"] = display_name
+            elif key == "license_id":
                 license = model.Package.get_license_register().get(key_)
                 if license:
-                    new_facet_dict['display_name'] = license.title
+                    new_facet_dict["display_name"] = license.title
                 else:
-                    new_facet_dict['display_name'] = key_
+                    new_facet_dict["display_name"] = key_
             else:
-                new_facet_dict['display_name'] = key_
-            new_facet_dict['count'] = value_
-            restructured_facets[key]['items'].append(new_facet_dict)
-    search_results['search_facets'] = restructured_facets
+                new_facet_dict["display_name"] = key_
+            new_facet_dict["count"] = value_
+            restructured_facets[key]["items"].append(new_facet_dict)
+    search_results["search_facets"] = restructured_facets
 
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -1092,42 +1118,42 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     # After extensions have had a chance to modify the facets, sort them by
     # display name.
-    for facet in search_results['search_facets']:
-        search_results['search_facets'][facet]['items'] = sorted(
-            search_results['search_facets'][facet]['items'],
-            key=lambda facet: facet['display_name'], reverse=True)
+    for facet in search_results["search_facets"]:
+        search_results["search_facets"][facet]["items"] = sorted(
+            search_results["search_facets"][facet]["items"],
+            key=lambda facet: facet["display_name"],
+            reverse=True,
+        )
 
     return search_results
 
 
-def package_reindex(
-        context: Context, data_dict: DataDict) -> None:
-    '''Rebuild the search index for a dataset (package).
+def package_reindex(context: Context, data_dict: DataDict) -> None:
+    """Rebuild the search index for a dataset (package).
 
     You must be authorized to edit the dataset
     and the group(s) it belongs to.
 
     :param id: the name or id of the dataset to reindex
     :type id: string
-    '''
-    name_or_id = data_dict.get('id') or data_dict.get('name')
+    """
+    name_or_id = data_dict.get("id") or data_dict.get("name")
     if name_or_id is None:
-        raise ValidationError({'id': _('Missing value')})
+        raise ValidationError({"id": _("Missing value")})
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
-        raise NotFound(_('Package was not found.'))
+        raise NotFound(_("Package was not found."))
 
     data_dict = {"id": pkg.id}
 
-    _check_access('package_reindex', context, data_dict)
+    _check_access("package_reindex", context, data_dict)
 
     logic.index_update_package(context, pkg.id)
 
 
-def package_update(
-        context: Context, data_dict: DataDict) -> ActionResult.PackageUpdate:
-    '''Update a dataset (package).
+def package_update(context: Context, data_dict: DataDict) -> ActionResult.PackageUpdate:
+    """Update a dataset (package).
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
@@ -1154,116 +1180,121 @@ def package_update(
               dataset id)
     :rtype: dictionary
 
-    '''
-    name_or_id = data_dict.get('id') or data_dict.get('name')
+    """
+    name_or_id = data_dict.get("id") or data_dict.get("name")
     if name_or_id is None:
-        raise ValidationError({'id': _('Missing value')})
+        raise ValidationError({"id": _("Missing value")})
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
-        raise NotFound(_('Package was not found.'))
+        raise NotFound(_("Package was not found."))
     context["package"] = pkg
 
     # immutable fields
     data_dict["id"] = pkg.id
-    data_dict['type'] = pkg.type
+    data_dict["type"] = pkg.type
 
-    _check_access('package_update', context, data_dict)
+    _check_access("package_update", context, data_dict)
 
-    user = context['user']
+    user = context["user"]
     # get the schema
 
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    schema = context.get('schema') or package_plugin.update_package_schema()
+    schema = context.get("schema") or package_plugin.update_package_schema()
 
     # try to do less work
-    return_id_only = context.get('return_id_only', False)
-    original_package = context.get('original_package')
+    return_id_only = context.get("return_id_only", False)
+    original_package = context.get("original_package")
     copy_resources = {}
-    changed_resources = data_dict.get('resources')
+    changed_resources = data_dict.get("resources")
     dataset_changed = True
 
-    if not original_package or original_package.get('id') != pkg.id:
+    if not original_package or original_package.get("id") != pkg.id:
         show_context = logic.fresh_context(context, ignore_auth=True)
-        original_package = _get_action('package_show')(show_context, {
-            'id': data_dict['id'],
-        })
+        original_package = _get_action("package_show")(
+            show_context,
+            {
+                "id": data_dict["id"],
+            },
+        )
 
-    if data_dict.get('metadata_modified'):
+    if data_dict.get("metadata_modified"):
         dataset_changed = original_package != data_dict
     else:
         dataset_changed = dict(
             original_package, metadata_modified=None, resources=None
-            ) != dict(data_dict, metadata_modified=None, resources=None)
-    if not dataset_changed and original_package.get('resources') \
-            == data_dict.get('resources'):
+        ) != dict(data_dict, metadata_modified=None, resources=None)
+    if not dataset_changed and original_package.get("resources") == data_dict.get(
+        "resources"
+    ):
         return pkg.id if return_id_only else original_package
 
     res_deps = []
-    if hasattr(package_plugin, 'resource_validation_dependencies'):
-        res_deps = package_plugin.resource_validation_dependencies(
-            pkg.type)
+    if hasattr(package_plugin, "resource_validation_dependencies"):
+        res_deps = package_plugin.resource_validation_dependencies(pkg.type)
 
     _missing = object()
-    if 'resources' in data_dict and all(
-            original_package.get(rd, _missing) == data_dict.get(rd, _missing)
-            for rd in res_deps):
-        oids = {r['id']: r for r in original_package['resources']}
+    if "resources" in data_dict and all(
+        original_package.get(rd, _missing) == data_dict.get(rd, _missing)
+        for rd in res_deps
+    ):
+        oids = {r["id"]: r for r in original_package["resources"]}
         copy_resources = {
-            i: r['position']
-            for (i, r) in enumerate(data_dict['resources'])
-            if r == oids.get(r.get('id'), ())
+            i: r["position"]
+            for (i, r) in enumerate(data_dict["resources"])
+            if r == oids.get(r.get("id"), ())
         }
         changed_resources = [
-            r for i, r in enumerate(data_dict['resources'])
-            if i not in copy_resources
+            r for i, r in enumerate(data_dict["resources"]) if i not in copy_resources
         ]
 
-    if 'resources' not in data_dict and any(
-            original_package.get(rd, _missing) != data_dict.get(rd, _missing)
-            for rd in res_deps):
+    if "resources" not in data_dict and any(
+        original_package.get(rd, _missing) != data_dict.get(rd, _missing)
+        for rd in res_deps
+    ):
         # re-validate resource fields even if not passed
-        changed_resources = original_package['resources']
+        changed_resources = original_package["resources"]
 
     resource_uploads = []
     for resource in changed_resources or []:
         # file uploads/clearing
         upload = uploader.get_resource_uploader(resource)
 
-        if 'mimetype' not in resource:
-            if hasattr(upload, 'mimetype'):
-                resource['mimetype'] = upload.mimetype
+        if "mimetype" not in resource:
+            if hasattr(upload, "mimetype"):
+                resource["mimetype"] = upload.mimetype
 
-        if 'url_type' in resource:
-            if hasattr(upload, 'filesize'):
-                resource['size'] = upload.filesize
+        if "url_type" in resource:
+            if hasattr(upload, "filesize"):
+                resource["size"] = upload.filesize
 
         resource_uploads.append(upload)
 
     validate_data = dict(data_dict)
     if changed_resources is not None:
-        validate_data['resources'] = changed_resources
+        validate_data["resources"] = changed_resources
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin,
-        context,
-        validate_data,
-        schema,
-        'package_update'
+        package_plugin, context, validate_data, schema, "package_update"
     )
     # shift resource errors to the correct positions
-    if copy_resources and 'resources' in errors:
+    if copy_resources and "resources" in errors:
         rerrs = []
         i = 0
-        for e in errors['resources']:
+        for e in errors["resources"]:
             while i in copy_resources:
                 rerrs.append({})
                 i += 1
             rerrs.append(e)
             i += 1
-        errors['resources'] = rerrs
-    log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
-              errors, user, context['package'].name, data)
+        errors["resources"] = rerrs
+    log.debug(
+        "package_update validate_errs=%r user=%s package=%s data=%r",
+        errors,
+        user,
+        context["package"].name,
+        data,
+    )
 
     if errors:
         model.Session.rollback()
@@ -1274,23 +1305,21 @@ def package_update(
         assert original_package  # make pyright happy
         resources = []
         i = 0
-        for r in data['resources']:
+        for r in data["resources"]:
             while i in copy_resources:
-                resources.append(
-                    original_package['resources'][copy_resources[i]])
+                resources.append(original_package["resources"][copy_resources[i]])
                 i += 1
             resources.append(r)
             i += 1
         while i in copy_resources:
-            resources.append(
-                original_package['resources'][copy_resources[i]])
+            resources.append(original_package["resources"][copy_resources[i]])
             i += 1
-        data['resources'] = resources
+        data["resources"] = resources
 
     include_plugin_data = False
-    user_obj = context.get('auth_user_obj')
+    user_obj = context.get("auth_user_obj")
     if user_obj:
-        plugin_data = data.get('plugin_data', False)
+        plugin_data = data.get("plugin_data", False)
         include_plugin_data = (
             user_obj.sysadmin  # type: ignore
             and plugin_data
@@ -1298,17 +1327,19 @@ def package_update(
 
     nested = model.repo.session.begin_nested()
     pkg, change = model_save.package_dict_save(
-        data, context, include_plugin_data, copy_resources)
+        data, context, include_plugin_data, copy_resources
+    )
 
     if change:
-        if not data.get('metadata_modified'):
+        if not data.get("metadata_modified"):
             pkg.metadata_modified = datetime.datetime.utcnow()
 
         context_org_update = logic.fresh_context(
-            context, ignore_auth=True, defer_commit=True)
-        _get_action('package_owner_org_update')(context_org_update,
-                                                {'id': pkg.id,
-                                                 'organization_id': pkg.owner_org})
+            context, ignore_auth=True, defer_commit=True
+        )
+        _get_action("package_owner_org_update")(
+            context_org_update, {"id": pkg.id, "organization_id": pkg.owner_org}
+        )
 
         # Needed to let extensions know the new resources ids
         model.Session.flush()
@@ -1320,40 +1351,39 @@ def package_update(
                     continue
                 resource = next(resiter)
                 upload = next(uploaditer)
-                resource['id'] = pkg.resources[i].id
+                resource["id"] = pkg.resources[i].id
 
-                upload.upload(resource['id'], uploader.get_max_resource_size())
+                upload.upload(resource["id"], uploader.get_max_resource_size())
 
         for item in plugins.PluginImplementations(plugins.IPackageController):
             item.edit(pkg)
 
             item.after_dataset_update(context, data)
 
-    return_id_only = context.get('return_id_only', False)
+    return_id_only = context.get("return_id_only", False)
 
-    if return_id_only and context.get('defer_commit'):
+    if return_id_only and context.get("defer_commit"):
         return pkg.id
 
     pkg_default, pkg_custom = logic.package_show_default_and_custom_schemas(
-        context, pkg.id)
+        context, pkg.id
+    )
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         logic.index_update_package_dicts((pkg_default, pkg_custom))
 
         nested.commit()
-        if not context.get('defer_commit'):
+        if not context.get("defer_commit"):
             model.repo.commit()
 
         # return ids of changed entities via context because return value is
         # the action's "result" data
-        context.setdefault(
-            'changed_entities', {}
-        ).setdefault(
-            'packages', set()
-        ).add(pkg.id)
-        log.debug('Updated object %s', pkg.name)
+        context.setdefault("changed_entities", {}).setdefault("packages", set()).add(
+            pkg.id
+        )
+        log.debug("Updated object %s", pkg.name)
     else:
-        log.debug('No update for object %s', pkg.name)
+        log.debug("No update for object %s", pkg.name)
         nested.rollback()
 
     if return_id_only:
@@ -1366,7 +1396,7 @@ def package_update(
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:
-    '''Revise a dataset (package) selectively with match, filter and
+    """Revise a dataset (package) selectively with match, filter and
     update parameters.
 
     You must be authorized to edit the dataset and the groups that it belongs
@@ -1450,7 +1480,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :returns: a dict containing 'package':the updated dataset with fields filtered by include parameter
     :rtype: dictionary
 
-    '''
+    """
     schema = schema_.package_revise_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -1458,77 +1488,74 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
         raise ValidationError(errors)
 
     name_or_id = (
-        data['match__'].get('id') or
-        data.get('match', {}).get('id') or
-        data['match__'].get('name') or
-        data.get('match', {}).get('name'))
+        data["match__"].get("id")
+        or data.get("match", {}).get("id")
+        or data["match__"].get("name")
+        or data.get("match", {}).get("name")
+    )
     if name_or_id is None:
-        raise ValidationError({'match__id': _('Missing value')})
+        raise ValidationError({"match__id": _("Missing value")})
 
     package_show_context = Context(context)
-    package_show_context['for_update'] = True
-    orig = _get_action('package_show')(
-        package_show_context,
-        {'id': name_or_id})
+    package_show_context["for_update"] = True
+    orig = _get_action("package_show")(package_show_context, {"id": name_or_id})
 
     unmatched = []
-    if 'match' in data:
-        unmatched.extend(dfunc.check_dict(orig, data['match']))
+    if "match" in data:
+        unmatched.extend(dfunc.check_dict(orig, data["match"]))
 
-    for k, v in sorted(data['match__'].items()):
+    for k, v in sorted(data["match__"].items()):
         unmatched.extend(dfunc.check_string_key(orig, k, v))
 
     if unmatched:
         model.Session.rollback()
-        raise ValidationError({'match': [
-            '__'.join(str(p) for p in unm)
-            for unm in unmatched
-        ]})
+        raise ValidationError(
+            {"match": ["__".join(str(p) for p in unm) for unm in unmatched]}
+        )
 
     revised = deepcopy(orig)
     # allow metadata_modified to be updated if data has changed
-    revised.pop('metadata_modified', None)
+    revised.pop("metadata_modified", None)
 
-    if 'filter' in data:
-        dfunc.filter_glob_match(revised, data['filter'])
-        revised['id'] = orig['id']
+    if "filter" in data:
+        dfunc.filter_glob_match(revised, data["filter"])
+        revised["id"] = orig["id"]
 
-    if 'update' in data:
+    if "update" in data:
         try:
-            dfunc.update_merge_dict(revised, data['update'])
+            dfunc.update_merge_dict(revised, data["update"])
         except dfunc.DataError as de:
             model.Session.rollback()
-            raise ValidationError({'update': [de.error]})
+            raise ValidationError({"update": [de.error]})
 
     # update __extend keys before __#__* so that files may be
     # attached to newly added resources in the same call
     for k, v in sorted(
-            data['update__'].items(),
-            key=lambda s: s[0][-6] if s[0].endswith('extend') else s[0]):
+        data["update__"].items(),
+        key=lambda s: s[0][-6] if s[0].endswith("extend") else s[0],
+    ):
         try:
             dfunc.update_merge_string_key(revised, k, v)
         except dfunc.DataError as de:
             model.Session.rollback()
             raise ValidationError({k: [de.error]})
 
-    _check_access('package_revise', context, {"update": revised})
+    _check_access("package_revise", context, {"update": revised})
 
     update_context = Context(context)
-    update_context['original_package'] = orig
+    update_context["original_package"] = orig
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info
     # on update or "nothing changed" status once possible
-    rval = {
-        'package': _get_action('package_update')(update_context, revised)}
-    if 'include' in data_dict:
-        dfunc.filter_glob_match(rval, data_dict['include'])
+    rval = {"package": _get_action("package_update")(update_context, revised)}
+    if "include" in data_dict:
+        dfunc.filter_glob_match(rval, data_dict["include"])
     return rval
 
 
-def package_patch(
-        context: Context, data_dict: DataDict) -> ActionResult.PackagePatch:
-    '''Patch a dataset (package).
+def package_patch(context: Context, data_dict: DataDict) -> ActionResult.PackagePatch:
+    """Patch a dataset (package).
 
     :param id: the id or name of the dataset
     :type id: string
@@ -1545,50 +1572,52 @@ def package_patch(
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
-    '''
-    _check_access('package_patch', context, data_dict)
+    """
+    _check_access("package_patch", context, data_dict)
 
     show_context: Context = {
-        'session': context['session'],
-        'user': context['user'],
-        'auth_user_obj': context['auth_user_obj'],
-        'ignore_auth': context.get('ignore_auth', False),
-        'for_update': True
+        "session": context["session"],
+        "user": context["user"],
+        "auth_user_obj": context["auth_user_obj"],
+        "ignore_auth": context.get("ignore_auth", False),
+        "for_update": True,
     }
 
-    package_dict = _get_action('package_show')(
-        show_context,
-        {'id': _get_or_bust(data_dict, 'id')})
+    package_dict = _get_action("package_show")(
+        show_context, {"id": _get_or_bust(data_dict, "id")}
+    )
 
     patched = dict(package_dict)
     # allow metadata_modified to be updated if data has changed
-    patched.pop('metadata_modified', None)
+    patched.pop("metadata_modified", None)
 
     patched.update(data_dict)
-    patched['id'] = package_dict['id']
+    patched["id"] = package_dict["id"]
     update_context = Context(context)
-    update_context['original_package'] = package_dict
-    return _get_action('package_update')(update_context, patched)
-    
+    update_context["original_package"] = package_dict
+    return _get_action("package_update")(update_context, patched)
+
 
 def _update_package_relationship(
-        relationship: 'model_.PackageRelationship', comment: str,
-        context: Context) -> dict[str, Any]:
-    api = context.get('api_version')
-    ref_package_by = 'id' if api == 2 else 'name'
+    relationship: "model_.PackageRelationship", comment: str, context: Context
+) -> dict[str, Any]:
+    api = context.get("api_version")
+    ref_package_by = "id" if api == 2 else "name"
     is_changed = relationship.comment != comment
     if is_changed:
         relationship.comment = comment
-        if not context.get('defer_commit'):
+        if not context.get("defer_commit"):
             model.repo.commit_and_remove()
-    rel_dict = relationship.as_dict(package=relationship.subject,
-                                    ref_package_by=ref_package_by)
+    rel_dict = relationship.as_dict(
+        package=relationship.subject, ref_package_by=ref_package_by
+    )
     return rel_dict
 
 
 def package_relationship_update(
-        context: Context, data_dict: DataDict) -> ActionResult.PackageRelationshipUpdate:
-    '''Update a relationship between two datasets (packages).
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageRelationshipUpdate:
+    """Update a relationship between two datasets (packages).
 
     The subject, object and type parameters are required to identify the
     relationship. Only the comment can be updated.
@@ -1611,56 +1640,57 @@ def package_relationship_update(
     :returns: the updated relationship
     :rtype: dictionary
 
-    '''
-    schema = context.get('schema') \
-        or schema_.default_update_relationship_schema()
+    """
+    schema = context.get("schema") or schema_.default_update_relationship_schema()
 
-    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
+    id, id2, rel = _get_or_bust(data_dict, ["subject", "object", "type"])
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound(_('Subject package %s was not found.') % repr(id))
+        raise NotFound(_("Subject package %s was not found.") % repr(id))
     if not pkg2:
-        raise NotFound(_('Object package %s was not found.') % repr(id2))
+        raise NotFound(_("Object package %s was not found.") % repr(id2))
 
     _data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
-    _check_access('package_relationship_update', context, data_dict)
+    _check_access("package_relationship_update", context, data_dict)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
-        raise NotFound(_('This relationship between the packages was not found.'))
+        raise NotFound(_("This relationship between the packages was not found."))
     entity = existing_rels[0]
-    comment = data_dict.get('comment', u'')
-    context['relationship'] = entity
+    comment = data_dict.get("comment", "")
+    context["relationship"] = entity
     return _update_package_relationship(entity, comment, context)
 
 
-def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionResult.PackageOwnerOrgUpdate:
-    '''Update the owning organization of a dataset
+def package_owner_org_update(
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageOwnerOrgUpdate:
+    """Update the owning organization of a dataset
 
     :param id: the name or id of the dataset to update
     :type id: string
 
     :param organization_id: the name or id of the owning organization
     :type organization_id: string
-    '''
-    name_or_id = data_dict.get('id', '')
-    organization_id = data_dict.get('organization_id')
+    """
+    name_or_id = data_dict.get("id", "")
+    organization_id = data_dict.get("organization_id")
 
-    _check_access('package_owner_org_update', context, data_dict)
+    _check_access("package_owner_org_update", context, data_dict)
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
-        raise NotFound(_('Package was not found.'))
+        raise NotFound(_("Package was not found."))
     if organization_id:
         org = model.Group.get(organization_id)
         if org is None or not org.is_organization:
-            raise NotFound(_('Organization was not found.'))
+            raise NotFound(_("Organization was not found."))
 
         # FIXME check we are in that org
         pkg.owner_org = org.id
@@ -1668,95 +1698,107 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
         org = None
         pkg.owner_org = None
 
-    members = model.Session.query(model.Member) \
-        .filter(model.Member.table_id == pkg.id) \
-        .filter(model.Member.capacity == 'organization')
+    members = (
+        model.Session.query(model.Member)
+        .filter(model.Member.table_id == pkg.id)
+        .filter(model.Member.capacity == "organization")
+    )
 
     need_update = True
     for member_obj in members:
         if org and member_obj.group_id == org.id:
             need_update = False
         else:
-            member_obj.state = 'deleted'
+            member_obj.state = "deleted"
             model.Session.add(member_obj)
 
     # add the organization to member table
     if org and need_update:
-        member_obj = model.Member(table_id=pkg.id,
-                                  table_name='package',
-                                  group=org,
-                                  capacity='organization',
-                                  group_id=org.id,
-                                  state='active')
+        member_obj = model.Member(
+            table_id=pkg.id,
+            table_name="package",
+            group=org,
+            capacity="organization",
+            group_id=org.id,
+            state="active",
+        )
         model.Session.add(member_obj)
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.Session.commit()
 
 
 def _bulk_update_dataset(
-        context: Context, data_dict: DataDict, update_dict: dict[Any, Any]):
-    ''' Bulk update shared code for organizations'''
+    context: Context, data_dict: DataDict, update_dict: dict[Any, Any]
+):
+    """Bulk update shared code for organizations"""
 
-    datasets = data_dict.get('datasets', [])
-    org_id = data_dict.get('org_id')
+    datasets = data_dict.get("datasets", [])
+    org_id = data_dict.get("org_id")
 
-    dataset_ids = model.Session.query(model.Package.id) \
-        .filter(
-            model.Package.id.in_(datasets)
-        ) .filter(model.Package.owner_org == org_id)
+    dataset_ids = (
+        model.Session.query(model.Package.id)
+        .filter(model.Package.id.in_(datasets))
+        .filter(model.Package.owner_org == org_id)
+    )
 
     for d in dataset_ids:
-        _get_action('package_patch')(
+        _get_action("package_patch")(
             logic.fresh_context(context),
             dict(update_dict, id=d),
         )
 
 
-def bulk_update_private(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdatePrivate:
-    ''' Make a list of datasets private
+def bulk_update_private(
+    context: Context, data_dict: DataDict
+) -> ActionResult.BulkUpdatePrivate:
+    """Make a list of datasets private
 
     :param datasets: list of ids of the datasets to update
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
     :type org_id: string
-    '''
+    """
 
-    _check_access('bulk_update_private', context, data_dict)
-    _bulk_update_dataset(context, data_dict, {'private': True})
-
-
-def bulk_update_public(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdatePublic:
-    ''' Make a list of datasets public
-
-    :param datasets: list of ids of the datasets to update
-    :type datasets: list of strings
-
-    :param org_id: id of the owning organization
-    :type org_id: string
-    '''
-
-    _check_access('bulk_update_public', context, data_dict)
-    _bulk_update_dataset(context, data_dict, {'private': False})
+    _check_access("bulk_update_private", context, data_dict)
+    _bulk_update_dataset(context, data_dict, {"private": True})
 
 
-def bulk_update_delete(context: Context, data_dict: DataDict) -> ActionResult.BulkUpdateDelete:
-    ''' Make a list of datasets deleted
+def bulk_update_public(
+    context: Context, data_dict: DataDict
+) -> ActionResult.BulkUpdatePublic:
+    """Make a list of datasets public
 
     :param datasets: list of ids of the datasets to update
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
     :type org_id: string
-    '''
+    """
 
-    _check_access('bulk_update_delete', context, data_dict)
-    _bulk_update_dataset(context, data_dict, {'state': 'deleted'})
+    _check_access("bulk_update_public", context, data_dict)
+    _bulk_update_dataset(context, data_dict, {"private": False})
+
+
+def bulk_update_delete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.BulkUpdateDelete:
+    """Make a list of datasets deleted
+
+    :param datasets: list of ids of the datasets to update
+    :type datasets: list of strings
+
+    :param org_id: id of the owning organization
+    :type org_id: string
+    """
+
+    _check_access("bulk_update_delete", context, data_dict)
+    _bulk_update_dataset(context, data_dict, {"state": "deleted"})
 
 
 def package_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageDelete:
-    '''Delete a dataset (package).
+    """Delete a dataset (package).
 
     This makes the dataset disappear from all web & API views, apart from the
     trash.
@@ -1766,15 +1808,15 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :param id: the id or name of the dataset to delete
     :type id: string
 
-    '''
-    id = _get_or_bust(data_dict, 'id')
+    """
+    id = _get_or_bust(data_dict, "id")
 
     entity = model.Package.get(id)
 
     if entity is None:
         raise NotFound
 
-    _check_access('package_delete', context, data_dict)
+    _check_access("package_delete", context, data_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
@@ -1783,15 +1825,21 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     entity.delete()
 
-    dataset_memberships = model.Session.query(model.Member).filter(
-        model.Member.table_id == id).filter(
-        model.Member.state == 'active').all()
+    dataset_memberships = (
+        model.Session.query(model.Member)
+        .filter(model.Member.table_id == id)
+        .filter(model.Member.state == "active")
+        .all()
+    )
 
     for membership in dataset_memberships:
         membership.delete()
 
-    dataset_collaborators = model.Session.query(model.PackageMember).filter(
-        model.PackageMember.package_id == id).all()
+    dataset_collaborators = (
+        model.Session.query(model.PackageMember)
+        .filter(model.PackageMember.package_id == id)
+        .all()
+    )
     for collaborator in dataset_collaborators:
         collaborator.delete()
 
@@ -1800,7 +1848,7 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
 
 def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.DatasetPurge:
-    '''Purge a dataset.
+    """Purge a dataset.
 
     .. warning:: Purging a dataset cannot be undone!
 
@@ -1813,28 +1861,37 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     :param id: the name or id of the dataset to be purged
     :type id: string
 
-    '''
+    """
     from sqlalchemy import or_
 
-    id = _get_or_bust(data_dict, 'id')
+    id = _get_or_bust(data_dict, "id")
 
     pkg = model.Package.get(id)
     if pkg is None:
-        raise NotFound('Dataset was not found')
-    context['package'] = pkg
+        raise NotFound("Dataset was not found")
+    context["package"] = pkg
 
-    _check_access('dataset_purge', context, data_dict)
+    _check_access("dataset_purge", context, data_dict)
 
-    members = model.Session.query(model.Member) \
-                   .filter(model.Member.table_id == pkg.id) \
-                   .filter(model.Member.table_name == 'package')
+    members = (
+        model.Session.query(model.Member)
+        .filter(model.Member.table_id == pkg.id)
+        .filter(model.Member.table_name == "package")
+    )
     if members.count() > 0:
         for m in members.all():
             m.purge()
 
-    for r in model.Session.query(model.PackageRelationship).filter(
-            or_(model.PackageRelationship.subject_package_id == pkg.id,
-                model.PackageRelationship.object_package_id == pkg.id)).all():
+    for r in (
+        model.Session.query(model.PackageRelationship)
+        .filter(
+            or_(
+                model.PackageRelationship.subject_package_id == pkg.id,
+                model.PackageRelationship.object_package_id == pkg.id,
+            )
+        )
+        .all()
+    ):
         r.purge()
 
     pkg = model.Package.get(id)
@@ -1846,8 +1903,10 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     model.repo.commit_and_remove()
 
 
-def package_relationship_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageRelationshipDelete:
-    '''Delete a dataset (package) relationship.
+def package_relationship_delete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageRelationshipDelete:
+    """Delete a dataset (package) relationship.
 
     You must be authorised to delete dataset relationships, and to edit both
     the subject and the object datasets.
@@ -1861,15 +1920,15 @@ def package_relationship_delete(context: Context, data_dict: DataDict) -> Action
     :param type: the type of the relationship
     :type type: string
 
-    '''
-    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
+    """
+    id, id2, rel = _get_or_bust(data_dict, ["subject", "object", "type"])
 
     pkg1 = model.Package.get(id)
     pkg2 = model.Package.get(id2)
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise NotFound("Subject package %r was not found." % id)
     if not pkg2:
-        raise NotFound('Object package %r was not found.' % id2)
+        raise NotFound("Object package %r was not found." % id2)
 
     existing_rels = pkg1.get_relationships_with(pkg2, rel)
     if not existing_rels:
@@ -1877,15 +1936,17 @@ def package_relationship_delete(context: Context, data_dict: DataDict) -> Action
 
     relationship = existing_rels[0]
 
-    context['relationship'] = relationship
-    _check_access('package_relationship_delete', context, data_dict)
+    context["relationship"] = relationship
+    _check_access("package_relationship_delete", context, data_dict)
 
     relationship.delete()
     model.repo.commit()
 
 
-def package_collaborator_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageCollaboratorDelete:
-    '''Remove a collaborator from a dataset.
+def package_collaborator_delete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.PackageCollaboratorDelete:
+    """Remove a collaborator from a dataset.
 
     Currently you must be an Admin on the dataset owner organization to
     manage collaborators.
@@ -1898,35 +1959,32 @@ def package_collaborator_delete(context: Context, data_dict: DataDict) -> Action
     :param user_id: the id or name of the user to remove
     :type user_id: string
 
-    '''
-    package_id, user_id = _get_or_bust(
-        data_dict,
-        ['id', 'user_id']
-    )
+    """
+    package_id, user_id = _get_or_bust(data_dict, ["id", "user_id"])
 
-    _check_access('package_collaborator_delete', context, data_dict)
+    _check_access("package_collaborator_delete", context, data_dict)
 
-    if not authz.check_config_permission('allow_dataset_collaborators'):
-        raise ValidationError({
-            'message': _('Dataset collaborators not enabled')})
+    if not authz.check_config_permission("allow_dataset_collaborators"):
+        raise ValidationError({"message": _("Dataset collaborators not enabled")})
 
     package = model.Package.get(package_id)
     if not package:
-        raise NotFound(_('Package not found'))
+        raise NotFound(_("Package not found"))
 
     user = model.User.get(user_id)
     if not user:
-        raise NotFound(_('User not found'))
+        raise NotFound(_("User not found"))
 
-    collaborator = model.Session.query(model.PackageMember).\
-        filter(model.PackageMember.package_id == package.id).\
-        filter(model.PackageMember.user_id == user.id).one_or_none()
+    collaborator = (
+        model.Session.query(model.PackageMember)
+        .filter(model.PackageMember.package_id == package.id)
+        .filter(model.PackageMember.user_id == user.id)
+        .one_or_none()
+    )
     if not collaborator:
-        raise NotFound(
-            'User {} is not a collaborator on this package'.format(user_id))
+        raise NotFound("User {} is not a collaborator on this package".format(user_id))
 
     model.Session.delete(collaborator)
     model.repo.commit()
 
-    log.info('User %s removed as collaborator from package %s',
-        user_id, package.id)
+    log.info("User %s removed as collaborator from package %s", user_id, package.id)
