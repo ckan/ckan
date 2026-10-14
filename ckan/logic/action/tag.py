@@ -22,12 +22,13 @@ from ckan.logic import (
 from ckan.types import ActionResult, Context, DataDict, Query
 
 _table_dictize = ckan.lib.dictization.table_dictize
-log = logging.getLogger('ckan.logic')
+log = logging.getLogger("ckan.logic")
 
 
-def vocabulary_create(context: Context,
-                      data_dict: DataDict) -> ActionResult.VocabularyCreate:
-    '''Create a new tag vocabulary.
+def vocabulary_create(
+    context: Context, data_dict: DataDict
+) -> ActionResult.VocabularyCreate:
+    """Create a new tag vocabulary.
 
     You must be a sysadmin to create vocabularies.
 
@@ -40,11 +41,12 @@ def vocabulary_create(context: Context,
     :returns: the newly-created vocabulary
     :rtype: dictionary
 
-    '''
-    schema = context.get('schema') or \
-        ckan.logic.schema.default_create_vocabulary_schema()
+    """
+    schema = (
+        context.get("schema") or ckan.logic.schema.default_create_vocabulary_schema()
+    )
 
-    _check_access('vocabulary_create', context, data_dict)
+    _check_access("vocabulary_create", context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
 
@@ -54,17 +56,16 @@ def vocabulary_create(context: Context,
 
     vocabulary = model_save.vocabulary_dict_save(data, context)
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s', vocabulary.name)
+    log.debug("Created Vocabulary %s", vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
 
-def tag_create(context: Context,
-               data_dict: DataDict) -> ActionResult.TagCreate:
-    '''Create a new vocabulary tag.
+def tag_create(context: Context, data_dict: DataDict) -> ActionResult.TagCreate:
+    """Create a new vocabulary tag.
 
     You must be a sysadmin to create vocabulary tags.
 
@@ -85,18 +86,17 @@ def tag_create(context: Context,
     :returns: the newly-created tag
     :rtype: dictionary
 
-    '''
-    _check_access('tag_create', context, data_dict)
+    """
+    _check_access("tag_create", context, data_dict)
 
-    schema = context.get('schema') or \
-        ckan.logic.schema.default_create_tag_schema()
+    schema = context.get("schema") or ckan.logic.schema.default_create_tag_schema()
     _data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
     tag = model_save.tag_dict_save(data_dict, context)
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
 
     log.debug("Created tag '%s' ", tag)
@@ -104,9 +104,8 @@ def tag_create(context: Context,
 
 
 @side_effect_free
-def tag_list(context: Context,
-             data_dict: DataDict) -> ActionResult.TagList:
-    '''Return a list of the site's tags.
+def tag_list(context: Context, data_dict: DataDict) -> ActionResult.TagList:
+    """Return a list of the site's tags.
 
     By default only free tags (tags that don't belong to a vocabulary) are
     returned. If the ``vocabulary_id`` argument is given then only tags
@@ -124,14 +123,14 @@ def tag_list(context: Context,
 
     :rtype: list of dictionaries
 
-    '''
-    vocab_id_or_name = data_dict.get('vocabulary_id')
-    query = data_dict.get('query') or data_dict.get('q')
+    """
+    vocab_id_or_name = data_dict.get("vocabulary_id")
+    query = data_dict.get("query") or data_dict.get("q")
     if query:
         query = query.strip()
-    all_fields = data_dict.get('all_fields', None)
+    all_fields = data_dict.get("all_fields", None)
 
-    _check_access('tag_list', context, data_dict)
+    _check_access("tag_list", context, data_dict)
 
     if query:
         tags, _count = _tag_search(context, data_dict)
@@ -140,9 +139,9 @@ def tag_list(context: Context,
 
     if tags:
         if all_fields:
-            tag_list: Union[
-                list[dict[str, Any]], list[str]
-            ] = model_dictize.tag_list_dictize(tags, context)
+            tag_list: Union[list[dict[str, Any]], list[str]] = (
+                model_dictize.tag_list_dictize(tags, context)
+            )
         else:
             tag_list = [tag.name for tag in tags]
     else:
@@ -153,7 +152,7 @@ def tag_list(context: Context,
 
 @side_effect_free
 def tag_show(context: Context, data_dict: DataDict) -> ActionResult.TagShow:
-    '''Return the details of a tag and all its datasets.
+    """Return the details of a tag and all its datasets.
 
     :param id: the name or id of the tag
     :type id: string
@@ -170,43 +169,42 @@ def tag_show(context: Context, data_dict: DataDict) -> ActionResult.TagShow:
     :returns: the details of the tag, including a list of all of the tag's
         datasets and their details
     :rtype: dictionary
-    '''
-    id = _get_or_bust(data_dict, 'id')
-    include_datasets = asbool(data_dict.get('include_datasets', False))
+    """
+    id = _get_or_bust(data_dict, "id")
+    include_datasets = asbool(data_dict.get("include_datasets", False))
 
-    tag = model.Tag.get(id, vocab_id_or_name=data_dict.get('vocabulary_id'))
+    tag = model.Tag.get(id, vocab_id_or_name=data_dict.get("vocabulary_id"))
     if tag is None:
         raise NotFound
 
-    context['tag'] = tag
+    context["tag"] = tag
 
-    _check_access('tag_show', context, data_dict)
-    return model_dictize.tag_dictize(tag, context,
-                                     include_datasets=include_datasets)
+    _check_access("tag_show", context, data_dict)
+    return model_dictize.tag_dictize(tag, context, include_datasets=include_datasets)
 
 
-def _tag_search(
-        context: Context, data_dict: DataDict) -> tuple[list[model.Tag], int]:
+def _tag_search(context: Context, data_dict: DataDict) -> tuple[list[model.Tag], int]:
 
-    terms = data_dict.get('query') or data_dict.get('q') or []
+    terms = data_dict.get("query") or data_dict.get("q") or []
     if isinstance(terms, str):
         terms = [terms]
     terms = [t.strip() for t in terms if t.strip()]
 
-    if 'fields' in data_dict:
-        log.warning('"fields" parameter is deprecated.  '
-                    'Use the "query" parameter instead')
+    if "fields" in data_dict:
+        log.warning(
+            '"fields" parameter is deprecated.  Use the "query" parameter instead'
+        )
 
-    fields = data_dict.get('fields', {})
-    offset = data_dict.get('offset')
-    limit = data_dict.get('limit')
+    fields = data_dict.get("fields", {})
+    offset = data_dict.get("offset")
+    limit = data_dict.get("limit")
 
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
 
-    if 'vocabulary_id' in data_dict:
+    if "vocabulary_id" in data_dict:
         # Filter by vocabulary.
-        vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
+        vocab = model.Vocabulary.get(_get_or_bust(data_dict, "vocabulary_id"))
         if not vocab:
             return [], 0
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
@@ -218,16 +216,15 @@ def _tag_search(
         q: Query[model.Tag] = q.distinct().join(model.Tag.package_tags)
 
     for field, value in fields.items():
-        if field in ('tag', 'tags'):
+        if field in ("tag", "tags"):
             terms.append(value)
 
     if not len(terms):
         return [], 0
 
     for term in terms:
-        escaped_term = misc.escape_sql_like_special_characters(
-            term, escape='\\')
-        q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
+        escaped_term = misc.escape_sql_like_special_characters(term, escape="\\")
+        q = q.filter(model.Tag.name.ilike("%" + escaped_term + "%"))
 
     count = q.count()
     q = q.offset(offset)
@@ -237,7 +234,7 @@ def _tag_search(
 
 @side_effect_free
 def tag_search(context: Context, data_dict: DataDict) -> ActionResult.TagSearch:
-    '''Return a list of tags whose names contain a given string.
+    """Return a list of tags whose names contain a given string.
 
     By default only free tags (tags that don't belong to any vocabulary) are
     searched. If the ``vocabulary_id`` argument is given then only tags
@@ -267,17 +264,18 @@ def tag_search(context: Context, data_dict: DataDict) -> ActionResult.TagSearch:
 
     :rtype: dictionary
 
-    '''
-    _check_access('tag_search', context, data_dict)
+    """
+    _check_access("tag_search", context, data_dict)
 
     tags, count = _tag_search(context, data_dict)
-    return {'count': count,
-            'results': [_table_dictize(tag, context) for tag in tags]}
+    return {"count": count, "results": [_table_dictize(tag, context) for tag in tags]}
 
 
 @side_effect_free
-def tag_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.TagAutocomplete:
-    '''Return a list of tag names that contain a given string.
+def tag_autocomplete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.TagAutocomplete:
+    """Return a list of tag names that contain a given string.
 
     By default only free tags (tags that don't belong to any vocabulary) are
     searched. If the ``vocabulary_id`` argument is given then only tags
@@ -298,8 +296,8 @@ def tag_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.TagA
 
     :rtype: list of strings
 
-    '''
-    _check_access('tag_autocomplete', context, data_dict)
+    """
+    _check_access("tag_autocomplete", context, data_dict)
     matching_tags, _count = _tag_search(context, data_dict)
     if matching_tags:
         return [tag.name for tag in matching_tags]
@@ -309,33 +307,36 @@ def tag_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.TagA
 
 @side_effect_free
 def vocabulary_list(
-        context: Context, data_dict: DataDict) -> ActionResult.VocabularyList:
-    '''Return a list of all the site's tag vocabularies.
+    context: Context, data_dict: DataDict
+) -> ActionResult.VocabularyList:
+    """Return a list of all the site's tag vocabularies.
 
     :rtype: list of dictionaries
 
-    '''
-    _check_access('vocabulary_list', context, data_dict)
+    """
+    _check_access("vocabulary_list", context, data_dict)
 
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
 
 
 @side_effect_free
-def vocabulary_show(context: Context, data_dict: DataDict) -> ActionResult.VocabularyShow:
-    '''Return a single tag vocabulary.
+def vocabulary_show(
+    context: Context, data_dict: DataDict
+) -> ActionResult.VocabularyShow:
+    """Return a single tag vocabulary.
 
     :param id: the id or name of the vocabulary
     :type id: string
     :return: the vocabulary.
     :rtype: dictionary
 
-    '''
-    _check_access('vocabulary_show', context, data_dict)
+    """
+    _check_access("vocabulary_show", context, data_dict)
 
-    vocab_id = data_dict.get('id')
+    vocab_id = data_dict.get("id")
     if not vocab_id:
-        raise ValidationError({'id': _('id not in data')})
+        raise ValidationError({"id": _("id not in data")})
     vocabulary = model.Vocabulary.get(vocab_id)
     if vocabulary is None:
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
@@ -343,8 +344,10 @@ def vocabulary_show(context: Context, data_dict: DataDict) -> ActionResult.Vocab
     return vocabulary_dict
 
 
-def vocabulary_update(context: Context, data_dict: DataDict) -> ActionResult.VocabularyUpdate:
-    '''Update a tag vocabulary.
+def vocabulary_update(
+    context: Context, data_dict: DataDict
+) -> ActionResult.VocabularyUpdate:
+    """Update a tag vocabulary.
 
     You must be a sysadmin to update vocabularies.
 
@@ -357,23 +360,23 @@ def vocabulary_update(context: Context, data_dict: DataDict) -> ActionResult.Voc
     :returns: the updated vocabulary
     :rtype: dictionary
 
-    '''
-    vocab_id = data_dict.get('id')
+    """
+    vocab_id = data_dict.get("id")
     if not vocab_id:
-        raise ValidationError({'id': _('id not in data')})
+        raise ValidationError({"id": _("id not in data")})
 
     vocab = model.Vocabulary.get(vocab_id)
     if vocab is None:
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
-    data_dict['id'] = vocab.id
-    if 'name' in data_dict:
-        if data_dict['name'] == vocab.name:
-            del data_dict['name']
+    data_dict["id"] = vocab.id
+    if "name" in data_dict:
+        if data_dict["name"] == vocab.name:
+            del data_dict["name"]
 
-    _check_access('vocabulary_update', context, data_dict)
+    _check_access("vocabulary_update", context, data_dict)
 
-    schema = context.get('schema') or schema_.default_update_vocabulary_schema()
+    schema = context.get("schema") or schema_.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -381,37 +384,37 @@ def vocabulary_update(context: Context, data_dict: DataDict) -> ActionResult.Voc
 
     updated_vocab = model_save.vocabulary_dict_update(data, context)
 
-    if not context.get('defer_commit'):
+    if not context.get("defer_commit"):
         model.repo.commit()
 
     return model_dictize.vocabulary_dictize(updated_vocab, context)
 
 
 def vocabulary_delete(context: Context, data_dict: DataDict) -> None:
-    '''Delete a tag vocabulary.
+    """Delete a tag vocabulary.
 
     You must be a sysadmin to delete vocabularies.
 
     :param id: the id of the vocabulary
     :type id: string
 
-    '''
-    vocab_id = data_dict.get('id')
+    """
+    vocab_id = data_dict.get("id")
     if not vocab_id:
-        raise ValidationError({'id': _('id not in data')})
+        raise ValidationError({"id": _("id not in data")})
 
     vocab_obj = model.Vocabulary.get(vocab_id)
     if vocab_obj is None:
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
-    _check_access('vocabulary_delete', context, data_dict)
+    _check_access("vocabulary_delete", context, data_dict)
 
     vocab_obj.delete()
     model.repo.commit()
 
 
 def tag_delete(context: Context, data_dict: DataDict) -> None:
-    '''Delete a tag.
+    """Delete a tag.
 
     You must be a sysadmin to delete tags.
 
@@ -421,19 +424,19 @@ def tag_delete(context: Context, data_dict: DataDict) -> None:
         to (optional, default: None)
     :type vocabulary_id: string
 
-    '''
-    if 'id' not in data_dict or not data_dict['id']:
-        raise ValidationError({'id': _('id not in data')})
-    tag_id_or_name = _get_or_bust(data_dict, 'id')
+    """
+    if "id" not in data_dict or not data_dict["id"]:
+        raise ValidationError({"id": _("id not in data")})
+    tag_id_or_name = _get_or_bust(data_dict, "id")
 
-    vocab_id_or_name = data_dict.get('vocabulary_id')
+    vocab_id_or_name = data_dict.get("vocabulary_id")
 
     tag_obj = model.Tag.get(tag_id_or_name, vocab_id_or_name)
 
     if tag_obj is None:
         raise NotFound(_('Could not find tag "%s"') % tag_id_or_name)
 
-    _check_access('tag_delete', context, data_dict)
+    _check_access("tag_delete", context, data_dict)
 
     update_packages = tag_obj.packages
     tag_obj.delete()

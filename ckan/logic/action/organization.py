@@ -29,9 +29,9 @@ from ckan.types import ActionResult, Context, DataDict
 
 
 def organization_create(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationCreate:
-    '''Create a new organization.
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationCreate:
+    """Create a new organization.
 
     You must be authorized to create organizations.
 
@@ -82,17 +82,18 @@ def organization_create(
               will be returned)
     :rtype: dictionary
 
-    '''
+    """
     # wrapper for creating organizations
-    data_dict.setdefault('type', 'organization')
-    _check_access('organization_create', context, data_dict)
+    data_dict.setdefault("type", "organization")
+    _check_access("organization_create", context, data_dict)
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
 @side_effect_free
-def organization_list(context: Context,
-                      data_dict: DataDict) -> ActionResult.OrganizationList:
-    '''Return a list of the names of the site's organizations.
+def organization_list(
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationList:
+    """Return a list of the names of the site's organizations.
 
     :param type: the type of organization to list (optional,
         default: ``'organization'``),
@@ -141,17 +142,18 @@ def organization_list(context: Context,
 
     :rtype: list of strings
 
-    '''
-    _check_access('organization_list', context, data_dict)
-    data_dict['groups'] = data_dict.pop('organizations', [])
-    data_dict.setdefault('type', 'organization')
+    """
+    _check_access("organization_list", context, data_dict)
+    data_dict["groups"] = data_dict.pop("organizations", [])
+    data_dict.setdefault("type", "organization")
     return _group_or_org_list(context, data_dict, is_org=True)
 
 
 @side_effect_free
-def organization_list_for_user(context: Context,
-                               data_dict: DataDict) -> ActionResult.OrganizationListForUser:
-    '''Return the organizations that the user has a given permission for.
+def organization_list_for_user(
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationListForUser:
+    """Return the organizations that the user has a given permission for.
 
     Specifically it returns the list of organizations that the currently
     authorized user has a given permission (for example: "manage_group")
@@ -192,28 +194,30 @@ def organization_list_for_user(context: Context,
     :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
 
-    '''
-    if data_dict.get('id'):
-        user_obj = model.User.get(data_dict['id'])
+    """
+    if data_dict.get("id"):
+        user_obj = model.User.get(data_dict["id"])
         if not user_obj:
             raise NotFound
         user = user_obj.name
     else:
-        user = context['user']
+        user = context["user"]
 
-    _check_access('organization_list_for_user', context, data_dict)
+    _check_access("organization_list_for_user", context, data_dict)
     sysadmin = authz.is_sysadmin(user)
 
-    orgs_q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization == True) \
-        .filter(model.Group.state == 'active')
+    orgs_q = (
+        model.Session.query(model.Group)
+        .filter(model.Group.is_organization == True)
+        .filter(model.Group.state == "active")
+    )
 
     if sysadmin:
-        orgs_and_capacities = [(org, 'admin') for org in orgs_q.all()]
+        orgs_and_capacities = [(org, "admin") for org in orgs_q.all()]
     else:
         # for non-Sysadmins check they have the required permission
 
-        permission = data_dict.get('permission', 'manage_group')
+        permission = data_dict.get("permission", "manage_group")
 
         roles = authz.get_roles_with_permission(permission)
 
@@ -223,26 +227,28 @@ def organization_list_for_user(context: Context,
         if not user_id:
             return []
 
-        q = model.Session.query(model.Member, model.Group) \
-            .filter(model.Member.table_name == 'user') \
-            .filter(
-                model.Member.capacity.in_(roles)
-            ) \
-            .filter(model.Member.table_id == user_id) \
-            .filter(model.Member.state == 'active') \
+        q = (
+            model.Session.query(model.Member, model.Group)
+            .filter(model.Member.table_name == "user")
+            .filter(model.Member.capacity.in_(roles))
+            .filter(model.Member.table_id == user_id)
+            .filter(model.Member.state == "active")
             .join(model.Group)
+        )
 
         group_ids: set[str] = set()
         roles_that_cascade = cast(
             "list[str]",
-            authz.check_config_permission('roles_that_cascade_to_sub_groups')
+            authz.check_config_permission("roles_that_cascade_to_sub_groups"),
         )
         group_ids_to_capacities: dict[str, str] = {}
         for member, group in q.all():
             if member.capacity in roles_that_cascade:
                 children_group_ids = [
-                    grp_tuple[0] for grp_tuple
-                    in group.get_children_group_hierarchy(type='organization')
+                    grp_tuple[0]
+                    for grp_tuple in group.get_children_group_hierarchy(
+                        type="organization"
+                    )
                 ]
                 for group_id in children_group_ids:
                     group_ids_to_capacities[group_id] = member.capacity
@@ -256,18 +262,24 @@ def organization_list_for_user(context: Context,
 
         orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
         orgs_and_capacities = [
-            (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
+            (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()
+        ]
 
-    context['with_capacity'] = True
-    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
-        with_package_counts=asbool(data_dict.get('include_dataset_count')),
-        with_member_counts=asbool(data_dict.get('include_member_count')))
+    context["with_capacity"] = True
+    orgs_list = model_dictize.group_list_dictize(
+        orgs_and_capacities,
+        context,
+        with_package_counts=asbool(data_dict.get("include_dataset_count")),
+        with_member_counts=asbool(data_dict.get("include_member_count")),
+    )
     return orgs_list
 
 
 @side_effect_free
-def organization_show(context: Context, data_dict: DataDict) -> ActionResult.OrganizationShow:
-    '''Return the details of an organization.
+def organization_show(
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationShow:
+    """Return the details of an organization.
 
     :param id: the id or name of the organization
     :type id: string
@@ -294,14 +306,15 @@ def organization_show(context: Context, data_dict: DataDict) -> ActionResult.Org
     :rtype: dictionary
 
     .. note:: Only its first 10 datasets are returned
-    '''
+    """
     return _group_or_org_show(context, data_dict, is_org=True)
 
 
 @side_effect_free
-def organization_autocomplete(context: Context,
-                              data_dict: DataDict) -> ActionResult.OrganizationAutocomplete:
-    '''
+def organization_autocomplete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationAutocomplete:
+    """
     Return a list of organization names that contain a string.
 
     :param q: the string to search for
@@ -312,17 +325,17 @@ def organization_autocomplete(context: Context,
 
     :rtype: a list of organization dictionaries each with keys ``'name'``,
         ``'title'``, and ``'id'``
-    '''
+    """
 
-    _check_access('organization_autocomplete', context, data_dict)
+    _check_access("organization_autocomplete", context, data_dict)
 
     return _group_or_org_autocomplete(context, data_dict, is_org=True)
 
 
 def organization_member_create(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationMemberCreate:
-    '''Make a user a member of an organization.
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationMemberCreate:
+    """Make a user a member of an organization.
 
     You must be authorized to edit the organization.
 
@@ -337,14 +350,15 @@ def organization_member_create(
 
     :returns: the newly created (or updated) membership
     :rtype: dictionary
-    '''
-    _check_access('organization_member_create', context, data_dict)
+    """
+    _check_access("organization_member_create", context, data_dict)
     return _group_or_org_member_create(context, data_dict, is_org=True)
 
 
 def organization_update(
-        context: Context, data_dict: DataDict) -> ActionResult.OrganizationUpdate:
-    '''Update an organization.
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationUpdate:
+    """Update an organization.
 
     You must be authorized to edit the organization.
 
@@ -367,14 +381,14 @@ def organization_update(
     :returns: the updated organization
     :rtype: dictionary
 
-    '''
+    """
     return _group_or_org_update(context, data_dict, is_org=True)
 
 
 def organization_patch(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationPatch:
-    '''Patch an organization
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationPatch:
+    """Patch an organization
 
     :param id: the id or name of the organization
     :type id: string
@@ -383,25 +397,27 @@ def organization_patch(
     perform an update of the provided parameters, while leaving all other
     parameters unchanged, whereas the update methods deletes all parameters
     not explicitly provided in the data_dict
-    '''
-    _check_access('organization_patch', context, data_dict)
+    """
+    _check_access("organization_patch", context, data_dict)
 
     show_context: Context = _fresh_context(context)
 
-    organization_dict = _get_action('organization_show')(
-        show_context,
-        {'id': _get_or_bust(data_dict, 'id')})
+    organization_dict = _get_action("organization_show")(
+        show_context, {"id": _get_or_bust(data_dict, "id")}
+    )
 
     patched = dict(organization_dict)
-    patched.pop('display_name', None)
+    patched.pop("display_name", None)
     patched.update(data_dict)
 
     patch_context = context.copy()
-    return _get_action('organization_update')(patch_context, patched)
+    return _get_action("organization_update")(patch_context, patched)
 
 
-def organization_delete(context: Context, data_dict: DataDict) -> ActionResult.OrganizationDelete:
-    '''Delete an organization.
+def organization_delete(
+    context: Context, data_dict: DataDict
+) -> ActionResult.OrganizationDelete:
+    """Delete an organization.
 
     You must be authorized to delete the organization
     and no datasets should belong to the organization
@@ -410,12 +426,12 @@ def organization_delete(context: Context, data_dict: DataDict) -> ActionResult.O
     :param id: the name or id of the organization
     :type id: string
 
-    '''
+    """
     return _group_or_org_delete(context, data_dict, is_org=True)
 
 
 def organization_purge(context: Context, data_dict: DataDict) -> None:
-    '''Purge an organization.
+    """Purge an organization.
 
     .. warning:: Purging an organization cannot be undone!
 
@@ -432,13 +448,12 @@ def organization_purge(context: Context, data_dict: DataDict) -> None:
     :param id: the name or id of the organization to be purged
     :type id: string
 
-    '''
+    """
     return _group_or_org_purge(context, data_dict, is_org=True)
 
 
-def organization_member_delete(context: Context,
-                               data_dict: DataDict) -> None:
-    '''Remove a user from an organization.
+def organization_member_delete(context: Context, data_dict: DataDict) -> None:
+    """Remove a user from an organization.
 
     You must be authorized to edit the organization.
 
@@ -447,6 +462,6 @@ def organization_member_delete(context: Context,
     :param username: name or id of the user to be removed
     :type username: string
 
-    '''
-    _check_access('organization_member_delete',context, data_dict)
+    """
+    _check_access("organization_member_delete", context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
