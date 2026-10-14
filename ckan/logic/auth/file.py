@@ -284,10 +284,11 @@ def file_owner_scan(context: Context, data_dict: dict[str, Any]) -> AuthResult:
     return {"success": result, "msg": "Not allowed to list files"}
 
 
-def file_upload(context: Context,
-                data_dict: Optional[DataDict] = None) -> AuthResult:
-    user = context['user']
+def file_upload(context: Context, data_dict: Optional[DataDict] = None) -> AuthResult:
+    user = context["user"]
     if authz.auth_is_anon_user(context):
-        return {'success': False, 'msg': _(
-            'User %s not authorized to create packages') % user}
-    return {'success': True}
+        return {
+            "success": False,
+            "msg": _("User %s not authorized to create packages") % user,
+        }
+    return {"success": True}
