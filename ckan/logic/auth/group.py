@@ -1,19 +1,13 @@
 from __future__ import annotations
 
-import ckan.logic as logic
-
-
-from ckan.common import _, asbool, config
-
-from ckan.logic.auth import get_group_object
-
-from ckan.types import AuthResult, Context, DataDict
-
 from typing import Optional
 
 import ckan.authz as authz
-
+import ckan.logic as logic
 import ckan.logic.auth as logic_auth
+from ckan.common import _, asbool, config
+from ckan.logic.auth import get_group_object
+from ckan.types import AuthResult, Context, DataDict
 
 
 @logic.auth_allow_anonymous_access

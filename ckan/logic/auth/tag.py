@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import ckan.logic as logic
-
-
-from ckan.types import AuthResult, Context, DataDict
-
 import ckan.authz as authz
+import ckan.logic as logic
+from ckan.types import AuthResult, Context, DataDict
 
 
 @logic.auth_allow_anonymous_access
