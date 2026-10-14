@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ckan.logic as logic
+
 
 
 from ckan.types import AuthResult, Context, DataDict
@@ -8,10 +10,12 @@ from ckan.types import AuthResult, Context, DataDict
 
 
 
+@logic.auth_allow_anonymous_access
 def config_option_show(context: Context, data_dict: DataDict) -> AuthResult:
     '''Show runtime-editable configuration option. Only sysadmins.'''
     return {'success': False}
 
+@logic.auth_allow_anonymous_access
 def config_option_list(context: Context, data_dict: DataDict) -> AuthResult:
     '''List runtime-editable configuration options. Only sysadmins.'''
     return {'success': False}

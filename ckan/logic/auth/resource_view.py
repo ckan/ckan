@@ -16,6 +16,7 @@ import ckan.logic as logic
 
 
 
+@logic.auth_allow_anonymous_access
 def resource_view_show(context: Context, data_dict: DataDict) -> AuthResult:
     resource_view = model.ResourceView.get(data_dict['id'])
     if not resource_view:
@@ -25,6 +26,7 @@ def resource_view_show(context: Context, data_dict: DataDict) -> AuthResult:
     assert resource
     return authz.is_authorized('resource_show', context, {'id': resource.id})
 
+@logic.auth_allow_anonymous_access
 def resource_view_list(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('resource_show', context, data_dict)
 
