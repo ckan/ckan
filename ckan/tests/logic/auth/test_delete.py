@@ -5,7 +5,7 @@
 
 import pytest
 
-import ckan.logic.auth.delete as auth_delete
+import ckan.logic.auth.resource as auth_resource
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import authz, model
@@ -54,7 +54,7 @@ class TestDeleteAuth:
             owner_org=org["id"], resources=[{"url": "https://example.com/data.csv"}]
         )
 
-        response = auth_delete.resource_delete(
+        response = auth_resource.resource_delete(
             {"user": user["name"], "model": model},
             {"id": dataset["resources"][0]["id"]},
         )
@@ -69,7 +69,7 @@ class TestDeleteAuth:
             owner_org=org["id"], resources=[{"url": "https://example.com/data.csv"}], user=user
         )
 
-        response = auth_delete.resource_delete(
+        response = auth_resource.resource_delete(
             {"user": user["name"], "model": model, "auth_user_obj": user},
             {"id": dataset["resources"][0]["id"]},
         )

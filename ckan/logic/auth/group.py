@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ckan.logic as logic
+
 
 
 from ckan.common import _, asbool, config
@@ -18,13 +20,16 @@ import ckan.logic.auth as logic_auth
 
 
 
+@logic.auth_allow_anonymous_access
 def group_list(context: Context, data_dict: DataDict) -> AuthResult:
     # List of all active groups is visible by default
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def group_list_authz(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('group_list', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def group_show(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
     group = get_group_object(context, data_dict)
@@ -40,17 +45,21 @@ def group_show(context: Context, data_dict: DataDict) -> AuthResult:
     else:
         return {'success': False, 'msg': _('User %s not authorized to read group %s') % (user, group.id)}
 
+@logic.auth_allow_anonymous_access
 def group_autocomplete(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('group_list', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def member_roles_list(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def group_package_show(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the set of datasets belonging to a group is visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def member_list(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the members of a given group are visible.
     Visible to all by default.'''
@@ -139,3 +148,41 @@ def member_delete(context: Context, data_dict: DataDict) -> AuthResult:
 
 def group_patch(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('group_update', context, data_dict)
+
+
+@logic.auth_allow_anonymous_access
+def group_list_available(context: Context, data_dict: DataDict) -> AuthResult:
+    return authz.is_authorized('group_list', context, data_dict)
+
+def group_change_state(context: Context, data_dict: DataDict) -> AuthResult:
+    user = context['user']
+    group = logic_auth.get_group_object(context, data_dict)
+
+    # use logic for group_update
+    authorized = authz.is_authorized_boolean('group_update',
+                                             context,
+                                             data_dict)
+    if not authorized:
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to change state of group %s') %
+                    (str(user), group.id)
+        }
+    else:
+        return {'success': True}
+
+def group_edit_permissions(context: Context, data_dict: DataDict) -> AuthResult:
+    user = context['user']
+    group = logic_auth.get_group_object(context, data_dict)
+
+    authorized = authz.has_user_permission_for_group_or_org(
+        group.id, user, 'update')
+
+    if not authorized:
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to'
+                     ' edit permissions of group %s') %
+            (str(user), group.id)}
+    else:
+        return {'success': True}
