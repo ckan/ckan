@@ -11,7 +11,7 @@ import pytest
 import sqlalchemy as sa
 
 import ckan.logic as logic
-from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic.action.package import package_show as core_package_show
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
