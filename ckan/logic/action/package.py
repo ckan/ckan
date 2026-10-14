@@ -255,9 +255,7 @@ def package_relationship_create(
     :rtype: dictionary
 
     """
-    schema = (
-        context.get("schema") or schema_.default_create_relationship_schema()
-    )
+    schema = context.get("schema") or schema_.default_create_relationship_schema()
     api = context.get("api_version")
     ref_package_by = "id" if api == 2 else "name"
 
@@ -672,8 +670,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     include_plugin_data = asbool(data_dict.get("include_plugin_data", False))
     if user_obj and user_obj.is_authenticated:
         include_plugin_data = (
-            user_obj.sysadmin
-            and include_plugin_data
+            getattr(user_obj, "sysadmin", False) and include_plugin_data
         )
 
         if include_plugin_data:
@@ -1320,10 +1317,7 @@ def package_update(context: Context, data_dict: DataDict) -> ActionResult.Packag
     user_obj = context.get("auth_user_obj")
     if user_obj:
         plugin_data = data.get("plugin_data", False)
-        include_plugin_data = (
-            user_obj.sysadmin
-            and plugin_data
-        )
+        include_plugin_data = getattr(user_obj, "sysadmin", False) and plugin_data
 
     nested = model.repo.session.begin_nested()
     pkg, change = model_save.package_dict_save(
