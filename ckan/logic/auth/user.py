@@ -2,11 +2,8 @@ from __future__ import annotations
 
 
 
-from .create import _check_follow_auth
 
-from .delete import _check_unfollow_auth
 
-from .get import _followee_list
 
 from .group import group_member_create
 
@@ -30,6 +27,7 @@ import ckan.logic.auth as logic_auth
 
 
 
+@logic.auth_allow_anonymous_access
 def user_list(context: Context, data_dict: DataDict) -> AuthResult:
     # Users list is visible by default
     if data_dict.get('email'):
@@ -40,6 +38,7 @@ def user_list(context: Context, data_dict: DataDict) -> AuthResult:
     else:
         return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def user_show(context: Context, data_dict: DataDict) -> AuthResult:
     # By default, user details can be read by anyone, but some properties like
     # the API key are stripped at the action level if not not logged in.
@@ -48,48 +47,60 @@ def user_show(context: Context, data_dict: DataDict) -> AuthResult:
     else:
         return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def user_autocomplete(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('user_list', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def get_site_user(context: Context, data_dict: DataDict) -> AuthResult:
     # FIXME this is available to sysadmins currently till
     # @auth_sysadmins_check decorator is added
     return {'success': False,
             'msg': 'Only internal services allowed to use this action'}
 
+@logic.auth_allow_anonymous_access
 def user_follower_list(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('sysadmin', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def dataset_follower_list(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('sysadmin', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def group_follower_list(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('sysadmin', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def organization_follower_list(context: Context,
                                data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('sysadmin', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def followee_list(context: Context, data_dict: DataDict) -> AuthResult:
     return _followee_list(context, data_dict)
 
+@logic.auth_allow_anonymous_access
 @logic.auth_audit_exempt
 def user_followee_list(context: Context, data_dict: DataDict) -> AuthResult:
     return _followee_list(context, data_dict)
 
+@logic.auth_allow_anonymous_access
 @logic.auth_audit_exempt
 def dataset_followee_list(context: Context, data_dict: DataDict) -> AuthResult:
     return _followee_list(context, data_dict)
 
+@logic.auth_allow_anonymous_access
 @logic.auth_audit_exempt
 def group_followee_list(context: Context, data_dict: DataDict) -> AuthResult:
     return _followee_list(context, data_dict)
 
+@logic.auth_allow_anonymous_access
 @logic.auth_audit_exempt
 def organization_followee_list(context: Context,
                                data_dict: DataDict) -> AuthResult:
     return _followee_list(context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def api_token_list(context: Context, data_dict: DataDict) -> AuthResult:
     """List all available tokens for current user.
     """
@@ -100,61 +111,73 @@ def api_token_list(context: Context, data_dict: DataDict) -> AuthResult:
 
     return {u'success': success}
 
+@logic.auth_allow_anonymous_access
 def dataset_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of datasets followed by a user are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def group_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of groups followed by a user are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def organization_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of organizations followed by a user are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def user_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of users followed by a user are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def followee_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of objects (of any type) followed by a user are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def dataset_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of followers of a dataset are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def group_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of followers of a group are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def organization_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of followers of an organization are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def user_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of followers of a user are visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def am_following_dataset(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the information about following a dataset is visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def am_following_group(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the information about following a group is visible.
     Visible to all by default.'''
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def am_following_user(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the information about following a user is visible.
     Visible to all by default.'''
@@ -302,3 +325,46 @@ def unfollow_user(context: Context,
 
 def user_patch(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('user_update', context, data_dict)
+
+
+def _followee_list(context: Context, data_dict: DataDict) -> AuthResult:
+    # Visitors cannot see what users are following.
+    authorized_user = model.User.get(context.get('user'))
+    if not authorized_user:
+        return {'success': False, 'msg': _('Not authorized')}
+
+    # Any user is authorized to see what she herself is following.
+    requested_user = model.User.get(data_dict.get('id', ''))
+    if authorized_user == requested_user:
+        return {'success': True}
+
+    # Sysadmins are authorized to see what anyone is following.
+    return authz.is_authorized('sysadmin', context, data_dict)
+
+@logic.auth_allow_anonymous_access
+def user_reset(context: Context, data_dict: DataDict) -> AuthResult:
+    return {'success': True}
+
+@logic.auth_allow_anonymous_access
+def request_reset(context: Context, data_dict: DataDict) -> AuthResult:
+    return {'success': True}
+
+def _check_follow_auth(context: Context) -> bool:
+    if not context.get('user'):
+        return False
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        return False
+
+    return True
+
+def _check_unfollow_auth(context: Context) -> bool:
+    if not context.get('user'):
+        return False
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        return False
+
+    return True

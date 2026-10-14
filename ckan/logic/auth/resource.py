@@ -20,6 +20,7 @@ import ckan.logic.auth as logic_auth
 
 
 
+@logic.auth_allow_anonymous_access
 def resource_show(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
     resource = get_resource_object(context, data_dict)
@@ -38,9 +39,11 @@ def resource_show(context: Context, data_dict: DataDict) -> AuthResult:
     else:
         return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def format_autocomplete(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def resource_search(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if resource search is allowed.
     Allowed for all by default.'''

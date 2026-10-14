@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ckan.logic as logic
+
 
 
 from .group import _group_or_org_member_create
@@ -20,17 +22,21 @@ import ckan.logic.auth as logic_auth
 
 
 
+@logic.auth_allow_anonymous_access
 def organization_list(context: Context, data_dict: DataDict) -> AuthResult:
     # List of all active organizations are visible by default
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def organization_list_for_user(context: Context,
                                data_dict: DataDict) -> AuthResult:
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def organization_show(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('group_show', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def organization_autocomplete(context: Context,
                               data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('organization_list', context, data_dict)

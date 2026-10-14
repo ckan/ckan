@@ -2,7 +2,6 @@ from __future__ import annotations
 
 
 
-from .create import _check_group_auth
 
 from ckan import model
 
@@ -26,22 +25,27 @@ import ckan.logic.auth as logic_auth
 
 
 
+@logic.auth_allow_anonymous_access
 def package_search(context: Context, data_dict: DataDict) -> AuthResult:
     # Everyone can search by default
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def package_list(context: Context, data_dict: DataDict) -> AuthResult:
     # List of all active packages are visible by default
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def current_package_list_with_resources(context: Context,
                                         data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('package_list', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def license_list(context: Context, data_dict: DataDict) -> AuthResult:
     # Licenses list is visible by default
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def package_relationships_list(context: Context,
                                data_dict: DataDict) -> AuthResult:
     user = context.get('user')
@@ -63,6 +67,7 @@ def package_relationships_list(context: Context,
     else:
         return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def package_show(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
     package = get_package_object(context, data_dict)
@@ -78,9 +83,11 @@ def package_show(context: Context, data_dict: DataDict) -> AuthResult:
     else:
         return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def package_autocomplete(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('package_list', context, data_dict)
 
+@logic.auth_allow_anonymous_access
 def package_collaborator_list(context: Context,
                               data_dict: DataDict) -> AuthResult:
     '''Checks if a user is allowed to list the collaborators from a dataset
@@ -101,6 +108,7 @@ def package_collaborator_list(context: Context,
 
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def package_collaborator_list_for_user(context: Context,
                                        data_dict: DataDict) -> AuthResult:
     '''Checks if a user is allowed to list all datasets a user is a collaborator in
@@ -326,3 +334,66 @@ def package_collaborator_delete(context: Context,
 
 def package_patch(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('package_update', context, data_dict)
+
+
+def _check_group_auth(context: Context, data_dict: Optional[DataDict]) -> bool:
+    '''Has this user got update permission for all of the given groups?
+    If there is a package in the context then ignore that package's groups.
+    (owner_org is checked elsewhere.)
+    :returns: False if not allowed to update one (or more) of the given groups.
+              True otherwise. i.e. True is the default. A blank data_dict
+              mentions no groups, so it returns True.
+
+    '''
+    # FIXME This code is shared among other logic.auth files and should be
+    # somewhere better
+    if not data_dict:
+        return True
+
+    user = context['user']
+    pkg = context.get("package")
+
+    group_blobs = data_dict.get('groups', [])
+    groups = set()
+    for group_blob in group_blobs:
+        # group_blob might be a dict or a group_ref
+        if isinstance(group_blob, dict):
+            # use group id by default, but we can accept name as well
+            id = group_blob.get('id') or group_blob.get('name')
+            if not id:
+                continue
+        else:
+            id = group_blob
+        grp = model.Group.get(id)
+        if grp is None:
+            raise logic.NotFound(_('Group was not found.'))
+        groups.add(grp)
+
+    if pkg:
+        pkg_groups = pkg.get_groups()
+
+        groups = groups - set(pkg_groups)
+
+    for group in groups:
+        if not authz.has_user_permission_for_group_or_org(
+                group.id, user, 'manage_group'):
+            return False
+
+    return True
+
+def package_change_state(context: Context, data_dict: DataDict) -> AuthResult:
+    user = context['user']
+    package = logic_auth.get_package_object(context, data_dict)
+
+    # use the logic for package_update
+    authorized = authz.is_authorized_boolean('package_update',
+                                             context,
+                                             data_dict)
+    if not authorized:
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to change state of package %s') %
+                    (str(user), package.id)
+        }
+    else:
+        return {'success': True}
