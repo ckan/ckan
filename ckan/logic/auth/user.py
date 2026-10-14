@@ -366,3 +366,9 @@ def _check_unfollow_auth(context: Context) -> bool:
         return False
 
     return True
+
+
+@logic.auth_allow_anonymous_access
+def sysadmin(context: Context, data_dict: DataDict) -> AuthResult:
+    ''' This is a pseudo check if we are a sysadmin all checks are true '''
+    return {'success': False, 'msg': _('Not authorized')}
