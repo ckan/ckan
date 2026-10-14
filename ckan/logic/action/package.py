@@ -11,7 +11,6 @@ import six
 from sqlalchemy import and_ as _and_
 from sqlalchemy.sql import select as _select
 
-import ckan
 import ckan.authz as authz
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
@@ -257,7 +256,7 @@ def package_relationship_create(
 
     """
     schema = (
-        context.get("schema") or ckan.logic.schema.default_create_relationship_schema()
+        context.get("schema") or schema_.default_create_relationship_schema()
     )
     api = context.get("api_version")
     ref_package_by = "id" if api == 2 else "name"
@@ -371,7 +370,7 @@ def package_collaborator_create(
 
 
 @side_effect_free
-@logic.validate(ckan.logic.schema.default_pagination_schema)
+@logic.validate(schema_.default_pagination_schema)
 def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageList:
     """Return a list of the names of the site's datasets (packages).
 
@@ -414,7 +413,7 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
 
 
 @side_effect_free
-@logic.validate(ckan.logic.schema.default_package_list_schema)
+@logic.validate(schema_.default_package_list_schema)
 def current_package_list_with_resources(
     context: Context, data_dict: DataDict
 ) -> ActionResult.CurrentPackageListWithResources:
@@ -673,7 +672,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     include_plugin_data = asbool(data_dict.get("include_plugin_data", False))
     if user_obj and user_obj.is_authenticated:
         include_plugin_data = (
-            user_obj.sysadmin  # type: ignore
+            user_obj.sysadmin
             and include_plugin_data
         )
 
@@ -689,7 +688,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     _check_access("package_show", context, data_dict)
 
     if asbool(data_dict.get("use_default_schema", False)):
-        context["schema"] = ckan.logic.schema.default_show_package_schema()
+        context["schema"] = schema_.default_show_package_schema()
 
     package_dict = None
     use_cache = context.get("use_cache", True)
@@ -748,7 +747,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
 
 @side_effect_free
-@logic.validate(ckan.logic.schema.default_autocomplete_schema)
+@logic.validate(schema_.default_autocomplete_schema)
 def package_autocomplete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageAutocomplete:
@@ -950,7 +949,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         if fl = None, datasets are returned as a list of full dictionary.
     """
     # sometimes context['schema'] is None
-    schema = context.get("schema") or ckan.logic.schema.default_package_search_schema()
+    schema = context.get("schema") or schema_.default_package_search_schema()
     data_dict, errors = _validate(data_dict, schema, context)
     # put the extras back into the data_dict so that the search can
     # report needless parameters
@@ -1322,7 +1321,7 @@ def package_update(context: Context, data_dict: DataDict) -> ActionResult.Packag
     if user_obj:
         plugin_data = data.get("plugin_data", False)
         include_plugin_data = (
-            user_obj.sysadmin  # type: ignore
+            user_obj.sysadmin
             and plugin_data
         )
 
@@ -1846,7 +1845,7 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
     for collaborator in dataset_collaborators:
         collaborator.delete()
 
-    ckan.logic.index_update_package(context, id)
+    logic.index_update_package(context, id)
     model.repo.commit()
 
 
@@ -1900,7 +1899,7 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     pkg = model.Package.get(id)
     assert pkg
 
-    ckan.logic.index_remove_package(id)
+    logic.index_remove_package(id)
 
     pkg.purge()
     model.repo.commit_and_remove()

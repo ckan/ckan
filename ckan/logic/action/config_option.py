@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import time
 
-import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.lib.uploader as uploader
 import ckan.logic.schema as schema_
@@ -159,7 +158,7 @@ def config_option_show(
 
     key = _get_or_bust(data_dict, "key")
 
-    schema = ckan.logic.schema.update_configuration_schema()
+    schema = schema_.update_configuration_schema()
 
     # Only return whitelisted keys
     if key not in schema:
@@ -184,6 +183,6 @@ def config_option_list(
 
     _check_access("config_option_list", context, data_dict)
 
-    schema = ckan.logic.schema.update_configuration_schema()
+    schema = schema_.update_configuration_schema()
 
     return list(schema.keys())

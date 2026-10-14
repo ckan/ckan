@@ -6,10 +6,10 @@ from typing import Any, Union, cast
 import sqlalchemy
 from sqlalchemy import text
 
-import ckan
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.search as search
 import ckan.logic as logic
+import ckan.logic.schema as schema_
 import ckan.model as model
 import ckan.model.misc as misc
 import ckan.plugins as plugins
@@ -155,7 +155,7 @@ def resource_show(context: Context, data_dict: DataDict) -> ActionResult.Resourc
 
 
 @side_effect_free
-@logic.validate(ckan.logic.schema.default_autocomplete_schema)
+@logic.validate(schema_.default_autocomplete_schema)
 def format_autocomplete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.FormatAutocomplete:
@@ -198,7 +198,7 @@ def format_autocomplete(
 
 
 @side_effect_free
-@logic.validate(ckan.logic.schema.default_resource_search_schema)
+@logic.validate(schema_.default_resource_search_schema)
 def resource_search(  # noqa: C901
     context: Context, data_dict: DataDict
 ) -> ActionResult.ResourceSearch:

@@ -801,7 +801,7 @@ class TestResourceViewUpdate(object):
         assert result["title"] == params["title"]
         assert result["description"] == params["description"]
 
-    @mock.patch("ckan.lib.datapreview")
+    @mock.patch("ckan.logic.action.resource_view.datapreview")
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
         self, datapreview_mock
     ):

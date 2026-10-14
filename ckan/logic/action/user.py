@@ -12,7 +12,6 @@ from sqlalchemy import func as _func
 from sqlalchemy import or_ as _or_
 from sqlalchemy.sql import select as _select
 
-import ckan
 import ckan.authz as authz
 import ckan.lib.api_token as api_token
 import ckan.lib.dictization.model_dictize as model_dictize
@@ -92,7 +91,7 @@ def user_create(context: Context, data_dict: DataDict) -> ActionResult.UserCreat
     :rtype: dictionary
 
     """
-    schema = context.get("schema") or ckan.logic.schema.default_user_schema()
+    schema = context.get("schema") or schema_.default_user_schema()
     session = context["session"]
     with_apitoken = data_dict.pop("with_apitoken", False)
 
@@ -189,7 +188,7 @@ def user_invite(context: Context, data_dict: DataDict) -> ActionResult.UserInvit
     """
     _check_access("user_invite", context, data_dict)
 
-    schema = context.get("schema", ckan.logic.schema.default_user_invite_schema())
+    schema = context.get("schema", schema_.default_user_invite_schema())
     data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -203,7 +202,7 @@ def user_invite(context: Context, data_dict: DataDict) -> ActionResult.UserInvit
     data["name"] = name
     # send the proper schema when creating a user from here
     # so the password field would be ignored.
-    invite_schema = ckan.logic.schema.create_user_for_user_invite_schema()
+    invite_schema = schema_.create_user_for_user_invite_schema()
 
     data["state"] = model.State.PENDING
     user_dict = _get_action("user_create")(
@@ -276,7 +275,7 @@ def follow_user(context: Context, data_dict: DataDict) -> ActionResult.FollowUse
     if not userobj:
         raise NotFound(_("User not found"))
 
-    schema = context.get("schema", ckan.logic.schema.default_follow_user_schema())
+    schema = context.get("schema", schema_.default_follow_user_schema())
 
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
@@ -327,7 +326,7 @@ def follow_dataset(context: Context, data_dict: DataDict) -> ActionResult.Follow
     if not userobj:
         raise NotFound(_("User not found"))
 
-    schema = context.get("schema") or ckan.logic.schema.default_follow_dataset_schema()
+    schema = context.get("schema") or schema_.default_follow_dataset_schema()
     validated_data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         message = _("Error validating the schema of the dataset to follow.")
@@ -371,7 +370,7 @@ def follow_group(context: Context, data_dict: DataDict) -> ActionResult.FollowGr
     if not userobj:
         raise NotFound(_("User not found"))
 
-    schema = context.get("schema", ckan.logic.schema.default_follow_group_schema())
+    schema = context.get("schema", schema_.default_follow_group_schema())
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
@@ -665,7 +664,7 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
 
 @side_effect_free
-@logic.validate(ckan.logic.schema.default_autocomplete_schema)
+@logic.validate(schema_.default_autocomplete_schema)
 def user_autocomplete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.UserAutocomplete:
@@ -737,7 +736,7 @@ def user_follower_count(
     return _follower_count(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_user_schema(),
+        schema_.default_follow_user_schema(),
         model.UserFollowingUser,
     )
 
@@ -758,7 +757,7 @@ def dataset_follower_count(
     return _follower_count(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_dataset_schema(),
+        schema_.default_follow_dataset_schema(),
         model.UserFollowingDataset,
     )
 
@@ -779,7 +778,7 @@ def group_follower_count(
     return _follower_count(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_group_schema(),
+        schema_.default_follow_group_schema(),
         model.UserFollowingGroup,
     )
 
@@ -839,7 +838,7 @@ def user_follower_list(
     return _follower_list(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_user_schema(),
+        schema_.default_follow_user_schema(),
         model.UserFollowingUser,
     )
 
@@ -860,7 +859,7 @@ def dataset_follower_list(
     return _follower_list(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_dataset_schema(),
+        schema_.default_follow_dataset_schema(),
         model.UserFollowingDataset,
     )
 
@@ -881,7 +880,7 @@ def group_follower_list(
     return _follower_list(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_group_schema(),
+        schema_.default_follow_group_schema(),
         model.UserFollowingGroup,
     )
 
@@ -902,7 +901,7 @@ def organization_follower_list(
     return _follower_list(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_group_schema(),
+        schema_.default_follow_group_schema(),
         model.UserFollowingGroup,
     )
 
@@ -946,7 +945,7 @@ def am_following_user(
     return _am_following(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_user_schema(),
+        schema_.default_follow_user_schema(),
         model.UserFollowingUser,
     )
 
@@ -967,7 +966,7 @@ def am_following_dataset(
     return _am_following(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_dataset_schema(),
+        schema_.default_follow_dataset_schema(),
         model.UserFollowingDataset,
     )
 
@@ -988,7 +987,7 @@ def am_following_group(
     return _am_following(
         context,
         data_dict,
-        ckan.logic.schema.default_follow_group_schema(),
+        schema_.default_follow_group_schema(),
         model.UserFollowingGroup,
     )
 
@@ -1000,7 +999,7 @@ def _followee_count(
     is_org: bool = False,
 ) -> int:
     if not context.get("skip_validation"):
-        schema = context.get("schema", ckan.logic.schema.default_follow_user_schema())
+        schema = context.get("schema", schema_.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -1101,7 +1100,7 @@ def organization_followee_count(
 
 
 @side_effect_free
-@logic.validate(ckan.logic.schema.default_follow_user_schema)
+@logic.validate(schema_.default_follow_user_schema)
 def followee_list(context: Context, data_dict: DataDict) -> ActionResult.FolloweeList:
     """Return the list of objects that are followed by the given user.
 
@@ -1182,7 +1181,7 @@ def user_followee_list(
 
     if not context.get("skip_validation"):
         schema = context.get("schema") or (
-            ckan.logic.schema.default_follow_user_schema()
+            schema_.default_follow_user_schema()
         )
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
@@ -1216,7 +1215,7 @@ def dataset_followee_list(
 
     if not context.get("skip_validation"):
         schema = context.get("schema") or (
-            ckan.logic.schema.default_follow_user_schema()
+            schema_.default_follow_user_schema()
         )
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
@@ -1309,7 +1308,7 @@ def _group_or_org_followee_list(
 ):
 
     if not context.get("skip_validation"):
-        schema = context.get("schema", ckan.logic.schema.default_follow_user_schema())
+        schema = context.get("schema", schema_.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -1491,7 +1490,7 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
     :type id: string
 
     """
-    schema = context.get("schema") or (ckan.logic.schema.default_follow_user_schema())
+    schema = context.get("schema") or (schema_.default_follow_user_schema())
     _check_access("unfollow_user", context, data_dict)
     _unfollow(context, data_dict, schema, model.UserFollowingUser)
 
@@ -1504,7 +1503,7 @@ def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
 
     """
     schema = context.get("schema") or (
-        ckan.logic.schema.default_follow_dataset_schema()
+        schema_.default_follow_dataset_schema()
     )
     _check_access("unfollow_dataset", context, data_dict)
     _unfollow(context, data_dict, schema, model.UserFollowingDataset)
@@ -1517,7 +1516,7 @@ def unfollow_group(context: Context, data_dict: DataDict) -> None:
     :type id: string
 
     """
-    schema = context.get("schema", ckan.logic.schema.default_follow_group_schema())
+    schema = context.get("schema", schema_.default_follow_group_schema())
     _check_access("unfollow_group", context, data_dict)
     _unfollow(context, data_dict, schema, model.UserFollowingGroup)
 
