@@ -92,6 +92,8 @@ packaging==24.1
     # via -r requirements.in
 passlib==1.7.4
     # via -r requirements.in
+pglast==8.4
+    # via -r requirements.in
 polib==1.2.0
     # via -r requirements.in
 psycopg2==2.9.11
@@ -130,10 +132,9 @@ sqlalchemy[mypy]==1.4.52
     # via
     #   -r requirements.in
     #   alembic
+    #   sqlalchemy
 sqlalchemy2-stubs==0.0.2a38
     # via sqlalchemy
-sqlparse==0.6.0
-    # via -r requirements.in
 tomli==2.0.1
     # via mypy
 typing-extensions==4.12.2
@@ -158,6 +159,7 @@ werkzeug[watchdog]==3.1.9
     #   -r requirements.in
     #   flask
     #   flask-login
+    #   werkzeug
 wtforms==3.1.2
     # via flask-wtf
 zope-interface==6.4.post2

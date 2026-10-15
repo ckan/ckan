@@ -20,6 +20,7 @@ Markdown==3.10.2
 msgspec==0.20.0
 packaging==24.1
 passlib==1.7.4
+pglast==8.4
 polib==1.2.0
 psycopg2==2.9.11
 PyJWT==2.15.1
@@ -33,7 +34,6 @@ requests==2.33.0
 rq==1.16.2
 simplejson==3.19.2
 SQLAlchemy[mypy]==1.4.52
-sqlparse==0.6.0
 typing_extensions==4.12.2
 tzlocal==5.2
 webassets==2.0
