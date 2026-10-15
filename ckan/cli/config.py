@@ -264,33 +264,36 @@ def _declaration(
 
 @config.command()
 @click.argument("names", nargs=-1)
-@click.option("--only-declared", is_flag=True)
+@click.option("--only-declared", is_flag=True, help="Show only declared options")
 def show(names: Iterable[str], only_declared: bool):
-    """Show values for specified config options."""
-    names = set(names)
+    """Show values for specified or all config options."""
+    if not names:
+        names = sorted(list(cfg))
 
     decl = _declaration([], True, True)
-    for k, v in sorted(cfg.items()):
-        if not names:
-            info = decl.get(k)
-            if info and info.has_flag(Flag.internal|Flag.ignored):
-                continue
+    missing: set[str] = set()
 
-            elif not info and only_declared:
-                continue
+    for k in names:
+        if k not in cfg:
+            missing.add(k)
+            continue
 
-        elif k in names:
-            names.remove(k)
+        info = decl.get(k)
+        if info and info.has_flag(Flag.internal|Flag.ignored):
+            continue
 
-        else:
+        elif not info and only_declared:
             continue
 
         # without repr values such as empty string or some objects may look
         # misleading.
-        click.secho(f"{k} = {click.style(repr(v), bold=True)}")
+        click.secho(f"{k} = {click.style(repr(cfg[k]), bold=True)}")
 
-    for missing in names:
-        msg = f"Option {click.style(missing, bold=True)} not found."
-        if similar := difflib.get_close_matches(missing, cfg.keys(), 1):
-            msg += f" Did you mean {click.style(similar[0], bold=True)}?"
-        click.secho(msg)
+    for name in missing:
+        msg = f"Option {name} not found."
+        if similar := difflib.get_close_matches(name, cfg.keys(), 1):
+            msg += f" Did you mean {similar[0]}?"
+        error_shout(msg)
+
+    if missing:
+        raise click.Abort
