@@ -128,18 +128,23 @@ document.body.addEventListener("htmx:oobAfterSwap", htmx_initialize_ckan_modules
 
 document.body.addEventListener("htmx:responseError", function (event) {
   const xhr = event.detail.xhr;
+  console.log(xhr);
+  const escapeHTML = (text) => $("<div>").text(text).html();
+  let message;
 
-  if (xhr.response.startsWith("<!doctype html>")) {
-    const error = $(xhr.response).find('#error-content');
-    var message = error.html() || event.detail.error;
+  if (/^\s*<!doctype html/i.test(xhr.responseText)) {
+    const doc = new DOMParser().parseFromString(xhr.responseText, "text/html");
+    const error = doc.querySelector("#error-content");
+    message = error ? error.innerHTML.trim() : escapeHTML(event.detail.error);
   } else {
-    var message = xhr.responseText;
+    // anything but an error page is plain text and must not be rendered as markup
+    message = escapeHTML(xhr.responseText.trim().replace(/^"(.*)"$/, '$1'));
   }
 
   ckan.toast({
-    message: message.trim().replace(/^"(.*)"$/, '$1'),
+    message: message,
     type: "danger",
-    title: `${xhr.status} ${xhr.statusText}`
+    title: escapeHTML(`${xhr.status} ${xhr.statusText}`)
   });
 })
 
