@@ -10,20 +10,40 @@
 
   <form method="post" action="{{ delete_action }}" class="mb-3 d-inline-block">
     {{ h.csrf_input() }}
-    <button class="btn btn-danger" name="delete" type="submit"
-      data-module="confirm-action"
-      data-module-with-data=true
-      data-module-content="{{ _('Are you sure you want to delete the DataStore and Data Dictionary?') }}">
-      <i class="fa fa-remove"></i> {{ _('Delete from DataStore') }}
-    </button>
+    {% if is_delete_supported %}
+      <button class="btn btn-danger" name="delete" type="submit"
+        data-module="confirm-action"
+        data-module-with-data=true
+        data-module-content="{{ _('Are you sure you want to delete the DataStore and Data Dictionary?') }}">
+        <i class="fa fa-remove"></i> {{ _('Delete from DataStore') }}
+      </button>
+    {% else %}
+      <button class="btn btn-danger"  type="button" disabled>
+        <i class="fa fa-remove"></i> {{ _('Delete from DataStore') }}
+      </button>
+    {% endif %}
   </form>
 
   <form method="post" action="{{ action }}" class="datapusher-form mb-3 d-inline-block">
     {{ h.csrf_input() }}
-    <button class="btn btn-primary" name="save" type="submit">
-      <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
-    </button>
+    {% if is_upload_supported %}
+      <button class="btn btn-primary" name="save" type="submit">
+        <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
+      </button>
+    {% else %}
+      <button class="btn btn-primary" type="button" disabled>
+        <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
+      </button>
+    {% endif %}
   </form>
+
+  {% if not is_upload_supported and not is_delete_supported %}
+    <p class="empty"> {{ _('Uploads and deletions are not supported for this file type in the DataStore') }}</p>
+   {% elif not is_upload_supported %}
+    <p class="empty"> {{ _('Uploads are not supported for this file type in the DataStore') }}</p>
+   {% elif not is_delete_supported %}
+    <p class="empty"> {{ _('Deletion cannot be performed as no data is present for this resourece in the DataStore') }}</p>
+  {% endif %}
 
   {% if status.error and status.error.message %}
     {% set show_table = false %}
