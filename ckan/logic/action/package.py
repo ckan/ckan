@@ -21,7 +21,6 @@ import ckan.lib.uploader as uploader
 import ckan.logic as logic
 import ckan.logic.schema as schema_
 import ckan.model as model
-import ckan.model as model_
 import ckan.plugins as plugins
 from ckan.common import _, asbool, config
 from ckan.lib.navl.dictization_functions import validate as _validate
@@ -1595,7 +1594,7 @@ def package_patch(context: Context, data_dict: DataDict) -> ActionResult.Package
 
 
 def _update_package_relationship(
-    relationship: "model_.PackageRelationship", comment: str, context: Context
+    relationship: "model.PackageRelationship", comment: str, context: Context
 ) -> dict[str, Any]:
     api = context.get("api_version")
     ref_package_by = "id" if api == 2 else "name"
