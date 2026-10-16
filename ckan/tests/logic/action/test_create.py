@@ -1314,6 +1314,36 @@ class TestGroupCreate(object):
         )
 
 
+    @pytest.mark.parametrize(
+        "action_name", ["group_create", "organization_create"]
+    )
+    def test_create_with_reused_context_creates_distinct_groups(
+        self, action_name
+    ):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": True}
+
+        first_name = factories.Group.stub().name
+        second_name = factories.Group.stub().name
+
+        first = helpers.call_action(
+            action_name, context=context, name=first_name
+        )
+
+        assert "group" not in context
+        assert "id" not in context
+
+        second = helpers.call_action(
+            action_name, context=context, name=second_name
+        )
+
+        assert first["id"] != second["id"]
+        assert model.Group.get(first_name) is not None
+        assert model.Group.get(second_name) is not None
+        assert "group" not in context
+        assert "id" not in context
+
+
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationCreate(object):
     def test_create_organization(self):
