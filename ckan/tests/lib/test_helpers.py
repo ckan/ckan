@@ -740,6 +740,23 @@ Notes: this is the classic RDF source but historically has had some problems wit
     assert "collects information" in h.markdown_extract(with_unicode)
 
 
+def test_markdown_extract_cuts_a_leading_token_wider_than_the_extract():
+    """A long first word must not swallow the whole extract.
+
+    ``textwrap.shorten`` drops any word that does not fit rather than
+    cutting it, so a description starting with a long URL, DOI or generated
+    identifier used to render as nothing but the placeholder.
+    """
+    long_token = u"B" * 400
+
+    assert h.markdown_extract(long_token, 180) != u"..."
+    assert len(h.markdown_extract(long_token, 180)) == 180
+    assert h.markdown_extract(long_token, 180).endswith(u"...")
+
+    # A trailing word does not change the leading token's behaviour.
+    assert h.markdown_extract(long_token + u" tail", 180) != u"..."
+
+
 @pytest.mark.parametrize("string, date", [
     ("2008-04-13", datetime.datetime(2008, 4, 13)),
     ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
