@@ -9,6 +9,19 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.11.7 2026-XX-XX
+===================
+
+Migration notes
+---------------
+
+- This version requires a requirements upgrade on source installations.
+  The package ``pglast`` has been added as a requirement, and ``sqlparse``
+  has been dropped.
+
+
+
+
 v.2.11.6 2026-08-26
 ===================
 
