@@ -3,8 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Union, cast
 
-import sqlalchemy
-from sqlalchemy import text
+import sqlalchemy as sa
 
 from ckan import logic, model, plugins
 from ckan.common import _
@@ -23,9 +22,6 @@ from ckan.logic import schema as schema_
 from ckan.model import misc
 from ckan.types import ActionResult, Context, DataDict, ErrorDict
 
-_and_ = sqlalchemy.and_
-_func = sqlalchemy.func
-_or_ = sqlalchemy.or_
 log = logging.getLogger("ckan.logic")
 
 
@@ -179,16 +175,16 @@ def format_autocomplete(
 
     query = (
         session.query(
-            model.Resource.format, _func.count(model.Resource.format).label("total")
+            model.Resource.format, sa.func.count(model.Resource.format).label("total")
         )
         .filter(
-            _and_(
+            sa.and_(
                 model.Resource.state == "active",
             )
         )
         .filter(model.Resource.format.ilike(like_q))
         .group_by(model.Resource.format)
-        .order_by(text("total DESC"))
+        .order_by(sa.text("total DESC"))
         .limit(limit)
     )
 
@@ -319,7 +315,7 @@ def resource_search(  # noqa: C901
         elif field in model.Resource.get_extra_columns():
             model_attr = getattr(model.Resource, "extras")
 
-            like = _or_(
+            like = sa.or_(
                 model_attr.ilike("""%%"%s": "%%%s%%",%%""" % (field, term)),
                 model_attr.ilike("""%%"%s": "%%%s%%"}""" % (field, term)),
             )
@@ -328,7 +324,7 @@ def resource_search(  # noqa: C901
         # Just a regular field
         else:
             column = model_attr.property.columns[0]
-            if isinstance(column.type, sqlalchemy.UnicodeText):
+            if isinstance(column.type, sa.UnicodeText):
                 q = q.filter(model_attr.ilike("%" + str(term) + "%"))
             else:
                 q = q.filter(model_attr == term)

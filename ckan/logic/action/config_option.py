@@ -138,8 +138,9 @@ def config_option_show(
     """Show the current value of a particular configuration option.
 
     Only returns runtime-editable config options (the ones returned by
-    :py:func:`~ckan.logic.action.config_option.config_option_list`), which can be updated with the
-    :py:func:`~ckan.logic.action.config_option.config_option_update` action.
+    :py:func:`~ckan.logic.action.config_option.config_option_list`), which can be
+    updated with the :py:func:`~ckan.logic.action.config_option.config_option_update`
+    action.
 
     :param key: The configuration option key
     :type key: string

@@ -9,6 +9,7 @@ from typing import Any, cast
 
 import six
 from sqlalchemy import and_ as _and_
+from sqlalchemy import or_ as _or_
 from sqlalchemy.sql import select as _select
 
 from ckan import authz, logic, model, plugins
@@ -1876,7 +1877,7 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     for r in (
         model.Session.query(model.PackageRelationship)
         .filter(
-            sqla.or_(
+            _or_(
                 model.PackageRelationship.subject_package_id == pkg.id,
                 model.PackageRelationship.object_package_id == pkg.id,
             )
@@ -1885,7 +1886,7 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     ):
         r.purge()
 
-    ckan.logic.index_remove_package(pkg.id)
+    logic.index_remove_package(pkg.id)
 
     pkg.purge()
     model.repo.commit_and_remove()
