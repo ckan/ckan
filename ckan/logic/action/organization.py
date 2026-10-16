@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import cast
 
-import ckan.authz as authz
-import ckan.lib.dictization.model_dictize as model_dictize
-import ckan.model as model
+from ckan import authz, model
 from ckan.common import asbool
+from ckan.lib.dictization import model_dictize
 from ckan.logic import (
     NotFound,
     side_effect_free,

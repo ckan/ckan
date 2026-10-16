@@ -12,18 +12,10 @@ from sqlalchemy import func as _func
 from sqlalchemy import or_ as _or_
 from sqlalchemy.sql import select as _select
 
-import ckan.authz as authz
-import ckan.lib.api_token as api_token
-import ckan.lib.dictization.model_dictize as model_dictize
-import ckan.lib.dictization.model_save as model_save
-import ckan.lib.mailer as mailer
-import ckan.lib.signals as signals
-import ckan.lib.uploader as uploader
-import ckan.logic as logic
-import ckan.logic.schema as schema_
-import ckan.model as model
-import ckan.plugins as plugins
+from ckan import authz, logic, model, plugins
 from ckan.common import _, asbool, config
+from ckan.lib import api_token, mailer, signals, uploader
+from ckan.lib.dictization import model_dictize, model_save
 from ckan.lib.navl.dictization_functions import validate
 from ckan.lib.navl.dictization_functions import validate as _validate
 from ckan.logic import (
@@ -36,6 +28,7 @@ from ckan.logic import check_access as _check_access
 from ckan.logic import fresh_context as _fresh_context
 from ckan.logic import get_action as _get_action
 from ckan.logic import get_or_bust as _get_or_bust
+from ckan.logic import schema as schema_
 from ckan.model.follower import ModelFollowingModel
 from ckan.types import ActionResult, Context, DataDict, Query, Schema
 
