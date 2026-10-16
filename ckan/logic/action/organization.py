@@ -366,7 +366,7 @@ def organization_update(
         `organization_patch` instead.
 
     For further parameters see
-    :py:func:`~ckan.logic.action.create.organization_create`.
+    :py:func:`~ckan.logic.action.organization.organization_create`.
 
     Callers can choose to not specify packages, users or groups and they will be
     left at their existing values.
@@ -374,7 +374,7 @@ def organization_update(
     :param id: the name or id of the organization to update
     :type id: string
     :param packages: ignored. use
-        :py:func:`~ckan.logic.action.update.package_owner_org_update`
+        :py:func:`~ckan.logic.action.package.package_owner_org_update`
         to change package ownership
 
     :returns: the updated organization

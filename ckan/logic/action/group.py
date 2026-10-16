@@ -1001,7 +1001,7 @@ def group_update(context: Context, data_dict: DataDict) -> ActionResult.GroupUpd
     :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
 
     For further parameters see
-    :py:func:`~ckan.logic.action.create.group_create`.
+    :py:func:`~ckan.logic.action.group.group_create`.
 
     Callers can choose to not specify packages, users or groups and they will be
     left at their existing values.
