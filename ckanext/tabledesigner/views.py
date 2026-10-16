@@ -88,6 +88,9 @@ class _TableDesignerDictionary(MethodView):
                         error_summary[_('Field %d') % i] = ', '.join(
                             v for vals in f.values()
                             for v in vals)
+            if fields and new_fields:
+                errors['fields'] = [{}]*len(fields) + field_errors
+
             return _datastore_view.get(
                 id, resource_id, data, errors, error_summary)
 
