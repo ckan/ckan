@@ -287,8 +287,6 @@ class TestActionAuth(object):
         "package: package_change_state",
     ]
 
-    ACTION_NO_DOC_STR_BLACKLIST = ["get: get_site_user"]
-
     @pytest.fixture(scope="class")
     def results(self):
         def get_functions(module_root):
@@ -360,8 +358,7 @@ class TestActionAuth(object):
         errors = []
         for name, fn in results[0].items():
             if not getattr(fn, "__doc__", None):
-                if name not in self.ACTION_NO_DOC_STR_BLACKLIST:
-                    errors.append(name)
+                errors.append(name)
         assert (
             not errors
         ), "These action functions need docstrings\n%s" % "\n".join(
