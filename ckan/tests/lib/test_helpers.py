@@ -784,6 +784,8 @@ def test_date_str_to_datetime_invalid(string: str):
     ({"string_basic": "peter"}, {"string basic": "peter"}),
     ({"string_empty": ""}, {}),  # empty strings are ignored
     ({"name": "hans"}, {}),  # blocked string
+    # added by the tracking plugin to every resource; not for the page (#9547)
+    ({"tracking_summary": {"total": 3, "recent": 1}}, {}),
 ])
 def test_format_resource_items_data_types(dict_in, dict_out, monkeypatch):
     # set locale to en (formatting of decimals)
