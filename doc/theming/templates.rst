@@ -624,7 +624,7 @@ The code also accesses the attributes of each group: ``{{ group.name }}`,
 ``{{ group.package_count }}``, etc. To see what attributes a group or any other CKAN
 object (packages/datasets, organizations, users...) has, you can use
 :doc:`CKAN's API </api/index>` to inspect the object. For example to find out what
-attributes a group has, call the :py:func:`~ckan.logic.action.get.group_show`
+attributes a group has, call the :py:func:`~ckan.logic.action.group.group_show`
 function.
 
 Now edit your |index.html| file and change it to use our new snippet instead

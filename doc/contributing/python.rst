@@ -159,7 +159,7 @@ example::
 
     See :py:mod:`ckan.lib.helpers`.
 
-    See :py:func:`ckan.logic.action.create.package_create`.
+    See :py:func:`ckan.logic.action.package.package_create`.
 
     See :py:class:`ckan.logic.NotFound`.
 
@@ -184,13 +184,13 @@ referenced, which helps to keep the docs up to date as the code changes.
 .. tip::
 
    Sphinx will render a cross-reference like
-   ``:py:func:`ckan.logic.action.create.package_create``` as the full name of
-   the function: :py:func:`ckan.logic.action.create.package_create`. If you want the
+   ``:py:func:`ckan.logic.action.package.package_create``` as the full name of
+   the function: :py:func:`ckan.logic.action.package.package_create`. If you want the
    docs to contain only the local name of the function (e.g. just
-   :py:func:`~ckan.logic.action.create.package_create`), put a ``~`` at the
+   :py:func:`~ckan.logic.action.package.package_create`), put a ``~`` at the
    start::
 
-    :py:func:`~ckan.logic.action.create.package_create`
+    :py:func:`~ckan.logic.action.package.package_create`
 
    (But you should always use the fully qualified name in your docstring or
    ``*.rst`` file.)

@@ -39,7 +39,7 @@
      * When asserting side-effects after submitting a form, controller tests
        should user the :func:`ckan.tests.helpers.call_action` function. For
        example after creating a new user by submitting the new user form, a
-       test could call the :func:`~ckan.logic.action.get.user_show` action
+       test could call the :func:`~ckan.logic.action.user.user_show` action
        function to verify that the user was created with the correct values.
 
 .. warning::

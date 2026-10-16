@@ -107,7 +107,7 @@ def _notifications_for_activities(
 
     :param activities: the activities to consider
     :type activities: list of activity dicts like those returned by
-        ckan.logic.action.get.dashboard_activity_list()
+        ckanext.activity.logic.action.dashboard_activity_list()
 
     :returns: a list of email notifications
     :rtype: list of dicts each with keys 'subject' and 'body'

@@ -799,7 +799,7 @@ class IConfigurer(Interface):
 
         CKAN will use the returned schema to decide which configuration options
         can be edited during runtime (using
-        :py:func:`ckan.logic.action.update.config_option_update`) and to
+        :py:func:`ckan.logic.action.config_option.config_option_update`) and to
         validate them before storing them.
 
         Defaults to
@@ -1609,7 +1609,7 @@ class IFacets(Interface):
     Dataset searches can be faceted on any field in the dataset schema that it
     makes sense to facet on. This means any dataset field that is in CKAN's
     Solr search index, basically any field that you see returned by
-    :py:func:`~ckan.logic.action.get.package_show`.
+    :py:func:`~ckan.logic.action.package.package_show`.
 
     If there are multiple ``IFacets`` plugins active at once, each plugin will
     be called (in the order that they're listed in the CKAN config file) and

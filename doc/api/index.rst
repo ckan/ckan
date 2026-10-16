@@ -237,7 +237,7 @@ well.
 When calling an API function that requires authorization, you must
 authenticate yourself by providing an API token. Tokens are
 encrypted keys that can be generated manually from the UI (User Profile > Manage > API tokens)
-or via the :py:func:`~ckan.logic.action.create.api_token_create` function. A user can create as many tokens as needed
+or via the :py:func:`~ckan.logic.action.user.api_token_create` function. A user can create as many tokens as needed
 for different uses, and revoke one or multiple tokens at any time. In addition, enabling
 the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token.
 

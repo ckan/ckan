@@ -71,11 +71,11 @@ Don't call ``logic.action`` functions directly, instead use ``get_action()``.
 This allows plugins to override action functions using the ``IActions`` plugin
 interface. For example::
 
-    ckan.logic.get_action('group_activity_list')(...)
+    ckan.logic.get_action('group_list')(...)
 
 Instead of ::
 
-    ckan.logic.action.get.group_activity_list(...)
+    ckan.logic.action.group.group_list(...)
 
 Views and templates may check authorization to avoid rendering
 
@@ -115,7 +115,7 @@ Action functions are exposed in the API
 The functions in ``ckan.logic.action`` are exposed to the world as the
 :doc:`/api/index`.  The API URL for an action function is automatically generated
 from the function name, for example
-``ckan.logic.action.create.package_create()`` is exposed at
+``ckan.logic.action.package.package_create()`` is exposed at
 ``/api/action/package_create``.
 
 **All** publicly visible functions in the

@@ -171,13 +171,6 @@ extend-exclude = [
   "ckan/lib/search/__init__.py",
   "ckan/lib/search/index.py",
   "ckan/lib/search/query.py",
-  "ckan/logic/action/delete.py",
-  "ckan/logic/action/get.py",
-  "ckan/logic/action/update.py",
-  "ckan/logic/auth/create.py",
-  "ckan/logic/auth/delete.py",
-  "ckan/logic/auth/get.py",
-  "ckan/logic/auth/update.py",
   "ckan/logic/converters.py",
   "ckan/logic/validators.py",
   "ckan/model/__init__.py",
@@ -269,7 +262,6 @@ select = [
 "ckan/views/api.py" = ["C901"]
 "ckan/views/__init__.py" = ["C901"]
 "ckan/model/base.py" = ["C901", "E731"]
-"ckan/logic/action/create.py" = ["C901"]
 "ckan/logic/__init__.py" = ["C901"]
 "ckan/lib/navl/dictization_functions.py" = ["C901"]
 "ckan/lib/mailer.py" = ["C901"]

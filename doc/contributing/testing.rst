@@ -128,10 +128,10 @@ Do this even if it means your method name gets really long, since we don't
 write code that calls our test methods there's no advantage to having short
 test method names.
 
-Some modules in CKAN contain large numbers of loosely related functions.
-For example, :mod:`ckan.logic.action.update` contains all functions for
+Some modules in CKAN used to contain large numbers of loosely related functions.
+For example, :mod:`ckan.logic.action.update` used to contains all functions for
 updating things in CKAN. This means that
-:mod:`ckan.tests.logic.action.test_update` is going to contain an even larger
+:mod:`ckan.tests.logic.action.test_update` is contains an even larger
 number of test functions.
 
 So as well as the name of each test method explaining the intent of the test,
@@ -307,7 +307,7 @@ certain method should raise a certain exception, etc.
 You should read the mock library's documentation to really understand what's
 going on, but here's an example of a test from
 :py:mod:`ckan.tests.logic.auth.test_update` that tests the
-:py:func:`~ckan.logic.auth.update.user_update` authorization function and mocks
+:py:func:`~ckan.logic.auth.user.user_update` authorization function and mocks
 out :py:mod:`ckan.model`:
 
 .. literalinclude:: /../ckan/tests/logic/auth/test_update.py

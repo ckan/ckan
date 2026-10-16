@@ -106,7 +106,7 @@ with the same update code.
     :pyobject: ExampleIDatasetFormPlugin.update_package_schema
 
 The :py:meth:`~ckan.plugins.interfaces.IDatasetForm.show_package_schema` is used
-when the :py:func:`~ckan.logic.action.get.package_show` action is called, we
+when the :py:func:`~ckan.logic.action.package.package_show` action is called, we
 want the default_show_package_schema to be updated to include our custom field.
 This time, instead of converting to an extras field, we want our field to be
 converted *from* an extras field. So we want to use the
@@ -346,15 +346,15 @@ above your plugin class.
 
 This code block is taken from the ``example_idatsetform plugin``.
 ``create_country_codes`` tries to fetch the vocabulary country_codes using
-:func:`~ckan.logic.action.get.vocabulary_show`. If it is not found it will
+:func:`~ckan.logic.action.tag.vocabulary_show`. If it is not found it will
 create it and iterate over the list of countries 'uk', 'ie', 'de', 'fr', 'es'.
 For each of these a vocabulary tag is created using
-:func:`~ckan.logic.action.create.tag_create`, belonging to the vocabulary
+:func:`~ckan.logic.action.tag.tag_create`, belonging to the vocabulary
 ``country_code``.
 
 Although we have only defined five tags here, additional tags can be created
 at any point by a sysadmin user by calling
-:func:`~ckan.logic.action.create.tag_create` using the API or action functions.
+:func:`~ckan.logic.action.tag.tag_create` using the API or action functions.
 Add a second function below ``create_country_codes``
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
@@ -362,7 +362,7 @@ Add a second function below ``create_country_codes``
 
 country_codes will call ``create_country_codes`` so that the ``country_codes``
 vocabulary is created if it does not exist. Then it calls
-:func:`~ckan.logic.action.get.tag_list` to return all of our vocabulary tags
+:func:`~ckan.logic.action.tag.tag_list` to return all of our vocabulary tags
 together. Now we have a way of retrieving our tag vocabularies and creating
 them if they do not exist. We just need our plugin to call this code.
 
