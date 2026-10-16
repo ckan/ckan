@@ -4,10 +4,10 @@ import logging
 from typing import Any
 
 import ckan
-import ckan.lib.jobs as jobs
-import ckan.logic as logic
 import ckan.logic.schema
+from ckan import logic
 from ckan.common import asbool, config
+from ckan.lib import jobs
 from ckan.logic import (
     NotFound,
     side_effect_free,

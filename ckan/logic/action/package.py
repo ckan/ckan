@@ -11,18 +11,12 @@ import six
 from sqlalchemy import and_ as _and_
 from sqlalchemy.sql import select as _select
 
-import ckan.authz as authz
-import ckan.lib.dictization.model_dictize as model_dictize
-import ckan.lib.dictization.model_save as model_save
-import ckan.lib.navl.dictization_functions as dfunc
-import ckan.lib.plugins as lib_plugins
-import ckan.lib.search as search
-import ckan.lib.uploader as uploader
-import ckan.logic as logic
-import ckan.logic.schema as schema_
-import ckan.model as model
-import ckan.plugins as plugins
+from ckan import authz, logic, model, plugins
 from ckan.common import _, asbool, config
+from ckan.lib import plugins as lib_plugins
+from ckan.lib import search, uploader
+from ckan.lib.dictization import model_dictize, model_save
+from ckan.lib.navl import dictization_functions as dfunc
 from ckan.lib.navl.dictization_functions import validate as _validate
 from ckan.lib.search.query import solr_literal
 from ckan.logic import (
@@ -35,6 +29,7 @@ from ckan.logic import (
 from ckan.logic import check_access as _check_access
 from ckan.logic import get_action as _get_action
 from ckan.logic import get_or_bust as _get_or_bust
+from ckan.logic import schema as schema_
 from ckan.types import ActionResult, Context, DataDict, Schema
 
 log = logging.getLogger("ckan.logic")

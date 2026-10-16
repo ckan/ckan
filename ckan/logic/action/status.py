@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import ckan
-import ckan.authz as authz
-import ckan.logic as logic
+from ckan import authz, logic
 from ckan.common import config
 from ckan.logic import (
     NotFound,
