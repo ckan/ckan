@@ -91,7 +91,7 @@ def permissions_sql(maindb: str, datastoredb: str, mainuser: str,
 @click.argument(
     u'output-file',
     type=click.File(u'wb'),
-    default=click.get_binary_stream(u'stdout')
+    default=click.get_binary_stream(u'stdout')  # type: ignore
 )
 @click.option(u'--format', default=u'csv', type=click.Choice(DUMP_FORMATS))
 @click.option(u'--offset', type=click.IntRange(0, None), default=0)
