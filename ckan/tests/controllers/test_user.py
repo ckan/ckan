@@ -544,15 +544,15 @@ class TestUser(object):
 
     def test_user_follow(self, app, user):
         user_two = factories.User()
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("user.follow", id=user_two["id"])
         response = app.post(follow_url, headers=headers)
         assert "<dt>Followers</dt>\n            <dd><span>1</span>" in response
-        assert 'Unfollow</a>' in response
+        assert 'Unfollow</button>' in response
 
     def test_user_follow_not_exist(self, app, user):
         """Pass an id for a user that doesn't exist"""
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("user.follow", id="not-here")
         response = app.post(follow_url, headers=headers)
 
@@ -560,28 +560,28 @@ class TestUser(object):
 
     def test_user_unfollow(self, app, user):
         user_two = factories.User()
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("user.follow", id=user_two["id"])
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(unfollow_url, headers=headers)
         assert "<dt>Followers</dt>\n            <dd><span>0</span>" in unfollow_response
-        assert 'Follow</a>' in unfollow_response
+        assert 'Follow</button>' in unfollow_response
 
     def test_user_unfollow_not_following(self, app, user):
         """It will just return the snippet to follow them."""
 
         user_two = factories.User()
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(unfollow_url, headers=headers)
         assert "<dt>Followers</dt>\n            <dd><span>0</span>" in unfollow_response
-        assert 'Follow</a>' in unfollow_response
+        assert 'Follow</button>' in unfollow_response
 
     def test_user_unfollow_not_exist(self, app, user):
         """Unfollow a user that doesn't exist."""
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("user.unfollow", id="not-here")
         response = app.post(unfollow_url, headers=headers)
 
