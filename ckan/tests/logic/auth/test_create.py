@@ -119,7 +119,7 @@ class TestRealUsersAuth(object):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("package_create", context, **dataset)
 
-    @mock.patch("ckan.logic.auth.create.group_member_create")
+    @mock.patch("ckan.logic.auth.group._group_or_org_member_create")
     def test_user_invite_delegates_correctly_to_group_member_create(self, gmc):
         user = factories.User()
         context = {"user": user["name"], "model": None, "auth_user_obj": user}

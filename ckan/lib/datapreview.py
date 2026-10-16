@@ -172,7 +172,7 @@ def add_views_to_resource(context: Context,
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. This is only relevant when the default view
     plugins are used, not when explicitly passing view types. See
-    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    :py:func:`ckan.logic.action.resource_view.package_create_default_resource_views.``
     for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
@@ -238,7 +238,7 @@ def add_views_to_dataset_resources(
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. This is only relevant when the default view
     plugins are used, not when explicitly passing view types. See
-    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    :py:func:`ckan.logic.action.resource_view.package_create_default_resource_views.``
     for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)

@@ -1,5 +1,5 @@
 # encoding: utf-8
-"""Unit tests for ckan/logic/action/update.py."""
+"""Unit tests for actions that used to be in ckan/logic/action/update.py."""
 import datetime
 import uuid
 import re
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 import ckan.lib.app_globals as app_globals
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
-from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic.action.package import package_show as core_package_show
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -801,7 +801,7 @@ class TestResourceViewUpdate(object):
         assert result["title"] == params["title"]
         assert result["description"] == params["description"]
 
-    @mock.patch("ckan.lib.datapreview")
+    @mock.patch("ckan.logic.action.resource_view.datapreview")
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
         self, datapreview_mock
     ):

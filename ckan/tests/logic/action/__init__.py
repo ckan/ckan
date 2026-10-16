@@ -31,7 +31,7 @@ Here's an example of a simple :mod:`ckan.logic.action` test:
 
 .. todo::
 
-   Insert the names of all tests for ``ckan.logic.action.update.user_update``,
+   Insert the names of all tests for ``ckan.logic.action.user.user_update``,
    for example, to show what level of detail things should be tested in.
 
 """

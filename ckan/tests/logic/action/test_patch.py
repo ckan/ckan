@@ -5,7 +5,7 @@ import pytest
 from unittest import mock
 
 from ckan.tests import helpers, factories
-from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic.action.package import package_show as core_package_show
 from ckan.logic import ValidationError
 from ckan.plugins.toolkit import config
 from ckan import model

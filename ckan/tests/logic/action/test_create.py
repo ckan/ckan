@@ -1,5 +1,5 @@
 # encoding: utf-8
-"""Unit tests for ckan/logic/action/create.py.
+"""Unit tests for actions that used to be in ckan/logic/action/create.py.
 
 """
 import datetime
@@ -11,7 +11,7 @@ import pytest
 import sqlalchemy as sa
 
 import ckan.logic as logic
-from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic.action.package import package_show as core_package_show
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -231,7 +231,7 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
-    @mock.patch("ckan.lib.datapreview")
+    @mock.patch("ckan.logic.action.resource_view.datapreview")
     def test_filterable_views_dont_require_any_extra_fields(
         self, datapreview_mock
     ):
@@ -246,7 +246,7 @@ class TestResourceViewCreate(object):
 
         assert params == result
 
-    @mock.patch("ckan.lib.datapreview")
+    @mock.patch("ckan.logic.action.resource_view.datapreview")
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
         self, datapreview_mock
     ):
@@ -264,7 +264,7 @@ class TestResourceViewCreate(object):
         }
         assert result["filters"] == expected_filters
 
-    @mock.patch("ckan.lib.datapreview")
+    @mock.patch("ckan.logic.action.resource_view.datapreview")
     def test_filterable_views_converts_filter_fields_and_values_to_list(
         self, datapreview_mock
     ):
@@ -277,7 +277,7 @@ class TestResourceViewCreate(object):
         assert result["filter_values"] == ["Brazil"]
         assert result["filters"] == {"country": ["Brazil"]}
 
-    @mock.patch("ckan.lib.datapreview")
+    @mock.patch("ckan.logic.action.resource_view.datapreview")
     def test_filterable_views_require_filter_fields_and_values_to_have_same_length(
         self, datapreview_mock
     ):
