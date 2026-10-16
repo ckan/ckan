@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import sqlalchemy
+import sqlalchemy as sa
 
 from ckan import model
 from ckan.common import _
@@ -16,8 +16,6 @@ from ckan.logic import get_action as _get_action
 from ckan.logic import get_or_bust as _get_or_bust
 from ckan.logic import schema as schema_
 from ckan.types import ActionResult, Context, DataDict
-
-_and_ = sqlalchemy.and_
 
 
 @side_effect_free
@@ -46,7 +44,7 @@ def task_status_show(
         task_status = model.TaskStatus.get(id)
     else:
         query = model.Session.query(model.TaskStatus).filter(
-            _and_(
+            sa.and_(
                 model.TaskStatus.entity_id == _get_or_bust(data_dict, "entity_id"),
                 model.TaskStatus.task_type == _get_or_bust(data_dict, "task_type"),
                 model.TaskStatus.key == _get_or_bust(data_dict, "key"),
