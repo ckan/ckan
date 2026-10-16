@@ -4,8 +4,7 @@ import logging
 from typing import Any, Container, Optional, Union, cast
 
 import six
-import sqlalchemy
-import sqlalchemy as sqla
+import sqlalchemy as sa
 
 from ckan import authz, logic, model, plugins
 from ckan.common import _, asbool, aslist, config
@@ -29,7 +28,6 @@ from ckan.logic import schema as schema_
 from ckan.types import ActionResult, Context, DataDict, Schema
 
 log = logging.getLogger("ckan.logic")
-_or_ = sqlalchemy.or_
 
 
 def _group_or_org_create(
@@ -494,7 +492,7 @@ def _group_or_org_list(context: Context, data_dict: DataDict, is_org: bool = Fal
 
     if sort_info and sort_info[0][0] == "package_count":
         query = model.Session.query(
-            model.Group.id, model.Group.name, sqlalchemy.func.count(model.Group.id)
+            model.Group.id, model.Group.name, sa.func.count(model.Group.id)
         )
 
         query = (
@@ -514,7 +512,7 @@ def _group_or_org_list(context: Context, data_dict: DataDict, is_org: bool = Fal
     if q:
         q = "%{0}%".format(q)
         query = query.filter(
-            _or_(
+            sa.or_(
                 model.Group.name.ilike(q),
                 model.Group.title.ilike(q),
                 model.Group.description.ilike(q),
@@ -527,7 +525,7 @@ def _group_or_org_list(context: Context, data_dict: DataDict, is_org: bool = Fal
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
-        sort_model_field: Any = sqlalchemy.func.count(model.Group.id)
+        sort_model_field: Any = sa.func.count(model.Group.id)
         if sort_field == "package_count":
             query = query.group_by(model.Group.id, model.Group.name)
         elif sort_field == "name":
@@ -536,9 +534,9 @@ def _group_or_org_list(context: Context, data_dict: DataDict, is_org: bool = Fal
             sort_model_field = model.Group.title
 
         if sort_direction == "asc":
-            query = query.order_by(sqlalchemy.asc(sort_model_field))
+            query = query.order_by(sa.asc(sort_model_field))
         else:
-            query = query.order_by(sqlalchemy.desc(sort_model_field))
+            query = query.order_by(sa.desc(sort_model_field))
 
     if limit:
         query = query.limit(limit)
@@ -1095,8 +1093,6 @@ def _group_or_org_delete(context: Context, data_dict: DataDict, is_org: bool = F
     :type id: string
 
     """
-    from sqlalchemy import or_
-
     id = _get_or_bust(data_dict, "id")
 
     group = model.Group.get(id)
@@ -1136,7 +1132,7 @@ def _group_or_org_delete(context: Context, data_dict: DataDict, is_org: bool = F
     # (including hierarchy connections to parent and children groups)
     for member in (
         model.Session.query(model.Member)
-        .filter(or_(model.Member.table_id == id, model.Member.group_id == id))
+        .filter(sa.or_(model.Member.table_id == id, model.Member.group_id == id))
         .filter(model.Member.state == "active")
         .all()
     ):
@@ -1223,7 +1219,7 @@ def _group_or_org_purge(context: Context, data_dict: DataDict, is_org: bool = Fa
 
     # Delete related Memberships
     members = model.Session.query(model.Member).filter(
-        sqla.or_(model.Member.group_id == group.id, model.Member.table_id == group.id)
+        sa.or_(model.Member.group_id == group.id, model.Member.table_id == group.id)
     )
     reindex = set()
     if members.count() > 0:
