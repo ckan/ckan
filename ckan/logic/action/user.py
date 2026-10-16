@@ -447,7 +447,7 @@ def api_token_create(
 
 
 @side_effect_free
-def user_list(context: Context, data_dict: DataDict) -> ActionResult.UserList:   # noqa: C901
+def user_list(context: Context, data_dict: DataDict) -> ActionResult.UserList:  # noqa: C901
     """Return a list of the site's user accounts.
 
     :param q: filter the users returned to those whose names contain a string
@@ -1173,9 +1173,7 @@ def user_followee_list(
     _check_access("user_followee_list", context, data_dict)
 
     if not context.get("skip_validation"):
-        schema = context.get("schema") or (
-            schema_.default_follow_user_schema()
-        )
+        schema = context.get("schema") or (schema_.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -1207,9 +1205,7 @@ def dataset_followee_list(
     _check_access("dataset_followee_list", context, data_dict)
 
     if not context.get("skip_validation"):
-        schema = context.get("schema") or (
-            schema_.default_follow_user_schema()
-        )
+        schema = context.get("schema") or (schema_.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -1333,7 +1329,7 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
         instead.
 
     For further parameters see
-    :py:func:`~ckan.logic.action.create.user_create`.
+    :py:func:`~ckan.logic.action.user.user_create`.
 
     :param id: the name or id of the user to update
     :type id: string
@@ -1495,9 +1491,7 @@ def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
     :type id: string
 
     """
-    schema = context.get("schema") or (
-        schema_.default_follow_dataset_schema()
-    )
+    schema = context.get("schema") or (schema_.default_follow_dataset_schema())
     _check_access("unfollow_dataset", context, data_dict)
     _unfollow(context, data_dict, schema, model.UserFollowingDataset)
 

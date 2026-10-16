@@ -41,9 +41,7 @@ def vocabulary_create(
     :rtype: dictionary
 
     """
-    schema = (
-        context.get("schema") or schema_.default_create_vocabulary_schema()
-    )
+    schema = context.get("schema") or schema_.default_create_vocabulary_schema()
 
     _check_access("vocabulary_create", context, data_dict)
 
@@ -71,7 +69,7 @@ def tag_create(context: Context, data_dict: DataDict) -> ActionResult.TagCreate:
     You can only use this function to create tags that belong to a vocabulary,
     not to create free tags. (To create a new free tag simply add the tag to
     a package, e.g. using the
-    :py:func:`~ckan.logic.action.update.package_update` function.)
+    :py:func:`~ckan.logic.action.package.package_update` function.)
 
     :param name: the name for the new tag, a string between 2 and 100
         characters long containing only alphanumeric characters,
@@ -351,7 +349,7 @@ def vocabulary_update(
     You must be a sysadmin to update vocabularies.
 
     For further parameters see
-    :py:func:`~ckan.logic.action.create.vocabulary_create`.
+    :py:func:`~ckan.logic.action.tag.vocabulary_create`.
 
     :param id: the id of the vocabulary to update
     :type id: string
