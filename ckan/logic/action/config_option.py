@@ -55,7 +55,7 @@ def config_option_update(
 
     .. note:: You can see all available runtime-editable configuration options
         calling
-        the :py:func:`~ckan.logic.action.get.config_option_list` action
+        the :py:func:`~ckan.logic.action.config_option.config_option_list` action
 
     .. note:: Extensions can modify which configuration options are
         runtime-editable.
@@ -138,8 +138,8 @@ def config_option_show(
     """Show the current value of a particular configuration option.
 
     Only returns runtime-editable config options (the ones returned by
-    :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
-    :py:func:`~ckan.logic.action.update.config_option_update` action.
+    :py:func:`~ckan.logic.action.config_option.config_option_list`), which can be updated with the
+    :py:func:`~ckan.logic.action.config_option.config_option_update` action.
 
     :param key: The configuration option key
     :type key: string
@@ -173,7 +173,7 @@ def config_option_list(
     context: Context, data_dict: DataDict
 ) -> ActionResult.ConfigOptionList:
     """Return a list of runtime-editable config options keys that can be
-       updated with :py:func:`~ckan.logic.action.update.config_option_update`.
+       updated with :py:func:`~ckan.logic.action.config_option.config_option_update`.
 
     :returns: A list of config option keys.
     :rtype: list

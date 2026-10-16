@@ -369,7 +369,7 @@ def resource_update(  # noqa: C901
         instead.
 
     For further parameters see
-    :py:func:`~ckan.logic.action.create.resource_create`.
+    :py:func:`~ckan.logic.action.resource.resource_create`.
 
     :param id: the id of the resource to update
     :type id: string

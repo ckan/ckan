@@ -99,13 +99,13 @@ def resource_create_default_resource_views(
 
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. See
-    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    :py:func:`~ckan.logic.action.resource_view.package_create_default_resource_views`
     for details on the ``create_datastore_views`` parameter.
 
     :param resource: full resource dict
     :type resource: dict
     :param package: full dataset dict (optional, if not provided
-        :py:func:`~ckan.logic.action.get.package_show` will be called).
+        :py:func:`~ckan.logic.action.package.package_show` will be called).
     :type package: dict
     :param create_datastore_views: whether to create views that rely on data
         being on the DataStore (optional, defaults to False)
@@ -146,7 +146,7 @@ def package_create_default_resource_views(
     data was uploaded to the DataStore.
 
     :param package: full dataset dict (ie the one obtained
-        calling :py:func:`~ckan.logic.action.get.package_show`).
+        calling :py:func:`~ckan.logic.action.package.package_show`).
     :type package: dict
     :param create_datastore_views: whether to create views that rely on data
         being on the DataStore (optional, defaults to False)

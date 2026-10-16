@@ -64,7 +64,7 @@ def package_create(context: Context, data_dict: DataDict) -> ActionResult.Packag
         (optional)
     :type maintainer_email: string
     :param license_id: the id of the dataset's license, see
-        :py:func:`~ckan.logic.action.get.license_list` for available values
+        :py:func:`~ckan.logic.action.package.license_list` for available values
         (optional)
     :type license_id: license id string
     :param notes: a description of the dataset (optional)
@@ -120,11 +120,11 @@ def package_create(context: Context, data_dict: DataDict) -> ActionResult.Packag
         identify an existing group:
         ``'id'`` (the id of the group, string), or ``'name'`` (the name of the
         group, string),  to see which groups exist
-        call :py:func:`~ckan.logic.action.get.group_list`
+        call :py:func:`~ckan.logic.action.group.group_list`
     :type groups: list of dictionaries
     :param owner_org: the id of the dataset's owning organization, see
-        :py:func:`~ckan.logic.action.get.organization_list` or
-        :py:func:`~ckan.logic.action.get.organization_list_for_user` for
+        :py:func:`~ckan.logic.action.organization.organization_list` or
+        :py:func:`~ckan.logic.action.organization.organization_list_for_user` for
         available values. This parameter can be made optional if the config
         option :ref:`ckan.auth.create_unowned_dataset` is set to ``True``.
     :type owner_org: string
@@ -602,7 +602,7 @@ def package_relationships_list(
     :param id2: the id or name of the second package
     :type id2: string
     :param rel: relationship as string see
-        :py:func:`~ckan.logic.action.create.package_relationship_create` for
+        :py:func:`~ckan.logic.action.package.package_relationship_create` for
         the relationship types (optional)
 
     :rtype: list of dictionaries
@@ -1151,7 +1151,7 @@ def package_update(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     .. note:: Update methods may delete parameters not explicitly provided.
         If you want to edit only a specific attribute use
-        :py:func:`ckan.logic.action.get.package_patch` instead.
+        :py:func:`~ckan.logic.action.package.package_patch` instead.
 
     If the ``resources`` list is omitted the current resources will be left
     unchanged.
@@ -1161,7 +1161,7 @@ def package_update(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin interface.
 
     For further parameters see
-    :py:func:`~ckan.logic.action.create.package_create`.
+    :py:func:`~ckan.logic.action.package.package_create`.
 
     :param id: the name or id of the dataset to update
     :type id: string
@@ -1557,7 +1557,7 @@ def package_patch(context: Context, data_dict: DataDict) -> ActionResult.Package
 
     To partially update resources or other metadata not at the top level
     of a package use
-    :py:func:`~ckan.logic.action.update.package_revise` instead to maintain
+    :py:func:`~ckan.logic.action.package.package_revise` instead to maintain
     existing nested values.
 
     You must be authorized to edit the dataset and the groups that it belongs
