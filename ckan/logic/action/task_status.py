@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import sqlalchemy
 
-import ckan.lib.dictization.model_dictize as model_dictize
-import ckan.lib.dictization.model_save as model_save
-import ckan.logic.schema as schema_
-import ckan.model as model
+from ckan import model
 from ckan.common import _
+from ckan.lib.dictization import model_dictize, model_save
 from ckan.lib.navl.dictization_functions import validate as _validate
 from ckan.logic import (
     NotFound,
@@ -16,6 +14,7 @@ from ckan.logic import (
 from ckan.logic import check_access as _check_access
 from ckan.logic import get_action as _get_action
 from ckan.logic import get_or_bust as _get_or_bust
+from ckan.logic import schema as schema_
 from ckan.types import ActionResult, Context, DataDict
 
 _and_ = sqlalchemy.and_

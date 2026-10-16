@@ -4,10 +4,10 @@ from typing import Any
 
 from sqlalchemy.sql import select as _select
 
-import ckan.lib.navl.validators as validators
-import ckan.model as model
+from ckan import model
 from ckan.common import _
 from ckan.lib.dictization import table_dictize as _table_dictize
+from ckan.lib.navl import validators
 from ckan.lib.navl.dictization_functions import validate as _validate
 from ckan.logic import (
     ValidationError,

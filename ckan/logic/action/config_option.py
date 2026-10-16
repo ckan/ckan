@@ -3,12 +3,9 @@ from __future__ import annotations
 import logging
 import time
 
-import ckan.lib.app_globals as app_globals
-import ckan.lib.uploader as uploader
-import ckan.logic.schema as schema_
-import ckan.model as model
+from ckan import model
 from ckan.common import _, config
-from ckan.lib import files
+from ckan.lib import app_globals, files, uploader
 from ckan.lib.navl.dictization_functions import validate as _validate
 from ckan.logic import (
     ValidationError,
@@ -16,6 +13,7 @@ from ckan.logic import (
 )
 from ckan.logic import check_access as _check_access
 from ckan.logic import get_or_bust as _get_or_bust
+from ckan.logic import schema as schema_
 from ckan.types import ActionResult, Context, DataDict
 
 log = logging.getLogger("ckan.logic")
