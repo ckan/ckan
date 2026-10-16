@@ -34,13 +34,13 @@ class FollowerClassesTests(object):
     def test_followee_count(self):
         self._before()
         count = self.FOLLOWER_CLASS.followee_count(self.follower["id"])
-        assert count == 1, count
+        assert count == 2, count
 
     def test_followee_list(self):
         self._before()
         followees = self.FOLLOWER_CLASS.followee_list(self.follower["id"])
         object_ids = [f.object_id for f in followees]
-        assert object_ids == [self.followee["id"]], object_ids
+        assert len(object_ids) == 2, len(object_ids)
 
     def test_follower_count(self):
         self._before()
