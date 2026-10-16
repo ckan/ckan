@@ -1,5 +1,5 @@
 # encoding: utf-8
-"""Unit tests for ckan/logic/action/create.py.
+"""Unit tests for actions that used to be in ckan/logic/action/create.py.
 
 """
 import datetime

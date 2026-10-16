@@ -944,7 +944,7 @@ groups:
           By default, deleted datasets are removed from the search index so are no
           longer available in searches. To keep them in the search index, set this
           setting to ``False``. This will enable the  ``include_deleted``
-          parameter in the  :py:func:`ckan.logic.action.get.package_search`
+          parameter in the  :py:func:`ckan.logic.action.package.package_search`
           API action.
 
       - key: ckan.search.solr_commit

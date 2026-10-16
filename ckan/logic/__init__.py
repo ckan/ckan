@@ -64,7 +64,7 @@ class ActionError(Exception):
 class NotFound(ActionError):
     '''Exception raised by logic functions when a given object is not found.
 
-    For example :py:func:`~ckan.logic.action.get.package_show` raises
+    For example :py:func:`~ckan.logic.action.package.package_show` raises
     :py:exc:`~ckan.plugins.toolkit.ObjectNotFound` if no package with the
     given ``id`` exists.
 
@@ -75,7 +75,7 @@ class NotFound(ActionError):
 class NotAuthorized(ActionError):
     '''Exception raised when the user is not authorized to call the action.
 
-    For example :py:func:`~ckan.logic.action.create.package_create` raises
+    For example :py:func:`~ckan.logic.action.package.package_create` raises
     :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not authorized
     to create packages.
     '''
@@ -450,7 +450,7 @@ def get_action(action: str) -> Action:
     '''Return the named :py:mod:`ckan.logic.action` function.
 
     For example ``get_action('package_create')`` will normally return the
-    :py:func:`ckan.logic.action.create.package_create()` function.
+    :py:func:`ckan.logic.action.package.package_create()` function.
 
     For documentation of the available action functions, see
     :ref:`api-reference`.

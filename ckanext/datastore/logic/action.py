@@ -48,7 +48,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     :param force: set to True to edit a read-only table
     :type force: bool (optional, default: False)
     :param resource: resource dictionary that is passed to
-        :meth:`~ckan.logic.action.create.resource_create`.
+        :meth:`~ckan.logic.action.resource.resource_create`.
         Use instead of ``resource_id`` (optional)
     :type resource: dictionary
     :param aliases: names for read only aliases of the resource. (optional)
