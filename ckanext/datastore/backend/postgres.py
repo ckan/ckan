@@ -1223,10 +1223,33 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
         )
 
         try:
-            results = context['connection'].execute(sa.text(sql_string), rows)
+            if len(rows) > 1:
+                itrans = context['connection'].begin_nested()
+                try:
+                    results = context['connection'].execute(sa.text(sql_string), rows)
+                except:
+                    itrans.rollback()
+                    raise
+                itrans.commit()
+            else:
+                results = context['connection'].execute(sa.text(sql_string), rows)
+
             if data_dict['include_records']:
                 data_dict['records'] = [dict(r) for r in results.mappings().all()]
+
         except (DatabaseError, DataError) as err:
+            if len(rows) > 1:
+                # determine failing row number for records_row
+                etrans = context['connection'].begin_nested()
+                try:
+                    for num, row in enumerate(rows):
+                        try:
+                            context['connection'].execute(sa.text(sql_string), [row])
+                        except (DatabaseError, DataError) as _err:
+                            break
+                finally:
+                    etrans.rollback()
+
             raise ValidationError({
                 'records': [_programming_error_summary(err)],
                 'records_row': num,
