@@ -25,6 +25,33 @@
   _('Moment.js date format to use for displaying dates (see <a href="https://devhints.io/moment#formatting-1" target="_blank">Moment.js cheatsheet</a>). If <b>NONE</b>, the raw timestamp value will be shown.', classes=['info-help-tight'])) }}
 {% endcall %}
 
+{% set fields = h.datastore_dictionary(resource.id) or [] %}
+{% set sort_field_options = [{'value': '', 'text': _('None (use _id)')}] %}
+{% for f in fields %}
+  {% set _ = sort_field_options.append({'value': f.id, 'text': f.id}) %}
+{% endfor %}
+{% call form.select(
+  'sort_field',
+  id='field-sort_field',
+  label=_('Default sort field'),
+  options=sort_field_options,
+  selected=data.sort_field or '',
+) %}
+  {{ form.info(
+  _('Field to use for default sorting. If empty, _id will be used.', classes=['info-help-tight'])) }}
+{% endcall %}
+
+{% call form.select(
+  'sort_order',
+  id='field-sort_order',
+  label=_('Default sort order'),
+  options=[{'value': 'asc', 'text': _('Ascending')}, {'value': 'desc', 'text': _('Descending')}],
+  selected=data.sort_order or 'asc',
+) %}
+  {{ form.info(
+  _('Direction for default sorting: ascending or descending.', classes=['info-help-tight'])) }}
+{% endcall %}
+
 <div class="control-group">
   <label class="form-label">{{ _('Show Columns') }}</label>
   <br/>
@@ -48,7 +75,7 @@
           </td>
           <td></td>
         </tr>
-      {% for f in h.datastore_dictionary(resource.id) %}
+      {% for f in fields %}
         <tr>
           <td>
             <label class="checkbox">
