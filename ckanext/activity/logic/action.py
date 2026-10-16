@@ -61,7 +61,7 @@ def dashboard_mark_activities_old(
     """Mark all the authorized user's new dashboard activities as old.
 
     This will reset
-    :py:func:`~ckan.logic.action.get.dashboard_new_activities_count` to 0.
+    :py:func:`~ckanext.activity.logic.action.dashboard_new_activities_count` to 0.
 
     """
     tk.check_access("dashboard_mark_activities_old", context, data_dict)

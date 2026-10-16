@@ -1,5 +1,5 @@
 # encoding: utf-8
-"""Unit tests for ckan/logic/action/update.py."""
+"""Unit tests for actions that used to be in ckan/logic/action/update.py."""
 import datetime
 import uuid
 import re

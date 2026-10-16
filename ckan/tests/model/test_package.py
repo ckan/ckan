@@ -9,13 +9,6 @@ from ckan.tests import factories
 @pytest.mark.usefixtures("non_clean_db")
 class TestPackage(object):
     def test_create(self):
-        # Demonstrate creating a package.
-        #
-        # In practice this is done by a combination of:
-        # * ckan.logic.action.create:package_create
-        # * ckan.lib.dictization.model_save.py:package_dict_save
-        # etc
-
         pkg = model.Package(name=factories.Dataset.stub().name)
         pkg.notes = u"Some notes"
         pkg.author = u"bob"
