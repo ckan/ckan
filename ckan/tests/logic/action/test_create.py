@@ -1204,6 +1204,20 @@ class TestGroupCreate(object):
             }
         }]
 
+        group_users = helpers.call_action(
+            "group_show",
+            context=context,
+            id=group['id'],
+            include_users=True,
+        )
+        assert group_users["users"] == [{
+            "capacity": "admin",
+            **{
+                k:v for k,v in user.items()
+                if k not in ('apikey', 'email')
+            }
+        }]
+
     def test_create_group_validation_fail(self):
         user = factories.User()
         context = {"user": user["name"], "ignore_auth": True}
@@ -1330,6 +1344,20 @@ class TestOrganizationCreate(object):
         assert org["package_count"] == 0
         assert org["is_organization"]
         assert org["type"] == "organization"
+        org_users = helpers.call_action(
+            "organization_show",
+            context=context,
+            id=org['id'],
+            include_users=True,
+        )
+        assert org_users["users"] == [{
+            "capacity": "admin",
+            **{
+                k:v for k,v in user.items()
+                if k not in ('apikey', 'email')
+            }
+        }]
+
         org_users = helpers.call_action(
             "organization_show",
             context=context,

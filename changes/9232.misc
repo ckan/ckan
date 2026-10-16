@@ -1,0 +1,5 @@
+default include_users=False for organization_show and group_show for
+consistency across group and org actions.
+
+There is no difference for users that have already configured
+ckan.auth.public_user_details = false
