@@ -5,6 +5,7 @@ from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 import datetime
 import re
+import secrets
 from hashlib import sha1, md5
 
 import passlib.utils
@@ -23,6 +24,7 @@ from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
 from ckan.common import config, session
+from ckan.exceptions import SiteUserNotFound
 from ckan.types import Query
 
 if TYPE_CHECKING:
@@ -113,6 +115,42 @@ class User(core.StatefulObjectMixin,
         query = query.filter(or_(cls.name == user_reference,
                                  cls.id == user_reference))
         return query.first()
+
+    @classmethod
+    def get_site_user(cls) -> Self:
+        """Return the site user, named after ``ckan.site_id``.
+
+        The site user is a sysadmin used by CKAN and extensions to perform
+        internal operations. It is created by ``ckan db upgrade``.
+
+        :raises ckan.exceptions.SiteUserNotFound: if the site user is missing
+        """
+        site_id = config["ckan.site_id"]
+        user = cls.get(site_id)
+        if not user:
+            raise SiteUserNotFound(
+                f"Site user {site_id!r} does not exist. "
+                "Run `ckan db upgrade` to create it."
+            )
+        return user
+
+    @classmethod
+    def ensure_site_user(cls) -> Self:
+        """Create the site user if it does not exist yet and return it.
+        """
+        site_id = config["ckan.site_id"]
+        user = cls.get(site_id)
+        if user:
+            return user
+
+        user = cls(
+            name=site_id,
+            password=secrets.token_urlsafe(32),
+            sysadmin=True,
+        )
+        meta.Session.add(user)
+        meta.Session.commit()
+        return user
 
     @classmethod
     def all(cls) -> list[Self]:

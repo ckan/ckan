@@ -74,9 +74,10 @@ def purge(package: str):
     dataset = _get_dataset(package)
     name = dataset.name
 
-    site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
-    context: Context = {u'user': site_user[u'name'], u'ignore_auth': True}
-    logic.get_action(u'dataset_purge')(context, {u'id': package})
+    site_user = model.User.get_site_user()
+    logic.get_action('dataset_purge')(
+        {'user': site_user.name, 'ignore_auth': True}, {'id': package}
+    )
     click.echo(u'%s purged' % name)
 
 
