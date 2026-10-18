@@ -204,16 +204,6 @@ BEGIN
             '1', format('Table "%s" does not exist in schema public', p_table_name)
         );
     END IF;
-    IF p_fields IS NULL THEN
-        RETURN jsonb_build_object('1', 'Field list must not be NULL');
-    END IF;
-    IF p_rows IS NULL THEN
-        RETURN jsonb_build_object('1', 'Rows must not be NULL');
-    END IF;
-    IF cardinality(p_rows) > 0 AND array_ndims(p_rows) <> 2 THEN
-        RETURN jsonb_build_object('1', 'Rows must be a two-dimensional array');
-    END IF;
-
     column_list := '';
     select_values := '';
     FOREACH column_name IN ARRAY p_fields LOOP
@@ -235,13 +225,6 @@ BEGIN
             AND a.attnum > 0
             AND NOT a.attisdropped;
 
-        IF value_list IS NULL THEN
-            RETURN jsonb_build_object(
-                '1', format('Field "%s" does not exist in table "%s"',
-                    column_name, p_table_name)
-            );
-        END IF;
-
         select_values := select_values || format(
             '($1)[row_idx][%s]::%s',
             field_index,
@@ -249,44 +232,42 @@ BEGIN
         );
     END LOOP;
 
-    IF cardinality(p_fields) > 0 THEN
-        insert_sql := format(
-            'WITH inserted AS (
-                INSERT INTO public.%I AS inserted (%s)
-                SELECT %s
-                FROM generate_subscripts($1, 1) AS row_idx
-                ORDER BY row_idx
-                RETURNING jsonb_build_array(%s) AS record
+    insert_sql := format(
+        'WITH inserted AS (
+            INSERT INTO public.%I AS inserted (%s)
+            SELECT %s
+            FROM generate_subscripts($1, 1) AS row_idx
+            ORDER BY row_idx
+            RETURNING jsonb_build_array(%s) AS record
+        )
+        SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
+        p_table_name,
+        column_list,
+        select_values,
+        (
+            SELECT string_agg(
+                format('inserted.%I::text', field_name),
+                ', ' ORDER BY ordinal
             )
-            SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
-            p_table_name,
-            column_list,
-            select_values,
-            (
-                SELECT string_agg(
-                    format('inserted.%I::text', field_name),
-                    ', ' ORDER BY ordinal
-                )
-                FROM unnest(all_fields) WITH ORDINALITY
-                    AS output_fields(field_name, ordinal)
-            )
-        );
+            FROM unnest(all_fields) WITH ORDINALITY
+                AS output_fields(field_name, ordinal)
+        )
+    );
 
-        BEGIN
-            EXECUTE insert_sql INTO output_records USING p_rows;
-            RETURN jsonb_build_object(
-                'records', output_records,
-                'fields', to_jsonb(all_fields)
-            );
-        EXCEPTION WHEN OTHERS THEN
-            NULL;
-        END;
-    END IF;
+    BEGIN
+        EXECUTE insert_sql INTO output_records USING p_rows;
+        RETURN jsonb_build_object(
+            'records', output_records,
+            'fields', to_jsonb(all_fields)
+        );
+    EXCEPTION WHEN OTHERS THEN
+        NULL;
+    END;
 
     fallback_table := format(
         'datastore_insert_%s_%s',
         pg_backend_pid(),
-        substr(md5(clock_timestamp()::text || random()::text), 1, 12)
+        txid_current()
     );
     EXECUTE format(
         'CREATE TEMP TABLE %I (
@@ -300,27 +281,15 @@ BEGIN
     BEGIN
         FOREACH current_fields SLICE 1 IN ARRAY p_rows LOOP
             BEGIN
-                IF cardinality(current_fields) <> cardinality(p_fields) THEN
-                    RAISE EXCEPTION 'Row has % fields; expected %',
-                        cardinality(current_fields), cardinality(p_fields);
-                END IF;
-
                 SELECT string_agg(quote_nullable(value), ', ' ORDER BY ordinal)
                 INTO value_list
                 FROM unnest(current_fields)
                     WITH ORDINALITY AS values_list(value, ordinal);
 
-                IF cardinality(p_fields) = 0 THEN
-                    insert_sql := format(
-                        'INSERT INTO public.%I AS inserted DEFAULT VALUES RETURNING jsonb_build_object(VARIADIC ARRAY[%s])',
-                        p_table_name, output_values
-                    );
-                ELSE
-                    insert_sql := format(
-                        'INSERT INTO public.%I AS inserted (%s) VALUES (%s) RETURNING jsonb_build_object(VARIADIC ARRAY[%s])',
-                        p_table_name, column_list, value_list, output_values
-                    );
-                END IF;
+                insert_sql := format(
+                    'INSERT INTO public.%I AS inserted (%s) VALUES (%s) RETURNING jsonb_build_object(VARIADIC ARRAY[%s])',
+                    p_table_name, column_list, value_list, output_values
+                );
                 EXECUTE insert_sql INTO inserted_record;
 
                 output_record := (
