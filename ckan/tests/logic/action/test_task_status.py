@@ -1,11 +1,11 @@
 """Tests for actions and authorization in ckan/logic/action/task_status.py."""
 
 import pytest
+
 import ckan.logic as logic
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-
 
 
 @pytest.mark.usefixtures("non_clean_db")

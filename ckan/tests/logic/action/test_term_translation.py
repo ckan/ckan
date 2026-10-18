@@ -1,8 +1,8 @@
 """Tests for actions and authorization in ckan/logic/action/term_translation.py."""
 
 import pytest
-import ckan.tests.helpers as helpers
 
+import ckan.tests.helpers as helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")

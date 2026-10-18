@@ -2,12 +2,13 @@
 
 import unittest.mock as mock
 import uuid
+
 import pytest
+
 import ckan.logic as logic
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-
 from ckan.common import config
 
 

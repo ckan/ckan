@@ -1,8 +1,10 @@
 """Tests for authorization in ckan/logic/auth/config_option.py."""
 
 import pytest
+
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+
 logic = helpers.logic
 
 

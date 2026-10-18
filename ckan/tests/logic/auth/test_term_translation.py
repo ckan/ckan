@@ -1,10 +1,10 @@
 """Tests for authorization in ckan/logic/auth/term_translation.py."""
 
 import pytest
+
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-
 
 
 @pytest.mark.parametrize("func", ["term_translation_show"])

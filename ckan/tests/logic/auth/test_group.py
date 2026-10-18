@@ -1,9 +1,11 @@
 """Tests for authorization in ckan/logic/auth/group.py."""
 
 import pytest
+
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+
 logic = helpers.logic
 
 

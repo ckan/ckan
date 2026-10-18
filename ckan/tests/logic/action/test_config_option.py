@@ -1,11 +1,11 @@
 """Tests for actions and authorization in ckan/logic/action/config_option.py."""
 
 import pytest
-import ckan.logic as logic
-import ckan.tests.helpers as helpers
-import ckan.logic.schema as schema
-import ckan.lib.app_globals as app_globals
 
+import ckan.lib.app_globals as app_globals
+import ckan.logic as logic
+import ckan.logic.schema as schema
+import ckan.tests.helpers as helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")

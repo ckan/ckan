@@ -5,8 +5,8 @@ import pytest
 import ckan.logic as logic
 import ckan.logic.auth as logic_auth
 import ckan.model as core_model
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 
 
 def _get_function(obj_type):
