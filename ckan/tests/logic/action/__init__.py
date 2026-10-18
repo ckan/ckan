@@ -25,9 +25,8 @@ expected, and invalid inputs raise the expected exceptions).
 
 Here's an example of a simple :mod:`ckan.logic.action` test:
 
-.. literalinclude:: ../../ckan/tests/logic/action/test_update.py
-   :start-after: # START-AFTER
-   :end-before: # END-BEFORE
+.. literalinclude:: ../../ckan/tests/logic/action/test_user.py
+   :pyobject: TestUpdateUser.test_user_update_name
 
 .. todo::
 
