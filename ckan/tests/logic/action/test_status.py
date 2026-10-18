@@ -1,10 +1,10 @@
 """Tests for actions and authorization in ckan/logic/action/status.py."""
 
 import pytest
+
 import ckan.logic as logic
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-
 from ckan import __version__
 
 

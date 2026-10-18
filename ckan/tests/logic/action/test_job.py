@@ -1,12 +1,13 @@
 """Tests for actions and authorization in ckan/logic/action/job.py."""
 
 import datetime
+import re
+
 import pytest
+
+import ckan.lib.jobs as jobs
 import ckan.logic as logic
 import ckan.tests.helpers as helpers
-import re
-import ckan.lib.jobs as jobs
-
 
 
 class TestJobClear(helpers.FunctionalRQTestBase):

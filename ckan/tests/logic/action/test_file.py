@@ -13,9 +13,9 @@ import ckan.model as model
 import ckan.plugins.toolkit as tk
 from ckan import types
 from ckan.lib import files
+from ckan.logic.action.file import _file_search
 from ckan.tests.factories import fake
 from ckan.tests.helpers import call_action
-from ckan.logic.action.file import _file_search
 
 call_action: Any
 
