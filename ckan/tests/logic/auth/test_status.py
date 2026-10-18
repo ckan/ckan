@@ -1,9 +1,9 @@
 """Tests for authorization in ckan/logic/auth/status.py."""
 
 import pytest
+
 import ckan.model as model
 import ckan.tests.helpers as helpers
-
 
 
 @pytest.mark.usefixtures("non_clean_db")
