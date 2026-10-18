@@ -5,9 +5,9 @@ import re
 
 import pytest
 
-import ckan.lib.jobs as jobs
-import ckan.logic as logic
-import ckan.tests.helpers as helpers
+from ckan import logic
+from ckan.lib import jobs
+from ckan.tests import helpers
 
 
 class TestJobClear(helpers.FunctionalRQTestBase):

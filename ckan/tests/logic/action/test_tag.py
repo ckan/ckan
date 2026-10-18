@@ -4,11 +4,9 @@ import operator
 
 import pytest
 
-import ckan.logic as logic
-import ckan.model as model
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
+from ckan import logic, model
 from ckan.lib.navl.dictization_functions import DataError
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")

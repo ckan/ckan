@@ -2,8 +2,8 @@
 
 import pytest
 
-import ckan.model as model
-import ckan.tests.helpers as helpers
+from ckan import model
+from ckan.tests import helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")
