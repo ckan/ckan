@@ -348,3 +348,57 @@ class TestGetFunctions(object):
         sql = "SELECT add(1, 2);"
 
         assert db.sanitize_sql(session.connection(), sql)[2] == {("add",)}
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+class TestDatastoreInsert(object):
+    def test_inserts_array_rows_and_returns_all_fields(self):
+        execute_sql(
+            """CREATE TABLE datastore_insert_test (
+                id serial PRIMARY KEY,
+                name text NOT NULL,
+                amount integer DEFAULT 42,
+                details jsonb DEFAULT '{}'::jsonb,
+                note text
+            )""",
+            {},
+        )
+
+        result = execute_sql(
+            """SELECT datastore_insert(
+                'datastore_insert_test', ARRAY['name'],
+                ARRAY[['Ada, Lovelace'], ['Bob']]::text[][]
+            )""",
+            {},
+        ).scalar()
+
+        assert result == {
+            "records": [
+                ["1", "Ada, Lovelace", "42", "{}", None],
+                ["2", "Bob", "42", "{}", None],
+            ],
+            "fields": ["id", "name", "amount", "details", "note"],
+        }
+
+    def test_collects_errors_and_rolls_back_inserted_rows(self):
+        execute_sql(
+            """CREATE TABLE datastore_insert_test (
+                id integer PRIMARY KEY,
+                amount integer NOT NULL
+            )""",
+            {},
+        )
+
+        errors = execute_sql(
+            """SELECT datastore_insert(
+                'datastore_insert_test', ARRAY['id', 'amount'],
+                ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][]
+            )""",
+            {},
+        ).scalar()
+
+        assert set(errors) == {"2", "3"}
+        assert execute_sql(
+            "SELECT count(*) FROM datastore_insert_test", {}
+        ).scalar() == 0

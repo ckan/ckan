@@ -158,3 +158,121 @@ AS $body$
     END;
 $body$ LANGUAGE plpgsql;
 ALTER FUNCTION update_table_stats(name) OWNER TO {writeuser};
+
+DROP FUNCTION IF EXISTS datastore_insert(text, text[], text);
+
+CREATE OR REPLACE FUNCTION datastore_insert(
+    p_table_name text,
+    p_fields text[],
+    p_rows text[][]
+) RETURNS jsonb
+AS $body$
+DECLARE
+    all_fields text[];
+    output_values text;
+    current_fields text[];
+    row_number integer := 1;
+    column_name text;
+    column_list text;
+    value_list text;
+    insert_sql text;
+    inserted_record jsonb;
+    output_record jsonb;
+    output_records jsonb := '[]'::jsonb;
+    errors jsonb := '{{}}'::jsonb;
+BEGIN
+    SELECT
+        array_agg(a.attname::text ORDER BY a.attnum),
+        string_agg(
+            format('%L, inserted.%I::text', a.attname, a.attname),
+            ', ' ORDER BY a.attnum
+        )
+    INTO all_fields, output_values
+    FROM pg_attribute AS a
+    JOIN pg_class AS c ON c.oid = a.attrelid
+    JOIN pg_namespace AS n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public'
+        AND c.relname = p_table_name
+        AND c.relkind IN ('r', 'p')
+        AND a.attnum > 0
+        AND NOT a.attisdropped;
+
+    IF all_fields IS NULL THEN
+        RETURN jsonb_build_object(
+            '1', format('Table "%s" does not exist in schema public', p_table_name)
+        );
+    END IF;
+    IF p_fields IS NULL THEN
+        RETURN jsonb_build_object('1', 'Field list must not be NULL');
+    END IF;
+    IF p_rows IS NULL THEN
+        RETURN jsonb_build_object('1', 'Rows must not be NULL');
+    END IF;
+    IF cardinality(p_rows) > 0 AND array_ndims(p_rows) <> 2 THEN
+        RETURN jsonb_build_object('1', 'Rows must be a two-dimensional array');
+    END IF;
+
+    BEGIN
+        FOREACH current_fields SLICE 1 IN ARRAY p_rows LOOP
+            BEGIN
+                IF cardinality(current_fields) <> cardinality(p_fields) THEN
+                    RAISE EXCEPTION 'Row has % fields; expected %',
+                        cardinality(current_fields), cardinality(p_fields);
+                END IF;
+
+                column_list := '';
+                FOREACH column_name IN ARRAY p_fields LOOP
+                    IF column_list <> '' THEN
+                        column_list := column_list || ', ';
+                    END IF;
+                    column_list := column_list || format('%I', column_name);
+                END LOOP;
+
+                SELECT string_agg(quote_nullable(value), ', ' ORDER BY ordinal)
+                INTO value_list
+                FROM unnest(current_fields)
+                    WITH ORDINALITY AS values_list(value, ordinal);
+
+                IF cardinality(p_fields) = 0 THEN
+                    insert_sql := format(
+                        'INSERT INTO public.%I AS inserted DEFAULT VALUES RETURNING jsonb_build_object(VARIADIC ARRAY[%s])',
+                        p_table_name, output_values
+                    );
+                ELSE
+                    insert_sql := format(
+                        'INSERT INTO public.%I AS inserted (%s) VALUES (%s) RETURNING jsonb_build_object(VARIADIC ARRAY[%s])',
+                        p_table_name, column_list, value_list, output_values
+                    );
+                END IF;
+                EXECUTE insert_sql INTO inserted_record;
+
+                SELECT jsonb_agg(inserted_record -> field_name ORDER BY ordinal)
+                INTO output_record
+                FROM unnest(all_fields) WITH ORDINALITY
+                    AS output_fields(field_name, ordinal);
+                output_records := output_records || jsonb_build_array(output_record);
+            EXCEPTION WHEN OTHERS THEN
+                errors := jsonb_set(
+                    errors,
+                    ARRAY[row_number::text],
+                    to_jsonb(SQLERRM),
+                    true
+                );
+            END;
+            row_number := row_number + 1;
+        END LOOP;
+
+        IF errors <> '{{}}'::jsonb THEN
+            RAISE SQLSTATE 'PZ001';
+        END IF;
+    EXCEPTION WHEN SQLSTATE 'PZ001' THEN
+        RETURN errors;
+    END;
+
+    RETURN jsonb_build_object(
+        'records', output_records,
+        'fields', to_jsonb(all_fields)
+    );
+END;
+$body$ LANGUAGE plpgsql;
+ALTER FUNCTION datastore_insert(text, text[], text[]) OWNER TO {writeuser};
