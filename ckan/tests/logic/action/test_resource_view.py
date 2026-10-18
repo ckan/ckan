@@ -1,15 +1,13 @@
 """Tests for actions and authorization in ckan/logic/action/resource_view.py."""
 
-import unittest.mock as mock
 import uuid
+from unittest import mock
 
 import pytest
 
-import ckan.logic as logic
-import ckan.model as model
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
+from ckan import logic, model
 from ckan.common import config
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")

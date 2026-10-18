@@ -2,7 +2,7 @@
 
 import pytest
 
-import ckan.tests.helpers as helpers
+from ckan.tests import helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")

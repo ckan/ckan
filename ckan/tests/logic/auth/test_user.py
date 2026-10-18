@@ -1,14 +1,12 @@
 """Tests for authorization in ckan/logic/auth/user.py."""
 
-import unittest.mock as mock
+from unittest import mock
 
 import pytest
 
 import ckan.logic.auth.resource as auth_resource
-import ckan.model as model
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
-from ckan import authz
+from ckan import authz, model
+from ckan.tests import factories, helpers
 
 logic = helpers.logic
 

@@ -2,20 +2,17 @@
 
 import datetime
 import re
-import unittest.mock as mock
 import uuid
+from unittest import mock
 
 import pytest
 from freezegun import freeze_time
 
-import ckan.lib.uploader as uploader
-import ckan.logic as logic
-import ckan.model as model
 import ckan.plugins as p
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
-from ckan.lib import files
+from ckan import logic, model
+from ckan.lib import files, uploader
 from ckan.logic.action.package import package_show as core_package_show
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")
