@@ -412,3 +412,26 @@ class TestDatastoreInsert(object):
         assert session.execute(sa.text(
             "SELECT count(*) FROM datastore_insert_test"), {}
         ).scalar() == 0
+
+    def test_empty_strings_become_null_only_for_non_text_fields(self):
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        session.execute(sa.text(
+            """CREATE TABLE datastore_insert_test (
+                amount integer,
+                details jsonb,
+                name text
+            )"""),
+            {},
+        )
+
+        result = session.execute(sa.text(
+            """SELECT datastore_insert(
+                'datastore_insert_test',
+                ARRAY['amount', 'details', 'name'],
+                ARRAY[['', '', '']]::text[][]
+            )"""),
+            {},
+        ).scalar()
+
+        assert json.loads(result)["records"] == [[None, None, ""]]

@@ -167,6 +167,7 @@ CREATE OR REPLACE FUNCTION datastore_insert_columns(
 ) RETURNS TABLE (
     column_list text,
     select_values text,
+    fallback_values text,
     table_fields text[],
     return_record_values text
 )
@@ -174,34 +175,48 @@ AS $body$
 DECLARE
     field_name text;
     field_type text;
+    field_category "char";
     field_index integer := 0;
 BEGIN
     column_list := '';
     select_values := '';
+    fallback_values := '';
     FOREACH field_name IN ARRAY p_fields LOOP
         field_index := field_index + 1;
         IF field_index > 1 THEN
             column_list := column_list || ', ';
             select_values := select_values || ', ';
+            fallback_values := fallback_values || ', ';
         END IF;
         column_list := column_list || format('%I', field_name);
 
-        SELECT format_type(a.atttypid, a.atttypmod)
-        INTO field_type
+        SELECT format_type(a.atttypid, a.atttypmod), t.typcategory
+        INTO field_type, field_category
         FROM pg_attribute AS a
         JOIN pg_class AS c ON c.oid = a.attrelid
         JOIN pg_namespace AS n ON n.oid = c.relnamespace
+        JOIN pg_type AS t ON t.oid = a.atttypid
         WHERE n.nspname = 'public'
             AND c.relname = p_table_name
             AND a.attname = field_name
             AND a.attnum > 0
             AND NOT a.attisdropped;
 
-        select_values := select_values || format(
-            '($1)[row_idx][%s]::%s',
-            field_index,
-            field_type
-        );
+        IF field_category = 'S' THEN
+            select_values := select_values || format(
+                '($1)[row_idx][%s]::%s', field_index, field_type
+            );
+            fallback_values := fallback_values || format(
+                '($1)[%s]::%s', field_index, field_type
+            );
+        ELSE
+            select_values := select_values || format(
+                'NULLIF(($1)[row_idx][%s], '''')::%s', field_index, field_type
+            );
+            fallback_values := fallback_values || format(
+                'NULLIF(($1)[%s], '''')::%s', field_index, field_type
+            );
+        END IF;
     END LOOP;
 
     SELECT
@@ -237,8 +252,8 @@ DECLARE
     current_fields text[];
     row_number integer := 0;
     column_list text;
-    value_list text;
     select_values text;
+    fallback_values text;
     insert_sql text;
     output_records jsonb := '[]'::jsonb;
     fallback_table text;
@@ -248,11 +263,13 @@ BEGIN
     SELECT
         columns.column_list,
         columns.select_values,
+        columns.fallback_values,
         columns.table_fields,
         columns.return_record_values
     INTO
         column_list,
         select_values,
+        fallback_values,
         all_fields,
         output_record_values
     FROM datastore_insert_columns(p_table_name, p_fields) AS columns;
@@ -283,9 +300,7 @@ BEGIN
     END;
 
     fallback_table := format(
-        'datastore_insert_%s_%s',
-        pg_backend_pid(),
-        txid_current()
+        'datastore_insert_%s_%s', pg_backend_pid(), txid_current()
     );
     EXECUTE format(
         'CREATE TEMP TABLE %I (
@@ -298,16 +313,11 @@ BEGIN
     BEGIN
         FOREACH current_fields SLICE 1 IN ARRAY p_rows LOOP
             BEGIN
-                SELECT string_agg(quote_nullable(value), ', ' ORDER BY ordinal)
-                INTO value_list
-                FROM unnest(current_fields)
-                    WITH ORDINALITY AS values_list(value, ordinal);
-
                 insert_sql := format(
-                    'INSERT INTO public.%I AS inserted (%s) VALUES (%s)',
-                    p_table_name, column_list, value_list
+                    'INSERT INTO public.%I AS inserted (%s) SELECT %s',
+                    p_table_name, column_list, fallback_values
                 );
-                EXECUTE insert_sql;
+                EXECUTE insert_sql USING current_fields;
             EXCEPTION WHEN OTHERS THEN
                 EXECUTE format(
                     'INSERT INTO pg_temp.%I (row_num, error_message) VALUES ($1, $2)',
