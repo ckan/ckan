@@ -159,8 +159,6 @@ AS $body$
 $body$ LANGUAGE plpgsql;
 ALTER FUNCTION update_table_stats(name) OWNER TO {writeuser};
 
-DROP FUNCTION IF EXISTS datastore_insert(text, text[], text);
-
 CREATE OR REPLACE FUNCTION datastore_insert(
     p_table_name text,
     p_fields text[],
@@ -172,14 +170,18 @@ DECLARE
     output_values text;
     current_fields text[];
     row_number integer := 1;
+    field_index integer := 0;
     column_name text;
     column_list text;
     value_list text;
+    select_values text;
     insert_sql text;
     inserted_record jsonb;
     output_record jsonb;
     output_records jsonb := '[]'::jsonb;
-    errors jsonb := '{{}}'::jsonb;
+    fallback_records jsonb;
+    fallback_table text;
+    errors jsonb;
 BEGIN
     SELECT
         array_agg(a.attname::text ORDER BY a.attnum),
@@ -212,6 +214,89 @@ BEGIN
         RETURN jsonb_build_object('1', 'Rows must be a two-dimensional array');
     END IF;
 
+    column_list := '';
+    select_values := '';
+    FOREACH column_name IN ARRAY p_fields LOOP
+        field_index := field_index + 1;
+        IF column_list <> '' THEN
+            column_list := column_list || ', ';
+            select_values := select_values || ', ';
+        END IF;
+        column_list := column_list || format('%I', column_name);
+
+        SELECT format_type(a.atttypid, a.atttypmod)
+        INTO value_list
+        FROM pg_attribute AS a
+        JOIN pg_class AS c ON c.oid = a.attrelid
+        JOIN pg_namespace AS n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public'
+            AND c.relname = p_table_name
+            AND a.attname = column_name
+            AND a.attnum > 0
+            AND NOT a.attisdropped;
+
+        IF value_list IS NULL THEN
+            RETURN jsonb_build_object(
+                '1', format('Field "%s" does not exist in table "%s"',
+                    column_name, p_table_name)
+            );
+        END IF;
+
+        select_values := select_values || format(
+            '($1)[row_idx][%s]::%s',
+            field_index,
+            value_list
+        );
+    END LOOP;
+
+    IF cardinality(p_fields) > 0 THEN
+        insert_sql := format(
+            'WITH inserted AS (
+                INSERT INTO public.%I AS inserted (%s)
+                SELECT %s
+                FROM generate_subscripts($1, 1) AS row_idx
+                ORDER BY row_idx
+                RETURNING jsonb_build_array(%s) AS record
+            )
+            SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
+            p_table_name,
+            column_list,
+            select_values,
+            (
+                SELECT string_agg(
+                    format('inserted.%I::text', field_name),
+                    ', ' ORDER BY ordinal
+                )
+                FROM unnest(all_fields) WITH ORDINALITY
+                    AS output_fields(field_name, ordinal)
+            )
+        );
+
+        BEGIN
+            EXECUTE insert_sql INTO output_records USING p_rows;
+            RETURN jsonb_build_object(
+                'records', output_records,
+                'fields', to_jsonb(all_fields)
+            );
+        EXCEPTION WHEN OTHERS THEN
+            NULL;
+        END;
+    END IF;
+
+    fallback_table := format(
+        'datastore_insert_%s_%s',
+        pg_backend_pid(),
+        substr(md5(clock_timestamp()::text || random()::text), 1, 12)
+    );
+    EXECUTE format(
+        'CREATE TEMP TABLE %I (
+            row_num integer,
+            record jsonb,
+            error_message text
+        ) ON COMMIT DROP',
+        fallback_table
+    );
+
     BEGIN
         FOREACH current_fields SLICE 1 IN ARRAY p_rows LOOP
             BEGIN
@@ -219,14 +304,6 @@ BEGIN
                     RAISE EXCEPTION 'Row has % fields; expected %',
                         cardinality(current_fields), cardinality(p_fields);
                 END IF;
-
-                column_list := '';
-                FOREACH column_name IN ARRAY p_fields LOOP
-                    IF column_list <> '' THEN
-                        column_list := column_list || ', ';
-                    END IF;
-                    column_list := column_list || format('%I', column_name);
-                END LOOP;
 
                 SELECT string_agg(quote_nullable(value), ', ' ORDER BY ordinal)
                 INTO value_list
@@ -246,31 +323,48 @@ BEGIN
                 END IF;
                 EXECUTE insert_sql INTO inserted_record;
 
-                SELECT jsonb_agg(inserted_record -> field_name ORDER BY ordinal)
-                INTO output_record
-                FROM unnest(all_fields) WITH ORDINALITY
-                    AS output_fields(field_name, ordinal);
-                output_records := output_records || jsonb_build_array(output_record);
-            EXCEPTION WHEN OTHERS THEN
-                errors := jsonb_set(
-                    errors,
-                    ARRAY[row_number::text],
-                    to_jsonb(SQLERRM),
-                    true
+                output_record := (
+                    SELECT jsonb_agg(inserted_record -> field_name ORDER BY ordinal)
+                    FROM unnest(all_fields) WITH ORDINALITY
+                        AS output_fields(field_name, ordinal)
                 );
+                EXECUTE format(
+                    'INSERT INTO pg_temp.%I (row_num, record) VALUES ($1, $2)',
+                    fallback_table
+                ) USING row_number, output_record;
+            EXCEPTION WHEN OTHERS THEN
+                EXECUTE format(
+                    'INSERT INTO pg_temp.%I (row_num, error_message) VALUES ($1, $2)',
+                    fallback_table
+                ) USING row_number, SQLERRM;
             END;
             row_number := row_number + 1;
         END LOOP;
 
-        IF errors <> '{{}}'::jsonb THEN
+        EXECUTE format(
+            'SELECT
+                jsonb_agg(record ORDER BY row_num)
+                    FILTER (WHERE error_message IS NULL),
+                jsonb_object_agg(row_num::text, error_message)
+                    FILTER (WHERE error_message IS NOT NULL)
+            FROM pg_temp.%I',
+            fallback_table
+        ) INTO fallback_records, errors;
+
+        IF errors IS NOT NULL THEN
             RAISE SQLSTATE 'PZ001';
         END IF;
     EXCEPTION WHEN SQLSTATE 'PZ001' THEN
+        EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
         RETURN errors;
+    WHEN OTHERS THEN
+        EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
+        RAISE;
     END;
 
+    EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
     RETURN jsonb_build_object(
-        'records', output_records,
+        'records', coalesce(fallback_records, '[]'::jsonb),
         'fields', to_jsonb(all_fields)
     );
 END;
