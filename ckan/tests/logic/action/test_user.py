@@ -1,19 +1,17 @@
 """Tests for actions and authorization in ckan/logic/action/user.py."""
 
 import datetime
-import unittest.mock as mock
 import uuid
+from unittest import mock
 
 import pytest
 import sqlalchemy as sa
 
-import ckan.lib.api_token as api_token
-import ckan.logic as logic
-import ckan.model as model
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
+from ckan import logic, model
+from ckan.lib import api_token
 from ckan.logic import ValidationError
 from ckan.plugins.toolkit import config
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")

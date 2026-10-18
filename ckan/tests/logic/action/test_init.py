@@ -2,9 +2,8 @@
 
 import pytest
 
-import ckan.logic as logic
-import ckan.model as model
 import ckan.plugins as p
+from ckan import logic, model
 from ckan.logic.action import get_domain_object
 from ckan.tests import factories, helpers
 

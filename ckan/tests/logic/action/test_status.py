@@ -2,10 +2,8 @@
 
 import pytest
 
-import ckan.logic as logic
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
-from ckan import __version__
+from ckan import __version__, logic
+from ckan.tests import factories, helpers
 
 
 def test_help_show_basic():

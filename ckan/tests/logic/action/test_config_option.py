@@ -2,10 +2,10 @@
 
 import pytest
 
-import ckan.lib.app_globals as app_globals
-import ckan.logic as logic
-import ckan.logic.schema as schema
-import ckan.tests.helpers as helpers
+from ckan import logic
+from ckan.lib import app_globals
+from ckan.logic import schema
+from ckan.tests import helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")
