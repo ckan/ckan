@@ -235,7 +235,7 @@ DECLARE
     all_fields text[];
     output_record_values text;
     current_fields text[];
-    row_number integer := 1;
+    row_number integer := 0;
     column_list text;
     value_list text;
     select_values text;
@@ -318,12 +318,13 @@ BEGIN
         END LOOP;
 
         EXECUTE format(
-            'SELECT jsonb_object_agg(row_num::text, error_message)
+            'SELECT jsonb_agg(jsonb_build_array(row_num, error_message)
+                ORDER BY row_num)
             FROM pg_temp.%I',
             fallback_table
         ) INTO errors;
         IF errors IS NULL THEN
-            errors := jsonb_build_object('1', bulk_error);
+            errors := jsonb_build_array(jsonb_build_array(0, bulk_error));
         END IF;
         RAISE SQLSTATE 'PZ001';
     EXCEPTION WHEN SQLSTATE 'PZ001' THEN

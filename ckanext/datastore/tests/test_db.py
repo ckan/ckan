@@ -403,7 +403,12 @@ class TestDatastoreInsert(object):
             {},
         ).scalar()
 
-        assert set(json.loads(errors)) == {"2", "3"}
+        errors = json.loads(errors)
+        assert errors == [
+            [1, 'duplicate key value violates unique constraint '
+                '"datastore_insert_test_pkey"'],
+            [2, 'invalid input syntax for type integer: "not-an-integer"']
+        ]
         assert session.execute(sa.text(
             "SELECT count(*) FROM datastore_insert_test"), {}
         ).scalar() == 0
