@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import json
+import uuid
 import unittest.mock as mock
 import pytest
 
@@ -351,29 +352,42 @@ class TestGetFunctions(object):
         assert db.sanitize_sql(session.connection(), sql)[2] == {("add",)}
 
 
+@pytest.fixture
+def datastore_insert_table():
+    session = orm.sessionmaker(bind=db.get_write_engine())()
+    table_name = "datastore_insert_test_" + uuid.uuid4().hex
+    yield session, table_name
+    session.rollback()
+    session.execute(sa.text(
+        f'DROP TABLE IF EXISTS public."{table_name}"'
+    ))
+    session.commit()
+    session.close()
+
+
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
-@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestDatastoreInsert(object):
-    def test_inserts_array_rows_and_returns_all_fields(self):
-        engine = db.get_write_engine()
-        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+    def test_inserts_array_rows_and_returns_all_fields(
+        self, datastore_insert_table
+    ):
+        session, table_name = datastore_insert_table
         session.execute(sa.text(
-            """CREATE TABLE datastore_insert_test (
+            f"""CREATE TABLE {table_name} (
                 id serial PRIMARY KEY,
                 name text NOT NULL,
                 amount integer DEFAULT 42,
-                details jsonb DEFAULT '{}'::jsonb,
+                details jsonb DEFAULT '{{}}'::jsonb,
                 note text
-            )"""),
-            {},
+            )""")
         )
 
         result = session.execute(sa.text(
             """SELECT datastore_insert(
-                'datastore_insert_test', ARRAY['name'],
+                :table_name, ARRAY['name'],
                 ARRAY[['Ada, Lovelace'], ['Bob']]::text[][]
             )"""),
-            {},
+            {"table_name": table_name},
         ).scalar()
 
         assert json.loads(result) == {
@@ -384,23 +398,24 @@ class TestDatastoreInsert(object):
             "fields": ["id", "name", "amount", "details", "note"],
         }
 
-    def test_collects_errors_and_rolls_back_inserted_rows(self):
-        engine = db.get_write_engine()
-        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+    def test_collects_errors_and_rolls_back_inserted_rows(
+        self, datastore_insert_table
+    ):
+        session, table_name = datastore_insert_table
         session.execute(sa.text(
-            """CREATE TABLE datastore_insert_test (
-                id integer PRIMARY KEY,
+            f"""CREATE TABLE {table_name} (
+                id integer,
+                CONSTRAINT datastore_insert_test_pkey PRIMARY KEY (id),
                 amount integer NOT NULL
-            )"""),
-            {},
+            )""")
         )
 
         errors = session.execute(sa.text(
             """SELECT datastore_insert(
-                'datastore_insert_test', ARRAY['id', 'amount'],
+                :table_name, ARRAY['id', 'amount'],
                 ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][]
             )"""),
-            {},
+            {"table_name": table_name},
         ).scalar()
 
         errors = json.loads(errors)
@@ -410,79 +425,76 @@ class TestDatastoreInsert(object):
             [2, 'invalid input syntax for type integer: "not-an-integer"']
         ]
         assert session.execute(sa.text(
-            "SELECT count(*) FROM datastore_insert_test"), {}
-        ).scalar() == 0
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 0
 
-    def test_empty_strings_become_null_only_for_non_text_fields(self):
-        engine = db.get_write_engine()
-        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+    def test_empty_strings_become_null_only_for_non_text_fields(
+        self, datastore_insert_table
+    ):
+        session, table_name = datastore_insert_table
         session.execute(sa.text(
-            """CREATE TABLE datastore_insert_test (
+            f"""CREATE TABLE {table_name} (
                 amount integer,
                 details jsonb,
                 name text
-            )"""),
-            {},
+            )""")
         )
 
         result = session.execute(sa.text(
             """SELECT datastore_insert(
-                'datastore_insert_test',
+                :table_name,
                 ARRAY['amount', 'details', 'name'],
                 ARRAY[['', '', '']]::text[][]
             )"""),
-            {},
+            {"table_name": table_name},
         ).scalar()
 
         assert json.loads(result)["records"] == [[None, None, ""]]
 
-    def test_can_return_first_error_only(self):
-        engine = db.get_write_engine()
-        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+    def test_can_return_first_error_only(self, datastore_insert_table):
+        session, table_name = datastore_insert_table
         session.execute(sa.text(
-            """CREATE TABLE datastore_insert_test (
-                id integer PRIMARY KEY,
+            f"""CREATE TABLE {table_name} (
+                id integer,
+                CONSTRAINT datastore_insert_test_pkey PRIMARY KEY (id),
                 amount integer NOT NULL
-            )"""),
-            {},
+            )""")
         )
 
         errors = session.execute(sa.text(
             """SELECT datastore_insert(
-                'datastore_insert_test', ARRAY['id', 'amount'],
+                :table_name, ARRAY['id', 'amount'],
                 ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][],
                 true
             )"""),
-            {},
+            {"table_name": table_name},
         ).scalar()
 
         errors = json.loads(errors)
         assert [row_number for row_number, _ in errors] == [1]
         assert session.execute(sa.text(
-            "SELECT count(*) FROM datastore_insert_test"), {}
-        ).scalar() == 0
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 0
 
-    def test_can_skip_returning_records(self):
-        engine = db.get_write_engine()
-        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+    def test_can_skip_returning_records(self, datastore_insert_table):
+        session, table_name = datastore_insert_table
         session.execute(sa.text(
-            """CREATE TABLE datastore_insert_test (
+            f"""CREATE TABLE {table_name} (
                 name text
-            )"""),
-            {},
+            )""")
         )
 
         result = session.execute(sa.text(
             """SELECT datastore_insert(
-                'datastore_insert_test', ARRAY['name'],
+                :table_name, ARRAY['name'],
                 ARRAY[['Ada'], ['Bob']]::text[][],
                 false, false
             )"""),
-            {},
+            {"table_name": table_name},
         ).scalar()
 
         result = json.loads(result)
         assert result == {"records": None, "fields": ["name"]}
         assert session.execute(sa.text(
-            "SELECT count(*) FROM datastore_insert_test"), {}
-        ).scalar() == 2
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 2
