@@ -159,11 +159,9 @@ AS $body$
 $body$ LANGUAGE plpgsql;
 ALTER FUNCTION update_table_stats(name) OWNER TO {writeuser};
 
-DROP FUNCTION IF EXISTS datastore_insert_columns(text, text[]);
-
 CREATE OR REPLACE FUNCTION datastore_insert_columns(
-    p_table_name text,
-    p_fields text[]
+    table_name text,
+    fields text[]
 ) RETURNS TABLE (
     column_list text,
     select_values text,
@@ -181,7 +179,7 @@ BEGIN
     column_list := '';
     select_values := '';
     fallback_values := '';
-    FOREACH field_name IN ARRAY p_fields LOOP
+    FOREACH field_name IN ARRAY fields LOOP
         field_index := field_index + 1;
         IF field_index > 1 THEN
             column_list := column_list || ', ';
@@ -197,7 +195,7 @@ BEGIN
         JOIN pg_namespace AS n ON n.oid = c.relnamespace
         JOIN pg_type AS t ON t.oid = a.atttypid
         WHERE n.nspname = 'public'
-            AND c.relname = p_table_name
+            AND c.relname = table_name
             AND a.attname = field_name
             AND a.attnum > 0
             AND NOT a.attisdropped;
@@ -230,7 +228,7 @@ BEGIN
     JOIN pg_class AS c ON c.oid = a.attrelid
     JOIN pg_namespace AS n ON n.oid = c.relnamespace
     WHERE n.nspname = 'public'
-        AND c.relname = p_table_name
+        AND c.relname = table_name
         AND c.relkind IN ('r', 'p')
         AND a.attnum > 0
         AND NOT a.attisdropped;
@@ -240,14 +238,12 @@ END;
 $body$ LANGUAGE plpgsql STABLE;
 ALTER FUNCTION datastore_insert_columns(text, text[]) OWNER TO {writeuser};
 
-DROP FUNCTION IF EXISTS datastore_insert(text, text[], text[]);
-
 CREATE OR REPLACE FUNCTION datastore_insert(
-    p_table_name text,
-    p_fields text[],
-    p_rows text[][],
-    p_stop_on_error boolean DEFAULT false,
-    p_return_records boolean DEFAULT true
+    table_name text,
+    fields text[],
+    rows text[][],
+    stop_on_error boolean DEFAULT false,
+    return_records boolean DEFAULT true
 ) RETURNS jsonb
 AS $body$
 DECLARE
@@ -276,9 +272,9 @@ BEGIN
         fallback_values,
         all_fields,
         output_record_values
-    FROM datastore_insert_columns(p_table_name, p_fields) AS columns;
+    FROM datastore_insert_columns(table_name, fields) AS columns;
 
-    IF p_return_records THEN
+    IF return_records THEN
         insert_sql := format(
             'WITH inserted AS (
                 INSERT INTO public.%I AS inserted (%s)
@@ -288,7 +284,7 @@ BEGIN
                 RETURNING jsonb_build_array(%s) AS record
             )
             SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
-            p_table_name,
+            table_name,
             column_list,
             select_values,
             output_record_values
@@ -299,21 +295,21 @@ BEGIN
             SELECT %s
             FROM generate_subscripts($1, 1) AS row_idx
             ORDER BY row_idx',
-            p_table_name,
+            table_name,
             column_list,
             select_values
         );
     END IF;
 
     BEGIN
-        IF p_return_records THEN
-            EXECUTE insert_sql INTO output_records USING p_rows;
+        IF return_records THEN
+            EXECUTE insert_sql INTO output_records USING rows;
         ELSE
-            EXECUTE insert_sql USING p_rows;
+            EXECUTE insert_sql USING rows;
         END IF;
         RETURN jsonb_build_object(
             'records', CASE
-                WHEN p_return_records THEN output_records
+                WHEN return_records THEN output_records
                 ELSE 'null'::jsonb
             END,
             'fields', to_jsonb(all_fields)
@@ -334,11 +330,11 @@ BEGIN
     );
 
     BEGIN
-        FOREACH current_fields SLICE 1 IN ARRAY p_rows LOOP
+        FOREACH current_fields SLICE 1 IN ARRAY rows LOOP
             BEGIN
                 insert_sql := format(
                     'INSERT INTO public.%I AS inserted (%s) SELECT %s',
-                    p_table_name, column_list, fallback_values
+                    table_name, column_list, fallback_values
                 );
                 EXECUTE insert_sql USING current_fields;
             EXCEPTION WHEN OTHERS THEN
@@ -346,7 +342,7 @@ BEGIN
                     'INSERT INTO pg_temp.%I (row_num, error_message) VALUES ($1, $2)',
                     fallback_table
                 ) USING row_number, SQLERRM;
-                IF p_stop_on_error THEN
+                IF stop_on_error THEN
                     EXIT;
                 END IF;
             END;
