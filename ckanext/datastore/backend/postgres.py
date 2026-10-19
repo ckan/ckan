@@ -809,7 +809,7 @@ def convert(data: Any, type_name: str) -> Any:
     if data is None:
         return None
     if type_name in ('json', 'jsonb'):
-        return data
+        return json.loads(data)
     # array type
     if type_name.startswith('_'):
         sub_type = type_name[1:]
@@ -821,6 +821,15 @@ def convert(data: Any, type_name: str) -> Any:
     if isinstance(data, (int, float, decimal.Decimal)):
         return data
     return str(data)
+
+
+def _convert_json_fields(record: dict[str, Any],
+                         fields: list[dict[str, Any]]) -> dict[str, Any]:
+    for field in fields:
+        if field['type'].lower() in ('json', 'jsonb'):
+            record[field['id']] = convert(
+                record[field['id']], field['type'].lower())
+    return record
 
 
 def check_fields(context: Context, fields: Iterable[dict[str, Any]]):
@@ -1184,7 +1193,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             if data_dict['include_records']:
                 data_dict['records'] = [
-                    dict(r) for r in results.mappings().all()
+                    _convert_json_fields(dict(r), fields)
+                    for r in results.mappings().all()
                 ]
 
         except (DatabaseError, DataError) as err:
@@ -1297,7 +1307,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         {**used_values, **unique_values})
                     if data_dict['include_records']:
                         for r in results.mappings().all():
-                            updated_records[str(r._id)] = dict(r)
+                            updated_records[str(r._id)] = _convert_json_fields(
+                                dict(r), fields)
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
@@ -1344,7 +1355,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         sa.text(sql_string), values)
                     if data_dict['include_records']:
                         for r in results.mappings().all():
-                            updated_records[str(r._id)] = dict(r)
+                            updated_records[str(r._id)] = _convert_json_fields(
+                                dict(r), fields)
                 except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
