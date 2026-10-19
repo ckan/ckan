@@ -435,3 +435,54 @@ class TestDatastoreInsert(object):
         ).scalar()
 
         assert json.loads(result)["records"] == [[None, None, ""]]
+
+    def test_can_return_first_error_only(self):
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        session.execute(sa.text(
+            """CREATE TABLE datastore_insert_test (
+                id integer PRIMARY KEY,
+                amount integer NOT NULL
+            )"""),
+            {},
+        )
+
+        errors = session.execute(sa.text(
+            """SELECT datastore_insert(
+                'datastore_insert_test', ARRAY['id', 'amount'],
+                ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][],
+                true
+            )"""),
+            {},
+        ).scalar()
+
+        errors = json.loads(errors)
+        assert [row_number for row_number, _ in errors] == [1]
+        assert session.execute(sa.text(
+            "SELECT count(*) FROM datastore_insert_test"), {}
+        ).scalar() == 0
+
+    def test_can_skip_returning_records(self):
+        engine = db.get_write_engine()
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        session.execute(sa.text(
+            """CREATE TABLE datastore_insert_test (
+                name text
+            )"""),
+            {},
+        )
+
+        result = session.execute(sa.text(
+            """SELECT datastore_insert(
+                'datastore_insert_test', ARRAY['name'],
+                ARRAY[['Ada'], ['Bob']]::text[][],
+                false, false
+            )"""),
+            {},
+        ).scalar()
+
+        result = json.loads(result)
+        assert result == {"records": None, "fields": ["name"]}
+        assert session.execute(sa.text(
+            "SELECT count(*) FROM datastore_insert_test"), {}
+        ).scalar() == 2

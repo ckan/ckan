@@ -240,10 +240,14 @@ END;
 $body$ LANGUAGE plpgsql STABLE;
 ALTER FUNCTION datastore_insert_columns(text, text[]) OWNER TO {writeuser};
 
+DROP FUNCTION IF EXISTS datastore_insert(text, text[], text[]);
+
 CREATE OR REPLACE FUNCTION datastore_insert(
     p_table_name text,
     p_fields text[],
-    p_rows text[][]
+    p_rows text[][],
+    p_stop_on_error boolean DEFAULT false,
+    p_return_records boolean DEFAULT true
 ) RETURNS jsonb
 AS $body$
 DECLARE
@@ -274,25 +278,44 @@ BEGIN
         output_record_values
     FROM datastore_insert_columns(p_table_name, p_fields) AS columns;
 
-    insert_sql := format(
-        'WITH inserted AS (
-            INSERT INTO public.%I AS inserted (%s)
+    IF p_return_records THEN
+        insert_sql := format(
+            'WITH inserted AS (
+                INSERT INTO public.%I AS inserted (%s)
+                SELECT %s
+                FROM generate_subscripts($1, 1) AS row_idx
+                ORDER BY row_idx
+                RETURNING jsonb_build_array(%s) AS record
+            )
+            SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
+            p_table_name,
+            column_list,
+            select_values,
+            output_record_values
+        );
+    ELSE
+        insert_sql := format(
+            'INSERT INTO public.%I AS inserted (%s)
             SELECT %s
             FROM generate_subscripts($1, 1) AS row_idx
-            ORDER BY row_idx
-            RETURNING jsonb_build_array(%s) AS record
-        )
-        SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
-        p_table_name,
-        column_list,
-        select_values,
-        output_record_values
-    );
+            ORDER BY row_idx',
+            p_table_name,
+            column_list,
+            select_values
+        );
+    END IF;
 
     BEGIN
-        EXECUTE insert_sql INTO output_records USING p_rows;
+        IF p_return_records THEN
+            EXECUTE insert_sql INTO output_records USING p_rows;
+        ELSE
+            EXECUTE insert_sql USING p_rows;
+        END IF;
         RETURN jsonb_build_object(
-            'records', output_records,
+            'records', CASE
+                WHEN p_return_records THEN output_records
+                ELSE 'null'::jsonb
+            END,
             'fields', to_jsonb(all_fields)
         );
     EXCEPTION WHEN OTHERS THEN
@@ -323,6 +346,9 @@ BEGIN
                     'INSERT INTO pg_temp.%I (row_num, error_message) VALUES ($1, $2)',
                     fallback_table
                 ) USING row_number, SQLERRM;
+                IF p_stop_on_error THEN
+                    EXIT;
+                END IF;
             END;
             row_number := row_number + 1;
         END LOOP;
@@ -346,4 +372,6 @@ BEGIN
     END;
 END;
 $body$ LANGUAGE plpgsql;
-ALTER FUNCTION datastore_insert(text, text[], text[]) OWNER TO {writeuser};
+ALTER FUNCTION datastore_insert(
+    text, text[], text[], boolean, boolean
+) OWNER TO {writeuser};
