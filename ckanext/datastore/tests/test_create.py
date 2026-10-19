@@ -751,9 +751,7 @@ class TestDatastoreCreate(object):
         for i, row in enumerate(results):
             assert data["records"][i].get("boo%k") == getattr(row, "boo%k")
             author = getattr(row, "author")
-            assert data["records"][i].get("author") == (
-                json.loads(author) if author else None
-            )
+            assert data["records"][i].get("author") == author
 
         results = c.execute(sa.text(
             """
@@ -836,9 +834,7 @@ class TestDatastoreCreate(object):
         for i, row in enumerate(results):
             assert all_data[i].get("boo%k") == getattr(row, "boo%k")
             author = getattr(row, "author")
-            assert all_data[i].get("author") == (
-                json.loads(author) if author else None
-            )
+            assert all_data[i].get("author") == author
 
         c = self.Session.connection()
         results = c.execute(sa.text(
@@ -891,9 +887,7 @@ class TestDatastoreCreate(object):
             )
 
             author = getattr(row, "author")
-            assert all_data[i].get("author") == (
-                json.loads(author) if author else None
-            )
+            assert all_data[i].get("author") == author
 
         results = c.execute(sa.text(
             """select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') """.format(
@@ -1140,9 +1134,7 @@ class TestDatastoreCreate(object):
         for i, row in enumerate(results):
             assert data["records"][i].get("book") == row._mapping["book"]
             author = row._mapping["author"]
-            assert data["records"][i].get("author") == (
-                json.loads(author) if author else None
-            )
+            assert data["records"][i].get("author") == author
         self.Session.remove()
 
         ### extend types
