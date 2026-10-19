@@ -1391,4 +1391,4 @@ def test_upsert_schedules_record_count():
             "select stats from _table_stats where resource_id=:resource_id"
             ), {'resource_id': resource['id']}
         )
-    assert list(stats) == [('{"rows": 7}',)]
+    assert list(stats) == [({"rows": 7},)]
