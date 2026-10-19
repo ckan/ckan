@@ -1,0 +1,1 @@
+Fix `after_resource_update` hook receiving stale search cache and uncommitted savepoint state.
