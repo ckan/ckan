@@ -49,7 +49,7 @@ class TestTypeGetters(object):
         indexable_field_types = ["tsvector", "text"]
 
         non_indexable_field_types = [
-            "nested",
+            "json",
             "timestamp",
             "date",
             "_text",

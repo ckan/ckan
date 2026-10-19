@@ -752,7 +752,7 @@ class TestDatastoreCreate(object):
             assert data["records"][i].get("boo%k") == getattr(row, "boo%k")
             author = getattr(row, "author")
             assert data["records"][i].get("author") == (
-                json.loads(author[0]) if author else None
+                json.loads(author) if author else None
             )
 
         results = c.execute(sa.text(
@@ -837,7 +837,7 @@ class TestDatastoreCreate(object):
             assert all_data[i].get("boo%k") == getattr(row, "boo%k")
             author = getattr(row, "author")
             assert all_data[i].get("author") == (
-                json.loads(author[0]) if author else None
+                json.loads(author) if author else None
             )
 
         c = self.Session.connection()
@@ -892,7 +892,7 @@ class TestDatastoreCreate(object):
 
             author = getattr(row, "author")
             assert all_data[i].get("author") == (
-                json.loads(author[0]) if author else None
+                json.loads(author) if author else None
             )
 
         results = c.execute(sa.text(
@@ -1129,7 +1129,7 @@ class TestDatastoreCreate(object):
         assert types == [
             u"int4",
             u"tsvector",
-            u"nested",
+            u"json",
             u"int4",
             u"text",
             u"timestamp",
@@ -1139,8 +1139,9 @@ class TestDatastoreCreate(object):
         assert results.rowcount == 3
         for i, row in enumerate(results):
             assert data["records"][i].get("book") == row._mapping["book"]
+            author = row._mapping["author"]
             assert data["records"][i].get("author") == (
-                json.loads(row._mapping["author"][0]) if row._mapping["author"] else None
+                json.loads(author) if author else None
             )
         self.Session.remove()
 
@@ -1191,14 +1192,14 @@ class TestDatastoreCreate(object):
         assert types == [
             u"int4",  # id
             u"tsvector",  # fulltext
-            u"nested",  # author
+            u"json",  # author
             u"int4",  # count
             u"text",  # book
             u"timestamp",  # date
             u"float8",  # count2
             u"text",  # extra
             u"timestamp",  # date2
-            u"nested",  # count3
+            u"json",  # count3
         ], types
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
