@@ -353,7 +353,7 @@ class TestGetFunctions(object):
 
 
 @pytest.fixture
-def datastore_insert_table():
+def load_records_table():
     session = orm.sessionmaker(bind=db.get_write_engine())()
     table_name = "datastore_insert_test_" + uuid.uuid4().hex
     yield session, table_name
@@ -367,11 +367,11 @@ def datastore_insert_table():
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
 @pytest.mark.usefixtures("with_plugins")
-class TestDatastoreInsert(object):
+class TestLoadRecords(object):
     def test_inserts_array_rows_and_returns_all_fields(
-        self, datastore_insert_table
+        self, load_records_table
     ):
-        session, table_name = datastore_insert_table
+        session, table_name = load_records_table
         session.execute(sa.text(
             f"""CREATE TABLE {table_name} (
                 id serial PRIMARY KEY,
@@ -383,7 +383,7 @@ class TestDatastoreInsert(object):
         )
 
         result = session.execute(sa.text(
-            """SELECT datastore_insert(
+            """SELECT load_records(
                 :table_name, ARRAY['name'],
                 ARRAY[['Ada, Lovelace'], ['Bob']]::text[][]
             )"""),
@@ -399,9 +399,9 @@ class TestDatastoreInsert(object):
         }
 
     def test_collects_errors_and_rolls_back_inserted_rows(
-        self, datastore_insert_table
+        self, load_records_table
     ):
-        session, table_name = datastore_insert_table
+        session, table_name = load_records_table
         session.execute(sa.text(
             f"""CREATE TABLE {table_name} (
                 id integer,
@@ -411,7 +411,7 @@ class TestDatastoreInsert(object):
         )
 
         errors = session.execute(sa.text(
-            """SELECT datastore_insert(
+            """SELECT load_records(
                 :table_name, ARRAY['id', 'amount'],
                 ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][]
             )"""),
@@ -429,9 +429,9 @@ class TestDatastoreInsert(object):
         )).scalar() == 0
 
     def test_empty_strings_become_null_only_for_non_text_fields(
-        self, datastore_insert_table
+        self, load_records_table
     ):
-        session, table_name = datastore_insert_table
+        session, table_name = load_records_table
         session.execute(sa.text(
             f"""CREATE TABLE {table_name} (
                 amount integer,
@@ -441,18 +441,21 @@ class TestDatastoreInsert(object):
         )
 
         result = session.execute(sa.text(
-            """SELECT datastore_insert(
+            """SELECT load_records(
                 :table_name,
                 ARRAY['amount', 'details', 'name'],
-                ARRAY[['', '', '']]::text[][]
+                ARRAY[['', '', ''], ['', 'null', '']]::text[][]
             )"""),
             {"table_name": table_name},
         ).scalar()
 
-        assert json.loads(result)["records"] == [[None, None, ""]]
+        assert json.loads(result)["records"] == [
+            [None, '""', ""],
+            [None, "null", ""],
+        ]
 
-    def test_can_return_first_error_only(self, datastore_insert_table):
-        session, table_name = datastore_insert_table
+    def test_can_return_first_error_only(self, load_records_table):
+        session, table_name = load_records_table
         session.execute(sa.text(
             f"""CREATE TABLE {table_name} (
                 id integer,
@@ -462,7 +465,7 @@ class TestDatastoreInsert(object):
         )
 
         errors = session.execute(sa.text(
-            """SELECT datastore_insert(
+            """SELECT load_records(
                 :table_name, ARRAY['id', 'amount'],
                 ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][],
                 true
@@ -476,8 +479,8 @@ class TestDatastoreInsert(object):
             f"SELECT count(*) FROM {table_name}"
         )).scalar() == 0
 
-    def test_can_skip_returning_records(self, datastore_insert_table):
-        session, table_name = datastore_insert_table
+    def test_can_skip_returning_records(self, load_records_table):
+        session, table_name = load_records_table
         session.execute(sa.text(
             f"""CREATE TABLE {table_name} (
                 name text
@@ -485,7 +488,7 @@ class TestDatastoreInsert(object):
         )
 
         result = session.execute(sa.text(
-            """SELECT datastore_insert(
+            """SELECT load_records(
                 :table_name, ARRAY['name'],
                 ARRAY[['Ada'], ['Bob']]::text[][],
                 false, false
@@ -498,3 +501,65 @@ class TestDatastoreInsert(object):
         assert session.execute(sa.text(
             f"SELECT count(*) FROM {table_name}"
         )).scalar() == 2
+
+    def test_update_and_upsert_match_unique_constraint(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id serial PRIMARY KEY,
+                code text NOT NULL,
+                region text NOT NULL,
+                amount integer NOT NULL,
+                CONSTRAINT {table_name}_code_region_key UNIQUE (code, region)
+            )"""
+        ))
+        session.execute(sa.text(
+            f"INSERT INTO {table_name} (code, region, amount) "
+            "VALUES ('alpha', 'north', 10)"
+        ))
+
+        unique_columns = session.execute(sa.text(
+            "SELECT first_unique_constraint_columns(:table_name)"
+        ), {"table_name": table_name}).scalar()
+        assert list(unique_columns) == ["code", "region"]
+
+        update_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'amount', 'region', 'code'],
+                ARRAY[['1', '20', 'north', 'alpha']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert json.loads(update_result)["records"] == [
+            ["1", "alpha", "north", "20"]
+        ]
+
+        upsert_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[['alpha', 'north', '30'], ['beta', 'south', '40']]::text[][],
+                false, true, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert json.loads(upsert_result)["records"] == [
+            ["1", "alpha", "north", "30"],
+            ["2", "beta", "south", "40"],
+        ]
+
+    def test_update_returns_error_for_unmatched_row(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id serial PRIMARY KEY,
+                value text NOT NULL
+            )"""
+        ))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'value'],
+                ARRAY[['99', 'missing']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert json.loads(errors) == [[0, "No matching record found for update"]]

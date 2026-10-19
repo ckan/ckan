@@ -159,7 +159,8 @@ AS $body$
 $body$ LANGUAGE plpgsql;
 ALTER FUNCTION update_table_stats(name) OWNER TO {writeuser};
 
-CREATE OR REPLACE FUNCTION datastore_insert_columns(
+-- Build column lists and typed input expressions for record loading.
+CREATE OR REPLACE FUNCTION load_record_columns(
     table_name text,
     fields text[]
 ) RETURNS TABLE (
@@ -173,6 +174,7 @@ AS $body$
 DECLARE
     field_name text;
     field_type text;
+    field_type_name text;
     field_category "char";
     field_index integer := 0;
 BEGIN
@@ -188,8 +190,8 @@ BEGIN
         END IF;
         column_list := column_list || format('%I', field_name);
 
-        SELECT format_type(a.atttypid, a.atttypmod), t.typcategory
-        INTO field_type, field_category
+        SELECT format_type(a.atttypid, a.atttypmod), t.typname, t.typcategory
+        INTO field_type, field_type_name, field_category
         FROM pg_attribute AS a
         JOIN pg_class AS c ON c.oid = a.attrelid
         JOIN pg_namespace AS n ON n.oid = c.relnamespace
@@ -206,6 +208,15 @@ BEGIN
             );
             fallback_values := fallback_values || format(
                 '($1)[%s]::%s', field_index, field_type
+            );
+        ELSIF field_type_name IN ('json', 'jsonb') THEN
+            select_values := select_values || format(
+                '(CASE WHEN ($1)[row_idx][%s] = '''' THEN to_json(($1)[row_idx][%s]) ELSE ($1)[row_idx][%s]::json END)::%s',
+                field_index, field_index, field_index, field_type
+            );
+            fallback_values := fallback_values || format(
+                '(CASE WHEN ($1)[%s] = '''' THEN to_json(($1)[%s]) ELSE ($1)[%s]::json END)::%s',
+                field_index, field_index, field_index, field_type
             );
         ELSE
             select_values := select_values || format(
@@ -236,14 +247,171 @@ BEGIN
     RETURN NEXT;
 END;
 $body$ LANGUAGE plpgsql STABLE;
-ALTER FUNCTION datastore_insert_columns(text, text[]) OWNER TO {writeuser};
+ALTER FUNCTION load_record_columns(text, text[]) OWNER TO {writeuser};
 
-CREATE OR REPLACE FUNCTION datastore_insert(
+-- Return the first unique constraint's columns in constraint key order.
+CREATE OR REPLACE FUNCTION first_unique_constraint_columns(table_name text)
+RETURNS text[]
+AS $body$
+    SELECT array_agg(attribute.attname::text ORDER BY key_column.ordinality)
+    FROM (
+        SELECT constraint_row.conrelid, constraint_row.conkey
+        FROM pg_constraint AS constraint_row
+        JOIN pg_class AS relation
+            ON relation.oid = constraint_row.conrelid
+        JOIN pg_namespace AS relation_namespace
+            ON relation_namespace.oid = relation.relnamespace
+        WHERE relation_namespace.nspname = 'public'
+            AND relation.relname = table_name
+            AND constraint_row.contype = 'u'
+        ORDER BY constraint_row.oid
+        LIMIT 1
+    ) AS unique_constraint
+    CROSS JOIN LATERAL unnest(unique_constraint.conkey)
+        WITH ORDINALITY AS key_column(attnum, ordinality)
+    JOIN pg_attribute AS attribute
+        ON attribute.attrelid = unique_constraint.conrelid
+        AND attribute.attnum = key_column.attnum;
+$body$ LANGUAGE sql STABLE;
+ALTER FUNCTION first_unique_constraint_columns(text) OWNER TO {writeuser};
+
+-- Apply one input row using insert, update, or upsert semantics.
+CREATE OR REPLACE FUNCTION load_record_row(
+    table_name text,
+    fields text[],
+    current_fields text[],
+    operation text,
+    unique_fields text[],
+    column_list text,
+    fallback_values text,
+    output_record_values text,
+    return_records boolean
+) RETURNS jsonb
+AS $body$
+DECLARE
+    key_fields text[];
+    key_number integer := 0;
+    key_index integer;
+    field_name text;
+    match_clause text;
+    update_assignments text := '';
+    update_sql text;
+    insert_sql text;
+    returning_expression text;
+    affected_rows integer := 0;
+    current_record jsonb;
+BEGIN
+    IF operation IN ('update', 'upsert') THEN
+        IF array_position(fields, '_id') IS NOT NULL THEN
+            key_number := key_number + 1;
+        END IF;
+        IF unique_fields IS NOT NULL
+            AND fields @> unique_fields
+            AND unique_fields <> ARRAY['_id'] THEN
+            key_number := key_number + 1;
+        END IF;
+
+        FOREACH field_name IN ARRAY fields LOOP
+            IF update_assignments <> '' THEN
+                update_assignments := update_assignments || ', ';
+            END IF;
+            update_assignments := update_assignments ||
+                format('%I = source.%I', field_name, field_name);
+        END LOOP;
+
+        FOR key_index IN 1..key_number LOOP
+            IF array_position(fields, '_id') IS NOT NULL
+                AND key_index = 1 THEN
+                key_fields := ARRAY['_id'];
+            ELSE
+                key_fields := unique_fields;
+            END IF;
+
+            match_clause := '';
+            FOREACH field_name IN ARRAY key_fields LOOP
+                IF match_clause <> '' THEN
+                    match_clause := match_clause || ' AND ';
+                END IF;
+                match_clause := match_clause || format(
+                    'target.%I = source.%I',
+                    field_name, field_name
+                );
+            END LOOP;
+
+            returning_expression := CASE
+                WHEN return_records THEN
+                    'jsonb_build_array(' ||
+                        replace(output_record_values, 'inserted.', 'target.') || ')'
+                ELSE 'to_jsonb(1)'
+            END;
+            update_sql := format(
+                'WITH updated AS (
+                    UPDATE public.%I AS target
+                    SET %s
+                    FROM (SELECT %s) AS source(%s)
+                    WHERE %s
+                    RETURNING %s AS record
+                )
+                SELECT record FROM updated',
+                table_name,
+                update_assignments,
+                fallback_values,
+                column_list,
+                match_clause,
+                returning_expression
+            );
+            EXECUTE update_sql INTO current_record USING current_fields;
+            GET DIAGNOSTICS affected_rows = ROW_COUNT;
+            IF affected_rows > 0 THEN
+                RETURN current_record;
+            END IF;
+        END LOOP;
+
+        IF operation = 'update' THEN
+            RAISE EXCEPTION 'No matching record found for update';
+        END IF;
+    END IF;
+
+    IF operation = 'insert' OR operation = 'upsert' THEN
+        IF return_records AND operation = 'upsert' THEN
+            insert_sql := format(
+                'INSERT INTO public.%I AS inserted (%s)
+                SELECT %s
+                RETURNING jsonb_build_array(%s)',
+                table_name, column_list, fallback_values,
+                output_record_values
+            );
+            EXECUTE insert_sql INTO current_record USING current_fields;
+        ELSE
+            insert_sql := format(
+                'INSERT INTO public.%I AS inserted (%s) SELECT %s',
+                table_name, column_list, fallback_values
+            );
+            EXECUTE insert_sql USING current_fields;
+        END IF;
+    END IF;
+    RETURN current_record;
+END;
+$body$ LANGUAGE plpgsql;
+ALTER FUNCTION load_record_row(
+    text, text[], text[], text, text[], text, text, text, boolean
+) OWNER TO {writeuser};
+
+DROP FUNCTION IF EXISTS load_records(
+    text, text[], text[][], boolean, boolean
+);
+DROP FUNCTION IF EXISTS load_records(
+    text, text[], text[][], boolean, boolean, text
+);
+
+-- Load input rows and return inserted/updated records or row errors.
+CREATE OR REPLACE FUNCTION load_records(
     table_name text,
     fields text[],
     rows text[][],
     stop_on_error boolean DEFAULT false,
-    return_records boolean DEFAULT true
+    return_records boolean DEFAULT true,
+    operation text DEFAULT 'insert'
 ) RETURNS jsonb
 AS $body$
 DECLARE
@@ -259,22 +427,23 @@ DECLARE
     fallback_table text;
     bulk_error text;
     errors jsonb;
+    unique_fields text[];
+    current_record jsonb;
 BEGIN
-    SELECT
-        columns.column_list,
-        columns.select_values,
-        columns.fallback_values,
-        columns.table_fields,
-        columns.return_record_values
-    INTO
-        column_list,
-        select_values,
-        fallback_values,
-        all_fields,
-        output_record_values
-    FROM datastore_insert_columns(table_name, fields) AS columns;
+    IF operation NOT IN ('insert', 'update', 'upsert') THEN
+        RETURN jsonb_build_array(
+            jsonb_build_array(0, format('Unknown operation: %s', operation))
+        );
+    END IF;
 
-    IF return_records THEN
+    SELECT columns.column_list, columns.select_values,
+        columns.fallback_values, columns.table_fields,
+        columns.return_record_values
+    INTO column_list, select_values, fallback_values, all_fields,
+        output_record_values
+    FROM load_record_columns(table_name, fields) AS columns;
+
+    IF operation = 'insert' AND return_records THEN
         insert_sql := format(
             'WITH inserted AS (
                 INSERT INTO public.%I AS inserted (%s)
@@ -289,7 +458,7 @@ BEGIN
             select_values,
             output_record_values
         );
-    ELSE
+    ELSIF operation = 'insert' THEN
         insert_sql := format(
             'INSERT INTO public.%I AS inserted (%s)
             SELECT %s
@@ -302,28 +471,34 @@ BEGIN
     END IF;
 
     BEGIN
-        IF return_records THEN
+        IF operation = 'insert' AND return_records THEN
             EXECUTE insert_sql INTO output_records USING rows;
-        ELSE
+        ELSIF operation = 'insert' THEN
             EXECUTE insert_sql USING rows;
+        ELSE
+            bulk_error := NULL;
         END IF;
-        RETURN jsonb_build_object(
-            'records', CASE
-                WHEN return_records THEN output_records
-                ELSE 'null'::jsonb
-            END,
-            'fields', to_jsonb(all_fields)
-        );
+        IF operation = 'insert' THEN
+            RETURN jsonb_build_object(
+                'records', CASE
+                    WHEN return_records THEN output_records
+                    ELSE 'null'::jsonb
+                END,
+                'fields', to_jsonb(all_fields)
+            );
+        END IF;
     EXCEPTION WHEN OTHERS THEN
         bulk_error := SQLERRM;
     END;
 
+    unique_fields := first_unique_constraint_columns(table_name);
     fallback_table := format(
-        'datastore_insert_%s_%s', pg_backend_pid(), txid_current()
+        'load_records_%s_%s', pg_backend_pid(), txid_current()
     );
     EXECUTE format(
         'CREATE TEMP TABLE %I (
             row_num integer,
+            record jsonb,
             error_message text
         ) ON COMMIT DROP',
         fallback_table
@@ -332,11 +507,24 @@ BEGIN
     BEGIN
         FOREACH current_fields SLICE 1 IN ARRAY rows LOOP
             BEGIN
-                insert_sql := format(
-                    'INSERT INTO public.%I AS inserted (%s) SELECT %s',
-                    table_name, column_list, fallback_values
+                current_record := load_record_row(
+                    table_name,
+                    fields,
+                    current_fields,
+                    operation,
+                    unique_fields,
+                    column_list,
+                    fallback_values,
+                    output_record_values,
+                    return_records
                 );
-                EXECUTE insert_sql USING current_fields;
+
+                IF return_records AND operation <> 'insert' THEN
+                    EXECUTE format(
+                        'INSERT INTO pg_temp.%I (row_num, record) VALUES ($1, $2)',
+                        fallback_table
+                    ) USING row_number, current_record;
+                END IF;
             EXCEPTION WHEN OTHERS THEN
                 EXECUTE format(
                     'INSERT INTO pg_temp.%I (row_num, error_message) VALUES ($1, $2)',
@@ -350,15 +538,21 @@ BEGIN
         END LOOP;
 
         EXECUTE format(
-            'SELECT jsonb_agg(jsonb_build_array(row_num, error_message)
-                ORDER BY row_num)
+            'SELECT
+                jsonb_agg(jsonb_build_array(row_num, error_message)
+                    ORDER BY row_num)
+                    FILTER (WHERE error_message IS NOT NULL),
+                jsonb_agg(record ORDER BY row_num)
+                    FILTER (WHERE record IS NOT NULL)
             FROM pg_temp.%I',
             fallback_table
-        ) INTO errors;
-        IF errors IS NULL THEN
+        ) INTO errors, output_records;
+        IF errors IS NULL AND operation = 'insert' THEN
             errors := jsonb_build_array(jsonb_build_array(0, bulk_error));
         END IF;
-        RAISE SQLSTATE 'PZ001';
+        IF errors IS NOT NULL THEN
+            RAISE SQLSTATE 'PZ001';
+        END IF;
     EXCEPTION WHEN SQLSTATE 'PZ001' THEN
         EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
         RETURN errors;
@@ -366,8 +560,17 @@ BEGIN
         EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
         RAISE;
     END;
+
+    EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
+    RETURN jsonb_build_object(
+        'records', CASE
+            WHEN return_records THEN coalesce(output_records, '[]'::jsonb)
+            ELSE 'null'::jsonb
+        END,
+        'fields', to_jsonb(all_fields)
+    );
 END;
 $body$ LANGUAGE plpgsql;
-ALTER FUNCTION datastore_insert(
-    text, text[], text[], boolean, boolean
+ALTER FUNCTION load_records(
+    text, text[], text[][], boolean, boolean, text
 ) OWNER TO {writeuser};
