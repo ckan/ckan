@@ -122,7 +122,7 @@ Once the DataStore database and the users are created, the permissions on the Da
 
 If you are able to use the ``psql`` command to connect to your database as a
 superuser, you can use the ``datastore init-sql`` command to emit the
-appropriate SQL to initialize the datastore permissions.
+appropriate SQL to initialize the datastore database.
 
 For example, if you can connect to your database server as the ``postgres``
 superuser using::
@@ -144,7 +144,7 @@ Then you can use this connection to set the permissions:
     sudo ckan datastore init-sql | sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If your database server is not local, but you can access it over SSH, you can
-pipe the permissions script over SSH:
+pipe the init script over SSH:
 
     .. parsed-literal::
 
