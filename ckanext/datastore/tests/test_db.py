@@ -523,6 +523,17 @@ class TestLoadRecords(object):
         ), {"table_name": table_name}).scalar()
         assert list(unique_columns) == ["code", "region"]
 
+        unmatched_update = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'amount', 'region', 'code'],
+                ARRAY[['99', '20', 'north', 'alpha']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert json.loads(unmatched_update) == [
+            [0, "No matching record found for update"]
+        ]
+
         update_result = session.execute(sa.text(
             """SELECT load_records(
                 :table_name, ARRAY['_id', 'amount', 'region', 'code'],
@@ -543,8 +554,116 @@ class TestLoadRecords(object):
         ), {"table_name": table_name}).scalar()
         assert json.loads(upsert_result)["records"] == [
             ["1", "alpha", "north", "30"],
-            ["2", "beta", "south", "40"],
+            ["3", "beta", "south", "40"],
         ]
+
+        no_records_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[['alpha', 'north', '50']]::text[][],
+                false, false, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert json.loads(no_records_result) == {
+            "records": None,
+            "fields": ["_id", "code", "region", "amount"],
+        }
+        assert session.execute(sa.text(
+            f"SELECT amount FROM {table_name} WHERE _id = 1"
+        )).scalar() == 50
+
+        update_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[
+                    ['alpha', 'north', '60'],
+                    ['beta', 'south', '70']
+                ]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert json.loads(update_result)["records"] == [
+            ["1", "alpha", "north", "60"],
+            ["3", "beta", "south", "70"],
+        ]
+
+        no_records_update = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[['alpha', 'north', '80']]::text[][],
+                false, false, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert json.loads(no_records_update) == {
+            "records": None,
+            "fields": ["_id", "code", "region", "amount"],
+        }
+        assert session.execute(sa.text(
+            f"SELECT amount FROM {table_name} WHERE _id = 1"
+        )).scalar() == 80
+
+    def test_id_is_the_only_upsert_conflict_target(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id integer PRIMARY KEY,
+                code text NOT NULL,
+                region text NOT NULL,
+                amount integer NOT NULL,
+                CONSTRAINT {table_name}_code_region_key UNIQUE (code, region)
+            )"""
+        ))
+        session.execute(sa.text(
+            f"INSERT INTO {table_name} VALUES (1, 'alpha', 'north', 10)"
+        ))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'code', 'region', 'amount'],
+                ARRAY[['99', 'alpha', 'north', '20']]::text[][],
+                false, true, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        errors = json.loads(errors)
+        assert errors[0][0] == 0
+        assert errors[0][1].startswith(
+            "duplicate key value violates unique constraint"
+        )
+        assert session.execute(sa.text(
+            f"SELECT _id, amount FROM {table_name}"
+        )).all() == [(1, 10)]
+
+    @pytest.mark.parametrize("operation", ["update", "upsert"])
+    def test_repeated_keys_preserve_row_order(
+        self, load_records_table, operation
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id integer PRIMARY KEY,
+                value integer NOT NULL
+            )"""
+        ))
+        session.execute(sa.text(
+            f"INSERT INTO {table_name} VALUES (1, 10)"
+        ))
+
+        result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'value'],
+                ARRAY[['1', '20'], ['1', '30']]::text[][],
+                false, true, :operation
+            )"""
+        ), {"table_name": table_name, "operation": operation}).scalar()
+
+        assert json.loads(result)["records"] == [
+            ["1", "20"],
+            ["1", "30"],
+        ]
+        assert session.execute(sa.text(
+            f"SELECT value FROM {table_name} WHERE _id = 1"
+        )).scalar() == 30
 
     def test_update_returns_error_for_unmatched_row(self, load_records_table):
         session, table_name = load_records_table
@@ -563,3 +682,21 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name}).scalar()
         assert json.loads(errors) == [[0, "No matching record found for update"]]
+
+    @pytest.mark.parametrize("operation", ["update", "upsert"])
+    def test_update_and_upsert_require_key_fields(
+        self, load_records_table, operation
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"CREATE TABLE {table_name} (value text NOT NULL)"
+        ))
+
+        with pytest.raises(sa.exc.DBAPIError, match="No key fields provided"):
+            session.execute(sa.text(
+                """SELECT load_records(
+                    :table_name, ARRAY['value'],
+                    ARRAY[['missing']]::text[][],
+                    false, true, :operation
+                )"""
+            ), {"table_name": table_name, "operation": operation})
