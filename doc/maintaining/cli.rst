@@ -124,7 +124,7 @@ Example 1:
 
 .. parsed-literal::
 
- **In [2]:** from ckan.logic.action.get import package_show
+ **In [2]:** from ckan.logic.action.package import package_show
 
  **In [3]:** package_show({"model": model}, {"id": "api-package-1"})
  **Out[3]:**

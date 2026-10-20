@@ -1,0 +1,5 @@
+- Organize actions and auth functions by Package, Group, User etc. instead of
+  Get, Create, Update, Delete.
+- Remove get.py magic that applied @side_effect_free to actions and
+  @auth_allow_anonymous_access to auth functions
+- Code and imports reformatted but no functional changes

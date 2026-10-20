@@ -5,10 +5,9 @@ import re
 from copy import deepcopy
 from typing import Any, Mapping, cast
 
-
-from ckan.logic import NotFound
 from ckan.common import _
 from ckan.lib.maintain import deprecated
+from ckan.logic import NotFound
 from ckan.model.domain_object import DomainObject
 from ckan.types import ErrorDict
 

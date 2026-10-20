@@ -73,7 +73,7 @@ pytest --ckan-ini=test-core.ini ckan ckanext
 Or to run a specific test:
 
 ```
-pytest --ckan-ini=test-core.ini ckan/tests/logic/action/test_create.py::TestMemberCreate::test_group_member_creation
+pytest --ckan-ini=test-core.ini ckan/tests/logic/action/test_group.py::test_group_member_creation
 ```
 
 ## I need more!
