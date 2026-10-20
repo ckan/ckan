@@ -1,0 +1,3 @@
+- Use JSON type for JSON fields in the DataStore instead of the legacy ``nested`` type
+- ``datastore set-permissions`` SQL must be run to migrate existing DataStore tables
+  if any JSON columns were used before this version
