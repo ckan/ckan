@@ -90,6 +90,9 @@ DO $body$
                 AND NOT a.attisdropped
                 AND a.atttypid = nested_type
         LOOP
+            RAISE NOTICE 'Migrating DataStore table % (column %)',
+                column_record.table_name,
+                column_record.column_name;
             EXECUTE format(
                 'ALTER TABLE public.%I ALTER COLUMN %I TYPE json ' ||
                 'USING (%I).json::json',
