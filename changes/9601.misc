@@ -1,3 +1,5 @@
-Renamed `ckan datastore set-permissions` CLI command to `ckan datastore init-sql`
-to reflect that it generates an initialization SQL script and does not set
-permissions itself.
+- Renamed `ckan datastore set-permissions` CLI command to `ckan datastore init-sql`
+  to reflect that it generates an initialization SQL script and does not set
+  permissions itself.
+- `ckan datastore set-permissions` is now an alias of `ckan datastore init-sql`
+  for backwards compatibility.

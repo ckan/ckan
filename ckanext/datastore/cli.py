@@ -40,7 +40,7 @@ def datastore():
 )
 def init_sql():
     '''Emit an SQL script that will set the permissions for the datastore
-    users as configured in your configuration file.'''
+    users configured and create required functions and triggers.'''
 
     write_url = _parse_db_config('ckan.datastore.write_url')
     read_url = _parse_db_config('ckan.datastore.read_url')
@@ -68,6 +68,16 @@ def init_sql():
     )
 
     click.echo(sql)
+
+
+@datastore.command(
+    'set-permissions',
+    short_help='Alias of init-sql.'
+)
+@click.pass_context
+def set_permissions(ctx: click.Context):
+    '''Alias of init-sql, kept for backwards compatibility.'''
+    ctx.invoke(init_sql)
 
 
 def render_init_sql(maindb: str, datastoredb: str, mainuser: str,
@@ -249,4 +259,4 @@ def fts_index(timeout: float):
 
 
 def get_commands():
-    return (init_sql, dump, purge, upgrade)
+    return (init_sql, set_permissions, dump, purge, upgrade)
