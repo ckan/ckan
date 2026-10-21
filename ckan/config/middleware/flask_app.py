@@ -499,9 +499,10 @@ def ckan_before_request() -> Optional[Response]:
         # Get the actual view function, as it might not match the endpoint,
         # eg "organization.edit" -> "group.edit", or custom dataset types
         endpoint = request.endpoint or ""
-        view = current_app.view_functions.get(endpoint)
-        if view:
-            csrf.exempt_this_request()
+        if endpoint not in {"user.login", "user.register"}:
+            view = current_app.view_functions.get(endpoint)
+            if view:
+                csrf.exempt_this_request()
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
