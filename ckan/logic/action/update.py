@@ -151,7 +151,7 @@ def resource_view_update(
     id = _get_or_bust(data_dict, "id")
 
     resource_view = model.ResourceView.get(id)
-    if not resource_view:
+    if not resource_view or data_dict.get('resource_id') != resource_view.resource_id:
         raise NotFound
 
     view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
