@@ -284,7 +284,7 @@ class TestActionAuth(object):
         "update: revision_change_state",
     ]
 
-    ACTION_NO_DOC_STR_BLACKLIST: list[str] = []
+    ACTION_NO_DOC_STR_BLACKLIST = []
 
     @pytest.fixture(scope="class")
     def results(self):
