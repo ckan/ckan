@@ -833,11 +833,7 @@ def _activity_stream_get_filtered_users() -> list[str]:
     """
     users_list = config.get("ckan.hide_activity_from_users")
     if not users_list:
-        from ckan.logic import get_action
-
-        context: Context = {"ignore_auth": True}
-        site_user = get_action("get_site_user")(context, {})
-        users_list = [site_user.get("name")]
+        users_list = [config["ckan.site_id"]]
 
     return model.User.user_ids_for_name_or_id(users_list)
 

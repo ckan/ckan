@@ -2,9 +2,10 @@
 
 from logging import getLogger
 import click
-from ckan.model import Session, Package, DomainObjectOperation
+from ckan.model import Session, Package, DomainObjectOperation, User
 from ckan.model.modification import DomainObjectModificationExtension
-from ckan.logic import NotAuthorized, ValidationError
+from ckan.logic import NotAuthorized, ValidationError, get_action
+from ckan.lib.mailer import MailerException
 from ckan.cli import error_shout
 
 log = getLogger(__name__)
@@ -31,15 +32,11 @@ def send_emails():
     in their profile. It will send emails with updates depending
     on the `ckan.email_notifications_since` config. (default: 2 days.)
     """
-    import ckan.logic as logic
-    import ckan.lib.mailer as mailer
-    from ckan.types import Context
+    site_user = User.get_site_user()
 
-    site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
-    context: Context = {"user": site_user["name"]}
     try:
-        logic.get_action("send_email_notifications")(context, {})
-    except (NotAuthorized, ValidationError, mailer.MailerException) as e:
+        get_action("send_email_notifications")({"user": site_user.name}, {})
+    except (NotAuthorized, ValidationError, MailerException) as e:
         error_shout(e)
     except KeyError:
         error_shout("`activity` plugin is not enabled")

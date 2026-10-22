@@ -298,13 +298,19 @@ class TestPatch(object):
 
         # cannot change system user privs
         site_id = config.get('ckan.site_id')
-        with pytest.raises(ValidationError):
+        with pytest.raises(ValidationError) as e:
             helpers.call_action(
                 "user_patch",
                 id=site_id,
                 sysadmin=False,
                 context={"user": sysadmin["name"]},
             )
+        assert e.value.error_dict == {
+            "sysadmin": ["Cannot modify sysadmin privileges for system user"]
+        }
+        assert e.value.error_summary == {
+            "Sysadmin": "Cannot modify sysadmin privileges for system user"
+        }
 
         assert user["sysadmin"] is False
 
