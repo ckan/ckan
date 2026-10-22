@@ -8,7 +8,6 @@ import click
 
 import ckan.logic as logic
 import ckan.model as model
-from ckan.types import Context
 
 log = logging.getLogger(__name__)
 
