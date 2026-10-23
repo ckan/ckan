@@ -20,7 +20,7 @@ blinker==1.9.0
     #   flask
 cachelib==0.13.0
     # via flask-session
-certifi==2026.1.4
+certifi==2026.10.23
     # via
     #   -r requirements.in
     #   requests
@@ -130,6 +130,7 @@ sqlalchemy[mypy]==1.4.52
     # via
     #   -r requirements.in
     #   alembic
+    #   sqlalchemy
 sqlalchemy2-stubs==0.0.2a38
     # via sqlalchemy
 sqlparse==0.6.0
@@ -158,6 +159,7 @@ werkzeug[watchdog]==3.1.9
     #   -r requirements.in
     #   flask
     #   flask-login
+    #   werkzeug
 wtforms==3.1.2
     # via flask-wtf
 zope-interface==6.4.post2
