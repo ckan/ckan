@@ -136,7 +136,7 @@ def resource_view_update(
     '''Update a resource view.
 
     To update a resource_view you must be authorized to update the resource
-    that the resource_view belongs to.
+    that the resource_view belongs to. ``resource_id`` may not be modified.
 
     For further parameters see ``resource_view_create()``.
 
@@ -151,7 +151,10 @@ def resource_view_update(
     id = _get_or_bust(data_dict, "id")
 
     resource_view = model.ResourceView.get(id)
-    if not resource_view or data_dict.get('resource_id') != resource_view.resource_id:
+    if not resource_view or (
+        'resource_id' in data_dict
+        and data_dict['resource_id'] != resource_view.resource_id
+    ):
         raise NotFound
 
     view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
