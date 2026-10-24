@@ -243,6 +243,12 @@ def default_show_package_schema(keep_extras: Validator,
         'url_type': [],
     })
 
+    for key in ('relationships_as_subject', 'relationships_as_object'):
+        cast(Schema, schema[key]).update({
+            'subject_package_id': [ignore_missing],
+            'object_package_id': [ignore_missing],
+        })
+
     schema.update({
         'state': [ignore_missing],
         'isopen': [ignore_missing],
