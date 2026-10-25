@@ -276,6 +276,9 @@ $body$ LANGUAGE sql STABLE;
 ALTER FUNCTION first_unique_constraint_columns(text) OWNER TO {writeuser};
 
 -- Apply one input row using insert, update, or upsert semantics.
+DROP FUNCTION IF EXISTS load_record_row(
+    text, text[], text[], text, text[], text, text, text, boolean
+);
 CREATE OR REPLACE FUNCTION load_record_row(
     table_name text,
     fields text[],
@@ -283,10 +286,8 @@ CREATE OR REPLACE FUNCTION load_record_row(
     operation text,
     unique_fields text[],
     column_list text,
-    fallback_values text,
-    output_record_values text,
-    return_records boolean
-) RETURNS jsonb
+    fallback_values text
+) RETURNS void
 AS $body$
 DECLARE
     key_fields text[];
@@ -296,9 +297,7 @@ DECLARE
     update_assignments text := '';
     update_sql text;
     insert_sql text;
-    returning_expression text;
     affected_rows integer := 0;
-    current_record jsonb;
 BEGIN
     IF operation = 'upsert' THEN
         IF array_position(fields, '_id') IS NOT NULL THEN
@@ -326,21 +325,12 @@ BEGIN
         insert_sql := format(
             'INSERT INTO public.%I AS inserted (%s)
             SELECT %s
-            ON CONFLICT (%s) DO UPDATE SET %s%s',
+            ON CONFLICT (%s) DO UPDATE SET %s',
             table_name, column_list, fallback_values,
-            conflict_target, update_assignments,
-            CASE
-                WHEN return_records THEN
-                    format(' RETURNING jsonb_build_array(%s)', output_record_values)
-                ELSE ''
-            END
+            conflict_target, update_assignments
         );
-        IF return_records THEN
-            EXECUTE insert_sql INTO current_record USING current_fields;
-        ELSE
-            EXECUTE insert_sql USING current_fields;
-        END IF;
-        RETURN current_record;
+        EXECUTE insert_sql USING current_fields;
+        RETURN;
     END IF;
 
     IF operation = 'update' THEN
@@ -370,32 +360,21 @@ BEGIN
                 );
             END LOOP;
 
-            returning_expression := CASE
-                WHEN return_records THEN
-                    'jsonb_build_array(' ||
-                        replace(output_record_values, 'inserted.', 'target.') || ')'
-                ELSE 'to_jsonb(1)'
-            END;
             update_sql := format(
-                'WITH updated AS (
-                    UPDATE public.%I AS target
+                'UPDATE public.%I AS target
                     SET %s
                     FROM (SELECT %s) AS source(%s)
-                    WHERE %s
-                    RETURNING %s AS record
-                )
-                SELECT record FROM updated',
+                    WHERE %s',
                 table_name,
                 update_assignments,
                 fallback_values,
                 column_list,
-                match_clause,
-                returning_expression
+                match_clause
             );
-            EXECUTE update_sql INTO current_record USING current_fields;
+            EXECUTE update_sql USING current_fields;
             GET DIAGNOSTICS affected_rows = ROW_COUNT;
             IF affected_rows > 0 THEN
-                RETURN current_record;
+                RETURN;
             END IF;
         END IF;
 
@@ -409,11 +388,10 @@ BEGIN
         );
         EXECUTE insert_sql USING current_fields;
     END IF;
-    RETURN current_record;
 END;
 $body$ LANGUAGE plpgsql;
 ALTER FUNCTION load_record_row(
-    text, text[], text[], text, text[], text, text, text, boolean
+    text, text[], text[], text, text[], text, text
 ) OWNER TO {writeuser};
 
 -- Load input rows and return inserted/updated records or row errors.
@@ -453,7 +431,6 @@ DECLARE
     bulk_error text;
     errors jsonb;
     unique_fields text[];
-    current_record jsonb;
 BEGIN
     IF operation NOT IN ('insert', 'update', 'upsert') THEN
         RETURN jsonb_build_array(
@@ -520,7 +497,7 @@ BEGIN
                 'target.%I = source.%I', field_name, field_name
             );
         END LOOP;
-        source_column_list := '__row_num, ' || column_list;
+        source_column_list := 'row_num, ' || column_list;
         update_sql := format(
             'WITH source(%s) AS MATERIALIZED (
                 SELECT row_idx, %s
@@ -531,11 +508,11 @@ BEGIN
                 SET %s
                 FROM source
                 WHERE %s
-                RETURNING source.__row_num,
+                RETURNING source.row_num,
                     jsonb_build_array(%s) AS record
             )
             SELECT coalesce(
-                jsonb_agg(record ORDER BY __row_num), ''[]''::jsonb
+                jsonb_agg(record ORDER BY row_num), ''[]''::jsonb
             ), count(*) FROM updated',
             source_column_list, select_values, table_name,
             update_assignments, match_clause,
@@ -585,7 +562,7 @@ BEGIN
             );
         END LOOP;
         IF return_records THEN
-            source_column_list := '__row_num, ' || column_list;
+            source_column_list := 'row_num, ' || column_list;
             insert_sql := format(
                 'WITH source(%s) AS MATERIALIZED (
                     SELECT row_idx, %s
@@ -593,13 +570,13 @@ BEGIN
                 ),
                 upserted AS (
                     INSERT INTO public.%I AS inserted (%s)
-                    SELECT %s FROM source ORDER BY source.__row_num
+                    SELECT %s FROM source ORDER BY source.row_num
                     ON CONFLICT (%s) DO UPDATE SET %s
                     RETURNING %s,
                         jsonb_build_array(%s) AS record
                 )
                 SELECT coalesce(
-                    jsonb_agg(upserted.record ORDER BY source.__row_num),
+                    jsonb_agg(upserted.record ORDER BY source.row_num),
                     ''[]''::jsonb
                 )
                 FROM upserted
@@ -687,13 +664,14 @@ BEGIN
         bulk_error := SQLERRM;
     END;
 
+    output_records := NULL;
+    -- collect error(s) and row_number(s) to return to caller
     fallback_table := format(
         'load_records_%s_%s', pg_backend_pid(), txid_current()
     );
     EXECUTE format(
         'CREATE TEMP TABLE %I (
             row_num integer,
-            record jsonb,
             error_message text
         ) ON COMMIT DROP',
         fallback_table
@@ -702,24 +680,15 @@ BEGIN
     BEGIN
         FOREACH current_fields SLICE 1 IN ARRAY rows LOOP
             BEGIN
-                current_record := load_record_row(
+                PERFORM load_record_row(
                     table_name,
                     fields,
                     current_fields,
                     operation,
                     unique_fields,
                     column_list,
-                    fallback_values,
-                    output_record_values,
-                    return_records
+                    fallback_values
                 );
-
-                IF return_records AND operation <> 'insert' THEN
-                    EXECUTE format(
-                        'INSERT INTO pg_temp.%I (row_num, record) VALUES ($1, $2)',
-                        fallback_table
-                    ) USING row_number, current_record;
-                END IF;
             EXCEPTION WHEN OTHERS THEN
                 EXECUTE format(
                     'INSERT INTO pg_temp.%I (row_num, error_message) VALUES ($1, $2)',
@@ -736,12 +705,10 @@ BEGIN
             'SELECT
                 jsonb_agg(jsonb_build_array(row_num, error_message)
                     ORDER BY row_num)
-                    FILTER (WHERE error_message IS NOT NULL),
-                jsonb_agg(record ORDER BY row_num)
-                    FILTER (WHERE record IS NOT NULL)
+                    FILTER (WHERE error_message IS NOT NULL)
             FROM pg_temp.%I',
             fallback_table
-        ) INTO errors, output_records;
+        ) INTO errors;
         IF errors IS NULL AND operation = 'insert' THEN
             errors := jsonb_build_array(jsonb_build_array(0, bulk_error));
         END IF;

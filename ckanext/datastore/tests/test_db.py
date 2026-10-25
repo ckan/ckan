@@ -657,10 +657,7 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name, "operation": operation}).scalar()
 
-        assert json.loads(result)["records"] == [
-            ["1", "20"],
-            ["1", "30"],
-        ]
+        assert json.loads(result)["records"] == []
         assert session.execute(sa.text(
             f"SELECT value FROM {table_name} WHERE _id = 1"
         )).scalar() == 30
