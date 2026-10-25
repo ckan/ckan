@@ -399,9 +399,7 @@ BEGIN
             END IF;
         END IF;
 
-        IF operation = 'update' THEN
-            RAISE EXCEPTION 'No matching record found for update';
-        END IF;
+        RAISE EXCEPTION 'No matching record found for update';
     END IF;
 
     IF operation = 'insert' THEN
@@ -417,13 +415,6 @@ $body$ LANGUAGE plpgsql;
 ALTER FUNCTION load_record_row(
     text, text[], text[], text, text[], text, text, text, boolean
 ) OWNER TO {writeuser};
-
-DROP FUNCTION IF EXISTS load_records(
-    text, text[], text[][], boolean, boolean
-);
-DROP FUNCTION IF EXISTS load_records(
-    text, text[], text[][], boolean, boolean, text
-);
 
 -- Load input rows and return inserted/updated records or row errors.
 CREATE OR REPLACE FUNCTION load_records(
@@ -529,7 +520,7 @@ BEGIN
                 'target.%I = source.%I', field_name, field_name
             );
         END LOOP;
-        source_column_list := 'row_num, ' || column_list;
+        source_column_list := '__row_num, ' || column_list;
         update_sql := format(
             'WITH source(%s) AS MATERIALIZED (
                 SELECT row_idx, %s
@@ -540,11 +531,11 @@ BEGIN
                 SET %s
                 FROM source
                 WHERE %s
-                RETURNING source.row_num,
+                RETURNING source.__row_num,
                     jsonb_build_array(%s) AS record
             )
             SELECT coalesce(
-                jsonb_agg(record ORDER BY row_num), ''[]''::jsonb
+                jsonb_agg(record ORDER BY __row_num), ''[]''::jsonb
             ), count(*) FROM updated',
             source_column_list, select_values, table_name,
             update_assignments, match_clause,
@@ -594,7 +585,7 @@ BEGIN
             );
         END LOOP;
         IF return_records THEN
-            source_column_list := 'row_num, ' || column_list;
+            source_column_list := '__row_num, ' || column_list;
             insert_sql := format(
                 'WITH source(%s) AS MATERIALIZED (
                     SELECT row_idx, %s
@@ -602,13 +593,13 @@ BEGIN
                 ),
                 upserted AS (
                     INSERT INTO public.%I AS inserted (%s)
-                    SELECT %s FROM source ORDER BY source.row_num
+                    SELECT %s FROM source ORDER BY source.__row_num
                     ON CONFLICT (%s) DO UPDATE SET %s
                     RETURNING %s,
                         jsonb_build_array(%s) AS record
                 )
                 SELECT coalesce(
-                    jsonb_agg(upserted.record ORDER BY source.row_num),
+                    jsonb_agg(upserted.record ORDER BY source.__row_num),
                     ''[]''::jsonb
                 )
                 FROM upserted
