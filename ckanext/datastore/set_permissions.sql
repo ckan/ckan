@@ -612,6 +612,7 @@ BEGIN
         column_list, select_values, output_record_values
     );
 
+    -- fast path: bulk insert/update/upsert
     BEGIN
         IF operation = 'insert' AND return_records THEN
             EXECUTE bulk_sql INTO output_records USING rows;
@@ -678,7 +679,7 @@ BEGIN
         bulk_error := SQLERRM;
     END;
 
-    -- collect error(s) and row index(es) to return to caller
+    -- fallback: collect error(s) and row index(es) to return to caller
     fallback_table := format(
         'load_records_%s_%s', pg_backend_pid(), txid_current()
     );
