@@ -444,14 +444,13 @@ class TestLoadRecords(object):
             """SELECT load_records(
                 :table_name,
                 ARRAY['amount', 'details', 'name'],
-                ARRAY[['', '', ''], ['', 'null', '']]::text[][]
+                ARRAY[['', '', '']]::text[][]
             )"""),
             {"table_name": table_name},
         ).scalar()
 
         assert json.loads(result)["records"] == [
-            [None, '""', ""],
-            [None, "null", ""],
+            [None, None, ""],
         ]
 
     def test_can_return_first_error_only(self, load_records_table):

@@ -202,21 +202,13 @@ BEGIN
             AND a.attnum > 0
             AND NOT a.attisdropped;
 
+        -- text fields keep empty strings as-is, other types convert empty strings to NULL
         IF field_category = 'S' THEN
             select_values := select_values || format(
                 '($1)[__row_num][%s]::%s', field_index, field_type
             );
             fallback_values := fallback_values || format(
                 '($1)[%s]::%s', field_index, field_type
-            );
-        ELSIF field_type_name IN ('json', 'jsonb') THEN
-            select_values := select_values || format(
-                '(CASE WHEN ($1)[__row_num][%s] = '''' THEN to_json(($1)[__row_num][%s]) ELSE ($1)[__row_num][%s]::json END)::%s',
-                field_index, field_index, field_index, field_type
-            );
-            fallback_values := fallback_values || format(
-                '(CASE WHEN ($1)[%s] = '''' THEN to_json(($1)[%s]) ELSE ($1)[%s]::json END)::%s',
-                field_index, field_index, field_index, field_type
             );
         ELSE
             select_values := select_values || format(
