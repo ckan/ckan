@@ -2281,7 +2281,7 @@ def test_search_caches_record_count():
             "select stats from _table_stats where resource_id=:resource_id"
             ), {'resource_id': resource['id']}
         )
-    assert list(stats) == [('{"rows": 7}',)]
+    assert list(stats) == [({"rows": 7},)]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2321,7 +2321,7 @@ def test_search_table_metadata():
         )
 
     # stats cached for resource_id but not _table_metadata
-    assert list(stats) == [(resource['id'], '{"rows": 7}')]
+    assert list(stats) == [(resource['id'], {"rows": 7})]
 
     with db.get_read_engine().connect() as conn:
         tables = conn.execute(sa.text(

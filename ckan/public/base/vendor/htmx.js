@@ -82,7 +82,7 @@ var htmx = (function() {
        */
       historyEnabled: true,
       /**
-       * The number of pages to keep in **localStorage** for history support.
+       * The number of pages to keep in **sessionStorage** for history support.
        * @type number
        * @default 10
        */
@@ -236,7 +236,7 @@ var htmx = (function() {
       /**
        * If set to true, disables htmx-based requests to non-origin hosts.
        * @type boolean
-       * @default false
+       * @default true
        */
       selfRequestsOnly: true,
       /**
@@ -271,13 +271,32 @@ var htmx = (function() {
        * @type boolean
        * @default true
        */
-      allowNestedOobSwaps: true
+      allowNestedOobSwaps: true,
+      /**
+       * Whether to treat history cache miss full page reload requests as a "HX-Request" by returning this response header
+       * This should always be disabled when using HX-Request header to optionally return partial responses
+       * @type boolean
+       * @default true
+       */
+      historyRestoreAsHxRequest: true,
+      /**
+       * Whether to report input validation errors to the end user and update focus to the first input that fails validation.
+       * This should always be enabled as this matches default browser form submit behaviour
+       * @type boolean
+       * @default false
+       */
+      reportValidityOfForms: false
     },
     /** @type {typeof parseInterval} */
     parseInterval: null,
+    /**
+     * proxy of window.location used for page reload functions
+     * @type location
+     */
+    location,
     /** @type {typeof internalEval} */
     _: null,
-    version: '2.0.4'
+    version: '2.0.11'
   }
   // Tsc madness part 2
   htmx.onLoad = onLoadHelper
@@ -484,10 +503,7 @@ var htmx = (function() {
    * @returns {boolean}
    */
   function matches(elt, selector) {
-    // @ts-ignore: non-standard properties for browser compatibility
-    // noinspection JSUnresolvedVariable
-    const matchesFunction = elt instanceof Element && (elt.matches || elt.matchesSelector || elt.msMatchesSelector || elt.mozMatchesSelector || elt.webkitMatchesSelector || elt.oMatchesSelector)
-    return !!matchesFunction && matchesFunction.call(elt, selector)
+    return elt instanceof Element && elt.matches(selector)
   }
 
   /**
@@ -509,6 +525,9 @@ var htmx = (function() {
    * @returns {Document}
    */
   function parseHTML(resp) {
+    if ('parseHTMLUnsafe' in Document) {
+      return Document.parseHTMLUnsafe(resp)
+    }
     const parser = new DOMParser()
     return parser.parseFromString(resp, 'text/html')
   }
@@ -556,6 +575,11 @@ var htmx = (function() {
    * @param {DocumentFragment} fragment
    */
   function normalizeScriptTags(fragment) {
+    if (!htmx.config.allowScriptTags) {
+      // remove all script tags if scripts are disabled
+      fragment.querySelectorAll('script').forEach((script) => script.remove())
+      return
+    }
     Array.from(fragment.querySelectorAll('script')).forEach(/** @param {HTMLScriptElement} script */ (script) => {
       if (isJavaScriptScriptNode(script)) {
         const newScript = duplicateScript(script)
@@ -582,6 +606,8 @@ var htmx = (function() {
    * @returns {DocumentFragmentWithTitle}
    */
   function makeFragment(response) {
+    // convert <hx-*> custom tags to <template hx type="*"> so they survive HTML parsing
+    response = response.replace(/<hx-([a-z]+)((?:\s[^>]*)?)>/gi, '<template hx type="$1"$2>').replace(/<\/hx-[a-z]+>/gi, '</template>')
     // strip head tag to determine shape of response we are dealing with
     const responseWithNoHead = response.replace(/<head(\s[^>]*)?>[\s\S]*?<\/head>/i, '')
     const startTag = getStartTag(responseWithNoHead)
@@ -614,12 +640,7 @@ var htmx = (function() {
       }
     }
     if (fragment) {
-      if (htmx.config.allowScriptTags) {
-        normalizeScriptTags(fragment)
-      } else {
-        // remove all script tags if scripts are disabled
-        fragment.querySelectorAll('script').forEach((script) => script.remove())
-      }
+      normalizeScriptTags(fragment)
     }
     return fragment
   }
@@ -783,14 +804,7 @@ var htmx = (function() {
    * @returns {T1 & T2}
    */
   function mergeObjects(obj1, obj2) {
-    for (const key in obj2) {
-      if (obj2.hasOwnProperty(key)) {
-        // @ts-ignore tsc doesn't seem to properly handle types merging
-        obj1[key] = obj2[key]
-      }
-    }
-    // @ts-ignore tsc doesn't seem to properly handle types merging
-    return obj1
+    return Object.assign({}, obj1, obj2)
   }
 
   /**
@@ -810,10 +824,10 @@ var htmx = (function() {
    * @returns {boolean}
    */
   function canAccessLocalStorage() {
-    const test = 'htmx:localStorageTest'
+    const test = 'htmx:sessionStorageTest'
     try {
-      localStorage.setItem(test, test)
-      localStorage.removeItem(test)
+      sessionStorage.setItem(test, test)
+      sessionStorage.removeItem(test)
       return true
     } catch (e) {
       return false
@@ -826,19 +840,16 @@ var htmx = (function() {
    */
   function normalizePath(path) {
     try {
-      const url = new URL(path)
-      if (url) {
-        path = url.pathname + url.search
-      }
-      // remove trailing slash, unless index page
-      if (!(/^\/$/.test(path))) {
-        path = path.replace(/\/+$/, '')
-      }
-      return path
+      const url = new URL(path, window.location.href)
+      path = url.pathname + url.search
     } catch (e) {
-      // be kind to IE11, which doesn't support URL()
-      return path
+      // fallback for malformed URLs
     }
+    // remove trailing slash, unless index page
+    if (path != '/') {
+      path = path.replace(/\/+$/, '')
+    }
+    return path
   }
 
   //= =========================================================================================
@@ -892,7 +903,7 @@ var htmx = (function() {
    *
    * @see https://htmx.org/api/#find
    *
-   * @param {ParentNode|string} eltOrSelector  the root element to find the matching element in, inclusive | the selector to match
+   * @param {ParentNode|string} eltOrSelector  the root element to search inside of, not including the root itself | the selector to match
    * @param {string} [selector] the selector to match
    * @returns {Element|null}
    */
@@ -909,7 +920,7 @@ var htmx = (function() {
    *
    * @see https://htmx.org/api/#findAll
    *
-   * @param {ParentNode|string} eltOrSelector the root element to find the matching elements in, inclusive | the selector to match
+   * @param {ParentNode|string} eltOrSelector  the root element to search inside of, not including the root itself | the selector to match
    * @param {string} [selector] the selector to match
    * @returns {NodeListOf<Element>}
    */
@@ -1074,18 +1085,10 @@ var htmx = (function() {
    */
   function closest(elt, selector) {
     elt = asElement(resolveTarget(elt))
-    if (elt && elt.closest) {
+    if (elt) {
       return elt.closest(selector)
-    } else {
-      // TODO remove when IE goes away
-      do {
-        if (elt == null || matches(elt, selector)) {
-          return elt
-        }
-      }
-      while (elt = elt && asElement(parentElt(elt)))
-      return null
     }
+    return null
   }
 
   /**
@@ -1160,17 +1163,17 @@ var htmx = (function() {
       const selector = normalizeSelector(parts.shift())
       let item
       if (selector.indexOf('closest ') === 0) {
-        item = closest(asElement(elt), normalizeSelector(selector.substr(8)))
+        item = closest(asElement(elt), normalizeSelector(selector.slice(8)))
       } else if (selector.indexOf('find ') === 0) {
-        item = find(asParentNode(elt), normalizeSelector(selector.substr(5)))
+        item = find(asParentNode(elt), normalizeSelector(selector.slice(5)))
       } else if (selector === 'next' || selector === 'nextElementSibling') {
         item = asElement(elt).nextElementSibling
       } else if (selector.indexOf('next ') === 0) {
-        item = scanForwardQuery(elt, normalizeSelector(selector.substr(5)), !!global)
+        item = scanForwardQuery(elt, normalizeSelector(selector.slice(5)), !!global)
       } else if (selector === 'previous' || selector === 'previousElementSibling') {
         item = asElement(elt).previousElementSibling
       } else if (selector.indexOf('previous ') === 0) {
-        item = scanBackwardsQuery(elt, normalizeSelector(selector.substr(9)), !!global)
+        item = scanBackwardsQuery(elt, normalizeSelector(selector.slice(9)), !!global)
       } else if (selector === 'document') {
         item = document
       } else if (selector === 'window') {
@@ -1350,6 +1353,16 @@ var htmx = (function() {
         return [findThisElement(elt, attrName)]
       } else {
         const result = querySelectorAllExt(elt, attrTarget)
+        // find `inherit` whole word in value, make sure it's surrounded by commas or is at the start/end of string
+        const shouldInherit = /(^|,)(\s*)inherit(\s*)($|,)/.test(attrTarget)
+        if (shouldInherit) {
+          const eltToInheritFrom = asElement(getClosestMatch(elt, function(parent) {
+            return parent !== elt && hasAttribute(asElement(parent), attrName)
+          }))
+          if (eltToInheritFrom) {
+            result.push(...findAttributeTargets(eltToInheritFrom, attrName))
+          }
+        }
         if (result.length === 0) {
           logError('The selector "' + attrTarget + '" on ' + attrName + ' returned no matches!')
           return [DUMMY_ELT]
@@ -1398,13 +1411,7 @@ var htmx = (function() {
    * @returns {boolean}
    */
   function shouldSettleAttribute(name) {
-    const attributesToSettle = htmx.config.attributesToSettle
-    for (let i = 0; i < attributesToSettle.length; i++) {
-      if (name === attributesToSettle[i]) {
-        return true
-      }
-    }
-    return false
+    return htmx.config.attributesToSettle.includes(name)
   }
 
   /**
@@ -1412,7 +1419,7 @@ var htmx = (function() {
    * @param {Element} mergeFrom
    */
   function cloneAttributes(mergeTo, mergeFrom) {
-    forEach(mergeTo.attributes, function(attr) {
+    forEach(Array.from(mergeTo.attributes), function(attr) {
       if (!mergeFrom.hasAttribute(attr.name) && shouldSettleAttribute(attr.name)) {
         mergeTo.removeAttribute(attr.name)
       }
@@ -1453,7 +1460,7 @@ var htmx = (function() {
    */
   function oobSwap(oobValue, oobElement, settleInfo, rootNode) {
     rootNode = rootNode || getDocument()
-    let selector = '#' + getRawAttribute(oobElement, 'id')
+    let selector = '#' + CSS.escape(getRawAttribute(oobElement, 'id'))
     /** @type HtmxSwapStyle */
     let swapStyle = 'outerHTML'
     if (oobValue === 'true') {
@@ -1468,7 +1475,7 @@ var htmx = (function() {
     oobElement.removeAttribute('data-hx-swap-oob')
 
     const targets = querySelectorAllExt(rootNode, selector, false)
-    if (targets) {
+    if (targets.length) {
       forEach(
         targets,
         function(target) {
@@ -1497,7 +1504,7 @@ var htmx = (function() {
       oobElement.parentNode.removeChild(oobElement)
     } else {
       oobElement.parentNode.removeChild(oobElement)
-      triggerErrorEvent(getDocument().body, 'htmx:oobErrorNoTarget', { content: oobElement })
+      triggerErrorEvent(getDocument().body, 'htmx:oobErrorNoTarget', { content: oobElement, target: selector })
     }
     return oobValue
   }
@@ -1548,10 +1555,8 @@ var htmx = (function() {
     forEach(fragment.querySelectorAll('[id]'), function(newNode) {
       const id = getRawAttribute(newNode, 'id')
       if (id && id.length > 0) {
-        const normalizedId = id.replace("'", "\\'")
-        const normalizedTag = newNode.tagName.replace(':', '\\:')
         const parentElt = asParentNode(parentNode)
-        const oldNode = parentElt && parentElt.querySelector(normalizedTag + "[id='" + normalizedId + "']")
+        const oldNode = parentElt && parentElt.querySelector(CSS.escape(newNode.tagName) + '#' + CSS.escape(id))
         if (oldNode && oldNode !== parentElt) {
           const newAttributes = newNode.cloneNode()
           cloneAttributes(newNode, oldNode)
@@ -1626,14 +1631,11 @@ var htmx = (function() {
    */
   function attributeHash(elt) {
     let hash = 0
-    // IE fix
-    if (elt.attributes) {
-      for (let i = 0; i < elt.attributes.length; i++) {
-        const attribute = elt.attributes[i]
-        if (attribute.value) { // only include attributes w/ actual values (empty is same as non-existent)
-          hash = stringHash(attribute.name, hash)
-          hash = stringHash(attribute.value, hash)
-        }
+    for (let i = 0; i < elt.attributes.length; i++) {
+      const attribute = elt.attributes[i]
+      if (attribute.value) { // only include attributes w/ actual values (empty is same as non-existent)
+        hash = stringHash(attribute.name, hash)
+        hash = stringHash(attribute.value, hash)
       }
     }
     return hash
@@ -1678,21 +1680,17 @@ var htmx = (function() {
   function cleanUpElement(element) {
     triggerEvent(element, 'htmx:beforeCleanupElement')
     deInitNode(element)
-    // @ts-ignore IE11 code
-    // noinspection JSUnresolvedReference
-    if (element.children) { // IE
-      // @ts-ignore
-      forEach(element.children, function(child) { cleanUpElement(child) })
-    }
+    // @ts-ignore
+    forEach(element.children, function(child) { cleanUpElement(child) })
   }
 
   /**
-   * @param {Node} target
+   * @param {Element} target
    * @param {ParentNode} fragment
    * @param {HtmxSettleInfo} settleInfo
    */
   function swapOuterHTML(target, fragment, settleInfo) {
-    if (target instanceof Element && target.tagName === 'BODY') { // special case the body to innerHTML because DocumentFragments can't contain a body elt unfortunately
+    if (target.tagName === 'BODY') { // special case the body to innerHTML because DocumentFragments can't contain a body elt unfortunately
       return swapInnerHTML(target, fragment, settleInfo)
     }
     /** @type {Node} */
@@ -1718,15 +1716,11 @@ var htmx = (function() {
       newElt = newElt.nextSibling
     }
     cleanUpElement(target)
-    if (target instanceof Element) {
-      target.remove()
-    } else {
-      target.parentNode.removeChild(target)
-    }
+    target.remove()
   }
 
   /**
-   * @param {Node} target
+   * @param {Element} target
    * @param {ParentNode} fragment
    * @param {HtmxSettleInfo} settleInfo
    */
@@ -1735,7 +1729,7 @@ var htmx = (function() {
   }
 
   /**
-   * @param {Node} target
+   * @param {Element} target
    * @param {ParentNode} fragment
    * @param {HtmxSettleInfo} settleInfo
    */
@@ -1744,7 +1738,7 @@ var htmx = (function() {
   }
 
   /**
-   * @param {Node} target
+   * @param {Element} target
    * @param {ParentNode} fragment
    * @param {HtmxSettleInfo} settleInfo
    */
@@ -1753,7 +1747,7 @@ var htmx = (function() {
   }
 
   /**
-   * @param {Node} target
+   * @param {Element} target
    * @param {ParentNode} fragment
    * @param {HtmxSettleInfo} settleInfo
    */
@@ -1762,7 +1756,7 @@ var htmx = (function() {
   }
 
   /**
-   * @param {Node} target
+   * @param {Element} target
    */
   function swapDelete(target) {
     cleanUpElement(target)
@@ -1773,7 +1767,7 @@ var htmx = (function() {
   }
 
   /**
-   * @param {Node} target
+   * @param {Element} target
    * @param {ParentNode} fragment
    * @param {HtmxSettleInfo} settleInfo
    */
@@ -1793,7 +1787,7 @@ var htmx = (function() {
   /**
    * @param {HtmxSwapStyle} swapStyle
    * @param {Element} elt
-   * @param {Node} target
+   * @param {Element} target
    * @param {ParentNode} fragment
    * @param {HtmxSettleInfo} settleInfo
    */
@@ -1850,6 +1844,55 @@ var htmx = (function() {
   }
 
   /**
+   * @param {DocumentFragment|ParentNode} fragment
+   * @param {HtmxSettleInfo} settleInfo
+   * @param {Element} sourceElement
+   * @returns {boolean}
+   */
+  function findAndSwapPartials(fragment, settleInfo, sourceElement) {
+    var hxTemplates = findAll(fragment, 'template[hx]')
+    forEach(hxTemplates, function(template) {
+      var type = getRawAttribute(template, 'type')
+      if (type === 'partial') {
+        var targetSelector = getAttributeValue(template, 'hx-target') ||
+          (template.id ? '#' + CSS.escape(template.id) : null)
+        if (targetSelector) {
+          var swapOverride = getAttributeValue(template, 'hx-swap')
+          var swapSpec = getSwapSpecification(template, swapOverride)
+          var targets = querySelectorAllExt(sourceElement || getDocument().body, targetSelector, false)
+          if (targets.length === 0) {
+            triggerErrorEvent(getDocument().body, 'htmx:partialErrorNoTarget', { template, targetSelector, sourceElement })
+          }
+          forEach(targets, function(target) {
+            target = asElement(target)
+            if (target) {
+              var fragment = template.content.cloneNode(true)
+              normalizeScriptTags(fragment)
+              var beforeSwapDetails = { shouldSwap: true, target, fragment }
+              if (!triggerEvent(target, 'htmx:partialBeforeSwap', beforeSwapDetails)) return
+              target = beforeSwapDetails.target
+              if (beforeSwapDetails.shouldSwap) {
+                swap(target, beforeSwapDetails.fragment, swapSpec, {
+                  contextElement: target,
+                  afterSwapCallback: function() {
+                    forEach(settleInfo.elts, function(elt) {
+                      triggerEvent(elt, 'htmx:partialAfterSwap', beforeSwapDetails)
+                    })
+                  }
+                })
+              }
+            }
+          })
+        }
+      } else {
+        triggerEvent(getDocument().body, 'htmx:processTemplate', { type, template, settleInfo, sourceElement })
+      }
+      template.parentNode.removeChild(template)
+    })
+    return hxTemplates.length > 0
+  }
+
+  /**
    * @param {DocumentFragment} fragment
    * @param {HtmxSettleInfo} settleInfo
    * @param {Node|Document} [rootNode]
@@ -1871,7 +1914,7 @@ var htmx = (function() {
   }
 
   /**
-   * Implements complete swapping pipeline, including: focus and selection preservation,
+   * Implements complete swapping pipeline, including: delay, view transitions, focus and selection preservation,
    * title updates, scroll, OOB swapping, normal swapping and settling
    * @param {string|Element} target
    * @param {string} content
@@ -1882,14 +1925,24 @@ var htmx = (function() {
     if (!swapOptions) {
       swapOptions = {}
     }
+    // optional transition API promise callbacks
+    let settleResolve = null
+    let settleReject = null
 
-    target = resolveTarget(target)
-    const rootNode = swapOptions.contextElement ? getRootNode(swapOptions.contextElement, false) : getDocument()
+    let doSwap = function() {
+      maybeCall(swapOptions.beforeSwapCallback)
 
-    // preserve focus and selection
-    const activeElt = document.activeElement
-    let selectionInfo = {}
-    try {
+      target = resolveTarget(target)
+      // A detached contextElement's own getRootNode() is its orphaned subtree, not
+      // the document, so OOB targets that are still live in the document would be
+      // unreachable through it - fall back to the document in that case.
+      const rootNode = (swapOptions.contextElement && swapOptions.contextElement.isConnected)
+        ? getRootNode(swapOptions.contextElement, false)
+        : getDocument()
+
+      // preserve focus and selection
+      const activeElt = document.activeElement
+      let selectionInfo = {}
       selectionInfo = {
         elt: activeElt,
         // @ts-ignore
@@ -1897,123 +1950,167 @@ var htmx = (function() {
         // @ts-ignore
         end: activeElt ? activeElt.selectionEnd : null
       }
-    } catch (e) {
-      // safari issue - see https://github.com/microsoft/playwright/issues/5894
-    }
-    const settleInfo = makeSettleInfo(target)
+      const settleInfo = makeSettleInfo(target)
 
-    // For text content swaps, don't parse the response as HTML, just insert it
-    if (swapSpec.swapStyle === 'textContent') {
-      target.textContent = content
-    // Otherwise, make the fragment and process it
-    } else {
-      let fragment = makeFragment(content)
+      // For text content swaps, don't parse the response as HTML, just insert it
+      if (swapSpec.swapStyle === 'textContent') {
+        target.textContent = content
+      // Otherwise, make the fragment and process it
+      } else {
+        let fragment = typeof content === 'string' ? makeFragment(content) : content
 
-      settleInfo.title = fragment.title
+        settleInfo.title = swapOptions.title || fragment.title
+        if (swapOptions.historyRequest) {
+          // @ts-ignore fragment can be a parentNode Element
+          fragment = fragment.querySelector('[hx-history-elt],[data-hx-history-elt]') || fragment
+        }
 
-      // select-oob swaps
-      if (swapOptions.selectOOB) {
-        const oobSelectValues = swapOptions.selectOOB.split(',')
-        for (let i = 0; i < oobSelectValues.length; i++) {
-          const oobSelectValue = oobSelectValues[i].split(':', 2)
-          let id = oobSelectValue[0].trim()
-          if (id.indexOf('#') === 0) {
-            id = id.substring(1)
-          }
-          const oobValue = oobSelectValue[1] || 'true'
-          const oobElement = fragment.querySelector('#' + id)
-          if (oobElement) {
-            oobSwap(oobValue, oobElement, settleInfo, rootNode)
+        // select-oob swaps
+        if (swapOptions.selectOOB) {
+          const oobSelectValues = swapOptions.selectOOB.split(',')
+          for (let i = 0; i < oobSelectValues.length; i++) {
+            const oobSelectValue = oobSelectValues[i].split(':', 2)
+            let id = oobSelectValue[0].trim()
+            if (id.indexOf('#') === 0) {
+              id = id.substring(1)
+            }
+            const oobValue = oobSelectValue[1] || 'true'
+            const oobElement = fragment.querySelector('#' + id)
+            if (oobElement) {
+              oobSwap(oobValue, oobElement, settleInfo, rootNode)
+            }
           }
         }
-      }
-      // oob swaps
-      findAndSwapOobElements(fragment, settleInfo, rootNode)
-      forEach(findAll(fragment, 'template'), /** @param {HTMLTemplateElement} template */function(template) {
-        if (template.content && findAndSwapOobElements(template.content, settleInfo, rootNode)) {
-          // Avoid polluting the DOM with empty templates that were only used to encapsulate oob swap
-          template.remove()
-        }
-      })
-
-      // normal swap
-      if (swapOptions.select) {
-        const newFragment = getDocument().createDocumentFragment()
-        forEach(fragment.querySelectorAll(swapOptions.select), function(node) {
-          newFragment.appendChild(node)
+        // oob swaps
+        findAndSwapOobElements(fragment, settleInfo, rootNode)
+        forEach(findAll(fragment, 'template'), /** @param {HTMLTemplateElement} template */function(template) {
+          if (template.content && findAndSwapOobElements(template.content, settleInfo, rootNode)) {
+            // Avoid polluting the DOM with empty templates that were only used to encapsulate oob swap
+            template.remove()
+          }
         })
-        fragment = newFragment
-      }
-      handlePreservedElements(fragment)
-      swapWithStyle(swapSpec.swapStyle, swapOptions.contextElement, target, fragment, settleInfo)
-      restorePreservedElements()
-    }
+        // partial swaps — after oob, before main swap
+        var hasPartials = findAndSwapPartials(fragment, settleInfo, swapOptions.contextElement || asElement(target))
 
-    // apply saved focus and selection information to swapped content
-    if (selectionInfo.elt &&
-      !bodyContains(selectionInfo.elt) &&
-      getRawAttribute(selectionInfo.elt, 'id')) {
-      const newActiveElt = document.getElementById(getRawAttribute(selectionInfo.elt, 'id'))
-      const focusOptions = { preventScroll: swapSpec.focusScroll !== undefined ? !swapSpec.focusScroll : !htmx.config.defaultFocusScroll }
-      if (newActiveElt) {
-        // @ts-ignore
-        if (selectionInfo.start && newActiveElt.setSelectionRange) {
-          try {
-            // @ts-ignore
-            newActiveElt.setSelectionRange(selectionInfo.start, selectionInfo.end)
-          } catch (e) {
-            // the setSelectionRange method is present on fields that don't support it, so just let this fail
-          }
+        // normal swap
+        if (swapOptions.select) {
+          const newFragment = getDocument().createDocumentFragment()
+          forEach(fragment.querySelectorAll(swapOptions.select), function(node) {
+            newFragment.appendChild(node)
+          })
+          fragment = newFragment
         }
-        newActiveElt.focus(focusOptions)
+        handlePreservedElements(fragment)
+        // if the response contained only <hx-partial> tags and nothing else, skip the main swap
+        if (hasPartials && !fragment.childElementCount && !fragment.textContent.trim()) {
+          settleInfo.elts = [asElement(target)]
+        } else {
+          swapWithStyle(swapSpec.swapStyle, swapOptions.contextElement, target, fragment, settleInfo)
+        }
+        restorePreservedElements()
       }
-    }
 
-    target.classList.remove(htmx.config.swappingClass)
-    forEach(settleInfo.elts, function(elt) {
-      if (elt.classList) {
-        elt.classList.add(htmx.config.settlingClass)
+      // apply saved focus and selection information to swapped content
+      if (selectionInfo.elt &&
+        !bodyContains(selectionInfo.elt) &&
+        getRawAttribute(selectionInfo.elt, 'id')) {
+        const newActiveElt = document.getElementById(getRawAttribute(selectionInfo.elt, 'id'))
+        const focusOptions = { preventScroll: swapSpec.focusScroll !== undefined ? !swapSpec.focusScroll : !htmx.config.defaultFocusScroll }
+        if (newActiveElt) {
+          // @ts-ignore
+          if (selectionInfo.start && newActiveElt.setSelectionRange) {
+            try {
+              // @ts-ignore
+              newActiveElt.setSelectionRange(selectionInfo.start, selectionInfo.end)
+            } catch (e) {
+              // the setSelectionRange method is present on fields that don't support it, so just let this fail
+            }
+          }
+          newActiveElt.focus(focusOptions)
+        }
       }
-      triggerEvent(elt, 'htmx:afterSwap', swapOptions.eventInfo)
-    })
-    if (swapOptions.afterSwapCallback) {
-      swapOptions.afterSwapCallback()
-    }
 
-    // merge in new title after swap but before settle
-    if (!swapSpec.ignoreTitle) {
-      handleTitle(settleInfo.title)
-    }
-
-    // settle
-    const doSettle = function() {
-      forEach(settleInfo.tasks, function(task) {
-        task.call()
-      })
+      removeClassFromElement(target, htmx.config.swappingClass)
       forEach(settleInfo.elts, function(elt) {
         if (elt.classList) {
-          elt.classList.remove(htmx.config.settlingClass)
+          addClassToElement(elt, htmx.config.settlingClass)
         }
-        triggerEvent(elt, 'htmx:afterSettle', swapOptions.eventInfo)
+        triggerEvent(elt, 'htmx:afterSwap', swapOptions.eventInfo)
       })
+      maybeCall(swapOptions.afterSwapCallback)
 
-      if (swapOptions.anchor) {
-        const anchorTarget = asElement(resolveTarget('#' + swapOptions.anchor))
-        if (anchorTarget) {
-          anchorTarget.scrollIntoView({ block: 'start', behavior: 'auto' })
-        }
+      // merge in new title after swap but before settle
+      if (!swapSpec.ignoreTitle) {
+        handleTitle(settleInfo.title)
       }
 
-      updateScrollState(settleInfo.elts, swapSpec)
-      if (swapOptions.afterSettleCallback) {
-        swapOptions.afterSettleCallback()
+      // settle
+      const doSettle = function() {
+        forEach(settleInfo.tasks, function(task) {
+          task.call()
+        })
+        forEach(settleInfo.elts, function(elt) {
+          if (elt.classList) {
+            removeClassFromElement(elt, htmx.config.settlingClass)
+          }
+          triggerEvent(elt, 'htmx:afterSettle', swapOptions.eventInfo)
+        })
+
+        if (swapOptions.anchor) {
+          const anchorTarget = asElement(resolveTarget('#' + swapOptions.anchor))
+          if (anchorTarget) {
+            anchorTarget.scrollIntoView({ block: 'start', behavior: 'auto' })
+          }
+        }
+
+        updateScrollState(settleInfo.elts, swapSpec)
+        maybeCall(swapOptions.afterSettleCallback)
+        maybeCall(settleResolve)
+      }
+
+      if (swapSpec.settleDelay > 0) {
+        getWindow().setTimeout(doSettle, swapSpec.settleDelay)
+      } else {
+        doSettle()
+      }
+    }
+    let shouldTransition = htmx.config.globalViewTransitions
+    if (swapSpec.hasOwnProperty('transition')) {
+      shouldTransition = swapSpec.transition
+    }
+
+    const elt = swapOptions.contextElement || getDocument()
+
+    if (shouldTransition &&
+            triggerEvent(elt, 'htmx:beforeTransition', swapOptions.eventInfo) &&
+            typeof Promise !== 'undefined' &&
+            // @ts-ignore experimental feature atm
+            document.startViewTransition) {
+      const settlePromise = new Promise(function(_resolve, _reject) {
+        settleResolve = _resolve
+        settleReject = _reject
+      })
+      // wrap the original doSwap() in a call to startViewTransition()
+      const innerDoSwap = doSwap
+      doSwap = function() {
+        // @ts-ignore experimental feature atm
+        document.startViewTransition(function() {
+          innerDoSwap()
+          return settlePromise
+        })
       }
     }
 
-    if (swapSpec.settleDelay > 0) {
-      getWindow().setTimeout(doSettle, swapSpec.settleDelay)
-    } else {
-      doSettle()
+    try {
+      if (swapSpec?.swapDelay && swapSpec.swapDelay > 0) {
+        getWindow().setTimeout(doSwap, swapSpec.swapDelay)
+      } else {
+        doSwap()
+      }
+    } catch (e) {
+      triggerErrorEvent(elt, 'htmx:swapError', swapOptions.eventInfo)
+      maybeCall(settleReject)
+      throw e
     }
   }
 
@@ -2025,18 +2122,16 @@ var htmx = (function() {
   function handleTriggerHeader(xhr, header, elt) {
     const triggerBody = xhr.getResponseHeader(header)
     if (triggerBody.indexOf('{') === 0) {
-      const triggers = parseJSON(triggerBody)
-      for (const eventName in triggers) {
-        if (triggers.hasOwnProperty(eventName)) {
-          let detail = triggers[eventName]
-          if (isRawObject(detail)) {
-            // @ts-ignore
-            elt = detail.target !== undefined ? detail.target : elt
-          } else {
-            detail = { value: detail }
-          }
-          triggerEvent(elt, eventName, detail)
+      const triggers = parseJSON(triggerBody) || {}
+      for (const eventName of Object.keys(triggers)) {
+        let detail = triggers[eventName]
+        if (isRawObject(detail)) {
+          // @ts-ignore
+          elt = detail.target !== undefined ? detail.target : elt
+        } else {
+          detail = { value: detail }
         }
+        triggerEvent(elt, eventName, detail)
       }
     } else {
       const eventNames = triggerBody.split(',')
@@ -2367,7 +2462,7 @@ var htmx = (function() {
         if (path == null || path === '') {
           // if there is no action attribute on the form set path to current href before the
           // following logic to properly clear parameters on a GET (not on a POST!)
-          path = getDocument().location.href
+          path = location.href
         }
         if (verb === 'get' && path.includes('?')) {
           path = path.replace(/\?[^#]+/, '')
@@ -2388,24 +2483,26 @@ var htmx = (function() {
 
   /**
    * @param {Event} evt
-   * @param {Node} node
+   * @param {Element} elt
    * @returns {boolean}
    */
-  function shouldCancel(evt, node) {
-    const elt = asElement(node)
-    if (!elt) {
-      return false
-    }
-    if (evt.type === 'submit' || evt.type === 'click') {
-      if (elt.tagName === 'FORM') {
+  function shouldCancel(evt, elt) {
+    if (evt.type === 'submit' && elt.tagName === 'FORM') {
+      return true
+    } else if (evt.type === 'click') {
+      // find button wrapping the trigger element
+      const btn = /** @type {HTMLButtonElement|HTMLInputElement|null} */ (elt.closest('input[type="submit"], button'))
+      // Do not cancel on buttons that 1) don't have a related form or 2) have a type attribute of 'reset'/'button'.
+      if (btn && btn.form && btn.type === 'submit') {
         return true
       }
-      if (matches(elt, 'input[type="submit"], button') &&
-        (matches(elt, '[form]') || closest(elt, 'form') !== null)) {
-        return true
-      }
-      if (elt instanceof HTMLAnchorElement && elt.href &&
-        (elt.getAttribute('href') === '#' || elt.getAttribute('href').indexOf('#') !== 0)) {
+
+      // find link wrapping the trigger element
+      const link = elt.closest('a')
+      // Allow links with href="#fragment" (anchors with content after #) to perform normal fragment navigation.
+      // Cancel default action for links with href="#" (bare hash) to prevent scrolling to top and unwanted URL changes.
+      const samePageAnchor = /^#.+/
+      if (link && link.href && !samePageAnchor.test(link.getAttribute('href'))) {
         return true
       }
     }
@@ -2444,7 +2541,7 @@ var htmx = (function() {
   }
 
   /**
-   * @param {Node} elt
+   * @param {Element} elt
    * @param {TriggerHandler} handler
    * @param {HtmxNodeInternalData} nodeData
    * @param {HtmxTriggerSpecification} triggerSpec
@@ -2482,7 +2579,7 @@ var htmx = (function() {
         if (ignoreBoostedAnchorCtrlClick(elt, evt)) {
           return
         }
-        if (explicitCancel || shouldCancel(evt, elt)) {
+        if (explicitCancel || shouldCancel(evt, eltToListenOn)) {
           evt.preventDefault()
         }
         if (maybeFilterEvent(triggerSpec, elt, evt)) {
@@ -2511,7 +2608,7 @@ var htmx = (function() {
             }
           }
           if (triggerSpec.changed) {
-            const node = event.target
+            const node = evt.target
             // @ts-ignore value will be undefined for non-input elements, which is fine
             const value = node.value
             const lastValue = elementData.lastValue.get(triggerSpec)
@@ -2634,7 +2731,7 @@ var htmx = (function() {
         triggerSpecs.forEach(function(triggerSpec) {
           addTriggerHandler(elt, triggerSpec, nodeData, function(node, evt) {
             const elt = asElement(node)
-            if (closest(elt, htmx.config.disableSelector)) {
+            if (eltIsDisabled(elt)) {
               cleanUpElement(elt)
               return
             }
@@ -2648,12 +2745,12 @@ var htmx = (function() {
 
   /**
    * @callback TriggerHandler
-   * @param {Node} elt
+   * @param {Element} elt
    * @param {Event} [evt]
    */
 
   /**
-   * @param {Node} elt
+   * @param {Element} elt
    * @param {HtmxTriggerSpecification} triggerSpec
    * @param {HtmxNodeInternalData} nodeData
    * @param {TriggerHandler} handler
@@ -2753,7 +2850,7 @@ var htmx = (function() {
       const boostedSelector = ', [hx-boost] a, [data-hx-boost] a, a[hx-boost], a[data-hx-boost]'
 
       const extensionSelectors = []
-      for (const e in extensions) {
+      for (const e of Object.keys(extensions)) {
         const extension = extensions[e]
         if (extension.getSelectors) {
           var selectors = extension.getSelectors()
@@ -2778,7 +2875,7 @@ var htmx = (function() {
    * @param {Event} evt
    */
   function maybeSetLastButtonClicked(evt) {
-    const elt = /** @type {HTMLButtonElement|HTMLInputElement} */ (closest(asElement(evt.target), "button, input[type='submit']"))
+    const elt = getTargetButton(evt.target)
     const internalData = getRelatedFormData(evt)
     if (internalData) {
       internalData.lastButtonClicked = elt
@@ -2796,15 +2893,32 @@ var htmx = (function() {
   }
 
   /**
+   * @param {EventTarget} target
+   * @returns {HTMLButtonElement|HTMLInputElement|null}
+   */
+  function getTargetButton(target) {
+    return /** @type {HTMLButtonElement|HTMLInputElement|null} */ (closest(asElement(target), "button, input[type='submit']"))
+  }
+
+  /**
+   * @param {Element} elt
+   * @returns {HTMLFormElement|null}
+   */
+  function getRelatedForm(elt) {
+    // @ts-ignore Get the related form if available, else find the closest parent form
+    return elt.form || closest(elt, 'form')
+  }
+
+  /**
    * @param {Event} evt
    * @returns {HtmxNodeInternalData|undefined}
    */
   function getRelatedFormData(evt) {
-    const elt = closest(asElement(evt.target), "button, input[type='submit']")
+    const elt = getTargetButton(evt.target)
     if (!elt) {
       return
     }
-    const form = resolveTarget('#' + getRawAttribute(elt, 'form'), elt.getRootNode()) || closest(elt, 'form')
+    const form = getRelatedForm(elt)
     if (!form) {
       return
     }
@@ -2884,44 +2998,52 @@ var htmx = (function() {
    * @param {Element|HTMLInputElement} elt
    */
   function initNode(elt) {
-    if (closest(elt, htmx.config.disableSelector)) {
-      cleanUpElement(elt)
-      return
-    }
+    triggerEvent(elt, 'htmx:beforeProcessNode')
+
     const nodeData = getInternalData(elt)
-    const attrHash = attributeHash(elt)
-    if (nodeData.initHash !== attrHash) {
-      // clean up any previously processed info
-      deInitNode(elt)
+    const triggerSpecs = getTriggerSpecs(elt)
+    const hasExplicitHttpAction = processVerbs(elt, nodeData, triggerSpecs)
 
-      nodeData.initHash = attrHash
-
-      triggerEvent(elt, 'htmx:beforeProcessNode')
-
-      const triggerSpecs = getTriggerSpecs(elt)
-      const hasExplicitHttpAction = processVerbs(elt, nodeData, triggerSpecs)
-
-      if (!hasExplicitHttpAction) {
-        if (getClosestAttributeValue(elt, 'hx-boost') === 'true') {
-          boostElement(elt, nodeData, triggerSpecs)
-        } else if (hasAttribute(elt, 'hx-trigger')) {
-          triggerSpecs.forEach(function(triggerSpec) {
-            // For "naked" triggers, don't do anything at all
-            addTriggerHandler(elt, triggerSpec, nodeData, function() {
-            })
+    if (!hasExplicitHttpAction) {
+      if (getClosestAttributeValue(elt, 'hx-boost') === 'true') {
+        boostElement(elt, nodeData, triggerSpecs)
+      } else if (hasAttribute(elt, 'hx-trigger')) {
+        triggerSpecs.forEach(function(triggerSpec) {
+          // For "naked" triggers, don't do anything at all
+          addTriggerHandler(elt, triggerSpec, nodeData, function() {
           })
-        }
+        })
       }
-
-      // Handle submit buttons/inputs that have the form attribute set
-      // see https://developer.mozilla.org/docs/Web/HTML/Element/button
-      if (elt.tagName === 'FORM' || (getRawAttribute(elt, 'type') === 'submit' && hasAttribute(elt, 'form'))) {
-        initButtonTracking(elt)
-      }
-
-      nodeData.firstInitCompleted = true
-      triggerEvent(elt, 'htmx:afterProcessNode')
     }
+
+    // Handle submit buttons/inputs that have the form attribute set
+    // see https://developer.mozilla.org/docs/Web/HTML/Element/button
+    if (elt.tagName === 'FORM' || (getRawAttribute(elt, 'type') === 'submit' && hasAttribute(elt, 'form'))) {
+      initButtonTracking(elt)
+    }
+
+    nodeData.firstInitCompleted = true
+    triggerEvent(elt, 'htmx:afterProcessNode')
+  }
+
+  /**
+   * @param {Element} elt
+   * @returns {boolean}
+   */
+  function maybeDeInitAndHash(elt) {
+    // Ensure only valid Elements and not shadow DOM roots are inited
+    if (!(elt instanceof Element)) {
+      return false
+    }
+
+    const nodeData = getInternalData(elt)
+    const hash = attributeHash(elt)
+    if (nodeData.initHash !== hash) {
+      deInitNode(elt)
+      nodeData.initHash = hash
+      return true
+    }
+    return false
   }
 
   /**
@@ -2933,13 +3055,27 @@ var htmx = (function() {
    */
   function processNode(elt) {
     elt = resolveTarget(elt)
-    if (closest(elt, htmx.config.disableSelector)) {
+    if (eltIsDisabled(elt)) {
       cleanUpElement(elt)
       return
     }
-    initNode(elt)
-    forEach(findElementsToProcess(elt), function(child) { initNode(child) })
+
+    const elementsToInit = []
+    if (maybeDeInitAndHash(elt)) {
+      elementsToInit.push(elt)
+    }
+    forEach(findElementsToProcess(elt), function(child) {
+      if (eltIsDisabled(child)) {
+        cleanUpElement(child)
+        return
+      }
+      if (maybeDeInitAndHash(child)) {
+        elementsToInit.push(child)
+      }
+    })
+
     forEach(findHxOnWildcardElements(elt), processHxOnWildcard)
+    forEach(elementsToInit, initNode)
   }
 
   //= ===================================================================
@@ -2960,16 +3096,9 @@ var htmx = (function() {
    * @returns {CustomEvent}
    */
   function makeEvent(eventName, detail) {
-    let evt
-    if (window.CustomEvent && typeof window.CustomEvent === 'function') {
-      // TODO: `composed: true` here is a hack to make global event handlers work with events in shadow DOM
-      // This breaks expected encapsulation but needs to be here until decided otherwise by core devs
-      evt = new CustomEvent(eventName, { bubbles: true, cancelable: true, composed: true, detail })
-    } else {
-      evt = getDocument().createEvent('CustomEvent')
-      evt.initCustomEvent(eventName, true, true, detail)
-    }
-    return evt
+    // TODO: `composed: true` here is a hack to make global event handlers work with events in shadow DOM
+    // This breaks expected encapsulation but needs to be here until decided otherwise by core devs
+    return new CustomEvent(eventName, { bubbles: true, cancelable: true, composed: true, detail })
   }
 
   /**
@@ -2991,15 +3120,17 @@ var htmx = (function() {
 
   /**
    * `withExtensions` locates all active extensions for a provided element, then
-   * executes the provided function using each of the active extensions.  It should
+   * executes the provided function using each of the active extensions. You can filter
+   * the element's extensions by giving it a list of extensions to ignore. It should
    * be called internally at every extendable execution point in htmx.
    *
    * @param {Element} elt
    * @param {(extension:HtmxExtension) => void} toDo
+   * @param {string[]=} extensionsToIgnore
    * @returns void
    */
-  function withExtensions(elt, toDo) {
-    forEach(getExtensions(elt), function(extension) {
+  function withExtensions(elt, toDo, extensionsToIgnore) {
+    forEach(getExtensions(elt, [], extensionsToIgnore), function(extension) {
       try {
         toDo(extension)
       } catch (e) {
@@ -3009,11 +3140,7 @@ var htmx = (function() {
   }
 
   function logError(msg) {
-    if (console.error) {
-      console.error(msg)
-    } else if (console.log) {
-      console.log('ERROR: ', msg)
-    }
+    console.error(msg)
   }
 
   /**
@@ -3037,7 +3164,7 @@ var htmx = (function() {
       htmx.logger(elt, eventName, detail)
     }
     if (detail.error) {
-      logError(detail.error)
+      logError(detail.error + (detail.target ? ', ' + detail.target : ''))
       triggerEvent(elt, 'htmx:error', { errorInfo: detail })
     }
     let eventResult = elt.dispatchEvent(event)
@@ -3055,7 +3182,19 @@ var htmx = (function() {
   //= ===================================================================
   // History Support
   //= ===================================================================
-  let currentPathForHistory = location.pathname + location.search
+  let currentPathForHistory
+
+  /**
+   * @param {string} path
+   */
+  function setCurrentPathForHistory(path) {
+    currentPathForHistory = path
+    if (canAccessLocalStorage()) {
+      sessionStorage.setItem('htmx-current-path-for-history', path)
+    }
+  }
+
+  setCurrentPathForHistory(location.pathname + location.search)
 
   /**
    * @returns {Element}
@@ -3081,13 +3220,13 @@ var htmx = (function() {
 
     if (htmx.config.historyCacheSize <= 0) {
       // make sure that an eventually already existing cache is purged
-      localStorage.removeItem('htmx-history-cache')
+      sessionStorage.removeItem('htmx-history-cache')
       return
     }
 
     url = normalizePath(url)
 
-    const historyCache = parseJSON(localStorage.getItem('htmx-history-cache')) || []
+    const historyCache = parseJSON(sessionStorage.getItem('htmx-history-cache')) || []
     for (let i = 0; i < historyCache.length; i++) {
       if (historyCache[i].url === url) {
         historyCache.splice(i, 1)
@@ -3108,7 +3247,7 @@ var htmx = (function() {
     // keep trying to save the cache until it succeeds or is empty
     while (historyCache.length > 0) {
       try {
-        localStorage.setItem('htmx-history-cache', JSON.stringify(historyCache))
+        sessionStorage.setItem('htmx-history-cache', JSON.stringify(historyCache))
         break
       } catch (e) {
         triggerErrorEvent(getDocument().body, 'htmx:historyCacheError', { cause: e, cache: historyCache })
@@ -3136,7 +3275,7 @@ var htmx = (function() {
 
     url = normalizePath(url)
 
-    const historyCache = parseJSON(localStorage.getItem('htmx-history-cache')) || []
+    const historyCache = parseJSON(sessionStorage.getItem('htmx-history-cache')) || []
     for (let i = 0; i < historyCache.length; i++) {
       if (historyCache[i].url === url) {
         return historyCache[i]
@@ -3164,26 +3303,24 @@ var htmx = (function() {
 
   function saveCurrentPageToHistory() {
     const elt = getHistoryElement()
-    const path = currentPathForHistory || location.pathname + location.search
+    let path = currentPathForHistory
+    if (canAccessLocalStorage()) {
+      path = sessionStorage.getItem('htmx-current-path-for-history')
+    }
+    path = path || location.pathname + location.search
 
     // Allow history snapshot feature to be disabled where hx-history="false"
     // is present *anywhere* in the current document we're about to save,
     // so we can prevent privileged data entering the cache.
     // The page will still be reachable as a history entry, but htmx will fetch it
-    // live from the server onpopstate rather than look in the localStorage cache
-    let disableHistoryCache
-    try {
-      disableHistoryCache = getDocument().querySelector('[hx-history="false" i],[data-hx-history="false" i]')
-    } catch (e) {
-    // IE11: insensitive modifier not supported so fallback to case sensitive selector
-      disableHistoryCache = getDocument().querySelector('[hx-history="false"],[data-hx-history="false"]')
-    }
+    // live from the server onpopstate rather than look in the sessionStorage cache
+    const disableHistoryCache = getDocument().querySelector('[hx-history="false" i],[data-hx-history="false" i]')
     if (!disableHistoryCache) {
       triggerEvent(getDocument().body, 'htmx:beforeHistorySave', { path, historyElt: elt })
       saveToHistoryCache(path, elt)
     }
 
-    if (htmx.config.historyEnabled) history.replaceState({ htmx: true }, getDocument().title, window.location.href)
+    if (htmx.config.historyEnabled) history.replaceState({ htmx: true }, getDocument().title, location.href)
   }
 
   /**
@@ -3200,7 +3337,7 @@ var htmx = (function() {
     if (htmx.config.historyEnabled) {
       history.pushState({ htmx: true }, '', path)
     }
-    currentPathForHistory = path
+    setCurrentPathForHistory(path)
   }
 
   /**
@@ -3208,7 +3345,7 @@ var htmx = (function() {
    */
   function replaceUrlInHistory(path) {
     if (htmx.config.historyEnabled) history.replaceState({ htmx: true }, '', path)
-    currentPathForHistory = path
+    setCurrentPathForHistory(path)
   }
 
   /**
@@ -3225,33 +3362,31 @@ var htmx = (function() {
    */
   function loadHistoryFromServer(path) {
     const request = new XMLHttpRequest()
-    const details = { path, xhr: request }
-    triggerEvent(getDocument().body, 'htmx:historyCacheMiss', details)
+    const swapSpec = { swapStyle: 'innerHTML', swapDelay: 0, settleDelay: 0 }
+    const details = { path, xhr: request, historyElt: getHistoryElement(), swapSpec }
     request.open('GET', path, true)
-    request.setRequestHeader('HX-Request', 'true')
+    if (htmx.config.historyRestoreAsHxRequest) {
+      request.setRequestHeader('HX-Request', 'true')
+    }
     request.setRequestHeader('HX-History-Restore-Request', 'true')
-    request.setRequestHeader('HX-Current-URL', getDocument().location.href)
+    request.setRequestHeader('HX-Current-URL', location.href)
     request.onload = function() {
       if (this.status >= 200 && this.status < 400) {
+        details.response = this.response
         triggerEvent(getDocument().body, 'htmx:historyCacheMissLoad', details)
-        const fragment = makeFragment(this.response)
-        /** @type ParentNode */
-        const content = fragment.querySelector('[hx-history-elt],[data-hx-history-elt]') || fragment
-        const historyElement = getHistoryElement()
-        const settleInfo = makeSettleInfo(historyElement)
-        handleTitle(fragment.title)
-
-        handlePreservedElements(fragment)
-        swapInnerHTML(historyElement, content, settleInfo)
-        restorePreservedElements()
-        settleImmediately(settleInfo.tasks)
-        currentPathForHistory = path
-        triggerEvent(getDocument().body, 'htmx:historyRestore', { path, cacheMiss: true, serverResponse: this.response })
+        swap(details.historyElt, details.response, swapSpec, {
+          contextElement: details.historyElt,
+          historyRequest: true
+        })
+        setCurrentPathForHistory(details.path)
+        triggerEvent(getDocument().body, 'htmx:historyRestore', { path, cacheMiss: true, serverResponse: details.response })
       } else {
         triggerErrorEvent(getDocument().body, 'htmx:historyCacheMissLoadError', details)
       }
     }
-    request.send()
+    if (triggerEvent(getDocument().body, 'htmx:historyCacheMiss', details)) {
+      request.send() // only send request if event not prevented
+    }
   }
 
   /**
@@ -3262,24 +3397,21 @@ var htmx = (function() {
     path = path || location.pathname + location.search
     const cached = getCachedHistory(path)
     if (cached) {
-      const fragment = makeFragment(cached.content)
-      const historyElement = getHistoryElement()
-      const settleInfo = makeSettleInfo(historyElement)
-      handleTitle(cached.title)
-      handlePreservedElements(fragment)
-      swapInnerHTML(historyElement, fragment, settleInfo)
-      restorePreservedElements()
-      settleImmediately(settleInfo.tasks)
-      getWindow().setTimeout(function() {
-        window.scrollTo(0, cached.scroll)
-      }, 0) // next 'tick', so browser has time to render layout
-      currentPathForHistory = path
-      triggerEvent(getDocument().body, 'htmx:historyRestore', { path, item: cached })
+      const swapSpec = { swapStyle: 'innerHTML', swapDelay: 0, settleDelay: 0, scroll: cached.scroll }
+      const details = { path, item: cached, historyElt: getHistoryElement(), swapSpec }
+      if (triggerEvent(getDocument().body, 'htmx:historyCacheHit', details)) {
+        swap(details.historyElt, cached.content, swapSpec, {
+          contextElement: details.historyElt,
+          title: cached.title
+        })
+        setCurrentPathForHistory(details.path)
+        triggerEvent(getDocument().body, 'htmx:historyRestore', details)
+      }
     } else {
       if (htmx.config.refreshOnHistoryMiss) {
         // @ts-ignore: optional parameter in reload() function throws error
         // noinspection JSUnresolvedReference
-        window.location.reload(true)
+        htmx.location.reload(true)
       } else {
         loadHistoryFromServer(path)
       }
@@ -3298,7 +3430,7 @@ var htmx = (function() {
     forEach(indicators, function(ic) {
       const internalData = getInternalData(ic)
       internalData.requestCount = (internalData.requestCount || 0) + 1
-      ic.classList.add.call(ic.classList, htmx.config.requestClass)
+      addClassToElement(ic, htmx.config.requestClass)
     })
     return indicators
   }
@@ -3315,8 +3447,10 @@ var htmx = (function() {
     forEach(disabledElts, function(disabledElement) {
       const internalData = getInternalData(disabledElement)
       internalData.requestCount = (internalData.requestCount || 0) + 1
-      disabledElement.setAttribute('disabled', '')
-      disabledElement.setAttribute('data-disabled-by-htmx', '')
+      if (!disabledElement.hasAttribute('disabled')) {
+        disabledElement.setAttribute('disabled', '')
+        disabledElement.setAttribute('data-disabled-by-htmx', '')
+      }
     })
     return disabledElts
   }
@@ -3333,12 +3467,12 @@ var htmx = (function() {
     forEach(indicators, function(ic) {
       const internalData = getInternalData(ic)
       if (internalData.requestCount === 0) {
-        ic.classList.remove.call(ic.classList, htmx.config.requestClass)
+        removeClassFromElement(ic, htmx.config.requestClass)
       }
     })
     forEach(disabled, function(disabledElement) {
       const internalData = getInternalData(disabledElement)
-      if (internalData.requestCount === 0) {
+      if (internalData.requestCount === 0 && disabledElement.hasAttribute('data-disabled-by-htmx')) {
         disabledElement.removeAttribute('disabled')
         disabledElement.removeAttribute('data-disabled-by-htmx')
       }
@@ -3384,7 +3518,8 @@ var htmx = (function() {
     return true
   }
 
-  /** @param {string} name
+  /**
+   * @param {string} name
    * @param {string|Array|FormDataEntryValue} value
    * @param {FormData} formData */
   function addValueToFormData(name, value, formData) {
@@ -3397,7 +3532,8 @@ var htmx = (function() {
     }
   }
 
-  /** @param {string} name
+  /**
+   * @param {string} name
    * @param {string|Array} value
    * @param {FormData} formData */
   function removeValueFromFormData(name, value, formData) {
@@ -3411,6 +3547,22 @@ var htmx = (function() {
       formData.delete(name)
       forEach(values, v => formData.append(name, v))
     }
+  }
+
+  /**
+   * @param {Element} elt
+   * @returns {string|Array}
+   */
+  function getValueFromInput(elt) {
+    if (elt instanceof HTMLSelectElement && elt.multiple) {
+      return toArray(elt.querySelectorAll('option:checked')).map(function(e) { return (/** @type HTMLOptionElement */(e)).value })
+    }
+    // include file inputs
+    if (elt instanceof HTMLInputElement && elt.files) {
+      return toArray(elt.files)
+    }
+    // @ts-ignore value will be undefined for non-input elements, which is fine
+    return elt.value
   }
 
   /**
@@ -3428,16 +3580,7 @@ var htmx = (function() {
     }
     if (shouldInclude(elt)) {
       const name = getRawAttribute(elt, 'name')
-      // @ts-ignore value will be undefined for non-input elements, which is fine
-      let value = elt.value
-      if (elt instanceof HTMLSelectElement && elt.multiple) {
-        value = toArray(elt.querySelectorAll('option:checked')).map(function(e) { return (/** @type HTMLOptionElement */(e)).value })
-      }
-      // include file inputs
-      if (elt instanceof HTMLInputElement && elt.files) {
-        value = toArray(elt.files)
-      }
-      addValueToFormData(name, value, formData)
+      addValueToFormData(name, getValueFromInput(elt), formData)
       if (validate) {
         validateElement(elt, errors)
       }
@@ -3448,7 +3591,7 @@ var htmx = (function() {
           // The input has already been processed and added to the values, but the FormData that will be
           //  constructed right after on the form, will include it once again. So remove that input's value
           //  now to avoid duplicates
-          removeValueFromFormData(input.name, input.value, formData)
+          removeValueFromFormData(input.name, getValueFromInput(input), formData)
         } else {
           processed.push(input)
         }
@@ -3466,7 +3609,6 @@ var htmx = (function() {
   }
 
   /**
-   *
    * @param {Element} elt
    * @param {HtmxElementValidationError[]} errors
    */
@@ -3475,8 +3617,17 @@ var htmx = (function() {
     if (element.willValidate) {
       triggerEvent(element, 'htmx:validation:validate')
       if (!element.checkValidity()) {
+        if (
+          triggerEvent(element, 'htmx:validation:failed', {
+            message: element.validationMessage,
+            validity: element.validity
+          }) &&
+          !errors.length &&
+          htmx.config.reportValidityOfForms
+        ) {
+          element.reportValidity()
+        }
         errors.push({ elt: element, message: element.validationMessage, validity: element.validity })
-        triggerEvent(element, 'htmx:validation:failed', { message: element.validationMessage, validity: element.validity })
       }
     }
   }
@@ -3521,9 +3672,9 @@ var htmx = (function() {
       validate = validate && internalData.lastButtonClicked.formNoValidate !== true
     }
 
-    // for a non-GET include the closest form
+    // for a non-GET include the related form, which may or may not be a parent element of elt
     if (verb !== 'get') {
-      processInputValue(processed, priorityFormData, errors, closest(elt, 'form'), validate)
+      processInputValue(processed, priorityFormData, errors, getRelatedForm(elt), validate)
     }
 
     // include the element itself
@@ -3603,7 +3754,7 @@ var htmx = (function() {
       'HX-Trigger': getRawAttribute(elt, 'id'),
       'HX-Trigger-Name': getRawAttribute(elt, 'name'),
       'HX-Target': getAttributeValue(target, 'id'),
-      'HX-Current-URL': getDocument().location.href
+      'HX-Current-URL': location.href
     }
     getValuesForElement(elt, 'hx-headers', false, headers)
     if (prompt !== undefined) {
@@ -3781,6 +3932,11 @@ var htmx = (function() {
         target = target || last
         target.scrollTop = target.scrollHeight
       }
+      if (typeof swapSpec.scroll === 'number') {
+        getWindow().setTimeout(function() {
+          window.scrollTo(0, /** @type number */ (swapSpec.scroll))
+        }, 0) // next 'tick', so browser has time to render layout
+      }
     }
     if (swapSpec.show) {
       var target = null
@@ -3809,9 +3965,10 @@ var htmx = (function() {
  * @param {string} attr
  * @param {boolean=} evalAsDefault
  * @param {Object=} values
+ * @param {Event=} event
  * @returns {Object}
  */
-  function getValuesForElement(elt, attr, evalAsDefault, values) {
+  function getValuesForElement(elt, attr, evalAsDefault, values, event) {
     if (values == null) {
       values = {}
     }
@@ -3837,19 +3994,23 @@ var htmx = (function() {
       }
       let varsValues
       if (evaluateValue) {
-        varsValues = maybeEval(elt, function() { return Function('return (' + str + ')')() }, {})
+        varsValues = maybeEval(elt, function() {
+          if (event) {
+            return Function('event', 'return (' + str + ')').call(elt, event)
+          } else { // allow window.event to be accessible
+            return Function('return (' + str + ')').call(elt)
+          }
+        }, {})
       } else {
         varsValues = parseJSON(str)
       }
-      for (const key in varsValues) {
-        if (varsValues.hasOwnProperty(key)) {
-          if (values[key] == null) {
-            values[key] = varsValues[key]
-          }
+      for (const key of Object.keys(varsValues)) {
+        if (values[key] == null) {
+          values[key] = varsValues[key]
         }
       }
     }
-    return getValuesForElement(asElement(parentElt(elt)), attr, evalAsDefault, values)
+    return getValuesForElement(asElement(parentElt(elt)), attr, evalAsDefault, values, event)
   }
 
   /**
@@ -3869,28 +4030,31 @@ var htmx = (function() {
 
   /**
  * @param {Element} elt
- * @param {*?} expressionVars
+ * @param {Event=} event
+ * @param {*?=} expressionVars
  * @returns
  */
-  function getHXVarsForElement(elt, expressionVars) {
-    return getValuesForElement(elt, 'hx-vars', true, expressionVars)
+  function getHXVarsForElement(elt, event, expressionVars) {
+    return getValuesForElement(elt, 'hx-vars', true, expressionVars, event)
   }
 
   /**
  * @param {Element} elt
- * @param {*?} expressionVars
+ * @param {Event=} event
+ * @param {*?=} expressionVars
  * @returns
  */
-  function getHXValsForElement(elt, expressionVars) {
-    return getValuesForElement(elt, 'hx-vals', false, expressionVars)
+  function getHXValsForElement(elt, event, expressionVars) {
+    return getValuesForElement(elt, 'hx-vals', false, expressionVars, event)
   }
 
   /**
  * @param {Element} elt
+ * @param {Event=} event
  * @returns {FormData}
  */
-  function getExpressionVars(elt) {
-    return mergeObjects(getHXVarsForElement(elt), getHXValsForElement(elt))
+  function getExpressionVars(elt, event) {
+    return mergeObjects(getHXVarsForElement(elt, event), getHXValsForElement(elt, event))
   }
 
   /**
@@ -3915,8 +4079,7 @@ var htmx = (function() {
    * @return {string}
    */
   function getPathFromResponse(xhr) {
-  // NB: IE11 does not support this stuff
-    if (xhr.responseURL && typeof (URL) !== 'undefined') {
+    if (xhr.responseURL) {
       try {
         const url = new URL(xhr.responseURL)
         return url.pathname + url.search
@@ -3928,11 +4091,11 @@ var htmx = (function() {
 
   /**
    * @param {XMLHttpRequest} xhr
-   * @param {RegExp} regexp
+   * @param {string} name
    * @return {boolean}
    */
-  function hasHeader(xhr, regexp) {
-    return regexp.test(xhr.getAllResponseHeaders())
+  function hasHeader(xhr, name) {
+    return xhr.getResponseHeader(name) !== null
   }
 
   /**
@@ -3968,7 +4131,10 @@ var htmx = (function() {
             targetOverride: resolvedTarget,
             swapOverride: context.swap,
             select: context.select,
-            returnPromise: true
+            returnPromise: true,
+            push: context.push,
+            replace: context.replace,
+            selectOOB: context.selectOOB
           })
       }
     } else {
@@ -3998,17 +4164,9 @@ var htmx = (function() {
    * @return {boolean}
    */
   function verifyPath(elt, path, requestConfig) {
-    let sameHost
-    let url
-    if (typeof URL === 'function') {
-      url = new URL(path, document.location.href)
-      const origin = document.location.origin
-      sameHost = origin === url.origin
-    } else {
-    // IE11 doesn't support URL
-      url = path
-      sameHost = startsWith(path, document.location.origin)
-    }
+    const url = new URL(path, location.protocol !== 'about:' ? location.href : window.origin)
+    const origin = location.protocol !== 'about:' ? location.origin : window.origin
+    const sameHost = origin === url.origin
 
     if (htmx.config.selfRequestsOnly) {
       if (!sameHost) {
@@ -4025,15 +4183,13 @@ var htmx = (function() {
   function formDataFromObject(obj) {
     if (obj instanceof FormData) return obj
     const formData = new FormData()
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (obj[key] && typeof obj[key].forEach === 'function') {
-          obj[key].forEach(function(v) { formData.append(key, v) })
-        } else if (typeof obj[key] === 'object' && !(obj[key] instanceof Blob)) {
-          formData.append(key, JSON.stringify(obj[key]))
-        } else {
-          formData.append(key, obj[key])
-        }
+    for (const key of Object.keys(obj)) {
+      if (obj[key] && typeof obj[key].forEach === 'function') {
+        obj[key].forEach(function(v) { formData.append(key, v) })
+      } else if (typeof obj[key] === 'object' && !(obj[key] instanceof Blob)) {
+        formData.append(key, JSON.stringify(obj[key]))
+      } else {
+        formData.append(key, obj[key])
       }
     }
     return formData
@@ -4109,8 +4265,6 @@ var htmx = (function() {
             return function() {
               return formData[name].apply(formData, arguments)
             }
-          } else {
-            return target[name]
           }
         }
         const array = formData.getAll(name)
@@ -4185,7 +4339,7 @@ var htmx = (function() {
     }
     const target = etc.targetOverride || asElement(getTarget(elt))
     if (target == null || target == DUMMY_ELT) {
-      triggerErrorEvent(elt, 'htmx:targetError', { target: getAttributeValue(elt, 'hx-target') })
+      triggerErrorEvent(elt, 'htmx:targetError', { target: getClosestAttributeValue(elt, 'hx-target') })
       maybeCall(reject)
       return promise
     }
@@ -4201,9 +4355,11 @@ var htmx = (function() {
 
       const buttonVerb = getRawAttribute(submitter, 'formmethod')
       if (buttonVerb != null) {
-      // ignore buttons with formmethod="dialog"
-        if (buttonVerb.toLowerCase() !== 'dialog') {
+        if (VERBS.includes(buttonVerb.toLowerCase())) {
           verb = (/** @type HttpVerb */(buttonVerb))
+        } else {
+          maybeCall(resolve)
+          return promise
         }
       }
     }
@@ -4338,7 +4494,7 @@ var htmx = (function() {
     if (etc.values) {
       overrideFormData(rawFormData, formDataFromObject(etc.values))
     }
-    const expressionVars = formDataFromObject(getExpressionVars(elt))
+    const expressionVars = formDataFromObject(getExpressionVars(elt, event))
     const allFormData = overrideFormData(rawFormData, expressionVars)
     let filteredFormData = filterValues(allFormData, elt)
 
@@ -4348,7 +4504,7 @@ var htmx = (function() {
 
     // behavior of anchors w/ empty href is to use the current URL
     if (path == null || path === '') {
-      path = getDocument().location.href
+      path = location.href
     }
 
     /**
@@ -4372,6 +4528,7 @@ var htmx = (function() {
       unfilteredFormData: allFormData,
       unfilteredParameters: formDataProxy(allFormData),
       headers,
+      elt,
       target,
       verb,
       errors,
@@ -4426,6 +4583,7 @@ var htmx = (function() {
     if (!verifyPath(elt, finalPath, requestConfig)) {
       triggerErrorEvent(elt, 'htmx:invalidPath', requestConfig)
       maybeCall(reject)
+      endRequestLock()
       return promise
     }
 
@@ -4438,11 +4596,8 @@ var htmx = (function() {
     if (requestAttrValues.noHeaders) {
     // ignore all headers
     } else {
-      for (const header in headers) {
-        if (headers.hasOwnProperty(header)) {
-          const headerValue = headers[header]
-          safelySetHeaderValue(xhr, header, headerValue)
-        }
+      for (const header of Object.keys(headers)) {
+        safelySetHeaderValue(xhr, header, headers[header])
       }
     }
 
@@ -4488,10 +4643,11 @@ var htmx = (function() {
           }
         }
         maybeCall(resolve)
-        endRequestLock()
       } catch (e) {
         triggerErrorEvent(elt, 'htmx:onLoadError', mergeObjects({ error: e }, responseInfo))
         throw e
+      } finally {
+        endRequestLock()
       }
     }
     xhr.onerror = function() {
@@ -4559,13 +4715,13 @@ var htmx = (function() {
     //= ==========================================
     let pathFromHeaders = null
     let typeFromHeaders = null
-    if (hasHeader(xhr, /HX-Push:/i)) {
+    if (hasHeader(xhr, 'HX-Push')) {
       pathFromHeaders = xhr.getResponseHeader('HX-Push')
       typeFromHeaders = 'push'
-    } else if (hasHeader(xhr, /HX-Push-Url:/i)) {
+    } else if (hasHeader(xhr, 'HX-Push-Url')) {
       pathFromHeaders = xhr.getResponseHeader('HX-Push-Url')
       typeFromHeaders = 'push'
-    } else if (hasHeader(xhr, /HX-Replace-Url:/i)) {
+    } else if (hasHeader(xhr, 'HX-Replace-Url')) {
       pathFromHeaders = xhr.getResponseHeader('HX-Replace-Url')
       typeFromHeaders = 'replace'
     }
@@ -4588,8 +4744,9 @@ var htmx = (function() {
     const requestPath = responseInfo.pathInfo.finalRequestPath
     const responsePath = responseInfo.pathInfo.responsePath
 
-    const pushUrl = getClosestAttributeValue(elt, 'hx-push-url')
-    const replaceUrl = getClosestAttributeValue(elt, 'hx-replace-url')
+    const pushUrl = responseInfo.etc.push || getClosestAttributeValue(elt, 'hx-push-url')
+    let replaceUrl = responseInfo.etc.replace || getClosestAttributeValue(elt, 'hx-replace-url')
+    if (replaceUrl === 'false') replaceUrl = null
     const elementIsBoosted = getInternalData(elt).boosted
 
     let saveType = null
@@ -4607,7 +4764,7 @@ var htmx = (function() {
     }
 
     if (path) {
-    // false indicates no push, return empty object
+      // false indicates no push, return empty object
       if (path === 'false') {
         return {}
       }
@@ -4666,11 +4823,29 @@ var htmx = (function() {
     if (title) {
       const titleElt = find('title')
       if (titleElt) {
-        titleElt.innerHTML = title
+        titleElt.textContent = title
       } else {
         window.document.title = title
       }
     }
+  }
+
+  /**
+   * Resove the Retarget selector and throw if not found
+   * @param {Element} elt
+   * @param {String} target
+   * @returns {Element}
+   */
+  function resolveRetarget(elt, target) {
+    if (target === 'this') {
+      return elt
+    }
+    const resolvedTarget = asElement(querySelectorExt(elt, target))
+    if (resolvedTarget == null) {
+      triggerErrorEvent(elt, 'htmx:targetError', { target })
+      throw new Error(`Invalid re-target ${target}`)
+    }
+    return resolvedTarget
   }
 
   /**
@@ -4685,48 +4860,38 @@ var htmx = (function() {
 
     if (!triggerEvent(elt, 'htmx:beforeOnLoad', responseInfo)) return
 
-    if (hasHeader(xhr, /HX-Trigger:/i)) {
+    if (hasHeader(xhr, 'HX-Trigger')) {
       handleTriggerHeader(xhr, 'HX-Trigger', elt)
     }
 
-    if (hasHeader(xhr, /HX-Location:/i)) {
-      saveCurrentPageToHistory()
+    if (hasHeader(xhr, 'HX-Location')) {
       let redirectPath = xhr.getResponseHeader('HX-Location')
-      /** @type {HtmxAjaxHelperContext&{path:string}} */
-      var redirectSwapSpec
+      /** @type {HtmxAjaxHelperContext&{path?:string}} */
+      var redirectSwapSpec = {}
       if (redirectPath.indexOf('{') === 0) {
         redirectSwapSpec = parseJSON(redirectPath)
         // what's the best way to throw an error if the user didn't include this
         redirectPath = redirectSwapSpec.path
         delete redirectSwapSpec.path
       }
-      ajaxHelper('get', redirectPath, redirectSwapSpec).then(function() {
-        pushUrlIntoHistory(redirectPath)
-      })
+      redirectSwapSpec.push = redirectSwapSpec.push ?? 'true'
+      ajaxHelper('get', redirectPath, redirectSwapSpec)
       return
     }
 
-    const shouldRefresh = hasHeader(xhr, /HX-Refresh:/i) && xhr.getResponseHeader('HX-Refresh') === 'true'
+    const shouldRefresh = hasHeader(xhr, 'HX-Refresh') && xhr.getResponseHeader('HX-Refresh') === 'true'
 
-    if (hasHeader(xhr, /HX-Redirect:/i)) {
+    if (hasHeader(xhr, 'HX-Redirect')) {
       responseInfo.keepIndicators = true
-      location.href = xhr.getResponseHeader('HX-Redirect')
-      shouldRefresh && location.reload()
+      htmx.location.href = xhr.getResponseHeader('HX-Redirect')
+      shouldRefresh && htmx.location.reload()
       return
     }
 
     if (shouldRefresh) {
       responseInfo.keepIndicators = true
-      location.reload()
+      htmx.location.reload()
       return
-    }
-
-    if (hasHeader(xhr, /HX-Retarget:/i)) {
-      if (xhr.getResponseHeader('HX-Retarget') === 'this') {
-        responseInfo.target = elt
-      } else {
-        responseInfo.target = asElement(querySelectorExt(elt, xhr.getResponseHeader('HX-Retarget')))
-      }
     }
 
     const historyUpdate = determineHistoryUpdates(elt, responseInfo)
@@ -4737,7 +4902,7 @@ var htmx = (function() {
     let ignoreTitle = htmx.config.ignoreTitle || responseHandling.ignoreTitle
     let selectOverride = responseHandling.select
     if (responseHandling.target) {
-      responseInfo.target = asElement(querySelectorExt(elt, responseHandling.target))
+      responseInfo.target = resolveRetarget(elt, responseHandling.target)
     }
     var swapOverride = etc.swapOverride
     if (swapOverride == null && responseHandling.swapOverride) {
@@ -4745,14 +4910,11 @@ var htmx = (function() {
     }
 
     // response headers override response handling config
-    if (hasHeader(xhr, /HX-Retarget:/i)) {
-      if (xhr.getResponseHeader('HX-Retarget') === 'this') {
-        responseInfo.target = elt
-      } else {
-        responseInfo.target = asElement(querySelectorExt(elt, xhr.getResponseHeader('HX-Retarget')))
-      }
+    if (hasHeader(xhr, 'HX-Retarget')) {
+      responseInfo.target = resolveRetarget(elt, xhr.getResponseHeader('HX-Retarget'))
     }
-    if (hasHeader(xhr, /HX-Reswap:/i)) {
+
+    if (hasHeader(xhr, 'HX-Reswap')) {
       swapOverride = xhr.getResponseHeader('HX-Reswap')
     }
 
@@ -4802,25 +4964,44 @@ var htmx = (function() {
         swapSpec.ignoreTitle = ignoreTitle
       }
 
-      target.classList.add(htmx.config.swappingClass)
-
-      // optional transition API promise callbacks
-      let settleResolve = null
-      let settleReject = null
+      addClassToElement(target, htmx.config.swappingClass)
 
       if (responseInfoSelect) {
         selectOverride = responseInfoSelect
       }
 
-      if (hasHeader(xhr, /HX-Reselect:/i)) {
+      if (hasHeader(xhr, 'HX-Reselect')) {
         selectOverride = xhr.getResponseHeader('HX-Reselect')
       }
 
-      const selectOOB = getClosestAttributeValue(elt, 'hx-select-oob')
+      const selectOOB = etc.selectOOB || getClosestAttributeValue(elt, 'hx-select-oob')
       const select = getClosestAttributeValue(elt, 'hx-select')
 
-      let doSwap = function() {
-        try {
+      swap(target, serverResponse, swapSpec, {
+        select: selectOverride === 'unset' ? null : selectOverride || select,
+        selectOOB,
+        eventInfo: responseInfo,
+        anchor: responseInfo.pathInfo.anchor,
+        contextElement: elt,
+        afterSwapCallback: function() {
+          if (hasHeader(xhr, 'HX-Trigger-After-Swap')) {
+            let finalElt = elt
+            if (!bodyContains(elt)) {
+              finalElt = getDocument().body
+            }
+            handleTriggerHeader(xhr, 'HX-Trigger-After-Swap', finalElt)
+          }
+        },
+        afterSettleCallback: function() {
+          if (hasHeader(xhr, 'HX-Trigger-After-Settle')) {
+            let finalElt = elt
+            if (!bodyContains(elt)) {
+              finalElt = getDocument().body
+            }
+            handleTriggerHeader(xhr, 'HX-Trigger-After-Settle', finalElt)
+          }
+        },
+        beforeSwapCallback: function() {
           // if we need to save history, do so, before swapping so that relative resources have the correct base URL
           if (historyUpdate.type) {
             triggerEvent(getDocument().body, 'htmx:beforeHistoryUpdate', mergeObjects({ history: historyUpdate }, responseInfo))
@@ -4832,70 +5013,8 @@ var htmx = (function() {
               triggerEvent(getDocument().body, 'htmx:replacedInHistory', { path: historyUpdate.path })
             }
           }
-
-          swap(target, serverResponse, swapSpec, {
-            select: selectOverride || select,
-            selectOOB,
-            eventInfo: responseInfo,
-            anchor: responseInfo.pathInfo.anchor,
-            contextElement: elt,
-            afterSwapCallback: function() {
-              if (hasHeader(xhr, /HX-Trigger-After-Swap:/i)) {
-                let finalElt = elt
-                if (!bodyContains(elt)) {
-                  finalElt = getDocument().body
-                }
-                handleTriggerHeader(xhr, 'HX-Trigger-After-Swap', finalElt)
-              }
-            },
-            afterSettleCallback: function() {
-              if (hasHeader(xhr, /HX-Trigger-After-Settle:/i)) {
-                let finalElt = elt
-                if (!bodyContains(elt)) {
-                  finalElt = getDocument().body
-                }
-                handleTriggerHeader(xhr, 'HX-Trigger-After-Settle', finalElt)
-              }
-              maybeCall(settleResolve)
-            }
-          })
-        } catch (e) {
-          triggerErrorEvent(elt, 'htmx:swapError', responseInfo)
-          maybeCall(settleReject)
-          throw e
         }
-      }
-
-      let shouldTransition = htmx.config.globalViewTransitions
-      if (swapSpec.hasOwnProperty('transition')) {
-        shouldTransition = swapSpec.transition
-      }
-
-      if (shouldTransition &&
-              triggerEvent(elt, 'htmx:beforeTransition', responseInfo) &&
-              typeof Promise !== 'undefined' &&
-              // @ts-ignore experimental feature atm
-              document.startViewTransition) {
-        const settlePromise = new Promise(function(_resolve, _reject) {
-          settleResolve = _resolve
-          settleReject = _reject
-        })
-        // wrap the original doSwap() in a call to startViewTransition()
-        const innerDoSwap = doSwap
-        doSwap = function() {
-          // @ts-ignore experimental feature atm
-          document.startViewTransition(function() {
-            innerDoSwap()
-            return settlePromise
-          })
-        }
-      }
-
-      if (swapSpec.swapDelay > 0) {
-        getWindow().setTimeout(doSwap, swapSpec.swapDelay)
-      } else {
-        doSwap()
-      }
+      })
     }
     if (isError) {
       triggerErrorEvent(elt, 'htmx:responseError', mergeObjects({ error: 'Response Status Error Code ' + xhr.status + ' from ' + responseInfo.pathInfo.requestPath }, responseInfo))
@@ -5016,12 +5135,14 @@ var htmx = (function() {
   function insertIndicatorStyles() {
     if (htmx.config.includeIndicatorStyles !== false) {
       const nonceAttribute = htmx.config.inlineStyleNonce ? ` nonce="${htmx.config.inlineStyleNonce}"` : ''
+      const indicator = htmx.config.indicatorClass
+      const request = htmx.config.requestClass
       getDocument().head.insertAdjacentHTML('beforeend',
-        '<style' + nonceAttribute + '>\
-      .' + htmx.config.indicatorClass + '{opacity:0}\
-      .' + htmx.config.requestClass + ' .' + htmx.config.indicatorClass + '{opacity:1; transition: opacity 200ms ease-in;}\
-      .' + htmx.config.requestClass + '.' + htmx.config.indicatorClass + '{opacity:1; transition: opacity 200ms ease-in;}\
-      </style>')
+        `<style${nonceAttribute}>` +
+        `.${indicator}{opacity:0;visibility: hidden} ` +
+        `.${request} .${indicator}, .${request}.${indicator}{opacity:1;visibility: visible;transition: opacity 200ms ease-in}` +
+        '</style>'
+      )
     }
   }
 
@@ -5052,7 +5173,7 @@ var htmx = (function() {
       "[hx-trigger='restored'],[data-hx-trigger='restored']"
     )
     body.addEventListener('htmx:abort', function(evt) {
-      const target = evt.target
+      const target = (/** @type {CustomEvent} */(evt)).detail.elt || evt.target
       const internalData = getInternalData(target)
       if (internalData && internalData.xhr) {
         internalData.xhr.abort()
@@ -5096,6 +5217,9 @@ var htmx = (function() {
  * @property {Element} [contextElement]
  * @property {swapCallback} [afterSwapCallback]
  * @property {swapCallback} [afterSettleCallback]
+ * @property {swapCallback} [beforeSwapCallback]
+ * @property {string} [title]
+ * @property {boolean} [historyRequest]
  */
 
 /**
@@ -5114,7 +5238,7 @@ var htmx = (function() {
  * @property {boolean} [transition]
  * @property {boolean} [ignoreTitle]
  * @property {string} [head]
- * @property {'top' | 'bottom'} [scroll]
+ * @property {'top' | 'bottom' | number } [scroll]
  * @property {string} [scrollTarget]
  * @property {string} [show]
  * @property {string} [showTarget]
@@ -5159,7 +5283,8 @@ var htmx = (function() {
  * @property {'true'} [HX-History-Restore-Request]
  */
 
-/** @typedef HtmxAjaxHelperContext
+/**
+ * @typedef HtmxAjaxHelperContext
  * @property {Element|string} [source]
  * @property {Event} [event]
  * @property {HtmxAjaxHandler} [handler]
@@ -5168,6 +5293,9 @@ var htmx = (function() {
  * @property {Object|FormData} [values]
  * @property {Record<string,string>} [headers]
  * @property {string} [select]
+ * @property {string} [push]
+ * @property {string} [replace]
+ * @property {string} [selectOOB]
  */
 
 /**
@@ -5179,6 +5307,7 @@ var htmx = (function() {
  * @property {FormData} unfilteredFormData
  * @property {Object} unfilteredParameters unfilteredFormData proxy
  * @property {HtmxHeaderSpecification} headers
+ * @property {Element} elt
  * @property {Element} target
  * @property {HttpVerb} verb
  * @property {HtmxElementValidationError[]} errors
@@ -5213,6 +5342,9 @@ var htmx = (function() {
  * @property {Object|FormData} [values]
  * @property {boolean} [credentials]
  * @property {number} [timeout]
+ * @property {string} [push]
+ * @property {string} [replace]
+ * @property {string} [selectOOB]
  */
 
 /**
@@ -5252,7 +5384,7 @@ var htmx = (function() {
  * @see https://github.com/bigskysoftware/htmx-extensions/blob/main/README.md
  * @typedef {Object} HtmxExtension
  * @property {(api: any) => void} init
- * @property {(name: string, event: Event|CustomEvent) => boolean} onEvent
+ * @property {(name: string, event: CustomEvent) => boolean} onEvent
  * @property {(text: string, xhr: XMLHttpRequest, elt: Element) => string} transformResponse
  * @property {(swapStyle: HtmxSwapStyle) => boolean} isInlineSwap
  * @property {(swapStyle: HtmxSwapStyle, target: Node, fragment: Node, settleInfo: HtmxSettleInfo) => boolean|Node[]} handleSwap
