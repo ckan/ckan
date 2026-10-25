@@ -648,8 +648,6 @@ BEGIN
                 END,
                 'fields', to_jsonb(all_fields)
             );
-        ELSE
-            bulk_error := NULL;
         END IF;
         IF operation = 'insert' THEN
             RETURN jsonb_build_object(
@@ -664,7 +662,6 @@ BEGIN
         bulk_error := SQLERRM;
     END;
 
-    output_records := NULL;
     -- collect error(s) and row_number(s) to return to caller
     fallback_table := format(
         'load_records_%s_%s', pg_backend_pid(), txid_current()
@@ -709,28 +706,15 @@ BEGIN
             FROM pg_temp.%I',
             fallback_table
         ) INTO errors;
-        IF errors IS NULL AND operation = 'insert' THEN
+        IF errors IS NULL THEN
             errors := jsonb_build_array(jsonb_build_array(0, bulk_error));
         END IF;
-        IF errors IS NOT NULL THEN
-            RAISE SQLSTATE 'PZ001';
-        END IF;
+        -- raising rolls back any rows the fallback loop managed to load
+        RAISE SQLSTATE 'PZ001';
     EXCEPTION WHEN SQLSTATE 'PZ001' THEN
         EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
         RETURN errors;
-    WHEN OTHERS THEN
-        EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
-        RAISE;
     END;
-
-    EXECUTE format('DROP TABLE pg_temp.%I', fallback_table);
-    RETURN jsonb_build_object(
-        'records', CASE
-            WHEN return_records THEN coalesce(output_records, '[]'::jsonb)
-            ELSE 'null'::jsonb
-        END,
-        'fields', to_jsonb(all_fields)
-    );
 END;
 $body$ LANGUAGE plpgsql;
 ALTER FUNCTION load_records(

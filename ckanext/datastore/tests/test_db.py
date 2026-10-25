@@ -635,7 +635,7 @@ class TestLoadRecords(object):
         )).all() == [(1, 10)]
 
     @pytest.mark.parametrize("operation", ["update", "upsert"])
-    def test_repeated_keys_preserve_row_order(
+    def test_repeated_keys_return_bulk_error(
         self, load_records_table, operation
     ):
         session, table_name = load_records_table
@@ -657,10 +657,11 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name, "operation": operation}).scalar()
 
-        assert json.loads(result)["records"] == []
+        errors = json.loads(result)
+        assert [row_number for row_number, _ in errors] == [0]
         assert session.execute(sa.text(
             f"SELECT value FROM {table_name} WHERE _id = 1"
-        )).scalar() == 30
+        )).scalar() == 10
 
     def test_update_returns_error_for_unmatched_row(self, load_records_table):
         session, table_name = load_records_table
