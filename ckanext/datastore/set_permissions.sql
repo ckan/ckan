@@ -390,6 +390,170 @@ ALTER FUNCTION load_record_row(
     text, text[], text[], text, text[], text, text
 ) OWNER TO {writeuser};
 
+-- Build the bulk statement for load_records; input rows are passed as $1.
+CREATE OR REPLACE FUNCTION load_records_bulk_sql(
+    table_name text,
+    fields text[],
+    key_fields text[],
+    operation text,
+    return_records boolean,
+    column_list text,
+    select_values text,
+    output_record_values text
+) RETURNS text
+AS $body$
+DECLARE
+    update_assignments text := '';
+    match_clause text := '';
+    conflict_target text := '';
+    conflict_key_returning text := '';
+    conflict_key_join text := '';
+    source_column_list text;
+    field_name text;
+    key_index integer := 0;
+BEGIN
+    IF operation = 'insert' AND return_records THEN
+        RETURN format(
+            'WITH inserted AS (
+                INSERT INTO public.%I AS inserted (%s)
+                SELECT %s
+                FROM generate_subscripts($1, 1) AS __row_num
+                ORDER BY __row_num
+                RETURNING jsonb_build_array(%s) AS record
+            )
+            SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
+            table_name,
+            column_list,
+            select_values,
+            output_record_values
+        );
+    ELSIF operation = 'insert' THEN
+        RETURN format(
+            'INSERT INTO public.%I AS inserted (%s)
+            SELECT %s
+            FROM generate_subscripts($1, 1) AS __row_num
+            ORDER BY __row_num',
+            table_name,
+            column_list,
+            select_values
+        );
+    ELSIF operation = 'update' THEN
+        FOREACH field_name IN ARRAY fields LOOP
+            IF update_assignments <> '' THEN
+                update_assignments := update_assignments || ', ';
+            END IF;
+            update_assignments := update_assignments ||
+                format('%I = source.%I', field_name, field_name);
+        END LOOP;
+        FOREACH field_name IN ARRAY key_fields LOOP
+            IF match_clause <> '' THEN
+                match_clause := match_clause || ' AND ';
+            END IF;
+            match_clause := match_clause || format(
+                'target.%I = source.%I', field_name, field_name
+            );
+        END LOOP;
+        source_column_list := '__row_num, ' || column_list;
+        IF NOT return_records THEN
+            RETURN format(
+                'WITH source(%s) AS MATERIALIZED (
+                    SELECT __row_num, %s
+                    FROM generate_subscripts($1, 1) AS __row_num
+                )
+                UPDATE public.%I AS target
+                SET %s
+                FROM source
+                WHERE %s',
+                source_column_list, select_values, table_name,
+                update_assignments, match_clause
+            );
+        END IF;
+        RETURN format(
+            'WITH source(%s) AS MATERIALIZED (
+                SELECT __row_num, %s
+                FROM generate_subscripts($1, 1) AS __row_num
+            ),
+            updated AS (
+                UPDATE public.%I AS target
+                SET %s
+                FROM source
+                WHERE %s
+                RETURNING source.__row_num,
+                    jsonb_build_array(%s) AS record
+            )
+            SELECT coalesce(
+                jsonb_agg(record ORDER BY __row_num), ''[]''::jsonb
+            ), count(*) FROM updated',
+            source_column_list, select_values, table_name,
+            update_assignments, match_clause,
+            replace(output_record_values, 'inserted.', 'target.')
+        );
+    END IF;
+
+    FOREACH field_name IN ARRAY fields LOOP
+        IF update_assignments <> '' THEN
+            update_assignments := update_assignments || ', ';
+        END IF;
+        update_assignments := update_assignments || format(
+            '%I = EXCLUDED.%I', field_name, field_name
+        );
+    END LOOP;
+    FOREACH field_name IN ARRAY key_fields LOOP
+        IF conflict_target <> '' THEN
+            conflict_target := conflict_target || ', ';
+            conflict_key_returning := conflict_key_returning || ', ';
+            conflict_key_join := conflict_key_join || ' AND ';
+        END IF;
+        key_index := key_index + 1;
+        conflict_target := conflict_target || format('%I', field_name);
+        conflict_key_returning := conflict_key_returning || format(
+            'inserted.%I AS key_%s', field_name, key_index
+        );
+        conflict_key_join := conflict_key_join || format(
+            'upserted.key_%s IS NOT DISTINCT FROM source.%I',
+            key_index, field_name
+        );
+    END LOOP;
+    IF NOT return_records THEN
+        RETURN format(
+            'INSERT INTO public.%I AS inserted (%s)
+            SELECT %s
+            FROM generate_subscripts($1, 1) AS __row_num
+            ORDER BY __row_num
+            ON CONFLICT (%s) DO UPDATE SET %s',
+            table_name, column_list, select_values,
+            conflict_target, update_assignments
+        );
+    END IF;
+    RETURN format(
+        'WITH source(%s) AS MATERIALIZED (
+            SELECT __row_num, %s
+            FROM generate_subscripts($1, 1) AS __row_num
+        ),
+        upserted AS (
+            INSERT INTO public.%I AS inserted (%s)
+            SELECT %s FROM source ORDER BY source.__row_num
+            ON CONFLICT (%s) DO UPDATE SET %s
+            RETURNING %s,
+                jsonb_build_array(%s) AS record
+        )
+        SELECT coalesce(
+            jsonb_agg(upserted.record ORDER BY source.__row_num),
+            ''[]''::jsonb
+        )
+        FROM upserted
+        JOIN source ON %s',
+        '__row_num, ' || column_list, select_values, table_name,
+        column_list, column_list, conflict_target,
+        update_assignments, conflict_key_returning,
+        output_record_values, conflict_key_join
+    );
+END;
+$body$ LANGUAGE plpgsql IMMUTABLE;
+ALTER FUNCTION load_records_bulk_sql(
+    text, text[], text[], text, boolean, text, text, text
+) OWNER TO {writeuser};
+
 -- Load input rows and return inserted/updated records or row errors.
 CREATE OR REPLACE FUNCTION load_records(
     table_name text,
@@ -408,18 +572,9 @@ DECLARE
     column_list text;
     select_values text;
     fallback_values text;
-    insert_sql text;
-    update_sql text;
-    update_assignments text := '';
-    match_clause text := '';
-    conflict_target text := '';
-    conflict_key_returning text := '';
-    conflict_key_join text := '';
-    null_key_clause text := '';
-    source_column_list text;
-    field_name text;
+    bulk_sql text;
+    null_key_clause text;
     key_fields text[];
-    key_index integer := 0;
     has_null_key boolean;
     affected_rows integer;
     output_records jsonb := '[]'::jsonb;
@@ -452,160 +607,22 @@ BEGIN
         END IF;
     END IF;
 
-    IF operation = 'insert' AND return_records THEN
-        insert_sql := format(
-            'WITH inserted AS (
-                INSERT INTO public.%I AS inserted (%s)
-                SELECT %s
-                FROM generate_subscripts($1, 1) AS __row_num
-                ORDER BY __row_num
-                RETURNING jsonb_build_array(%s) AS record
-            )
-            SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
-            table_name,
-            column_list,
-            select_values,
-            output_record_values
-        );
-    ELSIF operation = 'insert' THEN
-        insert_sql := format(
-            'INSERT INTO public.%I AS inserted (%s)
-            SELECT %s
-            FROM generate_subscripts($1, 1) AS __row_num
-            ORDER BY __row_num',
-            table_name,
-            column_list,
-            select_values
-        );
-    ELSIF operation = 'update' THEN
-        FOREACH field_name IN ARRAY fields LOOP
-            IF update_assignments <> '' THEN
-                update_assignments := update_assignments || ', ';
-            END IF;
-            update_assignments := update_assignments ||
-                format('%I = source.%I', field_name, field_name);
-        END LOOP;
-        FOREACH field_name IN ARRAY key_fields LOOP
-            IF match_clause <> '' THEN
-                match_clause := match_clause || ' AND ';
-            END IF;
-            match_clause := match_clause || format(
-                'target.%I = source.%I', field_name, field_name
-            );
-        END LOOP;
-        source_column_list := '__row_num, ' || column_list;
-        update_sql := format(
-            'WITH source(%s) AS MATERIALIZED (
-                SELECT __row_num, %s
-                FROM generate_subscripts($1, 1) AS __row_num
-            ),
-            updated AS (
-                UPDATE public.%I AS target
-                SET %s
-                FROM source
-                WHERE %s
-                RETURNING source.__row_num,
-                    jsonb_build_array(%s) AS record
-            )
-            SELECT coalesce(
-                jsonb_agg(record ORDER BY __row_num), ''[]''::jsonb
-            ), count(*) FROM updated',
-            source_column_list, select_values, table_name,
-            update_assignments, match_clause,
-            replace(output_record_values, 'inserted.', 'target.')
-        );
-        IF NOT return_records THEN
-            update_sql := format(
-                'WITH source(%s) AS MATERIALIZED (
-                    SELECT __row_num, %s
-                    FROM generate_subscripts($1, 1) AS __row_num
-                )
-                UPDATE public.%I AS target
-                SET %s
-                FROM source
-                WHERE %s',
-                source_column_list, select_values, table_name,
-                update_assignments, match_clause
-            );
-        END IF;
-    ELSIF operation = 'upsert' THEN
-        FOREACH field_name IN ARRAY fields LOOP
-            IF update_assignments <> '' THEN
-                update_assignments := update_assignments || ', ';
-            END IF;
-            update_assignments := update_assignments || format(
-                '%I = EXCLUDED.%I', field_name, field_name
-            );
-        END LOOP;
-        FOREACH field_name IN ARRAY key_fields LOOP
-            IF conflict_target <> '' THEN
-                conflict_target := conflict_target || ', ';
-                conflict_key_returning := conflict_key_returning || ', ';
-                conflict_key_join := conflict_key_join || ' AND ';
-                null_key_clause := null_key_clause || ' OR ';
-            END IF;
-            key_index := key_index + 1;
-            conflict_target := conflict_target || format('%I', field_name);
-            conflict_key_returning := conflict_key_returning || format(
-                'inserted.%I AS key_%s', field_name, key_index
-            );
-            conflict_key_join := conflict_key_join || format(
-                'upserted.key_%s IS NOT DISTINCT FROM source.%I',
-                key_index, field_name
-            );
-            null_key_clause := null_key_clause || format(
-                'source.%I IS NULL', field_name
-            );
-        END LOOP;
-        IF return_records THEN
-            source_column_list := '__row_num, ' || column_list;
-            insert_sql := format(
-                'WITH source(%s) AS MATERIALIZED (
-                    SELECT __row_num, %s
-                    FROM generate_subscripts($1, 1) AS __row_num
-                ),
-                upserted AS (
-                    INSERT INTO public.%I AS inserted (%s)
-                    SELECT %s FROM source ORDER BY source.__row_num
-                    ON CONFLICT (%s) DO UPDATE SET %s
-                    RETURNING %s,
-                        jsonb_build_array(%s) AS record
-                )
-                SELECT coalesce(
-                    jsonb_agg(upserted.record ORDER BY source.__row_num),
-                    ''[]''::jsonb
-                )
-                FROM upserted
-                JOIN source ON %s',
-                source_column_list, select_values, table_name,
-                column_list, column_list, conflict_target,
-                update_assignments, conflict_key_returning,
-                output_record_values, conflict_key_join
-            );
-        ELSE
-            insert_sql := format(
-                'INSERT INTO public.%I AS inserted (%s)
-                SELECT %s
-                FROM generate_subscripts($1, 1) AS __row_num
-                ORDER BY __row_num
-                ON CONFLICT (%s) DO UPDATE SET %s',
-                table_name, column_list, select_values,
-                conflict_target, update_assignments
-            );
-        END IF;
-    END IF;
+    bulk_sql := load_records_bulk_sql(
+        table_name, fields, key_fields, operation, return_records,
+        column_list, select_values, output_record_values
+    );
 
     BEGIN
         IF operation = 'insert' AND return_records THEN
-            EXECUTE insert_sql INTO output_records USING rows;
+            EXECUTE bulk_sql INTO output_records USING rows;
         ELSIF operation = 'insert' THEN
-            EXECUTE insert_sql USING rows;
+            EXECUTE bulk_sql USING rows;
         ELSIF operation = 'update' THEN
             IF return_records THEN
-                EXECUTE update_sql INTO output_records, affected_rows
+                EXECUTE bulk_sql INTO output_records, affected_rows
                     USING rows;
             ELSE
-                EXECUTE update_sql USING rows;
+                EXECUTE bulk_sql USING rows;
                 GET DIAGNOSTICS affected_rows = ROW_COUNT;
             END IF;
             IF affected_rows <> coalesce(array_length(rows, 1), 0) THEN
@@ -620,6 +637,9 @@ BEGIN
             );
         ELSIF operation = 'upsert' THEN
             IF return_records THEN
+                SELECT string_agg(format('source.%I IS NULL', key_field), ' OR ')
+                INTO null_key_clause
+                FROM unnest(key_fields) AS key_field;
                 EXECUTE format(
                     'SELECT EXISTS (
                         SELECT 1 FROM (
@@ -633,9 +653,9 @@ BEGIN
                     RAISE EXCEPTION
                         'Cannot batch upsert rows with NULL conflict keys';
                 END IF;
-                EXECUTE insert_sql INTO output_records USING rows;
+                EXECUTE bulk_sql INTO output_records USING rows;
             ELSE
-                EXECUTE insert_sql USING rows;
+                EXECUTE bulk_sql USING rows;
             END IF;
             RETURN jsonb_build_object(
                 'records', CASE
