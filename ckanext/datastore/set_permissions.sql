@@ -166,7 +166,6 @@ CREATE OR REPLACE FUNCTION load_record_columns(
 ) RETURNS TABLE (
     column_list text,
     select_values text,
-    fallback_values text,
     table_fields text[],
     return_record_values text
 )
@@ -180,13 +179,11 @@ DECLARE
 BEGIN
     column_list := '';
     select_values := '';
-    fallback_values := '';
     FOREACH field_name IN ARRAY fields LOOP
         field_index := field_index + 1;
         IF field_index > 1 THEN
             column_list := column_list || ', ';
             select_values := select_values || ', ';
-            fallback_values := fallback_values || ', ';
         END IF;
         column_list := column_list || format('%I', field_name);
 
@@ -207,15 +204,9 @@ BEGIN
             select_values := select_values || format(
                 '($1)[__row_num][%s]::%s', field_index, field_type
             );
-            fallback_values := fallback_values || format(
-                '($1)[%s]::%s', field_index, field_type
-            );
         ELSE
             select_values := select_values || format(
                 'NULLIF(($1)[__row_num][%s], '''')::%s', field_index, field_type
-            );
-            fallback_values := fallback_values || format(
-                'NULLIF(($1)[%s], '''')::%s', field_index, field_type
             );
         END IF;
     END LOOP;
@@ -266,122 +257,6 @@ AS $body$
         AND attribute.attnum = key_column.attnum;
 $body$ LANGUAGE sql STABLE;
 ALTER FUNCTION first_unique_constraint_columns(text) OWNER TO {writeuser};
-
--- Fallback path for handling individual row insert/update/upsert
-CREATE OR REPLACE FUNCTION load_record_row(
-    table_name text,
-    fields text[],
-    current_fields text[],
-    operation text,
-    unique_fields text[],
-    column_list text,
-    fallback_values text
-) RETURNS void
-AS $body$
-DECLARE
-    key_fields text[];
-    field_name text;
-    match_clause text;
-    conflict_target text := '';
-    update_assignments text := '';
-    update_sql text;
-    insert_sql text;
-    affected_rows integer := 0;
-BEGIN
-    IF operation = 'upsert' THEN
-        IF array_position(fields, '_id') IS NOT NULL THEN
-            key_fields := ARRAY['_id'];
-        ELSIF unique_fields IS NOT NULL
-            AND fields @> unique_fields THEN
-            key_fields := unique_fields;
-        END IF;
-
-        FOREACH field_name IN ARRAY fields LOOP
-            IF update_assignments <> '' THEN
-                update_assignments := update_assignments || ', ';
-            END IF;
-            update_assignments := update_assignments || format(
-                '%I = EXCLUDED.%I', field_name, field_name
-            );
-        END LOOP;
-
-        FOREACH field_name IN ARRAY key_fields LOOP
-            IF conflict_target <> '' THEN
-                conflict_target := conflict_target || ', ';
-            END IF;
-            conflict_target := conflict_target || format('%I', field_name);
-        END LOOP;
-        insert_sql := format(
-            'INSERT INTO public.%I AS inserted (%s)
-            SELECT %s
-            ON CONFLICT (%s) DO UPDATE SET %s',
-            table_name, column_list, fallback_values,
-            conflict_target, update_assignments
-        );
-        EXECUTE insert_sql USING current_fields;
-        RETURN;
-    END IF;
-
-    IF operation = 'update' THEN
-        IF array_position(fields, '_id') IS NOT NULL THEN
-            key_fields := ARRAY['_id'];
-        ELSIF unique_fields IS NOT NULL
-            AND fields @> unique_fields THEN
-            key_fields := unique_fields;
-        END IF;
-        FOREACH field_name IN ARRAY fields LOOP
-            IF update_assignments <> '' THEN
-                update_assignments := update_assignments || ', ';
-            END IF;
-            update_assignments := update_assignments ||
-                format('%I = source.%I', field_name, field_name);
-        END LOOP;
-
-        IF key_fields IS NOT NULL THEN
-            match_clause := '';
-            FOREACH field_name IN ARRAY key_fields LOOP
-                IF match_clause <> '' THEN
-                    match_clause := match_clause || ' AND ';
-                END IF;
-                match_clause := match_clause || format(
-                    'target.%I = source.%I',
-                    field_name, field_name
-                );
-            END LOOP;
-
-            update_sql := format(
-                'UPDATE public.%I AS target
-                    SET %s
-                    FROM (SELECT %s) AS source(%s)
-                    WHERE %s',
-                table_name,
-                update_assignments,
-                fallback_values,
-                column_list,
-                match_clause
-            );
-            EXECUTE update_sql USING current_fields;
-            GET DIAGNOSTICS affected_rows = ROW_COUNT;
-            IF affected_rows > 0 THEN
-                RETURN;
-            END IF;
-        END IF;
-
-        RAISE EXCEPTION 'No matching record found for update';
-    END IF;
-
-    IF operation = 'insert' THEN
-        insert_sql := format(
-            'INSERT INTO public.%I AS inserted (%s) SELECT %s',
-            table_name, column_list, fallback_values
-        );
-        EXECUTE insert_sql USING current_fields;
-    END IF;
-END;
-$body$ LANGUAGE plpgsql;
-ALTER FUNCTION load_record_row(
-    text, text[], text[], text, text[], text, text
-) OWNER TO {writeuser};
 
 -- Build the bulk statement for load_records; input rows are passed as $1.
 CREATE OR REPLACE FUNCTION load_records_bulk_sql(
@@ -560,12 +435,10 @@ AS $body$
 DECLARE
     all_fields text[];
     output_record_values text;
-    current_fields text[];
-    row_idx integer := 0;
     column_list text;
     select_values text;
-    fallback_values text;
     bulk_sql text;
+    row_sql text;
     null_key_clause text;
     key_fields text[];
     has_null_key boolean;
@@ -583,10 +456,8 @@ BEGIN
     END IF;
 
     SELECT columns.column_list, columns.select_values,
-        columns.fallback_values, columns.table_fields,
-        columns.return_record_values
-    INTO column_list, select_values, fallback_values, all_fields,
-        output_record_values
+        columns.table_fields, columns.return_record_values
+    INTO column_list, select_values, all_fields, output_record_values
     FROM load_record_columns(table_name, fields) AS columns;
 
     IF operation IN ('update', 'upsert') THEN
@@ -684,18 +555,21 @@ BEGIN
         fallback_table
     );
 
+    row_sql := load_records_bulk_sql(
+        table_name, fields, key_fields, operation, false,
+        column_list, select_values, output_record_values
+    );
+
     BEGIN
-        FOREACH current_fields SLICE 1 IN ARRAY rows LOOP
+        FOR row_idx IN 0..coalesce(array_length(rows, 1), 0) - 1 LOOP
             BEGIN
-                PERFORM load_record_row(
-                    table_name,
-                    fields,
-                    current_fields,
-                    operation,
-                    unique_fields,
-                    column_list,
-                    fallback_values
-                );
+                EXECUTE row_sql USING rows[row_idx + 1:row_idx + 1];
+                IF operation = 'update' THEN
+                    GET DIAGNOSTICS affected_rows = ROW_COUNT;
+                    IF affected_rows = 0 THEN
+                        RAISE EXCEPTION 'No matching record found for update';
+                    END IF;
+                END IF;
             EXCEPTION WHEN OTHERS THEN
                 EXECUTE format(
                     'INSERT INTO pg_temp.%I (row_idx, error_message) VALUES ($1, $2)',
@@ -705,7 +579,6 @@ BEGIN
                     EXIT;
                 END IF;
             END;
-            row_idx := row_idx + 1;
         END LOOP;
 
         EXECUTE format(
