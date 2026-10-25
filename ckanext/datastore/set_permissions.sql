@@ -204,14 +204,14 @@ BEGIN
 
         IF field_category = 'S' THEN
             select_values := select_values || format(
-                '($1)[row_idx][%s]::%s', field_index, field_type
+                '($1)[__row_num][%s]::%s', field_index, field_type
             );
             fallback_values := fallback_values || format(
                 '($1)[%s]::%s', field_index, field_type
             );
         ELSIF field_type_name IN ('json', 'jsonb') THEN
             select_values := select_values || format(
-                '(CASE WHEN ($1)[row_idx][%s] = '''' THEN to_json(($1)[row_idx][%s]) ELSE ($1)[row_idx][%s]::json END)::%s',
+                '(CASE WHEN ($1)[__row_num][%s] = '''' THEN to_json(($1)[__row_num][%s]) ELSE ($1)[__row_num][%s]::json END)::%s',
                 field_index, field_index, field_index, field_type
             );
             fallback_values := fallback_values || format(
@@ -220,7 +220,7 @@ BEGIN
             );
         ELSE
             select_values := select_values || format(
-                'NULLIF(($1)[row_idx][%s], '''')::%s', field_index, field_type
+                'NULLIF(($1)[__row_num][%s], '''')::%s', field_index, field_type
             );
             fallback_values := fallback_values || format(
                 'NULLIF(($1)[%s], '''')::%s', field_index, field_type
@@ -275,10 +275,6 @@ AS $body$
 $body$ LANGUAGE sql STABLE;
 ALTER FUNCTION first_unique_constraint_columns(text) OWNER TO {writeuser};
 
--- Apply one input row using insert, update, or upsert semantics.
-DROP FUNCTION IF EXISTS load_record_row(
-    text, text[], text[], text, text[], text, text, text, boolean
-);
 CREATE OR REPLACE FUNCTION load_record_row(
     table_name text,
     fields text[],
@@ -408,7 +404,7 @@ DECLARE
     all_fields text[];
     output_record_values text;
     current_fields text[];
-    row_number integer := 0;
+    row_idx integer := 0;
     column_list text;
     select_values text;
     fallback_values text;
@@ -461,8 +457,8 @@ BEGIN
             'WITH inserted AS (
                 INSERT INTO public.%I AS inserted (%s)
                 SELECT %s
-                FROM generate_subscripts($1, 1) AS row_idx
-                ORDER BY row_idx
+                FROM generate_subscripts($1, 1) AS __row_num
+                ORDER BY __row_num
                 RETURNING jsonb_build_array(%s) AS record
             )
             SELECT coalesce(jsonb_agg(record), ''[]''::jsonb) FROM inserted',
@@ -475,8 +471,8 @@ BEGIN
         insert_sql := format(
             'INSERT INTO public.%I AS inserted (%s)
             SELECT %s
-            FROM generate_subscripts($1, 1) AS row_idx
-            ORDER BY row_idx',
+            FROM generate_subscripts($1, 1) AS __row_num
+            ORDER BY __row_num',
             table_name,
             column_list,
             select_values
@@ -497,22 +493,22 @@ BEGIN
                 'target.%I = source.%I', field_name, field_name
             );
         END LOOP;
-        source_column_list := 'row_num, ' || column_list;
+        source_column_list := '__row_num, ' || column_list;
         update_sql := format(
             'WITH source(%s) AS MATERIALIZED (
-                SELECT row_idx, %s
-                FROM generate_subscripts($1, 1) AS row_idx
+                SELECT __row_num, %s
+                FROM generate_subscripts($1, 1) AS __row_num
             ),
             updated AS (
                 UPDATE public.%I AS target
                 SET %s
                 FROM source
                 WHERE %s
-                RETURNING source.row_num,
+                RETURNING source.__row_num,
                     jsonb_build_array(%s) AS record
             )
             SELECT coalesce(
-                jsonb_agg(record ORDER BY row_num), ''[]''::jsonb
+                jsonb_agg(record ORDER BY __row_num), ''[]''::jsonb
             ), count(*) FROM updated',
             source_column_list, select_values, table_name,
             update_assignments, match_clause,
@@ -521,8 +517,8 @@ BEGIN
         IF NOT return_records THEN
             update_sql := format(
                 'WITH source(%s) AS MATERIALIZED (
-                    SELECT row_idx, %s
-                    FROM generate_subscripts($1, 1) AS row_idx
+                    SELECT __row_num, %s
+                    FROM generate_subscripts($1, 1) AS __row_num
                 )
                 UPDATE public.%I AS target
                 SET %s
@@ -562,21 +558,21 @@ BEGIN
             );
         END LOOP;
         IF return_records THEN
-            source_column_list := 'row_num, ' || column_list;
+            source_column_list := '__row_num, ' || column_list;
             insert_sql := format(
                 'WITH source(%s) AS MATERIALIZED (
-                    SELECT row_idx, %s
-                    FROM generate_subscripts($1, 1) AS row_idx
+                    SELECT __row_num, %s
+                    FROM generate_subscripts($1, 1) AS __row_num
                 ),
                 upserted AS (
                     INSERT INTO public.%I AS inserted (%s)
-                    SELECT %s FROM source ORDER BY source.row_num
+                    SELECT %s FROM source ORDER BY source.__row_num
                     ON CONFLICT (%s) DO UPDATE SET %s
                     RETURNING %s,
                         jsonb_build_array(%s) AS record
                 )
                 SELECT coalesce(
-                    jsonb_agg(upserted.record ORDER BY source.row_num),
+                    jsonb_agg(upserted.record ORDER BY source.__row_num),
                     ''[]''::jsonb
                 )
                 FROM upserted
@@ -590,8 +586,8 @@ BEGIN
             insert_sql := format(
                 'INSERT INTO public.%I AS inserted (%s)
                 SELECT %s
-                FROM generate_subscripts($1, 1) AS row_idx
-                ORDER BY row_idx
+                FROM generate_subscripts($1, 1) AS __row_num
+                ORDER BY __row_num
                 ON CONFLICT (%s) DO UPDATE SET %s',
                 table_name, column_list, select_values,
                 conflict_target, update_assignments
@@ -627,7 +623,7 @@ BEGIN
                 EXECUTE format(
                     'SELECT EXISTS (
                         SELECT 1 FROM (
-                            SELECT %s FROM generate_subscripts($1, 1) AS row_idx
+                            SELECT %s FROM generate_subscripts($1, 1) AS __row_num
                         ) AS source(%s)
                         WHERE %s
                     )',
@@ -662,13 +658,13 @@ BEGIN
         bulk_error := SQLERRM;
     END;
 
-    -- collect error(s) and row_number(s) to return to caller
+    -- collect error(s) and row index(es) to return to caller
     fallback_table := format(
         'load_records_%s_%s', pg_backend_pid(), txid_current()
     );
     EXECUTE format(
         'CREATE TEMP TABLE %I (
-            row_num integer,
+            row_idx integer,
             error_message text
         ) ON COMMIT DROP',
         fallback_table
@@ -688,20 +684,20 @@ BEGIN
                 );
             EXCEPTION WHEN OTHERS THEN
                 EXECUTE format(
-                    'INSERT INTO pg_temp.%I (row_num, error_message) VALUES ($1, $2)',
+                    'INSERT INTO pg_temp.%I (row_idx, error_message) VALUES ($1, $2)',
                     fallback_table
-                ) USING row_number, SQLERRM;
+                ) USING row_idx, SQLERRM;
                 IF stop_on_error THEN
                     EXIT;
                 END IF;
             END;
-            row_number := row_number + 1;
+            row_idx := row_idx + 1;
         END LOOP;
 
         EXECUTE format(
             'SELECT
-                jsonb_agg(jsonb_build_array(row_num, error_message)
-                    ORDER BY row_num)
+                jsonb_agg(jsonb_build_array(row_idx, error_message)
+                    ORDER BY row_idx)
                     FILTER (WHERE error_message IS NOT NULL)
             FROM pg_temp.%I',
             fallback_table
