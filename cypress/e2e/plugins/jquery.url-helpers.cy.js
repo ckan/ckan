@@ -61,6 +61,18 @@ describe('jQuery.url', {testIsolation: false}, function () {
       })
     });
 
+    it('should produce the same slug for precomposed and decomposed Nordic characters', function () {
+      cy.window().then(win => {
+        // Precomposed å (U+00E5) vs "a" + combining ring (U+030A), as in some pasted text.
+        let precomposed = win.jQuery.url.slugify('\u00E5sele');
+        let decomposed = win.jQuery.url.slugify('\u0061\u030Asele');
+
+        assert.equal(precomposed, 'asele');
+        assert.equal(decomposed, 'asele');
+        assert.equal(precomposed, decomposed);
+      })
+    });
+
     it('should allow underscore characters', function() {
       cy.window().then(win => {
         let target = win.jQuery.url.slugify('apples_pears');

@@ -36,6 +36,8 @@
      * Returns the new slug.
      */
     slugify: function (string, trim) {
+      // The map below has only precomposed letters, e.g. a pasted "å" may be "a" + U+030A.
+      string = (string || '').normalize('NFC');
       var str = '';
       var index = 0;
       var length = string.length;
