@@ -241,7 +241,7 @@ END;
 $body$ LANGUAGE plpgsql STABLE;
 ALTER FUNCTION load_record_columns(text, text[]) OWNER TO {writeuser};
 
--- Return the first unique constraint's columns in constraint key order.
+-- Return the first unique constraint's columns ("primary_key" in datastore API)
 CREATE OR REPLACE FUNCTION first_unique_constraint_columns(table_name text)
 RETURNS text[]
 AS $body$
@@ -267,6 +267,7 @@ AS $body$
 $body$ LANGUAGE sql STABLE;
 ALTER FUNCTION first_unique_constraint_columns(text) OWNER TO {writeuser};
 
+-- Fallback path for handling individual row insert/update/upsert
 CREATE OR REPLACE FUNCTION load_record_row(
     table_name text,
     fields text[],
