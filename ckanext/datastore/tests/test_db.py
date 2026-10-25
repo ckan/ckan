@@ -697,3 +697,67 @@ class TestLoadRecords(object):
                     false, true, :operation
                 )"""
             ), {"table_name": table_name, "operation": operation})
+
+    def test_unknown_operation_returns_error(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(f"CREATE TABLE {table_name} (value text)"))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['value'],
+                ARRAY[['x']]::text[][],
+                false, true, 'delete'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        assert json.loads(errors) == [[0, "Unknown operation: delete"]]
+
+    def test_update_reports_only_unmatched_rows_and_rolls_back(
+        self, load_records_table
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"CREATE TABLE {table_name} (_id integer PRIMARY KEY, value integer)"
+        ))
+        session.execute(sa.text(f"INSERT INTO {table_name} VALUES (1, 10)"))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'value'],
+                ARRAY[['1', '20'], ['99', '30']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        assert json.loads(errors) == [
+            [1, "No matching record found for update"]
+        ]
+        assert session.execute(sa.text(
+            f"SELECT value FROM {table_name} WHERE _id = 1"
+        )).scalar() == 10
+
+    def test_upsert_with_null_conflict_key_returns_error(
+        self, load_records_table
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                code integer UNIQUE,
+                value text
+            )"""
+        ))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'value'],
+                ARRAY[['', 'x']]::text[][],
+                false, true, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        assert json.loads(errors) == [
+            [0, "Cannot batch upsert rows with NULL conflict keys"]
+        ]
+        assert session.execute(sa.text(
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 0
