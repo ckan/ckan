@@ -312,7 +312,7 @@ BEGIN
     SELECT
         array_agg(a.attname::text ORDER BY a.attnum),
         string_agg(
-            format('inserted.%I::text', a.attname),
+            format('to_jsonb(inserted.%I)', a.attname),
             ', ' ORDER BY a.attnum
         )
     INTO table_fields, return_record_values
@@ -330,28 +330,29 @@ END;
 $body$ LANGUAGE plpgsql STABLE;
 ALTER FUNCTION load_record_columns(text, text[]) OWNER TO {writeuser};
 
--- Return the first unique constraint's columns ("primary_key" in datastore API)
+-- Return the first unique index's columns ("primary_key" in datastore API)
 CREATE OR REPLACE FUNCTION first_unique_constraint_columns(table_name text)
 RETURNS text[]
 AS $body$
     SELECT array_agg(attribute.attname::text ORDER BY key_column.ordinality)
     FROM (
-        SELECT constraint_row.conrelid, constraint_row.conkey
-        FROM pg_constraint AS constraint_row
+        SELECT index_row.indrelid, index_row.indkey::int2[] AS indkey
+        FROM pg_index AS index_row
         JOIN pg_class AS relation
-            ON relation.oid = constraint_row.conrelid
+            ON relation.oid = index_row.indrelid
         JOIN pg_namespace AS relation_namespace
             ON relation_namespace.oid = relation.relnamespace
         WHERE relation_namespace.nspname = 'public'
             AND relation.relname = table_name
-            AND constraint_row.contype = 'u'
-        ORDER BY constraint_row.oid
+            AND index_row.indisunique
+            AND NOT index_row.indisprimary
+        ORDER BY index_row.indexrelid
         LIMIT 1
-    ) AS unique_constraint
-    CROSS JOIN LATERAL unnest(unique_constraint.conkey)
+    ) AS unique_index
+    CROSS JOIN LATERAL unnest(unique_index.indkey)
         WITH ORDINALITY AS key_column(attnum, ordinality)
     JOIN pg_attribute AS attribute
-        ON attribute.attrelid = unique_constraint.conrelid
+        ON attribute.attrelid = unique_index.indrelid
         AND attribute.attnum = key_column.attnum;
 $body$ LANGUAGE sql STABLE;
 ALTER FUNCTION first_unique_constraint_columns(text) OWNER TO {writeuser};
@@ -377,7 +378,21 @@ DECLARE
     source_column_list text;
     field_name text;
     key_index integer := 0;
+    full_text_reset text := '';
 BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM pg_attribute AS a
+        JOIN pg_class AS c ON c.oid = a.attrelid
+        JOIN pg_namespace AS n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public'
+            AND c.relname = table_name
+            AND a.attname = '_full_text'
+            AND NOT a.attisdropped
+    ) THEN
+        full_text_reset := ', _full_text = NULL';
+    END IF;
+
     IF operation = 'insert' AND return_records THEN
         RETURN format(
             'WITH inserted AS (
@@ -411,6 +426,7 @@ BEGIN
             update_assignments := update_assignments ||
                 format('%I = source.%I', field_name, field_name);
         END LOOP;
+        update_assignments := update_assignments || full_text_reset;
         FOREACH field_name IN ARRAY key_fields LOOP
             IF match_clause <> '' THEN
                 match_clause := match_clause || ' AND ';
@@ -464,6 +480,7 @@ BEGIN
             '%I = EXCLUDED.%I', field_name, field_name
         );
     END LOOP;
+    update_assignments := update_assignments || full_text_reset;
     FOREACH field_name IN ARRAY key_fields LOOP
         IF conflict_target <> '' THEN
             conflict_target := conflict_target || ', ';
@@ -515,7 +532,7 @@ BEGIN
         output_record_values, conflict_key_join
     );
 END;
-$body$ LANGUAGE plpgsql IMMUTABLE;
+$body$ LANGUAGE plpgsql STABLE;
 ALTER FUNCTION load_records_bulk_sql(
     text, text[], text[], text, boolean, text, text, text
 ) OWNER TO {writeuser};

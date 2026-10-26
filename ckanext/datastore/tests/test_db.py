@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import json
 import uuid
 import unittest.mock as mock
 import pytest
@@ -390,10 +389,10 @@ class TestLoadRecords(object):
             {"table_name": table_name},
         ).scalar()
 
-        assert json.loads(result) == {
+        assert result == {
             "records": [
-                ["1", "Ada, Lovelace", "42", "{}", None],
-                ["2", "Bob", "42", "{}", None],
+                [1, "Ada, Lovelace", 42, {}, None],
+                [2, "Bob", 42, {}, None],
             ],
             "fields": ["id", "name", "amount", "details", "note"],
         }
@@ -418,7 +417,7 @@ class TestLoadRecords(object):
             {"table_name": table_name},
         ).scalar()
 
-        errors = json.loads(errors)
+        errors = errors
         assert errors == [
             [1, 'duplicate key value violates unique constraint '
                 '"datastore_insert_test_pkey"'],
@@ -449,7 +448,7 @@ class TestLoadRecords(object):
             {"table_name": table_name},
         ).scalar()
 
-        assert json.loads(result)["records"] == [
+        assert result["records"] == [
             [None, None, ""],
         ]
 
@@ -472,7 +471,7 @@ class TestLoadRecords(object):
             {"table_name": table_name},
         ).scalar()
 
-        errors = json.loads(errors)
+        errors = errors
         assert [row_number for row_number, _ in errors] == [1]
         assert session.execute(sa.text(
             f"SELECT count(*) FROM {table_name}"
@@ -495,7 +494,7 @@ class TestLoadRecords(object):
             {"table_name": table_name},
         ).scalar()
 
-        result = json.loads(result)
+        result = result
         assert result == {"records": None, "fields": ["name"]}
         assert session.execute(sa.text(
             f"SELECT count(*) FROM {table_name}"
@@ -529,7 +528,7 @@ class TestLoadRecords(object):
                 false, true, 'update'
             )"""
         ), {"table_name": table_name}).scalar()
-        assert json.loads(unmatched_update) == [
+        assert unmatched_update == [
             [0, "No matching record found for update"]
         ]
 
@@ -540,8 +539,8 @@ class TestLoadRecords(object):
                 false, true, 'update'
             )"""
         ), {"table_name": table_name}).scalar()
-        assert json.loads(update_result)["records"] == [
-            ["1", "alpha", "north", "20"]
+        assert update_result["records"] == [
+            [1, "alpha", "north", 20]
         ]
 
         upsert_result = session.execute(sa.text(
@@ -551,9 +550,9 @@ class TestLoadRecords(object):
                 false, true, 'upsert'
             )"""
         ), {"table_name": table_name}).scalar()
-        assert json.loads(upsert_result)["records"] == [
-            ["1", "alpha", "north", "30"],
-            ["3", "beta", "south", "40"],
+        assert upsert_result["records"] == [
+            [1, "alpha", "north", 30],
+            [3, "beta", "south", 40],
         ]
 
         no_records_result = session.execute(sa.text(
@@ -563,7 +562,7 @@ class TestLoadRecords(object):
                 false, false, 'upsert'
             )"""
         ), {"table_name": table_name}).scalar()
-        assert json.loads(no_records_result) == {
+        assert no_records_result == {
             "records": None,
             "fields": ["_id", "code", "region", "amount"],
         }
@@ -581,9 +580,9 @@ class TestLoadRecords(object):
                 false, true, 'update'
             )"""
         ), {"table_name": table_name}).scalar()
-        assert json.loads(update_result)["records"] == [
-            ["1", "alpha", "north", "60"],
-            ["3", "beta", "south", "70"],
+        assert update_result["records"] == [
+            [1, "alpha", "north", 60],
+            [3, "beta", "south", 70],
         ]
 
         no_records_update = session.execute(sa.text(
@@ -593,7 +592,7 @@ class TestLoadRecords(object):
                 false, false, 'update'
             )"""
         ), {"table_name": table_name}).scalar()
-        assert json.loads(no_records_update) == {
+        assert no_records_update == {
             "records": None,
             "fields": ["_id", "code", "region", "amount"],
         }
@@ -624,7 +623,7 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name}).scalar()
 
-        errors = json.loads(errors)
+        errors = errors
         assert errors[0][0] == 0
         assert errors[0][1].startswith(
             "duplicate key value violates unique constraint"
@@ -656,7 +655,7 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name, "operation": operation}).scalar()
 
-        errors = json.loads(result)
+        errors = result
         assert [row_number for row_number, _ in errors] == [0]
         assert session.execute(sa.text(
             f"SELECT value FROM {table_name} WHERE _id = 1"
@@ -678,7 +677,7 @@ class TestLoadRecords(object):
                 false, true, 'update'
             )"""
         ), {"table_name": table_name}).scalar()
-        assert json.loads(errors) == [[0, "No matching record found for update"]]
+        assert errors == [[0, "No matching record found for update"]]
 
     @pytest.mark.parametrize("operation", ["update", "upsert"])
     def test_update_and_upsert_require_key_fields(
@@ -710,7 +709,7 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name}).scalar()
 
-        assert json.loads(errors) == [[0, "Unknown operation: delete"]]
+        assert errors == [[0, "Unknown operation: delete"]]
 
     def test_update_reports_only_unmatched_rows_and_rolls_back(
         self, load_records_table
@@ -729,7 +728,7 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name}).scalar()
 
-        assert json.loads(errors) == [
+        assert errors == [
             [1, "No matching record found for update"]
         ]
         assert session.execute(sa.text(
@@ -755,7 +754,7 @@ class TestLoadRecords(object):
             )"""
         ), {"table_name": table_name}).scalar()
 
-        assert json.loads(errors) == [
+        assert errors == [
             [0, "Cannot batch upsert rows with NULL conflict keys"]
         ]
         assert session.execute(sa.text(
