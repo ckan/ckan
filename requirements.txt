@@ -18,7 +18,7 @@ blinker==1.9.0
     #   flask
 cachelib==0.14.0
     # via flask-session
-certifi==2026.6.17
+certifi==2026.10.23
     # via
     #   -r requirements.in
     #   requests
@@ -157,6 +157,7 @@ werkzeug[watchdog]==3.1.9
     #   -r requirements.in
     #   flask
     #   flask-login
+    #   werkzeug
 wtforms==3.2.2
     # via flask-wtf
 zope-dottedname==7.1
