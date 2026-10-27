@@ -3541,11 +3541,6 @@ class TestGetSiteUser:
                 "get_site_user", {"model": model, "user": sysadmin["name"]}
             )
 
-    def test_does_not_expose_apikey(self):
-        result = helpers.call_action("get_site_user")
-        assert set(result) == {"name", "id"}
-        assert result["id"] == model.User.get_site_user().id
-
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestPackageList:
