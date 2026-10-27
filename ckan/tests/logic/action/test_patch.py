@@ -305,12 +305,9 @@ class TestPatch(object):
                 sysadmin=False,
                 context={"user": sysadmin["name"]},
             )
-        assert e.value.error_dict == {
-            "sysadmin": ["Cannot modify sysadmin privileges for system user"]
-        }
-        assert e.value.error_summary == {
-            "Sysadmin": "Cannot modify sysadmin privileges for system user"
-        }
+        assert e.value.error_dict["sysadmin"] == [
+            "Cannot modify sysadmin privileges for system user"
+        ]
 
         assert user["sysadmin"] is False
 

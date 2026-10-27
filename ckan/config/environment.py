@@ -228,6 +228,7 @@ def update_config() -> None:
 
     # clear other caches
     logic.clear_actions_cache()
+    logic.load_actions()
     logic.clear_validators_cache()
     authz.clear_auth_functions_cache()
 

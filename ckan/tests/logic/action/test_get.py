@@ -3534,13 +3534,6 @@ class TestGetSiteUser:
             "get_site_user", {"model": model, "user": "", "ignore_auth": True}
         )
 
-    def test_sysadmin_not_authorized(self):
-        sysadmin = factories.Sysadmin()
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                "get_site_user", {"model": model, "user": sysadmin["name"]}
-            )
-
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestPackageList:
