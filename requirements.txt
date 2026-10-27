@@ -18,7 +18,7 @@ blinker==1.9.0
     #   flask
 cachelib==0.13.0
     # via flask-session
-certifi==2026.1.4
+certifi==2026.10.23
     # via
     #   -r requirements.in
     #   requests
@@ -92,6 +92,8 @@ packaging==24.1
     # via -r requirements.in
 passlib==1.7.4
     # via -r requirements.in
+pglast==8.4
+    # via -r requirements.in
 polib==1.2.0
     # via -r requirements.in
 psycopg2==2.9.11
@@ -133,8 +135,6 @@ sqlalchemy[mypy]==1.4.52
     #   sqlalchemy
 sqlalchemy2-stubs==0.0.2a38
     # via sqlalchemy
-sqlparse==0.6.0
-    # via -r requirements.in
 tomli==2.0.1
     # via mypy
 typing-extensions==4.12.2
