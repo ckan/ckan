@@ -145,6 +145,6 @@ Index('tracking_summary_package_id', TrackingSummary.package_id)  # type: ignore
 Index('tracking_summary_date', 'tracking_date')
 Index(
     'tracking_summary_package_id_date',
-    TrackingSummary.package_id,
-    TrackingSummary.tracking_date.desc(),
+    TrackingSummary.package_id,     # type: ignore
+    TrackingSummary.tracking_date.desc(),   # type: ignore
 )
