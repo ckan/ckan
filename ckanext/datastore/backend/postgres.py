@@ -1247,16 +1247,13 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
             if len(rows) > 1:
                 itrans = context['connection'].begin_nested()
                 try:
-                    results = context['connection'].execute(sa.text(sql_string), rows)
+                    context['connection'].execute(sa.text(sql_string), rows)
                 except:
                     itrans.rollback()
                     raise
                 itrans.commit()
             else:
-                results = context['connection'].execute(sa.text(sql_string), rows)
-
-            if data_dict['include_records']:
-                data_dict['records'] = [dict(r) for r in results.mappings().all()]
+                context['connection'].execute(sa.text(sql_string), rows)
 
         except (DatabaseError, DataError) as err:
             if len(rows) > 1:
