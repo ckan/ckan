@@ -855,12 +855,12 @@ def _filter_activities_by_permission_labels(
         # activities with empty type. This condition can be removed if you
         # somehow manage to write a migration that maps untyped acctivities
         # into some generic activity_type.
-        untyped = Activity.activity_type.is_(None)
+        untyped = Activity.activity_type.is_(None)      # type: ignore
 
         # activities with permission labels overlapping labels of the current
         # user. If someday all activities have permission labels, this is the
         # only condition that will remain.
-        available = Activity.permission_labels.op('&&')(user_permission_labels)
+        available = Activity.permission_labels.op('&&')(user_permission_labels)      # type: ignore
 
         q = q.filter(untyped | available | ~with_permissions)
 

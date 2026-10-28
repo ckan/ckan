@@ -1,11 +1,10 @@
 import copy
 import datetime
 import time
-from typing import Any
 
 import pytest
 
-from ckan import model, types
+from ckan import model
 import ckan.plugins.toolkit as tk
 
 import ckan.tests.helpers as helpers
@@ -2764,11 +2763,11 @@ class TestDeleteResourceViewActivity(object):
 
     def test_private_activity(
         self,
-        organization: dict[str, Any],
-        package_factory: types.TestFactory,
-        resource_factory: types.TestFactory,
-        user: dict[str, Any],
-        sysadmin: dict[str, Any],
+        organization,
+        package_factory,
+        resource_factory,
+        user,
+        sysadmin,
     ):
         """Resource view activities are shown according to the visibility of the package."""
         pkg = package_factory(private=True, owner_org=organization["id"], user=sysadmin)
