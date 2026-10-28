@@ -1,0 +1,1 @@
+Fix tests failing with ``SiteUserNotFound`` depending on test execution order.
