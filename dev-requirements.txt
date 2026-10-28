@@ -11,7 +11,7 @@ freezegun==1.5.5
 ipdb==0.13.13
 junit2html==31.1.4
 junitparser==5.0.1
-Pillow==13.0.0
+Pillow==12.3.0
 pip-tools==7.5.3
 pytest-cov==7.1.0
 pytest-factoryboy==2.8.1
