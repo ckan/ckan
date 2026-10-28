@@ -520,6 +520,47 @@ class TestDatastoreSearch(object):
         result = helpers.call_action("datastore_search", **data)
         assert len(result["records"]) == 1
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_search_injection(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "note", "type": "text"},
+            ],
+            "records": [
+                {"note": "hello"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        resource2 = factories.Resource()
+        data = {
+            "resource_id": resource2["id"],
+            "force": True,
+            "fields": [
+                {"id": "secret", "type": "text"},
+            ],
+            "records": [
+                {"secret": "secret value"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        payload="|| CAST((SELECT secret FROM \""+resource2["id"]+"\" LIMIT 1) AS int) ||"
+        data = {
+            "resource_id": resource['id'],
+            "q":":value_1",
+            "plain":True,
+            "filters":{
+                "note":["hello", payload]
+            }
+        }
+        result = helpers.call_action("datastore_search", **data)
+        assert len(result['records']) == 0
+
 
 class TestDatastoreSearchLegacyTests(object):
     sysadmin_user = None
@@ -1744,7 +1785,7 @@ class TestDatastoreSQLFunctional(object):
         )
         helpers.call_action("datastore_search_sql", sql=sql)
 
-        sql = 'SELECT CoUnT(*) from "{}"'.format(
+        sql = 'SELECT "CoUnT"(*) from "{}"'.format(
             resource["id"]
         )
         with pytest.raises(p.toolkit.NotAuthorized):

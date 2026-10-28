@@ -14,10 +14,8 @@ import pytest
 
 from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
-import ckan.exceptions
+from ckan.exceptions import CkanUrlException
 from ckan.tests import helpers, factories
-
-CkanUrlException = ckan.exceptions.CkanUrlException
 
 
 class BaseUrlFor(object):
@@ -261,8 +259,9 @@ class TestHelpersRenderMarkdown(object):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [
-            ("<script>moo</script>", "<script>moo</script>", True),
-            ("<script>moo</script>", "moo", False),
+            ("<foo>moo</foo>", "<p><foo>moo</foo></p>", True),
+            ("<foo>moo</foo>", "<p>moo</p>", False),
+            ("<script>moo</script>", "", False), # script and style tags are removed with content by nh3
             (
                 "http://example.com",
                 '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>',
@@ -283,7 +282,7 @@ class TestHelpersRenderMarkdown(object):
                 u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>',
                 False,
             ),
-            (u"[text](javascript: alert(1))", u"<p><a>text</a></p>", False),
+            (u"[text](javascript: alert(1))", '<p><a rel="noopener noreferrer">text</a></p>', False),
             (
                 u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>',
                 '<p><img src="image.png"> and text</p>',
@@ -309,7 +308,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 u"[link](/url?a=1&b=2)",
-                u'<p><a href="/url?a=1&amp;b=2">link</a></p>',
+                u'<p><a href="/url?a=1&amp;b=2" rel="noopener noreferrer">link</a></p>',
                 False,
             ),
             (
@@ -383,7 +382,7 @@ class TestHelpersRenderMarkdown(object):
             ),
             (
                 "<a href=\u201dsomelink\u201d>somelink</a>",
-                '<p><a href="\u201dsomelink\u201d">somelink</a></p>',
+                '<p><a href="\u201dsomelink\u201d" rel="noopener noreferrer">somelink</a></p>',
                 False,
             ),
         ],
@@ -565,7 +564,7 @@ def test_time_ago_from_timestamp(date, exp):
 
 
 def test_clean_html_disallowed_tag():
-    assert h.clean_html("<b><bad-tag>Hello") == u"<b>&lt;bad-tag&gt;Hello</b>"
+    assert h.clean_html("<b><bad-tag>Hello") == u"<b>Hello</b>"
 
 
 def test_clean_html_non_string():
@@ -936,3 +935,30 @@ class TestUploadsEnabled:
 def test_unix_locale_to_bcp47():
     assert h.unix_locale_to_bcp47('en') == 'en'
     assert h.unix_locale_to_bcp47('fr_FR') == 'fr-FR'
+
+
+def test_resource_view_fields(monkeypatch):
+    resource_dict = {'id': 'abcde'}
+    # empty list if datastore is inactive
+    assert h.resource_view_get_fields(resource_dict) == []
+    resource_dict['datastore_active'] = False
+    assert h.resource_view_get_fields(resource_dict) == []
+
+    # populated list if datastore is active
+    resource_dict['datastore_active'] = True
+    monkeypatch.setattr(
+        h.logic, 'get_action',
+        lambda name: (
+            lambda context, data_dict: {
+                'fields': [{'id': 'foo'}, {'id': 'baz'}]
+            }
+        ))
+    assert h.resource_view_get_fields(resource_dict) == ['baz', 'foo']
+
+    # empty list if datastore query fails
+    def raise_validation_error():
+        raise h.logic.ValidationError('test')
+    monkeypatch.setattr(
+        h.logic, 'get_action',
+        lambda name: (lambda context, data_dict: raise_validation_error()))
+    assert h.resource_view_get_fields(resource_dict) == []

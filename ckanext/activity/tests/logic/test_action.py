@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import copy
 import datetime
 import time
@@ -2751,7 +2749,8 @@ class TestActivityCreate:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.ckan_config("ckan.views.default_views", "image_view")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestDeleteResourceViewActivity(object):
     def test_resource_view_delete(self):
         resource_view = factories.ResourceView()
@@ -2761,3 +2760,30 @@ class TestDeleteResourceViewActivity(object):
         params = {"id": resource_view["id"]}
 
         helpers.call_action("resource_view_delete", context=context, **params)
+
+    def test_private_activity(
+        self,
+        organization,
+        package_factory,
+        resource_factory,
+        user,
+        sysadmin,
+    ):
+        """Resource view activities are shown according to the visibility of the package."""
+        pkg = package_factory(private=True, owner_org=organization["id"], user=sysadmin)
+        # image_view is enabled and default image view will be created automatically
+        resource_factory(format="PNG", user=sysadmin, package_id=pkg["id"])
+        activities = tk.get_action("user_activity_list")(
+            {"user": user["id"]}, {"id": sysadmin["id"]}
+        )
+        types = [a["activity_type"] for a in activities]
+        assert "new resource view" not in types
+
+        # now make the package public and create a resource to produce a public activity record
+        helpers.call_action("package_patch", {"user": sysadmin["id"]}, id=pkg["id"], private=False)
+        resource_factory(format="PNG", user=sysadmin, package_id=pkg["id"])
+        activities = tk.get_action("user_activity_list")(
+            {"user": user["id"]}, {"id": sysadmin["id"]}
+        )
+        types = [a["activity_type"] for a in activities]
+        assert "new resource view" in types
