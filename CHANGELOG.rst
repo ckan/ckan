@@ -18,6 +18,10 @@ Migration notes
 - This version requires a requirements upgrade on source installations.
   The packages ``nh3`` and  ``pglast`` have been added as requirements,
   and ``sqlparse`` has been dropped.
+- Resource Views can no longer be previewed in the resource view form unless they
+  don't provide their own iframe in the view template. This only applies to views with
+  the ``iframed: True`` setting.
+
 
 Minor changes
 -------------
@@ -42,6 +46,8 @@ Bugfixes
 - `GHSA-3h7g-fpc6-9vc9 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3h7g-fpc6-9vc9>_`: Forgeable user/login
 - `GHSA-34rr-qrr4-397f (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-34rr-qrr4-397f>_`: Unauthenticated SQL injection in `datastore_search`
 - `CVE-2026-115579  <https://github.com/ckan/ckan/security/advisories/GHSA-5f35-225m-5mg7>`_: Unauthenticated reflected XSS via `webpage_view`
+- Resource view activities have the same permission labels as the corresponding dataset. (`#9611
+  <https://github.com/ckan/ckan/pull/9611>`_)
 - Skip the Data Explorer view when there are field errors, instead of breaking
   the whole resource view page (`#9529
   <https://github.com/ckan/ckan/pull/9529>`_)
