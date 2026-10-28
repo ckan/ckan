@@ -192,8 +192,31 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
         except KeyError:
             return capacity
 
+    members = q.all()
+
+    if obj_type is None or obj_type == 'package':
+        # Private datasets must not be disclosed to users who can't see them.
+        labels = lib_plugins.get_permission_labels()
+
+        user_labels = labels.get_user_dataset_labels(
+            context.get('auth_user_obj'))
+
+        def _can_see_package(table_id: str | None) -> bool:
+            package = model.Package.get(table_id)
+
+            if not package:
+                return False
+
+            return any(
+                dl in user_labels for dl in labels.get_dataset_labels(package))
+
+        members = [
+            m for m in members
+            if m.table_name != 'package' or _can_see_package(m.table_id)
+        ]
+
     return [(m.table_id, m.table_name, translated_capacity(m.capacity))
-            for m in q.all()]
+            for m in members]
 
 
 def package_collaborator_list(context: Context,
