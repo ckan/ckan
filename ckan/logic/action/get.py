@@ -201,7 +201,7 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
         user_labels = labels.get_user_dataset_labels(
             context.get('auth_user_obj'))
 
-        def _can_see_package(table_id: str) -> bool:
+        def _can_see_package(table_id: str | None) -> bool:
             package = model.Package.get(table_id)
 
             if not package:
