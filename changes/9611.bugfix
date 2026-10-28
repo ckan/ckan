@@ -1,1 +1,0 @@
-Resource view activities have the same permission labels as corresponding dataset. It means, that such activities will be hidden when resource view is created for the private dataset and visible, when view is created for the public dataset.
