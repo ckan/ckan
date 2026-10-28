@@ -722,10 +722,11 @@ def _update_package_relationship(
     is_changed = relationship.comment != comment
     if is_changed:
         relationship.comment = comment
-        if not context.get('defer_commit'):
-            model.repo.commit_and_remove()
     rel_dict = relationship.as_dict(package=relationship.subject,
                                     ref_package_by=ref_package_by)
+    if is_changed:
+        if not context.get('defer_commit'):
+            model.repo.commit_and_remove()
     return rel_dict
 
 

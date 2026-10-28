@@ -1177,6 +1177,60 @@ class TestDatasetCreate(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
+class TestPackageRelationshipCreate(object):
+    def test_reactivating_deleted_relationship_returns_relationship(self):
+        subject = factories.Dataset()
+        object_ = factories.Dataset()
+        relationship = model.Package.get(subject["id"]).add_relationship(
+            "depends_on",
+            model.Package.get(object_["id"]),
+            comment="original comment",
+        )
+        model.Session.commit()
+        relationship_id = relationship.id
+
+        helpers.call_action(
+            "package_relationship_delete",
+            subject=subject["id"],
+            object=object_["id"],
+            type="depends_on",
+        )
+        deleted_relationship = (
+            model.Session.query(model.PackageRelationship)
+            .filter_by(id=relationship_id)
+            .one()
+        )
+        # Reproduce a relationship with related packages not loaded before
+        # the action commits and removes its database session.
+        model.Session.expire(
+            deleted_relationship, ["subject", "object"]
+        )
+
+        result = helpers.call_action(
+            "package_relationship_create",
+            subject=subject["id"],
+            object=object_["id"],
+            type="depends_on",
+            comment="restored comment",
+        )
+
+        assert result == {
+            "subject": subject["name"],
+            "object": object_["name"],
+            "type": "depends_on",
+            "comment": "restored comment",
+        }
+        persisted_relationship = (
+            model.Session.query(model.PackageRelationship)
+            .filter_by(id=relationship_id)
+            .one()
+        )
+        assert persisted_relationship.state == "active"
+        model.Session.delete(persisted_relationship)
+        model.Session.commit()
+
+
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupCreate(object):
     def test_create_group(self):
         user = factories.User()
