@@ -9,15 +9,50 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.11.7 2026-XX-XX
+v.2.11.7 2026-10-28
 ===================
 
 Migration notes
 ---------------
 
 - This version requires a requirements upgrade on source installations.
-  The package ``pglast`` has been added as a requirement, and ``sqlparse``
-  has been dropped.
+  The packages ``nh3`` and  ``pglast`` have been added as requirements,
+  and ``sqlparse`` has been dropped.
+
+Minor changes
+-------------
+
+- HTML cleaning is done with ``nh3`` instead of ``bleach`` from now on.
+  More tags and attributes are allowed by default and ``clean_html`` now strips
+  unknown tags instead of escaping HTML-entities.
+  ``render_markdown`` with ``allow_html=False`` now strips ``script`` and
+  ``style`` tags alongside with  their content; previously, only the tag was
+  removed, while content was kept. (`#9472
+  <https://github.com/ckan/ckan/pull/9472>`_)
+- Use pglast instead of sqlparse to sanitize datastore_search_sql input (`#9475
+  <https://github.com/ckan/ckan/pull/9475>`_)
+
+Bugfixes
+--------
+
+- `GHSA-wg5m-39wv-h9q4 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-wg5m-39wv-h9q4>_`: Stored XSS vector via field name in DataTables view
+- `GHSA-gc3w-w5vv-w2vc (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-gc3w-w5vv-w2vc>_`: member_list discloses IDs of private datasets to unauthenticated user
+- `GHSA-xj2r-hpg6-375c (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-xj2r-hpg6-375c>_`: Exposure of private dataset identifiers via Solr parameters
+- `GHSA-hr6p-cwrr-4gg2 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-hr6p-cwrr-4gg2>_`: resource_view_update permission check bypass
+- `GHSA-3h7g-fpc6-9vc9 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3h7g-fpc6-9vc9>_`: Forgeable user/login
+- `GHSA-34rr-qrr4-397f (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-34rr-qrr4-397f>_`: Unauthenticated SQL injection in `datastore_search`
+- `CVE-2026-115579  <https://github.com/ckan/ckan/security/advisories/GHSA-5f35-225m-5mg7>`_: Unauthenticated reflected XSS via `webpage_view`
+- Skip the Data Explorer view when there are field errors, instead of breaking
+  the whole resource view page (`#9529
+  <https://github.com/ckan/ckan/pull/9529>`_)
+- Add an index on ``tracking_summary`` (``package_id``, ``tracking_date``)
+  (`#9538 <https://github.com/ckan/ckan/pull/9538>`_)
+- Fix ``dataset_purge`` failing with an ``IntegrityError`` for datasets that
+  have collaborators. (`#9576 <https://github.com/ckan/ckan/pull/9576>`_)
+- Fix datastore_upsert method=insert (and datastore_create) records_row error
+  value.
+  Used to always report last row regardless of which record contained the
+  error. (`#9587 <https://github.com/ckan/ckan/pull/9587>`_)
 
 
 
@@ -35,13 +70,13 @@ Minor changes
 Bugfixes
 --------
 - `GHSA-8frv-ccr7-4m2p (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8frv-ccr7-4m2p>`_: Stored XSS via resource fields in Text view
-- `GHSA-5r6j-4c43-7mx6 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-5r6j-4c43-7mx6>`_: Unauthenticated nested Solr QParser allowlist bypass in ``package_search``
-- `GHSA-73fv-x47v-f4j5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-73fv-x47v-f4j5>`_: Authenticated stacked SQL injection in ``datastore_create``
-- `GHSA-8hw7-23gj-5599 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-8hw7-23gj-5599>`_: datastore_search_sql Authorization Bypass
-- `GHSA-3g5q-3wf6-p8rc (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-3g5q-3wf6-p8rc>`_: ``markdown_extract()`` Stored XSS on Dataset Listings
-- `GHSA-6499-jgj4-2wpf (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf>`_: Session Fixation in Registration View
-- `GHSA-jgwg-vp4m-5xw5 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-jgwg-vp4m-5xw5>`_: Exposure of private metadata via follow API actions
-- `GHSA-p5rh-49m9-56vx (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-p5rh-49m9-56vx>`_: Stored XSS vector via resource name in DataTables view
+- `CVE-2026-115577 <https://github.com/ckan/ckan/security/advisories/GHSA-5r6j-4c43-7mx6>`_: Unauthenticated nested Solr QParser allowlist bypass in ``package_search``
+- `CVE-2026-104771 <https://github.com/ckan/ckan/security/advisories/GHSA-73fv-x47v-f4j5>`_: Authenticated stacked SQL injection in ``datastore_create``
+- `CVE-2026-104770 <https://github.com/ckan/ckan/security/advisories/GHSA-8hw7-23gj-5599>`_: datastore_search_sql Authorization Bypass
+- `CVE-2026-104772 <https://github.com/ckan/ckan/security/advisories/GHSA-3g5q-3wf6-p8rc>`_: ``markdown_extract()`` Stored XSS on Dataset Listings
+- `CVE-2026-104773 (CVE pending) <https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf>`_: Session Fixation in Registration View
+- `CVE-2026-84986 <https://github.com/ckan/ckan/security/advisories/GHSA-jgwg-vp4m-5xw5>`_: Exposure of private metadata via follow API actions
+- `CVE-2026-84985 <https://github.com/ckan/ckan/security/advisories/GHSA-p5rh-49m9-56vx>`_: Stored XSS vector via resource name in DataTables view
 - Fix organization patch on orgs with extras (`#9386
   <https://github.com/ckan/ckan/pull/9386>`_)
 - Add an accessible name to the resource actions dropdown button (the icon-only

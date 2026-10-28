@@ -1,2 +1,0 @@
-Fix datastore_upsert method=insert (and datastore_create) records_row error value.
-Used to always report last row regardless of which record contained the error.
