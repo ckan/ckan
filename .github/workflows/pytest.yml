@@ -114,9 +114,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        python-version: ['3.10', '3.14']
         split: ${{ fromJSON(needs.define-matrix.outputs.SPLIT_LIST) }}
     container:
-      image: python:3.10-bookworm
+      image: python:${{ matrix.python-version }}-bookworm
 
     services:
       ckan-postgres:
@@ -147,7 +148,7 @@ jobs:
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
 
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-ci.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.split }}.xml  -o junit_family=legacy --log-disable=ckan
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-ci.ini --cov=ckan --cov=ckanext --cov-branch --cov-report=term-missing  --junitxml=./junit/result/junit-${{ matrix.python-version }}-${{ matrix.split }}.xml  -o junit_family=legacy --log-disable=ckan
 
 
     steps:
@@ -235,7 +236,7 @@ jobs:
       # Each matrix job uploads its freshly updated partial test durations. We regroup them all
       # within one final file in the "Merge all partial test durations" step below.
       - name: Upload test durations
-        if: github.run_attempt == 1
+        if: matrix.python-version == '3.14' && github.run_attempt == 1
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-durations-after-partial-${{ matrix.split }}
@@ -246,15 +247,16 @@ jobs:
 
       - name: Prep test coverage split file
         run: |
-          mv .coverage coverage-${MATRIX_SPLIT}
+          mv .coverage coverage-${MATRIX_PYTHON_VERSION}-${MATRIX_SPLIT}
         env:
           MATRIX_SPLIT: ${{ matrix.split }}
+          MATRIX_PYTHON_VERSION: ${{ matrix.python-version }}
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: internal_coverage-${{ matrix.split }}
-          path: coverage-${{ matrix.split }}
+          name: internal_coverage-${{ matrix.python-version }}-${{ matrix.split }}
+          path: coverage-${{ matrix.python-version }}-${{ matrix.split }}
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 1
@@ -263,7 +265,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: internal_junit-results-${{ matrix.split }}
+          name: internal_junit-results-${{ matrix.python-version }}-${{ matrix.split }}
           path: ./junit/result
           retention-days: 1
 
@@ -283,7 +285,7 @@ jobs:
       - name: Store Test Summary results (If Failure)
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: split-test-summary-${{ matrix.split }}.md
+          name: split-test-summary-${{ matrix.python-version }}-${{ matrix.split }}.md
           path: "./junit/result/test-summary.md"
           retention-days: 30
         if: failure()
@@ -336,9 +338,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.14']
     container:
       # Needs to run on the same image the tests were run
-      image: python:3.10-bookworm
+      image: python:${{ matrix.python-version }}-bookworm
 
     steps:
       - name: Checkout repository
@@ -361,14 +367,14 @@ jobs:
       - name: Download all coverage artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          pattern: internal_coverage-*
+          pattern: internal_coverage-${{ matrix.python-version }}-*
           path: coverage-data
           merge-multiple: 'true'
 
       - name: Download all JUnit XML results
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          pattern: internal_junit-results-*
+          pattern: internal_junit-results-${{ matrix.python-version }}-*
           merge-multiple: true
           path: junit-results
 
@@ -405,5 +411,5 @@ jobs:
       - name: Upload HTML coverage report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: combined-test-coverage-reports
+          name: combined-test-coverage-reports-${{ matrix.python-version }}
           path: results

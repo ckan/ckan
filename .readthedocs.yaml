@@ -12,7 +12,7 @@ build:
     - libmagic-dev
     - libmagic1
   tools:
-    python: "3.10"
+    python: "3.14"
   jobs:
     post_checkout:
       - git fetch --tags || true

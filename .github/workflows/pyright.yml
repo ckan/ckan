@@ -4,8 +4,7 @@ on:
   workflow_call:
   workflow_dispatch:
 env:
-  NODE_VERSION: '18'
-  PYTHON_VERSION: '3.10'
+  NODE_VERSION: '26' #node26 EOL is April 30, 2029
 
 permissions: {}
 
@@ -14,13 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10'] # Must match project.toml [tool.pyright] -> pythonVersion
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
