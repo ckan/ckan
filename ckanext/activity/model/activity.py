@@ -12,7 +12,6 @@ from sqlalchemy import (
     ForeignKey,
     or_,
     and_,
-    not_,
     text,
     select,
     literal,
@@ -852,14 +851,26 @@ def _filter_activities_by_permission_labels(
 
     # `user_permission_labels` is None when user is sysadmin
     if user_permission_labels is not None:
-        # User can access non-package activities since they don't have labels
-        q = q.filter(
-            or_(
-                or_(Activity.activity_type.is_(None),
-                    not_(Activity.activity_type.endswith("package"))),
-                Activity.permission_labels.op('&&')(
-                    user_permission_labels)
-            )
+        # activitities that have permission labels. For now in includes package
+        # and resource views activities. If new activity types guarded by
+        # permission labels, like resource activities are added, include them
+        # into this filter.
+        with_permissions = or_(
+            Activity.activity_type.endswith("package"),
+            Activity.activity_type.endswith("resource view")
         )
+
+        # nowadays all activities have type, but old portals can include
+        # activities with empty type. This condition can be removed if you
+        # somehow manage to write a migration that maps untyped acctivities
+        # into some generic activity_type.
+        untyped = Activity.activity_type.is_(None)
+
+        # activities with permission labels overlapping labels of the current
+        # user. If someday all activities have permission labels, this is the
+        # only condition that will remain.
+        available = Activity.permission_labels.op('&&')(user_permission_labels)
+
+        q = q.filter(untyped | available | ~with_permissions)
 
     return q
