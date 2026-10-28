@@ -1,3 +1,0 @@
-- Resource Views can no longer be previewed in the resource view form unless they
-  don't provide their own iframe in the view template. This only applies to view with
-  the ``iframed: True`` setting.
