@@ -740,6 +740,22 @@ class TestUser(object):
         userobj = model.User.get(user["id"])
         assert not userobj.sysadmin
 
+    def test_sysadmin_revoke_site_user(self, app, sysadmin):
+        site_user = model.User.get_site_user()
+
+        resp = app.post(
+            url_for("user.sysadmin"),
+            data={"username": site_user.name, "status": "0"},
+            headers={"Authorization": sysadmin["token"]},
+            status=200,
+        )
+        assert helpers.body_contains(
+            resp, "Cannot modify sysadmin privileges for system user"
+        )
+
+        model.Session.expire_all()
+        assert model.User.get_site_user().sysadmin
+
     def test_user_delete_redirects_to_user_index(self, app, sysadmin):
         headers = {"Authorization": sysadmin["token"]}
         user = factories.User()

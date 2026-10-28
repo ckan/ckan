@@ -3,6 +3,7 @@
 import pytest
 from ckan.common import config
 
+import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
 
@@ -166,7 +167,7 @@ class TestDatapreview(object):
                 },
             ]
         )
-        context = {"user": helpers.call_action("get_site_user")["name"]}
+        context = {"user": model.User.get_site_user().name}
         created_views = datapreview.add_views_to_dataset_resources(
             context, dataset_dict, view_types=["image_view"]
         )
@@ -198,7 +199,7 @@ class TestDatapreview(object):
         # Change default views config setting
         config["ckan.views.default_views"] = ["image_view"]
 
-        context = {"user": helpers.call_action("get_site_user")["name"]}
+        context = {"user": model.User.get_site_user().name}
         created_views = datapreview.add_views_to_dataset_resources(
             context, dataset_dict, view_types=[]
         )
@@ -215,7 +216,7 @@ class TestDatapreview(object):
             url="http://some.image.png", format="png"
         )
 
-        context = {"user": helpers.call_action("get_site_user")["name"]}
+        context = {"user": model.User.get_site_user().name}
 
         created_views = datapreview.add_views_to_resource(
             context, resource_dict, view_types=["image_view"]
@@ -235,7 +236,7 @@ class TestDatapreview(object):
         # Change default views config setting
         config["ckan.views.default_views"] = ["image_view"]
 
-        context = {"user": helpers.call_action("get_site_user")["name"]}
+        context = {"user": model.User.get_site_user().name}
         created_views = datapreview.add_views_to_resource(
             context, resource_dict
         )

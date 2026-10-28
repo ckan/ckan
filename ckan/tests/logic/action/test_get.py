@@ -512,7 +512,7 @@ class TestGroupShow(object):
             helpers.call_action("group_show", id=org["id"])
 
     def test_group_show_packages_returned(self):
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = model.User.get_site_user().name
 
         group = factories.Group(user=factories.User())
 
@@ -535,7 +535,7 @@ class TestGroupShow(object):
 
     def test_group_show_packages_returned_for_view(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = model.User.get_site_user().name
 
         group = factories.Group(user=factories.User())
 
@@ -561,7 +561,7 @@ class TestGroupShow(object):
 
     def test_group_show_no_packages_returned(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = model.User.get_site_user().name
 
         group = factories.Group(user=factories.User())
 
@@ -805,7 +805,7 @@ class TestOrganizationShow(object):
 
     def test_organization_show_packages_returned(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = model.User.get_site_user().name
 
         org = factories.Organization()
 
@@ -828,7 +828,7 @@ class TestOrganizationShow(object):
 
     def test_organization_show_private_packages_not_returned(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = model.User.get_site_user().name
 
         org = factories.Organization()
         dataset1 = factories.Dataset.stub().name
@@ -974,7 +974,7 @@ class TestUserList(object):
         assert got_user == user_a["name"]
 
     def test_user_list_order_by_default(self):
-        default_user = helpers.call_action("get_site_user", ignore_auth=True)
+        default_user = model.User.get_site_user()
 
         users = [
             factories.User(fullname="Xander Bird", name="bird_x"),
@@ -994,13 +994,13 @@ class TestUserList(object):
 
         got_users = helpers.call_action("user_list")
         got_names = [
-            u["name"] for u in got_users if u["name"] != default_user["name"]
+            u["name"] for u in got_users if u["name"] != default_user.name
         ]
 
         assert got_names == expected_names
 
     def test_user_list_order_by_fullname_only(self):
-        default_user = helpers.call_action("get_site_user", ignore_auth=True)
+        default_user = model.User.get_site_user()
 
         users = [
             factories.User(fullname="Xander Bird", name="bird_x"),
@@ -1014,13 +1014,13 @@ class TestUserList(object):
         got_fullnames = [
             u["fullname"]
             for u in got_users
-            if u["name"] != default_user["name"]
+            if u["name"] != default_user.name
         ]
 
         assert got_fullnames == expected_fullnames
 
     def test_user_list_order_by_created_datasets(self):
-        default_user = helpers.call_action("get_site_user", ignore_auth=True)
+        default_user = model.User.get_site_user()
 
         users = [
             factories.User(fullname="Xander Bird", name="bird_x"),
@@ -1050,7 +1050,7 @@ class TestUserList(object):
             "user_list", order_by="number_created_packages"
         )
         got_names = [
-            u["name"] for u in got_users if u["name"] != default_user["name"]
+            u["name"] for u in got_users if u["name"] != default_user.name
         ]
 
         assert got_names == expected_names
