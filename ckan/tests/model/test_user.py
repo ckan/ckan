@@ -287,6 +287,8 @@ class TestSiteUser:
         with pytest.raises(SiteUserNotFound):
             model.User.get_site_user()
 
+        model.User.ensure_site_user()
+
     def test_ensure_creates_missing_user(self, ckan_config):
         model.Session.delete(model.User.get_site_user())
         model.Session.commit()
