@@ -784,6 +784,46 @@ class TestDatasetUpdate(object):
             helpers.call_action('package_reindex', id="nonexistent")
 
 
+@pytest.mark.usefixtures("non_clean_db")
+class TestPackageRelationshipUpdate(object):
+    def test_changed_relationship_returns_updated_relationship(self):
+        subject = factories.Dataset()
+        object_ = factories.Dataset()
+        relationship = model.Package.get(subject["id"]).add_relationship(
+            "depends_on",
+            model.Package.get(object_["id"]),
+            comment="original comment",
+        )
+        model.Session.commit()
+        relationship_id = relationship.id
+        # Reproduce a relationship with related packages not loaded before
+        # the action commits and removes its database session.
+        model.Session.expire(relationship, ["subject", "object"])
+
+        result = helpers.call_action(
+            "package_relationship_update",
+            subject=subject["id"],
+            object=object_["id"],
+            type="depends_on",
+            comment="updated comment",
+        )
+
+        assert result == {
+            "subject": subject["name"],
+            "object": object_["name"],
+            "type": "depends_on",
+            "comment": "updated comment",
+        }
+        persisted_relationship = (
+            model.Session.query(model.PackageRelationship)
+            .filter_by(id=relationship_id)
+            .one()
+        )
+        assert persisted_relationship.comment == "updated comment"
+        model.Session.delete(persisted_relationship)
+        model.Session.commit()
+
+
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
