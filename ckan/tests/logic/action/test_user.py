@@ -1235,7 +1235,7 @@ def test_user_list_filtered_by_email_with_random_case():
 
 @pytest.mark.usefixtures("clean_db")
 def test_user_list_order_by_default():
-    default_user = helpers.call_action("get_site_user", ignore_auth=True)
+    default_user = model.User.get_site_user()
 
     users = [
         factories.User(fullname="Xander Bird", name="bird_x"),
@@ -1254,14 +1254,14 @@ def test_user_list_order_by_default():
     ]
 
     got_users = helpers.call_action("user_list")
-    got_names = [u["name"] for u in got_users if u["name"] != default_user["name"]]
+    got_names = [u["name"] for u in got_users if u["name"] != default_user.name]
 
     assert got_names == expected_names
 
 
 @pytest.mark.usefixtures("clean_db")
 def test_user_list_order_by_fullname_only():
-    default_user = helpers.call_action("get_site_user", ignore_auth=True)
+    default_user = model.User.get_site_user()
 
     users = [
         factories.User(fullname="Xander Bird", name="bird_x"),
@@ -1273,7 +1273,7 @@ def test_user_list_order_by_fullname_only():
 
     got_users = helpers.call_action("user_list", order_by="fullname")
     got_fullnames = [
-        u["fullname"] for u in got_users if u["name"] != default_user["name"]
+        u["fullname"] for u in got_users if u["name"] != default_user.name
     ]
 
     assert got_fullnames == expected_fullnames
@@ -1281,7 +1281,7 @@ def test_user_list_order_by_fullname_only():
 
 @pytest.mark.usefixtures("clean_db")
 def test_user_list_order_by_created_datasets():
-    default_user = helpers.call_action("get_site_user", ignore_auth=True)
+    default_user = model.User.get_site_user()
 
     users = [
         factories.User(fullname="Xander Bird", name="bird_x"),
@@ -1308,7 +1308,7 @@ def test_user_list_order_by_created_datasets():
     ]
 
     got_users = helpers.call_action("user_list", order_by="number_created_packages")
-    got_names = [u["name"] for u in got_users if u["name"] != default_user["name"]]
+    got_names = [u["name"] for u in got_users if u["name"] != default_user.name]
 
     assert got_names == expected_names
 
@@ -1838,13 +1838,16 @@ def test_user_patch_sysadmin():
 
     # cannot change system user privs
     site_id = config.get("ckan.site_id")
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         helpers.call_action(
             "user_patch",
             id=site_id,
             sysadmin=False,
             context={"user": sysadmin["name"]},
         )
+    assert e.value.error_dict["sysadmin"] == [
+        "Cannot modify sysadmin privileges for system user"
+    ]
 
     assert user["sysadmin"] is False
 

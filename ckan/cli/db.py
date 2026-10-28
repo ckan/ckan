@@ -56,6 +56,7 @@ def create_from_model():
     try:
         model.repo.create_db()
         model.repo.stamp_alembic_head()
+        model.User.ensure_site_user()
 
         # also mark plugins as migrated
         # FIXME: move to model.repo?
@@ -104,6 +105,9 @@ def upgrade(
     """
     if not skip_core:
         _run_migrations(plugin, version, load_plugin=load_plugin)
+
+    if not skip_core and not plugin and version == "head":
+        model.User.ensure_site_user()
 
     if not skip_plugins and not plugin:
         _migrate_plugins(apply=True)

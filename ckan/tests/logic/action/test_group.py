@@ -873,7 +873,7 @@ def test_group_show_error_for_organization():
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_group_show_packages_returned():
-    user_name = helpers.call_action("get_site_user")["name"]
+    user_name = model.User.get_site_user().name
 
     group = factories.Group(user=factories.User())
 
@@ -896,7 +896,7 @@ def test_group_show_packages_returned():
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_group_show_packages_returned_for_view():
 
-    user_name = helpers.call_action("get_site_user")["name"]
+    user_name = model.User.get_site_user().name
 
     group = factories.Group(user=factories.User())
 
@@ -922,7 +922,7 @@ def test_group_show_packages_returned_for_view():
 @pytest.mark.usefixtures("clean_db", "clean_index")
 def test_group_show_no_packages_returned():
 
-    user_name = helpers.call_action("get_site_user")["name"]
+    user_name = model.User.get_site_user().name
 
     group = factories.Group(user=factories.User())
 

@@ -390,7 +390,7 @@ def test_organization_show_error_for_group():
 @pytest.mark.usefixtures("non_clean_db")
 def test_organization_show_packages_returned():
 
-    user_name = helpers.call_action("get_site_user")["name"]
+    user_name = model.User.get_site_user().name
 
     org = factories.Organization()
 
@@ -413,7 +413,7 @@ def test_organization_show_packages_returned():
 @pytest.mark.usefixtures("non_clean_db")
 def test_organization_show_private_packages_not_returned():
 
-    user_name = helpers.call_action("get_site_user")["name"]
+    user_name = model.User.get_site_user().name
 
     org = factories.Organization()
     dataset1 = factories.Dataset.stub().name
@@ -997,3 +997,38 @@ def test_users_removed_if_empty_list():
     updated_org = helpers.call_action("organization_update", id=org["name"], users=[])
 
     assert updated_org["users"] == []
+
+def test_package_members_hide_private_datasets_from_unauthorized_users():
+    org = factories.Organization()
+    public_dataset = factories.Dataset(owner_org=org["id"], private=False)
+    private_dataset = factories.Dataset(owner_org=org["id"], private=True)
+
+    # Anonymous callers must only see the public dataset, not the private one
+    org_members = helpers.call_action(
+        "member_list", {"user": None}, id=org["id"], object_type="package"
+    )
+
+    member_ids = [m[0] for m in org_members]
+    assert public_dataset["id"] in member_ids
+    assert private_dataset["id"] not in member_ids
+
+    # Organization members can see the private dataset, so they get both.
+    member_user = factories.User()
+    helpers.call_action(
+        "organization_member_create",
+        {"user": None, "ignore_auth": True},
+        username=member_user["id"],
+        id=org["id"],
+        role="editor",
+    )
+
+    org_members = helpers.call_action(
+        "member_list",
+        {"user": member_user["name"]},
+        id=org["id"],
+        object_type="package",
+    )
+
+    member_ids = [m[0] for m in org_members]
+    assert public_dataset["id"] in member_ids
+    assert private_dataset["id"] in member_ids

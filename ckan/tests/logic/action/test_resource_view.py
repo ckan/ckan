@@ -197,7 +197,7 @@ def test_add_default_views_to_dataset_resources():
     # Change default views config setting
     config["ckan.views.default_views"] = ["image_view"]
 
-    context = {"user": helpers.call_action("get_site_user")["name"]}
+    context = {"user": model.User.get_site_user().name}
     created_views = helpers.call_action(
         "package_create_default_resource_views",
         context,
@@ -226,7 +226,7 @@ def test_add_default_views_to_resource():
     # Change default views config setting
     config["ckan.views.default_views"] = ["image_view"]
 
-    context = {"user": helpers.call_action("get_site_user")["name"]}
+    context = {"user": model.User.get_site_user().name}
     created_views = helpers.call_action(
         "resource_create_default_resource_views",
         context,
@@ -255,7 +255,7 @@ def test_add_default_views_to_resource_no_dataset_passed():
     # Change default views config setting
     config["ckan.views.default_views"] = ["image_view"]
 
-    context = {"user": helpers.call_action("get_site_user")["name"]}
+    context = {"user": model.User.get_site_user().name}
     created_views = helpers.call_action(
         "resource_create_default_resource_views",
         context,

@@ -200,7 +200,7 @@ class TestDuplicateEmails:
 class TestDBCleanSearchIndex:
     """Tests for issue #8347: db clean should clear search index"""
 
-    def test_db_clean_clears_search_index(self, cli):
+    def test_db_clean_clears_search_index(self, cli, ckan_config):
         """Test that db clean automatically clears search index"""
         import ckan.tests.factories as factories
         from ckan.lib.search import make_connection
@@ -210,7 +210,8 @@ class TestDBCleanSearchIndex:
 
         # Verify dataset is in search index
         package_index = make_connection()
-        indexed_packages = package_index.search('*:*')
+        site_fq = '+site_id:"%s"' % ckan_config['ckan.site_id']
+        indexed_packages = package_index.search('*:*', fq=site_fq)
         assert len(indexed_packages) > 0
 
         # Clean database (with confirmation bypassed in test)
@@ -226,7 +227,7 @@ class TestDBCleanSearchIndex:
         # Verify search index was also cleared
         # Note: This test may require mocking if search backend is not available
         try:
-            indexed_packages_after = package_index.search('*:*')
+            indexed_packages_after = package_index.search('*:*', fq=site_fq)
             assert len(indexed_packages_after) == 0
             assert 'Clearing search index: SUCCESS' in result.output
         except Exception:

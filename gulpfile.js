@@ -1,8 +1,6 @@
 const path = require("path");
 const { src, watch, dest, parallel } = require("gulp");
 const sass = require("gulp-sass")(require("sass"));
-const if_ = require("gulp-if");
-const sourcemaps = require("gulp-sourcemaps");
 const rename = require("gulp-rename");
 
 const with_sourcemaps = () => !!process.env.DEBUG || !!process.argv[4];
@@ -19,12 +17,10 @@ const build = () =>
   src([
     __dirname + "/ckan/public/base/scss/main.scss",
     __dirname + "/ckan/public/base/scss/main-rtl.scss",
-    ])
-    .pipe(if_(with_sourcemaps(), sourcemaps.init()))
+    ], { sourcemaps: with_sourcemaps() })
     .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
-    .pipe(if_(with_sourcemaps(), sourcemaps.write()))
     .pipe(rename(renamer))
-    .pipe(dest(__dirname + "/ckan/public/base/css/"));
+    .pipe(dest(__dirname + "/ckan/public/base/css/", { sourcemaps: with_sourcemaps() }));
 
 const watchSource = () =>
   watch(

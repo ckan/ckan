@@ -9,6 +9,7 @@ from passlib.hash import pbkdf2_sha512
 from faker import Faker
 
 import ckan.model as model
+from ckan.exceptions import SiteUserNotFound
 import ckan.tests.factories as factories
 
 
@@ -270,3 +271,33 @@ class TestUser:
             user = model.User.get(data["id"])
             app.get(url_for("dataset.read", id=dataset["id"]), headers=headers)
             assert user.last_active == datetime.datetime.utcnow()
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestSiteUser:
+    def test_created_on_db_init(self, ckan_config):
+        user = model.User.get_site_user()
+        assert user.name == ckan_config["ckan.site_id"]
+        assert user.sysadmin
+
+    def test_get_does_not_create_missing_user(self):
+        model.Session.delete(model.User.get_site_user())
+        model.Session.commit()
+
+        with pytest.raises(SiteUserNotFound):
+            model.User.get_site_user()
+
+        model.User.ensure_site_user()
+
+    def test_ensure_creates_missing_user(self, ckan_config):
+        model.Session.delete(model.User.get_site_user())
+        model.Session.commit()
+
+        user = model.User.ensure_site_user()
+        assert user.name == ckan_config["ckan.site_id"]
+        assert user.sysadmin
+        assert model.User.get_site_user().id == user.id
+
+    def test_ensure_is_idempotent(self):
+        existing = model.User.get_site_user()
+        assert model.User.ensure_site_user().id == existing.id

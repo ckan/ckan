@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import random
 import re
-import uuid
 from socket import error as socket_error
 from typing import Any, Optional, Type
 
@@ -14,7 +13,7 @@ from sqlalchemy.sql import select as _select
 
 from ckan import authz, logic, model, plugins
 from ckan.common import _, asbool, config
-from ckan.lib import api_token, mailer, signals, uploader
+from ckan.lib import api_token, mailer, maintain, signals, uploader
 from ckan.lib.dictization import model_dictize, model_save
 from ckan.lib.navl.dictization_functions import validate
 from ckan.lib.navl.dictization_functions import validate as _validate
@@ -1537,30 +1536,19 @@ def api_token_revoke(
     model.ApiToken.revoke(jti)
 
 
-# Only internal services are allowed to call get_site_user.
+@maintain.deprecated(
+    "Use `ckan.plugins.toolkit.get_site_user()` instead.", since="3.0.0"
+)
 def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSiteUser:
-    """Return the ckan site user
+    """Return the ckan site user.
 
-    :param defer_commit: by default (or if set to false) get_site_user will
-        commit and clean up the current transaction. If set to true, caller
-        is responsible for committing transaction after get_site_user is
-        called. Leaving open connections can cause cli commands to hang!
-        (optional, default: ``False``)
-    :type defer_commit: bool
+    .. deprecated:: 3.0
+        Use :py:func:`ckan.plugins.toolkit.get_site_user` instead.
+
+    Only internal services are allowed to call this action.
     """
     _check_access("get_site_user", context, data_dict)
-    site_id = config.get("ckan.site_id")
-    user = model.User.get(site_id)
-    if not user:
-        apikey = str(uuid.uuid4())
-        user = model.User(name=site_id, password=apikey, apikey=apikey)
-        # make sysadmin
-        user.sysadmin = True
-        model.Session.add(user)
-        model.Session.flush()
-        if not context.get("defer_commit"):
-            model.repo.commit()
-
+    user = model.User.get_site_user()
     return {
         "name": user.name,
         "id": user.id,

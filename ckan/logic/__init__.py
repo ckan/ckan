@@ -496,11 +496,16 @@ def get_action(action: str) -> Action:
 
     '''
 
-    if _actions:
-        if action not in _actions:
-            raise KeyError("Action '%s' not found" % action)
-        return _actions[action]
-    # Otherwise look in all the plugins to resolve all possible First
+    if not _actions:
+        load_actions()
+    if action not in _actions:
+        raise KeyError("Action '%s' not found" % action)
+    return _actions[action]
+
+
+def load_actions() -> None:
+    '''Populate the actions cache with core and plugin action functions.'''
+    # Look in all the plugins to resolve all possible First
     # get the default ones in the ckan/logic/action directory Rather
     # than writing them out in full will use importlib.import_module
     # to load anything from ckan.logic.action that looks like it might
@@ -604,8 +609,6 @@ def get_action(action: str) -> Action:
             # type_ignore_reason: custom attribute
             fn.side_effect_free = True  # type: ignore
         _actions[action_name] = fn
-
-    return _actions[action]
 
 
 @overload

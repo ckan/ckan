@@ -221,6 +221,7 @@ class Repository():
         if not self.tables_created_and_initialised:
             self.upgrade_db()
             self.tables_created_and_initialised = True
+        User.ensure_site_user()
         log.info('Database initialised')
 
     def clean_db(self) -> None:
