@@ -9,7 +9,7 @@ import pytz
 
 from typing import Union, cast
 
-from sqlalchemy import engine_from_config, inspect
+from sqlalchemy import engine_from_config
 import sqlalchemy.exc
 
 import ckan.model as model
@@ -228,27 +228,9 @@ def update_config() -> None:
 
     # clear other caches
     logic.clear_actions_cache()
+    logic.load_actions()
     logic.clear_validators_cache()
     authz.clear_auth_functions_cache()
-
-    # Here we create the site user if they are not already in the database
-    user_table_exists = False
-    try:
-        user_table_exists = inspect(engine).has_table("user")
-    except sqlalchemy.exc.OperationalError:
-        log.debug("DB user table does not exist")
-
-    if user_table_exists:
-        try:
-            logic.get_action('get_site_user')({'ignore_auth': True}, {})
-        except sqlalchemy.exc.ProgrammingError as e:
-            if "UndefinedColumn" in repr(e.orig):
-                log.debug("Old user model detected")
-            else:
-                raise
-        except sqlalchemy.exc.IntegrityError:
-            # Race condition, user already exists.
-            log.debug("Site user already exists")
 
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on

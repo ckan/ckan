@@ -3,7 +3,6 @@
 '''API functions for searching for and getting data from CKAN.'''
 from __future__ import annotations
 
-import uuid
 import logging
 import json
 import socket
@@ -21,6 +20,7 @@ import ckan.logic as logic
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs
+import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions
 import ckan.model as model
 import ckan.model.misc as misc
@@ -2362,32 +2362,19 @@ def term_translation_show(
     return results
 
 
-# Only internal services are allowed to call get_site_user.
+@maintain.deprecated(
+    "Use `ckan.plugins.toolkit.get_site_user()` instead.", since="3.0.0"
+)
 def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSiteUser:
-    '''Return the ckan site user
+    '''Return the ckan site user.
 
-    :param defer_commit: by default (or if set to false) get_site_user will
-        commit and clean up the current transaction. If set to true, caller
-        is responsible for committing transaction after get_site_user is
-        called. Leaving open connections can cause cli commands to hang!
-        (optional, default: ``False``)
-    :type defer_commit: bool
+    .. deprecated:: 3.0
+        Use :py:func:`ckan.plugins.toolkit.get_site_user` instead.
+
+    Only internal services are allowed to call this action.
     '''
     _check_access('get_site_user', context, data_dict)
-    site_id = config.get('ckan.site_id')
-    user = model.User.get(site_id)
-    if not user:
-        apikey = str(uuid.uuid4())
-        user = model.User(name=site_id,
-                          password=apikey,
-                          apikey=apikey)
-        # make sysadmin
-        user.sysadmin = True
-        model.Session.add(user)
-        model.Session.flush()
-        if not context.get('defer_commit'):
-            model.repo.commit()
-
+    user = model.User.get_site_user()
     return {
         'name': user.name,
         'id': user.id,
