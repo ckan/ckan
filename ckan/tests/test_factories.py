@@ -17,7 +17,6 @@ from ckan import model, types
         factories.MockUser,
     ],
 )
-@pytest.mark.usefixtures("non_clean_db")
 def test_id_uniqueness(entity):
     first, second = entity(), entity()
     assert first["id"] != second["id"]
@@ -25,7 +24,7 @@ def test_id_uniqueness(entity):
 
 # START-CONFIG-OVERRIDE
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_factory():
     resource_view1 = factories.ResourceView()
     resource_view2 = factories.ResourceView()
@@ -35,13 +34,11 @@ def test_resource_view_factory():
 # END-CONFIG-OVERRIDE
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_dataset_factory_allows_creation_by_anonymous_user():
     dataset = factories.Dataset(user=None)
     assert dataset["creator_user_id"] is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_factory_model(package_factory: types.TestFactory, faker: Faker):
     """Factory can create a model object instead of a dictionary."""
     notes = faker.sentence()
@@ -63,7 +60,6 @@ class UserFollowFactoryWithoutKey(factories.CKANFactory):
         action = "follow_user"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_factory_model_with_explicit_composite_key(user_factory: types.TestFactory):
     """Factory can create a model object with a composite primary key.
 
@@ -79,7 +75,6 @@ def test_factory_model_with_explicit_composite_key(user_factory: types.TestFacto
     assert result.follower_id == jane["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_factory_model_with_implicit_composite_key(user_factory: types.TestFactory):
     """If primary key is not specified, factory will guess it."""
     john = user_factory()

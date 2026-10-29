@@ -627,32 +627,6 @@ def with_extended_cli(
     monkeypatch.setattr(ckan.cli, u"load_config", lambda _: ckan_config)
 
 
-@pytest.fixture(scope="session")
-def reset_db_once(reset_db: types.FixtureResetDb):
-    """Internal fixture that cleans DB only the first time it's used.
-    """
-    reset_db()
-
-
-@pytest.fixture
-def non_clean_db(reset_db_once: types.FixtureResetDb):
-    """Guarantees that DB is initialized.
-
-    This fixture either initializes DB if it hasn't been done yet or does
-    nothing otherwise. If there is some data in DB, it stays intact. If your
-    tests need empty database, use `clean_db` instead, which is much slower,
-    but guarantees that there are no data left from the previous test session.
-
-    Example::
-
-        @pytest.mark.usefixtures("non_clean_db")
-        def test_example():
-            assert factories.User()
-
-    """
-    model.repo.init_db()
-
-
 class FakeFileStorage(FlaskFileStorage):
     def __init__(self, stream: IO[bytes], filename: str):
         super(FakeFileStorage, self).__init__(stream, filename, "upload")
