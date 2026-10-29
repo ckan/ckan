@@ -104,9 +104,9 @@ Create test databases:
     sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
     sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
 
-Set the permissions::
+Initialize the database::
 
-    ckan -c test-core.ini datastore set-permissions | sudo -u postgres psql
+    ckan -c test-core.ini datastore init-sql | sudo -u postgres psql
 
 When the tests run they will use these databases, because in ``test-core.ini``
 they are specified in the ``sqlalchemy.url`` and ``ckan.datastore.write_url``

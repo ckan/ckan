@@ -36,45 +36,55 @@ def datastore():
 
 
 @datastore.command(
-    u'set-permissions',
-    short_help=u'Generate SQL for permission configuration.'
+    'init-sql',
+    short_help='Generate SQL for datastore initialization.'
 )
-def set_permissions():
-    u'''Emit an SQL script that will set the permissions for the datastore
-    users as configured in your configuration file.'''
+def init_sql():
+    '''Emit an SQL script that will set the permissions for the datastore
+    users configured and create required functions and triggers.'''
 
-    write_url = _parse_db_config(u'ckan.datastore.write_url')
-    read_url = _parse_db_config(u'ckan.datastore.read_url')
-    db_url = _parse_db_config(u'sqlalchemy.url')
+    write_url = _parse_db_config('ckan.datastore.write_url')
+    read_url = _parse_db_config('ckan.datastore.read_url')
+    db_url = _parse_db_config('sqlalchemy.url')
 
     # Basic validation that read and write URLs reference the same database.
     # This obviously doesn't check they're the same database (the hosts/ports
     # could be different), but it's better than nothing, I guess.
 
-    if write_url[u'db_name'] != read_url[u'db_name']:
+    if write_url['db_name'] != read_url['db_name']:
         click.secho(
-            u'The datastore write_url and read_url must refer to the same '
-            u'database!',
-            fg=u'red',
+            'The datastore write_url and read_url must refer to the same '
+            'database!',
+            fg='red',
             bold=True
         )
         raise click.Abort()
 
-    sql = permissions_sql(
-        maindb=db_url[u'db_name'],
-        datastoredb=write_url[u'db_name'],
-        mainuser=db_url[u'db_user'],
-        writeuser=write_url[u'db_user'],
-        readuser=read_url[u'db_user']
+    sql = render_init_sql(
+        maindb=db_url['db_name'],
+        datastoredb=write_url['db_name'],
+        mainuser=db_url['db_user'],
+        writeuser=write_url['db_user'],
+        readuser=read_url['db_user']
     )
 
     click.echo(sql)
 
 
-def permissions_sql(maindb: str, datastoredb: str, mainuser: str,
+@datastore.command(
+    'set-permissions',
+    short_help='Alias of init-sql.'
+)
+@click.pass_context
+def set_permissions(ctx: click.Context):
+    '''Alias of init-sql, kept for backwards compatibility.'''
+    ctx.invoke(init_sql)
+
+
+def render_init_sql(maindb: str, datastoredb: str, mainuser: str,
                     writeuser: str, readuser: str):
     template_filename = os.path.join(
-        os.path.dirname(datastore_module.__file__), u'set_permissions.sql'
+        os.path.dirname(datastore_module.__file__), 'init_sql.sql'
     )
     with open(template_filename) as fp:
         template = fp.read()
@@ -249,4 +259,4 @@ def fts_index(timeout: float):
 
 
 def get_commands():
-    return (set_permissions, dump, purge, upgrade)
+    return (init_sql, set_permissions, dump, purge, upgrade)
