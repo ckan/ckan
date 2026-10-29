@@ -45,7 +45,6 @@ import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
-import ckan.model as model
 from ckan import types
 from ckan.common import config
 from ckan.lib import redis, search, files

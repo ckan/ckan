@@ -1,0 +1,2 @@
+Initialize database in test setup so all tests can expect the database to be ready and
+remove no longer required non_clean_db fixture

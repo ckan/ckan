@@ -1,4 +1,3 @@
-import pytest
 
 from ckan.tests.helpers import call_action
 from ckan.cli.cli import ckan

@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import pytest
 
 from ckan import model
 from ckan.tests import factories

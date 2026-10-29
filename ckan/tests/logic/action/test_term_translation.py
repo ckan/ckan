@@ -1,6 +1,5 @@
 """Tests for actions and authorization in ckan/logic/action/term_translation.py."""
 
-import pytest
 
 from ckan.tests import helpers
 
