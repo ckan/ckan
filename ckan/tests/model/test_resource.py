@@ -8,7 +8,6 @@ import ckan.tests.factories as factories
 Resource = model.Resource
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestResource(object):
     def test_edit_url(self):
         res_dict = factories.Resource(url="http://first")

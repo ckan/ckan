@@ -6,7 +6,6 @@ from ckan import model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackage(object):
     def test_create(self):
         pkg = model.Package(name=factories.Dataset.stub().name)

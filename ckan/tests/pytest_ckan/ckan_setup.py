@@ -8,6 +8,7 @@ import ckan.plugins as plugins
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
 from ckan.common import config
+from ckan import model
 
 # This is a test Flask request context to be used internally.
 # Do not use it!
@@ -52,6 +53,8 @@ def pytest_sessionstart(session):
     # Create the snapshot of the initial configuration
     global _config
     _config = config.copy()
+
+    model.repo.init_db()
 
 
 def pytest_runtestloop(session):

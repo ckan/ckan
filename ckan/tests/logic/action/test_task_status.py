@@ -6,7 +6,6 @@ from ckan import logic, model
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_task_status_update():
     pkg = factories.Dataset()
 
@@ -35,7 +34,6 @@ def test_task_status_update():
     assert task_status_updated_2 == task_status_updated
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_task_status_update_many():
     pkg = factories.Dataset()
     task_statuses = {
@@ -76,7 +74,6 @@ def test_task_status_update_many():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_task_status_normal_user_not_authorized():
     user = factories.User()
     context = {"model": model, "user": user["name"]}
@@ -84,13 +81,11 @@ def test_task_status_normal_user_not_authorized():
         helpers.call_auth("task_status_update", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_task_status_validation():
     with pytest.raises(logic.ValidationError):
         helpers.call_action("task_status_update")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_task_status_show():
     pkg = factories.Dataset()
     task_status = {
@@ -127,7 +122,6 @@ def test_task_status_show():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_task_status_delete():
     pkg = factories.Dataset()
     task_status = {

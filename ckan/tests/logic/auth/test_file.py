@@ -9,7 +9,6 @@ from ckan import types
 from ckan.tests.helpers import call_action
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPermissionManage:
     def test_anonymous_is_not_allowed(self):
         """Anonymous users are not allowed to manage files."""
@@ -22,7 +21,6 @@ class TestPermissionManage:
             tk.check_access("permission_manage_files", {"user": user["name"]}, {})
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPermissionOwns:
     def test_anonymous_is_not_allowed(self, file: dict[str, Any]):
         """Anonymous users is not an owner."""
@@ -57,7 +55,6 @@ class TestPermissionOwns:
         "permission_download_file",
     ],
 )
-@pytest.mark.usefixtures("non_clean_db")
 class TestPermission:
     action: str
 
@@ -119,7 +116,6 @@ class TestPermission:
         tk.check_access(action, {"user": user["name"]}, {"id": file["id"]})
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileCreate:
     def test_anonymous_uploads_are_not_allowed(self):
         """Anonymous users are not allowed to upload files."""
@@ -140,7 +136,6 @@ class TestFileCreate:
         tk.check_access("file_create", {"user": user["name"]}, {"storage": "test"})
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileTrack:
     def test_anonymous_are_not_allowed(self):
         """Anonymous users are not allowed to register files."""
@@ -155,7 +150,6 @@ class TestFileTrack:
             )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileSearch:
     def test_anonymous_search_is_not_allowed(self):
         """Anonymous users are not allowed to search files."""
@@ -178,7 +172,6 @@ class TestFileSearch:
         "file_unpin",
     ],
 )
-@pytest.mark.usefixtures("non_clean_db")
 class TestOperation:
     action: str
 
@@ -202,7 +195,6 @@ class TestOperation:
         tk.check_access(action, {"user": user["name"]}, {"id": file["id"]})
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestOwnershipTransfer:
     def test_anonymous_transfer_is_not_allowed(self, file: dict[str, Any]):
         """Anonymous users are not allowed to transfer files."""
