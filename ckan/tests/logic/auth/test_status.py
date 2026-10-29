@@ -1,6 +1,5 @@
 """Tests for authorization in ckan/logic/auth/status.py."""
 
-import pytest
 
 from ckan import model
 from ckan.tests import helpers
