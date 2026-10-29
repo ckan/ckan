@@ -33,7 +33,6 @@ class MailerBase(object):
         return decode_header(header)[0][0]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestMailer(MailerBase):
     def test_mail_recipient(self, mail_server):
         user = factories.User()

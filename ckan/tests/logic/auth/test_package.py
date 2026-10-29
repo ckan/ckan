@@ -36,14 +36,12 @@ def test_cud_overrides_acd():
         helpers.call_auth("package_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_no_org_user_can_create():
     user = factories.User()
     context = {"user": user["name"], "model": model}
     assert helpers.call_auth("package_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
 @pytest.mark.ckan_config("ckan.auth.create_dataset_if_not_in_organization", False)
 def test_no_org_user_cant_create_if_cdnio_false():
@@ -53,7 +51,6 @@ def test_no_org_user_cant_create_if_cdnio_false():
         helpers.call_auth("package_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.anon_create_dataset", True)
 @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
 def test_no_org_user_cant_create_if_cud_false():
@@ -63,7 +60,6 @@ def test_no_org_user_cant_create_if_cud_false():
         helpers.call_auth("package_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_same_org_user_can_create():
     user = factories.User()
     org_users = [{"name": user["name"], "capacity": "editor"}]
@@ -73,7 +69,6 @@ def test_same_org_user_can_create():
     assert helpers.call_auth("package_create", context, **dataset)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_different_org_user_cant_create():
     user = factories.User()
     org_users = [{"name": user["name"], "capacity": "editor"}]
@@ -88,7 +83,6 @@ def test_different_org_user_cant_create():
         helpers.call_auth("package_create", context, **dataset)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_authorized_if_user_has_permissions_on_dataset():
@@ -113,7 +107,6 @@ def test_authorized_if_user_has_permissions_on_dataset():
     assert response
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_not_authorized_if_user_has_no_permissions_on_dataset():
@@ -143,7 +136,6 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset():
         helpers.call_auth("resource_view_create", context=context, **resource_view)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_not_authorized_if_not_logged_in_3():
@@ -159,7 +151,6 @@ def test_not_authorized_if_not_logged_in_3():
         helpers.call_auth("resource_view_create", context=context, **resource_view)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_authorized_if_user_has_permissions_on_dataset_3():
 
     user = factories.User()
@@ -177,7 +168,6 @@ def test_authorized_if_user_has_permissions_on_dataset_3():
     assert response
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_not_authorized_if_user_has_no_permissions_on_dataset_2():
 
     org = factories.Organization()
@@ -202,7 +192,6 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset_2():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_not_authorized_if_not_logged_in_2():
     dataset = factories.Dataset()
 
@@ -217,7 +206,6 @@ def test_not_authorized_if_not_logged_in_2():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_authorized_if_user_has_permissions_on_dataset_2():
 
     user = factories.User()
@@ -233,7 +221,6 @@ def test_authorized_if_user_has_permissions_on_dataset_2():
     assert response
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_not_authorized_if_user_has_no_permissions_on_dataset_3():
 
     org = factories.Organization()
@@ -256,7 +243,6 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset_3():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_not_authorized_if_not_logged_in():
     dataset = factories.Dataset()
 
@@ -269,7 +255,6 @@ def test_not_authorized_if_not_logged_in():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_authorized_if_user_has_permissions_on_dataset_4():
 
     user = factories.User()
@@ -288,7 +273,6 @@ def test_authorized_if_user_has_permissions_on_dataset_4():
     assert response
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_not_authorized_if_user_has_no_permissions_on_dataset_4():
 
     org = factories.Organization()
@@ -314,7 +298,6 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset_4():
         helpers.call_auth("resource_create", context=context, **resource)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_not_authorized_if_not_logged_in_4():
 
     resource = {"title": "Resource", "url": "http://test", "format": "csv"}
@@ -324,7 +307,6 @@ def test_not_authorized_if_not_logged_in_4():
         helpers.call_auth("resource_create", context=context, **resource)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_is_authorized():
 
     sysadmin = factories.Sysadmin()
@@ -336,7 +318,6 @@ def test_sysadmin_is_authorized():
     assert response
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_raises_not_found_if_no_package_id_provided():
 
     user = factories.User()
@@ -348,7 +329,6 @@ def test_raises_not_found_if_no_package_id_provided():
         helpers.call_auth("resource_create", context=context, **resource)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_raises_not_found_if_dataset_was_not_found():
 
     user = factories.User()
@@ -365,7 +345,6 @@ def test_raises_not_found_if_dataset_was_not_found():
         helpers.call_auth("resource_create", context=context, **resource)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberCreateAuth(object):
     def _get_context(self, user):
@@ -500,7 +479,6 @@ class TestPackageMemberCreateAuth(object):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDeleteAuth(object):
     def _get_context(self, user):
@@ -627,7 +605,6 @@ class TestPackageMemberDeleteAuth(object):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_show__deleted_dataset_is_hidden_to_public():
     dataset = factories.Dataset(state="deleted")
     context = {"model": model}
@@ -637,7 +614,6 @@ def test_package_show__deleted_dataset_is_hidden_to_public():
         helpers.call_auth("package_show", context=context, id=dataset["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_show__deleted_dataset_is_visible_to_editor():
 
     fred = factories.User()
@@ -651,7 +627,7 @@ def test_package_show__deleted_dataset_is_visible_to_editor():
     assert ret
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestGetAuthWithCollaboratorsPackage(object):
@@ -722,7 +698,6 @@ def members_fixtures():
     return locals()
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberList(object):
     def _get_context(self, user):
@@ -891,7 +866,7 @@ class TestPackageMemberList(object):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)

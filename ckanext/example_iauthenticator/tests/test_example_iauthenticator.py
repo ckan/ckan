@@ -91,7 +91,6 @@ class TestIdentification:
         app.get(toolkit.url_for('home.index'))
         identify_mock.assert_called_once_with()
 
-    @pytest.mark.usefixtures("non_clean_db")
     def test_remembered_user(
             self,
             app: Any, user: dict[str, Any],
@@ -111,7 +110,6 @@ class TestIdentification:
         app.get(toolkit.url_for('home.index'))
         identify_mock.assert_called_with(name)
 
-    @pytest.mark.usefixtures("non_clean_db")
     def test_session_user(
             self, app: Any, user: dict[str, Any],
             identify_mock: mock.Mock,
@@ -122,7 +120,6 @@ class TestIdentification:
         app.get(toolkit.url_for('home.index'))
         identify_mock.assert_called_once_with(user["id"])
 
-    @pytest.mark.usefixtures("non_clean_db")
     def test_session_invalid_user(
             self, app: Any, user_factory: Any,
             identify_mock: mock.Mock,

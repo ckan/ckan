@@ -29,7 +29,6 @@ def _set_password(password):
     return str(hashed_password)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPasswordUpgrade:
     def test_upgrade_from_sha(self):
         user = factories.User()

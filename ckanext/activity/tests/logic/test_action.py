@@ -2718,7 +2718,7 @@ class TestDeferCommitOnCreate(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestActivityCreate:
     def test_normal_user_cant_set_id(self):
         user = factories.User()

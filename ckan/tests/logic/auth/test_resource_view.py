@@ -8,7 +8,7 @@ from ckan.tests import factories, helpers
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestGetAuthWithCollaboratorsResourceView(object):
@@ -119,7 +119,7 @@ class TestGetAuthWithCollaboratorsResourceView(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_anon_can_not_update():
 
     resource_view = factories.ResourceView()
@@ -137,7 +137,7 @@ def test_anon_can_not_update():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_authorized_if_user_has_permissions_on_dataset():
 
     user = factories.User()
@@ -163,7 +163,7 @@ def test_authorized_if_user_has_permissions_on_dataset():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_reorder_authorized_if_user_has_permissions_on_dataset():
     """Ensure that resource_view_reorder action correctly calls
     the auth function
@@ -189,7 +189,7 @@ def test_reorder_authorized_if_user_has_permissions_on_dataset():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_not_authorized_if_user_has_no_permissions_on_dataset():
 
     org = factories.Organization()
@@ -220,7 +220,7 @@ def test_not_authorized_if_user_has_no_permissions_on_dataset():
         helpers.call_auth("resource_view_update", context=context, **params)
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)

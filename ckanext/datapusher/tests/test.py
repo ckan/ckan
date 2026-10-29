@@ -18,7 +18,7 @@ from ckanext.datapusher.tests import get_api_token
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins")
 class TestDatastoreNew:
     def test_create_ckan_resource_in_package(self, app, api_token):
         package = factories.Dataset.model()
