@@ -1,0 +1,2 @@
+`ckan db init` is now an alias of `ckan db create-from-model`, which is faster
+than `ckan db upgrade` and supports creating plugin models.
