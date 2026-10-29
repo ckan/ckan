@@ -54,6 +54,9 @@ class CtxObject(object):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
         raw_config = ckan_cli.load_config(conf)
+        if _requested_command() != 'run':
+            _quiet_stderr_logging()
+        log.info('Using configuration file %s', raw_config.get('__file__'))
         self.app = make_app(raw_config)
 
         # Attach the actual CKAN config object to the context
@@ -124,6 +127,33 @@ class ExtendableGroup(click.Group):
             click.echo(ctx.get_help(), color=ctx.color)
             ctx.exit()
         return result
+
+
+def _requested_command() -> Optional[str]:
+    """Name of the top level command from sys.argv, skipping `-c` option."""
+    args = iter(sys.argv[1:])
+    for arg in args:
+        if arg in ("-c", "--config"):
+            next(args, None)
+        elif not arg.startswith("-"):
+            return arg
+    return None
+
+
+def _quiet_stderr_logging():
+    """Force quieter log handlers writing to stderr."""
+    loggers = [logging.getLogger()] + [
+        lg for lg in logging.root.manager.loggerDict.values()
+        if isinstance(lg, logging.Logger)
+    ]
+    for logger in loggers:
+        for handler in logger.handlers:
+            if (
+                isinstance(handler, logging.StreamHandler)
+                and not isinstance(handler, logging.FileHandler)
+                and handler.stream in (sys.stderr, sys.__stderr__)
+            ):
+                handler.setLevel(logging.CRITICAL)
 
 
 def _init_ckan_config(ctx: click.Context, param: str, value: str):
