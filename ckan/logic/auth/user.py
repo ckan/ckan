@@ -110,7 +110,7 @@ def api_token_list(context: Context, data_dict: DataDict) -> AuthResult:
 
 @logic.auth_allow_anonymous_access
 def dataset_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
-    """Check if the number of datasets followed by a user are visible.
+    """Check if the number of packages followed by a user are visible.
     Visible to all by default."""
     return {"success": True}
 
@@ -145,7 +145,7 @@ def followee_count(context: Context, data_dict: DataDict) -> AuthResult:
 
 @logic.auth_allow_anonymous_access
 def dataset_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
-    """Check if the number of followers of a dataset are visible.
+    """Check if the number of followers of a package are visible.
     Visible to all by default."""
     return {"success": True}
 
@@ -173,7 +173,7 @@ def user_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
 
 @logic.auth_allow_anonymous_access
 def am_following_dataset(context: Context, data_dict: DataDict) -> AuthResult:
-    """Check if the information about following a dataset is visible.
+    """Check if the information about following a package is visible.
     Visible to all by default."""
     return {"success": True}
 
@@ -234,7 +234,7 @@ def follow_group(context: Context, data_dict: DataDict) -> AuthResult:
 
 def follow_dataset(context: Context, data_dict: DataDict) -> AuthResult:
     """
-    Only logged in users who can read a dataset can follow it.
+    Only logged in users who can read a package can follow it.
     """
     if not _check_follow_auth(context):
         return {"success": False, "msg": _("You must be logged in to follow datasets")}
@@ -314,7 +314,7 @@ def unfollow_group(context: Context, data_dict: DataDict) -> AuthResult:
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> AuthResult:
     """
-    Only logged in users can unfollow a dataset.
+    Only logged in users can unfollow a package.
     """
     if _check_unfollow_auth(context):
         return {"success": True}
@@ -323,7 +323,7 @@ def unfollow_dataset(context: Context, data_dict: DataDict) -> AuthResult:
 
 def unfollow_user(context: Context, data_dict: DataDict) -> AuthResult:
     """
-    Only logged in users can unfollow a dataset.
+    Only logged in users can unfollow a package.
     """
     if _check_unfollow_auth(context):
         return {"success": True}

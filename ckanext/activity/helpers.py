@@ -128,7 +128,7 @@ def compare_pkg_dicts(
 ) -> list[dict[str, Any]]:
     """
     Takes two package dictionaries that represent consecutive versions of
-    the same dataset and returns a list of detailed & formatted summaries of
+    the same package and returns a list of detailed & formatted summaries of
     the changes between the two versions. old and new are the two package
     dictionaries. The function assumes that both dictionaries will have
     all of the default package dictionary keys, and also checks for fields
@@ -136,7 +136,7 @@ def compare_pkg_dicts(
     interface.
 
     Returns a list of dictionaries, each of which corresponds to a change
-    to the dataset made in this revision. The dictionaries each contain a
+    to the package made in this revision. The dictionaries each contain a
     string indicating the type of change made as well as other data necessary
     to form a detailed summary of the change.
     """
@@ -147,7 +147,7 @@ def compare_pkg_dicts(
 
     changes.check_resource_changes(change_list, old, new, old_activity_id)
 
-    # if the dataset was updated but none of the fields we check were changed,
+    # if the package was updated but none of the fields we check were changed,
     # display a message stating that
     if len(change_list) == 0:
         change_list.append({"type": "no_change"})
@@ -168,7 +168,7 @@ def compare_group_dicts(
     interface.
 
     Returns a list of dictionaries, each of which corresponds to a change
-    to the dataset made in this revision. The dictionaries each contain a
+    to the package made in this revision. The dictionaries each contain a
     string indicating the type of change made as well as other data necessary
     to form a detailed summary of the change.
     """

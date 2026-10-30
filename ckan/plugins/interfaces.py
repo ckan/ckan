@@ -120,7 +120,7 @@ class IMiddleware(Interface):
 
 class IDomainObjectModification(Interface):
     u'''
-    Receives notification of new, changed and deleted datasets.
+    Receives notification of new, changed and deleted packages.
     '''
 
     def notify(self, entity: Any, operation: str) -> None:
@@ -171,7 +171,7 @@ class IFeed(Interface):
         """
         Allows plugins to set additional fields on a feed item.
 
-        :param dataset_dict: the dataset metadata
+        :param dataset_dict: the package metadata
         :type dataset_dict: dictionary
         :returns: the fields to set
         :rtype: dictionary
@@ -263,7 +263,7 @@ class IResourceView(Interface):
         The ``data_dict`` contains the following keys:
 
         :param resource: dict of the resource fields
-        :param package: dict of the full parent dataset
+        :param package: dict of the full parent package
 
         :returns: True if the plugin can render a particular resource, False
             otherwise
@@ -283,7 +283,7 @@ class IResourceView(Interface):
 
         :param resource_view: dict of the resource view being rendered
         :param resource: dict of the parent resource fields
-        :param package: dict of the full parent dataset
+        :param package: dict of the full parent package
 
         :returns: a dictionary with the extra variables to pass
         :rtype: dict
@@ -302,7 +302,7 @@ class IResourceView(Interface):
 
         :param resource_view: dict of the resource view being rendered
         :param resource: dict of the parent resource fields
-        :param package: dict of the full parent dataset
+        :param package: dict of the full parent package
 
         :returns: the location of the view template.
         :rtype: string
@@ -321,7 +321,7 @@ class IResourceView(Interface):
 
         :param resource_view: dict of the resource view being rendered
         :param resource: dict of the parent resource fields
-        :param package: dict of the full parent dataset
+        :param package: dict of the full parent package
 
         :returns: the location of the edit view form template.
         :rtype: string
@@ -423,7 +423,7 @@ class IOrganizationController(Interface):
 
 class IPackageController(Interface):
     u'''
-    Hook into the dataset view.
+    Hook into the package view.
     '''
 
     def read(self, entity: 'model.Package') -> None:
@@ -434,12 +434,12 @@ class IPackageController(Interface):
         pass
 
     def create(self, entity: 'model.Package') -> None:
-        u'''Called after the dataset had been created inside package_create.
+        u'''Called after the package had been created inside package_create.
         '''
         pass
 
     def edit(self, entity: 'model.Package') -> None:
-        u'''Called after the dataset had been updated inside package_update.
+        u'''Called after the package had been updated inside package_update.
         '''
         pass
 
@@ -451,20 +451,20 @@ class IPackageController(Interface):
     def after_dataset_create(
             self, context: Context, pkg_dict: dict[str, Any]) -> None:
         u'''
-        Extensions will receive the validated data dict after the dataset
-        has been created (Note that the create method will return a dataset
+        Extensions will receive the validated data dict after the package
+        has been created (Note that the create method will return a package
         domain object, which may not include all fields). Also the newly
-        created dataset id will be added to the dict.
+        created package id will be added to the dict.
         '''
         pass
 
     def after_dataset_update(
             self, context: Context, pkg_dict: dict[str, Any]) -> None:
         u'''
-        Extensions will receive the validated data dict after the dataset
+        Extensions will receive the validated data dict after the package
         has been updated.
 
-        Note that bulk dataset update actions (`bulk_update_private`,
+        Note that bulk package update actions (`bulk_update_private`,
         `bulk_update_public`) will bypass this callback. See
         ``ckan.plugins.toolkit.chained_action`` to wrap those actions
         if required.
@@ -475,7 +475,7 @@ class IPackageController(Interface):
             self, context: Context, pkg_dict: dict[str, Any]) -> None:
         u'''
         Extensions will receive the data dict (typically containing
-        just the dataset id) after the dataset has been deleted.
+        just the package id) after the package has been deleted.
 
         Note that the `bulk_update_delete` action will bypass this
         callback. See ``ckan.plugins.toolkit.chained_action`` to wrap
@@ -486,7 +486,7 @@ class IPackageController(Interface):
     def after_dataset_show(
             self, context: Context, pkg_dict: dict[str, Any]) -> None:
         u'''
-        Extensions will receive the validated data dict after the dataset
+        Extensions will receive the validated data dict after the package
         is ready for display.
         '''
         pass
@@ -536,7 +536,7 @@ class IPackageController(Interface):
 
     def before_dataset_view(self, pkg_dict: dict[str, Any]) -> dict[str, Any]:
         u'''
-        Extensions will receive this before the dataset gets
+        Extensions will receive this before the package gets
         displayed. The dictionary passed will be the one that gets
         sent to the template.
         '''
@@ -557,7 +557,7 @@ class IResourceController(Interface):
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
         :param resource: An object representing the resource to be added
-            to the dataset (the one that is about to be created).
+            to the package (the one that is about to be created).
         :type resource: dictionary
         '''
         pass
@@ -571,7 +571,7 @@ class IResourceController(Interface):
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
         :param resource: An object representing the latest resource added
-            to the dataset (the one that was just created). A key in the
+            to the package (the one that was just created). A key in the
             resource dictionary worth mentioning is ``url_type`` which is
             set to ``upload`` when the resource file is uploaded instead
             of linked.
@@ -604,7 +604,7 @@ class IResourceController(Interface):
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
         :param resource: An object representing the updated resource in
-            the dataset (the one that was just updated). As with
+            the package (the one that was just updated). As with
             ``after_resource_create``, a noteworthy key in the resource
             dictionary ``url_type`` which is set to ``upload`` when the
             resource file is uploaded instead of linked.
@@ -631,7 +631,7 @@ class IResourceController(Interface):
         :type resource: dictionary
         :param resources: The list of resources from which the resource will
             be deleted (including the resource to be deleted if it existed
-            in the dataset).
+            in the package).
         :type resources: list
         '''
         pass
@@ -659,7 +659,7 @@ class IResourceController(Interface):
 
         Be aware that this method is not only called for UI display, but also
         in other methods, like when a resource is deleted, because package_show
-        is used to get access to the resources in a dataset.
+        is used to get access to the resources in a package.
         '''
         return resource_dict
 
@@ -1005,16 +1005,16 @@ class ITemplateHelpers(Interface):
 
 
 class IDatasetForm(Interface):
-    u'''Customize CKAN's dataset (package) schemas and forms.
+    u'''Customize CKAN's package schemas and forms.
 
-    By implementing this interface plugins can customise CKAN's dataset schema,
-    for example to add new custom fields to datasets.
+    By implementing this interface plugins can customise CKAN's package schema,
+    for example to add new custom fields to packages.
 
     Multiple IDatasetForm plugins can be used at once, each plugin associating
-    itself with different dataset types using the ``package_types()`` and
+    itself with different package types using the ``package_types()`` and
     ``is_fallback()`` methods below, and then providing different schemas and
-    templates for different types of dataset.  When a dataset view action
-    is invoked, the ``type`` field of the dataset will determine which
+    templates for different types of package.  When a package view action
+    is invoked, the ``type`` field of the package will determine which
     IDatasetForm plugin (if any) gets delegated to.
 
     When implementing IDatasetForm, you can inherit from
@@ -1025,13 +1025,13 @@ class IDatasetForm(Interface):
 
     '''
     def package_types(self) -> Sequence[str]:
-        u'''Return an iterable of dataset (package) types that this plugin
+        u'''Return an iterable of package types that this plugin
         handles.
 
-        If a request involving a dataset of one of the returned types is made,
+        If a request involving a package of one of the returned types is made,
         then this plugin instance will be delegated to.
 
-        There cannot be two IDatasetForm plugins that return the same dataset
+        There cannot be two IDatasetForm plugins that return the same package
         type, if this happens then CKAN will raise an exception at startup.
 
         :rtype: iterable of strings
@@ -1043,7 +1043,7 @@ class IDatasetForm(Interface):
         u'''Return ``True`` if this plugin is the fallback plugin.
 
         When no IDatasetForm plugin's ``package_types()`` match the ``type`` of
-        the dataset being processed, the fallback plugin is delegated to
+        the package being processed, the fallback plugin is delegated to
         instead.
 
         There cannot be more than one IDatasetForm plugin whose
@@ -1059,10 +1059,10 @@ class IDatasetForm(Interface):
         return False
 
     def create_package_schema(self) -> Schema:
-        u'''Return the schema for validating new dataset dicts.
+        u'''Return the schema for validating new package dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from users (via the dataset form or API) when creating new datasets,
+        from users (via the package form or API) when creating new packages,
         before entering that data into the database.
 
         If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
@@ -1070,12 +1070,12 @@ class IDatasetForm(Interface):
         method to get the default schema and then modify and return it.
 
         CKAN's ``convert_to_tags()`` or ``convert_to_extras()`` functions can
-        be used to convert custom fields into dataset tags or extras for
+        be used to convert custom fields into package tags or extras for
         storing in the database.
 
         See ``ckanext/example_idatasetform`` for examples.
 
-        :returns: a dictionary mapping dataset dict keys to lists of validator
+        :returns: a dictionary mapping package dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 
@@ -1083,10 +1083,10 @@ class IDatasetForm(Interface):
         return {}
 
     def update_package_schema(self) -> Schema:
-        u'''Return the schema for validating updated dataset dicts.
+        u'''Return the schema for validating updated package dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from users (via the dataset form or API) when updating datasets, before
+        from users (via the package form or API) when updating packages, before
         entering that data into the database.
 
         If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
@@ -1094,12 +1094,12 @@ class IDatasetForm(Interface):
         method to get the default schema and then modify and return it.
 
         CKAN's ``convert_to_tags()`` or ``convert_to_extras()`` functions can
-        be used to convert custom fields into dataset tags or extras for
+        be used to convert custom fields into package tags or extras for
         storing in the database.
 
         See ``ckanext/example_idatasetform`` for examples.
 
-        :returns: a dictionary mapping dataset dict keys to lists of validator
+        :returns: a dictionary mapping package dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 
@@ -1108,7 +1108,7 @@ class IDatasetForm(Interface):
 
     def show_package_schema(self) -> Schema:
         u'''
-        Return a schema to validate datasets before they're shown to the user.
+        Return a schema to validate packages before they're shown to the user.
 
         CKAN will use the returned schema to validate and convert data coming
         from the database before it is returned to the user via the API or
@@ -1122,11 +1122,11 @@ class IDatasetForm(Interface):
         your ``create_package_schema()`` and ``update_package_schema()`` then
         you should use ``convert_from_tags()`` or ``convert_from_extras()`` in
         your ``show_package_schema()`` to convert the tags or extras in the
-        database back into your custom dataset fields.
+        database back into your custom package fields.
 
         See ``ckanext/example_idatasetform`` for examples.
 
-        :returns: a dictionary mapping dataset dict keys to lists of validator
+        :returns: a dictionary mapping package dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 
@@ -1135,10 +1135,10 @@ class IDatasetForm(Interface):
 
     def setup_template_variables(self, context: Context,
                                  data_dict: DataDict) -> None:
-        u'''Add variables to the template context for use in dataset templates.
+        u'''Add variables to the template context for use in package templates.
 
-        This function is called before a dataset template is rendered. If you
-        have custom dataset templates that require some additional variables,
+        This function is called before a package template is rendered. If you
+        have custom package templates that require some additional variables,
         you can add them to the template context ``ckan.plugins.toolkit.c``
         here and they will be available in your templates. See
         ``ckanext/example_idatasetform`` for an example.
@@ -1146,7 +1146,7 @@ class IDatasetForm(Interface):
         '''
 
     def new_template(self, package_type: str) -> str:
-        u'''Return the path to the template for the new dataset page.
+        u'''Return the path to the template for the new package page.
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/new.html'``.
@@ -1157,12 +1157,12 @@ class IDatasetForm(Interface):
         return ''
 
     def read_template(self, package_type: str) -> str:
-        u'''Return the path to the template for the dataset read page.
+        u'''Return the path to the template for the package read page.
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/read.html'``.
 
-        If the user requests the dataset in a format other than HTML, then
+        If the user requests the package in a format other than HTML, then
         CKAN will try to render a template file with the same path as returned
         by this function, but a different filename extension,
         e.g. ``'package/read.rdf'``.  If your extension (or another one)
@@ -1175,7 +1175,7 @@ class IDatasetForm(Interface):
         return ''
 
     def edit_template(self, package_type: str) -> str:
-        u'''Return the path to the template for the dataset edit page.
+        u'''Return the path to the template for the package edit page.
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/edit.html'``.
@@ -1186,10 +1186,10 @@ class IDatasetForm(Interface):
         return ''
 
     def search_template(self, package_type: str) -> str:
-        u'''Return the path to the template for use in the dataset search page.
+        u'''Return the path to the template for use in the package search page.
 
-        This template is used to render each dataset that is listed in the
-        search results on the dataset search page.
+        This template is used to render each package that is listed in the
+        search results on the package search page.
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/search.html'``.
@@ -1201,7 +1201,7 @@ class IDatasetForm(Interface):
 
     def search_template_htmx(self, package_type: str) -> str:
         '''
-        Return the path to the template to use in the dataset search page
+        Return the path to the template to use in the package search page
         for htmx responses.
 
         The path should be relative to the plugin's templates dir, e.g.
@@ -1231,7 +1231,7 @@ class IDatasetForm(Interface):
         return ''
 
     def package_form(self, package_type: str) -> str:
-        u'''Return the path to the template for the dataset form.
+        u'''Return the path to the template for the package form.
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/form.html'``.
@@ -1254,10 +1254,10 @@ class IDatasetForm(Interface):
     def validate(
             self, context: Context, data_dict: DataDict, schema: Schema,
             action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
-        u'''Customize validation of datasets.
+        u'''Customize validation of packages.
 
         When this method is implemented it is used to perform all validation
-        for these datasets. The default implementation calls and returns the
+        for these packages. The default implementation calls and returns the
         result from ``ckan.plugins.toolkit.navl_validate``.
 
         This is an advanced interface. Most changes to validation should be
@@ -1265,12 +1265,12 @@ class IDatasetForm(Interface):
         ``show_package_schema()``, ``create_package_schema()``
         and ``update_package_schema()``. If you need to have a different
         schema depending on the user or value of any field stored in the
-        dataset, or if you wish to use a different method for validation, then
+        package, or if you wish to use a different method for validation, then
         this method may be used.
 
         :param context: extra information about the request
         :type context: dictionary
-        :param data_dict: the dataset to be validated
+        :param data_dict: the package to be validated
         :type data_dict: dictionary
         :param schema: a schema, typically from ``show_package_schema()``,
           ``create_package_schema()`` or ``update_package_schema()``
@@ -1279,7 +1279,7 @@ class IDatasetForm(Interface):
           ``'package_update'``
         :type action: string
         :returns: (data_dict, errors) where data_dict is the possibly-modified
-          dataset and errors is a dictionary with keys matching data_dict
+          package and errors is a dictionary with keys matching data_dict
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
@@ -1287,9 +1287,9 @@ class IDatasetForm(Interface):
 
     def prepare_dataset_blueprint(self, package_type: str,
                                   blueprint: Blueprint) -> Blueprint:
-        u'''Update or replace dataset blueprint for given package type.
+        u'''Update or replace package blueprint for given package type.
 
-        Internally CKAN registers blueprint for every custom dataset
+        Internally CKAN registers blueprint for every custom package
         type. Before default routes added to this blueprint and it
         registered inside application this method is called. It can be
         used either for registration of the view function under new
@@ -1308,7 +1308,7 @@ class IDatasetForm(Interface):
         u'''Update or replace resource blueprint for given package type.
 
         Internally CKAN registers separate resource blueprint for
-        every custom dataset type. Before default routes added to this
+        every custom package type. Before default routes added to this
         blueprint and it registered inside application this method is
         called. It can be used either for registration of the view
         function under new path or under existing path(like `/new`),
@@ -1325,7 +1325,7 @@ class IDatasetForm(Interface):
     def resource_validation_dependencies(
             self, package_type: str) -> List[str]:
         '''
-        Return a list of dataset field names that affect validation of
+        Return a list of package field names that affect validation of
         resource fields.
 
         package_update and related actions skip re-validating unchanged
@@ -1409,12 +1409,12 @@ class IGroupForm(Interface):
         '''Return the schema for validating new group or organization dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from users (via the dataset form or API) when creating new groups,
+        from users (via the package form or API) when creating new groups,
         before entering that data into the database.
 
         See ``ckanext/example_igroupform`` for examples.
 
-        :returns: a dictionary mapping dataset dict keys to lists of validator
+        :returns: a dictionary mapping package dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 
@@ -1426,12 +1426,12 @@ class IGroupForm(Interface):
         dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from users (via the dataset form or API) when updating groups, before
+        from users (via the package form or API) when updating groups, before
         entering that data into the database.
 
         See ``ckanext/example_igroupform`` for examples.
 
-        :returns: a dictionary mapping dataset dict keys to lists of validator
+        :returns: a dictionary mapping package dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 
@@ -1449,7 +1449,7 @@ class IGroupForm(Interface):
 
         See ``ckanext/example_igroupform`` for examples.
 
-        :returns: a dictionary mapping dataset dict keys to lists of validator
+        :returns: a dictionary mapping package dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 
@@ -1579,7 +1579,7 @@ class IFacets(Interface):
     u'''Customize the search facets shown on search pages.
 
     By implementing this interface plugins can customize the search facets that
-    are displayed for filtering search results on the dataset search page,
+    are displayed for filtering search results on the package search page,
     organization pages and group pages.
 
     The ``facets_dict`` passed to each of the functions below is an
@@ -1606,8 +1606,8 @@ class IFacets(Interface):
            'secondary_publisher': p.toolkit._('Secondary Publisher'),
         })
 
-    Dataset searches can be faceted on any field in the dataset schema that it
-    makes sense to facet on. This means any dataset field that is in CKAN's
+    Package searches can be faceted on any field in the package schema that it
+    makes sense to facet on. This means any package field that is in CKAN's
     Solr search index, basically any field that you see returned by
     :py:func:`~ckan.logic.action.package.package_show`.
 
@@ -1619,16 +1619,16 @@ class IFacets(Interface):
     def dataset_facets(self,
                        facets_dict: 'OrderedDict[str, Any]',
                        package_type: str) -> 'OrderedDict[str, Any]':
-        u'''Modify and return the ``facets_dict`` for the dataset search page.
+        u'''Modify and return the ``facets_dict`` for the package search page.
 
-        The ``package_type`` is the type of dataset that these facets apply to.
+        The ``package_type`` is the type of package that these facets apply to.
         Plugins can provide different search facets for different types of
-        dataset. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
 
         :param facets_dict: the search facets as currently specified
         :type facets_dict: OrderedDict
 
-        :param package_type: the dataset type that these facets apply to
+        :param package_type: the package type that these facets apply to
         :type package_type: string
 
         :returns: the updated ``facets_dict``
@@ -1642,9 +1642,9 @@ class IFacets(Interface):
                      ) -> 'OrderedDict[str, Any]':
         u'''Modify and return the ``facets_dict`` for a group's page.
 
-        The ``package_type`` is the type of dataset that these facets apply to.
+        The ``package_type`` is the type of package that these facets apply to.
         Plugins can provide different search facets for different types of
-        dataset. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
 
         The ``group_type`` is the type of group that these facets apply to.
         Plugins can provide different search facets for different types of
@@ -1656,7 +1656,7 @@ class IFacets(Interface):
         :param group_type: the group type that these facets apply to
         :type group_type: string
 
-        :param package_type: the dataset type that these facets apply to
+        :param package_type: the package type that these facets apply to
         :type package_type: string
 
         :returns: the updated ``facets_dict``
@@ -1670,9 +1670,9 @@ class IFacets(Interface):
             package_type: Optional[str]) -> 'OrderedDict[str, Any]':
         u'''Modify and return the ``facets_dict`` for an organization's page.
 
-        The ``package_type`` is the type of dataset that these facets apply to.
+        The ``package_type`` is the type of package that these facets apply to.
         Plugins can provide different search facets for different types of
-        dataset. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
 
         The ``organization_type`` is the type of organization that these facets
         apply to.  Plugins can provide different search facets for different
@@ -1686,7 +1686,7 @@ class IFacets(Interface):
                                   to
         :type organization_type: string
 
-        :param package_type: the dataset type that these facets apply to
+        :param package_type: the package type that these facets apply to
         :type package_type: string
 
         :returns: the updated ``facets_dict``
@@ -1961,7 +1961,7 @@ class IBlueprint(Interface):
 class IPermissionLabels(Interface):
     u'''
     Extensions implementing this interface can override the permission
-    labels applied to datasets to precisely control which datasets are
+    labels applied to packages to precisely control which packages are
     visible to each user.
 
     Implementations might want to consider mixing in
@@ -1974,9 +1974,9 @@ class IPermissionLabels(Interface):
     def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         u'''
         Return a list of unicode strings to be stored in the search index
-        as the permission labels for a dataset dict.
+        as the permission labels for a package dict.
 
-        :param dataset_obj: dataset details
+        :param dataset_obj: package details
         :type dataset_obj: Package model object
 
         :returns: permission labels
@@ -1989,9 +1989,9 @@ class IPermissionLabels(Interface):
     ) -> list[str]:
         u'''
         Return the permission labels that give a user permission to view
-        a dataset. If any of the labels returned from this method match
+        a package. If any of the labels returned from this method match
         any of the labels returned from :py:meth:`.get_dataset_labels`
-        then this user is permitted to view that dataset.
+        then this user is permitted to view that package.
 
         :param user_obj: user details
         :type user_obj: User model object or None

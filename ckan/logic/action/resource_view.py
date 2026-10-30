@@ -93,7 +93,7 @@ def resource_create_default_resource_views(
     the configuration, and if some were found the `can_view` method of
     each one of them will be called to determine if a resource view should
     be created. Resource views extensions get the resource dict and the
-    parent dataset dict.
+    parent package dict.
 
     If the latter is not provided, `package_show` is called to get it.
 
@@ -104,7 +104,7 @@ def resource_create_default_resource_views(
 
     :param resource: full resource dict
     :type resource: dict
-    :param package: full dataset dict (optional, if not provided
+    :param package: full package dict (optional, if not provided
         :py:func:`~ckan.logic.action.package.package_show` will be called).
     :type package: dict
     :param create_datastore_views: whether to create views that rely on data
@@ -136,7 +136,7 @@ def package_create_default_resource_views(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageCreateDefaultResourceViews:
     """
-    Creates the default views on all resources of the provided dataset
+    Creates the default views on all resources of the provided package
 
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. Passing `create_datastore_views` as True will
@@ -145,7 +145,7 @@ def package_create_default_resource_views(
     `package_update`, the second when it's called from the DataPusher when
     data was uploaded to the DataStore.
 
-    :param package: full dataset dict (ie the one obtained
+    :param package: full package dict (ie the one obtained
         calling :py:func:`~ckan.logic.action.package.package_show`).
     :type package: dict
     :param create_datastore_views: whether to create views that rely on data
