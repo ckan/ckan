@@ -53,7 +53,7 @@ def member_roles_list(context: Context, data_dict: DataDict) -> AuthResult:
 
 @logic.auth_allow_anonymous_access
 def group_package_show(context: Context, data_dict: DataDict) -> AuthResult:
-    """Check if the set of datasets belonging to a group is visible.
+    """Check if the set of packages belonging to a group is visible.
     Visible to all by default."""
     return {"success": True}
 
@@ -98,7 +98,7 @@ def member_create(context: Context, data_dict: DataDict) -> AuthResult:
 
     # User must be able to update the group to add a member to it
     permission = "update"
-    # However if the user is member of group then they can add/remove datasets
+    # However if the user is member of group then they can add/remove packages
     if not group.is_organization and data_dict.get("object_type") == "package":
         permission = "manage_group"
 

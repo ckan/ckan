@@ -18,7 +18,7 @@ def create_country_codes():
 
     Note that you could also create the vocab and tags using CKAN's API,
     and once they are created you can edit them (e.g. to add and remove
-    possible dataset country code values) using the API.
+    possible package country code values) using the API.
 
     '''
     context = Context(user=tk.get_site_user().name)
@@ -50,7 +50,7 @@ def country_codes_helper():
 def draft_todo_validator(
         key: FlattenKey, data: FlattenDataDict,
         errors: FlattenErrorDict, context: Context) -> None:
-    '''Error if the dataset state is not set to draft'''
+    '''Error if the package state is not set to draft'''
     if not data.get(('state',), '').startswith('draft'):
         errors[key].append('must be blank when published')
 
@@ -61,7 +61,7 @@ class ExampleIDatasetFormPlugin(
 ):
     '''An example IDatasetForm CKAN plugin.
 
-    Uses a tag vocabulary to add a custom metadata field to datasets.
+    Uses a tag vocabulary to add a custom metadata field to packages.
 
     '''
     plugins.implements(plugins.IConfigurer, inherit=False)
@@ -137,7 +137,7 @@ class ExampleIDatasetFormPlugin(
             ExampleIDatasetFormPlugin, self).show_package_schema()
 
         # Don't show vocab tags mixed in with normal 'free' tags
-        # (e.g. on dataset pages, or on the search page)
+        # (e.g. on package pages, or on the search page)
         _extras = cast("list[Validator]",
                        cast(Schema, schema['tags'])['__extras'])
         _extras.append(tk.get_converter('free_tags_only'))
@@ -151,7 +151,7 @@ class ExampleIDatasetFormPlugin(
                 tk.get_validator('ignore_missing')]
             })
 
-        # Add our custom_text field to the dataset schema.
+        # Add our custom_text field to the package schema.
         schema.update({
             'custom_text': [tk.get_converter('convert_from_extras'),
                 tk.get_validator('ignore_missing')]

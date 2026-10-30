@@ -251,16 +251,16 @@ def search(package_type: str) -> str:
         u'auth_user_obj': current_user
     }
 
-    # Unless changed via config options, don't show other dataset
+    # Unless changed via config options, don't show other package
     # types any search page. Potential alternatives are do show them
-    # on the default search page (dataset) or on one other search page
+    # on the default search page (package) or on one other search page
     search_all_type = config.get(u'ckan.search.show_all_types')
     search_all = False
 
     try:
         # If the "type" is set to True or False, convert to bool
         # and we know that no type was specified, so use traditional
-        # behaviour of applying this only to dataset type
+        # behaviour of applying this only to package type
         search_all = asbool(search_all_type)
         search_all_type = u'dataset'
     # Otherwise we treat as a string representing a type
@@ -268,7 +268,7 @@ def search(package_type: str) -> str:
         search_all = True
 
     if not search_all or package_type != search_all_type:
-        # Only show datasets of this particular type
+        # Only show packages of this particular type
         fq += u' +dataset_type:{type}'.format(type=package_type)
 
     facets: dict[str, str] = OrderedDict()
@@ -513,7 +513,7 @@ class CreateView(MethodView):
         return context
 
     def post(self, package_type: str) -> Union[Response, str]:
-        # The staged add dataset used the new functionality when the dataset is
+        # The staged add package used the new functionality when the package is
         # partially created so we need to know if we actually are updating or
         # this is a real new.
         context = self._prepare()
@@ -537,14 +537,14 @@ class CreateView(MethodView):
                     # This is actually an update not a save
                     data_dict[u'id'] = data_dict[u'pkg_name']
                     del data_dict[u'pkg_name']
-                    # don't change the dataset state
+                    # don't change the package state
                     data_dict[u'state'] = u'draft'
                     # this is actually an edit not a save
                     pkg_dict = get_action(u'package_update')(
                         context, data_dict
                     )
 
-                    # redirect to add dataset resources
+                    # redirect to add package resources
                     try:
                         last_added_resource = pkg_dict[u'resources'][-1]
                     except IndexError:
@@ -565,7 +565,7 @@ class CreateView(MethodView):
                             id=pkg_dict[u'name']
                         )
                     return h.redirect_to(url)
-                # Make sure we don't index this dataset
+                # Make sure we don't index this package
                 if request.form[u'save'] not in [
                     u'go-resource', u'go-metadata'
                 ]:
@@ -581,7 +581,7 @@ class CreateView(MethodView):
             )
             if ckan_phase:
                 if create_on_ui_requires_resources:
-                    # redirect to add dataset resources if
+                    # redirect to add package resources if
                     # create_on_ui_requires_resources is set to true
                     url = h.url_for(
                         u'{}_resource.new'.format(package_type),
@@ -618,7 +618,7 @@ class CreateView(MethodView):
             errors = e.error_dict
             error_summary = e.error_summary
             if is_an_update:
-                # we need to get the state of the dataset to show the stage we
+                # we need to get the state of the package to show the stage we
                 # are on.
                 pkg_dict = get_action(u'package_show')(context, data_dict)
                 data_dict[u'state'] = pkg_dict[u'state']
@@ -657,7 +657,7 @@ class CreateView(MethodView):
 
         errors = errors or {}
         error_summary = error_summary or {}
-        # in the phased add dataset we need to know that
+        # in the phased add package we need to know that
         # we have already completed stage 1
         stage = [u'active']
         if data.get(u'state', u'').startswith(u'draft'):
@@ -905,7 +905,7 @@ class DeleteView(MethodView):
 
 
 def follow(package_type: str, id: str) -> Union[Response, str]:
-    """Start following this dataset."""
+    """Start following this package."""
     am_following: bool = False
     error_message: str = ""
 
@@ -932,7 +932,7 @@ def follow(package_type: str, id: str) -> Union[Response, str]:
 
 
 def unfollow(package_type: str, id: str) -> Union[Response, str]:
-    """Stop following this dataset."""
+    """Stop following this package."""
     am_following = True
     error_message = ""
 

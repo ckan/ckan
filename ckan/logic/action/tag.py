@@ -149,7 +149,7 @@ def tag_list(context: Context, data_dict: DataDict) -> ActionResult.TagList:
 
 @side_effect_free
 def tag_show(context: Context, data_dict: DataDict) -> ActionResult.TagShow:
-    """Return the details of a tag and all its datasets.
+    """Return the details of a tag and all its packages.
 
     :param id: the name or id of the tag
     :type id: string
@@ -157,14 +157,14 @@ def tag_show(context: Context, data_dict: DataDict) -> ActionResult.TagShow:
         in - if it is not specified it will assume it is a free tag.
         (optional)
     :type vocabulary_id: string
-    :param include_datasets: include a list of the tag's datasets. (Up to a
+    :param include_datasets: include a list of the tag's packages. (Up to a
         limit of 1000 - for more flexibility, use package_search - see
         :py:func:`package_search` for an example.)
         (optional, default: ``False``)
     :type include_datasets: bool
 
     :returns: the details of the tag, including a list of all of the tag's
-        datasets and their details
+        packages and their details
     :rtype: dictionary
     """
     id = _get_or_bust(data_dict, "id")

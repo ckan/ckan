@@ -127,7 +127,7 @@ def resource_dictize(res: model.Resource, context: Context) -> dict[str, Any]:
         resource.update(extras)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
-    ## for_edit is only called at the times when the dataset is to be edited
+    ## for_edit is only called at the times when the package is to be edited
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
         url = url.rsplit('/')[-1]
@@ -333,7 +333,7 @@ def _get_members(context: Context, group: model.Group,
 def get_group_dataset_counts(
         fq: str ='dataset_type:dataset',
         permissions_labels: Optional[list[str]]=None) -> dict[str, Any]:
-    '''For all public groups, return their dataset counts, as a SOLR facet'''
+    '''For all public groups, return their package counts, as a SOLR facet'''
     query = search.PackageSearchQuery()
     q: dict[str, Any] = {'q': '', 'fq': fq,
           'fl': 'groups', 'facet.field': ['groups', 'owner_org'],

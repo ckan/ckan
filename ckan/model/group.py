@@ -114,7 +114,7 @@ class Member(core.StatefulObjectMixin,
 
         Given the design of the member table and the lack of a CASCADE trigger, manually
         deleted entities will not properly drop it's member row. This can cause member_list
-        to return users or datasets that no longer exist in the system.
+        to return users or packages that no longer exist in the system.
 
         Returns a query object
         """
@@ -380,10 +380,10 @@ class Group(core.StatefulObjectMixin,
             filter(group_table.c["id"] == self.id).\
             filter(member_table.c["state"] == 'active')
 
-        # orgs do not show private datasets unless the user is a member
+        # orgs do not show private packages unless the user is a member
         if self.is_organization and not user_is_org_member:
             query = query.filter(_package.Package.private == false())
-        # groups (not orgs) never show private datasets
+        # groups (not orgs) never show private packages
         if not self.is_organization:
             query = query.filter(_package.Package.private == false())
 

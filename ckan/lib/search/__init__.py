@@ -128,9 +128,9 @@ def rebuild(package_id: Optional[str] = None,
     '''
         Rebuilds the search index.
 
-        If a dataset id is provided, only this dataset will be reindexed.
-        When reindexing all datasets, if only_missing is True, only the
-        datasets not already indexed will be processed. If force equals
+        If a package id is provided, only this package will be reindexed.
+        When reindexing all packages, if only_missing is True, only the
+        packages not already indexed will be processed. If force equals
         True, if an exception is found, the exception will be logged, but
         the process will carry on.
     '''
