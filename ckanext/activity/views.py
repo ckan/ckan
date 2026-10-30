@@ -192,7 +192,7 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
         "pkg_dict": package,
         "package": package,
         "resource": resource,
-        "pkg": pkg,  # NB it is the current version of the dataset, so ignores
+        "pkg": pkg,  # NB it is the current version of the package, so ignores
         # activity_id. Still used though in resource views for
         # backward compatibility
     }
@@ -386,7 +386,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
 @bp.route("/dataset/changes/<id>")
 def package_changes(id: str) -> Union[Response, str]:  # noqa
     """
-    Shows the changes to a dataset in one particular activity stream item.
+    Shows the changes to a package in one particular activity stream item.
     """
     activity_id = id
     context: Context = {"auth_user_obj": tk.g.userobj}
@@ -931,7 +931,7 @@ def _get_dashboard_context(
     """Return a dict needed by the dashboard view to determine context."""
 
     def display_name(followee: dict[str, Any]) -> Optional[str]:
-        """Return a display name for a user, group or dataset dict."""
+        """Return a display name for a user, group or package dict."""
         display_name = followee.get("display_name")
         fullname = followee.get("fullname")
         title = followee.get("title")

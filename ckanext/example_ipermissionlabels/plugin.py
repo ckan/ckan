@@ -10,16 +10,16 @@ from ckan.plugins.toolkit import get_action
 class ExampleIPermissionLabelsPlugin(
         plugins.SingletonPlugin, DefaultPermissionLabels):
     u'''
-    Example permission labels plugin that makes datasets whose
+    Example permission labels plugin that makes packages whose
     notes field starts with "Proposed:" visible only to their
     creator and Admin users in the organization assigned to the
-    dataset.
+    package.
     '''
     plugins.implements(plugins.IPermissionLabels)
 
     def get_dataset_labels(self, dataset_obj: Any) -> list[str]:
         u'''
-        Use creator-*, admin-* labels for proposed datasets
+        Use creator-*, admin-* labels for proposed packages
         '''
         if dataset_obj.notes.startswith(u'Proposed:'):
             labels = [u'creator-%s' % dataset_obj.creator_user_id]

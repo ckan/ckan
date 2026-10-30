@@ -300,15 +300,15 @@ def follow_user(context: Context, data_dict: DataDict) -> ActionResult.FollowUse
 
 
 def follow_dataset(context: Context, data_dict: DataDict) -> ActionResult.FollowDataset:
-    """Start following a dataset.
+    """Start following a package.
 
     You must provide your API key in the Authorization header.
 
-    :param id: the id or name of the dataset to follow, e.g. ``'warandpeace'``
+    :param id: the id or name of the package to follow, e.g. ``'warandpeace'``
     :type id: string
 
     :returns: a representation of the 'follower' relationship between yourself
-        and the dataset
+        and the package
     :rtype: dictionary
 
     """
@@ -468,7 +468,7 @@ def user_list(context: Context, data_dict: DataDict) -> ActionResult.UserList:  
     :type include_site_user: bool
 
     :rtype: list of user dictionaries. User properties include:
-      ``number_created_packages`` which excludes datasets which are private
+      ``number_created_packages`` which excludes packages which are private
       or draft state.
 
     """
@@ -565,8 +565,8 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
     :param id: the id or name of the user (optional)
     :type id: string
-    :param include_datasets: Include a list of datasets the user has created.
-        If it is the same user or a sysadmin requesting, it includes datasets
+    :param include_datasets: Include a list of packages the user has created.
+        If it is the same user or a sysadmin requesting, it includes packages
         that are draft or private.
         (optional, default:``False``, limit:50)
     :type include_datasets: bool
@@ -582,7 +582,7 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
 
     :returns: the details of the user. Includes email_hash and
-        number_created_packages (which excludes draft or private datasets
+        number_created_packages (which excludes draft or private packages
         unless it is the same user or sysadmin making the request). Excludes
         the password (hash) and reset_key. If it is the same user or a
         sysadmin requesting, the email and apikey are included.
@@ -606,7 +606,7 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     if not user_obj:
         raise NotFound
 
-    # include private and draft datasets?
+    # include private and draft packages?
     requester = context.get("user")
     sysadmin = False
     if requester:
@@ -737,9 +737,9 @@ def user_follower_count(
 def dataset_follower_count(
     context: Context, data_dict: DataDict
 ) -> ActionResult.DatasetFollowerCount:
-    """Return the number of followers of a dataset.
+    """Return the number of followers of a package.
 
-    :param id: the id or name of the dataset
+    :param id: the id or name of the package
     :type id: string
 
     :rtype: int
@@ -839,9 +839,9 @@ def user_follower_list(
 def dataset_follower_list(
     context: Context, data_dict: DataDict
 ) -> ActionResult.DatasetFollowerList:
-    """Return the list of users that are following the given dataset.
+    """Return the list of users that are following the given package.
 
-    :param id: the id or name of the dataset
+    :param id: the id or name of the package
     :type id: string
 
     :rtype: list of dictionaries
@@ -946,9 +946,9 @@ def am_following_user(
 def am_following_dataset(
     context: Context, data_dict: DataDict
 ) -> ActionResult.AmFollowingDataset:
-    """Return ``True`` if you're following the given dataset, ``False`` if not.
+    """Return ``True`` if you're following the given package, ``False`` if not.
 
-    :param id: the id or name of the dataset
+    :param id: the id or name of the package
     :type id: string
 
     :rtype: bool
@@ -1006,7 +1006,7 @@ def followee_count(context: Context, data_dict: DataDict) -> ActionResult.Follow
     """Return the number of objects that are followed by the given user.
 
     Counts all objects, of any type, that the given user is following
-    (e.g. followed users, followed datasets, followed groups).
+    (e.g. followed users, followed packages, followed groups).
 
     :param id: the id of the user
     :type id: string
@@ -1047,7 +1047,7 @@ def user_followee_count(
 def dataset_followee_count(
     context: Context, data_dict: DataDict
 ) -> ActionResult.DatasetFolloweeCount:
-    """Return the number of datasets that are followed by the given user.
+    """Return the number of packages that are followed by the given user.
 
     :param id: the id of the user
     :type id: string
@@ -1097,7 +1097,7 @@ def followee_list(context: Context, data_dict: DataDict) -> ActionResult.Followe
     """Return the list of objects that are followed by the given user.
 
     Returns all objects, of any type, that the given user is following
-    (e.g. followed users, followed datasets, followed groups.. ).
+    (e.g. followed users, followed packages, followed groups.. ).
 
     :param id: the id of the user
     :type id: string
@@ -1118,7 +1118,7 @@ def followee_list(context: Context, data_dict: DataDict) -> ActionResult.Followe
     _check_access("followee_list", context, data_dict)
 
     def display_name(followee: dict[str, Any]) -> Optional[str]:
-        """Return a display name for the given user, group or dataset dict."""
+        """Return a display name for the given user, group or package dict."""
         display_name = followee.get("display_name")
         fullname = followee.get("fullname")
         title = followee.get("title")
@@ -1193,7 +1193,7 @@ def user_followee_list(
 def dataset_followee_list(
     context: Context, data_dict: DataDict
 ) -> ActionResult.DatasetFolloweeList:
-    """Return the list of datasets that are followed by the given user.
+    """Return the list of packages that are followed by the given user.
 
     :param id: the id or name of the user
     :type id: string
@@ -1217,7 +1217,7 @@ def dataset_followee_list(
     datasets = [model.Package.get(followee.object_id) for followee in followees]
     datasets = [dataset for dataset in datasets if dataset is not None]
 
-    # Safety check: check which datasets the user can actually access
+    # Safety check: check which packages the user can actually access
     check_context = logic.fresh_context(context, ignore_auth=False)
     datasets = [
         dataset
@@ -1484,9 +1484,9 @@ def unfollow_user(context: Context, data_dict: DataDict) -> None:
 
 
 def unfollow_dataset(context: Context, data_dict: DataDict) -> None:
-    """Stop following a dataset.
+    """Stop following a package.
 
-    :param id: the id or name of the dataset to stop following
+    :param id: the id or name of the package to stop following
     :type id: string
 
     """

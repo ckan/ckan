@@ -28,7 +28,7 @@ code that calls the CKAN API.  For example, using the CKAN API your app can:
 
   http://demo.ckan.org/api/3/action/group_show?id=data-explorer
 
-* Search for packages or resources matching a query:
+* Search for datasets or resources matching a query:
 
   http://demo.ckan.org/api/3/action/package_search?q=spending
 
@@ -274,7 +274,7 @@ GET-able API functions
 ----------------------
 
 Functions defined using the ``@side_effect_free`` decorator can also be called with an HTTP
-GET request.  For example, to get the list of datasets (packages) from
+GET request.  For example, to get the list of datasets from
 demo.ckan.org, open this URL in your browser:
 
 http://demo.ckan.org/api/3/action/package_list

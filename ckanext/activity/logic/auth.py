@@ -209,7 +209,7 @@ def recently_changed_packages_activity_list(
 ) -> AuthResult:
     """Check if the activity stream of all recently added or changed packages is
     visible. Visible to all by default.
-    Note that the actual datasets shown will be filtered by permission labels"""
+    Note that the actual packages shown will be filtered by permission labels"""
     return {"success": True}
 
 

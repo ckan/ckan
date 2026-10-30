@@ -436,14 +436,14 @@ def get_user_id_for_username(
 def can_manage_collaborators(package_id: str, user_id: str) -> bool:
     '''
     Returns True if a user is allowed to manage the collaborators of a given
-    dataset.
+    package.
 
     Currently a user can manage collaborators if:
 
-    1. Is an administrator of the organization the dataset belongs to
+    1. Is an administrator of the organization the package belongs to
     2. Is a collaborator with role "admin" (
         assuming :ref:`ckan.auth.allow_admin_collaborators` is set to True)
-    3. Is the creator of the dataset and the dataset does not belong to an
+    3. Is the creator of the package and the package does not belong to an
         organization (
         requires :ref:`ckan.auth.create_dataset_if_not_in_organization`
         and :ref:`ckan.auth.create_unowned_dataset`)
@@ -457,12 +457,12 @@ def can_manage_collaborators(package_id: str, user_id: str) -> bool:
             and check_config_permission('create_dataset_if_not_in_organization')
             and check_config_permission('create_unowned_dataset')
             and pkg.creator_user_id == user_id):
-        # User is the creator of this unowned dataset
+        # User is the creator of this unowned package
         return True
 
     if has_user_permission_for_group_or_org(
             owner_org, user_id, 'membership'):
-        # User is an administrator of the organization the dataset belongs to
+        # User is an administrator of the organization the package belongs to
         return True
 
     # Check if user is a collaborator with admin role
@@ -474,7 +474,7 @@ def user_is_collaborator_on_dataset(
         capacity: Optional[Union[str, list[str]]] = None) -> bool:
     '''
     Returns True if the provided user is a collaborator on the provided
-    dataset.
+    package.
 
     If capacity is provided it restricts the check to the capacity
     provided (eg `admin` or `editor`). Multiple capacities can be

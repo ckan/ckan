@@ -546,7 +546,7 @@ def activity_data_show(
     """Show the data from an item of 'activity' (part of the activity
     stream).
 
-    For example for a package update this returns just the dataset dict but
+    For example for a package update this returns just the package dict but
     none of the activity stream info of who and when the version was created.
 
     :param id: the id of the activity
@@ -639,7 +639,7 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
         diff_generator = difflib.context_diff(*obj_lines)  # type: ignore
         diff = "\n".join(line for line in diff_generator)
     elif diff_type == "html":
-        # word-wrap lines. Otherwise you get scroll bars for most datasets.
+        # word-wrap lines. Otherwise you get scroll bars for most packages.
         import re
 
         for obj_index in (0, 1):
@@ -898,7 +898,7 @@ def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
     Note: Either provide both start_date and end_date to specify a date range,
     or provide offset_days to delete activities older than a specified number
     of days. Use keep to retain the N most recent activities per item.
-    Use batch_size for large datasets to delete in chunks.
+    Use batch_size for large packages to delete in chunks.
     """
     tk.check_access("activity_delete", context, data_dict)
 

@@ -50,7 +50,7 @@ class IDataPusher(Interface):
         :param context: The context within which the upload happened
         :param resource_dict: The dict represenstaion of the resource that was
             successfully uploaded to the datastore
-        :param dataset_dict: The dict represenstation of the dataset containing
+        :param dataset_dict: The dict represenstation of the package containing
             the resource that was uploaded
         """
         pass

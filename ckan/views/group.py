@@ -73,7 +73,7 @@ def _setup_template_variables(context: Context,
 
 def _force_reindex(grp: dict[str, Any]) -> None:
     u''' When the group name has changed, we need to force a reindex
-    of the datasets within the group, otherwise they will stop
+    of the packages within the group, otherwise they will stop
     appearing on the read page for the group (as they're connected via
     the group name)'''
     group = model.Group.get(grp['name'])
@@ -131,7 +131,7 @@ def index(group_type: str, is_organization: bool) -> str:
     extra_vars["q"] = q
     extra_vars["sort_by_selected"] = sort_by
 
-    # pass user info to context as needed to view private datasets of
+    # pass user info to context as needed to view private packages of
     # orgs correctly
     if current_user.is_authenticated:
         context['user_id'] = current_user.id
@@ -403,7 +403,7 @@ def read(group_type: str,
     limit = config.get('ckan.datasets_per_page')
 
     try:
-        # Do not query for the group datasets when dictizing, as they will
+        # Do not query for the group packages when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
 
@@ -851,7 +851,7 @@ class BulkProcessView(MethodView):
             # FIXME: better error
             raise Exception(u'Must be an organization')
 
-        # If no action then just show the datasets
+        # If no action then just show the packages
         limit = 500
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -873,7 +873,7 @@ class BulkProcessView(MethodView):
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
         user = current_user.name
         try:
-            # Do not query for the group datasets when dictizing, as they will
+            # Do not query for the group packages when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
             action_name = (
@@ -919,7 +919,7 @@ class BulkProcessView(MethodView):
             # normal good browser form submission
             action = actions.pop().split(u'.')[-1]
 
-        # process the action first find the datasets to perform the action on.
+        # process the action first find the packages to perform the action on.
         # they are prefixed by dataset_ in the form data
         datasets = []
         for param in request.form:

@@ -128,7 +128,7 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
     """
     Register a Flask blueprint for the various IDatasetForm instances.
 
-    Actually two blueprints per IDatasetForm instance, one for the dataset routes
+    Actually two blueprints per IDatasetForm instance, one for the package routes
     and one for the resources one.
     """
 
@@ -183,7 +183,7 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
                       package_type)
 
     if not registered_dataset:
-        # core dataset blueprint not overridden
+        # core package type=dataset blueprint not overridden
         app.register_blueprint(dataset)
         app.register_blueprint(resource)
 
@@ -354,7 +354,7 @@ class DefaultDatasetForm(object):
 
     2. It is used as the default fallback plugin when no registered
        :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin handles the
-       given dataset type and no other plugin has registered itself as the
+       given package type and no other plugin has registered itself as the
        fallback plugin.
 
     .. note::
@@ -594,17 +594,17 @@ class DefaultTranslation(object):
 class DefaultPermissionLabels(object):
     u'''
     Default permissions for package_search/package_show:
-    - everyone can read public datasets "public"
+    - everyone can read public packages "public"
     - users can read their own drafts "creator-(user id)"
-    - users can read datasets belonging to their orgs "member-(org id)"
-    - users can read datasets where they are collaborators "collaborator-(dataset id)"
+    - users can read packages belonging to their orgs "member-(org id)"
+    - users can read packages where they are collaborators "collaborator-(package id)"
     '''
     def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         if dataset_obj.state == u'active' and not dataset_obj.private:
             return [u'public']
 
         if ckan.authz.check_config_permission('allow_dataset_collaborators'):
-            # Add a generic label for all this dataset collaborators
+            # Add a generic label for all this package collaborators
             labels = [u'collaborator-%s' % dataset_obj.id]
         else:
             labels = []
@@ -628,7 +628,7 @@ class DefaultPermissionLabels(object):
         labels.extend(u'member-%s' % o[u'id'] for o in orgs)
 
         if ckan.authz.check_config_permission('allow_dataset_collaborators'):
-            # Add a label for each dataset this user is a collaborator of
+            # Add a label for each package this user is a collaborator of
             datasets = logic.get_action('package_collaborator_list_for_user')(
                 {'ignore_auth': True}, {'id': user_obj.id})
 

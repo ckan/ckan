@@ -435,7 +435,7 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
 
     context['group'] = group
 
-    # Under the new org rules we do not want to be able to update datasets
+    # Under the new org rules we do not want to be able to update packages
     # via group edit so we need a way to prevent this.  It may be more
     # sensible in future to send a list of allowed/disallowed updates for
     # groups, users, tabs etc.

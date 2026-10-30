@@ -37,23 +37,23 @@ log = logging.getLogger("ckan.logic")
 
 
 def package_create(context: Context, data_dict: DataDict) -> ActionResult.PackageCreate:  # noqa: C901
-    """Create a new dataset (package).
+    """Create a new package.
 
-    You must be authorized to create new datasets. If you specify any groups
-    for the new dataset, you must also be authorized to edit these groups.
+    You must be authorized to create new packages. If you specify any groups
+    for the new package, you must also be authorized to edit these groups.
 
     Plugins may change the parameters of this function depending on the value
     of the ``type`` parameter, see the
     :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin interface.
 
-    :param name: the name of the new dataset, must be between 2 and 100
+    :param name: the name of the new package, must be between 2 and 100
         characters long and contain only lowercase alphanumeric characters,
         ``-`` and ``_``, e.g. ``'warandpeace'``
     :type name: string
-    :param title: the title of the dataset (optional, default: same as
+    :param title: the title of the package (optional, default: same as
         ``name``)
     :type title: string
-    :param private: If ``True`` creates a private dataset
+    :param private: If ``True`` creates a private package
     :type private: bool
     :param author: the name of the dataset's author (optional)
     :type author: string
@@ -68,22 +68,22 @@ def package_create(context: Context, data_dict: DataDict) -> ActionResult.Packag
         :py:func:`~ckan.logic.action.package.license_list` for available values
         (optional)
     :type license_id: license id string
-    :param notes: a description of the dataset (optional)
+    :param notes: a description of the package (optional)
     :type notes: string
     :param url: a URL for the dataset's source (optional)
     :type url: string
     :param version: (optional)
     :type version: string, no longer than 100 characters
-    :param state: the current state of the dataset, e.g. ``'active'`` or
-        ``'deleted'``, only active datasets show up in search results and
-        other lists of datasets, this parameter will be ignored if you are not
-        authorized to change the state of the dataset (optional, default:
+    :param state: the current state of the package, e.g. ``'active'`` or
+        ``'deleted'``, only active packages show up in search results and
+        other lists of packages, this parameter will be ignored if you are not
+        authorized to change the state of the package (optional, default:
         ``'active'``)
     :type state: string
-    :param type: the type of the dataset (optional),
+    :param type: the type of the package (optional),
         :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugins
-        associate themselves with different dataset types and provide custom
-        dataset handling behaviour for these types
+        associate themselves with different package types and provide custom
+        package handling behaviour for these types
     :type type: string
     :param resources: the dataset's resources, see
         :py:func:`resource_create` for the format of resource dictionaries
@@ -93,10 +93,10 @@ def package_create(context: Context, data_dict: DataDict) -> ActionResult.Packag
         of tag dictionaries (optional)
     :type tags: list of tag dictionaries
     :param extras: the dataset's extras (optional), extras are arbitrary
-        (key: value) metadata items that can be added to datasets, each extra
+        (key: value) metadata items that can be added to packages, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
         string)
-    :type extras: list of dataset extra dictionaries
+    :type extras: list of package extra dictionaries
     :param plugin_data: private package data belonging to plugins.
         Only sysadmin users may set this value. It should be a dict that can
         be dumped into JSON, and plugins should namespace their data with the
@@ -116,7 +116,7 @@ def package_create(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :param relationships_as_subject: see :py:func:`package_relationship_create`
         for the format of relationship dictionaries (optional)
     :type relationships_as_subject: list of relationship dictionaries
-    :param groups: the groups to which the dataset belongs (optional), each
+    :param groups: the groups to which the package belongs (optional), each
         group dictionary should have one or more of the following keys which
         identify an existing group:
         ``'id'`` (the id of the group, string), or ``'name'`` (the name of the
@@ -130,8 +130,8 @@ def package_create(context: Context, data_dict: DataDict) -> ActionResult.Packag
         option :ref:`ckan.auth.create_unowned_dataset` is set to ``True``.
     :type owner_org: string
 
-    :returns: the newly created dataset (unless 'return_id_only' is set to True
-              in the context, in which case just the dataset id will
+    :returns: the newly created package (unless 'return_id_only' is set to True
+              in the context, in which case just the package id will
               be returned)
     :rtype: dictionary
 
@@ -230,14 +230,14 @@ def package_create(context: Context, data_dict: DataDict) -> ActionResult.Packag
 def package_relationship_create(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageRelationshipCreate:
-    """Create a relationship between two datasets (packages).
+    """Create a relationship between two packages.
 
-    You must be authorized to edit both the subject and the object datasets.
+    You must be authorized to edit both the subject and the object packages.
 
-    :param subject: the id or name of the dataset that is the subject of the
+    :param subject: the id or name of the package that is the subject of the
         relationship
     :type subject: string
-    :param object: the id or name of the dataset that is the object of the
+    :param object: the id or name of the package that is the object of the
         relationship
     :param type: the type of the relationship, one of ``'depends_on'``,
         ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
@@ -287,18 +287,18 @@ def package_relationship_create(
 def package_collaborator_create(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageCollaboratorCreate:
-    """Make a user a collaborator in a dataset.
+    """Make a user a collaborator in a package.
 
-    If the user is already a collaborator in the dataset then their
+    If the user is already a collaborator in the package then their
     capacity will be updated.
 
-    Currently you must be an Admin on the dataset owner organization to
+    Currently you must be an Admin on the package owner organization to
     manage collaborators.
 
     Note: This action requires the collaborators feature to be enabled with
     the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
 
-    :param id: the id or name of the dataset
+    :param id: the id or name of the package
     :type id: string
     :param user_id: the id or name of the user to add or edit
     :type user_id: string
@@ -365,10 +365,10 @@ def package_collaborator_create(
 @side_effect_free
 @logic.validate(schema_.default_pagination_schema)
 def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageList:
-    """Return a list of the names of the site's datasets (packages).
+    """Return a list of the names of the site's packages.
 
-    :param limit: if given, the list of datasets will be broken into pages of
-        at most ``limit`` datasets per page and only one page will be returned
+    :param limit: if given, the list of packages will be broken into pages of
+        at most ``limit`` packages per page and only one page will be returned
         at a time (optional)
     :type limit: int
     :param offset: when ``limit`` is given, the offset to start
@@ -410,12 +410,12 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
 def current_package_list_with_resources(
     context: Context, data_dict: DataDict
 ) -> ActionResult.CurrentPackageListWithResources:
-    """Return a list of the site's datasets (packages) and their resources.
+    """Return a list of the site's packages and their resources.
 
     The list is sorted most-recently-modified first.
 
-    :param limit: if given, the list of datasets will be broken into pages of
-        at most ``limit`` datasets per page and only one page will be returned
+    :param limit: if given, the list of packages will be broken into pages of
+        at most ``limit`` packages per page and only one page will be returned
         at a time (optional)
     :type limit: int
     :param offset: when ``limit`` is given, the offset to start
@@ -579,7 +579,7 @@ def package_collaborator_list_for_user(
 
 @side_effect_free
 def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseList:
-    """Return the list of licenses available for datasets on the site.
+    """Return the list of licenses available for packages on the site.
 
     :rtype: list of dictionaries
 
@@ -596,7 +596,7 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
 def package_relationships_list(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageRelationshipsList:
-    """Return a dataset (package)'s relationships.
+    """Return a dataset's relationships.
 
     :param id: the id or name of the first package
     :type id: string
@@ -646,9 +646,9 @@ def package_relationships_list(
 
 @side_effect_free
 def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageShow:  # noqa: C901
-    """Return the metadata of a dataset (package) and its resources.
+    """Return the metadata of a package and its resources.
 
-    :param id: the id or name of the dataset
+    :param id: the id or name of the package
     :type id: string
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
@@ -743,14 +743,14 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 def package_autocomplete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageAutocomplete:
-    """Return a list of datasets (packages) that match a string.
+    """Return a list of packages that match a string.
 
-    Datasets with names or titles that contain the query string will be
+    Packages with names or titles that contain the query string will be
     returned.
 
     :param q: the string to search for
     :type q: string
-    :param limit: the maximum number of datasets to return (optional,
+    :param limit: the maximum number of packages to return (optional,
         default: ``10``)
     :type limit: int
 
@@ -813,7 +813,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     Searches for packages satisfying a given search criteria.
 
     This action accepts solr search query parameters (details below), and
-    returns a dictionary of results, including dictized datasets that match
+    returns a dictionary of results, including dictized packages that match
     the search criteria, a search count and also facet information.
 
     **Solr Parameters:**
@@ -837,12 +837,12 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
-    :param rows: the maximum number of matching rows (datasets) to return.
+    :param rows: the maximum number of matching rows (packages) to return.
         (optional, default: ``10``, upper limit: ``1000`` unless set in
         site's configuration ``ckan.search.rows_max``)
     :type rows: int
     :param start: the offset in the complete result for where the set of
-        returned datasets should begin.
+        returned packages should begin.
     :type start: int
     :param facet: whether to enable faceted results.  Default: ``True``.
     :type facet: string
@@ -856,18 +856,18 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
-    :param include_drafts: if ``True``, draft datasets will be included in the
-        results. A user will only be returned their own draft datasets, and a
-        sysadmin will be returned all draft datasets. Optional, the default is
+    :param include_drafts: if ``True``, draft packages will be included in the
+        results. A user will only be returned their own draft packages, and a
+        sysadmin will be returned all draft packages. Optional, the default is
         ``False``.
     :type include_drafts: bool
-    :param include_deleted: if ``True``, deleted datasets will be included in the
+    :param include_deleted: if ``True``, deleted packages will be included in the
         results (site configuration "ckan.search.remove_deleted_packages" must
         be set to False). Optional, the default is ``False``.
     :type include_deleted: bool
-    :param include_private: if ``True``, private datasets will be included in
-        the results. Only private datasets from the user's organizations will
-        be returned and sysadmins will be returned all private datasets.
+    :param include_private: if ``True``, private packages will be included in
+        the results. Only private packages from the user's organizations will
+        be returned and sysadmins will be returned all private packages.
         Optional, the default is ``False``.
     :type include_private: bool
     :param use_default_schema: use default package schema instead of
@@ -888,8 +888,8 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     **Examples:**
 
-    ``q=flood`` datasets containing the word `flood`, `floods` or `flooding`
-    ``fq=tags:economy`` datasets with the tag `economy`
+    ``q=flood`` packages containing the word `flood`, `floods` or `flooding`
+    ``fq=tags:economy`` packages with the tag `economy`
     ``facet.field=["tags"] facet.limit=10 rows=0`` top 10 tags
 
     **Results:**
@@ -901,9 +901,9 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         of results found, not the total number of results returned (which is
         affected by limit and row parameters used in the input).
     :type count: int
-    :param results: ordered list of datasets matching the query, where the
+    :param results: ordered list of packages matching the query, where the
         ordering defined by the sort parameter used in the query.
-    :type results: list of dictized datasets.
+    :type results: list of dictized packages.
     :param facets: DEPRECATED.  Aggregated information about facet counts.
     :type facets: DEPRECATED dict
     :param search_facets: aggregated information about facet counts.  The outer
@@ -938,7 +938,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         query.
         fl can be  None or a list of result fields, such as
         ['id', 'extras_custom_field'].
-        if fl = None, datasets are returned as a list of full dictionary.
+        if fl = None, packages are returned as a list of full dictionary.
     """
     # sometimes context['schema'] is None
     schema = context.get("schema") or schema_.default_package_search_schema()
@@ -1121,12 +1121,12 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
 
 def package_reindex(context: Context, data_dict: DataDict) -> None:
-    """Rebuild the search index for a dataset (package).
+    """Rebuild the search index for a package.
 
-    You must be authorized to edit the dataset
+    You must be authorized to edit the package
     and the group(s) it belongs to.
 
-    :param id: the name or id of the dataset to reindex
+    :param id: the name or id of the package to reindex
     :type id: string
     """
     name_or_id = data_dict.get("id") or data_dict.get("name")
@@ -1145,9 +1145,9 @@ def package_reindex(context: Context, data_dict: DataDict) -> None:
 
 
 def package_update(context: Context, data_dict: DataDict) -> ActionResult.PackageUpdate:  # noqa: C901
-    """Update a dataset (package).
+    """Update a package.
 
-    You must be authorized to edit the dataset and the groups that it belongs
+    You must be authorized to edit the package and the groups that it belongs
     to.
 
     .. note:: Update methods may delete parameters not explicitly provided.
@@ -1164,12 +1164,12 @@ def package_update(context: Context, data_dict: DataDict) -> ActionResult.Packag
     For further parameters see
     :py:func:`~ckan.logic.action.package.package_create`.
 
-    :param id: the name or id of the dataset to update
+    :param id: the name or id of the package to update
     :type id: string
 
-    :returns: the updated dataset (if ``'return_id_only'`` is ``False`` in
+    :returns: the updated package (if ``'return_id_only'`` is ``False`` in
               the context, which is the default. Otherwise returns just the
-              dataset id)
+              package id)
     :rtype: dictionary
 
     """
@@ -1385,23 +1385,23 @@ def package_update(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:  # noqa: C901
-    """Revise a dataset (package) selectively with match, filter and
+    """Revise a package selectively with match, filter and
     update parameters.
 
-    You must be authorized to edit the dataset and the groups that it belongs
+    You must be authorized to edit the package and the groups that it belongs
     to.
 
-    :param match: a dict containing "id" or "name" values of the dataset
+    :param match: a dict containing "id" or "name" values of the package
                   to update, all values provided must match the current
-                  dataset values or a ValidationError will be raised. e.g.
+                  package values or a ValidationError will be raised. e.g.
                   ``{"name": "my-data", "resources": {["name": "big.csv"]}}``
                   would abort if the my-data dataset's first resource name
                   is not "big.csv".
     :type match: dict
     :param filter: a list of string patterns of fields to remove from the
-                   current dataset. e.g. ``"-resources__1"`` would remove the
+                   current package. e.g. ``"-resources__1"`` would remove the
                    second resource, ``"+title, +resources, -*"`` would
-                   remove all fields at the dataset level except title and
+                   remove all fields at the package level except title and
                    all resources (default: ``[]``)
     :type filter: comma-separated string patterns or list of string patterns
     :param update: a dict with values to update/create after filtering
@@ -1418,16 +1418,16 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     e.g. ``update__resources__1f9ab__description="guidebook"`` would set the
     description of the resource with id starting with "1f9ab" to "guidebook", and
     ``update__resources__-1__description="guidebook"`` would do the same
-    on the last resource in the dataset.
+    on the last resource in the package.
 
     The ``extend`` suffix can also be used on the update parameter to add
     a new item to a list, e.g.
     ``update__resources__extend=[{"name": "new", "url": "https://example.com"}]``
-    will add a new resource to the dataset with the provided ``name`` and ``url``.
+    will add a new resource to the package with the provided ``name`` and ``url``.
 
     Usage examples:
 
-    * Change description in dataset, checking for old description::
+    * Change description in package, checking for old description::
 
         match={"notes": "old notes", "name": "xyz"}
         update={"notes": "new notes"}
@@ -1438,7 +1438,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
         match__notes="old notes"
         update__notes="new notes"
 
-    * Replace all fields at dataset level only, keep resources (note: dataset id
+    * Replace all fields at package level only, keep resources (note: package id
       and type fields can't be deleted) ::
 
         match={"id": "1234abc-1420-cbad-1922"}
@@ -1467,7 +1467,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
         update__resources__1492a={"name": "edits here", "url": "http://example.com"}
 
 
-    :returns: a dict containing 'package':the updated dataset with fields filtered by
+    :returns: a dict containing 'package':the updated package with fields filtered by
               include parameter
     :rtype: dictionary
 
@@ -1546,9 +1546,9 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
 
 def package_patch(context: Context, data_dict: DataDict) -> ActionResult.PackagePatch:
-    """Patch a dataset (package).
+    """Patch a package.
 
-    :param id: the id or name of the dataset
+    :param id: the id or name of the package
     :type id: string
 
     The difference between the update and patch methods is that the patch will
@@ -1561,7 +1561,7 @@ def package_patch(context: Context, data_dict: DataDict) -> ActionResult.Package
     :py:func:`~ckan.logic.action.package.package_revise` instead to maintain
     existing nested values.
 
-    You must be authorized to edit the dataset and the groups that it belongs
+    You must be authorized to edit the package and the groups that it belongs
     to.
     """
     _check_access("package_patch", context, data_dict)
@@ -1608,17 +1608,17 @@ def _update_package_relationship(
 def package_relationship_update(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageRelationshipUpdate:
-    """Update a relationship between two datasets (packages).
+    """Update a relationship between two packages.
 
     The subject, object and type parameters are required to identify the
     relationship. Only the comment can be updated.
 
-    You must be authorized to edit both the subject and the object datasets.
+    You must be authorized to edit both the subject and the object packages.
 
-    :param subject: the name or id of the dataset that is the subject of the
+    :param subject: the name or id of the package that is the subject of the
         relationship
     :type subject: string
-    :param object: the name or id of the dataset that is the object of the
+    :param object: the name or id of the package that is the object of the
         relationship
     :type object: string
     :param type: the type of the relationship, one of ``'depends_on'``,
@@ -1662,9 +1662,9 @@ def package_relationship_update(
 def package_owner_org_update(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageOwnerOrgUpdate:
-    """Update the owning organization of a dataset
+    """Update the owning organization of a package
 
-    :param id: the name or id of the dataset to update
+    :param id: the name or id of the package to update
     :type id: string
 
     :param organization_id: the name or id of the owning organization
@@ -1743,9 +1743,9 @@ def _bulk_update_dataset(
 def bulk_update_private(
     context: Context, data_dict: DataDict
 ) -> ActionResult.BulkUpdatePrivate:
-    """Make a list of datasets private
+    """Make a list of packages private
 
-    :param datasets: list of ids of the datasets to update
+    :param datasets: list of ids of the packages to update
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
@@ -1759,9 +1759,9 @@ def bulk_update_private(
 def bulk_update_public(
     context: Context, data_dict: DataDict
 ) -> ActionResult.BulkUpdatePublic:
-    """Make a list of datasets public
+    """Make a list of packages public
 
-    :param datasets: list of ids of the datasets to update
+    :param datasets: list of ids of the packages to update
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
@@ -1775,9 +1775,9 @@ def bulk_update_public(
 def bulk_update_delete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.BulkUpdateDelete:
-    """Make a list of datasets deleted
+    """Make a list of packages deleted
 
-    :param datasets: list of ids of the datasets to update
+    :param datasets: list of ids of the packages to update
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
@@ -1789,14 +1789,14 @@ def bulk_update_delete(
 
 
 def package_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageDelete:
-    """Delete a dataset (package).
+    """Delete a package.
 
-    This makes the dataset disappear from all web & API views, apart from the
+    This makes the package disappear from all web & API views, apart from the
     trash.
 
-    You must be authorized to delete the dataset.
+    You must be authorized to delete the package.
 
-    :param id: the id or name of the dataset to delete
+    :param id: the id or name of the package to delete
     :type id: string
 
     """
@@ -1839,17 +1839,17 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
 
 def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.DatasetPurge:
-    """Purge a dataset.
+    """Purge a package.
 
-    .. warning:: Purging a dataset cannot be undone!
+    .. warning:: Purging a package cannot be undone!
 
-    Purging a dataset completely removes the dataset from the CKAN database,
-    whereas deleting a dataset simply marks the dataset as deleted (it will no
+    Purging a package completely removes the package from the CKAN database,
+    whereas deleting a package simply marks the package as deleted (it will no
     longer show up in the front-end, but is still in the db).
 
-    You must be authorized to purge the dataset.
+    You must be authorized to purge the package.
 
-    :param id: the name or id of the dataset to be purged
+    :param id: the name or id of the package to be purged
     :type id: string
 
     """
@@ -1895,15 +1895,15 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
 def package_relationship_delete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageRelationshipDelete:
-    """Delete a dataset (package) relationship.
+    """Delete a package relationship.
 
-    You must be authorised to delete dataset relationships, and to edit both
-    the subject and the object datasets.
+    You must be authorised to delete package relationships, and to edit both
+    the subject and the object packages.
 
-    :param subject: the id or name of the dataset that is the subject of the
+    :param subject: the id or name of the package that is the subject of the
         relationship
     :type subject: string
-    :param object: the id or name of the dataset that is the object of the
+    :param object: the id or name of the package that is the object of the
         relationship
     :type object: string
     :param type: the type of the relationship
@@ -1935,15 +1935,15 @@ def package_relationship_delete(
 def package_collaborator_delete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageCollaboratorDelete:
-    """Remove a collaborator from a dataset.
+    """Remove a collaborator from a package.
 
-    Currently you must be an Admin on the dataset owner organization to
+    Currently you must be an Admin on the package owner organization to
     manage collaborators.
 
     Note: This action requires the collaborators feature to be enabled with
     the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
 
-    :param id: the id or name of the dataset
+    :param id: the id or name of the package
     :type id: string
     :param user_id: the id or name of the user to remove
     :type user_id: string

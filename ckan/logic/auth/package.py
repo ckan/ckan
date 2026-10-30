@@ -84,7 +84,7 @@ def package_autocomplete(context: Context, data_dict: DataDict) -> AuthResult:
 
 @logic.auth_allow_anonymous_access
 def package_collaborator_list(context: Context, data_dict: DataDict) -> AuthResult:
-    """Checks if a user is allowed to list the collaborators from a dataset
+    """Checks if a user is allowed to list the collaborators from a package
 
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
     """
@@ -109,7 +109,7 @@ def package_collaborator_list(context: Context, data_dict: DataDict) -> AuthResu
 def package_collaborator_list_for_user(
     context: Context, data_dict: DataDict
 ) -> AuthResult:
-    """Checks if a user is allowed to list all datasets a user is a collaborator in
+    """Checks if a user is allowed to list all packages a user is a collaborator in
 
     The current implementation restricts to the own users themselves.
     """
@@ -156,7 +156,7 @@ def package_create(
             "msg": _("User %s not authorized to edit these groups") % user,
         }
 
-    # If an organization is given are we able to add a dataset to it?
+    # If an organization is given are we able to add a package to it?
     data_dict = data_dict or {}
     org_id = data_dict.get("owner_org")
     if org_id and not authz.has_user_permission_for_group_or_org(
@@ -190,7 +190,7 @@ def package_relationship_create(context: Context, data_dict: DataDict) -> AuthRe
 
 
 def package_collaborator_create(context: Context, data_dict: DataDict) -> AuthResult:
-    """Checks if a user is allowed to add collaborators to a dataset
+    """Checks if a user is allowed to add collaborators to a package
 
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
     """
@@ -226,7 +226,7 @@ def package_update(context: Context, data_dict: DataDict) -> AuthResult:
             package.owner_org, user, "update_dataset"
         )
     else:
-        # If dataset is not owned then we can edit if config permissions allow
+        # If package is not owned then we can edit if config permissions allow
         if authz.auth_is_anon_user(context):
             check1 = all(
                 authz.check_config_permission(p)
@@ -319,7 +319,7 @@ def package_delete(context: Context, data_dict: DataDict) -> AuthResult:
 
 
 def dataset_purge(context: Context, data_dict: DataDict) -> AuthResult:
-    # Only sysadmins are authorized to purge datasets
+    # Only sysadmins are authorized to purge packages
     return {"success": False}
 
 
@@ -342,7 +342,7 @@ def package_relationship_delete(context: Context, data_dict: DataDict) -> AuthRe
 
 
 def package_collaborator_delete(context: Context, data_dict: DataDict) -> AuthResult:
-    """Checks if a user is allowed to remove collaborators from a dataset
+    """Checks if a user is allowed to remove collaborators from a package
 
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
     """
