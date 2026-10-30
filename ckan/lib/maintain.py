@@ -82,7 +82,7 @@ def timer(params: Union[Callable[..., Any], list[str]]) -> Callable[..., Any]:
         assert isinstance(params, list)
         # we have a list of parameter names so we want to find if the parameter
         # is a named one and if so store its position
-        args_info = inspect.getargspec(fn)
+        args_info = inspect.getfullargspec(fn)
         params_data = []
         for param in params:
             if param in args_info.args:
