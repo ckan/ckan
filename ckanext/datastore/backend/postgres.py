@@ -36,8 +36,6 @@ from ckan.lib.lazyjson import LazyJSONObject
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 
-from psycopg2.extras import register_composite
-import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError, DatabaseError,
                             StatementError)
@@ -163,7 +161,6 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     engine = sa.engine_from_config(
         dict(config),
         "ckan.datastore.sqlalchemy.",
-        json_deserializer=lambda x: x,  # do not convert to python objects
         url=connection_url,
     )
 
@@ -182,24 +179,6 @@ def _dispose_engines():
 
 def _pluck(field: str, arr: list[dict[str, Any]]):
     return [x[field] for x in arr]
-
-
-def _rename_json_field(data_dict: dict[str, Any]):
-    '''Rename json type to a corresponding type for the datastore since
-    pre 9.2 postgres versions do not support native json'''
-    return _rename_field(data_dict, 'json', 'nested')
-
-
-def _unrename_json_field(data_dict: dict[str, Any]):
-    return _rename_field(data_dict, 'nested', 'json')
-
-
-def _rename_field(data_dict: dict[str, Any], term: Any, replace: Any):
-    fields = data_dict.get('fields', [])
-    for i, field in enumerate(fields):
-        if 'type' in field and field['type'] == term:
-            data_dict['fields'][i]['type'] = replace
-    return data_dict
 
 
 def _get_fields_types(
@@ -250,7 +229,7 @@ def _guess_type(field: Any):
     integer, numeric and text'''
     data_types = set([int, float])
     if isinstance(field, (dict, list)):
-        return 'nested'
+        return 'json'
     if isinstance(field, int):
         return 'int'
     if isinstance(field, float):
@@ -376,43 +355,6 @@ def _cache_types(engine: Engine) -> None:
         for result in results:
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
-        if 'nested' not in _type_names:
-            with engine.begin() as conn:
-                native_json = _pg_version_is_at_least(conn, '9.2')
-
-            log.info("Create nested type. Native JSON: %r",
-                     native_json)
-
-            backend = DatastorePostgresqlBackend.get_active_backend()
-            write_engine: Engine = backend._get_write_engine()  # type: ignore
-            with write_engine.begin() as write_connection:
-                write_connection.execute(sa.text(
-                    'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
-                        'json' if native_json else 'text')))
-            _pg_types.clear()
-
-            # redo cache types with json now available.
-            return _cache_types(engine)
-
-        with engine.connect() as conn:
-            register_composite(
-                'nested',
-                cast(Any, conn.connection).connection,
-                True
-            )
-
-
-def _pg_version_is_at_least(connection: Any, version: Any):
-    try:
-        v = distutils.version.LooseVersion(version)
-        pg_version = connection.execute(
-            sa.text('select version();')
-        ).fetchone()
-        pg_version_number = pg_version[0].split()[1]
-        pv = distutils.version.LooseVersion(pg_version_number)
-        return v <= pv
-    except ValueError:
-        return False
 
 
 def _validate_record(record: Any, num: int, field_names: Iterable[str]):
@@ -866,8 +808,8 @@ def _where(
 def convert(data: Any, type_name: str) -> Any:
     if data is None:
         return None
-    if type_name == 'nested':
-        return json.loads(data[0])
+    if type_name in ('json', 'jsonb'):
+        return data
     # array type
     if type_name.startswith('_'):
         sub_type = type_name[1:]
@@ -915,7 +857,9 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
 
     fields = _get_fields(connection, data_dict['resource_id'])
     field_ids = _pluck('id', fields)
-    json_fields = [x['id'] for x in fields if x['type'] == 'nested']
+    json_fields = [
+        x['id'] for x in fields if x['type'] in ('json', 'jsonb')
+    ]
 
     fts_indexes, fts_noindexes = _build_fts_indexes(
         data_dict, sql_index_string_method, fields)
@@ -946,7 +890,7 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
                             index)]
                 })
         fields_string = u', '.join(
-            ['(({0}).json::text)'.format(identifier(field))
+            ['({0}::text)'.format(identifier(field))
                 if field in json_fields else
                 identifier(field)
                 for field in index_fields])
@@ -1207,9 +1151,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
             row = {}
             for idx, field in enumerate(fields):
                 value = record.get(field['id'])
-                if value is not None and field['type'].lower() == 'nested':
-                    # a tuple with an empty second value
-                    value = (json.dumps(value), '')
+                if value is not None and field['type'].lower() in ('json', 'jsonb'):
+                    value = json.dumps(value)
                 elif value == '' and field['type'] != 'text':
                     value = None
                 row[f"val_{idx}"] = value
@@ -1240,7 +1183,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 results = context['connection'].execute(sa.text(sql_string), rows)
 
             if data_dict['include_records']:
-                data_dict['records'] = [dict(r) for r in results.mappings().all()]
+                data_dict['records'] = [
+                    dict(r) for r in results.mappings().all()
+                ]
 
         except (DatabaseError, DataError) as err:
             if len(rows) > 1:
@@ -1282,9 +1227,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             for field in fields:
                 value = record.get(field['id'])
-                if value is not None and field['type'].lower() == 'nested':
-                    # a tuple with an empty second value
-                    record[field['id']] = (json.dumps(value), '')
+                if value is not None and field['type'].lower() in ('json', 'jsonb'):
+                    record[field['id']] = json.dumps(value)
                 elif value == '' and field['type'] != 'text':
                     record[field['id']] = None
 
@@ -1379,8 +1323,10 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         return_columns=return_columns) if data_dict[
                             'include_records'] else '',
                     values=('%s, ' % pk_values_sql if pk_sql == '"_id"' else '') +
-                    ', '.join([f'cast(:{p} as nested)' if field['type'] == 'nested'
-                               else ":" + p
+                    ', '.join([
+                        f'cast(:{p} as {field["type"]})'
+                        if field['type'].lower() in ('json', 'jsonb')
+                        else ":" + p
                                for p, field in zip(value_placeholders, used_fields)]),
                     primary_key=pk_sql
                 )
@@ -1676,8 +1622,6 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         _get_field_info(context['connection'], data_dict['resource_id']),
         datastore_helpers.get_list(data_dict.get('fields')))
 
-    _unrename_json_field(data_dict)
-
     if data_dict["include_total"]:
         if where_clause or distinct or resource_id.startswith("_"):
             # this is slow for large results
@@ -1751,7 +1695,7 @@ def format_results(context: Context, results: Any, data_dict: dict[str, Any]):
         data_dict['records'].pop()
     data_dict['fields'] = result_fields
 
-    return _unrename_json_field(data_dict)
+    return data_dict
 
 
 def delete_data(context: Context, data_dict: dict[str, Any]):
@@ -1867,7 +1811,7 @@ def upsert(context: Context, data_dict: dict[str, Any]):
             trans.rollback()
         else:
             trans.commit()
-        return _unrename_json_field(data_dict)
+        return data_dict
     except IntegrityError as e:
         pgcode = _get_pgcode(e)
         if pgcode == _PG_ERR_CODE['unique_violation']:
@@ -2323,9 +2267,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             if records_format == 'lists':
                 fmt = "coalesce(to_json({0}),'null')"
             typ = fields_types.get(field_id, '')
-            if typ == 'nested':
-                fmt = "coalesce(({0}).json,'null')"
-            elif typ == 'timestamp':
+            if typ == 'timestamp':
                 fmt = (
                     "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS.MS')"
                     if config['ckan.datastore.ms_in_timestamp']
@@ -2369,7 +2311,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             else:
                 delete_data(context, data_dict)
 
-            return _unrename_json_field(data_dict)
+            return data_dict
 
     def create(
             self,
@@ -2397,8 +2339,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         context['connection'] = engine.connect()
         timeout = context.get('query_timeout', _TIMEOUT)
 
-        _rename_json_field(data_dict)
-
         trans = context['connection'].begin()
         try:
             # check if table already exists
@@ -2424,7 +2364,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             create_indexes(context, data_dict)
             create_alias(context, data_dict)
             trans.commit()
-            return _unrename_json_field(data_dict)
+            return data_dict
         except IntegrityError as e:
             pgcode = _get_pgcode(e)
             if pgcode == _PG_ERR_CODE['unique_violation']:

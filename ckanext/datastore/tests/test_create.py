@@ -751,9 +751,7 @@ class TestDatastoreCreate(object):
         for i, row in enumerate(results):
             assert data["records"][i].get("boo%k") == getattr(row, "boo%k")
             author = getattr(row, "author")
-            assert data["records"][i].get("author") == (
-                json.loads(author[0]) if author else None
-            )
+            assert data["records"][i].get("author") == author
 
         results = c.execute(sa.text(
             """
@@ -836,9 +834,7 @@ class TestDatastoreCreate(object):
         for i, row in enumerate(results):
             assert all_data[i].get("boo%k") == getattr(row, "boo%k")
             author = getattr(row, "author")
-            assert all_data[i].get("author") == (
-                json.loads(author[0]) if author else None
-            )
+            assert all_data[i].get("author") == author
 
         c = self.Session.connection()
         results = c.execute(sa.text(
@@ -891,9 +887,7 @@ class TestDatastoreCreate(object):
             )
 
             author = getattr(row, "author")
-            assert all_data[i].get("author") == (
-                json.loads(author[0]) if author else None
-            )
+            assert all_data[i].get("author") == author
 
         results = c.execute(sa.text(
             """select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') """.format(
@@ -1129,7 +1123,7 @@ class TestDatastoreCreate(object):
         assert types == [
             u"int4",
             u"tsvector",
-            u"nested",
+            u"json",
             u"int4",
             u"text",
             u"timestamp",
@@ -1139,9 +1133,8 @@ class TestDatastoreCreate(object):
         assert results.rowcount == 3
         for i, row in enumerate(results):
             assert data["records"][i].get("book") == row._mapping["book"]
-            assert data["records"][i].get("author") == (
-                json.loads(row._mapping["author"][0]) if row._mapping["author"] else None
-            )
+            author = row._mapping["author"]
+            assert data["records"][i].get("author") == author
         self.Session.remove()
 
         ### extend types
@@ -1191,14 +1184,14 @@ class TestDatastoreCreate(object):
         assert types == [
             u"int4",  # id
             u"tsvector",  # fulltext
-            u"nested",  # author
+            u"json",  # author
             u"int4",  # count
             u"text",  # book
             u"timestamp",  # date
             u"float8",  # count2
             u"text",  # extra
             u"timestamp",  # date2
-            u"nested",  # count3
+            u"json",  # count3
         ], types
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -1531,7 +1524,7 @@ def test_create_schedules_record_count():
             "select stats from _table_stats where resource_id=:resource_id"
             ), {'resource_id': resource['id']}
         )
-    assert list(stats) == [('{"rows": 7}',)]
+    assert list(stats) == [({"rows": 7},)]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
