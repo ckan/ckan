@@ -821,7 +821,7 @@ def update_configuration_schema():
 
     These configuration options can be edited during runtime via the web
     interface or using
-    the :py:func:`ckan.logic.action.update.config_option_update` API call.
+    the :py:func:`ckan.logic.action.config_option.config_option_update` API call.
 
     :returns: a dictionary mapping runtime-editable configuration option keys
       to lists of validator and converter functions to be applied to those

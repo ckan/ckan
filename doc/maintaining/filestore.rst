@@ -167,8 +167,8 @@ FileStore API
 -------------
 
 Files can be uploaded to the FileStore using the
-:py:func:`~ckan.logic.action.create.resource_create` and
-:py:func:`~ckan.logic.action.update.resource_update` action API
+:py:func:`~ckan.logic.action.resource.resource_create` and
+:py:func:`~ckan.logic.action.resource.resource_update` action API
 functions. You can post multipart/form-data to the API and the key, value
 pairs will be treated as if they are a JSON object.
 The extra key ``upload`` is used to actually post the binary data.
@@ -199,7 +199,7 @@ To create a new resource and upload a file to it using the Python library
 ``files=`` parameter.)
 
 To overwrite an uploaded file with a new version of the file, post to the
-:py:func:`~ckan.logic.action.update.resource_update` action and use the
+:py:func:`~ckan.logic.action.resource.resource_update` action and use the
 ``upload`` field::
 
     curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' \

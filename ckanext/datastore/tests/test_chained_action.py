@@ -5,7 +5,7 @@ import pytest
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.logic.action.get import package_list as core_package_list
+from ckan.logic.action.package import package_list as core_package_list
 
 
 package_list_message = u"The content of this message is largely irrelevant"

@@ -4,6 +4,7 @@ from __future__ import annotations
 import functools
 import inspect
 import importlib
+import pkgutil
 
 from collections import defaultdict, OrderedDict
 from logging import getLogger
@@ -19,7 +20,6 @@ from ckan.common import _
 from ckan.types import AuthResult, AuthFunction, DataDict, Context
 
 log = getLogger(__name__)
-
 
 def get_local_functions(module: ModuleType, include_private: bool = False):
     """Return list of (name, func) tuples.
@@ -75,24 +75,15 @@ class AuthFunctions:
 
         module_root = 'ckan.logic.auth'
 
-        for auth_module_name in [
-                'get', 'create', 'update', 'delete', 'patch',
-                'file',
-        ]:
+        auth_package = importlib.import_module(module_root)
+        for info in pkgutil.iter_modules(auth_package.__path__):
+            auth_module_name = info.name
             module = importlib.import_module(
                 '.' + auth_module_name, module_root)
 
             for key, v in get_local_functions(module):
-                # Whitelist all auth functions defined in
-                # logic/auth/get.py as not requiring an authorized user,
-                # as well as ensuring that the rest do. In both cases, do
-                # nothing if a decorator has already been used to define
-                # the behaviour
                 if not hasattr(v, 'auth_allow_anonymous_access'):
-                    if auth_module_name == 'get':
-                        v.auth_allow_anonymous_access = True
-                    else:
-                        v.auth_allow_anonymous_access = False
+                    v.auth_allow_anonymous_access = False
                 self._functions[key] = v
 
         # Then overwrite them with any specific ones in the plugins:

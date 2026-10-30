@@ -258,25 +258,22 @@ dictionary:
    authorization works in CKAN.
 
    Every action that can be carried out using the CKAN web interface or API is
-   implemented by an *action function* in one of the four files
-   ``ckan/logic/action/{create,delete,get,update}.py``.
+   implemented by an *action function* in one of the files under
+   ``ckan/logic/action``.
 
    For example, when creating a dataset either using the web interface or using
-   the :func:`~ckan.logic.action.create.package_create` API call,
-   :func:`ckan.logic.action.create.package_create` is called. There's also
-   :func:`ckan.logic.action.get.package_show`,
-   :func:`ckan.logic.action.update.package_update`, and
-   :func:`ckan.logic.action.delete.package_delete`.
+   the :func:`~ckan.logic.action.package.package_create` API call,
+   :func:`ckan.logic.action.package.package_create` is called.
 
    For a full list of the action functions available in CKAN, see the
    :ref:`api-reference`.
 
-   Each action function has a corresponding authorization function in one of
-   the four files ``ckan/logic/auth/{create,delete,get,update}.py``,
+   Each action function has a corresponding authorization function in a
+   corresponding file under ``ckan/logic/auth``.
    CKAN calls this authorization function to decide whether
    the user is authorized to carry out the requested action. For example, when
    creating a new package using the web interface or API,
-   :func:`ckan.logic.auth.create.package_create` is called.
+   :func:`ckan.logic.auth.package.package_create` is called.
 
    The :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin interface
    allows CKAN plugins to hook into this authorization system to add their own
@@ -284,7 +281,7 @@ dictionary:
    this way, plugins have complete control to customize CKAN's auth.
 
 Whenever a user tries to create a new group via the web interface or the API,
-CKAN calls the :func:`~ckan.logic.auth.create.group_create` authorization
+CKAN calls the :func:`~ckan.logic.auth.group.group_create` authorization
 function to decide whether to allow the action. Let's override this function
 and simply prevent anyone from creating new groups(Note: this is default behavior.
 In order to go further, you need to change ``ckan.auth.user_create_groups`` to `True`
@@ -297,7 +294,7 @@ class now calls :func:`~ckan.plugins.core.implements` to tell CKAN that it
 implements the :class:`~ckan.plugins.interfaces.IAuthFunctions` interface, and
 provides an implementation of the interface's
 :func:`~ckan.plugins.interfaces.IAuthFunctions.get_auth_functions` method that
-overrides the default :func:`~ckan.logic.auth.create.group_create` function
+overrides the default :func:`~ckan.logic.auth.group.group_create` function
 with a custom one.
 
 
@@ -315,7 +312,7 @@ If you now restart CKAN and reload the ``/group`` page, as long as you're not a
 sysadmin user you should see the ``Add Group`` button disappear. The CKAN web
 interface automatically hides buttons that the user is not authorized to use.
 Visiting ``/group/new``  directly will redirect you to the login page. If you
-try to call :func:`~ckan.logic.action.create.group_create` via the API, you'll
+try to call :func:`~ckan.logic.action.group.group_create` via the API, you'll
 receive an ``Authorization Error`` from CKAN::
 
     $ http 127.0.0.1:5000/api/3/action/group_create Authorization:*** name=my_group
@@ -408,14 +405,14 @@ action function. The action functions available to extensions are the same
 functions that CKAN uses internally to carry out actions when users make
 requests to the web interface or API. Our code uses
 :func:`~ckan.plugins.toolkit.get_action` to get the
-:func:`~ckan.logic.action.get.member_list` action function, which it uses to
+:func:`~ckan.logic.group.get.member_list` action function, which it uses to
 get a list of the members of the ``curators`` group:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Get a list of the members of the 'curators' group.
     :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
 
-Calling :func:`~ckan.logic.action.get.member_list` in this way is equivalent to
+Calling :func:`~ckan.logic.action.group.member_list` in this way is equivalent to
 posting the same data dict to the ``/api/3/action/member_list`` API endpoint.
 For other action functions available from
 :func:`~ckan.plugins.toolkit.get_action`, see :ref:`api-reference`.
@@ -475,7 +472,7 @@ You'll also get a ``500 Server Error`` if you try to create a group using the
 
 To handle the situation where the site has no ``curators`` group without
 crashing, we'll have to handle the exception that CKAN's
-:func:`~ckan.logic.action.get.member_list` function raises when it's asked to
+:func:`~ckan.logic.action.group.member_list` function raises when it's asked to
 list the members of a group that doesn't exist. Replace the ``member_list``
 line in your ``plugin.py`` file with these lines:
 
@@ -490,7 +487,7 @@ With these ``try`` and ``except`` clauses added, we should be able to load the
 Second, ``plugin.py`` will crash if a user who is not logged-in tries to create
 a group. If you logout of CKAN, and then visit ``/group/new`` you'll see
 another ``500 Server Error``. You'll also get this error if you post to the
-:func:`~ckan.logic.action.create.group_create` API action without
+:func:`~ckan.logic.action.group.group_create` API action without
 :ref:`providing an API key <api authentication>`.
 
 When the user isn't logged in, ``context['user']`` contains the user's IP

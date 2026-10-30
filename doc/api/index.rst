@@ -237,7 +237,7 @@ well.
 When calling an API function that requires authorization, you must
 authenticate yourself by providing an API token. Tokens are
 encrypted keys that can be generated manually from the UI (User Profile > Manage > API tokens)
-or via the :py:func:`~ckan.logic.action.create.api_token_create` function. A user can create as many tokens as needed
+or via the :py:func:`~ckan.logic.action.user.api_token_create` function. A user can create as many tokens as needed
 for different uses, and revoke one or multiple tokens at any time. In addition, enabling
 the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token.
 
@@ -270,7 +270,7 @@ run this Python code::
 GET-able API functions
 ----------------------
 
-Functions defined in `ckan.logic.action.get`_ can also be called with an HTTP
+Functions defined using the ``@side_effect_free`` decorator can also be called with an HTTP
 GET request.  For example, to get the list of datasets (packages) from
 demo.ckan.org, open this URL in your browser:
 
@@ -445,7 +445,7 @@ Action API reference
    ``"success": false`` and an ``"error"`` key indicating the exception
    that was raised.
 
-   For example :py:func:`~ckan.logic.action.get.member_list` (which returns a
+   For example :py:func:`~ckan.logic.action.group.member_list` (which returns a
    list of the members of a group) raises :py:class:`~ckan.logic.NotFound` if
    the group doesn't exist. If you called it over the API, you'd get back a
    JSON dict like this::
@@ -460,44 +460,84 @@ Action API reference
     }
 
 
-ckan.logic.action.get
-=====================
-
-.. automodule:: ckan.logic.action.get
-   :members:
-
-ckan.logic.action.create
+ckan.logic.action.status
 ========================
 
-.. automodule:: ckan.logic.action.create
+.. automodule:: ckan.logic.action.status
    :members:
 
-ckan.logic.action.update
-========================
+ckan.logic.action.package
+=========================
 
-.. automodule:: ckan.logic.action.update
+.. automodule:: ckan.logic.action.package
    :members:
 
-ckan.logic.action.patch
+ckan.logic.action.resource
+==========================
+
+.. automodule:: ckan.logic.action.resource
+   :members:
+
+ckan.logic.action.user
+======================
+
+.. automodule:: ckan.logic.action.user
+   :members:
+
+ckan.logic.action.group
 =======================
 
-.. versionadded:: 2.3
-
-.. automodule:: ckan.logic.action.patch
+.. automodule:: ckan.logic.action.group
    :members:
 
-ckan.logic.action.delete
-========================
+ckan.logic.action.organization
+==============================
 
-.. automodule:: ckan.logic.action.delete
+.. automodule:: ckan.logic.action.organization
    :members:
-
 
 ckan.logic.action.file
 ========================
 
 .. automodule:: ckan.logic.action.file
    :members:
+
+ckan.logic.action.tag
+=====================
+
+.. automodule:: ckan.logic.action.tag
+   :members:
+
+ckan.logic.action.resource_view
+===============================
+
+.. automodule:: ckan.logic.action.resource_view
+   :members:
+
+ckan.logic.action.job
+=====================
+
+.. automodule:: ckan.logic.action.job
+   :members:
+
+ckan.logic.action.config_option
+===============================
+
+.. automodule:: ckan.logic.action.config_option
+   :members:
+
+ckan.logic.action.task_status
+=============================
+
+.. automodule:: ckan.logic.action.task_status
+   :members:
+
+ckan.logic.action.term_translation
+==================================
+
+.. automodule:: ckan.logic.action.term_translation
+   :members:
+
 
 
 ckanext.activity.logic.action
