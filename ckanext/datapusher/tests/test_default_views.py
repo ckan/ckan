@@ -13,7 +13,7 @@ from ckanext.datapusher.tests import get_api_token
     "ckan.plugins", "datapusher datastore datatables_view"
 )
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datapusher_creates_default_views_on_complete():
 
     dataset = factories.Dataset()
@@ -62,7 +62,7 @@ def test_datapusher_creates_default_views_on_complete():
     "ckan.plugins", "datapusher datastore datatables_view"
 )
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datapusher_does_not_create_default_views_on_pending():
 
     dataset = factories.Dataset()

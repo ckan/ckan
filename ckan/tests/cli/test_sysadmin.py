@@ -1,11 +1,9 @@
-import pytest
 
 from ckan.tests.helpers import call_action
 from ckan.cli.cli import ckan
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestSysadminCommand(object):
 
     def test_cli_sysadmin_list(self, cli):

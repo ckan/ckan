@@ -9,7 +9,6 @@ from ckan.lib.navl.dictization_functions import DataError
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_basic():
     name = factories.Vocabulary.stub().name
     vocab = helpers.call_action("vocabulary_create", name=name)
@@ -17,7 +16,6 @@ def test_basic():
     assert obj.id == vocab["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_with_tags():
     name = factories.Vocabulary.stub().name
     tag1 = factories.Tag.stub().name
@@ -32,14 +30,12 @@ def test_with_tags():
         assert tag["name"] in {tag1, tag2}
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_with_empty_tags():
     name = factories.Vocabulary.stub().name
     resp = helpers.call_action("vocabulary_create", name=name, tags=[])
     assert resp["tags"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_with_existing_name():
     name = factories.Vocabulary.stub().name
     helpers.call_action("vocabulary_create", name=name, tags=[])
@@ -87,7 +83,6 @@ def test_invalid_name(name):
         helpers.call_action("vocabulary_create", name=name)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_add_tag_to_vocab():
     tag1 = factories.Tag.stub().name
     tag2 = factories.Tag.stub().name
@@ -116,7 +111,6 @@ def test_does_not_exist():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_duplicate():
     tag1 = factories.Tag.stub().name
     vocab = factories.Vocabulary(tags=[{"name": tag1}])
@@ -124,7 +118,6 @@ def test_duplicate():
         helpers.call_action("tag_create", name=tag1, vocabulary_id=vocab["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_tagcreate_id_not_allowed():
     vocab = factories.Vocabulary()
     with pytest.raises(logic.ValidationError):
@@ -133,14 +126,12 @@ def test_tagcreate_id_not_allowed():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_name_is_required():
     vocab = factories.Vocabulary()
     with pytest.raises(logic.ValidationError):
         helpers.call_action("tag_create", vocabulary_id=vocab["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_tagcreate_invalid_name():
     vocab = factories.Vocabulary()
     for name in ("Not a valid tag name!", "", None):
@@ -167,7 +158,6 @@ def test_deletetags_does_not_exist():
         helpers.call_action("tag_delete", id="not-a-real-id")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_vocab_does_not_exist():
     vocab = factories.Vocabulary(tags=[{"name": "testtag"}])
     tag = vocab["tags"][0]
@@ -192,7 +182,6 @@ def test_delete_tag():
     assert pkg["tags"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_vocabularydelete_basic():
     vocab = factories.Vocabulary()
     helpers.call_action("vocabulary_delete", id=vocab["id"])
@@ -202,7 +191,6 @@ def test_vocabularydelete_basic():
     }
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_not_existing():
     with pytest.raises(logic.NotFound):
         helpers.call_action("vocabulary_delete", id="does-not-exist")
@@ -213,7 +201,6 @@ def test_vocabularydelete_no_id():
         helpers.call_action("vocabulary_delete")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_tag_show_for_free_tag():
     tag = factories.Tag.stub().name
     dataset = factories.Dataset(tags=[{"name": tag}])
@@ -228,7 +215,6 @@ def test_tag_show_for_free_tag():
     assert "packages" not in tag_shown
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_index")
 def test_tag_show_with_datasets():
     tag = factories.Tag.stub().name
@@ -239,13 +225,11 @@ def test_tag_show_with_datasets():
     assert [d["name"] for d in tag_shown["packages"]] == [dataset["name"]]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_tag_show_not_found():
     with pytest.raises(logic.NotFound):
         helpers.call_action("tag_show", id=factories.Tag.stub().name)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_db")
 def test_tag_show_for_flexible_tag():
     # A 'flexible' tag is one with spaces, some punctuation
@@ -261,7 +245,6 @@ def test_tag_show_for_flexible_tag():
     assert [d["name"] for d in tag_shown["packages"]] == [dataset["name"]]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_tag_show_for_vocab_tag():
     tag = factories.Tag.stub().name
     vocab = factories.Vocabulary(tags=[dict(name=tag)])
@@ -332,7 +315,6 @@ def test_tag_list_vocab_not_found():
         helpers.call_action("tag_list", vocabulary_id="does-not-exist")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_no_real_update():
     vocab = factories.Vocabulary()
     updated = helpers.call_action("vocabulary_update", id=vocab["id"])
@@ -344,7 +326,6 @@ def test_no_real_update():
     assert vocab == updated
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_update_name():
     vocab = factories.Vocabulary()
     stub = factories.Vocabulary.stub()
@@ -353,7 +334,6 @@ def test_update_name():
     assert updated["name"] == stub.name
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_add_tags():
     vocab = factories.Vocabulary()
     assert vocab["tags"] == []
@@ -384,7 +364,6 @@ def test_missing_id():
 
 
 @pytest.mark.parametrize("tags", [])
-@pytest.mark.usefixtures("non_clean_db")
 def test_vocabularyupdate_with_bad_tags(tags):
     vocab = factories.Vocabulary()
     for tags in [
@@ -399,14 +378,12 @@ def test_vocabularyupdate_with_bad_tags(tags):
             helpers.call_action("vocabulary_update", id=vocab["id"], tags=tags)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_vocabularyupdate_with_no_tags():
     vocab = factories.Vocabulary()
     with pytest.raises(DataError):
         helpers.call_action("vocabulary_update", id=vocab["id"], tags=None)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_clen_tags():
     vocab = factories.Vocabulary(tags=[{"name": factories.Tag.stub().name}])
     updated = helpers.call_action("vocabulary_update", id=vocab["id"], tags=[])

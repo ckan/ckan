@@ -9,7 +9,6 @@ from ckan import logic, model
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_organization():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": True}
@@ -38,7 +37,6 @@ def test_create_organization():
     ]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_organization_validation_fail():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": True}
@@ -47,7 +45,6 @@ def test_create_organization_validation_fail():
         helpers.call_action("organization_create", context=context, name="")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_organization_return_id():
 
     user = factories.User()
@@ -67,7 +64,6 @@ def test_create_organization_return_id():
     assert re.match(r"([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)", org)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_matches_show():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": True}
@@ -87,7 +83,6 @@ def test_create_matches_show():
         assert created[k] == shown[k], k
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_organization_custom_type():
     custom_org_type = "some-custom-type"
     user = factories.User()
@@ -106,7 +101,6 @@ def test_create_organization_custom_type():
     assert org["type"] == custom_org_type
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_cant_set_id():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": False}
@@ -117,7 +111,6 @@ def test_normal_user_cant_set_id():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_can_set_id():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -128,7 +121,6 @@ def test_sysadmin_can_set_id():
     assert result.get("id") == _id
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_id_cant_already_exist():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -140,7 +132,6 @@ def test_id_cant_already_exist():
     assert "Id already exists" in str(exception.value)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
 def test_delete_org_without_datasets():
     user = factories.User()
@@ -155,7 +146,6 @@ def test_delete_org_without_datasets():
     assert model.Group.get(org["id"]).state == "deleted"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_a_non_sysadmin_cant_purge_org():
     user = factories.User()
     org = factories.Organization(user=user)
@@ -168,7 +158,6 @@ def test_a_non_sysadmin_cant_purge_org():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_purged_org_does_not_show():
     org = factories.Organization()
 
@@ -178,7 +167,6 @@ def test_purged_org_does_not_show():
         helpers.call_action("organization_show", context={}, id=org["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_db")
 def test_purged_org_is_not_listed():
     org = factories.Organization()
@@ -188,7 +176,6 @@ def test_purged_org_is_not_listed():
     assert helpers.call_action("organization_list", context={}) == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_dataset_in_a_purged_org_no_longer_shows_that_org():
     org = factories.Organization()
     dataset = factories.Dataset(owner_org=org["id"])
@@ -199,7 +186,6 @@ def test_dataset_in_a_purged_org_no_longer_shows_that_org():
     assert dataset_shown["owner_org"] is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_index")
 def test_purged_org_is_not_in_search_results_for_its_ex_dataset():
     org = factories.Organization()
@@ -216,7 +202,6 @@ def test_purged_org_is_not_in_search_results_for_its_ex_dataset():
     assert get_search_result_owner_org() is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_purged_organization_leaves_no_trace_in_the_model():
     parent = factories.Organization()
     user = factories.User()
@@ -242,13 +227,11 @@ def test_purged_organization_leaves_no_trace_in_the_model():
     assert model.Package.get(ds["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_missing_id_returns_error():
     with pytest.raises(logic.ValidationError):
         helpers.call_action("organization_purge")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_bad_id_returns_404():
     with pytest.raises(logic.NotFound):
         helpers.call_action("organization_purge", id="123")
@@ -359,7 +342,6 @@ class TestOrganizationList(object):
         assert len(results) == 5  # i.e. configured limit
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_organization_show():
     org = factories.Organization()
 
@@ -371,14 +353,12 @@ def test_organization_show():
     assert org_dict == org
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_organization_show_error_not_found():
 
     with pytest.raises(logic.NotFound):
         helpers.call_action("organization_show", id="does_not_exist")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_organization_show_error_for_group():
 
     group = factories.Group()
@@ -387,7 +367,6 @@ def test_organization_show_error_for_group():
         helpers.call_action("organization_show", id=group["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_organization_show_packages_returned():
 
     user_name = model.User.get_site_user().name
@@ -410,7 +389,6 @@ def test_organization_show_packages_returned():
     assert org_dict["package_count"] == 2
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_organization_show_private_packages_not_returned():
 
     user_name = model.User.get_site_user().name
@@ -438,7 +416,6 @@ def test_organization_show_private_packages_not_returned():
     assert org_dict["package_count"] == 1
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.search.rows_max", "2")
 def test_package_limit_configured():
     org = factories.Organization()
@@ -873,7 +850,6 @@ class TestOrganizationListForUser(object):
         assert org_list_for_user3 == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_organization_patch_updating_single_field():
     user = factories.User()
     organization = factories.Organization(description="some test now", user=user)
@@ -895,7 +871,6 @@ def test_organization_patch_updating_single_field():
     assert organization2["description"] == "somethingnew"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.public_user_details", "false")
 def test_organization_patch_updating_single_field_when_public_user_details_is_false():
     user = factories.User()
@@ -921,7 +896,6 @@ def test_organization_patch_updating_single_field_when_public_user_details_is_fa
     assert organization2["users"][0]["name"] == user["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_update_organization_cant_change_type():
     user = factories.User()
     context = {"user": user["name"]}
@@ -937,7 +911,6 @@ def test_update_organization_cant_change_type():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_extras_removed_if_missing():
     org = factories.Organization(extras=[{"key": "e", "value": "v"}])
     assert org["extras"] == [{"key": "e", "value": "v"}]
@@ -949,7 +922,6 @@ def test_extras_removed_if_missing():
     assert updated_org["extras"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_groups_unchanged_if_missing():
     group = factories.Group()
     org = factories.Organization(groups=[{"name": group["name"]}])
@@ -962,7 +934,6 @@ def test_groups_unchanged_if_missing():
     assert updated_org["groups"][0]["name"] == group["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_groups_removed_if_empty_list():
     group = factories.Group()
     org = factories.Organization(groups=[{"name": group["name"]}])
@@ -976,7 +947,6 @@ def test_groups_removed_if_empty_list():
     assert updated_org["groups"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_users_unchanged_if_missing():
     user = factories.User()
     org = factories.Organization(users=[user])
@@ -989,7 +959,6 @@ def test_users_unchanged_if_missing():
     assert user["name"] in (g["name"] for g in updated_org["users"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_users_removed_if_empty_list():
     user = factories.User()
     org = factories.Organization(users=[user])

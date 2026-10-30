@@ -66,7 +66,6 @@ class TestOrganizationNew(object):
 
 
 class TestOrganizationList(object):
-    @pytest.mark.usefixtures("non_clean_db")
     def test_error_message_shown_when_no_organization_list_permission(
         self, monkeypatch, app, user
     ):
@@ -84,7 +83,6 @@ class TestOrganizationList(object):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationRead(object):
     def test_group_read(self, app):
         org = factories.Organization()
@@ -135,7 +133,6 @@ class TestOrganizationRead(object):
         assert h1_tag.text.strip() == f'1 dataset found for "{title}"'
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationEdit(object):
 
     def test_group_doesnt_exist(self, app, user):
@@ -184,7 +181,6 @@ class TestOrganizationEdit(object):
         assert group["image_url"] == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationDelete(object):
 
     def test_owner_delete(self, app, user):
@@ -303,7 +299,6 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app, user):
         headers = {"Authorization": user["token"]}
@@ -532,7 +527,6 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationMembership(object):
     def test_editor_users_cannot_add_members(self, app, user):
         headers = {"Authorization": user["token"]}
@@ -643,7 +637,6 @@ class TestOrganizationMembership(object):
             assert user["id"] not in org["users"][0]["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationFollow:
     def test_organization_follow_and_unfollow(self, app, user):
         headers = {"Authorization": user["token"]}

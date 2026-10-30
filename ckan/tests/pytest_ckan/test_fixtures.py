@@ -178,11 +178,6 @@ class TestMigrateDbFor(object):
         assert inspector.has_table("example_database_migrations_y")
 
 
-@pytest.mark.usefixtures("non_clean_db")
-def test_non_clean_db_does_not_fail(package_factory):
-    assert package_factory()
-
-
 class TestRedisFixtures:
 
     @pytest.fixture()
@@ -240,7 +235,6 @@ def test_clean_db_does_not_break_with_custom_models(_n):
     pass
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_app_with_user(app, user):
     """Smoke testing of flask-login authentication."""
 

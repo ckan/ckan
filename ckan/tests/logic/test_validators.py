@@ -178,7 +178,6 @@ def adds_message_to_errors_dict(error_message):
     return decorator
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_with_existed_value(app):
     with app.flask_app.test_request_context():
         user = factories.User(username="user01", email="user01@email.com")
@@ -188,7 +187,6 @@ def test_email_is_unique_validator_with_existed_value(app):
         factories.User(email=user["email"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_case_insensitive(app):
     factories.User(username="user01", email="some_email@example.org")
 
@@ -218,7 +216,6 @@ def test_email_is_unique_with_unallowed_reused_email(faker: Faker):
         factories.User(email=email)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_email_unchanged():
     user = factories.User()
 
@@ -231,7 +228,6 @@ def test_email_is_unique_validator_user_update_email_unchanged():
     assert updated_user.email == old_email
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_using_name_as_id():
     user = factories.User()
 
@@ -247,7 +243,6 @@ def test_email_is_unique_validator_user_update_using_name_as_id():
     assert updated_user.about == "test"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_email_new(app):
     with app.flask_app.test_request_context():
         user = factories.User()
@@ -262,7 +257,6 @@ def test_email_is_unique_validator_user_update_email_new(app):
         assert updated_user.email == new_email
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_to_existed_email(app):
     with app.flask_app.test_request_context():
         user1 = factories.User()
@@ -445,7 +439,6 @@ def test_user_name_validator_with_non_string_value():
 # END-BEFORE
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_name_validator_with_a_name_that_already_exists(user):
     """user_name_validator() should add to the errors dict if given a
     user name that already exists.
@@ -772,7 +765,6 @@ def test_package_name_exists_empty():
         validators.package_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_name_exists():
     name = factories.Dataset()["name"]
     v = validators.package_name_exists(name, _make_context())
@@ -784,7 +776,6 @@ def test_resource_id_exists_empty():
         validators.resource_id_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_id_exists(resource):
     v = validators.resource_id_exists(resource["id"], _make_context())
     assert v == resource["id"]
@@ -795,7 +786,6 @@ def test_user_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_id_or_name_exists():
     user = factories.User()
     v = validators.user_id_or_name_exists(user["id"], _make_context())
@@ -809,7 +799,6 @@ def test_group_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_id_or_name_exists(group):
     v = validators.group_id_or_name_exists(group["id"], _make_context())
     assert v == group["id"]

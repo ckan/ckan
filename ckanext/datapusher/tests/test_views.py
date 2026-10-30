@@ -9,7 +9,7 @@ from ckan.plugins import toolkit
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_data(app, monkeypatch):
     user = factories.UserWithToken()
     org = factories.Organization(users=[{"name": user["name"], "capacity": "admin"}])
@@ -33,7 +33,7 @@ def test_resource_data(app, monkeypatch):
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datastore_delete(app, monkeypatch):
     """ Does the datastore_delete route remove the table from the datastore """
     user = factories.UserWithToken()
@@ -66,7 +66,7 @@ def test_datastore_delete(app, monkeypatch):
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datastore_delete_404(app, monkeypatch):
     """ Does the datastore_delete route 404 and not 500 server error on NotFound? """
     user = factories.UserWithToken()

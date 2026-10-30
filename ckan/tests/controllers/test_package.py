@@ -475,7 +475,6 @@ class TestPackageNew(object):
         assert form.select_one('[name=notes]').text == "notes"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageEdit(object):
     def test_redirect_after_edit_using_param(self, app, sysadmin):
         return_url = "http://random.site.com/dataset/<NAME>?test=param"
@@ -591,7 +590,6 @@ class TestPackageEdit(object):
         assert 404 == response.status_code
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageOwnerOrgList(object):
 
     owner_org_select = '<select id="field-organizations" name="owner_org"'
@@ -672,7 +670,6 @@ class TestPackageOwnerOrgList(object):
         assert updated_dataset['owner_org'] == organization2['id']
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageRead(object):
     def test_read(self, app):
         dataset = factories.Dataset()
@@ -754,7 +751,6 @@ class TestPackageRead(object):
         assert 403 == response.status_code
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageDelete(object):
     def test_owner_delete(self, app, user):
         headers = {"Authorization": user["token"]}
@@ -864,7 +860,6 @@ class TestPackageDelete(object):
         assert plugin.calls["after_dataset_delete"] == 2
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestResourceNew(object):
     def test_manage_dataset_resource_listing_page(self, app, user):
         headers = {"Authorization": user["token"]}
@@ -1080,7 +1075,7 @@ class TestResourceNew(object):
         assert response.status_code == 404
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestResourceDownload(object):
 
     def test_resource_download_content_type(self, create_with_upload, app):
@@ -1104,7 +1099,7 @@ class TestResourceDownload(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestResourceView(object):
     def test_resource_view_create(self, app):
         user = factories.UserWithToken()
@@ -1211,7 +1206,6 @@ class TestResourceView(object):
         assert helpers.body_contains(response, "Some <strong>Markdown</strong>")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestResourceRead(object):
     def test_existing_resource_with_not_associated_dataset(self, app):
 
@@ -1351,7 +1345,6 @@ class TestResourceRead(object):
         assert '/login' in response.headers[u"Location"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestResourceDelete(object):
     def test_dataset_owners_can_delete_resources(self, app, user):
         headers = {"Authorization": user["token"]}
@@ -1821,7 +1814,6 @@ class TestSearch(object):
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageFollow(object):
     def test_package_follow(self, app, user):
 
@@ -1897,7 +1889,6 @@ class TestPackageFollow(object):
         assert sysadmin["display_name"] in followers_response
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetRead(object):
     def test_dataset_read(self, app):
 
@@ -1925,7 +1916,6 @@ class TestDatasetRead(object):
         )  # ie no redirect
 
 
-@pytest.mark.usefixtures('non_clean_db')
 class TestCollaborators(object):
 
     def test_collaborators_tab_not_shown(self, app, sysadmin):

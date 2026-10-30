@@ -1,11 +1,9 @@
 """Tests for actions and authorization in ckan/logic/action/term_translation.py."""
 
-import pytest
 
 from ckan.tests import helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_update_single(app):
 
     data = {"term": "moo", "term_translation": "moo", "lang_code": "fr"}
@@ -41,7 +39,6 @@ def test_update_single(app):
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_2_update_many(app):
 
     data = [
