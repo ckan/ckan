@@ -116,7 +116,7 @@ jobs:
       matrix:
         split: ${{ fromJSON(needs.define-matrix.outputs.SPLIT_LIST) }}
     container:
-      image: python:3.10-bookworm
+      image: python:3.11-bookworm
 
     services:
       ckan-postgres:
@@ -338,7 +338,7 @@ jobs:
       contents: read
     container:
       # Needs to run on the same image the tests were run
-      image: python:3.10-bookworm
+      image: python:3.11-bookworm
 
     steps:
       - name: Checkout repository

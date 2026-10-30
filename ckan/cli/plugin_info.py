@@ -72,13 +72,13 @@ def _function_info(functions: dict[str, Callable[..., Any]]):
     output = []
     for function_name in functions:
         fn = functions[function_name]
-        args_info = inspect.getargspec(fn)
+        args_info = inspect.getfullargspec(fn)
         params = args_info.args
         num_params = len(params)
         if args_info.varargs:
             params.append(u'*' + args_info.varargs)
-        if args_info.keywords:
-            params.append(u'**' + args_info.keywords)
+        if args_info.varkw:
+            params.append(u'**' + args_info.varkw)
         if args_info.defaults:
             offset = num_params - len(args_info.defaults)
             for i, v in enumerate(args_info.defaults):
