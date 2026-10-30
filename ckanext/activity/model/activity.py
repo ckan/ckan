@@ -366,10 +366,10 @@ def package_activity_list(
     exclude_activity_types: Optional[list[str]] = None,
     user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
-    """Return the given dataset (package)'s public activity stream.
+    """Return the given dataset's public activity stream.
 
-    Returns all activities about the given dataset, i.e. where the given
-    dataset is the object of the activity, e.g.:
+    Returns all activities about the given package, i.e. where the given
+    package is the object of the activity, e.g.:
 
     "{USER} created the dataset {DATASET}"
     "{USER} updated the dataset {DATASET}"
@@ -423,7 +423,7 @@ def _group_activity_query(group_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
-    or one of the group's datasets.
+    or one of the group's packages.
 
     """
 
@@ -445,19 +445,19 @@ def _group_activity_query(group_id: Union[str, List[str]]) -> QActivity:
             # will not show up. This may not be desired but is consistent with
             # legacy behaviour.
             or_(
-                # active dataset in the group
+                # active package in the group
                 and_(
                     model.Member.group_id.in_(groups),
                     model.Member.state == "active",
                     model.Package.state == "active",
                 ),
-                # deleted dataset in the group
+                # deleted package in the group
                 and_(
                     model.Member.group_id.in_(groups),
                     model.Member.state == "deleted",
                     model.Package.state == "deleted",
                 ),
-                # (we want to avoid showing changes to an active dataset that
+                # (we want to avoid showing changes to an active package that
                 # was once in this group)
                 # activity the the group itself
                 Activity.object_id.in_(groups),
@@ -472,7 +472,7 @@ def _organization_activity_query(org_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities about org_id.
 
     Returns a query for all activities whose object is either the org itself
-    or one of the org's datasets.
+    or one of the org's packages.
 
     """
 
@@ -523,7 +523,7 @@ def group_activity_list(
 ) -> list[Activity]:
     """Return the given group's public activity stream.
 
-    Returns activities where the given group or one of its datasets is the
+    Returns activities where the given group or one of its packages is the
     object of the activity, e.g.:
 
     "{USER} updated the group {GROUP}"
@@ -582,7 +582,7 @@ def organization_activity_list(
 ) -> list[Activity]:
     """Return the given org's public activity stream.
 
-    Returns activities where the given org or one of its datasets is the
+    Returns activities where the given org or one of its packages is the
     object of the activity, e.g.:
 
     "{USER} updated the organization {ORG}"
@@ -648,8 +648,8 @@ def _activities_from_users_followed_by_user_query(
 def _activities_from_datasets_followed_by_user_query(
     user_id: str, limit: int
 ) -> QActivity:
-    """Return a query for all activities from datasets that user_id follows."""
-    # Get a list of the datasets that the user is following.
+    """Return a query for all activities from packages that user_id follows."""
+    # Get a list of the packages that the user is following.
     follower_objects = model.UserFollowingDataset.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
@@ -667,7 +667,7 @@ def _activities_from_groups_followed_by_user_query(
     """Return a query for all activities about groups the given user follows.
 
     Return a query for all activities about the groups the given user follows,
-    or about any of the group's datasets. This is the union of
+    or about any of the group's packages. This is the union of
     _group_activity_query(group_id) for each of the groups the user follows.
 
     """
@@ -699,7 +699,7 @@ def activities_from_everything_followed_by_user(
     """Return activities from everything that the given user is following.
 
     Returns all activities where the object of the activity is anything
-    (user, dataset, group...) that the given user is following.
+    (user, package, group...) that the given user is following.
 
     """
     q = _activities_from_everything_followed_by_user_query(
