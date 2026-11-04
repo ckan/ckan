@@ -43,7 +43,7 @@ class CKANConfigLoader(object):
     def _read_config_file(self, filename: str) -> None:
         defaults = {u'here': os.path.dirname(os.path.abspath(filename))}
         self._update_defaults(defaults)
-        self.parser.read(filename)
+        self.parser.read(filename, encoding="utf-8")
 
     def _update_config(self) -> None:
         options = self.parser.options(self.section)
@@ -72,7 +72,7 @@ class CKANConfigLoader(object):
                     f"Config file not found: {filename}"
                 )
 
-            parser.read(filename)
+            parser.read(filename, encoding="utf-8")
             chain.append(filename)
             try:
                 use = parser.get(self.section, "use")
@@ -111,7 +111,7 @@ class CKANConfigLoader(object):
             self._update_config()
 
             if all([self.parser.has_section(s) for s in logging_sections]):
-                loggingFileConfig(filename)
+                loggingFileConfig(filename, encoding="utf-8")
 
                 # We use the same parser instance for all chained files, so we
                 # can interpolate variables in the lower level config files, but

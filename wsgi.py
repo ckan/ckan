@@ -14,7 +14,7 @@ else:
 if not os.path.exists(config_path):
     raise RuntimeError('CKAN config file not found: {}'.format(config_path))
 
-loggingFileConfig(config_path)
+loggingFileConfig(config_path, encoding="utf-8")
 config = CKANConfigLoader(config_path).get_config()
 
 application = make_app(config)

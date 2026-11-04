@@ -4,6 +4,8 @@ from configparser import InterpolationMissingOptionError
 import io
 import logging
 import os
+import subprocess
+import sys
 
 import pytest
 
@@ -86,6 +88,33 @@ def test_ckan_config_loader_parse_file():
         conf[u'host']
 
     assert conf['here'] == tpl_dir
+
+
+def test_ckan_config_loader_reads_utf8_regardless_of_locale(tmp_path):
+    filename = tmp_path / "test.ini"
+    filename.write_text(
+        "[app:main]\n"
+        "ckan.site_title = Catálogo\n"
+        "[loggers]\nkeys = root\n"
+        "[handlers]\nkeys = console\n"
+        "[formatters]\nkeys = generic\n"
+        "[logger_root]\nhandlers = console\n"
+        "[handler_console]\nclass = StreamHandler\nformatter = generic\n"
+        "[formatter_generic]\nformat = %(message)s\n",
+        encoding="utf-8",
+    )
+    code = (
+        "import sys; from ckan.cli import CKANConfigLoader; "
+        "print(ascii(CKANConfigLoader(sys.argv[1]).get_config()"
+        "['ckan.site_title']))"
+    )
+    result = subprocess.run(
+        [sys.executable, "-X", "utf8=0", "-c", code, str(filename)],
+        env=dict(os.environ, LC_ALL="C", PYTHONCOERCECLOCALE="0"),
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout.strip() == ascii("Catálogo"), result.stderr
 
 
 def test_ckan_config_loader_parse_two_files():
