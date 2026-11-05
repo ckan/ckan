@@ -1,0 +1,1 @@
+Config files are now read as UTF-8 regardless of the system locale, so non-ASCII values no longer break startup.
