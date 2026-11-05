@@ -159,18 +159,9 @@ def compare_group_dicts(
     old: dict[str, Any], new: dict[str, Any], old_activity_id: str
 ):
     """
-    Takes two package dictionaries that represent consecutive versions of
-    the same organization and returns a list of detailed & formatted summaries
-    of the changes between the two versions. old and new are the two package
-    dictionaries. The function assumes that both dictionaries will have
-    all of the default package dictionary keys, and also checks for fields
-    added by extensions and extra fields added by the user in the web
-    interface.
-
-    Returns a list of dictionaries, each of which corresponds to a change
-    to the package made in this revision. The dictionaries each contain a
-    string indicating the type of change made as well as other data necessary
-    to form a detailed summary of the change.
+    Take two group or organization dictionaries that represent consecutive
+    versions of the same group or organization and return a list of detailed
+    & formatted summaries of the changes between the two versions.
     """
     change_list: list[dict[str, Any]] = []
 

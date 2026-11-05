@@ -1409,12 +1409,12 @@ class IGroupForm(Interface):
         '''Return the schema for validating new group or organization dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from users (via the package form or API) when creating new groups,
+        from users (via the group/organization form or API) when creating new groups,
         before entering that data into the database.
 
         See ``ckanext/example_igroupform`` for examples.
 
-        :returns: a dictionary mapping package dict keys to lists of validator
+        :returns: a dictionary mapping group dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 
@@ -1426,12 +1426,12 @@ class IGroupForm(Interface):
         dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from users (via the package form or API) when updating groups, before
-        entering that data into the database.
+        from users (via the group/organization form or API) when updating groups,
+        before entering that data into the database.
 
         See ``ckanext/example_igroupform`` for examples.
 
-        :returns: a dictionary mapping package dict keys to lists of validator
+        :returns: a dictionary mapping group dict keys to lists of validator
           and converter functions to be applied to those keys
         :rtype: dictionary
 

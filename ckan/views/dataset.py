@@ -253,7 +253,7 @@ def search(package_type: str) -> str:
 
     # Unless changed via config options, don't show other package
     # types any search page. Potential alternatives are do show them
-    # on the default search page (package) or on one other search page
+    # on the default search page (dataset) or on one other search page
     search_all_type = config.get(u'ckan.search.show_all_types')
     search_all = False
 
