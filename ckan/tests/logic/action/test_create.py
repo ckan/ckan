@@ -1998,6 +1998,20 @@ class TestApiToken(object):
         res = model.ApiToken.get(decode(data["token"])["jti"])
         assert res.user_id == user["id"]
 
+    def test_token_user_id_takes_precedence_over_user(self):
+        from ckan.lib.api_token import decode
+
+        user = factories.User()
+        data = helpers.call_action(
+            "api_token_create",
+            context={"model": model, "user": user["name"]},
+            user_id=user["id"],
+            user="does-not-exist",
+            name="token-name",
+        )
+        res = model.ApiToken.get(decode(data["token"])["jti"])
+        assert res.user_id == user["id"]
+
     def test_token_created_insert(self):
         """
         Sysadmins should be able to insert id, created_at, last_access
