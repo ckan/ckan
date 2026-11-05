@@ -366,7 +366,7 @@ def package_activity_list(
     exclude_activity_types: Optional[list[str]] = None,
     user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
-    """Return the given dataset's public activity stream.
+    """Return the given package's public activity stream.
 
     Returns all activities about the given package, i.e. where the given
     package is the object of the activity, e.g.:

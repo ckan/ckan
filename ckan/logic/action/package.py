@@ -596,7 +596,7 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
 def package_relationships_list(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageRelationshipsList:
-    """Return a dataset's relationships.
+    """Return a package's relationships.
 
     :param id: the id or name of the first package
     :type id: string
