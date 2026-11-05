@@ -898,7 +898,7 @@ def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
     Note: Either provide both start_date and end_date to specify a date range,
     or provide offset_days to delete activities older than a specified number
     of days. Use keep to retain the N most recent activities per item.
-    Use batch_size for large packages to delete in chunks.
+    Use batch_size to delete large numbers of activities in chunks.
     """
     tk.check_access("activity_delete", context, data_dict)
 
