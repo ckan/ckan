@@ -1,5 +1,5 @@
 # Install CKAN locally
-python setup.py develop --user
+pip install --user -e .
 
 # Create ini file
 ckan generate config ckan.ini
