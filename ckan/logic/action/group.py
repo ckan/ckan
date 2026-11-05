@@ -156,11 +156,11 @@ def group_create(context: Context, data_dict: DataDict) -> ActionResult.GroupCre
         (key: value) metadata items that can be added to groups, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
         string), and optionally ``'deleted'``
-    :type extras: list of dataset extra dictionaries
-    :param packages: the datasets (packages) that belong to the group, a list
+    :type extras: list of package extra dictionaries
+    :param packages: the packages that belong to the group, a list
         of dictionaries each with keys ``'name'`` (string, the id or name of
-        the dataset) and optionally ``'title'`` (string, the title of the
-        dataset)
+        the package) and optionally ``'title'`` (string, the title of the
+        package)
     :type packages: list of dictionaries
     :param groups: the groups that belong to the group, a list of dictionaries
         each with key ``'name'`` (string, the id or name of the group) and
@@ -188,7 +188,7 @@ def group_create(context: Context, data_dict: DataDict) -> ActionResult.GroupCre
 
 
 def member_create(context: Context, data_dict: DataDict) -> ActionResult.MemberCreate:
-    """Make an object (e.g. a user, dataset or group) a member of a group.
+    """Make an object (e.g. a user, package or group) a member of a group.
 
     If the object is already a member of the group then the capacity of the
     membership will be updated.
@@ -379,7 +379,7 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
     members = q.all()
 
     if obj_type is None or obj_type == 'package':
-        # Private datasets must not be disclosed to users who can't see them.
+        # Private packages must not be disclosed to users who can't see them.
         labels = lib_plugins.get_permission_labels()
 
         user_labels = labels.get_user_dataset_labels(
@@ -816,7 +816,7 @@ def group_show(context: Context, data_dict: DataDict) -> ActionResult.GroupShow:
 
     :param id: the id or name of the group
     :type id: string
-    :param include_datasets: include a truncated list of the group's datasets
+    :param include_datasets: include a truncated list of the group's packages
          (optional, default: ``False``)
     :type include_datasets: bool
     :param include_dataset_count: include the full package_count
@@ -837,7 +837,7 @@ def group_show(context: Context, data_dict: DataDict) -> ActionResult.GroupShow:
 
     :rtype: dictionary
 
-    .. note:: Only its first 1000 datasets are returned
+    .. note:: Only its first 1000 packages are returned
 
     """
     return _group_or_org_show(context, data_dict)
@@ -847,11 +847,11 @@ def group_show(context: Context, data_dict: DataDict) -> ActionResult.GroupShow:
 def group_package_show(
     context: Context, data_dict: DataDict
 ) -> ActionResult.GroupPackageShow:
-    """Return the datasets (packages) of a group.
+    """Return the packages of a group.
 
     :param id: the id or name of the group
     :type id: string
-    :param limit: the maximum number of datasets to return (optional)
+    :param limit: the maximum number of packages to return (optional)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -1064,7 +1064,7 @@ def group_patch(context: Context, data_dict: DataDict) -> ActionResult.GroupPatc
 
 
 def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberDelete:
-    """Remove an object (e.g. a user, dataset or group) from a group.
+    """Remove an object (e.g. a user, package or group) from a group.
 
     You must be authorized to edit a group to remove objects from it.
 
@@ -1128,7 +1128,7 @@ def _group_or_org_delete(context: Context, data_dict: DataDict, is_org: bool = F
     else:
         _check_access("group_delete", context, data_dict)
 
-    # organization delete will not occur while all datasets for that org are
+    # organization delete will not occur while all packages for that org are
     # not deleted
     if is_org:
         dataset_ids = (
@@ -1271,7 +1271,7 @@ def group_purge(context: Context, data_dict: DataDict) -> None:
     whereas deleting a group simply marks the group as deleted (it will no
     longer show up in the frontend, but is still in the db).
 
-    Datasets in the group will remain, just not in the purged group.
+    Packages in the group will remain, just not in the purged group.
 
     You must be authorized to purge the group.
 

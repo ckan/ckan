@@ -1,7 +1,7 @@
 # encoding: utf-8
 """
 Functions for generating a list of differences between two versions of a
-dataset
+package
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ def check_resource_changes(
     change_list: ChangeList, old: Data, new: Data, old_activity_id: str
 ) -> None:
     """
-    Compares two versions of a dataset and records the changes between them
+    Compares two versions of a package and records the changes between them
     (just the resources) in change_list. e.g. resources that are added, changed
     or deleted. For existing resources, checks whether their names, formats,
     and/or descriptions have changed, as well as whether the url changed (e.g.
@@ -398,7 +398,7 @@ def check_metadata_changes(
     change_list: ChangeList, old: Data, new: Data
 ) -> None:
     """
-    Compares two versions of a dataset and records the changes between them
+    Compares two versions of a package and records the changes between them
     (excluding resources) in change_list.
     """
     # if the title has changed
@@ -409,23 +409,23 @@ def check_metadata_changes(
     if old.get("owner_org") != new.get("owner_org"):
         _org_change(change_list, old, new)
 
-    # if the maintainer of the dataset changed
+    # if the maintainer of the package changed
     if old.get("maintainer") != new.get("maintainer"):
         _maintainer_change(change_list, old, new)
 
-    # if the maintainer email of the dataset changed
+    # if the maintainer email of the package changed
     if old.get("maintainer_email") != new.get("maintainer_email"):
         _maintainer_email_change(change_list, old, new)
 
-    # if the author of the dataset changed
+    # if the author of the package changed
     if old.get("author") != new.get("author"):
         _author_change(change_list, old, new)
 
-    # if the author email of the dataset changed
+    # if the author email of the package changed
     if old.get("author_email") != new.get("author_email"):
         _author_email_change(change_list, old, new)
 
-    # if the visibility of the dataset changed
+    # if the visibility of the package changed
     if old.get("private") != new.get("private"):
         change_list.append(
             {
@@ -436,11 +436,11 @@ def check_metadata_changes(
             }
         )
 
-    # if the description of the dataset changed
+    # if the description of the package changed
     if old.get("notes") != new.get("notes"):
         _notes_change(change_list, old, new)
 
-    # make sets out of the tags for each dataset
+    # make sets out of the tags for each package
     old_tags = {tag.get("name") for tag in old.get("tags", [])}
     new_tags = {tag.get("name") for tag in new.get("tags", [])}
     # if the tags have changed
@@ -451,13 +451,13 @@ def check_metadata_changes(
     if old.get("license_title") != new.get("license_title"):
         _license_change(change_list, old, new)
 
-    # if the name of the dataset has changed
+    # if the name of the package has changed
     # this is only visible to the user via the dataset's URL,
     # so display the change using that
     if old.get("name") != new.get("name"):
         _name_change(change_list, old, new)
 
-    # if the source URL (metadata value, not the actual URL of the dataset)
+    # if the source URL (metadata value, not the actual URL of the package)
     # has changed
     if old.get("url") != new.get("url"):
         _url_change(change_list, old, new)
@@ -526,7 +526,7 @@ def _org_change(change_list: ChangeList, old: Data, new: Data):
                 "new_org_title": new["organization"].get("title"),
             }
         )
-    # if the dataset was not in an organization before and it is now
+    # if the package was not in an organization before and it is now
     elif not old.get("owner_org") and new.get("owner_org"):
         change_list.append(
             {
@@ -557,7 +557,7 @@ def _maintainer_change(change_list: ChangeList, old: Data, new: Data):
     Appends a summary of a change to a dataset's maintainer field between two
     versions (old and new) to change_list.
     """
-    # if the old dataset had a maintainer
+    # if the old package had a maintainer
     if old.get("maintainer") and new.get("maintainer"):
         change_list.append(
             {
@@ -597,7 +597,7 @@ def _maintainer_email_change(change_list: ChangeList, old: Data, new: Data):
     Appends a summary of a change to a dataset's maintainer e-mail address
     field between two versions (old and new) to change_list.
     """
-    # if the old dataset had a maintainer email
+    # if the old package had a maintainer email
     if old.get("maintainer_email") and new.get("maintainer_email"):
         change_list.append(
             {
@@ -637,7 +637,7 @@ def _author_change(change_list: ChangeList, old: Data, new: Data):
     Appends a summary of a change to a dataset's author field between two
     versions (old and new) to change_list.
     """
-    # if the old dataset had an author
+    # if the old package had an author
     if old.get("author") and new.get("author"):
         change_list.append(
             {
@@ -716,7 +716,7 @@ def _notes_change(change_list: ChangeList, old: Data, new: Data):
     Appends a summary of a change to a dataset's description between two
     versions (old and new) to change_list.
     """
-    # if the old dataset had a description
+    # if the old package had a description
     if old.get("notes") and new.get("notes"):
         change_list.append(
             {
@@ -939,7 +939,7 @@ def _extension_fields(change_list: ChangeList, old: Data, new: Data):
     extensions, since these changes are not triggered by the user in the web
     interface or API.
     """
-    # list of the default metadata fields for a dataset
+    # list of the default metadata fields for a package
     # any fields that are not part of this list are custom fields added by a
     # user or extension
     fields = [
@@ -977,7 +977,7 @@ def _extension_fields(change_list: ChangeList, old: Data, new: Data):
     ]
     fields_set = set(fields)
 
-    # if there are any fields from extensions that are in the new dataset and
+    # if there are any fields from extensions that are in the new package and
     # have been updated, print a generic message stating that
     old_set = set(old.keys())
     new_set = set(new.keys())

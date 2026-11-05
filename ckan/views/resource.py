@@ -309,7 +309,7 @@ class CreateView(MethodView):
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         elif save_action == u'go-dataset':
-            # go to first stage of add dataset
+            # go to first stage of add package
             return h.redirect_to(u'{}.edit'.format(package_type), id=id)
         elif save_action == u'go-dataset-complete':
 
