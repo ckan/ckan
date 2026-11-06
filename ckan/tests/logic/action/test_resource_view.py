@@ -11,7 +11,7 @@ from ckan.tests import factories, helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestResourceViewCreate(object):
     def test_resource_view_create(self):
         context = {}
@@ -175,7 +175,7 @@ class TestResourceViewCreate(object):
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_add_default_views_to_dataset_resources():
 
     # New resources have no views
@@ -212,7 +212,7 @@ def test_add_default_views_to_dataset_resources():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_add_default_views_to_resource():
 
     # New resources have no views
@@ -241,7 +241,7 @@ def test_add_default_views_to_resource():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_add_default_views_to_resource_no_dataset_passed():
 
     # New resources have no views
@@ -268,7 +268,7 @@ def test_add_default_views_to_resource_no_dataset_passed():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_delete():
     resource_view = factories.ResourceView()
 
@@ -285,7 +285,7 @@ def test_resource_view_delete():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_delete_no_id_raises_validation_error():
 
     params = {}
@@ -295,7 +295,7 @@ def test_delete_no_id_raises_validation_error():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_delete_wrong_id_raises_not_found_error():
 
     params = {"id": "does_not_exist"}
@@ -306,7 +306,7 @@ def test_delete_wrong_id_raises_not_found_error():
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view datatables_view")
 @pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_clear():
     initial = model.Session.query(model.ResourceView).count()
 
@@ -329,7 +329,7 @@ def test_resource_view_clear():
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view datatables_view")
 @pytest.mark.ckan_config("ckan.views.default_views", "")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.usefixtures("clean_db")
 def test_resource_view_clear_with_types():
 
@@ -354,7 +354,7 @@ def test_resource_view_clear_with_types():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_show():
 
     resource = factories.Resource()
@@ -377,7 +377,7 @@ def test_resource_view_show():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_show_id_missing():
 
     with pytest.raises(logic.ValidationError):
@@ -385,7 +385,7 @@ def test_resource_view_show_id_missing():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_show_id_not_found():
 
     with pytest.raises(logic.NotFound):
@@ -394,7 +394,7 @@ def test_resource_view_show_id_not_found():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_update():
     resource_view = factories.ResourceView()
     params = {
@@ -411,7 +411,7 @@ def test_resource_view_update():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @mock.patch("ckan.logic.action.resource_view.datapreview")
 def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
     datapreview_mock,
@@ -436,7 +436,7 @@ def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_update_requires_id():
     params = {}
 
@@ -446,7 +446,7 @@ def test_resource_view_update_requires_id():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_update_requires_existing_id():
     params = {"id": "inexistent_id"}
 
@@ -456,7 +456,7 @@ def test_resource_view_update_requires_existing_id():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_list_reorder():
     resource_view_1 = factories.ResourceView(title="View 1")
 
@@ -489,7 +489,7 @@ def test_resource_view_list_reorder():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_view_list_reorder_just_one_id():
     resource_view_1 = factories.ResourceView(title="View 1")
 
@@ -517,7 +517,7 @@ def test_resource_view_list_reorder_just_one_id():
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_calling_with_only_id_doesnt_update_anything():
     resource_view = factories.ResourceView()
     params = {"id": resource_view["id"]}

@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import pytest
 import ckan.model as model
 import ckan.tests.factories as factories
 
@@ -54,7 +53,6 @@ class FollowerClassesTests(object):
         assert follower_ids == [self.follower["id"]], follower_ids
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUserFollowingUser(FollowerClassesTests):
     FOLLOWER_CLASS = model.UserFollowingUser
 
@@ -73,7 +71,6 @@ class TestUserFollowingUser(FollowerClassesTests):
         user.save()
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUserFollowingDataset(FollowerClassesTests):
     FOLLOWER_CLASS = model.UserFollowingDataset
 
@@ -99,7 +96,6 @@ class TestUserFollowingDataset(FollowerClassesTests):
         return factories.Dataset()
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUserFollowingGroup(FollowerClassesTests):
     FOLLOWER_CLASS = model.UserFollowingGroup
 

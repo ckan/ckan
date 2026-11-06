@@ -860,7 +860,6 @@ class TestUser(object):
         assert user.state == "active"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUserImage(object):
     def test_image_url_is_shown(self, app):
 
