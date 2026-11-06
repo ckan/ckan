@@ -407,5 +407,9 @@ class MultilingualResource(plugins.SingletonPlugin):
    plugins.implements(plugins.IResourceController, inherit=True)
 
    def before_resource_show(self, data_dict: dict[str, Any]):
+        # package_show ignores the return value, so the translations have to
+        # be applied to the resource dict in place.
         translated_data_dict = translate_resource_data_dict(data_dict)
-        return translated_data_dict
+        data_dict.clear()
+        data_dict.update(translated_data_dict)
+        return data_dict
