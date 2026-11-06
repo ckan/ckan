@@ -1440,7 +1440,7 @@ def api_token_create(context: Context,
 
     :param user: name or id of the user who owns new API Token
     :type user: string
-    :param user_id: alias of ``user``, takes precedence over ``user``
+    :param user_id: alias of ``user``, used when ``user`` is not provided
     :type user_id: string
     :param name: distinctive name for API Token
     :type name: string
@@ -1461,8 +1461,8 @@ def api_token_create(context: Context,
     :rtype: dictionary
 
     """
-    if 'user_id' in data_dict:
-        data_dict['user'] = data_dict.pop('user_id')
+    data_dict = dict(
+        data_dict, user=data_dict.get('user') or data_dict.get('user_id'))
 
     user, _name = _get_or_bust(data_dict, [u'user', u'name'])
 
