@@ -41,6 +41,26 @@ def identity_converter(key, data, errors, context):
 
 
 class TestValidate(object):
+
+    @pytest.mark.parametrize("value", (1, "aa", ["aa"], {"a": "b"}, [{"a": "b"}]))
+    def test_validate_ignores_non_schema_fields(self, value):
+
+        schema = {
+            "my_field": [ignore_missing],
+            "__extras": [ignore],
+            "__junk": [empty],
+        }
+
+        data_dict = {
+            "my_field": "some value",
+            "some_other_field": value
+
+        }
+
+        data, errors = validate(data_dict, schema, {})
+        assert data == {"my_field": "some value"}
+        assert not errors
+
     def test_validate_passes_a_copy_of_the_context_to_validators(self):
 
         # We need to pass some keys on the context, otherwise validate
