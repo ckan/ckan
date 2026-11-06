@@ -405,6 +405,15 @@ class TestApiToken(object):
             user=user[u"name"],
         )
 
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_auth_user_is_allowed_to_create_tokens_with_user_id(self):
+        user = factories.User()
+        helpers.call_auth(
+            "api_token_create",
+            {"model": model, "user": user["name"]},
+            user_id=user["id"],
+        )
+
 
 @pytest.fixture
 def members_fixtures():
