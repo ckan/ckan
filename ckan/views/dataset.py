@@ -234,7 +234,14 @@ def search(package_type: str) -> str:
     if not sort_by:
         sort_by_fields = []
     else:
-        sort_by_fields = [field.split()[0] for field in sort_by.split(u',')]
+        try:
+            sort_by_fields = [field.split()[0] for field
+                              in sort_by.split(u',')]
+        except IndexError as e:
+            log.error(u'Dataset search error: %r', e.args)
+            extra_vars[u'query_error'] = True
+            extra_vars[u'search_facets'] = {}
+            extra_vars[u'page'] = h.Page(collection=[])
     extra_vars[u'sort_by_fields'] = sort_by_fields
 
     pager_url = partial(_pager_url, params_nopage, package_type)
