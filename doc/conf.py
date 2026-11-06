@@ -257,7 +257,7 @@ def get_previous_release_version() -> str:
     eg if the latest release is 2.9.5, it returns 2.8.10
 
     """
-    current_version = version_parse(get_current_release_version())
+    current_version = version_parse(get_latest_release_version())
 
     previous_tag_prefix = f"ckan-{current_version.major}.{current_version.minor - 1}"
 
