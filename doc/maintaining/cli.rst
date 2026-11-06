@@ -343,7 +343,7 @@ Usage
 
 .. parsed-literal::
 
- ckan datastore set-permissions  - generate SQL for permission configuration
+ ckan datastore init-sql         - generate SQL for datastore initialization
  ckan datastore dump             - dump a datastore resource
  ckan datastore purge            - purge orphaned datastore resources
 

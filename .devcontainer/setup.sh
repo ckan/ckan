@@ -26,4 +26,4 @@ ckan config-tool ckan.ini \
     ckan.datapusher.url=http://localhost:8800 \
     ckan.datapusher.callback_url_base=http://localhost:5000 \
     "ckan.plugins=activity datastore datapusher datatables_view"
-ckan datastore set-permissions | psql $(grep ckan.datastore.write_url ckan.ini | awk -F= '{print $2}')
+ckan datastore init-sql | psql $(grep ckan.datastore.write_url ckan.ini | awk -F= '{print $2}')

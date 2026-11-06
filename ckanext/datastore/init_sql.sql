@@ -10,12 +10,12 @@ For example, if PostgreSQL is running locally and the "postgres" user has the
 appropriate permissions (as in the default Ubuntu PostgreSQL install), you can
 run:
 
-    ckan -c /etc/ckan/default/ckan.ini datastore set-permissions | sudo -u postgres psql
+    ckan -c /etc/ckan/default/ckan.ini datastore init-sql | sudo -u postgres psql
 
 Or, if your PostgreSQL server is remote, you can pipe the permissions script
 over SSH:
 
-    ckan -c /etc/ckan/default/ckan.ini datastore set-permissions | ssh dbserver sudo -u postgres psql
+    ckan -c /etc/ckan/default/ckan.ini datastore init-sql | ssh dbserver sudo -u postgres psql
 
 */
 

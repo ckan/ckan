@@ -20,7 +20,7 @@ recursive-include ckanext/*/templates *
 recursive-include ckanext/*/theme/public *
 recursive-include ckanext/*/theme/templates *
 recursive-include ckanext/* config_declaration.yaml
-include ckanext/datastore/set_permissions.sql
+include ckanext/datastore/init_sql.sql
 include ckanext/datastore/allowed_functions.txt
 
 prune .git
