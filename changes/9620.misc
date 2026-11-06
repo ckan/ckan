@@ -1,0 +1,1 @@
+The CLI quiets logs to stderr by default, except for the ``ckan run`` command.
