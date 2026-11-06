@@ -283,9 +283,12 @@ http://demo.ckan.org/api/3/action/package_search?q=spending
 
 .. tip::
 
- Browser plugins like `JSONView for Firefox <https://addons.mozilla.org/en-us/firefox/addon/jsonview/>`_
- or `Chrome <https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc>`_
- will format and color CKAN's JSON response nicely in your browser.
+ Firefox includes a `built-in JSON viewer`_ that formats and highlights
+ CKAN's JSON responses without an extension. For browsers without a built-in
+ JSON viewer, an optional JSON viewing extension can help make responses
+ easier to read.
+
+.. _built-in JSON viewer: https://firefox-source-docs.mozilla.org/devtools-user/json_viewer/index.html
 
 The search query is given as a URL parameter ``?q=spending``. Multiple
 URL parameters can be appended, separated by ``&`` characters, for example
