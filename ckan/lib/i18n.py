@@ -327,6 +327,8 @@ def build_js_translations() -> None:
     ``ckan.i18n_directory``. These include only those translation
     strings that are actually used in JS files.
     '''
+    from ckan.lib.helpers import helper_functions as h
+
     log.debug(u'Generating JavaScript translations')
     ckan_i18n_dir = get_ckan_i18n_dir()
     dest_dir = get_js_translations_dir()
@@ -370,6 +372,7 @@ def build_js_translations() -> None:
             continue
 
         latest = max(os.path.getmtime(fn) for fn in po_files)
+        lang = h.unix_locale_to_bcp47(lang)
         dest_file = os.path.join(dest_dir, lang + u'.js')
 
         if (not os.path.isfile(dest_file) or
