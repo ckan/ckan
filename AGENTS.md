@@ -76,6 +76,6 @@ ruff check .
 npx pyright
 
 # Type check a specific file
-npx pyright ckan/logic/action/get.py
+npx pyright ckan/logic/action/package.py
 
 ```

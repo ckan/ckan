@@ -373,7 +373,7 @@ class PackageSearchQuery(SearchQuery):
             permission_labels: Optional[list[str]] = None,
             **kwargs: Any) -> dict[str, Any]:
         '''
-        Performs a dataset search using the given query.
+        Performs a package search using the given query.
 
         :param query: dictionary with keys like: q, fq, sort, rows, facet
         :type query: dict

@@ -128,15 +128,15 @@ Do this even if it means your method name gets really long, since we don't
 write code that calls our test methods there's no advantage to having short
 test method names.
 
-Some modules in CKAN contain large numbers of loosely related functions.
-For example, :mod:`ckan.logic.action.update` contains all functions for
-updating things in CKAN. This means that
-:mod:`ckan.tests.logic.action.test_update` is going to contain an even larger
-number of test functions.
+Action and auth tests are organized by domain, matching the modules in
+:mod:`ckan.logic.action` and :mod:`ckan.logic.auth`. For example, tests for
+package actions and user actions are in
+:mod:`ckan.tests.logic.action.test_package` and
+:mod:`ckan.tests.logic.action.test_user`.
 
 So as well as the name of each test method explaining the intent of the test,
-tests should be grouped by a test class that aggregates tests against a model
-entity or action type, for instance::
+tests should be grouped by domain module. Use a test class when its tests share
+setup or helpers; otherwise, module-level test functions are fine. For example::
 
     class TestPackageCreate(object):
         # ...
@@ -184,9 +184,8 @@ give the following recipe for all unit test methods to follow:
 Most CKAN tests should follow this form. Here's an example of a simple action
 function test demonstrating the recipe:
 
-.. literalinclude:: /../ckan/tests/logic/action/test_update.py
-   :start-after: # START-AFTER
-   :end-before: # END-BEFORE
+.. literalinclude:: /../ckan/tests/logic/action/test_user.py
+   :pyobject: TestUpdateUser.test_user_update_name
 
 
 
@@ -306,13 +305,12 @@ certain method should raise a certain exception, etc.
 
 You should read the mock library's documentation to really understand what's
 going on, but here's an example of a test from
-:py:mod:`ckan.tests.logic.auth.test_update` that tests the
-:py:func:`~ckan.logic.auth.update.user_update` authorization function and mocks
+:py:mod:`ckan.tests.logic.auth.test_user` that tests the
+:py:func:`~ckan.logic.auth.user.user_update` authorization function and mocks
 out :py:mod:`ckan.model`:
 
-.. literalinclude:: /../ckan/tests/logic/auth/test_update.py
-   :start-after: # START-AFTER
-   :end-before: # END-BEFORE
+.. literalinclude:: /../ckan/tests/logic/auth/test_user.py
+   :pyobject: test_user_update_visitor_cannot_update_user
 
 ----
 

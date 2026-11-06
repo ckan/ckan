@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-import ckan.model as model
-import ckan.logic as logic
+
 import ckan.plugins as p
+from ckan import logic, model
 from ckan.logic.action import get_domain_object
 from ckan.tests import factories, helpers
 
@@ -32,16 +32,10 @@ class MockPackageSearchPlugin(p.SingletonPlugin):
         return data_dict
 
     def before_dataset_search(self, search_params):
-        if (
-            "extras" in search_params
-            and "ext_avoid" in search_params["extras"]
-        ):
+        if "extras" in search_params and "ext_avoid" in search_params["extras"]:
             assert "q" in search_params
 
-        if (
-            "extras" in search_params
-            and "ext_abort" in search_params["extras"]
-        ):
+        if "extras" in search_params and "ext_abort" in search_params["extras"]:
             assert "q" in search_params
             # Prevent the actual query
             search_params["abort_search"] = True
@@ -54,10 +48,7 @@ class MockPackageSearchPlugin(p.SingletonPlugin):
         assert "count" in search_results
         assert "search_facets" in search_results
 
-        if (
-            "extras" in search_params
-            and "ext_avoid" in search_params["extras"]
-        ):
+        if "extras" in search_params and "ext_avoid" in search_params["extras"]:
             # Remove results with a certain value
             avoid = search_params["extras"]["ext_avoid"]
 

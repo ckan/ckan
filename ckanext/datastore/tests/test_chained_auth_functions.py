@@ -5,7 +5,7 @@ import ckan.lib.create_test_data as ctd
 import ckan.plugins as p
 import ckan.tests.factories as factories
 from ckan.logic import check_access, NotAuthorized
-from ckan.logic.auth.get import user_list as core_user_list
+from ckan.logic.auth.user import user_list as core_user_list
 
 
 auth_message = u"No search for you"

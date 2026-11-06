@@ -4,6 +4,7 @@ from __future__ import annotations
 import functools
 import inspect
 import importlib
+import pkgutil
 
 from collections import defaultdict, OrderedDict
 from logging import getLogger
@@ -19,7 +20,6 @@ from ckan.common import _
 from ckan.types import AuthResult, AuthFunction, DataDict, Context
 
 log = getLogger(__name__)
-
 
 def get_local_functions(module: ModuleType, include_private: bool = False):
     """Return list of (name, func) tuples.
@@ -75,24 +75,15 @@ class AuthFunctions:
 
         module_root = 'ckan.logic.auth'
 
-        for auth_module_name in [
-                'get', 'create', 'update', 'delete', 'patch',
-                'file',
-        ]:
+        auth_package = importlib.import_module(module_root)
+        for info in pkgutil.iter_modules(auth_package.__path__):
+            auth_module_name = info.name
             module = importlib.import_module(
                 '.' + auth_module_name, module_root)
 
             for key, v in get_local_functions(module):
-                # Whitelist all auth functions defined in
-                # logic/auth/get.py as not requiring an authorized user,
-                # as well as ensuring that the rest do. In both cases, do
-                # nothing if a decorator has already been used to define
-                # the behaviour
                 if not hasattr(v, 'auth_allow_anonymous_access'):
-                    if auth_module_name == 'get':
-                        v.auth_allow_anonymous_access = True
-                    else:
-                        v.auth_allow_anonymous_access = False
+                    v.auth_allow_anonymous_access = False
                 self._functions[key] = v
 
         # Then overwrite them with any specific ones in the plugins:
@@ -445,14 +436,14 @@ def get_user_id_for_username(
 def can_manage_collaborators(package_id: str, user_id: str) -> bool:
     '''
     Returns True if a user is allowed to manage the collaborators of a given
-    dataset.
+    package.
 
     Currently a user can manage collaborators if:
 
-    1. Is an administrator of the organization the dataset belongs to
+    1. Is an administrator of the organization the package belongs to
     2. Is a collaborator with role "admin" (
         assuming :ref:`ckan.auth.allow_admin_collaborators` is set to True)
-    3. Is the creator of the dataset and the dataset does not belong to an
+    3. Is the creator of the package and the package does not belong to an
         organization (
         requires :ref:`ckan.auth.create_dataset_if_not_in_organization`
         and :ref:`ckan.auth.create_unowned_dataset`)
@@ -466,12 +457,12 @@ def can_manage_collaborators(package_id: str, user_id: str) -> bool:
             and check_config_permission('create_dataset_if_not_in_organization')
             and check_config_permission('create_unowned_dataset')
             and pkg.creator_user_id == user_id):
-        # User is the creator of this unowned dataset
+        # User is the creator of this unowned package
         return True
 
     if has_user_permission_for_group_or_org(
             owner_org, user_id, 'membership'):
-        # User is an administrator of the organization the dataset belongs to
+        # User is an administrator of the organization the package belongs to
         return True
 
     # Check if user is a collaborator with admin role
@@ -483,7 +474,7 @@ def user_is_collaborator_on_dataset(
         capacity: Optional[Union[str, list[str]]] = None) -> bool:
     '''
     Returns True if the provided user is a collaborator on the provided
-    dataset.
+    package.
 
     If capacity is provided it restricts the check to the capacity
     provided (eg `admin` or `editor`). Multiple capacities can be

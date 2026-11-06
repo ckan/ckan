@@ -9,9 +9,9 @@ testable because they don't contain any code, *but*:
 * The tests for the code that calls the plugin interface methods should test
   that the methods are called correctly.
 
-For example :func:`ckan.logic.action.get.package_show` calls
+For example :func:`ckan.logic.action.package.package_show` calls
 :meth:`ckan.plugins.interfaces.IDatasetForm.read`, so the
-:func:`~ckan.logic.action.get.package_show` tests should include tests
+:func:`~ckan.logic.action.package.package_show` tests should include tests
 that :meth:`~ckan.plugins.interfaces.IDatasetForm.read` is called at the
 right times and with the right parameters.
 
