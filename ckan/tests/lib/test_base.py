@@ -415,6 +415,29 @@ def test_cors_config_custom_auth_header(app):
     )
 
 
+@pytest.mark.ckan_config("ckan.cors.origin_allow_all", "true")
+@pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
+@pytest.mark.ckan_config("apitoken_header_name", "X-CKAN-API-KEY")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
+@pytest.mark.usefixtures("with_plugins")
+def test_cors_config_includes_fetch_normalized_headers(app):
+    """
+    CORS preflight responses should include lower-case header names used by
+    fetch when it normalizes the requested headers.
+    """
+    request_headers = {
+        "Origin": "http://thirdpartyrequests.org",
+        "Access-Control-Request-Headers": "x-ckan-api-key, content-type",
+    }
+    response = app.options("/simple_url", headers=request_headers)
+    response_headers = dict(response.headers)
+
+    assert (
+        response_headers["Access-Control-Allow-Headers"]
+        == "X-CKAN-API-KEY, Content-Type, x-ckan-api-key, content-type"
+    )
+
+
 @pytest.mark.ckan_config("ckan.cors.origin_allow_all", "false")
 @pytest.mark.ckan_config(
     "ckan.cors.origin_whitelist", "http://google.com http://yahoo.co.uk"
