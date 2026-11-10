@@ -1,0 +1,1 @@
+Replace deprecated `python setup.py develop` with `pip install -e .` in the extension tutorial and Codespaces setup.

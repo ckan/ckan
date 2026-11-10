@@ -36,12 +36,12 @@ model code and the migrations code::
 
      # Database created by model
      ckan -c |ckan.ini| db clean
-     ckan -c |ckan.ini| db create-from-model
+     ckan -c |ckan.ini| db init
      sudo -u postgres pg_dump -s -f /tmp/model.sql ckan_default
 
      # Database created by migrations
      ckan -c |ckan.ini| db clean
-     ckan -c |ckan.ini| db init
+     ckan -c |ckan.ini| db upgrade
      sudo -u postgres pg_dump -s -f /tmp/migrations.sql ckan_default
 
      sudo -u postgres diff /tmp/migrations.sql /tmp/model.sql

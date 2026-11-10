@@ -45,13 +45,13 @@ class TestCreateIndexes(object):
     @pytest.mark.ckan_config(
         "ckan.datastore.default_fts_index_field_types", "text tsvector")
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
-    def test_creates_fts_index_on_all_fields_except_dates_nested_and_arrays_with_english_as_default(
+    def test_creates_fts_index_on_all_fields_except_dates_json_and_arrays_with_english_as_default(
         self, _get_fields
     ):
         _get_fields.return_value = [
             {"id": "text", "type": "text"},
             {"id": "tsvector", "type": "tsvector"},
-            {"id": "nested", "type": "nested"},
+            {"id": "nested", "type": "json"},
             {"id": "date", "type": "date"},
             {"id": "text array", "type": "text[]"},
             {"id": "timestamp", "type": "timestamp"},
@@ -77,7 +77,7 @@ class TestCreateIndexes(object):
         _get_fields.return_value = [
             {"id": "text", "type": "text"},
             {"id": "tsvector", "type": "tsvector"},
-            {"id": "nested", "type": "nested"},
+            {"id": "nested", "type": "json"},
             {"id": "date", "type": "date"},
             {"id": "text array", "type": "text[]"},
             {"id": "timestamp", "type": "timestamp"},
