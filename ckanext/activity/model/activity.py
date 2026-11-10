@@ -112,7 +112,7 @@ class Activity(domain_object.DomainObject, BaseModel):
         # When the user marks a package as deleted this comes through here as
         # a 'changed' package activity. We detect this and change it to a
         # 'deleted' activity.
-        if activity_type == "changed" and pkg.state == "deleted":
+        if activity_type == "changed" and pkg.is_deleted():
             if (
                 meta.Session.query(cls)
                 .filter_by(object_id=pkg.id, activity_type="deleted")
