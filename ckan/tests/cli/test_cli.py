@@ -2,8 +2,11 @@
 
 from configparser import InterpolationMissingOptionError
 import io
+import importlib
 import logging
 import os
+import sys
+from unittest.mock import Mock
 
 import pytest
 
@@ -51,6 +54,28 @@ def test_config_via_env_var(cli, ckan_config):
     result = cli.invoke(ckan, [u'-c', None, u'-h'],
                         env={u'CKAN_INI': ckan_config[u'__file__']})
     assert not result.exit_code, result.output
+
+
+def test_global_verbosity(cli, monkeypatch):
+    cli_module = importlib.import_module("ckan.cli.cli")
+    root = logging.getLogger()
+    monkeypatch.setattr(root, "handlers", [])
+    monkeypatch.setattr(logging.root.manager, "loggerDict", {})
+    monkeypatch.setattr(cli_module, "_add_external_commands", Mock())
+
+    def load_config(path):
+        root.handlers[:] = [logging.StreamHandler(sys.stderr)]
+        return {"__file__": path}
+
+    monkeypatch.setattr(cli_module.ckan_cli, "load_config", load_config)
+    monkeypatch.setattr(cli_module, "make_app", Mock())
+
+    for options, level in [
+        ([], logging.CRITICAL), (["-v"], logging.INFO), (["-vv"], logging.DEBUG)
+    ]:
+        result = cli.invoke(ckan, ["-c", "config.ini", *options, "asset", "--help"])
+        assert result.exit_code == 0, result.output
+        assert root.handlers[0].level == level
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'example_iclick')

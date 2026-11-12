@@ -1,1 +1,3 @@
-The CLI quiets logs to stderr by default, except for the ``ckan run`` command.
+The CLI quiets stderr logs by default, except for ``ckan run``. Use the global
+``-v`` or ``-vv`` option to set stderr handlers to INFO or DEBUG, respectively.
+Configured logger levels still apply.
