@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 import ckan.plugins as p
 from ckan import authz, logic, model, types
-from ckan.common import config, current_user
-from ckan.types import AuthResult, Context
+from ckan.common import _, config, current_user
+from ckan.types import AuthResult, Context, DataDict
 
 
 def _owner_allows(
@@ -282,3 +282,13 @@ def file_owner_scan(context: Context, data_dict: dict[str, Any]) -> AuthResult:
         )
 
     return {"success": result, "msg": "Not allowed to list files"}
+
+
+def file_upload(context: Context, data_dict: Optional[DataDict] = None) -> AuthResult:
+    user = context["user"]
+    if authz.auth_is_anon_user(context):
+        return {
+            "success": False,
+            "msg": _("User %s not authorized to create packages") % user,
+        }
+    return {"success": True}

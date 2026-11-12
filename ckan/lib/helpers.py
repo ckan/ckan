@@ -1090,7 +1090,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
     Possible purposes(depends on `entity_type` and change over time)::
 
         `add link`: "Add [object]" button on search pages
-        `add association link`: "Add to [object]" button on dataset pages
+        `add association link`: "Add to [object]" button on package pages
         `breadcrumb`: "Home / [object]s / New" section in breadcrumbs
         `content tab`: "[object]s | Groups | Activity" tab on details page
         `create label`: "Home / ... / Create [object]" part of breadcrumb
@@ -1105,7 +1105,7 @@ def humanize_entity_type(entity_type: str, object_type: str,
         `my label`: "My [object]s" tab in dashboard
         `name placeholder`: "<[object]>" section of URL preview on object form
         `no any objects`: No objects created yet
-        `no associated label`: no groups for dataset
+        `no associated label`: no groups for package
         `no description`: object has no description
         `no label`: package with no organization
         `page title`: "Title - [object]s - CKAN" section of page title
@@ -2092,12 +2092,12 @@ def escape_js(str_to_escape: str) -> str:
 def get_pkg_dict_extra(pkg_dict: dict[str, Any],
                        key: str,
                        default: Optional[Any] = None) -> Any:
-    '''Returns the value for the dataset extra with the provided key.
+    '''Returns the value for the package extra with the provided key.
 
     If the key is not found, it returns a default value, which is None by
     default.
 
-    :param pkg_dict: dictized dataset
+    :param pkg_dict: dictized package
     :key: extra key to lookup
     :default: default value returned if not found
     '''
@@ -2149,7 +2149,7 @@ def html_auto_link(data: str) -> str:
 
     `tag` converted to a tag link
 
-    `dataset` converted to a dataset link
+    `dataset` or `package` converted to a package link
 
     `group` converted to a group link
 
@@ -2489,7 +2489,7 @@ def get_featured_groups(count: int = 1) -> list[dict[str, Any]]:
 
 @core_helper
 def get_recent_datasets(count: int = 1) -> list[dict[str, Any]]:
-    '''Returns a list of recently modified/created datasets
+    '''Returns a list of recently modified/created packages
     '''
     context: Context = {'ignore_auth': True, 'for_view': True}
     data_dict = {'rows': count, 'sort': 'metadata_modified desc'}
@@ -2738,7 +2738,7 @@ def load_plugin_helpers() -> None:
 
 @core_helper
 def get_collaborators(package_id: str) -> list[tuple[str, str]]:
-    '''Return the collaborators list for a dataset
+    '''Return the collaborators list for a package
 
     Returns a list of tuples with the user id and the capacity
     '''
@@ -2766,7 +2766,7 @@ def can_update_owner_org(
         user_orgs: Optional[list[dict[str, Any]]] = None) -> bool:
 
     if not package_dict.get('id') or not package_dict.get('owner_org'):
-        # We are either creating a dataset or it is an unowned dataset.
+        # We are either creating a package or it is an unowned package.
         # In both cases we defer to the other auth settings
         return True
 
