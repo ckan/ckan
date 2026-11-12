@@ -21,6 +21,33 @@ class TestGroup(object):
         assert grp.description == u"This is a test group"
         assert grp.packages() == []
 
+    def test_is_deleted(self):
+        group = model.Group(
+            name=factories.Group.stub().name,
+            title="Test Delete Group",
+            description="This is a test group to be deleted",
+        )
+        model.Session.add(group)
+        model.repo.commit_and_remove()
+        grp = model.Group.by_name(group.name)
+        assert not grp.is_deleted()
+        grp.delete()
+        assert grp.is_deleted()
+
+    def test_is_pending(self):
+        group = model.Group(
+            name=factories.Group.stub().name,
+            title="Test Pending Group",
+            description="This is a pending test group",
+        )
+        model.Session.add(group)
+        model.repo.commit_and_remove()
+        grp = model.Group.by_name(group.name)
+        assert not grp.is_pending()
+        grp.state = model.core.State.PENDING
+        grp.save()
+        assert grp.is_pending()
+
     def test_add_packages(self):
         group = model.Group(
             name=factories.Group.stub().name,

@@ -7,9 +7,9 @@ log = logging.getLogger(__name__)
 
 
 class State(object):
-    ACTIVE = u'active'
-    DELETED = u'deleted'
-    PENDING = u'pending'
+    ACTIVE = 'active'
+    DELETED = 'deleted'
+    PENDING = 'pending'
 
 
 class StatefulObjectMixin(object):
@@ -26,3 +26,9 @@ class StatefulObjectMixin(object):
     def is_active(self) -> bool:
         # also support None in case this object is not yet refreshed ...
         return self.state is None or self.state == State.ACTIVE
+
+    def is_deleted(self) -> bool:
+        return self.state == State.DELETED
+
+    def is_pending(self) -> bool:
+        return self.state == State.PENDING
