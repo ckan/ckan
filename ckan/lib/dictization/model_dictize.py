@@ -565,7 +565,8 @@ def user_list_dictize(
         user_dict = user_dictize(obj, context)
         user_dict.pop('reset_key', None)
         user_dict.pop('apikey', None)
-        user_dict.pop('email', None)
+        if not context.get('keep_email', False):
+            user_dict.pop('email', None)
         result_list.append(user_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
