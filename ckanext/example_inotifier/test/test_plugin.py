@@ -33,7 +33,7 @@ def _mock_notify_about_topic(user_obj):
 @pytest.mark.ckan_config(
     "ckan.plugins", "example_inotifier1 example_inotifier2"
 )
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins")
 class TestINotifier:
     @classmethod
     def setup_method(self, method):

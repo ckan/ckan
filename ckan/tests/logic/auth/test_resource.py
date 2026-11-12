@@ -8,7 +8,7 @@ from ckan.tests import factories, helpers
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestGetAuthWithCollaboratorsResource(object):
@@ -67,7 +67,7 @@ def test_anonymous_can_call_get_method(func):
     assert helpers.call_auth(func, context, id=user["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)

@@ -1853,8 +1853,6 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     :type id: string
 
     """
-    from sqlalchemy import or_
-
     id = _get_or_bust(data_dict, "id")
 
     pkg = model.Package.get(id)
@@ -1872,6 +1870,9 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     if members.count() > 0:
         for m in members.all():
             m.purge()
+
+    model.Session.query(model.PackageMember).filter(
+        model.PackageMember.package_id == pkg.id).delete()
 
     for r in (
         model.Session.query(model.PackageRelationship)

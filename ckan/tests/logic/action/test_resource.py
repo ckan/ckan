@@ -15,7 +15,6 @@ from ckan.logic.action.package import package_show as core_package_show
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_create():
     context = {}
     params = {
@@ -34,7 +33,6 @@ def test_resource_create():
         assert params[key] == result[key]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_it_requires_package_id():
 
     data_dict = {"url": "http://data"}
@@ -43,7 +41,6 @@ def test_it_requires_package_id():
         helpers.call_action("resource_create", **data_dict)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_invalid_characters_in_id():
 
     data_dict = {
@@ -57,7 +54,6 @@ def test_invalid_characters_in_id():
         helpers.call_action("resource_create", **data_dict)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_id_too_long():
 
     data_dict = {
@@ -71,7 +67,6 @@ def test_id_too_long():
         helpers.call_action("resource_create", **data_dict)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_id_already_exists():
     data_dict = {
         "id": str(uuid.uuid4()),
@@ -85,7 +80,6 @@ def test_id_already_exists():
         helpers.call_action("resource_create", **data_dict)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_can_set_id():
     """
     The system admin
@@ -104,7 +98,6 @@ def test_sysadmin_can_set_id():
     assert result["id"] == _id
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_can_provide_custom_id():
 
     user = factories.User()
@@ -120,7 +113,6 @@ def test_normal_user_can_provide_custom_id():
     assert result["id"] == _id
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_doesnt_require_url():
     dataset = factories.Dataset()
     data_dict = {"package_id": dataset["id"]}
@@ -132,7 +124,6 @@ def test_doesnt_require_url():
     assert not stored_resource["url"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_mimetype_by_url():
     """The mimetype is guessed from the url
 
@@ -154,7 +145,6 @@ def test_mimetype_by_url():
     assert mimetype == "text/csv"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_mimetype_by_url_without_path():
     """
     The mimetype should not be guessed from url if url contains only domain
@@ -172,7 +162,6 @@ def test_mimetype_by_url_without_path():
     assert mimetype is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_mimetype_by_user():
     """
     The mimetype is supplied by the user
@@ -193,7 +182,6 @@ def test_mimetype_by_user():
     assert mimetype == "application/csv"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_mimetype_by_upload_by_filename(create_with_upload):
     """The mimetype is guessed from an uploaded file with a filename
 
@@ -233,7 +221,6 @@ def test_mimetype_by_upload_by_filename(create_with_upload):
     assert mimetype == "application/json"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
 def test_mimetype_by_upload_by_file(create_with_upload):
     """The mimetype is guessed from an uploaded file by the contents inside
@@ -266,7 +253,6 @@ def test_mimetype_by_upload_by_file(create_with_upload):
     assert mimetype == "text/plain"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_size_of_resource_by_upload(create_with_upload):
     """
     The size of the resource determined by the uploaded file
@@ -293,7 +279,6 @@ def test_size_of_resource_by_upload(create_with_upload):
     assert size > 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_size_of_resource_by_user():
     """
     The size of the resource is provided by the users
@@ -313,7 +298,6 @@ def test_size_of_resource_by_user():
     assert size == 500
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_extras():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -342,7 +326,6 @@ def test_extras():
     assert resource["sublist"] == [1, 2, 3]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @freeze_time("2020-02-25 12:00:00")
 def test_metadata_modified_is_set_to_utcnow_when_created():
     context = {}
@@ -356,7 +339,6 @@ def test_metadata_modified_is_set_to_utcnow_when_created():
     assert result["metadata_modified"] == datetime.datetime.utcnow().isoformat()
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
 @pytest.mark.parametrize("role", ["admin", "editor"])
@@ -390,7 +372,6 @@ def test_collaborators_can_create_resources(role):
     assert created_resource["name"] == "created by collaborator"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_create_for_update():
 
     dataset = factories.Dataset()
@@ -410,7 +391,6 @@ def test_resource_create_for_update():
         assert mock_package_show.call_args_list[0][0][0].get("for_update") is True
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_create_copies_other_resources():
     from ckan.lib.dictization import model_save
 
@@ -428,7 +408,6 @@ def test_resource_create_copies_other_resources():
         assert m.call_args.args[3] == {0: 0}, "copy existing resource 0"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_upload_file_paths(create_with_upload):
     storage = files.get_storage("resources")
     dataset = factories.Dataset()
@@ -449,7 +428,6 @@ def test_upload_file_paths(create_with_upload):
     assert storage.exists(files.FileData.from_string(location))
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_delete():
     user = factories.User()
     sysadmin = factories.Sysadmin()
@@ -467,7 +445,6 @@ def test_resource_delete():
     assert res_obj.state == "deleted"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_delete_for_delete():
 
     dataset = factories.Dataset()
@@ -483,7 +460,6 @@ def test_resource_delete_for_delete():
         assert mock_package_show.call_args_list[1][0][0].get("for_update") is True
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
 @pytest.mark.parametrize("role", ["admin", "editor"])
@@ -510,7 +486,6 @@ def test_collaborators_can_delete_resources(role):
     helpers.call_action("resource_delete", context=context, id=resource["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_01_delete_resource():
     res = factories.Resource()
     pkg = helpers.call_action("package_show", id=res["package_id"])
@@ -520,7 +495,6 @@ def test_01_delete_resource():
     assert len(pkg["resources"]) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_delete_copies_other_resources():
     from ckan.lib.dictization import model_save
 
@@ -592,7 +566,6 @@ def test_resource_search_test_percentage_is_escaped():
     assert result == {"count": 0, "results": []}
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_patch_updating_single_field():
     user = factories.User()
     dataset = factories.Dataset(
@@ -617,7 +590,6 @@ def test_resource_patch_updating_single_field():
     assert resource2["url"] == "http://example.com/resource"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_patch_for_update():
 
     dataset = factories.Dataset()
@@ -633,7 +605,6 @@ def test_resource_patch_for_update():
         assert mock_package_show.call_args_list[0][0][0].get("for_update") is True
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resource_patch_copies_other_resources():
     from ckan.lib.dictization import model_save
 
@@ -654,7 +625,6 @@ def test_resource_patch_copies_other_resources():
         assert m.call_args.args[3] == {0: 0}, "res 0 unmodified"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUpdateResource(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -720,7 +690,7 @@ class TestUpdateResource(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_url_only():
     resource = factories.Resource(url="http://first")
 
@@ -734,7 +704,7 @@ def test_url_only():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_extra_only():
     resource = factories.Resource(newfield="first")
 
@@ -751,7 +721,7 @@ def test_extra_only():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_both_extra_and_url():
     resource = factories.Resource(url="http://first", newfield="first")
 
@@ -771,7 +741,7 @@ def test_both_extra_and_url():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_extra_gets_deleted_on_both_core_and_extra_update():
     resource = factories.Resource(url="http://first", newfield="first")
 
@@ -793,7 +763,7 @@ def test_extra_gets_deleted_on_both_core_and_extra_update():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_extra_gets_deleted_on_extra_only_update():
     resource = factories.Resource(url="http://first", newfield="first")
 
@@ -815,7 +785,7 @@ def test_extra_gets_deleted_on_extra_only_update():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datastore_active_is_persisted_if_true_and_not_provided():
     resource = factories.Resource(url="http://example.com", datastore_active=True)
 
@@ -830,7 +800,7 @@ def test_datastore_active_is_persisted_if_true_and_not_provided():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datastore_active_is_persisted_if_false_and_not_provided():
     resource = factories.Resource(url="http://example.com", datastore_active=False)
 
@@ -845,7 +815,7 @@ def test_datastore_active_is_persisted_if_false_and_not_provided():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datastore_active_is_updated_if_false_and_provided():
     resource = factories.Resource(url="http://example.com", datastore_active=False)
 
@@ -861,7 +831,7 @@ def test_datastore_active_is_updated_if_false_and_provided():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datastore_active_is_updated_if_true_and_provided():
     resource = factories.Resource(url="http://example.com", datastore_active=True)
 
@@ -877,7 +847,7 @@ def test_datastore_active_is_updated_if_true_and_provided():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled():
     assert not p.plugin_loaded("datastore")
 
@@ -894,7 +864,7 @@ def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_e
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resourceupdate_mimetype_by_url():
     """The mimetype is guessed from the url
 
@@ -918,7 +888,7 @@ def test_resourceupdate_mimetype_by_url():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resourceupdate_mimetype_by_user():
     """
     The mimetype is supplied by the user
@@ -943,7 +913,7 @@ def test_resourceupdate_mimetype_by_user():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.mimetype_guess", "file_contents")
 def test_resourceupdate_mimetype_by_upload_by_file(create_with_upload):
     """The mimetype is guessed from an uploaded file by the contents inside
@@ -980,7 +950,7 @@ def test_resourceupdate_mimetype_by_upload_by_file(create_with_upload):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resourceupdate_mimetype_by_upload_by_filename(create_with_upload):
     """The mimetype is guessed from an uploaded file with a filename
 
@@ -1039,7 +1009,7 @@ def test_resourceupdate_mimetype_by_upload_by_filename(create_with_upload):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resourceupdate_size_of_resource_by_user():
     """
     The size of the resource is provided by the users
@@ -1066,7 +1036,7 @@ def test_resourceupdate_size_of_resource_by_user():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resourceupdate_size_of_resource_by_upload(create_with_upload):
     """The size of the resource determined by the uploaded file"""
     content = """
@@ -1118,7 +1088,7 @@ def test_resourceupdate_size_of_resource_by_upload(create_with_upload):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_uploads_after_reorder(create_with_upload):
     """
     Having different resource positions in the database
@@ -1264,7 +1234,7 @@ def test_resource_uploads_after_reorder(create_with_upload):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resourceupdate_extras():
     user = factories.User()
     dataset = factories.Dataset(
@@ -1291,7 +1261,7 @@ def test_resourceupdate_extras():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config("ckan.views.default_views", "image_view text_view")
 def test_resource_format_update():
     # Create resource without format
@@ -1362,7 +1332,7 @@ def test_resource_format_update():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_edit_metadata_updates_metadata_modified_field():
     resource = factories.Resource()
 
@@ -1378,7 +1348,7 @@ def test_edit_metadata_updates_metadata_modified_field():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_same_values_dont_update_metadata_modified_field():
     with freeze_time("1987-03-04 23:30:00"):
         resource = factories.Resource(
@@ -1405,7 +1375,7 @@ def test_same_values_dont_update_metadata_modified_field():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_new_keys_update_metadata_modified_field():
     with freeze_time("1987-03-04 23:30:00"):
         resource = factories.Resource(description="test")
@@ -1428,7 +1398,7 @@ def test_new_keys_update_metadata_modified_field():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_remove_keys_update_metadata_modified_field():
     with freeze_time("1987-03-04 23:30:00"):
         resource = factories.Resource(
@@ -1453,7 +1423,7 @@ def test_remove_keys_update_metadata_modified_field():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_update_keys_update_metadata_modified_field():
     with freeze_time("1987-03-04 23:30:00"):
         resource = factories.Resource(
@@ -1479,7 +1449,7 @@ def test_update_keys_update_metadata_modified_field():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_update_for_update():
     resource = factories.Resource()
 
@@ -1494,7 +1464,7 @@ def test_resource_update_for_update():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_reorder_for_update():
 
     dataset = factories.Dataset()
@@ -1516,7 +1486,7 @@ def test_resource_reorder_for_update():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 def test_resource_update_copies_other_resources():
     from ckan.lib.dictization import model_save
 
