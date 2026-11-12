@@ -7,6 +7,7 @@ import logging
 import collections
 import json
 import re
+import datetime
 from dateutil.parser import parse, ParserError as DateParserError
 from typing import Any, NoReturn, Optional
 
@@ -226,9 +227,10 @@ class PackageSearchIndex(SearchIndex):
                     continue
                 try:
                     date = parse(value)
-                    value = date.isoformat()
-                    if not date.tzinfo:
-                        value += 'Z'
+                    if date.tzinfo:
+                        date = date.astimezone(datetime.timezone(offset=datetime.timedelta(0)))
+                    #isoformat, using Z instead of +##:## offset
+                    value = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
                 except DateParserError:
                     log.warning('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
                     continue
