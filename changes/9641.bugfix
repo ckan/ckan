@@ -1,0 +1,1 @@
+Fix blank table view cells when DataStore field names contain square brackets.

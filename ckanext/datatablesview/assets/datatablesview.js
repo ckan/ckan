@@ -349,6 +349,15 @@ this.ckan.module('datatables_view', function (jQuery) {
 
       gdataDict.forEach((colDefn, idx) => {
         const colDict = { name: colDefn.id, data: colDefn.id, contentPadding: 'MM' }
+        if (colDefn.id.includes('[')) {
+          colDict.data = function (row, type, value) {
+            if (type === 'set') {
+              row[colDefn.id] = value
+              return
+            }
+            return row[colDefn.id]
+          }
+        }
         switch (colDefn.type) {
           case 'numeric':
             colDict.type = 'num'
