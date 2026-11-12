@@ -1,0 +1,1 @@
+Fix the tracking middleware error log, which raised a logging error instead of showing the exception.
