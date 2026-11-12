@@ -16,6 +16,10 @@ import ckan.plugins as p
 import ckan.model as model
 from ckan.common import config
 
+# register models so that corresponding tables are created via `create_form_model`
+import ckanext.activity.model  # pyright: ignore[reportUnusedImport]  # noqa: F401
+import ckanext.tracking.model  # pyright: ignore[reportUnusedImport]  # noqa: F401
+
 from . import error_shout
 
 log = logging.getLogger(__name__)
@@ -53,10 +57,15 @@ def create_from_model():
 
         # also mark plugins as migrated
         # FIXME: move to model.repo?
-        pending = _get_pending_plugins()
+        pending = set(_get_pending_plugins())
+        # these two plugins have their migrations split betweeen core and
+        # `ckanext` folder. Their migrations must be applied to avoid
+        # incomplete table state, such as missing `permission_labels` column
+        # for activity.
+        pending.update(["activity", "tracking"])
         for plugin in sorted(pending):
-            with _repo_for_plugin(plugin) as repo:
-                print(plugin, repo)
+            with _repo_for_plugin(plugin, not p.plugin_loaded(plugin)) as repo:
+                click.echo(f"Initialize {plugin}")
                 repo.stamp_alembic_head()
     except Exception as e:
         error_shout(f"Failed to create database from model: {e}")
