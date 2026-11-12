@@ -50,10 +50,13 @@ _no_config_commands = [
 
 class CtxObject(object):
 
-    def __init__(self, conf: Optional[str] = None):
+    def __init__(self, conf: Optional[str] = None, verbosity: int = 0):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
         raw_config = ckan_cli.load_config(conf)
+        if _requested_command() != 'run':
+            _quiet_stderr_logging(verbosity)
+        log.info('Using configuration file %s', raw_config.get('__file__'))
         self.app = make_app(raw_config)
 
         # Attach the actual CKAN config object to the context
@@ -119,11 +122,50 @@ class ExtendableGroup(click.Group):
         argument. If no, let's print help message manually
 
         """
+        opts, _, _ = self.make_parser(ctx).parse_args(args.copy())
+        ctx.meta["cli_verbosity"] = opts.get("verbose", 0)
         result = super().parse_args(ctx, args)
         if not ctx.protected_args and not ctx.args:
             click.echo(ctx.get_help(), color=ctx.color)
             ctx.exit()
         return result
+
+
+def _requested_command() -> Optional[str]:
+    """Name of the top level command from sys.argv, skipping `-c` option."""
+    args = iter(sys.argv[1:])
+    for arg in args:
+        if arg in ("-c", "--config"):
+            next(args, None)
+        elif not arg.startswith("-"):
+            return arg
+    return None
+
+
+def _quiet_stderr_logging(verbosity: int = 0):
+    """Set the verbosity of log handlers writing to stderr."""
+    level = (
+        logging.DEBUG if verbosity >= 2 else
+        logging.INFO if verbosity == 1 else
+        logging.CRITICAL
+    )
+    loggers = [logging.getLogger()] + [
+        lg for lg in logging.root.manager.loggerDict.values()
+        if isinstance(lg, logging.Logger)
+    ]
+    found_stderr = False
+    for logger in loggers:
+        for handler in logger.handlers:
+            if (
+                isinstance(handler, logging.StreamHandler)
+                and not isinstance(handler, logging.FileHandler)
+                and handler.stream in (sys.stderr, sys.__stderr__)
+            ):
+                handler.setLevel(level)
+                found_stderr = True
+
+    if not found_stderr and verbosity:
+        click.echo("Warning: no stderr logging handler found.", err=True)
 
 
 def _init_ckan_config(ctx: click.Context, param: str, value: str):
@@ -138,7 +180,7 @@ def _add_ctx_object(ctx: click.Context, path: Optional[str] = None):
 
     """
     try:
-        ctx.obj = CtxObject(path)
+        ctx.obj = CtxObject(path, ctx.meta.get("cli_verbosity", 0))
     except CkanConfigurationException as e:
         error_shout(e)
         ctx.abort()
@@ -211,6 +253,9 @@ def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
     u'-c', u'--config', metavar=u'CONFIG',
     is_eager=True, callback=_init_ckan_config, expose_value=False,
     help=u'Config file to use (default: ckan.ini)')
+@click.option(
+    '-v', '--verbose', count=True, expose_value=False,
+    help='Increase verbosity (use twice for even more verbosity)')
 @click.help_option(u'-h', u'--help')
 def ckan():
     pass
