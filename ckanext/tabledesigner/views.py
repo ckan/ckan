@@ -45,6 +45,9 @@ class _TableDesignerDictionary(MethodView):
         if not isinstance(info, list):
             info = []
         custom = data.get('fields')
+        if custom is None:
+            # user has deleted all of the fields.
+            custom = []
         if not isinstance(custom, list):
             return base.abort(400, _('Required fields missing'))
         info = info[:len(custom)]
