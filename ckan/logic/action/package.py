@@ -1853,8 +1853,6 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     :type id: string
 
     """
-    from sqlalchemy import or_
-
     id = _get_or_bust(data_dict, "id")
 
     pkg = model.Package.get(id)
