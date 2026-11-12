@@ -66,10 +66,19 @@ this.ckan.module('autocomplete', function (jQuery) {
       if (!this.el.is('select')) {
 
         settings.dataAdapter = this.dataAdapter();
-        if ( this.options.tags ){
-          var Utils = $.fn.select2.amd.require('select2/utils');
+
+        var Utils = $.fn.select2.amd.require('select2/utils');
+
+        // Providing a custom data adapter prevents Select2 from automatically
+        // installing its Tags adapter. Install it whenever creating new values
+        // is enabled, including for single-value autocomplete fields.
+        if (this.options.tags || this.options.createtags) {
           var Tags = $.fn.select2.amd.require('select2/data/tags');
           settings.dataAdapter = Utils.Decorate(settings.dataAdapter, Tags)
+        }
+
+        // The tags option controls multiple-value and tokenization behaviour.
+        if (this.options.tags) {
           settings.multiple = "multiple"
 
           // tokenizer is not applied when custom data adapter is used
@@ -81,7 +90,6 @@ this.ckan.module('autocomplete', function (jQuery) {
 
         // minimum input length is not applied when custom data adapter is used
         if (this.options.minimumInputLength > 0) {
-          var Utils = $.fn.select2.amd.require('select2/utils');
           var MinimumInputLength = $.fn.select2.amd.require('select2/data/minimumInputLength');
           settings.dataAdapter = Utils.Decorate(settings.dataAdapter, MinimumInputLength)
         }

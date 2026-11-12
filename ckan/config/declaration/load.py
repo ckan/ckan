@@ -45,6 +45,7 @@ option_types = {
     "int": "declare_int",
     "dynamic": "declare_dynamic",
     "list": "declare_list",
+    "float": "declare_float",
 }
 
 handler: FormatHandler[Callable[..., None]] = FormatHandler()
@@ -92,7 +93,7 @@ def load_plugin(declaration: "Declaration", name: str):
         return
 
     if not IConfigDeclaration.implemented_by(type(plugin)):
-        log.error("Plugin %s does not declare config options", name)
+        log.debug("Plugin %s does not declare config options", name)
         return
 
     plugin.declare_config_options(declaration, Key())
@@ -183,7 +184,7 @@ def load_files(declaration: "Declaration", /, config: Any = None):
     # declaration --core`
     for name, settings in storages.items():
         # make base key so that storage can declare options by extending. I.e.,
-        # `storage_key.option_name`, instead of logner form
+        # `storage_key.option_name`, instead of longer form
         # `key.ckanext.files.storage.STORAGE_NAME.option_name`
         storage_key = Key().from_string(files.STORAGE_PREFIX + name)
 

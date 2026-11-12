@@ -5,14 +5,14 @@ import bs4
 import ckan.tests.factories as factories
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"example_humanizer")
-@pytest.mark.usefixtures(u"non_clean_db", u"with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "example_humanizer")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestExampleHumanizer(object):
-    @pytest.mark.parametrize(u"url, breadcrumb, button", [
-        (u'/dataset', u"Datasets", u"Add Dataset"),
-        (u'/organization', u"Organizations", u"Add Organization"),
-        (u'/group', u"Groups", u"Add Group"),
-        (u'/custom_group', u"Custom groups", u"Create new Custom group"),
+    @pytest.mark.parametrize("url, breadcrumb, button", [
+        ('/dataset', "Datasets", "Create new Dataset"),
+        ('/organization', "Organizations", "Create new Organization"),
+        ('/group', "Groups", "Create new Group"),
+        ('/custom_group', "Custom groups", "Create new Custom group"),
     ])
     def test_original_translations(self, app, url, breadcrumb, button):
         user = factories.User(password="correct123")
@@ -20,5 +20,5 @@ class TestExampleHumanizer(object):
         headers = {"Authorization": user_token["token"]}
         res = app.get(url, headers=headers)
         page = bs4.BeautifulSoup(res.body)
-        assert page.select_one(u'.toolbar .active').text == breadcrumb
-        page.select_one(u'.page_primary_action').text.strip() == button
+        assert page.select_one('.toolbar .active').text == breadcrumb
+        assert page.select_one('.content_action .btn-primary').text.strip() == button

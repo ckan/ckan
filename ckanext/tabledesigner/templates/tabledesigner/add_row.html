@@ -10,6 +10,7 @@
   <h1>{{ _('Add row') }}</h1>
 
   <form method="post" action="{{ action }}" >
+    {{ h.csrf_input() }}
     {% block add_row %}
       {% for field in fields %}
         {% set ct = h.tabledesigner_column_type(field) %}

@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 blueprint = Blueprint("file", __name__)
 
 
-def _as_response(storage_name: str, data: files.FileData):
+def _as_response(storage_name: str, data: files.FileData, filename: str | None = None):
     """Return a response for a file stored in the given location.
 
     The storage is looked up by name, and the file data is created from the
@@ -28,7 +28,7 @@ def _as_response(storage_name: str, data: files.FileData):
         return base.abort(404)
 
     if isinstance(storage, files.Storage):
-        resp = storage.as_response(data)
+        resp = storage.as_response(data, filename)
         if resp.status_code >= 400:
             return base.abort(resp.status_code)
         return resp
@@ -51,7 +51,11 @@ def download(id: str) -> Response:
     except (logic.NotFound, logic.NotAuthorized):
         return base.abort(404)
 
-    return _as_response(item["storage"], files.FileData.from_dict(item))
+    return _as_response(
+        item["storage"],
+        files.FileData.from_dict(item),
+        filename=item["name"],
+    )
 
 
 @blueprint.route("/file/trusted-download/<token>")
@@ -102,7 +106,11 @@ def trusted_download(token: str) -> Response:
     if not item:
         return base.abort(404)
 
-    return _as_response(item.storage, files.FileData.from_object(item))
+    return _as_response(
+        item.storage,
+        files.FileData.from_object(item),
+        filename=item.name,
+    )
 
 
 @blueprint.route("/file/public-download/<storage_name>/<path:location>")

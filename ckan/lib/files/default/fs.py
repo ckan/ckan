@@ -31,7 +31,7 @@ class Reader(base.Reader, fs.Reader):
         filepath = self.storage.full_path(data.location)
         return flask.send_file(
             filepath,
-            download_name=data.location,
+            download_name=extras.get("filename") or data.location,
             mimetype=data.content_type,
         )
 
@@ -41,11 +41,24 @@ class FsStorage(base.Storage, fs.FsStorage):
 
     settings: Settings
     SettingsFactory = Settings
-    UploaderFactory = type(
-        "Uploader", (base.Uploader, fs.Uploader), {}
-    )
+    UploaderFactory = type("Uploader", (base.Uploader, fs.Uploader), {})
     ReaderFactory = Reader
     ManagerFactory = type("Manager", (base.Manager, fs.Manager), {})
+
+    @override
+    @classmethod
+    def declare_config_options(cls, declaration: Declaration, key: Key):
+        super().declare_config_options(declaration, key)
+
+        declaration[key.path].required().append_validators(
+            'starts_with("/")'
+        ).set_description(
+            "Absolute path to the storage's root."
+            "\nWill cause a configuration error if not absolute."
+        )
+        declaration.declare_bool(key.follow_symlinks).set_description(
+            "Whether to follow symlinks when accessing a file."
+        )
 
 
 @dataclasses.dataclass
@@ -84,7 +97,7 @@ class PublicFsStorage(FsStorage):
     relies on this assumption when producing permanent links to the file.
 
     Example:
-        ```pyhon
+        ```python
         # inside plugin's update config
         tk.add_public_directory(config, "/var/shared_folder")
 
@@ -109,7 +122,7 @@ class PublicFsStorage(FsStorage):
         super().declare_config_options(declaration, key)
 
         declaration.declare(key.public_prefix, "").set_description(
-            "URL prefix to use when builing public file's URL.\nFor example,"
+            "URL prefix to use when building public file's URL.\nFor example,"
             " if storage has path `/var/data/storage/location`,\nand the directory"
             " `/var/data` is registered as Flask static directory,\nthe correct"
             " prefix is `storage/location`"

@@ -18,17 +18,17 @@ this.ckan = this.ckan || {};
    * Returns nothing.
    */
   ckan.initialize = function () {
-    var body = jQuery('body');
     var locale = jQuery('html').attr('lang');
     var location = window.location;
     var root = location.protocol + '//' + location.host;
 
     function getRootFromData(key) {
-      return (body.data(key) || root).replace(/\/$/, '');
+      const value = document.head.querySelector([`meta[name=${key}]`])?.content
+      return (value || root).replace(/\/$/, '');
     }
 
-    ckan.SITE_ROOT   = getRootFromData('siteRoot');
-    ckan.LOCALE_ROOT = getRootFromData('localeRoot');
+    ckan.SITE_ROOT   = getRootFromData('site-root');
+    ckan.LOCALE_ROOT = getRootFromData('locale-root');
 
     // Convert all datetimes to the users timezone
     jQuery('.automatic-local-datetime').each(function() {

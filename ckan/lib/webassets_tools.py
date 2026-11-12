@@ -12,7 +12,6 @@ from webassets.loaders import YAMLLoader
 from ckan.common import config, g
 from ckan.lib.io import get_ckan_temp_directory
 
-
 log = logging.getLogger(__name__)
 env: Environment
 
@@ -79,7 +78,7 @@ def webassets_init() -> None:
 
     env = Environment()
     env.directory = static_path
-    env.debug = config["debug"]
+    env.debug = config["ckan.webassets.debug"]
     env.url = config["ckan.webassets.url"]
 
 

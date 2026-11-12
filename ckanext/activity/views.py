@@ -11,17 +11,17 @@ import ckan.plugins.toolkit as tk
 import ckan.model as model
 from ckan.logic import NotFound
 from ckan.views.group import (
-    # TODO: don't use hidden funcitons
+    # TODO: don't use hidden functions
     _get_group_template,
 )
 from ckan.views.dataset import _get_pkg_template
 
 from ckan.common import request as ckan_request
 
-# TODO: don't use hidden funcitons
+# TODO: don't use hidden functions
 from ckan.views.user import _extra_template_variables
 
-# TODO: don't use hidden funcitons
+# TODO: don't use hidden functions
 from ckan.views.dataset import _setup_template_variables
 from ckan.types import Context, Response
 from .model import Activity

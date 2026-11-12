@@ -147,7 +147,7 @@ describe('ckan.module(id, properties|callback)', {testIsolation: false}, functio
       })
     });
 
-    it('should defer all published events untill all modules have loaded', function () {
+    it('should defer all published events until all modules have loaded', function () {
       cy.window().then(win => {
         let pubsub = win.ckan.pubsub;
         let callbacks = [];
@@ -162,7 +162,7 @@ describe('ckan.module(id, properties|callback)', {testIsolation: false}, functio
 
         // Call a function to publish and subscribe to an event on each instance.
         this.target.restore();
-        this.target = cy.stub(win.ckan.module, 'createInstance', function () {
+        this.target = cy.stub(win.ckan.module, 'createInstance').callsFake(function () {
           let callback = cy.spy();
 
           pubsub.publish('test');
@@ -451,14 +451,14 @@ describe('ckan.module(id, properties|callback)', {testIsolation: false}, functio
         assert.equal(target, 'third string');
       });
 
-      it('should pass the argments after the key into trans.fetch()', function () {
+      it('should pass the arguments after the key into trans.fetch()', function () {
         var target = this.module.options.i18n.second.fetch;
         this.module.i18n('second', 1, 2, 3);
         expect(target).to.be.called;
         expect(target).to.be.calledWith( 1, 2, 3);
       });
 
-      it('should pass the argments after the key into the translation function', function () {
+      it('should pass the arguments after the key into the translation function', function () {
         var target = this.module.options.i18n.third;
         this.module.i18n('third', 1, 2, 3);
         expect(target).to.be.called;

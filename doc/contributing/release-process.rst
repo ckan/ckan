@@ -170,7 +170,7 @@ Creating a release development branch
       ``.tx/config`` file, tx will create a new resource on Transifex
       rather than updating an existing resource ::
 
-        tx push --source --translations --force
+        tx push --source --translation --force
 
    g. On Transifex give the new resource a more friendly name. Go to the
       resource (e.g. https://www.transifex.com/okfn/ckan/2-11/) and access the settings
@@ -179,7 +179,7 @@ Creating a release development branch
 
    h. Update the ``ckan.mo`` files by compiling the po files::
 
-        python setup.py compile_catalog
+        python setup.py compile_catalog --use-fuzzy
 
 #. Create a new GitHub label for the backports: ``Backport dev-vX.Y``.
 

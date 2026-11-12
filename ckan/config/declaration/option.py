@@ -108,7 +108,7 @@ class Flag(enum.Flag):
     has `nullable` and `required` flags enabled simultaneously: at the moment
     this combination means that option may be set to none, but any other falsy
     value will be rejected. But this is considered a coincidence and may change
-    in future without any anouncement, so do not rely on this behavior and set
+    in future without any announcement, so do not rely on this behavior and set
     `ignore_missing not_empty` validators on the option instead.
 
     reserved_*(01-10): these flags are added for extension developers. CKAN

@@ -55,8 +55,8 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
         loaded_view_plugins = _get_view_plugins(types, datastore_active)
     if loaded_view_plugins is None:
         return
-    site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
-    context: Context = {u"user": site_user[u"name"]}
+    site_user = model.User.get_site_user()
+    context: Context = {u"user": site_user.name}
 
     page = 1
     while True:
@@ -135,10 +135,11 @@ def clear(types: list[str], yes: bool):
             msg = u"Are you sure you want to delete all resource views?"
         click.confirm(msg, abort=True)
 
-    site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
+    site_user = model.User.get_site_user()
 
-    context: Context = {u"user": site_user[u"name"]}
-    logic.get_action(u"resource_view_clear")(context, {u"view_types": types})
+    logic.get_action(u"resource_view_clear")(
+        {"user": site_user.name}, {"view_types": types}
+    )
 
     click.secho(u"Done", fg=u"green")
 

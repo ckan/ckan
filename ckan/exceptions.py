@@ -22,6 +22,12 @@ class CkanConfigurationException(Exception):
     pass
 
 
+class SiteUserNotFound(CkanException):
+    """Raised by :py:func:`~ckan.plugins.toolkit.get_site_user` when the site
+    user has not been created yet. Run ``ckan db upgrade`` to create it.
+    """
+
+
 class HelperError(Exception):
     """Raised if an attempt to access an undefined helper is made.
 

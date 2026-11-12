@@ -327,7 +327,7 @@ class Storage(fk.Storage):
 
         """
         try:
-            resp = self.reader.response(data, kwargs)
+            resp = self.reader.response(data, dict(kwargs, filename=filename))
         except fk.exc.MissingFileError:
             return flask.Response(status=404)
 

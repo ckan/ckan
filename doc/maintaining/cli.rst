@@ -285,6 +285,7 @@ Usage
   ckan config search [PATTERN]         - Print all declared config options that match pattern.
   ckan config undeclared               - Print config options that has no declaration.
   ckan config validate                 - Validate global configuration object against declaration.
+  ckan config show [NAMES...]          - Show values for specified or all(if ``NAMES`` is empty) config options.
 
 
 
@@ -359,6 +360,7 @@ db: Manage databases
  ckan db pending-migrations  - List all sources with unapplied migrations.
  ckan db upgrade             - Upgrade the database
  ckan db version             - Returns current version of data schema
+ ckan db check               - Check if database schema matches definition of models.
 
 See :doc:`database-management`.
 
@@ -641,8 +643,8 @@ computer to reindex faster
 
 .. note::
 
-   As of CKAN 2.12, the ``--clear`` option has been removed from 
-   ``search-index rebuild``. The command now automatically clears orphaned 
+   As of CKAN 2.12, the ``--clear`` option has been removed from
+   ``search-index rebuild``. The command now automatically clears orphaned
    packages after rebuilding instead of clearing the entire index beforehand.
 
 There are other search related commands, mostly useful for debugging purposes

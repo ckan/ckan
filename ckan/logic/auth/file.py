@@ -16,7 +16,7 @@ def _owner_allows(
 ) -> bool:
     """Decide if user is allowed to perform operation based on the owner.
 
-    This includes transfering files to owner and listing all the files that
+    This includes transferring files to owner and listing all the files that
     belongs to the owner.
     """
     for plugin in p.PluginImplementations(p.IFiles):
@@ -249,7 +249,7 @@ def file_unpin(context: Context, data_dict: dict[str, Any]) -> AuthResult:
 
 
 def file_ownership_transfer(context: Context, data_dict: dict[str, Any]) -> AuthResult:
-    """Check if file ownership can be transfered to a different owner."""
+    """Check if file ownership can be transferred to a different owner."""
     file = _get_file(context, data_dict["id"])
     if not file or (file.owner and file.owner.pinned and not data_dict["force"]):
         return {"success": False, "msg": "File is pinned"}

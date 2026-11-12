@@ -1,7 +1,7 @@
 {#
   Renders a select element to filter the activity stream
 
-  It uses the activity-stream.js module to dinamically request for a new URl upon selection.
+  It uses HTMX to request a new URL upon selection.
 
   id - the id or current name of the object (e.g. package name, user id)
   activity_type - the current selected activity type
@@ -13,12 +13,12 @@
   <label for="activity_types_filter_select" class="form-label">
     {{ _('Activity type') }}
   </label>
-  <select id="activity_types_filter_select" class="form-select">
-    <option {% if not activity_types %}selected{% endif %} hx-get="{{ h.url_for(blueprint, id=id) }}" hx-target="closest .module-content" hx-push-url="true">
+  <select id="activity_types_filter_select" name="activity_type" class="form-select" hx-get="{{ h.url_for(blueprint, id=id) }}" hx-target="closest .module-content" hx-push-url="true">
+    <option value="" {% if not activity_type %}selected{% endif %}>
       {{ _('All activity types') }}
     </option>
     {% for type_ in activity_types %}
-      <option {% if activity_type == type_ %}selected{% endif %} hx-get="{{ h.url_for(blueprint, id=id, activity_type=type_) }}" hx-target="closest .module-content" hx-push-url="true">
+      <option value="{{ type_ }}" {% if activity_type == type_ %}selected{% endif %}>
         {# TODO: Calling humanize gets complex when displaying orgs/groups since the activities also contains dataset activities #}
         {{ type_ | title }}
       </option>

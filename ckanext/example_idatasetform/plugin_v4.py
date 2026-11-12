@@ -9,8 +9,7 @@ import ckan.plugins.toolkit as tk
 
 
 def create_country_codes():
-    user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
-    context: Context = {'user': user['name']}
+    context = Context(user=tk.get_site_user().name)
     try:
         data = {'id': 'country_codes'}
         tk.get_action('vocabulary_show')(context, data)

@@ -62,7 +62,7 @@ class DatastoreBackend:
     'example-sqlite:////tmp/database-name-on-your-choice'
 
     :prop _backend: mapping(schema, class) of all registered backends
-    :type _backend: dictonary
+    :type _backend: dictionary
     :prop _active_backend: current active backend
     :type _active_backend: DatastoreBackend
     """
@@ -119,7 +119,7 @@ class DatastoreBackend:
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_create`
         :returns: The newly created data object
-        :rtype: dictonary
+        :rtype: dictionary
         """
         raise NotImplementedError()
 
@@ -130,7 +130,7 @@ class DatastoreBackend:
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_upsert`
         :returns: The modified data object
-        :rtype: dictonary
+        :rtype: dictionary
         """
         raise NotImplementedError()
 
@@ -141,7 +141,7 @@ class DatastoreBackend:
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_delete`
         :returns: Original filters sent.
-        :rtype: dictonary
+        :rtype: dictionary
         """
         raise NotImplementedError()
 
@@ -151,7 +151,7 @@ class DatastoreBackend:
         Called by `datastore_search`.
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_search`
-        :rtype: dictonary with following keys
+        :rtype: dictionary with following keys
 
         :param fields: fields/columns and their extra metadata
         :type fields: list of dictionaries
@@ -173,10 +173,10 @@ class DatastoreBackend:
         """Advanced search.
 
         Called by `datastore_search_sql`.
-        :param sql: a single seach statement
+        :param sql: a single search statement
         :type sql: string
 
-        :rtype: dictonary
+        :rtype: dictionary
         :param fields: fields/columns and their extra metadata
         :type fields: list of dictionaries
         :param records: list of matching results
@@ -192,7 +192,7 @@ class DatastoreBackend:
     def resource_fields(
             self, id: str, include_meta: bool = True,
             include_fields_schema: bool = True) -> Any:
-        """Return dictonary with resource description.
+        """Return dictionary with resource description.
 
         Called by `datastore_info`.
         :returns: A dictionary describing the columns and their types.
@@ -234,4 +234,31 @@ class DatastoreBackend:
         raise NotImplementedError()
 
     def resource_plugin_data(self, resource_id: str) -> dict[str, Any]:
+        raise NotImplementedError()
+
+    def calculate_record_count(self, resource_id: str) -> None:
+        """Called after updating a table to calculate and cache the
+        new number of records for future calls to search.
+        """
+
+    def clear_table_stats(self, resource_id: str) -> None:
+        """Remove number or records and any other stats cached for
+        a resource.
+        """
+
+    def create_sequence(
+        self, name: str, if_not_exists: bool, last_value: int | None
+    ) -> None:
+        """Called by `datastore_sequence_create` action.
+        """
+        raise NotImplementedError()
+
+    def drop_sequence(self, name: str, if_exists: bool) -> None:
+        """Called by `datastore_sequence_delete` action.
+        """
+        raise NotImplementedError()
+
+    def sequence_nextval(self, name: str) -> int:
+        """Called by `datastore_sequence_next` action.
+        """
         raise NotImplementedError()

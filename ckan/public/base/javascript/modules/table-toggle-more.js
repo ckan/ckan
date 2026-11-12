@@ -21,22 +21,13 @@ this.ckan.module('table-toggle-more', function($) {
         var template_more = [
           '<tr class="toggle-show toggle-show-more">',
           '<td colspan="'+cols+'">',
-          '<small>',
           '<a href="#" class="show-more">' + this._('Show more') + '</a>',
           '<a href="#" class="show-less">' + this._('Hide') + '</a>',
-          '</small>',
-          '</td>',
-          '</tr>'
-        ].join('\n');
-        var template_seperator = [
-          '<tr class="toggle-seperator">',
-          '<td colspan="'+cols+'">',
           '</td>',
           '</tr>'
         ].join('\n');
 
-       var seperator = $(template_seperator).insertAfter($('.toggle-more:last-child', this.el));
-        $(template_more).insertAfter(seperator);
+        $(template_more).insertAfter($('.toggle-more:last-child', this.el));
 
         $('.show-more', this.el).on('click', this._onShowMore);
         $('.show-less', this.el).on('click', this._onShowLess);

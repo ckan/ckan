@@ -445,7 +445,7 @@ class TestPackageNew(object):
 
     def test_unauthed_user_creating_dataset(self, app):
 
-        # provide REMOTE_ADDR to idenfity as remote user, see
+        # provide REMOTE_ADDR to identify as remote user, see
         # ckan.views.identify_user() for details
         app.post(
             url=url_for("dataset.new"),
@@ -1064,6 +1064,20 @@ class TestResourceNew(object):
                 data={"name": "test", "url": "test", "save": "save", "id": ""},
                 status=403,
             )
+
+    def test_edit_resource_for_dataset_that_does_not_exist_404s(
+        self, app, user
+    ):
+        headers = {"Authorization": user["token"]}
+        response = app.get(
+            url_for(
+                "dataset_resource.edit",
+                id="does-not-exist",
+                resource_id="does-not-exist",
+            ),
+            headers=headers,
+        )
+        assert response.status_code == 404
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")

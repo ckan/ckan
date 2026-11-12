@@ -552,6 +552,27 @@ class TestDatasetPurge(object):
 
         assert model.Session.query(model.PackageRelationship).all() == []
 
+    @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+    def test_purged_dataset_with_collaborators(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        helpers.call_action(
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity="editor",
+        )
+
+        helpers.call_action("dataset_purge", id=dataset["id"])
+
+        assert not model.Package.get(dataset["id"])
+        assert (
+            model.Session.query(model.PackageMember)
+            .filter_by(package_id=dataset["id"])
+            .all()
+            == []
+        )
+
     def test_missing_id_returns_error(self):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("dataset_purge")
@@ -908,6 +929,28 @@ class TestVocabularyDelete(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberDelete:
+    @pytest.mark.usefixtures("clean_index")
+    def test_member_delete_reindexes_package_groups(self):
+        group = factories.Group()
+        package = factories.Dataset(groups=[{"id": group["id"]}])
+
+        def get_search_result_groups():
+            results = helpers.call_action(
+                "package_search", q=package["title"]
+            )["results"]
+            return [group["name"] for group in results[0]["groups"]]
+
+        assert get_search_result_groups() == [group["name"]]
+
+        helpers.call_action(
+            "member_delete",
+            object=package["id"],
+            id=group["id"],
+            object_type="package",
+        )
+
+        assert get_search_result_groups() == []
+
     def test_member_delete_accepts_object_name_or_id(self):
         org = factories.Organization()
         user = factories.User()

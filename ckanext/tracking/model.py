@@ -1,7 +1,7 @@
 # encoding: utf-8
 """ Tracking models
 
-Tracking functinoality used to be implemented in core CKAN and it was
+Tracking functionality used to be implemented in core CKAN and it was
 later moved to an extension during the development of CKAN 2.11.
 
 Even when tracking models are defined here, the tables are still
@@ -147,3 +147,8 @@ class TrackingSummary(domain_object.DomainObject, BaseModel):
 Index('tracking_summary_url', TrackingSummary.url)
 Index('tracking_summary_package_id', TrackingSummary.package_id)
 Index('tracking_summary_date', 'tracking_date')
+Index(
+    'tracking_summary_package_id_date',
+    TrackingSummary.package_id,
+    TrackingSummary.tracking_date.desc(),
+)

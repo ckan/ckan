@@ -270,13 +270,13 @@ class MultilingualDataset(plugins.SingletonPlugin):
         except KeyError:
             current_lang = config.get('ckan.locale_default')
 
-        # fallback to default locale if locale not in suported langs
+        # fallback to default locale if locale not in supported langs
         if not current_lang in lang_set:
             current_lang = config.get('ckan.locale_default')
         # fallback to english if default locale is not supported
         if not current_lang in lang_set:
             current_lang = 'en'
-        # treat current lang differenly so remove from set
+        # treat current lang differently so remove from set
         lang_set.remove(current_lang)
 
         # weight current lang more highly

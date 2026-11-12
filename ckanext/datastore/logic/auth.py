@@ -97,3 +97,20 @@ def datastore_run_triggers(
 
 def datastore_analyze(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': False}
+
+def datastore_sequence_create(
+        context: Context, data_dict: DataDict) -> AuthResult:
+    '''sysadmin-only: sequences are shared across datastore'''
+    return {'success': False}
+
+
+def datastore_sequence_delete(
+        context: Context, data_dict: DataDict) -> AuthResult:
+    '''sysadmin-only: sequences are shared across datastore'''
+    return {'success': False}
+
+
+def datastore_sequence_next(
+        context: Context, data_dict: DataDict) -> AuthResult:
+    '''sysadmin-only: sequences are shared across datastore'''
+    return {'success': False}

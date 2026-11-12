@@ -130,6 +130,7 @@ class TestClassLevelConfig(object):
         assert ckan_config[u"some.new.config"] == u"exists"
 
 
+@pytest.mark.usefixtures("clean_db")
 class TestCreateWithUpload(object):
 
     def test_create_organization(self, create_with_upload, ckan_config, faker):

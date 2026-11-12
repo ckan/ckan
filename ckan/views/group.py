@@ -695,7 +695,7 @@ def follow(id: str, group_type: str,
     data_dict = {
         'id': id,
         'include_datasets': True,
-        'include_users': True,
+        'include_users': False,
     }
     extra_vars = {
         'current_user': current_user,
@@ -734,7 +734,7 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
     data_dict = {
         'id': id,
         'include_datasets': True,
-        'include_users': True,
+        'include_users': False,
         'include_followers': True
     }
     extra_vars = {

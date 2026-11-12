@@ -214,7 +214,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     storage. It always sanitized with :py:func:`~ckan.lib.munge.munge_filename`
     to avoid directory traversal. Additionally, it can be transformed via
     storage's ``location_transformers``. These are the function that are
-    applied to the name after sanitization anb before file is written to the
+    applied to the name after sanitization and before file is written to the
     storage. For example, filename can be transformed into UUIDv4 using
     ``uuid4`` transformer, to prevent name collisions. Alternatively, for the
     same reason, file can be prefixed with an ISO 8601 datetime using
@@ -224,7 +224,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
     .. note::
 
-       Because of sanitization, path fragments preceeding the file's name will
+       Because of sanitization, path fragments preceding the file's name will
        be removed. This step is mandatory and cannot be disabled because it
        creates a serious security issue for the portal. Usually, when uploads
        into different directories are required, one can use different storages
@@ -232,7 +232,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
        different directory via ``path`` option. If specific storage must upload
        files to the nested directory structure, consider using placeholders in
        the name of the file and custom transformer that converts placeholders
-       into path separators. For example, use tripple underscore instead of
+       into path separators. For example, use triple underscore instead of
        ``/``: ``path___of___the___file.txt``. Then register transformer using
        :py:meth:`~ckan.plugins.interfaces.IFiles.files_get_location_transformers`::
 
@@ -269,7 +269,7 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     Instead of enabling access to this action for every registered user, the
     recommended approach is to create a different action for handling specific
     type of uploads. Implement dedicated auth function for this new action and
-    then use it to upload files into a signle target storage, controlling
+    then use it to upload files into a single target storage, controlling
     upload quota per user or any other aspects of uploads. Internally, this new
     action can call ``file_create`` bypassing its authorization, as long as new
     action has reliable auth function:
@@ -286,8 +286,8 @@ def file_create(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
                 {"name": name, "storage": storage, "upload": upload},
             )
 
-    When uploading a real file(or using ``werkqeug.datastructures.FileStorage``),
-    name parameter can be omited. In this case, the name of uploaded file is
+    When uploading a real file (or using ``werkqeug.datastructures.FileStorage``),
+    name parameter can be omitted. In this case, the name of uploaded file is
     used:
 
     .. code-block:: sh
@@ -552,7 +552,7 @@ def file_delete(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
     # If neither of these is True(i.e., if we are sure, that file does not
     # exist in the storage because it was already removed), we can safely skip
     # removal from the storage and go directly to removal of the DB
-    # record. Ideally, this should never happend, but to avoid locked records
+    # record. Ideally, this should never happen, but to avoid locked records
     # in DB that point to non-existing file, because someone manually removed
     # it or formatted the drive, we are doing this check.
     if not storage.supports(files.Capability.EXISTS) or storage.exists(file_data):
@@ -578,7 +578,7 @@ def file_show(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileS
     """Show file details.
 
     This action only displays information from DB record. There is no way to
-    get the content of the file using this action(or any other API action).
+    get the content of the file using this action (or any other API action).
 
     .. code-block:: sh
 
@@ -607,7 +607,7 @@ def file_rename(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 
     .. code-block:: sh
 
-        $ ckanapi action file_show id=226056e2-6f83-47c5-8bd2-102e2b82ab9a \\
+        $ ckanapi action file_rename id=226056e2-6f83-47c5-8bd2-102e2b82ab9a \\
             name=new-name.txt
 
     :param id: ID of the file
@@ -635,7 +635,7 @@ def file_rename(context: Context, data_dict: dict[str, Any]) -> ActionResult.Fil
 def file_pin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FilePin:
     """Pin file to the current owner.
 
-    Pinned file cannot be transfered to a different owner. Use it to guarantee
+    Pinned file cannot be transferred to a different owner. Use it to guarantee
     that file referred by entity is not accidentally transferred to a different
     owner.
 
@@ -666,7 +666,7 @@ def file_pin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FilePi
 def file_unpin(context: Context, data_dict: dict[str, Any]) -> ActionResult.FileUnpin:
     """Unpin file from the current owner.
 
-    Unpinned file can be transfered to a different owner.
+    Unpinned file can be transferred to a different owner.
 
     :param id: ID of the file
     :type id: str
@@ -740,7 +740,7 @@ def file_ownership_transfer(
     :param pin: pin file after transfer to stop future transfers. Default: `False`
     :type pin: bool
 
-    :returns: details of tranfered file
+    :returns: details of transferred file
 
     """
     logic.check_access("file_ownership_transfer", context, data_dict)

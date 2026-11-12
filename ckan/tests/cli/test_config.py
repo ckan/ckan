@@ -271,3 +271,35 @@ class TestValidate(object):
     def test_invalid_port_prevents_application_initialization(self, command):
         result = command("validate")
         assert result.exit_code, result.stdout
+
+
+@pytest.mark.usefixtures("with_extended_cli")
+class TestShow:
+    def test_show_all(self, command):
+        """Show all config options with their values."""
+        result = command("show")
+        assert "ckan.root_path = None" in result.output
+        assert "ckan.site_about = ''" in result.output
+        assert "ckan.files.default_storages.user = 'users'" in result.output
+
+    def test_filter_single(self, command):
+        """Show a single config option with its value."""
+        result = command("show", "ckan.root_path")
+        assert result.output == "ckan.root_path = None\n"
+
+    def test_filter_missing(self, command):
+        """Show a message when a config option is not found."""
+        result = command("show", "not-real-option")
+        assert result.output == "Option not-real-option not found.\nAborted!\n"
+
+    def test_typo(self, command):
+        """Show a message when a config option is not found, with a suggestion for a similar option."""
+        result = command("show", "ckan.root_path_xx")
+        assert result.output == "Option ckan.root_path_xx not found. Did you mean ckan.root_path?\nAborted!\n"
+
+    def test_mixed_result(self, command):
+        """Show a message when a config option is not found, with a suggestion for a similar option, while also showing valid options."""
+        result = command("show", "ckan.root_path_xx", "not-existing-option", "ckan.site_about")
+        assert "Did you mean ckan.root_path?" in result.output
+        assert "ckan.site_about = ''" in result.output
+        assert "not-existing-option not found." in result.output

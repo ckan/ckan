@@ -63,9 +63,16 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
 
   describe('.setupAutoComplete()', {testIsolation: false}, function () {
     it('should initialize the autocomplete plugin', function () {
-      cy.stub(this.module, 'dataAdapter')
+      var dataAdapter = {};
+      cy.stub(this.module, 'dataAdapter').returns(dataAdapter)
+
+      var Utils = this.select2.amd.require('select2/utils');
+      var Tags = this.select2.amd.require('select2/data/tags');
+      var decorate = cy.stub(Utils, 'Decorate').returns(dataAdapter)
+
       this.module.setupAutoComplete();
 
+      expect(decorate).to.be.calledWith(dataAdapter, Tags);
       expect(this.select2).to.be.called;
       expect(this.select2).to.be.calledWith({
         width: 'resolve',
@@ -78,10 +85,26 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
         },
         templateResult: this.module.templateResult,
         createTag: this.module.formatTerm,
-        dataAdapter: function () {}(),
-	      tokenSeparators: [','],
+        dataAdapter: dataAdapter,
+        tokenSeparators: [','],
         minimumInputLength: 0
       });
+    });
+
+    it('should not create new values if options.createtags is false', function () {
+      var dataAdapter = {};
+      cy.stub(this.module, 'dataAdapter').returns(dataAdapter)
+
+      var Utils = this.select2.amd.require('select2/utils');
+      var decorate = cy.spy(Utils, 'Decorate');
+
+      this.module.options.createtags = false;
+      this.module.setupAutoComplete();
+
+      var settings = this.select2.firstCall.args[0];
+      expect(decorate).not.to.be.called;
+      expect(settings.dataAdapter).to.equal(dataAdapter);
+      expect(settings.createTag({term: 'custom'})).to.be.undefined;
     });
 
     it('should initialize the autocomplete plugin with a multiple attribute if options.tags is true', function () {
@@ -114,6 +137,10 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
 
     it('should allow a custom css class to be added to the dropdown', function () {
       cy.stub(this.module, 'dataAdapter').returns({})
+
+      var Utils = this.select2.amd.require('select2/utils');
+      cy.stub(Utils, 'Decorate').returns({})
+
       this.module.options.dropdownClass = 'tags';
       this.module.setupAutoComplete();
 
@@ -137,6 +164,10 @@ describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function (
 
     it('should allow a custom css class to be added to the container', function () {
       cy.stub(this.module, 'dataAdapter').returns({})
+
+      var Utils = this.select2.amd.require('select2/utils');
+      cy.stub(Utils, 'Decorate').returns({})
+
       this.module.options.containerClass = 'tags';
       this.module.setupAutoComplete();
 

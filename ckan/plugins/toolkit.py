@@ -60,6 +60,7 @@ from ckan.lib.helpers import (
 from ckan.exceptions import (
     CkanVersionException,
     HelperError,
+    SiteUserNotFound,
 )
 from ckan.common import (
     CKANConfig,
@@ -86,6 +87,7 @@ from ckan.cli import error_shout
 
 from ckan.lib.mailer import mail_recipient, mail_user
 from ckan.model.base import BaseModel
+from ckan.model.user import User
 
 ObjectNotFound = NotFound
 
@@ -101,6 +103,7 @@ __all__ = [
     "NotAuthorized",
     "NotFound",
     "ObjectNotFound",
+    "SiteUserNotFound",
     "StopOnError",
     "UnknownValidator",
     "ValidationError",
@@ -135,6 +138,7 @@ __all__ = [
     "get_endpoint",
     "get_job_queue",
     "get_or_bust",
+    "get_site_user",
     "get_validator",
     "h",
     "job_from_id",
@@ -331,6 +335,26 @@ def get_endpoint() -> Union[tuple[str, str], tuple[None, None]]:
     # service routes, like `static`
     view = rest[0] if rest else "index"
     return blueprint, view
+
+
+def get_site_user() -> User:
+    """Return the site user.
+
+    The site user is a sysadmin, named after :ref:`ckan.site_id`, that CKAN
+    and extensions use to perform internal operations::
+
+        site_user = toolkit.get_site_user()
+        toolkit.get_action("package_patch")(
+            {"user": site_user.name}, {"id": pkg_id, "notes": "..."}
+        )
+
+    The site user is created by ``ckan db upgrade``.
+
+    :raises ckan.plugins.toolkit.SiteUserNotFound: if the site user does not
+        exist yet
+    :rtype: ckan.model.User
+    """
+    return User.get_site_user()
 
 
 # For some members in the the toolkit (e.g. that are exported from

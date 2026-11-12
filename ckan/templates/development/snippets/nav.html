@@ -1,4 +1,5 @@
-<section class="module module-narrow">
+<section class="module module-narrow module-shallow">
+  <div class="module-group">
   {% with items=(("First", true), ("Second", false), ("Third", true), ("Fourth", false), ("Last", false)) %}
     <h2 class="module-heading">{{ heading }}</h2>
     <nav>
@@ -11,4 +12,5 @@
       </ul>
     </nav>
   {% endwith %}
+  </div>
 </section>

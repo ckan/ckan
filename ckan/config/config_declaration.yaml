@@ -549,7 +549,7 @@ groups:
 
       - key: ckan.auth.user_create_organizations
         type: bool
-        default: true
+        default: false
         example: "false"
         description: Allow users to create organizations.
 
@@ -778,6 +778,12 @@ groups:
         description: |
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
+
+      - key: WTF_CSRF_META_NAME
+        flask: true
+        default: csrf-token
+        description: |
+          Value of the name attribute rendered by csrf_meta_tag().
 
   - annotation: Flask-Login Remember me cookie settings
     options:
@@ -1172,6 +1178,20 @@ groups:
           With this option, instead of using the default `css/main` asset with
           the theme, you can use your own.
 
+      - key: ckan.theme.enable_dark_mode
+        type: bool
+        default: true
+        example: false
+        description: |
+          Enables dark theme support for the default theme.
+
+          When enabled (the default), visitors can switch between light and dark
+          mode with the toggle button in the account masthead, and the initial
+          theme follows the browser's ``prefers-color-scheme`` setting.
+
+          When disabled, the toggle button is hidden and the automatic detection
+          is turned off, so the site is always rendered in light mode.
+
       - key: ckan.favicon
         default: /base/images/ckan.ico
         example: http://okfn.org/wp-content/themes/okfn-master-wordpress-theme/images/favicon.ico
@@ -1474,7 +1494,7 @@ groups:
           passes ``package_update``/``resource_update`` can modify files owned
           by the package/resource; anyone who passes
           ``package_delete``/``resource_delete`` can delete files owned by the
-          package/resoure.
+          package/resource.
 
           The type of owner by itself grants corresponding permission to all
           files uploaded into any storage. To allow operation only for specific
@@ -1605,6 +1625,15 @@ groups:
           serving the files directly with Flask. This will increase performance when serving the assets, but it
           requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
 
+      - key: ckan.webassets.debug
+        type: bool
+        default: false
+        example: true
+        description: |
+          When this setting is ``True``, webassets will not combine and minify
+          the assets, and will instead serve them as separate files. This may
+          be useful for debugging purposes, but it is not recommended for
+          production environments.
 
   - annotation: User Settings
     options:

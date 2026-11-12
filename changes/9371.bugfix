@@ -1,0 +1,1 @@
+Fix the R datastore API examples so the httr2 request pipelines are complete.

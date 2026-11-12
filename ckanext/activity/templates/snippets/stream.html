@@ -1,5 +1,5 @@
 {% macro actor(activity) %}
-  <span>
+  <span class="user">
     {{ h.linked_user(activity.user_id, 0, 30) }}
   </span>
 {% endmacro %}
@@ -21,7 +21,7 @@
 {% endmacro %}
 
 {% macro user(activity) %}
-<span>
+<span class="user">
   {{ h.linked_user(activity.object_id, 0, 20) }}
 </span>
 {% endmacro %}

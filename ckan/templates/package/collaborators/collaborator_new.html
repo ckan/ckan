@@ -5,15 +5,15 @@
 {% block subtitle %}{{ _('Edit Collaborator') if user else _('Add Collaborator') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  {% link_for _('Back to all collaborators'), named_route='dataset.collaborators_read', id=pkg_dict.name, class_='btn btn-secondary pull-right', icon='arrow-left' %}
-  <h1 class="page-heading">
+  {% link_for _('Back to all collaborators'), named_route='dataset.collaborators_read', id=pkg_dict.name, class_='btn btn-secondary mb-3', icon='arrow-left' %}
+  <h1 class="sr-only">
     {% block page_heading %}{{ _('Edit Collaborator') if user else _('Add Collaborator') }}{% endblock %}
   </h1>
   {% block form %}
   <form class="add-member-form" method='post'>
     {{ h.csrf_input() }}
     <div class="row">
-      <div class="col-md-5">
+      <div class="col">
         <div class="form-group control-medium">
           {% if not user %}
             <label class="form-label" for="username">

@@ -129,11 +129,23 @@ def user():
     return user
 
 
+@pytest.fixture
+def temp_dataset():
+    created = []
+    def dataset(**kwargs):
+        pkg = factories.Dataset(**kwargs)
+        created.append(pkg['id'])
+        return pkg
+
+    yield dataset
+
+    for id_ in created:
+        helpers.call_action("package_delete", id=id_)
+
+
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.ckan_config("package_edit_return_url", None)
-@pytest.mark.usefixtures(
-    "clean_db", "clean_index", "with_plugins"
-)
+@pytest.mark.usefixtures("with_plugins")
 class TestUrlsForCustomDatasetType(object):
     def test_dataset_create_redirects(self, app, user):
         name = "fancy-urls"
@@ -144,51 +156,54 @@ class TestUrlsForCustomDatasetType(object):
             headers=headers,
             follow_redirects=False,
         )
-        assert resp.location == url_for(
-            "fancy_type_resource.new", id=name, _external=True
-        )
+        try:
+            assert resp.location == url_for(
+                "fancy_type_resource.new", id=name, _external=True
+            )
 
-        res_form_url = url_for("fancy_type_resource.new", id=name)
-        resp = app.post(
-            res_form_url,
-            data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
-            follow_redirects=False,
-            headers=headers
-        )
-        assert resp.location == url_for(
-            "fancy_type.edit", id=name, _external=True
-        )
+            res_form_url = url_for("fancy_type_resource.new", id=name)
+            resp = app.post(
+                res_form_url,
+                data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
+                follow_redirects=False,
+                headers=headers
+            )
+            assert resp.location == url_for(
+                "fancy_type.edit", id=name, _external=True
+            )
 
-        resp = app.post(
-            res_form_url,
-            data={"id": "", "url": "", "save": "again", "_ckan_phase": 2},
-            follow_redirects=False,
-            headers=headers
-        )
+            resp = app.post(
+                res_form_url,
+                data={"id": "", "url": "", "save": "again", "_ckan_phase": 2},
+                follow_redirects=False,
+                headers=headers
+            )
 
-        assert resp.location == url_for(
-            "fancy_type_resource.new", id=name, _external=True
-        )
-        resp = app.post(
-            res_form_url,
-            data={
-                "id": "",
-                "url": "",
-                "save": "go-metadata",
-                "_ckan_phase": 2,
-            },
-            headers=headers,
-            follow_redirects=False,
-        )
+            assert resp.location == url_for(
+                "fancy_type_resource.new", id=name, _external=True
+            )
+            resp = app.post(
+                res_form_url,
+                data={
+                    "id": "",
+                    "url": "",
+                    "save": "go-metadata",
+                    "_ckan_phase": 2,
+                },
+                headers=headers,
+                follow_redirects=False,
+            )
 
-        assert resp.location == url_for(
-            "fancy_type.read", id=name, _external=True
-        )
+            assert resp.location == url_for(
+                "fancy_type.read", id=name, _external=True
+            )
+        finally:
+            helpers.call_action("package_delete", id=name)
 
-    def test_links_on_edit_pages(self, app):
+    def test_links_on_edit_pages(self, app, temp_dataset):
         user = factories.SysadminWithToken()
 
-        pkg = factories.Dataset(type="fancy_type", user=user)
+        pkg = temp_dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         response = app.get(
             url_for("fancy_type.edit", id=pkg["name"]),
@@ -197,10 +212,13 @@ class TestUrlsForCustomDatasetType(object):
         )
         page = bs4.BeautifulSoup(response.body)
         page_header = page.find(class_="page-header")
-        for action in ["edit", "resources", "read"]:
+        for action in ["edit", "resources"]:
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )
+        assert page.find(class_="content_action").find(
+            href=url_for("fancy_type.read", id=pkg["name"])
+        )
 
         assert page.find(id="dataset-edit").find(
             href=url_for("fancy_type.delete", id=pkg["id"],)
@@ -240,7 +258,7 @@ class TestUrlsForCustomDatasetType(object):
             ).body
         )
         page_header = page.find(class_="page-header")
-        for action in ["edit", "views", "read"]:
+        for action in ["edit", "views"]:
             assert page_header.find(
                 href=url_for(
                     "fancy_type_resource." + action,
@@ -248,6 +266,12 @@ class TestUrlsForCustomDatasetType(object):
                     resource_id=res["id"],
                 )
             )
+        assert page.find(class_="content_action").find(
+            href=url_for(
+                "fancy_type_resource.read",
+                id=pkg["name"], resource_id=res["id"],
+            )
+        )
 
         breadcrumbs = page.select_one(".breadcrumb")
         assert breadcrumbs.find(href=url_for("fancy_type.search"))
@@ -279,23 +303,26 @@ class TestUrlsForCustomDatasetType(object):
         )
 
     @mock.patch("flask_login.utils._get_user")
-    def test_links_on_read_pages(self, current_user, app):
+    def test_links_on_read_pages(self, current_user, app, temp_dataset):
         user = factories.User()
         user_obj = model.User.get(user["name"])
         # mock current_user
         current_user.return_value = user_obj
 
-        pkg = factories.Dataset(type="fancy_type", user=user)
+        pkg = temp_dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         page = bs4.BeautifulSoup(
             app.get(
                 url_for("fancy_type.read", id=pkg["name"])).body
         )
         page_header = page.find(class_="page-header")
-        for action in ["read", "groups", "edit"]:
+        for action in ["read", "groups"]:
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )
+        assert page.find(class_="content_action").find(
+            href=url_for("fancy_type.edit", id=pkg["name"])
+        )
         assert page.find(id="dataset-resources").find(
             href=url_for(
                 "fancy_type_resource.read",
@@ -555,7 +582,6 @@ class TestDatasetMultiTypes(object):
         page = bs4.BeautifulSoup(resp.body)
         assert page.body.header
 
-    @pytest.mark.usefixtures('clean_db')
     @pytest.mark.parametrize('type_', ['first', 'second'])
     def test_template_without_options(self, type_, app, user):
         headers = {"Authorization": user["token"]}
@@ -563,19 +589,20 @@ class TestDatasetMultiTypes(object):
             '/{}/new'.format(type_), headers=headers, status=200)
         assert resp.body == 'new package form'
 
-    @pytest.mark.usefixtures('clean_db')
     @pytest.mark.parametrize('type_', ['first', 'second'])
-    def test_template_with_options(self, type_, app):
-        dataset = factories.Dataset(type=type_)
+    def test_template_with_options(self, type_, app, temp_dataset):
+        dataset = temp_dataset(type=type_)
         url = url_for(type_ + '.read', id=dataset['name'])
         resp = app.get(url, status=200)
         assert resp.body == 'Hello, {}!'.format(type_)
+        helpers.call_action("package_delete", id=dataset['id'])
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_inherit")
 @pytest.mark.usefixtures("with_plugins")
-def test_validation_works_on_default_validate():
+def test_validation_works_on_default_validate(temp_dataset):
 
-    dataset = factories.Dataset(name="my_dataset", type="custom_dataset")
+    dataset = temp_dataset(name="my_dataset", type="custom_dataset")
 
     assert dataset["name"] == "my_dataset"
+    helpers.call_action("package_delete", id=dataset['id'])

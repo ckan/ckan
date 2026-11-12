@@ -1,0 +1,1 @@
+Use pkgutil namespaces instead of pkg_resource namespaces

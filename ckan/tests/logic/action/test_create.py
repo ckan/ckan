@@ -343,7 +343,7 @@ class TestCreateDefaultResourceViews(object):
         # Change default views config setting
         config["ckan.views.default_views"] = ["image_view"]
 
-        context = {"user": helpers.call_action("get_site_user")["name"]}
+        context = {"user": model.User.get_site_user().name}
         created_views = helpers.call_action(
             "package_create_default_resource_views",
             context,
@@ -368,7 +368,7 @@ class TestCreateDefaultResourceViews(object):
         # Change default views config setting
         config["ckan.views.default_views"] = ["image_view"]
 
-        context = {"user": helpers.call_action("get_site_user")["name"]}
+        context = {"user": model.User.get_site_user().name}
         created_views = helpers.call_action(
             "resource_create_default_resource_views",
             context,
@@ -393,7 +393,7 @@ class TestCreateDefaultResourceViews(object):
         # Change default views config setting
         config["ckan.views.default_views"] = ["image_view"]
 
-        context = {"user": helpers.call_action("get_site_user")["name"]}
+        context = {"user": model.User.get_site_user().name}
         created_views = helpers.call_action(
             "resource_create_default_resource_views",
             context,
@@ -1186,11 +1186,23 @@ class TestGroupCreate(object):
             "group_create", context=context, name=factories.Group.stub().name
         )
 
-        assert len(group["users"]) == 1
         assert group["display_name"] == group["name"]
         assert group["package_count"] == 0
         assert not group["is_organization"]
         assert group["type"] == "group"
+        group_users = helpers.call_action(
+            "group_show",
+            context=context,
+            id=group['id'],
+            include_users=True,
+        )
+        assert group_users["users"] == [{
+            "capacity": "admin",
+            **{
+                k:v for k,v in user.items()
+                if k not in ('apikey', 'email')
+            }
+        }]
 
     def test_create_group_validation_fail(self):
         user = factories.User()
@@ -1314,11 +1326,23 @@ class TestOrganizationCreate(object):
             name=factories.Organization.stub().name,
         )
 
-        assert len(org["users"]) == 1
         assert org["display_name"] == org["name"]
         assert org["package_count"] == 0
         assert org["is_organization"]
         assert org["type"] == "organization"
+        org_users = helpers.call_action(
+            "organization_show",
+            context=context,
+            id=org['id'],
+            include_users=True,
+        )
+        assert org_users["users"] == [{
+            "capacity": "admin",
+            **{
+                k:v for k,v in user.items()
+                if k not in ('apikey', 'email')
+            }
+        }]
 
     def test_create_organization_validation_fail(self):
         user = factories.User()
@@ -1378,7 +1402,6 @@ class TestOrganizationCreate(object):
             type=custom_org_type,
         )
 
-        assert len(org["users"]) == 1
         assert org["display_name"] == org["name"]
         assert org["package_count"] == 0
         assert org["is_organization"]
@@ -1735,6 +1758,28 @@ class TestFollowDataset(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_dataset", context, id=dataset["id"])
 
+    def test_cannot_follow_private_dataset_without_read_access(self):
+        owner = factories.User()
+        org = factories.Organization(user=owner)
+        dataset = factories.Dataset(
+            user=owner, owner_org=org["id"], private=True
+        )
+        user = factories.User()
+
+        context = {"user": user["name"], "ignore_auth": False}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action("follow_dataset", context, id=dataset["id"])
+
+    def test_can_follow_private_dataset_with_read_access(self):
+        owner = factories.User()
+        org = factories.Organization(user=owner)
+        dataset = factories.Dataset(
+            user=owner, owner_org=org["id"], private=True
+        )
+
+        context = {"user": owner["name"], "ignore_auth": False}
+        helpers.call_action("follow_dataset", context, id=dataset["id"])
+
     def test_follow_dataset(self):
         user = factories.User()
         dataset = factories.Dataset()
@@ -1939,6 +1984,54 @@ class TestApiToken(object):
         assert res.user_id == user[u"id"]
         assert res.last_access is None
         assert res.id == jti
+
+    def test_token_created_insert(self):
+        """
+        Sysadmins should be able to insert id, created_at, last_access
+        """
+        from ckan.lib.api_token import decode
+
+        # normal users cannot insert API Tokens
+        user = factories.User()
+        data = helpers.call_action(
+            'api_token_create',
+            context={'model': model, 'user': user['name'],
+                     'ignore_auth': False},
+            user=user['name'],
+            name='token-name-create',
+            id='thisisthetoken',
+            created_at='2025-09-12T19:06:35.989399',
+            last_access='2025-09-12T19:06:35.989399'
+        )
+        token = data['token']
+        jti = decode(token)['jti']
+        res = model.ApiToken.get(jti)
+        assert res.user_id == user['id']
+        assert res.last_access != datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.created_at != datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.id == jti
+        assert res.id != 'thisisthetoken'
+
+        # sysadmin users can insert API Tokens
+        user = factories.Sysadmin()
+        data = helpers.call_action(
+            'api_token_create',
+            context={'model': model, 'user': user['name'],
+                     'ignore_auth': False},
+            user=user['name'],
+            name='token-name-create',
+            id='thisisthetoken',
+            created_at='2025-09-12T19:06:35.989399',
+            last_access='2025-09-12T19:06:35.989399'
+        )
+        token = data['token']
+        jti = decode(token)['jti']
+        res = model.ApiToken.get(jti)
+        assert res.user_id == user['id']
+        assert res.last_access == datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.created_at == datetime.datetime.fromisoformat('2025-09-12T19:06:35.989399')
+        assert res.id == jti
+        assert res.id == 'thisisthetoken'
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -2428,6 +2521,29 @@ class TestTagCreate:
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate2:
+    @pytest.mark.usefixtures("clean_index")
+    def test_member_create_reindexes_package_groups(self):
+        group = factories.Group()
+        package = factories.Dataset()
+
+        def get_search_result_groups():
+            results = helpers.call_action(
+                "package_search", q=package["title"]
+            )["results"]
+            return [group["name"] for group in results[0]["groups"]]
+
+        assert get_search_result_groups() == []
+
+        helpers.call_action(
+            "member_create",
+            object=package["id"],
+            id=group["id"],
+            object_type="package",
+            capacity="public",
+        )
+
+        assert get_search_result_groups() == [group["name"]]
+
     def test_member_create_accepts_object_name_or_id(self):
         org = factories.Organization()
         package = factories.Dataset()

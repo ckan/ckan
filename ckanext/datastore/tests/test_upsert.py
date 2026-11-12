@@ -3,11 +3,13 @@
 from time import sleep
 
 import pytest
+import sqlalchemy as sa
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.plugins.toolkit import ValidationError, NotAuthorized, job_from_id
 from ckanext.datastore.tests.helpers import when_was_last_analyze
+import ckanext.datastore.backend.postgres as db
 
 
 def _search(resource_id):
@@ -493,19 +495,17 @@ class TestDatastoreUpsert(object):
             fields=[{u"id": u"spam", u"type": u"numeric"}],
             primary_key=u"spam",
         )
-        try:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action(
-                u"datastore_upsert",
+                "datastore_upsert",
                 resource_id=table["resource_id"],
-                records=[{u"spam": u"SPAM"}, {u"spam": u"EGGS"}],
+                records=[{"spam": 42}, {"spam": "SPAM"}, {"spam": 0}],
                 dry_run=True,
             )
-        except ValidationError as ve:
-            assert ve.error_dict["records"] == [
-                u'invalid input syntax for type numeric: "SPAM"'
-            ]
-        else:
-            assert 0, "error not raised"
+        assert exc.value.error_dict == {
+            "records": ['invalid input syntax for type numeric: "SPAM"'],
+            "records_row": 1,
+        }
 
     def test_dry_run_trigger_error(self):
         ds = factories.Dataset()
@@ -528,17 +528,17 @@ class TestDatastoreUpsert(object):
             primary_key=u"spam",
             triggers=[{u"function": u"spamexception_trigger"}],
         )
-        try:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action(
-                u"datastore_upsert",
+                "datastore_upsert",
                 resource_id=table["resource_id"],
-                records=[{u"spam": u"EGGS"}],
+                records=[{"spam": "spam"}, {"spam": "EGGS"}, {"spam", "spam"}],
                 dry_run=True,
             )
-        except ValidationError as ve:
-            assert ve.error_dict["records"] == [u'"EGGS"? Yeeeeccch!']
-        else:
-            assert 0, "error not raised"
+        assert exc.value.error_dict == {
+            "records": ['"EGGS"? Yeeeeccch!'],
+            "records_row": 1,
+        }
 
     def test_calculate_record_count_is_false(self):
         resource = factories.Resource()
@@ -717,9 +717,15 @@ class TestDatastoreUpsert(object):
                 {"id": "id", "type": "text"},
                 {"id": "movie", "type": "text"},
                 {"id": "directors", "type": "text"},
+                {"id": "metadata", "type": "json"},
             ],
             "force": True,
-            "records": [{"id": "1", "movie": "Cats", "director": "Tom Hooper"}]
+            "records": [{
+                "id": "1",
+                "movie": "Cats",
+                "director": "Tom Hooper",
+                "metadata": {"initial": True},
+            }]
         }
         helpers.call_action("datastore_create", **data)
 
@@ -728,7 +734,12 @@ class TestDatastoreUpsert(object):
             "force": True,
             "method": "upsert",
             "records": [
-                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"}
+                {
+                    "id": "1",
+                    "movie": "Cats the Musical",
+                    "director": "Tom Hooper",
+                    "metadata": {"updated": True},
+                }
             ],
             "include_records": True
         }
@@ -736,6 +747,7 @@ class TestDatastoreUpsert(object):
         assert 'records' in result
         for r in result['records']:
             assert '_id' in r
+            assert r['metadata'] == {"updated": True}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -866,11 +878,11 @@ class TestDatastoreInsert(object):
                 }
             ],
         }
-        with pytest.raises(ValidationError) as context:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action("datastore_upsert", **data)
-        assert u"duplicate key value violates unique constraint" in str(
-            context.value
-        )
+        assert "duplicate key value violates unique constraint" in str(
+            exc.value.error_dict['records'])
+        assert exc.value.error_dict['records_row'] == 0
 
     def test_empty_string_instead_of_null(self):
         resource = factories.Resource()
@@ -919,14 +931,16 @@ class TestDatastoreInsert(object):
             "force": True,
             "method": "insert",
             "records": [
-                {"num": "notanumber"}
+                {"num": 1}, {"num": 2}, {"num": "notanumber"}, {"num": 4},
             ],
         }
 
-        with pytest.raises(ValidationError) as context:
+        with pytest.raises(ValidationError) as exc:
             helpers.call_action("datastore_upsert", **data)
-        assert 'invalid input syntax for ' in str(context.value)
-        assert ' integer: "notanumber"' in str(context.value)
+        assert exc.value.error_dict == {
+            'records': ['invalid input syntax for type integer: "notanumber"'],
+            'records_row': 2,
+        }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1328,3 +1342,53 @@ class TestDatastoreUpdate(object):
         for r in result['records']:
             assert '_id' in r
             assert r['movie'] == 'Cats: The Making Of'
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+def test_upsert_schedules_record_count():
+    resource = factories.Resource(url_type="datastore")
+    data = {
+        "resource_id": resource["id"],
+        "fields": [{"id": "value", "type": "numeric"}],
+    }
+    jobid = f'{resource["id"]}_calculate-record-count'
+
+    helpers.call_action("datastore_create", **data)
+
+    # no records no job
+    with pytest.raises(KeyError):
+        job_from_id(jobid)
+
+    data = {
+        "resource_id": resource["id"],
+        "records": [
+            {"value": 1},
+            {"value": 2},
+            {"value": 3},
+            {"value": 4},
+            {"value": 5},
+            {"value": 6},
+            {"value": 7},
+        ],
+        "method": "insert",
+    }
+    helpers.call_action("datastore_upsert", **data)
+
+    assert job_from_id(jobid)
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert not list(stats)  # stats not calculated yet
+
+    job_from_id(jobid).perform()
+
+    with db.get_write_engine().connect() as conn:
+        stats = conn.execute(sa.text(
+            "select stats from _table_stats where resource_id=:resource_id"
+            ), {'resource_id': resource['id']}
+        )
+    assert list(stats) == [({"rows": 7},)]

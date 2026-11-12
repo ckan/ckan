@@ -86,7 +86,7 @@ jobs:
       # I went with `/tmp/.test_durations`.
       - name: Restore test durations
         id: restore-test-durations
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /tmp/.test_durations
           key: tests-durations-${{ github.sha }}
@@ -100,7 +100,7 @@ jobs:
       # retry the exact same tests, even if the cache has been updated in the meantime).
       - name: Upload test durations
         if: steps.restore-test-durations.outputs.cache-hit != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-durations-before
           path: /tmp/.test_durations
@@ -156,7 +156,7 @@ jobs:
         env:
           MATRIX_SPLIT: ${{ matrix.split }}
 
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1  # Fetch all history, including tags
           persist-credentials: false
@@ -165,7 +165,7 @@ jobs:
       # job is retried, it will reuse the same artifact, to execute the exact same split.
       - name: Download test durations
         if: needs.define-matrix.outputs.restored == 'true'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: test-durations-before
 
@@ -181,7 +181,7 @@ jobs:
           gunzip .test_durations.gz
 
       - name: Cache pip
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.PIP_CACHE_DIR }}
           key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
@@ -217,7 +217,7 @@ jobs:
           MATRIX_SPLIT: ${{ matrix.split }}
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.5.4
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ !cancelled() }}
         continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
         with:
@@ -236,7 +236,7 @@ jobs:
       # within one final file in the "Merge all partial test durations" step below.
       - name: Upload test durations
         if: github.run_attempt == 1
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-durations-after-partial-${{ matrix.split }}
           path: ./.test_durations
@@ -251,7 +251,7 @@ jobs:
           MATRIX_SPLIT: ${{ matrix.split }}
 
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: internal_coverage-${{ matrix.split }}
           path: coverage-${{ matrix.split }}
@@ -260,7 +260,7 @@ jobs:
           retention-days: 1
 
       - name: Store test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: internal_junit-results-${{ matrix.split }}
@@ -268,20 +268,20 @@ jobs:
           retention-days: 1
 
       - name: Test Summary (if Failure)
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: "./junit/result/*.xml"
         if: failure()
 
       - name: Test Summary Local copy (If Failure)
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: "./junit/result/*.xml"
           output: "./junit/result/test-summary.md"
         if: failure()
 
       - name: Store Test Summary results (If Failure)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: split-test-summary-${{ matrix.split }}.md
           path: "./junit/result/test-summary.md"
@@ -297,7 +297,7 @@ jobs:
     permissions: {}
     steps:
       - name: Download all partial test durations
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: test-durations-after-partial-*
 
@@ -314,7 +314,7 @@ jobs:
       # and use it to manually commit file gzip `.test_durations` from time to time,
       # to keep an up-to-date fallback:
       - name: Upload final test durations
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-durations-after
           path: /tmp/.test_durations
@@ -324,7 +324,7 @@ jobs:
       # Finally, we cache the new test durations. This file will be restored in next CI execution
       # (see step "Restore test durations" above).
       - name: Cache final test durations
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /tmp/.test_durations
           key: tests-durations-${{ github.sha }}
@@ -342,12 +342,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Cache pip
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.PIP_CACHE_DIR }}
           key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
@@ -359,14 +359,14 @@ jobs:
           pip install -r dev-requirements.txt
 
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: internal_coverage-*
           path: coverage-data
           merge-multiple: 'true'
 
       - name: Download all JUnit XML results
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: internal_junit-results-*
           merge-multiple: true
@@ -403,7 +403,7 @@ jobs:
           coverage report -m
 
       - name: Upload HTML coverage report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: combined-test-coverage-reports
           path: results

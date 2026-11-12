@@ -1,0 +1,8 @@
+The site user is no longer created on application startup. It is now created by
+``ckan db init`` and ``ckan db upgrade``, so run ``ckan db upgrade`` after
+upgrading to make sure it exists. Code that requests the site user before it has
+been created will raise an error instead of creating it on the fly.
+
+Extensions should replace ``get_action("get_site_user")(...)["name"]`` with
+``toolkit.get_site_user().name``. The new function returns a ``model.User``
+object instead of a dict.

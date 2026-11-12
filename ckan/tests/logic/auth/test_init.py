@@ -67,7 +67,7 @@ def test_get_group_object_id_none():
 class TestInit(object):
     def test_get_package_object_with_id(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = core_model.User.get_site_user().name
         dataset = helpers.call_action(
             "package_create",
             context={"user": user_name},
@@ -80,7 +80,7 @@ class TestInit(object):
 
     def test_get_resource_object_with_id(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = core_model.User.get_site_user().name
         dataset = helpers.call_action(
             "package_create",
             context={"user": user_name},
@@ -100,7 +100,7 @@ class TestInit(object):
 
     def test_get_user_object_with_id(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = core_model.User.get_site_user().name
         stub = factories.User.stub()
         user = helpers.call_action(
             "user_create",
@@ -116,7 +116,7 @@ class TestInit(object):
 
     def test_get_group_object_with_id(self):
 
-        user_name = helpers.call_action("get_site_user")["name"]
+        user_name = core_model.User.get_site_user().name
         group = helpers.call_action(
             "group_create",
             context={"user": user_name},

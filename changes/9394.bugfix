@@ -1,0 +1,1 @@
+Allow users to follow and unfollow groups and organizations when ``ckan.auth.public_user_details`` is disabled.

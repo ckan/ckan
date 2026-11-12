@@ -16,6 +16,7 @@ import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
 from ckan import authz, model
 from  ckan.lib.navl.dictization_functions import validate
+from ckan.lib.search import rebuild
 from ckan.model.follower import ModelFollowingModel
 
 from ckan.common import _
@@ -126,8 +127,6 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     :type id: string
 
     '''
-    from sqlalchemy import or_
-
     id = _get_or_bust(data_dict, 'id')
 
     pkg = model.Package.get(id)
@@ -140,19 +139,20 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     members = model.Session.query(model.Member) \
                    .filter(model.Member.table_id == pkg.id) \
                    .filter(model.Member.table_name == 'package')
-    if members.count() > 0:
-        for m in members.all():
-            m.purge()
+    for m in members.all():
+        m.purge()
+
+    model.Session.query(model.PackageMember).filter(
+        model.PackageMember.package_id == pkg.id).delete()
 
     for r in model.Session.query(model.PackageRelationship).filter(
-            or_(model.PackageRelationship.subject_package_id == pkg.id,
-                model.PackageRelationship.object_package_id == pkg.id)).all():
+            sqla.or_(
+                model.PackageRelationship.subject_package_id == pkg.id,
+                model.PackageRelationship.object_package_id == pkg.id,
+            )).all():
         r.purge()
 
-    pkg = model.Package.get(id)
-    assert pkg
-
-    ckan.logic.index_remove_package(id)
+    ckan.logic.index_remove_package(pkg.id)
 
     pkg.purge()
     model.repo.commit_and_remove()
@@ -316,6 +316,8 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
     if member:
         member.delete()
         model.repo.commit()
+        if isinstance(obj, model.Package):
+            rebuild(obj.id)
 
 
 def package_collaborator_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageCollaboratorDelete:

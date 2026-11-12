@@ -32,7 +32,7 @@ Examples:
 <div class="input-group">
     {% if prepend %}<label class="input-group-text">{{ prepend }}</label>{%- endif -%}
     <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
-    {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
 </div>
+{% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
 {% endcall %}
 {% endmacro %}

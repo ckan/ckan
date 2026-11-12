@@ -229,7 +229,6 @@
         return options && options.objects === true ? {id: id, text: text} : id;
       });
     },
-
   });
 
   ckan.sandbox.setup(function (instance) {

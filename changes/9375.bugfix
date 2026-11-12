@@ -1,0 +1,1 @@
+Return a 404 response instead of a 500 error when opening a resource edit page for a dataset that does not exist.

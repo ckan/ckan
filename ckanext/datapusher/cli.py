@@ -82,9 +82,7 @@ def submit(package: str, yes: bool):
 
 def _submit(resources: list[str]):
     click.echo(u'Submitting {} datastore resources'.format(len(resources)))
-    user = tk.get_action(u'get_site_user')({
-        'ignore_auth': True
-    }, {})
+    user = tk.get_site_user()
     datapusher_submit = tk.get_action(u'datapusher_submit')
     for id in resources:
         click.echo(u'Submitting {}...'.format(id), nl=False)
@@ -92,7 +90,7 @@ def _submit(resources: list[str]):
             u'resource_id': id,
             u'ignore_hash': True,
         }
-        if datapusher_submit({u'user': user[u'name']}, data_dict):
+        if datapusher_submit({u'user': user.name}, data_dict):
             click.echo(u'OK')
         else:
             click.echo(u'Fail')

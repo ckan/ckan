@@ -1,15 +1,26 @@
-<section class="module module-narrow">
+<section class="module module-narrow module-shallow accordion">
+  <div class="accordion-item">
   {% with items=(("First", true), ("Second", false), ("Third", true), ("Fourth", false), ("Last", false)) %}
-    <h2 class="module-heading"><i class="fa fa-filter"></i>  Facet List</h2>
-    <nav>
+    <h2 class="accordion-header">
+      <button class="module-heading accordion-button"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#primer-facet"
+        >
+        <i class="filter-svg fa-solid fa-filter"></i>
+        {{ _('Facet List') }}
+      </button>
+    </h2>
+    <nav id="primer-facet" class="accordion-collapse show">
       <ul class="list-unstyled nav nav-simple nav-facet">
         {% for value, active in items %}
           <li class="nav-item{{ ' active' if active }}"><a href="#">{{ value }}</a></li>
         {% endfor %}
       </ul>
+      <p class="module-footer">
+        <a href="#" class="read-more">{{ _('Read More') }}</a>
+      </p>
     </nav>
-    <p class="module-footer">
-      <a href="#" class="read-more">Read More</a>
-    </p>
   {% endwith %}
+  </div>
 </section>

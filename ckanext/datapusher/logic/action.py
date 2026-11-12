@@ -125,7 +125,7 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     context['ignore_auth'] = True
     # Use local session for task_status_update, so it can commit its own
     # results without messing up with the parent session that contains pending
-    # updats of dataset/resource/etc.
+    # updates of dataset/resource/etc.
     context.update({
         'session': context['model'].meta.create_local_session()  # type: ignore
     })
@@ -155,6 +155,16 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
                     'original_url': resource_dict.get('url'),
                 }
             }))
+    except requests.exceptions.Timeout as e:
+        error: dict[str, Any] = {
+            'message': 'DataPusher request timed out.',
+            'details': str(e),
+        }
+        task['error'] = json.dumps(error)
+        task['state'] = 'error'
+        task['last_updated'] = str(datetime.datetime.utcnow()),
+        p.toolkit.get_action('task_status_update')(context, task)
+        raise p.toolkit.ValidationError(error)
     except requests.exceptions.ConnectionError as e:
         error: dict[str, Any] = {'message': 'Could not connect to DataPusher.',
                                  'details': str(e)}

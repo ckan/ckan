@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import os
 from typing import Any
 import pytest
 from faker import Faker
@@ -31,6 +33,30 @@ class TestDownload:
         assert resp.data == content
 
 
+    def test_download_fs(
+        self,
+        faker: Faker,
+        file_factory: types.TestFactory,
+        app: types.FixtureApp,
+        tmpdir: Any,
+        reset_storages: types.FixtureResetStorages,
+        ckan_config: types.FixtureCkanConfig,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        """Test downloaded file has correct name."""
+        name = ckan_config["ckan.files.default_storages.default"]
+        monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.type", "ckan:fs")
+        monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.path", str(tmpdir))
+        monkeypatch.setitem(ckan_config, f"ckan.files.storage.{name}.location_transformers", ["uuid4"])
+        reset_storages()
+
+        file = file_factory()
+
+        app.set_session_user(file["owner_id"])
+        resp = app.get(f"/file/download/{file['id']}")
+        assert file["name"] in resp.headers["content-disposition"]
+
+
 class TestPublicDownload:
     @pytest.mark.ckan_config(
         "ckan.files.storage.non_public_storage.type", "ckan:memory"
@@ -47,6 +73,7 @@ class TestPublicDownload:
         assert resp.status_code == 403
 
     @pytest.mark.ckan_config("ckan.files.storage.public_storage.type", "ckan:memory")
+    @pytest.mark.ckan_config("ckan.files.storage.public_storage.path", "public_storage")
     @pytest.mark.ckan_config("ckan.files.storage.public_storage.public", True)
     def test_public_download_from_public_storage(
         self, file_factory: types.TestFactory, app: types.FixtureApp, faker: Faker
@@ -59,6 +86,33 @@ class TestPublicDownload:
 
         assert resp.status_code == 200
         assert resp.data == content
+
+    def test_public_download_path_traversal(
+            self, file_factory: types.TestFactory, app: types.FixtureApp, faker: Faker,
+            ckan_config: types.FixtureCkanConfig,
+            reset_storages: types.FixtureResetStorages,
+            tmpdir: Any,
+            monkeypatch: pytest.MonkeyPatch,
+    ):
+        """Test that path traversal attempts are blocked when downloading from public storage."""
+        base_path = str(tmpdir)
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.type", "ckan:fs")
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.initialize", True)
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.public", True)
+        monkeypatch.setitem(ckan_config, "ckan.files.storage.public.path", os.path.join(base_path, "folder"))
+        reset_storages()
+
+        with open(os.path.join(base_path, "parent.txt"), "w") as dest:
+            dest.write("test")
+        resp = app.get("/file/public-download/public/../parent.txt")
+        assert resp.status_code == 404
+
+        os.mkdir(os.path.join(base_path, "folder_evil"))
+        with open(os.path.join(base_path, "folder_evil/sibling.txt"), "w") as dest:
+            dest.write("test")
+        resp = app.get("/file/public-download/public/../folder_evil/sibling.txt")
+        assert resp.status_code == 404
+
 
 
 class TestTrustedDownload:

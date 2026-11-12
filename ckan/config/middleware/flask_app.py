@@ -27,7 +27,7 @@ from werkzeug.exceptions import (
 from flask_babel import Babel
 
 from flask_login import LoginManager
-from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf, csrf_meta_tag
 from ckan.common import current_user, config_declaration
 
 import ckan.model as model
@@ -97,11 +97,15 @@ class CSRFProtectPerRequest(CSRFProtect):
         )
         app.config.setdefault("WTF_CSRF_FIELD_NAME", "csrf_token")
         app.config.setdefault("WTF_CSRF_HEADERS", ["X-CSRFToken", "X-CSRF-Token"])
+        app.config.setdefault("WTF_CSRF_META_NAME", "csrf-token")
         app.config.setdefault("WTF_CSRF_TIME_LIMIT", 3600)
         app.config.setdefault("WTF_CSRF_SSL_STRICT", True)
 
         app.jinja_env.globals["csrf_token"] = generate_csrf
-        app.context_processor(lambda: {"csrf_token": generate_csrf})
+        app.context_processor(lambda: {
+            "csrf_token": generate_csrf,
+            "csrf_meta_tag": csrf_meta_tag,
+        })
 
         @app.before_request
         def csrf_protect(): # type: ignore
@@ -510,9 +514,10 @@ def ckan_before_request() -> Optional[Response]:
         # Get the actual view function, as it might not match the endpoint,
         # eg "organization.edit" -> "group.edit", or custom dataset types
         endpoint = request.endpoint or ""
-        view = current_app.view_functions.get(endpoint)
-        if view:
-            csrf.exempt_this_request()
+        if endpoint not in {"user.login", "user.register"}:
+            view = current_app.view_functions.get(endpoint)
+            if view:
+                csrf.exempt_this_request()
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")

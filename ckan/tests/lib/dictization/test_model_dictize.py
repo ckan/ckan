@@ -18,6 +18,7 @@ from ckan.lib.navl.dictization_functions import validate
 from ckan.lib.dictization import model_dictize, model_save
 from ckan.lib.dictization.model_dictize import package_dictize, group_dictize
 from ckan.tests import factories
+from ckan.tests import helpers
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -120,6 +121,21 @@ class TestGroupListDictize:
         assert child_dict["name"] == child["name"]
         assert parent_dict["groups"] == []
         assert child_dict["groups"][0]["name"] == parent["name"]
+
+
+@pytest.fixture
+def dataset_factory_cleanup():
+    created = []
+
+    def create_dataset(*args, **kwargs):
+        dataset = factories.Dataset(*args, **kwargs)
+        created.append(dataset["id"])
+        return dataset
+
+    yield create_dataset
+
+    for dataset_id in created:
+        helpers.call_action("dataset_purge", context={"ignore_auth": True}, id=dataset_id)
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -281,13 +297,13 @@ class TestGroupDictize:
         assert len(org["packages"]) == 1
         assert org["packages"][0]["name"] == package["name"]
 
-    def test_group_dictize_for_org_with_package_count(self):
+    def test_group_dictize_for_org_with_package_count(self, dataset_factory_cleanup):
         # group_list_dictize calls it like this by default
         org_obj = factories.Organization.model()
         other_org_ = factories.Organization()
         factories.Dataset(owner_org=org_obj.id)
         # only actual datasets should be returned
-        factories.Dataset(owner_org=org_obj.id, type="not_dataset")
+        dataset_factory_cleanup(owner_org=org_obj.id, type="not_dataset")
         factories.Dataset(owner_org=other_org_["id"])
         context = {
             "model": model,

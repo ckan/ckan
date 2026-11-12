@@ -86,8 +86,8 @@ def users(force: bool):
     if not force:
         click.confirm("Permanently delete users and their images?", abort=True)
 
-    site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
-    context: Context = {"user": site_user["name"]}
+    site_user = model.User.get_site_user()
+    context = Context(user=site_user.name)
 
     for user in invalid:
         upload = get_uploader("user", old_filename=user.image_url)

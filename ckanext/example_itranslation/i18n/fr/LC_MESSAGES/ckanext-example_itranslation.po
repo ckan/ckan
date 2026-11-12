@@ -17,5 +17,5 @@ msgstr ""
 msgid "This is an untranslated string"
 msgstr "This is a itranslated string"
 
-msgid "Log in"
+msgid "Welcome"
 msgstr "Overwritten string in ckan.mo"

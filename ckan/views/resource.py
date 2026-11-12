@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import json
 import logging
 from typing import Any, Optional, Union
-
-from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -177,11 +174,15 @@ def download(package_type: str,
             if mimetype:
                 overrides["content_type"] = mimetype
             location = files.Location(filepath)
-            file_data = files.FileData(
-                location,
-                size=storage.size(location),
-                **overrides,
-            )
+            try:
+                file_data = files.FileData(
+                    location,
+                    size=storage.size(location),
+                    **overrides,
+                )
+            except files.exc.LocationError:
+                return base.abort(404, _('No download is available'))
+
             if isinstance(storage, files.Storage):
                 resp = storage.as_response(file_data, filename)
             else:
@@ -229,9 +230,9 @@ class CreateView(MethodView):
         # see if we have any data that we are trying to save
         data_provided = False
         for key, value in data.items():
-            if (
-                    (value or isinstance(value, FlaskFileStorage))
-                    and key != u'resource_type'):
+            # in case of empty upload, value will be set to FileStorage without
+            # `filename` attribute, which evaluates to False in boolean context
+            if value and key != "resource_type":
                 data_provided = True
                 break
 
@@ -386,6 +387,8 @@ class EditView(MethodView):
                 403,
                 _(u'User %r not authorized to edit %s') % (user, id)
             )
+        except NotFound:
+            return base.abort(404, _(u'Dataset not found'))
         return context
 
     def post(self, package_type: str, id: str,
@@ -429,7 +432,10 @@ class EditView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
         context = self._prepare(id)
-        pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        try:
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        except NotFound:
+            return base.abort(404, _(u'Dataset not found'))
 
         try:
             resource_dict = get_action(u'resource_show')(
@@ -628,12 +634,7 @@ def view(package_type: str,
         return base.abort(404, _(u'Resource not found'))
 
     view = None
-    if request.args.get(u'resource_view', u''):
-        try:
-            view = json.loads(request.args.get(u'resource_view', u''))
-        except ValueError:
-            return base.abort(409, _(u'Bad resource view data'))
-    elif view_id:
+    if view_id:
         try:
             view = get_action(u'resource_view_show')(context, {u'id': view_id})
         except (NotFound, NotAuthorized):

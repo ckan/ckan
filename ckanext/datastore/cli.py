@@ -11,6 +11,7 @@ import sqlalchemy as sa
 from ckan.model import parse_db_config
 from ckan.common import config
 import ckan.logic as logic
+import ckan.plugins.toolkit as tk
 
 import ckanext.datastore as datastore_module
 from ckanext.datastore.backend import get_all_resources_ids_in_datastore
@@ -91,7 +92,7 @@ def permissions_sql(maindb: str, datastoredb: str, mainuser: str,
 @click.argument(
     u'output-file',
     type=click.File(u'wb'),
-    default=click.get_binary_stream(u'stdout')
+    default=click.get_binary_stream(u'stdout')  # type: ignore
 )
 @click.option(u'--format', default=u'csv', type=click.Choice(DUMP_FORMATS))
 @click.option(u'--offset', type=click.IntRange(0, None), default=0)
@@ -103,8 +104,7 @@ def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
     u'''Dump a datastore resource.
     '''
     flask_app = ctx.meta['flask_app']
-    user = logic.get_action('get_site_user')(
-            {'ignore_auth': True}, {})
+    user = tk.get_site_user()
     with flask_app.test_request_context():
         for block in dump_to(resource_id,
                              fmt=format,
@@ -113,7 +113,7 @@ def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
                              options={u'bom': bom},
                              sort=u'_id',
                              search_params={},
-                             user=user['name']):
+                             user=user.name):
             output_file.write(block)
 
 
@@ -137,13 +137,13 @@ def purge():
     '''Purge orphaned resources from the datastore using the datastore_delete
     action, which drops tables when called without filters.'''
 
-    site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+    site_user = tk.get_site_user()
 
     resource_id_list = []
     for resid in get_all_resources_ids_in_datastore():
         try:
             logic.get_action('resource_show')(
-                {'user': site_user['name']},
+                {'user': site_user.name},
                 {'id': resid}
             )
         except logic.NotFound:
@@ -166,7 +166,7 @@ def purge():
     drop_count = 0
     for resource_id in resource_id_list:
         logic.get_action('datastore_delete')(
-            {'user': site_user['name']},
+            {'user': site_user.name},
             {'resource_id': resource_id, 'force': True}
         )
         click.echo("Table '%s' dropped)" % resource_id)
@@ -235,13 +235,13 @@ def fts_index(timeout: float):
     '''Use to create or remove full-text search indexes after changing
     the ckan.datastore.default_fts_index_field_types setting.
     '''
-    site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+    site_user = tk.get_site_user()
     resource_ids = get_all_resources_ids_in_datastore()
 
     for i, resid in enumerate(get_all_resources_ids_in_datastore(), 1):
         print(f'\r{resid} [{i}/{len(resource_ids)}] ...', end='')
         logic.get_action('datastore_create')(
-            {'user': site_user['name'],
+            {'user': site_user.name,
              'query_timeout': int(timeout * 1000)},  # type: ignore
             {'resource_id': resid, 'force': True}
         )

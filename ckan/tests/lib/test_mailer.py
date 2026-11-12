@@ -230,6 +230,23 @@ class TestMailer(MailerBase):
         assert expected_body in msg[3]
 
     @pytest.mark.usefixtures("with_request_context")
+    def test_emails_keep_their_paragraph_breaks(self):
+        user = factories.User()
+        user_obj = model.User.by_name(user["name"])
+
+        for name, body in [
+            ("invite", mailer.get_invite_body(user_obj)),
+            ("reset link", mailer.get_reset_link_body(user_obj)),
+        ]:
+            assert "\n\n" in body, (
+                f"the {name} email lost its paragraph breaks: {body!r}"
+            )
+            assert len(body.splitlines()) > 5, (
+                f"the {name} email collapsed into {len(body.splitlines())} "
+                f"line(s): {body!r}"
+            )
+
+    @pytest.mark.usefixtures("with_request_context")
     def test_send_invite_email(self, mail_server):
         user = factories.User()
         user_obj = model.User.by_name(user["name"])

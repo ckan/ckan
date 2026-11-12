@@ -5,7 +5,7 @@
 {# remove any scripts #}
 {% block scripts %}
   <script>
-    var preload_resource = {{ h.literal(h.dump_json(resource)) }};
+    var preload_resource = {{ resource | tojson }};
   </script>
 {% endblock %}
 
