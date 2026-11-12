@@ -19,8 +19,7 @@ this.ckan.module('datatables_view', function($){
       ajaxUrl: null,
       ckanFilters: null,
       responsiveFlag: false,
-      showSummaryRow: false,
-      showHistograms: false,
+      renderImages: false,
       pageLengthChoices: [20, 50, 100, 500, 1000],
       resourceUrl: null,
       dataDictionary: null,
@@ -77,25 +76,6 @@ function _download_filtered_file(_params, _format) {
   f.remove();
 }
 
-function _linkify(_data){
-  const linksFound = _data.match(/(\b(https?)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig);
-  let links = [];
-  let output;
-  if( linksFound != null ){
-    if( linksFound.length === 1 && _data.match(/\.(jpeg|jpg|gif|png|svg|apng|webp|avif)$/i) ){
-      // the whole text is just one link and its a picture, create a thumbnail
-      output = '<div class="dt-thumbnail"><a href="' + linksFound[0] + '" target="_blank"><img alt="" src="' + linksFound[0] + '"></a></div>';
-      return {text: output, links: linksFound};
-    }
-    for( let i = 0; i < linksFound.length; i++ ){
-      links.push('<a href="' + linksFound[i] + '" target="_blank">' + linksFound[i] + '</a>');
-      output = _data.split(linksFound[i]).map(function(item){return item}).join(links[i]);
-    }
-    return {text: output, links: linksFound};
-  }
-  return {text: _data, links: []};
-}
-
 function load_datatable(CKAN_MODULE){
   const _ = CKAN_MODULE._;
   const hasEllipsisExpandFeat = false;  // TODO: make JS expand/hide remaining content for ellipses...
@@ -119,8 +99,7 @@ function load_datatable(CKAN_MODULE){
   const ajaxURI = CKAN_MODULE.options.ajaxUrl;
   const ckanFilters = CKAN_MODULE.options.ckanFilters;
   const defaultCompactView = CKAN_MODULE.options.responsiveFlag;
-  const showSummaryRow = CKAN_MODULE.options.showSummaryRow;
-  const showHistograms = CKAN_MODULE.options.showHistograms;
+  const renderImages = CKAN_MODULE.options.renderImages;
   const pageLengthChoices = CKAN_MODULE.options.pageLengthChoices;
   const resourceURI = CKAN_MODULE.options.resourceUrl;
   const dataDictionary = CKAN_MODULE.options.dataDictionary;
@@ -149,7 +128,13 @@ function load_datatable(CKAN_MODULE){
       share: _('Share current view'),
     },
     renderers: {
-      less: _('less'),
+      ellipses: {
+        less: _('less'),
+      },
+      bool: {
+        true: _('TRUE'),
+        false: _('FALSE'),
+      },
     },
     info: {
       column: {
@@ -199,18 +184,17 @@ function load_datatable(CKAN_MODULE){
       if( ! Array.isArray(_data) ){
         _data = _data.toString().split(',');  // split to Array if not already
       }
-      let displayList = '<ul class="text-left">';
+      let displayList = $('<ul>', {class: 'text-left'});
       _data.forEach(function(_val, _i, _arr){
-        displayList += '<li>' + _val + '</li>';
+        displayList.append($('<li>').text(_val));
       });
-      displayList += '</ul>';
       return displayList;
     },
     'bool': function(_data, _type, _row, _meta, _dictionary_field){
       /**
        * Our custom Cell renderer for boolean type cells in the table.
        */
-      return 'TRUE' ? _data === true : 'FALSE';
+      return _data === true ? TABLE_LANGUAGE.renderers.bool.true : TABLE_LANGUAGE.renderers.bool.false;
     },
     'number': function(_data, _type, _row, _meta, _dictionary_field){
       /**
@@ -218,7 +202,9 @@ function load_datatable(CKAN_MODULE){
        */
       // TODO: add number format configs/options ??
       // number(THOUSAND, DECIMAL, PRECISION, PREFIX, POSTFIX)
-      return DataTable.render.number(null, null, 2, null, null).display(_data, _type, _row);
+      const decimalMatch = String(_data).match(/\.(\d+)/);
+      const precisionPoint = decimalMatch ? decimalMatch[1].length : null;
+      return DataTable.render.number(null, null, precisionPoint, null, null).display(_data, _type, _row);
     },
     'date': function(_data, _type, _row, _meta, _dictionary_field){
       /**
@@ -358,7 +344,46 @@ function load_datatable(CKAN_MODULE){
         return col.sName
       }
     }, 1)
-  })
+  });
+
+  function http_and_img_linkify(_data){
+    /**
+     * Finds all possible http|https links inside of the text,
+     * verifies that they are valid URLs, and replaces the link strings
+     * with anchor node elements.
+     *
+     * If the view has render_images, and there is just the one image link,
+     * then render the image as an img node element.
+     */
+    const linksFound = _data.match(/\bhttps?:\/\/[^\s<>"']+/gi) || [];
+    const urls = linksFound.filter(value => {
+      try{
+        const url = new URL(value);
+        return ['http:', 'https:'].includes(url.protocol);
+      }catch{
+        return false;
+      }
+    });
+    if( linksFound.length == 0 ){
+      return {text: _data, links: []};
+    }
+    let linkDisplays = [];
+    let output;
+    if( renderImages && linksFound.length === 1 && _data.match(/\.(jpeg|jpg|gif|png|svg|apng|webp|avif)$/i) ){
+      // the whole text is just one link and its a picture, create a thumbnail
+      output = $('<div>', {class: 'dt-thumbnail'}).append($('<a>', {href: linksFound[0],
+                                                                    target: '_blank'}).append(
+                                                                      '<img>', {alt: '',
+                                                                                src: linksFound[0]}));
+      return {text: output, links: linksFound};
+    }
+    for( let i = 0; i < linksFound.length; i++ ){
+      linkDisplays.push($('<a>', {href: linksFound[i],
+                                  target: '_blank'}).text(linksFound[i]));
+      output = _data.split(linksFound[i]).map(function(_item){return _item}).join(linkDisplays[i]);
+    }
+    return {text: output, links: linksFound};
+  }
 
   DataTable.render.ellipsis = function(_cutoff, _rowIndex, _datatoreID){
     /**
@@ -369,8 +394,9 @@ function load_datatable(CKAN_MODULE){
      */
     return function(_data, _type, _row, _meta){
       if( _type == 'display' ){
-        let str = _data.toString();
-        let linkifiedData = _linkify(str);
+        const columnIndex = _meta.col;
+        let dataStr = _data.toString();
+        let linkifiedData = http_and_img_linkify(dataStr);
         let strippedData = linkifiedData.text.replace(/(<([^>]+)>)/gi, '');
         if( strippedData.length <= _cutoff ){
           return linkifiedData.text;
@@ -385,7 +411,7 @@ function load_datatable(CKAN_MODULE){
           let addLen = 0;
           // check if truncation point is in the middle of a link
           for( const aLink of linkifiedData.links ){
-            linkpos = str.indexOf(aLink);
+            linkpos = dataStr.indexOf(aLink);
             if( linkpos + aLink.length >= _cutoff ){
               // truncation point is in the middle of a link, truncate to where the link started
               break
@@ -400,19 +426,40 @@ function load_datatable(CKAN_MODULE){
             remaining = linkifiedData.text.substr(lastpos + addLen).trimEnd();
           }
         }else{
-          preview = str.substr(0, _cutoff - 1);
+          preview = dataStr.substr(0, _cutoff - 1);
           if( hasEllipsisExpandFeat ){  // TODO: make JS expand/hide remaining content for ellipses...
-            remaining = str.substr(_cutoff - 1);
+            remaining = dataStr.substr(_cutoff - 1);
           }
         }
-        let _elementID = 'datatableReadMore_' + _rowIndex + '_' + _datatoreID;
-        let expander = '<span>&#8230;</span>';
+        const _elementID = 'datatableReadMore_' + _rowIndex + '_' + columnIndex + '_' + String(_datatoreID).replace(/[^a-zA-Z0-9_-]/g, '_');
+        let expander = $('<span>').text('&#8230;');
         if( hasEllipsisExpandFeat ){  // TODO: make JS expand/hide remaining content for ellipses...
-          expander = '<a class="datatable-readmore-expander" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="false" aria-controls="' + _elementID + '">&#8230;</a>';
+          expander = $('<a>', {class: 'datatable-readmore-expander',
+                               href: 'javascript:void(0);',
+                               'data-toggle': 'collapse',
+                               'data-bs-toggle': 'collapse',
+                               'aria-expanded': 'false',
+                               'aria-controls': _elementID}).text('&#8230;');
         }
-        preview += expander;
         // TODO: make JS expand/hide remaining content for ellipses...
-        return hasEllipsisExpandFeat ? '<div class="datatable-readmore"><span>' + preview + '</span><span class="collapse" id="' + _elementID + '">' + remaining + '<a class="datatable-readmore-minimizer" href="javascript:void(0);" data-toggle="collapse" data-bs-toggle="collapse" aria-expanded="true" aria-controls="' + _elementID + '"><small>[' + TABLE_LANGUAGE.renderers.less + ']</small></a><span></div>' : '<div class="datatable-readmore"><span>' + preview + '</span></div>';
+        if( ! hasEllipsisExpandFeat ){
+          return $('<div>', {class: 'datatable-readmore'}).append(
+                    $('<span>').text(preview)
+                               .append(expander));
+        }
+        return $('<div>', {class: 'datatable-readmore'}).append(
+                  $('<span>').text(preview).append(expander)
+                ).append(
+                  $('<span>', {class: 'collapse',
+                               id: _elementID}).text(remaining).append(
+                    $('<a>', {class: 'datatable-readmore-minimizer',
+                              href: 'javascript:void(0);',
+                              'data-toggle': 'collapse',
+                              'data-bs-toggle': 'collapse',
+                              'aria-expanded': 'true',
+                              'aria-controls': _elementID}).append(
+                                $('<small>').text('[' + TABLE_LANGUAGE.renderers.ellipses.less + ']')
+                              )));
       }
       return _data;
     };
@@ -662,17 +709,21 @@ function load_datatable(CKAN_MODULE){
            */
           // FIXME: should this info just be in messageBottom??
           //        people might just want th data rigth at the top?
-          let printInfo = '<div>';
-          printInfo += countDisplay + sortDisplay;
-          printInfo += '<span><a href="' + resourceURI + '">' + packageName + ' — ' + resourceName + '</a></span><br/>';
-          printInfo += '<span>' + TABLE_LANGUAGE.print.dataUpdated + ' ' + dataUpdatedDate + '</span><br/>';
-          printInfo += '<span>' + TABLE_LANGUAGE.print.metadataUpdated + ' ' + metadataUpdatedDate + '</span><br/>';
-          printInfo += '<span>' + TABLE_LANGUAGE.print.created + ' ' + createdDate + '</span><br/>';
-          printInfo += '<span>' + TABLE_LANGUAGE.print.format + ' ' + resourceFormat + '</span><br/>';
-          let filesize = resourceFileSizeHumanized ? resourceFileSizeHumanized : resourceFileSize + ' bytes';
-          printInfo += '<span>' + TABLE_LANGUAGE.print.fileSize + ' ' + filesize + '</span><br/>';
-          printInfo += '</div>';
-          return printInfo;
+          const filesize = resourceFileSizeHumanized ? resourceFileSizeHumanized : resourceFileSize + ' bytes';
+          return $('<div>').append(countDisplay)
+                           .append(sortDisplay)
+                           .append($('<span>').append($('<a>', {href: resourceURI}).text(packageName + ' — ' + resourceName)))
+                           .append($('<br>'))
+                           .append($('<span>').text(TABLE_LANGUAGE.print.dataUpdated + ' ' + dataUpdatedDate))
+                           .append($('<br>'))
+                           .append($('<span>').text(TABLE_LANGUAGE.print.metadataUpdated + ' ' + metadataUpdatedDate))
+                           .append($('<br>'))
+                           .append($('<span>').text(TABLE_LANGUAGE.print.created + ' ' + createdDate))
+                           .append($('<br>'))
+                           .append($('<span>').text(TABLE_LANGUAGE.print.format + ' ' + resourceFormat))
+                           .append($('<br>'))
+                           .append($('<span>').text(TABLE_LANGUAGE.print.fileSize + ' ' + filesize))
+                           .append($('<br>'));
         },
         messageBottom: function(){
           /**
@@ -681,7 +732,8 @@ function load_datatable(CKAN_MODULE){
            * Only output info for the visible columns
            */
           let visibleColNames = _get_visible_col_ids();
-          let printDictionary = '<div><h2>' + TABLE_LANGUAGE.print.dataDictionary + '</h2><ol>';
+          let printDictionary = $('<div>').append('<h2>').text('TABLE_LANGUAGE.print.dataDictionary');
+          let printDictionaryList = $('<ol>');
           for( let _i = 0; _i < dataDictionary.length; _i++ ){
             if( ! visibleColNames.includes(dataDictionary[_i]['id']) ){
               continue;
@@ -690,18 +742,25 @@ function load_datatable(CKAN_MODULE){
             if( colLabel == null ){
               colLabel = dataDictionary[_i]['id'];
             }
-            printDictionary += '<li><span>' + colLabel + '</span>';
+            let printDictionaryListItem = $('<li>');
+            printDictionaryListItem.append($('<span>').text(colLabel))
             if( colLabel != dataDictionary[_i]['id'] ){
-              printDictionary += '<br/><strong>' + TABLE_LANGUAGE.print.id + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['id'] + '</span>';
+              printDictionaryListItem.append($('<br>'))
+                                     .append($('<strong>').text(TABLE_LANGUAGE.print.id))
+                                     .append($('<span>').text('&nbsp;&nbsp;&nbsp;' + dataDictionary[_i]['id']));
             }
-            printDictionary += '<br/><strong>' + TABLE_LANGUAGE.print.type + '</strong>&nbsp;&nbsp;&nbsp;<span>' + dataDictionary[_i]['type'] + '</span>';
+            printDictionaryListItem.append($('<br>'))
+                                   .append($('<strong>').text(TABLE_LANGUAGE.print.type))
+                                   .append($('<span>').text('&nbsp;&nbsp;&nbsp;' + dataDictionary[_i]['type']));
             let colNotes = _get_translated(dataDictionary[_i]['info'], 'notes');
             if( colNotes != null ){
-              printDictionary += '<br/><strong>' + TABLE_LANGUAGE.print.description + '</strong>&nbsp;&nbsp;&nbsp;<span>' + colNotes + '</span>';
+              printDictionaryListItem.append($('<br>'))
+                                     .append($('<strong>').text(TABLE_LANGUAGE.print.description))
+                                     .append($('<span>').text('&nbsp;&nbsp;&nbsp;' + colNotes));
             }
-            printDictionary += '</li>';
+            printDictionaryList.append(printDictionaryListItem);
           }
-          printDictionary += '</ol></div>';
+          printDictionary.append(printDictionaryList);
           return printDictionary;
         },
         exportOptions: {
@@ -719,23 +778,6 @@ function load_datatable(CKAN_MODULE){
           }
         }
       },
-      // FIXME: Base64ing the entire table state is way too large.
-      //        We could add normal URI params for the only required things
-      //        like "sort, col_filters, query, compact, page, length";
-      //        However, we cannot reliably add column reordering,
-      //        column visibility, and view filters to the URI as they can
-      //        be almost infinite for a URI. Network middlewares and proxies
-      //        may also set max lengths and parameters, so those would break.
-      // {
-      //   name: 'shareButton',
-      //   text: '<i class="fa fa-share"></i>',
-      //   titleAttr: TABLE_LANGUAGE.buttons.share,
-      //   className: 'btn-secondary',
-      //   action: function (e, dt, node, config) {
-      //     dt.state.save();
-      //     let sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()));
-      //   }
-      // }
     ];
   }
 
@@ -746,8 +788,11 @@ function load_datatable(CKAN_MODULE){
     console.warn(_consoleMessage);
     table.processing(false);
     $('#dtprv_processing').css({'display': 'none'});
-    $('#dtprv_wrapper').find('#dtprv_failure_message').remove();
-    $('#dtprv_wrapper').find('.dt-scroll').before('<div id="dtprv_failure_message" class="alert alert-dismissible show alert-' + _type + '"><p>' + _message + '</p></div>');
+    ckan.toast({
+      message: _message,
+      type: _type,
+      title: _type,
+    });
   }
 
   function render_ajax_failure(_message){
@@ -787,7 +832,10 @@ function load_datatable(CKAN_MODULE){
       return;
     }
     if( $(countInfo).find('#timing-info').length == 0 ){
-      $(countInfo).append('&nbsp;<i class="fa fa-info-circle dt-display-screen" id="timing-info"></i><span class="dt-display-print" id="timing-info-print"></span>');
+      $(countInfo).append($('<span>').text('&nbsp;').append('<i>', {class: 'fa fa-info-circle dt-display-screen',
+                                                                    id: 'timing-info'})
+                                                    .append('<span>', {class: 'dt-display-print',
+                                                                       id: 'timing-info-print'}););
     }
     $(countInfo).find('#timing-info').attr('title', info);
     $(countInfo).find('#timing-info-print').html('<br/>' + info.replace('\n', '<br/>'));
@@ -815,7 +863,8 @@ function load_datatable(CKAN_MODULE){
     if( pagingWrapper.length > 0 ){
       $('#dtprv_wrapper').find('.dt-sorting-info').remove();
       let sortInfo = table.order();
-      let sortingText = '<span class="info-label">' + TABLE_LANGUAGE.info.column.sort + '&nbsp;</span>';
+      let sortDisplay = $('<div>', {class: 'dt-sorting-info'});
+      sortDisplay.append($('<span>', {class: 'info-label'}).text(TABLE_LANGUAGE.info.column.sort + '&nbsp;'));
       let sortingTextCopy = TABLE_LANGUAGE.info.column.sort + ' ';
       if( sortInfo.length > 0 ){
         for( let i = 0; i < sortInfo.length; i++ ){
@@ -829,7 +878,7 @@ function load_datatable(CKAN_MODULE){
               colLabel = dsID;
             }
           }
-          sortingText += '<span class="info-value"><em>' + colLabel + '&nbsp;';
+          let colSortDisplay = $('<em>').text(colLabel + '&nbsp;');
           sortingTextCopy += colLabel + ' ';
           let downIcon = 'fas fa-sort-amount-down';
           let upIcon = 'fas fa-sort-amount-up';
@@ -841,56 +890,24 @@ function load_datatable(CKAN_MODULE){
             upIcon = 'fas fa-sort-alpha-up-alt';
           }
           if( sortInfo[i][1] == 'asc' ){
-            sortingText += '<span class="dt-display-print">(' + TABLE_LANGUAGE.info.column.asc + ')</span><sup><i title="' + TABLE_LANGUAGE.info.column.asc + '" aria-label="' + TABLE_LANGUAGE.info.column.asc + '" class="dt-display-screen ' + upIcon + '"></i></sup>';
+            colSortDisplay.append($('<span>', {class: 'dt-display-print'}).text('(' + TABLE_LANGUAGE.info.column.asc + ')'));
+            colSortDisplay.append($('<sup>').append($('<i>', {title: TABLE_LANGUAGE.info.column.asc, 'aria-label': TABLE_LANGUAGE.info.column.asc, class: 'dt-display-screen ' + upIcon})));
             sortingTextCopy += '(' + TABLE_LANGUAGE.info.column.asc + ')';
           }else if( sortInfo[i][1] == 'desc' ){
-            sortingText += '<span class="dt-display-print">(' + TABLE_LANGUAGE.info.column.desc + ')</span><sup><i title="' + TABLE_LANGUAGE.info.column.desc + '" aria-label="' + TABLE_LANGUAGE.info.column.desc + '" class="dt-display-screen ' + downIcon + '"></i></sup>';
+            colSortDisplay.append($('<span>', {class: 'dt-display-print'}).text('(' + TABLE_LANGUAGE.info.column.desc + ')'));
+            colSortDisplay.append($('<sup>').append($('<i>', {title: TABLE_LANGUAGE.info.column.desc, 'aria-label': TABLE_LANGUAGE.info.column.desc, class: 'dt-display-screen ' + downIcon})));
             sortingTextCopy += '(' + TABLE_LANGUAGE.info.column.desc + ')';
           }else{
-            sortingText += '<span class="dt-display-print">(' + TABLE_LANGUAGE.info.column.any + ')</span><sup><i title="' + TABLE_LANGUAGE.info.column.any + '" aria-label="' + TABLE_LANGUAGE.info.column.any + '" class="dt-display-screen fas fa-random"></i></sup>';
+            colSortDisplay.append($('<span>', {class: 'dt-display-print'}).text('(' + TABLE_LANGUAGE.info.column.any + ')'));
+            colSortDisplay.append($('<sup>').append($('<i>', {title: TABLE_LANGUAGE.info.column.any, 'aria-label': TABLE_LANGUAGE.info.column.any, class: 'dt-display-screen fas fa-random'})));
             sortingTextCopy += '(' + TABLE_LANGUAGE.info.column.any + ')';
           }
-          sortingText += '</em></span>';
+          sortDisplay.append($('<span>', {class: 'info-value'}).append(colSortDisplay));
         }
       }
-      sortDisplay = '<div class="dt-sorting-info">' + sortingText + '</div>';
       sortDisplayCopy = sortingTextCopy;
       $(pagingWrapper).after(sortDisplay);
     }
-  }
-
-  function render_summary_stats(){
-    /**
-     * Render the column summaries in their respective footer cell
-     */
-    // TODO: implement summary statistics when backend is ready
-    // TODO: mean(average), median(middle), mode(frequent),
-    //       spread(range), standard deviation, interquartile range 25% 75%,
-    //       (range-min is 0% median is 50% range-max is 100% of IQR)
-    // TODO: make summary row collapsable
-    return;
-    table.columns().every(function(){
-      if( this.index() ){  // don't display for _id col
-        if( this.visible() ){  // don't stat hidden cols
-          let ds_type = $(this.header()).attr('data-ds-type');
-          let dsID = $(this.header()).attr('data-name');
-          let statCell = $('#dtprv_wrapper').find('tr#dt-summary-row').find('td[data-name="' + dsID + '"]');
-          if( numberTypes.includes(ds_type) ){
-
-          }else if( dateTypes.includes(ds_type) ){
-
-          }
-        }
-      }
-    });
-  }
-
-  function render_histograms(){
-    /**
-     * Render the histograms in their respective header cell
-     */
-    // TODO: implement histograms when backend is ready
-    return;
   }
 
   function bind_column_filter(_column, _index){
@@ -1116,19 +1133,10 @@ function load_datatable(CKAN_MODULE){
     /**
      * Executes whenever the DataTable draws.
      */
-    $('#dtprv_wrapper').find('#dtprv_failure_message').remove();
     set_table_visibility();
     render_table_info();
     render_timing_info();
     set_button_states();
-    if( showSummaryRow ){
-      // TODO: implement summary statistics when backend is ready
-      render_summary_stats();
-    }
-    if( showHistograms ){
-      // TODO: implement histograms when backend is ready
-      render_histograms();
-    }
   }
 
   function init_callback(_setting, _data){
