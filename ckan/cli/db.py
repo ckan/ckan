@@ -15,6 +15,11 @@ import ckan.migration as migration_repo
 import ckan.plugins as p
 import ckan.model as model
 from ckan.common import config
+
+# register models so that corresponding tables are created via `create_form_model`
+import ckanext.activity.model  # pyright: ignore[reportUnusedImport]  # noqa: F401
+import ckanext.tracking.model  # pyright: ignore[reportUnusedImport]  # noqa: F401
+
 from . import error_shout
 
 log = logging.getLogger(__name__)
