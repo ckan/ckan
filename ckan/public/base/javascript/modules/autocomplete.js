@@ -130,6 +130,11 @@ this.ckan.module('autocomplete', function (jQuery) {
         select2.search.on('keydown', this._onKeydown);
       }
 
+      if (this.options.tags && select2 && select2.selection && select2.selection.$search) {
+        select2.selection.$search.on('blur', this._onBlur);
+        select2.$dropdown.on('mousedown', this._onResultsMousedown);
+      }
+
       // This prevents Internet Explorer from causing a window.onbeforeunload
       // even from firing unnecessarily
       $('.select2-choice', select2.container).on('click', function() {
@@ -349,6 +354,29 @@ this.ckan.module('autocomplete', function (jQuery) {
           jQuery(event.target).trigger(e);
         }, 10);
       }
+    },
+
+    /* Commits text left in the tags search box when it loses focus, but not
+     * when the focus moves to the result list to pick a suggestion. */
+    _onBlur: function (event) {
+      if (this._choosing) {
+        this._choosing = false;
+        return;
+      }
+      var search = jQuery(event.target);
+      var text = search.val();
+      var separators = this.options.tokensep;
+      var words = text;
+      separators.split('').forEach(function (separator) {
+        words = words.split(separator).join('');
+      });
+      if (jQuery.trim(words) && separators.indexOf(text.charAt(text.length - 1)) === -1) {
+        search.val(text + separators.charAt(0)).trigger('input');
+      }
+    },
+
+    _onResultsMousedown: function () {
+      this._choosing = true;
     },
 
     dataAdapter: function(){
