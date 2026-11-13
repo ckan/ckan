@@ -529,12 +529,12 @@ class TestGroupMembership(object):
 @pytest.mark.usefixtures("non_clean_db")
 class TestGroupFollow:
     def test_group_follow_and_unfollow(self, app, user):
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
 
         group = factories.Group()
         group_url = url_for("group.read", id=group["id"])
-        response = app.get(group_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        response = app.get(group_url, headers={"Authorization": user["token"]})
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#group-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert '''
@@ -544,7 +544,7 @@ class TestGroupFollow:
 
         follow_url = url_for("group.follow", id=group["id"])
         response = app.post(follow_url, headers=headers)
-        assert '<a class="btn btn-danger"' in response
+        assert '<button type="submit" class="btn btn-danger"' in response
         assert 'hx-target="#group-info"' in response
         assert 'fa-circle-minus"></i> Unfollow' in response
         assert '''
@@ -554,27 +554,27 @@ class TestGroupFollow:
 
     @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
     def test_group_follow_without_public_user_details(self, app, user):
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         group = factories.Group()
 
         follow_url = url_for("group.follow", id=group["id"])
         response = app.post(follow_url, headers=headers)
 
-        assert '<a class="btn btn-danger"' in response
+        assert '<button type="submit" class="btn btn-danger"' in response
         assert 'hx-target="#group-info"' in response
         assert 'fa-circle-minus"></i> Unfollow' in response
 
         unfollow_url = url_for("group.unfollow", id=group["id"])
         response = app.post(unfollow_url, headers=headers)
 
-        assert '<a class="btn btn-success"' in response
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#group-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
 
     def test_group_follow_not_exist(self, app, user):
         """Pass an id for a group that doesn't exist"""
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("group.follow", id="not-here")
         app.post(follow_url, headers=headers, status=404)
 
@@ -582,13 +582,13 @@ class TestGroupFollow:
 
         group = factories.Group()
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("group.follow", id=group["id"])
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("group.unfollow", id=group["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#group-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert '''
@@ -601,10 +601,10 @@ class TestGroupFollow:
 
         group = factories.Group()
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("group.unfollow", id=group["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        assert '<button type="submit" class="btn btn-success"' in response
         assert 'hx-target="#group-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert '''
@@ -615,7 +615,7 @@ class TestGroupFollow:
     def test_group_unfollow_not_exist(self, app, user):
         """Unfollow a group that doesn't exist."""
 
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("group.unfollow", id="not-here")
         app.post(unfollow_url, headers=headers, status=404)
 
