@@ -5,8 +5,6 @@ Revises: fb359832160c
 Create Date: 2026-11-13 12:06:56.224527
 
 """
-from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
