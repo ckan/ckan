@@ -1,0 +1,1 @@
+Database migrations for plugins are now applied in order defined by `ckan.plugins`, not alphabetically.

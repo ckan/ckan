@@ -53,7 +53,7 @@ def create_from_model():
         # also mark plugins as migrated
         # FIXME: move to model.repo?
         pending = _get_pending_plugins()
-        for plugin in sorted(pending):
+        for plugin in pending:
             with _repo_for_plugin(plugin) as repo:
                 print(plugin, repo)
                 repo.stamp_alembic_head()
@@ -109,7 +109,7 @@ def upgrade(
 
 def _migrate_plugins(apply: bool):
     pending = _get_pending_plugins()
-    for plugin, n in sorted(pending.items()):
+    for plugin, n in pending.items():
         click.secho("{n} unapplied migrations for {p}".format(
             p=click.style(plugin, bold=True),
             n=click.style(str(n), bold=True)))
