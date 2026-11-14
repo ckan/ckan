@@ -34,8 +34,14 @@ def set_cors_headers_for_response(response: Response) -> Response:
                 cors_origin_allowed
             response.headers['Access-Control-Allow-Methods'] = \
                 'POST, PUT, GET, DELETE, OPTIONS'
+            apitoken_header_name = config.get("apitoken_header_name")
+            allowed_headers = [apitoken_header_name, "Content-Type"]
+            if request.headers.get("Access-Control-Request-Headers"):
+                allowed_headers.extend(
+                    header.lower() for header in allowed_headers.copy()
+                )
             response.headers['Access-Control-Allow-Headers'] = \
-                f'{config.get("apitoken_header_name")}, Content-Type'
+                ", ".join(dict.fromkeys(allowed_headers))
 
     return response
 
