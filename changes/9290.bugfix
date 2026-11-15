@@ -1,0 +1,3 @@
+``ckan.featured_orgs`` and ``ckan.featured_groups`` now show only the configured
+items on the home page. Other organizations or groups are only used when the
+option is empty.
