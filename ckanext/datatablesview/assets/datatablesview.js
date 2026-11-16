@@ -36,30 +36,6 @@ this.ckan.module('datatables_view', function($){
   }
 });
 
-function _clean_for_html_attr(_v){
-  /**
-   * Cleans passed value to be used in HTML attributes.
-   */
-  _v = _v.toLowerCase();
-  // Make alphanumeric (removes all other characters)
-  _v = _v.replace(/[^a-z0-9_\s-]/g, '');
-  // Convert whitespaces and underscore to #
-  _v = _v.replace(/[\s_]/g, '#');
-  // Convert multiple # to hyphen
-  _v = _v.replace(/[#]+/g, '-');
-  return _v
-}
-
-function _escape_html(_v){
-  /**
-   * Escape basic HTML tagging characters.
-   */
-  return _v.replace(/&/g, '&amp;')
-           .replace(/</g, '&lt;')
-           .replace(/>/g, '&gt;')
-           .replace(/"/g, '&quot;');
-}
-
 function _download_filtered_file(_params, _format) {
   /**
    * Execute the form POST to download the Filtered DataStore Dump file.
@@ -539,6 +515,7 @@ function load_datatable(CKAN_MODULE){
         text: '<i class="fa fa-copy"></i>',
         titleAttr: TABLE_LANGUAGE.buttons.copy,
         className: 'btn-secondary',
+        copySuccess: false,  // FIXME: enable, add dark theme styles...
         messageTop: function(){
           /**
            * Add all of the table filter info to the clipboard
@@ -642,6 +619,7 @@ function load_datatable(CKAN_MODULE){
         className: 'btn-secondary',
         autoClose: true,
         extend: 'collection',
+        collectionLayout: 'dt-popup-download',
         buttons: [{
           text: 'CSV',
           action: function (e, dt, button, config) {
@@ -691,6 +669,7 @@ function load_datatable(CKAN_MODULE){
           }
           dt.rows().deselect();  // special case for selected rows
           dt.colReorder.reset(); // reset the column ordering
+          dt.page_number = 1;  // reset page number
           tableState = void 0;  // clear local state variable
           dt.state.clear();
           dt.clear().destroy();
@@ -723,7 +702,7 @@ function load_datatable(CKAN_MODULE){
                            .append($('<span>').text(TABLE_LANGUAGE.print.format + ' ' + resourceFormat))
                            .append($('<br>'))
                            .append($('<span>').text(TABLE_LANGUAGE.print.fileSize + ' ' + filesize))
-                           .append($('<br>'));
+                           .append($('<br>')).html();
         },
         messageBottom: function(){
           /**
@@ -732,7 +711,7 @@ function load_datatable(CKAN_MODULE){
            * Only output info for the visible columns
            */
           let visibleColNames = _get_visible_col_ids();
-          let printDictionary = $('<div>').append('<h2>').text('TABLE_LANGUAGE.print.dataDictionary');
+          let printDictionary = $('<div>').append('<h2>').text(TABLE_LANGUAGE.print.dataDictionary);
           let printDictionaryList = $('<ol>');
           for( let _i = 0; _i < dataDictionary.length; _i++ ){
             if( ! visibleColNames.includes(dataDictionary[_i]['id']) ){
@@ -747,21 +726,21 @@ function load_datatable(CKAN_MODULE){
             if( colLabel != dataDictionary[_i]['id'] ){
               printDictionaryListItem.append($('<br>'))
                                      .append($('<strong>').text(TABLE_LANGUAGE.print.id))
-                                     .append($('<span>').text('&nbsp;&nbsp;&nbsp;' + dataDictionary[_i]['id']));
+                                     .append($('<span>').text('\u00A0\u00A0\u00A0' + dataDictionary[_i]['id']));
             }
             printDictionaryListItem.append($('<br>'))
                                    .append($('<strong>').text(TABLE_LANGUAGE.print.type))
-                                   .append($('<span>').text('&nbsp;&nbsp;&nbsp;' + dataDictionary[_i]['type']));
+                                   .append($('<span>').text('\u00A0\u00A0\u00A0' + dataDictionary[_i]['type']));
             let colNotes = _get_translated(dataDictionary[_i]['info'], 'notes');
             if( colNotes != null ){
               printDictionaryListItem.append($('<br>'))
                                      .append($('<strong>').text(TABLE_LANGUAGE.print.description))
-                                     .append($('<span>').text('&nbsp;&nbsp;&nbsp;' + colNotes));
+                                     .append($('<span>').text('\u00A0\u00A0\u00A0' + colNotes));
             }
             printDictionaryList.append(printDictionaryListItem);
           }
           printDictionary.append(printDictionaryList);
-          return printDictionary;
+          return printDictionary.html();
         },
         exportOptions: {
           columns: ':visible',
@@ -832,10 +811,10 @@ function load_datatable(CKAN_MODULE){
       return;
     }
     if( $(countInfo).find('#timing-info').length == 0 ){
-      $(countInfo).append($('<span>').text('&nbsp;').append('<i>', {class: 'fa fa-info-circle dt-display-screen',
+      $(countInfo).append($('<span>').text('\u00A0').append('<i>', {class: 'fa fa-info-circle dt-display-screen',
                                                                     id: 'timing-info'})
                                                     .append('<span>', {class: 'dt-display-print',
-                                                                       id: 'timing-info-print'}););
+                                                                       id: 'timing-info-print'}));
     }
     $(countInfo).find('#timing-info').attr('title', info);
     $(countInfo).find('#timing-info-print').html('<br/>' + info.replace('\n', '<br/>'));
@@ -864,7 +843,7 @@ function load_datatable(CKAN_MODULE){
       $('#dtprv_wrapper').find('.dt-sorting-info').remove();
       let sortInfo = table.order();
       let sortDisplay = $('<div>', {class: 'dt-sorting-info'});
-      sortDisplay.append($('<span>', {class: 'info-label'}).text(TABLE_LANGUAGE.info.column.sort + '&nbsp;'));
+      sortDisplay.append($('<span>', {class: 'info-label'}).text(TABLE_LANGUAGE.info.column.sort + '\u00A0'));
       let sortingTextCopy = TABLE_LANGUAGE.info.column.sort + ' ';
       if( sortInfo.length > 0 ){
         for( let i = 0; i < sortInfo.length; i++ ){
@@ -878,7 +857,7 @@ function load_datatable(CKAN_MODULE){
               colLabel = dsID;
             }
           }
-          let colSortDisplay = $('<em>').text(colLabel + '&nbsp;');
+          let colSortDisplay = $('<em>').text(colLabel + '\u00A0');
           sortingTextCopy += colLabel + ' ';
           let downIcon = 'fas fa-sort-amount-down';
           let upIcon = 'fas fa-sort-amount-up';
@@ -1084,7 +1063,7 @@ function load_datatable(CKAN_MODULE){
       _set_button_states(true);  // there is a table search
       return;
     }
-    if( table.columns().search().toArray().some(function(_s){ return _s.length > 0; }) ){
+    if( table.columns().search().toArray().some(function(_s){ return _s && _s.length > 0; }) ){
       _set_button_states(true);  // there is a column search
       return;
     }

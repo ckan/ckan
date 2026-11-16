@@ -64,6 +64,29 @@
   border-radius: 0 var(--bs-pagination-border-radius) var(--bs-pagination-border-radius) 0;
 }
 
+#dtprv_wrapper .dt-paging li.dt-paging-button.active{
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+#dtprv_wrapper .dt-paging li.dt-paging-button.active button{
+  background-color: var(--bs-pagination-active-bg) !important;
+}
+
+:root[data-bs-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button button:hover,
+html[data-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button button:hover,
+:root[data-bs-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button button:active,
+html[data-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button button:active,
+:root[data-bs-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button button:focus,
+html[data-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button button:focus{
+  background-color: var(--dm-surface-alt) !important;
+}
+
+:root[data-bs-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button.active button,
+html[data-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button.active button{
+  background-color: var(--bs-pagination-active-bg) !important;
+}
+
 @media all and (min-width: 768px){
   #dtprv_wrapper .dt-info,
   #dtprv_wrapper .dt-paging{
@@ -129,12 +152,27 @@ table.dataTable span.dtcc input::placeholder{
   white-space: nowrap;
 }
 
+:root[data-bs-theme="dark"] table.dataTable span.dtcc div.dtcc-search > div input,
+html[data-theme="dark"] table.dataTable span.dtcc div.dtcc-search > div input{
+  background-color: initial !important;
+}
+
+:root[data-bs-theme="dark"] table.dataTable th span.dtcc .dtcc-button,
+html[data-theme="dark"] table.dataTable th span.dtcc .dtcc-button{
+  background-color: var(--dm-text) !important;
+}
+
 #dtprv_wrapper .datatable-id-col{
   background: white;  /* no transparent bg for fixed column */
 }
 
 #dtprv_wrapper #dtprv-body-main .datatable-id-col{
   filter: brightness(0.875);  /* make _id column darker ala Excel */
+}
+
+:root[data-bs-theme="dark"] #dtprv_wrapper .datatable-id-col,
+html[data-theme="dark"] #dtprv_wrapper .datatable-id-col{
+  background-color: var(--dm-bg) !important;
 }
 
 #dtprv_wrapper table.collapsed td.datatable-id-col{
@@ -169,6 +207,11 @@ table.dataTable span.dtcc input::placeholder{
   color: darkblue;
 }
 
+:root[data-bs-theme="dark"] .dt-view-wrapper i.fa-info-circle,
+html[data-theme="dark"] .dt-view-wrapper i.fa-info-circle{
+  color: var(--dm-text) !important;
+}
+
 #dtprv_processing{
   z-index: 100;
   display: block;
@@ -185,6 +228,11 @@ table.dataTable span.dtcc input::placeholder{
   border: none !important;
   outline: none !important;
   cursor: wait;
+}
+
+:root[data-bs-theme="dark"] #dtprv_processing,
+html[data-theme="dark"] #dtprv_processing{
+  background-color: rgba(0, 0, 0, 0.325);
 }
 
 #dtprv_processing > div{
@@ -215,9 +263,25 @@ table.dataTable span.dtcc input::placeholder{
 }
 /* END: Mark Plugin :END */
 
+/* START: Midnight Blue Download Menu :START */
+:root[data-bs-theme="dark"] .dt-button-collection.dt-popup-download,
+html[data-theme="dark"] .dt-button-collection.dt-popup-download{
+  background-color: var(--dm-surface) !important;
+}
+
+:root[data-bs-theme="dark"] .dt-button-collection.dt-popup-download a,
+html[data-theme="dark"] .dt-button-collection.dt-popup-download a{
+  color: white !important;
+}
+/* END: Midnight Blue Download Menu :END */
+
 /* START: QoL Column Vis :START */
 .dt-button-background{
   background-color: rgba(0, 0, 0, 0.325);
+}
+
+.buttons-collection.buttons-colvis::after{
+  content: none !important;
 }
 
 .dt-button-collection.fixed.dt-popup-colvis{
@@ -293,6 +357,23 @@ table.dataTable span.dtcc input::placeholder{
   min-width: 49%;
   width: 49%;
   margin-left: -1%;
+}
+
+:root[data-bs-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis,
+html[data-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis{
+  background-color: var(--dm-surface) !important;
+}
+
+:root[data-bs-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis a,
+html[data-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis a{
+  color: white !important;
+}
+
+:root[data-bs-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis a:active,
+html[data-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis a:active,
+:root[data-bs-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis a:focus,
+html[data-theme="dark"] .dt-button-collection.fixed.dt-popup-colvis a:focus{
+  background-color: var(--dm-surface-alt) !important;
 }
 /* END: QoL Column Vis :END */
 
