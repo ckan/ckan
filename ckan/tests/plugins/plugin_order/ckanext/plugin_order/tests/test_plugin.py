@@ -28,7 +28,7 @@ class TestPluginOrder(object):
         db._run_migrations(u'test_plugin_order_second', None, False)
 
         result = cli.invoke(ckan, ["db", "pending-migrations"])
-        assert result.output == ('2 unapplied migrations for test_plugin_order_first\n'
+        assert result.output == ('2 unapplied migrations for test_plugin_order_second\n'
                                  '2 unapplied migrations for test_plugin_order_third\n'
-                                 '2 unapplied migrations for test_plugin_order_second\n'
+                                 '2 unapplied migrations for test_plugin_order_first\n'
                                  'Upgrading DB: SUCCESS\n')
