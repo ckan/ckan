@@ -382,3 +382,70 @@ class TestNotEmpty(object):
         with pytest.raises(StopOnError):
             validators.not_empty("key", dict_, errors, {})
         assert errors == {"key": ["Missing value"]}
+
+
+class TestUnicodeSafe(object):
+    """unicode_safe() coerces any value to str and silently strips NUL
+    characters and lone surrogates, neither of which can ever reach
+    PostgreSQL (psycopg2 raises before the query is even sent, turning
+    unguarded user input into a 500).
+    """
+
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("\x00", ""),
+            ("foo\x00", "foo"),
+            ("\x00bar", "bar"),
+            ("foo\x00bar", "foobar"),
+            ("user@example.com\x00", "user@example.com"),
+            ("\x00\x00\x00", ""),
+        ],
+    )
+    def test_strips_nul_from_str(self, value, expected):
+        assert validators.unicode_safe(value) == expected
+
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            # lone surrogates arrive via JSON API input, e.g.
+            # json.loads('"foo\\ud800bar"')
+            ("foo\ud800bar", "foobar"),
+            ("\udfff", ""),
+            ("high\ud800and\udfffboth", "highandboth"),
+        ],
+    )
+    def test_strips_lone_surrogates_from_str(self, value, expected):
+        assert validators.unicode_safe(value) == expected
+
+    def test_strips_lone_surrogates_on_json_path(self):
+        # json.dumps escapes NUL but emits lone surrogates as-is, so
+        # non-string values must be stripped after serialization
+        assert validators.unicode_safe(["a\ud800b"]) == '["ab"]'
+
+    def test_strips_nul_from_utf8_bytes(self):
+        assert validators.unicode_safe(b"foo\x00bar") == "foobar"
+
+    def test_strips_nul_from_cp1252_bytes(self):
+        assert validators.unicode_safe(b"caf\xe9\x00") == "caf\N{LATIN SMALL LETTER E WITH ACUTE}"
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "",
+            "fred",
+            "user@example.com",
+            "María José",
+            "line1\nline2",
+            "control\x01chars",
+            "emoji 🎉",
+        ],
+    )
+    def test_str_without_nul_is_unchanged(self, value):
+        assert validators.unicode_safe(value) == value
+
+    def test_missing_and_none_become_empty_string(self):
+        import ckan.lib.navl.dictization_functions as df
+
+        assert validators.unicode_safe(None) == ""
+        assert validators.unicode_safe(df.missing) == ""
