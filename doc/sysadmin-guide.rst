@@ -116,7 +116,15 @@ To permanently delete ("purge") an entity:
 * Navigate to the dataset's "Edit" page, and delete it.
 * Visit ``http://<my-ckan-url>/ckan-admin/trash/``.
 
-This page shows all deleted datasets, organizations and groups and allows you to delete them permanently.
+This page has a separate, paginated tab for deleted datasets, organizations
+and groups. Each row has "Restore" and "Purge" buttons for acting on that
+single entity immediately — Restore sets it back to active, Purge deletes
+it for good.
+
+Queued purges require an RQ worker to be running (``ckan jobs worker``) to
+actually process them; until then they just sit in the queue. The sidebar's
+"Purge jobs" panel lists recent purge jobs and whether each is queued,
+running, finished or failed.
 
 .. warning::
 
