@@ -1,0 +1,1 @@
+Fix several ``ckan.toast()`` issues: wrong ARIA roles for non-error toasts, ``null`` or unknown option values overriding the defaults, and Bootstrap toast instances not being disposed on removal. The toast shown on htmx response errors no longer renders plain-text responses as HTML.
