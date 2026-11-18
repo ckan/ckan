@@ -50,7 +50,9 @@
     {% if not error %}
       {% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}
     {% else %}
-      Error
+      {% trans %}
+        Error
+      {% endtrans %}
     {% endif %}
     </h2>
   {% endblock %}
