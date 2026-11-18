@@ -100,5 +100,7 @@ class DataTablesView(p.SingletonPlugin):
                 u'date_format': [default(self.date_format)],
                 u'show_fields': [ignore_missing],
                 u'filterable': [default(True), boolean_validator],
+                u'sort_field': [ignore_missing],
+                u'sort_order': [default(u'asc'), ignore_missing],
             }
         }
