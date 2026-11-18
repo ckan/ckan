@@ -686,6 +686,11 @@ def package_collaborator_create(
 def _group_or_org_create(context: Context,
                          data_dict: DataDict,
                          is_org: bool = False) -> Union[str, dict[str, Any]]:
+    # Do not let state left by earlier actions affect this create.
+    context = context.copy()
+    context.pop("group", None)
+    context.pop("id", None)
+
     user = context['user']
     session = context['session']
     data_dict['is_organization'] = is_org
