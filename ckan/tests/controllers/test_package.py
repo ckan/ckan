@@ -1828,9 +1828,9 @@ class TestPackageFollow(object):
         package = factories.Dataset()
 
         follow_url = url_for("dataset.follow", id=package["id"])
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         response = app.post(follow_url, headers=headers)
-        assert 'Unfollow</a>' in response
+        assert 'Unfollow</button>' in response
         assert 'hx-target="#package-info"' in response
         assert 'fa-circle-minus"></i> Unfollow' in response
         assert '''
@@ -1840,20 +1840,20 @@ class TestPackageFollow(object):
 
     def test_package_follow_not_exist(self, app, user):
         """Pass an id for a package that doesn't exist"""
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("dataset.follow", id="not-here")
         app.post(follow_url, headers=headers, status=404)
 
     def test_package_unfollow(self, app, user):
 
         package = factories.Dataset()
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         follow_url = url_for("dataset.follow", id=package["id"])
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert 'Follow</a>' in response
+        assert 'Follow</button>' in response
         assert 'hx-target="#package-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert '''
@@ -1865,10 +1865,10 @@ class TestPackageFollow(object):
         """Unfollow a package not currently following"""
 
         package = factories.Dataset()
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert 'Follow</a>' in response
+        assert 'Follow</button>' in response
         assert 'hx-target="#package-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert '''
@@ -1878,7 +1878,7 @@ class TestPackageFollow(object):
 
     def test_package_unfollow_not_exist(self, app, user):
         """Unfollow a package that doesn't exist."""
-        headers = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"], "HX-Request": "true"}
         unfollow_url = url_for("dataset.unfollow", id="not-here")
         app.post(unfollow_url, headers=headers, status=404)
 

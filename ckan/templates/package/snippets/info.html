@@ -37,9 +37,15 @@ Example:
                   <div class="alert alert-danger">{{ error_message }}</div>
                 {% endif %}
               {% if am_following %}
-                  <a class="btn btn-danger" hx-post="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
+                  <form method="post" action="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-post="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-target="#package-info" hx-swap="outerHTML">
+                    {{ h.csrf_input() }}
+                    <button type="submit" class="btn btn-danger"><i aria-hidden="true" class="fa-solid fa-circle-minus"></i> {{ _('Unfollow') }}</button>
+                  </form>
                 {% else %}
-                <a class="btn btn-success" hx-post="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
+                <form method="post" action="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-post="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-target="#package-info" hx-swap="outerHTML">
+                  {{ h.csrf_input() }}
+                  <button type="submit" class="btn btn-success"><i aria-hidden="true" class="fa-solid fa-circle-plus"></i> {{ _('Follow') }}</button>
+                </form>
                 {% endif %}
               {% endif %}
             {% endblock %}

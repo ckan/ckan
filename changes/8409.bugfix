@@ -1,0 +1,2 @@
+Follow and unfollow controls use accessible submit buttons with CSRF-protected
+forms and support navigation without JavaScript.
