@@ -63,7 +63,7 @@ def resource_patch(context: Context,
                    data_dict: DataDict) -> ActionResult.ResourcePatch:
     '''Patch a resource
 
-    :param id: the id of the resource
+    :param id: the id or name of the resource
     :type id: string
 
     The difference between the update and patch methods is that the patch will

@@ -163,7 +163,7 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     You must be a sysadmin or the owner of the resource to delete it.
 
-    :param id: the id of the resource
+    :param id: the id or name of the resource
     :type id: string
 
     '''
@@ -209,7 +209,7 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
 def resource_view_delete(context: Context, data_dict: DataDict) -> ActionResult.ResourceViewDelete:
     '''Delete a resource_view.
 
-    :param id: the id of the resource_view
+    :param id: the id or name of the resource_view
     :type id: string
 
     '''
@@ -285,7 +285,7 @@ def member_delete(context: Context, data_dict: DataDict) -> ActionResult.MemberD
 
     You must be authorized to edit a group to remove objects from it.
 
-    :param id: the id of the group
+    :param id: the id or name of the group
     :type id: string
     :param object: the id or name of the object to be removed
     :type object: string

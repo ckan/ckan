@@ -1082,7 +1082,7 @@ def resource_show(
         data_dict: DataDict) -> ActionResult.ResourceShow:
     '''Return the metadata of a resource.
 
-    :param id: the id of the resource
+    :param id: the id or name of the resource
     :type id: string
 
     :rtype: dictionary
@@ -1115,7 +1115,7 @@ def resource_view_show(context: Context, data_dict: DataDict) -> ActionResult.Re
     '''
     Return the metadata of a resource_view.
 
-    :param id: the id of the resource_view
+    :param id: the id or name of the resource_view
     :type id: string
 
     :rtype: dictionary
@@ -1142,7 +1142,7 @@ def resource_view_list(context: Context,
     '''
     Return the list of resource views for a particular resource.
 
-    :param id: the id of the resource
+    :param id: the id or name of the resource
     :type id: string
 
     :rtype: list of dictionaries.
@@ -2705,7 +2705,7 @@ def followee_count(context: Context,
     Counts all objects, of any type, that the given user is following
     (e.g. followed users, followed datasets, followed groups).
 
-    :param id: the id of the user
+    :param id: the id or name of the user
     :type id: string
 
     :rtype: int
@@ -2732,7 +2732,7 @@ def user_followee_count(
         data_dict: DataDict) -> ActionResult.UserFolloweeCount:
     '''Return the number of users that are followed by the given user.
 
-    :param id: the id of the user
+    :param id: the id or name of the user
     :type id: string
 
     :rtype: int
@@ -2749,7 +2749,7 @@ def dataset_followee_count(
         data_dict: DataDict) -> ActionResult.DatasetFolloweeCount:
     '''Return the number of datasets that are followed by the given user.
 
-    :param id: the id of the user
+    :param id: the id or name of the user
     :type id: string
 
     :rtype: int
@@ -2766,7 +2766,7 @@ def group_followee_count(
         data_dict: DataDict) -> ActionResult.GroupFolloweeCount:
     '''Return the number of groups that are followed by the given user.
 
-    :param id: the id of the user
+    :param id: the id or name of the user
     :type id: string
 
     :rtype: int
@@ -2803,7 +2803,7 @@ def followee_list(
     Returns all objects, of any type, that the given user is following
     (e.g. followed users, followed datasets, followed groups.. ).
 
-    :param id: the id of the user
+    :param id: the id or name of the user
     :type id: string
 
     :param q: a query string to limit results by, only objects whose display
@@ -2866,7 +2866,7 @@ def user_followee_list(
         data_dict: DataDict) -> ActionResult.UserFolloweeList:
     '''Return the list of users that are followed by the given user.
 
-    :param id: the id of the user
+    :param id: the id or name of the user
     :type id: string
 
     :rtype: list of dictionaries
