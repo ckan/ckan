@@ -2522,7 +2522,7 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
 
     groups_data = []
 
-    extras = logic.get_action(list_action)({}, {})
+    extras = [] if items else logic.get_action(list_action)({}, {})
 
     # list of found ids to prevent duplicates
     found = []
