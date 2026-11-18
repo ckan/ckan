@@ -665,7 +665,11 @@ class Page(BasePage):
         html = super(Page, self)._range(regexp_match)
         # Convert ..
         dotdot = u'<span class="pager_dotdot">..</span>'
-        dotdot_link = tags.li(tags.a(u"...", href=u"#"), cls=u"disabled")
+        dotdot_link = tags.li(
+            tags.span(cls="fa-solid fa-ellipsis"),
+            cls=u"disabled d-flex align-items-center"
+        )
+
         html = re.sub(dotdot, str(dotdot_link), html)
 
         # Convert current page
