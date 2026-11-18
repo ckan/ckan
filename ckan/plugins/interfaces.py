@@ -660,6 +660,9 @@ class IResourceController(Interface):
         Be aware that this method is not only called for UI display, but also
         in other methods, like when a resource is deleted, because package_show
         is used to get access to the resources in a dataset.
+
+        Make any changes to ``resource_dict`` in place. ``package_show``
+        ignores the return value, so returning a new dict has no effect.
         '''
         return resource_dict
 

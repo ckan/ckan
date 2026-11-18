@@ -1,0 +1,1 @@
+The ``multilingual_resource`` plugin now applies its resource translations in place, since ``package_show`` ignores the value returned by ``IResourceController.before_resource_show``. The interface documentation now says changes must be made to the resource dict in place.
