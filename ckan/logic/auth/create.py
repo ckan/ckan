@@ -273,7 +273,7 @@ def member_create(context: Context, data_dict: DataDict) -> AuthResult:
 def api_token_create(context: Context, data_dict: DataDict) -> AuthResult:
     """Create new token for current user.
     """
-    user = model.User.get(data_dict['user'])
+    user = model.User.get(data_dict.get('user') or data_dict.get('user_id'))
     assert user
     return {'success': user.name == context['user']}
 
