@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import ckan.plugins as p
 from ckan import logic
-from ckan.common import _, config
+from ckan.common import _, config, aslist
 from ckan.types import Context
 
 
@@ -124,7 +124,7 @@ def get_default_view_plugins(
 
     Returns a list of IResourceView plugins
     '''
-    default_view_types = config.get('ckan.views.default_views')
+    default_view_types = aslist(config.get('ckan.views.default_views'))
 
     default_view_plugins = []
     for view_type in default_view_types:
