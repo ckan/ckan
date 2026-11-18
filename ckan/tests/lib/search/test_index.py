@@ -8,6 +8,7 @@ import pytest
 import six
 from ckan.common import config
 import ckan.lib.search as search
+import ckan.logic as logic
 from ckan.tests import factories, helpers
 
 
@@ -211,6 +212,28 @@ class TestSearchIndex(object):
 
 
 class TestPackageSearchIndex:
+    @pytest.mark.usefixtures("non_clean_db", "clean_index")
+    @pytest.mark.parametrize(
+        "side, field, related_side",
+        [("subject", "depends_on", "object"),
+         ("object", "dependency_of", "subject")],
+    )
+    def test_index_dataset_with_relationship(self, side, field, related_side):
+        datasets = {"subject": factories.Dataset(), "object": factories.Dataset()}
+        helpers.call_action(
+            "package_relationship_create",
+            subject=datasets["subject"]["id"],
+            object=datasets["object"]["id"],
+            type="depends_on",
+        )
+
+        logic.index_update_package({}, datasets[side]["id"])
+
+        result = helpers.call_action(
+            "package_search", q=f'{field}:"{datasets[related_side]["name"]}"'
+        )
+        assert [dataset["id"] for dataset in result["results"]] == [datasets[side]["id"]]
+
     @staticmethod
     def _get_pkg_dict():
         # This is a simple package, enough to be indexed, in the format that

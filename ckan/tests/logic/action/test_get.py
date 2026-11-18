@@ -16,6 +16,30 @@ from ckan.lib.search.common import SearchError
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestPackageShow(object):
+    @pytest.mark.parametrize(
+        "side, relationship_key",
+        [("subject", "relationships_as_subject"),
+         ("object", "relationships_as_object")],
+    )
+    def test_package_show_preserves_relationship_endpoints(
+        self, side, relationship_key
+    ):
+        datasets = {"subject": factories.Dataset(), "object": factories.Dataset()}
+        helpers.call_action(
+            "package_relationship_create",
+            subject=datasets["subject"]["id"],
+            object=datasets["object"]["id"],
+            type="depends_on",
+        )
+
+        result = helpers.call_action(
+            "package_show", context={"use_cache": False}, id=datasets[side]["id"]
+        )
+
+        relationship, = result[relationship_key]
+        assert relationship["subject_package_id"] == datasets["subject"]["id"]
+        assert relationship["object_package_id"] == datasets["object"]["id"]
+
     def test_package_show(self):
         # simple dataset, simple checks
         dataset1 = factories.Dataset()
