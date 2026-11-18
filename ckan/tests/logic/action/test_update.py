@@ -908,6 +908,34 @@ class TestResourceViewUpdate(object):
 @pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
+    @pytest.mark.parametrize("position", [0, 1])
+    @pytest.mark.parametrize("action", ["resource_update", "resource_patch"])
+    def test_validation_error_after_deferred_resource_patch(self, position, action):
+        dataset = helpers.call_action(
+            "package_create",
+            context={"defer_commit": True, "return_id_only": True},
+            name=factories.Dataset.stub().name,
+            resources=[
+                {"url": "https://example.com/first.csv"},
+                {"url": "https://example.com/second.csv"},
+            ],
+        )
+        resource_id = model.Package.get(dataset).resources[position].id
+        helpers.call_action(
+            "resource_patch",
+            context={"defer_commit": True},
+            id=resource_id,
+            name="Updated resource",
+        )
+
+        with pytest.raises(logic.ValidationError) as exc:
+            helpers.call_action(
+                action, id=resource_id, size="not-an-integer"
+            )
+
+        assert exc.value.error_dict == {"size": ["Invalid integer"]}
+        assert model.Resource.get(resource_id) is None
+
     def test_url_only(self):
         resource = factories.Resource(url="http://first")
 

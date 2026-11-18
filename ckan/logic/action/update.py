@@ -110,18 +110,19 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     resources[resource.position] = data_dict
 
+    resource_position = resource.position
     try:
         updated_pkg_dict = _get_action('package_update')(
             update_context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[
-                resource.position]
+                resource_position]
         except (KeyError, IndexError):
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    resource = updated_pkg_dict['resources'][resource.position]
+    resource = updated_pkg_dict['resources'][resource_position]
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(
