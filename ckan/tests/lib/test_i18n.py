@@ -15,6 +15,7 @@ import pytest
 from ckan.lib import i18n
 from ckan import plugins
 from ckan.lib.plugins import DefaultTranslation
+from ckan.lib.helpers import helper_functions as h
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -75,7 +76,9 @@ class TestBuildJSTranslations(object):
         files = os.listdir(self.temp_dir)
 
         # Check that all locales have been generated
-        assert set(i18n.get_locales()).difference(["en"]) == set(
+        assert set(
+            h.unix_locale_to_bcp47(loc) for loc in i18n.get_locales()
+        ).difference(["en"]) == set(
             os.path.splitext(fn)[0] for fn in files
         )
 
