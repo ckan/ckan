@@ -66,7 +66,7 @@ def test_resource_download_iuploader_called(
     assert mock_get_path.call_args[0][1] == pkg.resources[0].id
 
     assert pkg.resources[0].url_type == u"upload"
-    assert pkg.state == "active"
+    assert pkg.is_active()
     url = url_for(
         "{}_resource.download".format(pkg.type),
         id=pkg.id, resource_id=pkg.resources[0].id
