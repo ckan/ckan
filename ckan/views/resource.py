@@ -175,17 +175,23 @@ def download(package_type: str,
                 overrides["content_type"] = mimetype
             location = files.Location(filepath)
             try:
-                file_data = files.FileData(
-                    location,
-                    size=storage.size(location),
-                    **overrides,
-                )
+                # do not set size here to avoid additional work. Cloud adapters
+                # likely have to make an extra request to determine the size,
+                # while it has no value if in the end storage emits redirect
+                # response to the signed cloud URL and size will not be used at
+                # all. Adapter itself is responsible for setting
+                # `Content-Length` header if it's required.
+                file_data = files.FileData(location, **overrides)
             except files.exc.LocationError:
                 return base.abort(404, _('No download is available'))
 
             if isinstance(storage, files.Storage):
                 resp = storage.as_response(file_data, filename)
+
             else:
+                # this branch is used when native file-keeper adapters are used
+                # instead of ones, wrapped by CKAN. Here file content is
+                # streamed with CKAN as proxy.
                 resp = streaming_response(
                     storage.stream(file_data),
                     file_data.content_type,
@@ -195,6 +201,9 @@ def download(package_type: str,
                     "attachment",
                     filename=filename or file_data.location,
                 )
+                # set Content-Length to let browser display remaining download
+                # time.
+                resp.headers.set("content-length", location)
 
         else:
             resp = flask.send_file(filepath, download_name=filename)
