@@ -2,7 +2,12 @@
 
 import pytest
 
+from unittest import mock
+
+import ckan.plugins.toolkit as tk
 import ckan.model as model
+import ckan.lib.mailer as mailer
+
 from ckan.tests.helpers import call_action
 from ckan.cli.cli import ckan
 from ckan.tests import factories
@@ -159,3 +164,98 @@ class TestApiToken(object):
         result = cli.invoke(ckan, args)
         assert result.exit_code == 1
         assert model.Session.query(model.ApiToken).count() == initial + 2
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+class TestUserResendInvite:
+
+    def test_resend_invite_specific_user(self, cli, mail_server):
+        org = factories.Organization()
+
+        data_dict = {
+            "email": "test@example.com",
+            "group_id": org["id"],
+            "role": "member",
+        }
+        with mock.patch(
+            "ckan.lib.mailer.mail_user",
+            side_effect=mailer.MailerException("Simulated failure"),
+        ):
+            with pytest.raises(tk.ValidationError):
+                call_action("user_invite", **data_dict)
+
+        args = ["user", "resend-invite", "--user-email", "test@example.com"]
+        result = cli.invoke(ckan, args)
+        assert not result.exit_code, result.output
+
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
+
+        _, _, to_addrs, msg = msgs[0]
+        assert to_addrs == ["test@example.com"]
+        assert "Invite for CKAN" in msg
+
+    def test_resend_invite_non_existent_user(self, cli):
+        args = [
+            "user",
+            "resend-invite",
+            "--user-email",
+            "nonexistent@example.com",
+        ]
+        result = cli.invoke(ckan, args)
+        assert not result.exit_code
+        msg = "User with email 'nonexistent@example.com' not found."
+        assert msg in result.output
+
+    def test_resend_invite_no_pending_invitations(self, cli):
+        args = [
+            "user",
+            "resend-invite",
+        ]
+        result = cli.invoke(ckan, args)
+        assert not result.exit_code, result.output
+        assert "No pending user invitations found to resend." in result.output
+
+    def test_resend_invite_multiple_users(self, cli, mail_server):
+        org = factories.Organization()
+
+        users_data = [
+            {
+                "email": "user1@example.com",
+                "group_id": org["id"],
+                "role": "member",
+            },
+            {
+                "email": "user2@example.com",
+                "group_id": org["id"],
+                "role": "editor",
+            },
+            {
+                "email": "user3@example.com",
+                "group_id": org["id"],
+                "role": "admin",
+            },
+        ]
+        for user_data in users_data:
+            with mock.patch(
+                "ckan.lib.mailer.mail_user",
+                side_effect=mailer.MailerException("Simulated failure"),
+            ):
+                with pytest.raises(tk.ValidationError):
+                    call_action("user_invite", **user_data)
+
+        args = [
+            "user",
+            "resend-invite",
+        ]
+        result = cli.invoke(ckan, args)
+
+        assert not result.exit_code, result.output
+
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == len(users_data)
+
+        for i, user_data in enumerate(users_data):
+            _, _, to_addrs, msg = msgs[i]
+            assert to_addrs == [user_data["email"]]
+            assert "Invite for CKAN" in msg
