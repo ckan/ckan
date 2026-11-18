@@ -35,6 +35,13 @@ class TestFeeds(object):
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
         assert helpers.body_contains(res, u"<content/>")
 
+    @pytest.mark.ckan_config("ckan.feeds.author_link", "http://example.org/me")
+    def test_general_atom_feed_includes_author_link(self, app):
+        factories.Dataset()
+        offset = url_for(u"feeds.general")
+        res = app.get(offset)
+        assert helpers.body_contains(res, u"<uri>http://example.org/me</uri>")
+
     def test_group_atom_feed_works(self, app):
         group = factories.Group()
         dataset = factories.Dataset(groups=[{"id": group["id"]}])
