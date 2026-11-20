@@ -1119,6 +1119,63 @@ def alter_table(
         ))
 
 
+def _text_array_literal(values: list[Any]) -> str:
+    items = ['NULL' if v is None else '"{}"'.format(
+        str(v).replace('\\', '\\\\').replace('"', '\\"')) for v in values]
+    return '{' + ','.join(items) + '}'
+
+
+def _load_value(value: Any, field_type: str) -> Any:
+    if value is None:
+        return None
+    if field_type.lower() in ('json', 'jsonb') or isinstance(value, dict):
+        return json.dumps(value)
+    if isinstance(value, list):
+        return _text_array_literal(cast('list[Any]', value))
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    return str(value)
+
+
+def _load_records(
+        context: Context, data_dict: dict[str, Any], fields: list[str],
+        types: dict[str, str], records: list[dict[str, Any]],
+        method: str) -> list[list[Any]]:
+    rows = [
+        [_load_value(record.get(name), types[name]) for name in fields]
+        for record in records
+    ]
+    result = context['connection'].execute(
+        sa.text(
+            'SELECT load_records(:table, CAST(:fields AS text[]), '
+            'CAST(:rows AS text[][]), true, :include, :method)'),
+        {
+            'table': data_dict['resource_id'],
+            'fields': fields,
+            'rows': rows,
+            'include': data_dict['include_records'],
+            'method': method,
+        }).scalar()
+    return result
+
+
+def _record_error(
+        errors: list[Any], indexes: list[int], method: str,
+        records: list[dict[str, Any]], key_names: list[str]):
+    row, message = errors[0]
+    num = indexes[row]
+    if method == _UPDATE and message == 'No matching record found for update':
+        record = records[num]
+        raise ValidationError({
+            'key': [u'key "{0}" not found'.format(
+                {k: record[k] for k in key_names})]
+        })
+    raise ValidationError({
+        'records': [message],
+        'records_row': num,
+    })
+
+
 def insert_data(context: Context, data_dict: dict[str, Any]):
     data_dict['method'] = _INSERT
     result = upsert_data(context, data_dict)
@@ -1134,80 +1191,23 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
     fields = _get_fields(context['connection'], data_dict['resource_id'])
     field_names = _pluck('id', fields)
+    types = {f['id']: f['type'] for f in fields}
+    types['_id'] = 'int'
     records = data_dict['records']
-    sql_columns = ", ".join(
-        identifier(name) for name in field_names)
-    return_columns = "_id, " + sql_columns
-    if not sql_columns:
+    if not field_names:
         # insert w/ no columns is a postgres error
         return
-    num = -1
+
+    # (load_records field names, original record numbers) per batch
+    batches: dict[tuple[str, ...], list[int]] = {}
+    unique_keys: list[str] = []
 
     if method == _INSERT:
-        rows = []
         for num, record in enumerate(records):
             _validate_record(record, num, field_names)
-
-            row = {}
-            for idx, field in enumerate(fields):
-                value = record.get(field['id'])
-                if value is not None and field['type'].lower() in ('json', 'jsonb'):
-                    value = json.dumps(value)
-                elif value == '' and field['type'] != 'text':
-                    value = None
-                row[f"val_{idx}"] = value
-            rows.append(row)
-
-        sql_string = '''INSERT INTO {res_id} ({columns})
-            VALUES ({values}) {return_statement};'''.format(
-            res_id=identifier(data_dict['resource_id']),
-            columns=sql_columns,
-            return_statement='RETURNING {return_columns}'.format(
-                return_columns=return_columns) if data_dict[
-                    'include_records'] else '',
-            values=', '.join([
-                f":val_{idx}" for idx in range(0, len(field_names))
-            ])
-        )
-
-        try:
-            if len(rows) > 1:
-                itrans = context['connection'].begin_nested()
-                try:
-                    results = context['connection'].execute(sa.text(sql_string), rows)
-                except:
-                    itrans.rollback()
-                    raise
-                itrans.commit()
-            else:
-                results = context['connection'].execute(sa.text(sql_string), rows)
-
-            if data_dict['include_records']:
-                data_dict['records'] = [
-                    dict(r) for r in results.mappings().all()
-                ]
-
-        except (DatabaseError, DataError) as err:
-            if len(rows) > 1:
-                # determine failing row number for records_row
-                etrans = context['connection'].begin_nested()
-                try:
-                    for num, row in enumerate(rows):
-                        try:
-                            context['connection'].execute(sa.text(sql_string), [row])
-                        except (DatabaseError, DataError) as _err:
-                            break
-                finally:
-                    etrans.rollback()
-
-            raise ValidationError({
-                'records': [_programming_error_summary(err)],
-                'records_row': num,
-            })
-
-    elif method in [_UPDATE, _UPSERT]:
+        batches[tuple(field_names)] = list(range(len(records)))
+    else:
         unique_keys = _get_unique_key(context, data_dict)
-        updated_records = {}
         for num, record in enumerate(records):
             if not unique_keys and '_id' not in record:
                 raise ValidationError({
@@ -1225,13 +1225,6 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                                 fields=', '.join(missing_fields))]
                     })
 
-            for field in fields:
-                value = record.get(field['id'])
-                if value is not None and field['type'].lower() in ('json', 'jsonb'):
-                    record[field['id']] = json.dumps(value)
-                elif value == '' and field['type'] != 'text':
-                    record[field['id']] = None
-
             non_existing_field_names = [
                 field for field in record
                 if field not in field_names and field != '_id'
@@ -1242,116 +1235,31 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         ', '.join(non_existing_field_names))]
                 })
 
-            idx_gen = itertools.count()
+            used = tuple(
+                (['_id'] if '_id' in record else []) +
+                [name for name in field_names if name in record])
+            batches.setdefault(used, []).append(num)
 
-            used_fields = [field for field in fields
-                           if field['id'] in record]
+    loaded: dict[int, dict[str, Any]] = {}
+    for batch_fields, indexes in batches.items():
+        batch_records = [records[num] for num in indexes]
+        result = _load_records(
+            context, data_dict, list(batch_fields), types, batch_records,
+            method)
+        if isinstance(result, list):
+            batch_key_names = ['_id'] if '_id' in batch_fields else unique_keys
+            _record_error(
+                result, indexes, method, records, batch_key_names)
+        if data_dict['include_records']:
+            returned = ['_id'] + field_names
+            positions = [result['fields'].index(name) for name in returned]
+            for num, values in zip(indexes, result['records']):
+                loaded[num] = {
+                    name: values[pos]
+                    for name, pos in zip(returned, positions)}
 
-            used_field_names = _pluck('id', used_fields)
-
-            value_placeholders = [
-                f"val_{next(idx_gen)}" for _ in used_field_names
-            ]
-            values = [":" + p for p in value_placeholders]
-            used_values = dict(zip(
-                value_placeholders,
-                [record[field] for field in used_field_names]
-            ))
-
-            if '_id' in record:
-                placeholder = f'val_{next(idx_gen)}'
-                unique_values = {placeholder: record['_id']}
-                pk_sql = '"_id"'
-                pk_values_sql = ":" + placeholder
-            else:
-                placeholders = [
-                    f"val_{next(idx_gen)}" for _ in range(len(unique_keys))
-                ]
-                unique_values = dict(zip(
-                    placeholders, [record[key] for key in unique_keys]
-                ))
-                pk_sql = ','.join([identifier(part) for part in unique_keys])
-                pk_values_sql = ','.join([":" + p for p in placeholders])
-
-            if method == _UPDATE:
-                sql_string = u'''
-                    UPDATE {res_id}
-                    SET ({columns}, "_full_text") = ({values}, NULL)
-                    WHERE ({primary_key}) = ({primary_value})
-                    {return_statement};
-                '''.format(
-                    res_id=identifier(data_dict['resource_id']),
-                    columns=u', '.join(
-                        [identifier(field)
-                         for field in used_field_names]),
-                    return_statement='RETURNING {return_columns}'.format(
-                        return_columns=return_columns) if data_dict[
-                            'include_records'] else '',
-                    values=u', '.join(values),
-                    primary_key=pk_sql,
-                    primary_value=pk_values_sql,
-                )
-                try:
-                    results = context['connection'].execute(
-                        sa.text(sql_string),
-                        {**used_values, **unique_values})
-                    if data_dict['include_records']:
-                        for r in results.mappings().all():
-                            updated_records[str(r._id)] = dict(r)
-                except DatabaseError as err:
-                    raise ValidationError({
-                        'records': [_programming_error_summary(err)],
-                        'records_row': num,
-                    })
-
-                # validate that exactly one row has been updated
-                if results.rowcount != 1:
-                    raise ValidationError({
-                        'key': [u'key "{0}" not found'.format(unique_values)]
-                    })
-
-            elif method == _UPSERT:
-                format_params = dict(
-                    res_id=identifier(data_dict['resource_id']),
-                    columns=('_id, ' if pk_sql == '"_id"' else '') + ', '.join(
-                        [identifier(field)
-                         for field in used_field_names]),
-                    set_statement=', '.join(
-                        ['{col}=EXCLUDED.{col}'.format(col=identifier(field))
-                         for field in used_field_names]),
-                    return_statement='RETURNING {return_columns}'.format(
-                        return_columns=return_columns) if data_dict[
-                            'include_records'] else '',
-                    values=('%s, ' % pk_values_sql if pk_sql == '"_id"' else '') +
-                    ', '.join([
-                        f'cast(:{p} as {field["type"]})'
-                        if field['type'].lower() in ('json', 'jsonb')
-                        else ":" + p
-                               for p, field in zip(value_placeholders, used_fields)]),
-                    primary_key=pk_sql
-                )
-
-                sql_string = """
-                    INSERT INTO {res_id} ({columns}) VALUES ({values})
-                    ON CONFLICT ({primary_key}) DO UPDATE
-                    SET {set_statement}
-                    {return_statement}
-                """.format(**format_params)
-
-                values = {**used_values, **unique_values}
-                try:
-                    results = context['connection'].execute(
-                        sa.text(sql_string), values)
-                    if data_dict['include_records']:
-                        for r in results.mappings().all():
-                            updated_records[str(r._id)] = dict(r)
-                except DatabaseError as err:
-                    raise ValidationError({
-                        'records': [_programming_error_summary(err)],
-                        'records_row': num,
-                    })
-        if updated_records:
-            data_dict['records'] = list(updated_records.values())
+    if data_dict['include_records']:
+        data_dict['records'] = [loaded[num] for num in sorted(loaded)]
 
 
 def validate(context: Context, data_dict: dict[str, Any]):

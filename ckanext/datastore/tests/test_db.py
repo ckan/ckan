@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import uuid
 import unittest.mock as mock
 import pytest
 
@@ -348,3 +349,414 @@ class TestGetFunctions(object):
         sql = "SELECT add(1, 2);"
 
         assert db.sanitize_sql(session.connection(), sql)[2] == {("add",)}
+
+
+@pytest.fixture
+def load_records_table():
+    session = orm.sessionmaker(bind=db.get_write_engine())()
+    table_name = "datastore_insert_test_" + uuid.uuid4().hex
+    yield session, table_name
+    session.rollback()
+    session.execute(sa.text(
+        f'DROP TABLE IF EXISTS public."{table_name}"'
+    ))
+    session.commit()
+    session.close()
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins")
+class TestLoadRecords(object):
+    def test_inserts_array_rows_and_returns_all_fields(
+        self, load_records_table
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                id serial PRIMARY KEY,
+                name text NOT NULL,
+                amount integer DEFAULT 42,
+                details jsonb DEFAULT '{{}}'::jsonb,
+                note text
+            )""")
+        )
+
+        result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['name'],
+                ARRAY[['Ada, Lovelace'], ['Bob']]::text[][]
+            )"""),
+            {"table_name": table_name},
+        ).scalar()
+
+        assert result == {
+            "records": [
+                [1, "Ada, Lovelace", 42, {}, None],
+                [2, "Bob", 42, {}, None],
+            ],
+            "fields": ["id", "name", "amount", "details", "note"],
+        }
+
+    def test_collects_errors_and_rolls_back_inserted_rows(
+        self, load_records_table
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                id integer,
+                CONSTRAINT datastore_insert_test_pkey PRIMARY KEY (id),
+                amount integer NOT NULL
+            )""")
+        )
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['id', 'amount'],
+                ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][]
+            )"""),
+            {"table_name": table_name},
+        ).scalar()
+
+        errors = errors
+        assert errors == [
+            [1, 'duplicate key value violates unique constraint '
+                '"datastore_insert_test_pkey"'],
+            [2, 'invalid input syntax for type integer: "not-an-integer"']
+        ]
+        assert session.execute(sa.text(
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 0
+
+    def test_empty_strings_become_null_only_for_non_text_fields(
+        self, load_records_table
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                amount integer,
+                details jsonb,
+                name text
+            )""")
+        )
+
+        result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name,
+                ARRAY['amount', 'details', 'name'],
+                ARRAY[['', '', '']]::text[][]
+            )"""),
+            {"table_name": table_name},
+        ).scalar()
+
+        assert result["records"] == [
+            [None, None, ""],
+        ]
+
+    def test_can_return_first_error_only(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                id integer,
+                CONSTRAINT datastore_insert_test_pkey PRIMARY KEY (id),
+                amount integer NOT NULL
+            )""")
+        )
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['id', 'amount'],
+                ARRAY[['1', '10'], ['1', '20'], ['3', 'not-an-integer']]::text[][],
+                true
+            )"""),
+            {"table_name": table_name},
+        ).scalar()
+
+        errors = errors
+        assert [row_number for row_number, _ in errors] == [1]
+        assert session.execute(sa.text(
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 0
+
+    def test_can_skip_returning_records(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                name text
+            )""")
+        )
+
+        result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['name'],
+                ARRAY[['Ada'], ['Bob']]::text[][],
+                false, false
+            )"""),
+            {"table_name": table_name},
+        ).scalar()
+
+        result = result
+        assert result == {"records": None, "fields": ["name"]}
+        assert session.execute(sa.text(
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 2
+
+    def test_update_and_upsert_match_unique_constraint(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id serial PRIMARY KEY,
+                code text NOT NULL,
+                region text NOT NULL,
+                amount integer NOT NULL,
+                CONSTRAINT {table_name}_code_region_key UNIQUE (code, region)
+            )"""
+        ))
+        session.execute(sa.text(
+            f"INSERT INTO {table_name} (code, region, amount) "
+            "VALUES ('alpha', 'north', 10)"
+        ))
+
+        unique_columns = session.execute(sa.text(
+            "SELECT first_unique_constraint_columns(:table_name)"
+        ), {"table_name": table_name}).scalar()
+        assert list(unique_columns) == ["code", "region"]
+
+        unmatched_update = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'amount', 'region', 'code'],
+                ARRAY[['99', '20', 'north', 'alpha']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert unmatched_update == [
+            [0, "No matching record found for update"]
+        ]
+
+        update_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'amount', 'region', 'code'],
+                ARRAY[['1', '20', 'north', 'alpha']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert update_result["records"] == [
+            [1, "alpha", "north", 20]
+        ]
+
+        upsert_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[['alpha', 'north', '30'], ['beta', 'south', '40']]::text[][],
+                false, true, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert upsert_result["records"] == [
+            [1, "alpha", "north", 30],
+            [3, "beta", "south", 40],
+        ]
+
+        no_records_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[['alpha', 'north', '50']]::text[][],
+                false, false, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert no_records_result == {
+            "records": None,
+            "fields": ["_id", "code", "region", "amount"],
+        }
+        assert session.execute(sa.text(
+            f"SELECT amount FROM {table_name} WHERE _id = 1"
+        )).scalar() == 50
+
+        update_result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[
+                    ['alpha', 'north', '60'],
+                    ['beta', 'south', '70']
+                ]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert update_result["records"] == [
+            [1, "alpha", "north", 60],
+            [3, "beta", "south", 70],
+        ]
+
+        no_records_update = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'region', 'amount'],
+                ARRAY[['alpha', 'north', '80']]::text[][],
+                false, false, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert no_records_update == {
+            "records": None,
+            "fields": ["_id", "code", "region", "amount"],
+        }
+        assert session.execute(sa.text(
+            f"SELECT amount FROM {table_name} WHERE _id = 1"
+        )).scalar() == 80
+
+    def test_id_is_the_only_upsert_conflict_target(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id integer PRIMARY KEY,
+                code text NOT NULL,
+                region text NOT NULL,
+                amount integer NOT NULL,
+                CONSTRAINT {table_name}_code_region_key UNIQUE (code, region)
+            )"""
+        ))
+        session.execute(sa.text(
+            f"INSERT INTO {table_name} VALUES (1, 'alpha', 'north', 10)"
+        ))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'code', 'region', 'amount'],
+                ARRAY[['99', 'alpha', 'north', '20']]::text[][],
+                false, true, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        errors = errors
+        assert errors[0][0] == 0
+        assert errors[0][1].startswith(
+            "duplicate key value violates unique constraint"
+        )
+        assert session.execute(sa.text(
+            f"SELECT _id, amount FROM {table_name}"
+        )).all() == [(1, 10)]
+
+    @pytest.mark.parametrize("operation", ["update", "upsert"])
+    def test_repeated_keys_return_bulk_error(
+        self, load_records_table, operation
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id integer PRIMARY KEY,
+                value integer NOT NULL
+            )"""
+        ))
+        session.execute(sa.text(
+            f"INSERT INTO {table_name} VALUES (1, 10)"
+        ))
+
+        result = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'value'],
+                ARRAY[['1', '20'], ['1', '30']]::text[][],
+                false, true, :operation
+            )"""
+        ), {"table_name": table_name, "operation": operation}).scalar()
+
+        errors = result
+        assert [row_number for row_number, _ in errors] == [0]
+        assert session.execute(sa.text(
+            f"SELECT value FROM {table_name} WHERE _id = 1"
+        )).scalar() == 10
+
+    def test_update_returns_error_for_unmatched_row(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                _id serial PRIMARY KEY,
+                value text NOT NULL
+            )"""
+        ))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'value'],
+                ARRAY[['99', 'missing']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+        assert errors == [[0, "No matching record found for update"]]
+
+    @pytest.mark.parametrize("operation", ["update", "upsert"])
+    def test_update_and_upsert_require_key_fields(
+        self, load_records_table, operation
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"CREATE TABLE {table_name} (value text NOT NULL)"
+        ))
+
+        with pytest.raises(sa.exc.DBAPIError, match="No key fields provided"):
+            session.execute(sa.text(
+                """SELECT load_records(
+                    :table_name, ARRAY['value'],
+                    ARRAY[['missing']]::text[][],
+                    false, true, :operation
+                )"""
+            ), {"table_name": table_name, "operation": operation})
+
+    def test_unknown_operation_returns_error(self, load_records_table):
+        session, table_name = load_records_table
+        session.execute(sa.text(f"CREATE TABLE {table_name} (value text)"))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['value'],
+                ARRAY[['x']]::text[][],
+                false, true, 'delete'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        assert errors == [[0, "Unknown operation: delete"]]
+
+    def test_update_reports_only_unmatched_rows_and_rolls_back(
+        self, load_records_table
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"CREATE TABLE {table_name} (_id integer PRIMARY KEY, value integer)"
+        ))
+        session.execute(sa.text(f"INSERT INTO {table_name} VALUES (1, 10)"))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['_id', 'value'],
+                ARRAY[['1', '20'], ['99', '30']]::text[][],
+                false, true, 'update'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        assert errors == [
+            [1, "No matching record found for update"]
+        ]
+        assert session.execute(sa.text(
+            f"SELECT value FROM {table_name} WHERE _id = 1"
+        )).scalar() == 10
+
+    def test_upsert_with_null_conflict_key_returns_error(
+        self, load_records_table
+    ):
+        session, table_name = load_records_table
+        session.execute(sa.text(
+            f"""CREATE TABLE {table_name} (
+                code integer UNIQUE,
+                value text
+            )"""
+        ))
+
+        errors = session.execute(sa.text(
+            """SELECT load_records(
+                :table_name, ARRAY['code', 'value'],
+                ARRAY[['', 'x']]::text[][],
+                false, true, 'upsert'
+            )"""
+        ), {"table_name": table_name}).scalar()
+
+        assert errors == [
+            [0, "Cannot batch upsert rows with NULL conflict keys"]
+        ]
+        assert session.execute(sa.text(
+            f"SELECT count(*) FROM {table_name}"
+        )).scalar() == 0
