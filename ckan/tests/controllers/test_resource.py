@@ -13,7 +13,7 @@ from ckan.tests.helpers import call_action
 
 @pytest.mark.ckan_config("ckan.plugins", "test_resource_view")
 @pytest.mark.ckan_config("ckan.views.default_views", "test_resource_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestPluggablePreviews:
     def test_hook(self, app):
         user = factories.User()
@@ -67,7 +67,7 @@ class TestPluggablePreviews:
         assert "mock-preview.js" in result
 
 
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins")
 class TestCreate:
     """Tests for the resource creation page."""
 

@@ -8,7 +8,6 @@ from ckan.logic import schema
 from ckan.tests import helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.site_title", "My Test CKAN")
 def test_config_option_show_in_config_not_in_db():
     """config_option_show returns value from config when value on in
@@ -18,7 +17,6 @@ def test_config_option_show_in_config_not_in_db():
     assert title == "My Test CKAN"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.site_title", "My Test CKAN")
 def test_config_option_show_in_config_and_in_db():
     """config_option_show returns value from db when value is in both
@@ -31,7 +29,6 @@ def test_config_option_show_in_config_and_in_db():
     assert title == "Test site title"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.not.editable", "My non editable option")
 def test_config_option_show_not_whitelisted_key():
     """config_option_show raises exception if key is not a whitelisted
@@ -50,7 +47,6 @@ def test_config_option_list():
     assert keys == schema_keys
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_app_globals_set_if_defined():
     key = "ckan.site_title"
     value = "Test site title"

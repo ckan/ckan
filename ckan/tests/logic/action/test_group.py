@@ -9,7 +9,6 @@ from ckan import logic, model
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_member_creation():
     user = factories.User()
     group = factories.Group()
@@ -27,7 +26,6 @@ def test_group_member_creation():
     assert new_membership["capacity"] == "member"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_organization_member_creation():
     user = factories.User()
     organization = factories.Organization()
@@ -45,7 +43,6 @@ def test_organization_member_creation():
     assert new_membership["capacity"] == "member"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_member_creation_raises_validation_error_if_id_missing():
 
     with pytest.raises(logic.ValidationError):
@@ -56,14 +53,12 @@ def test_group_member_creation_raises_validation_error_if_id_missing():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_member_creation_raises_validation_error_if_username_missing():
 
     with pytest.raises(logic.ValidationError):
         helpers.call_action("group_member_create", id="someid", role="member")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_member_creation_raises_validation_error_if_role_missing(faker):
 
     with pytest.raises(logic.ValidationError):
@@ -74,7 +69,6 @@ def test_group_member_creation_raises_validation_error_if_role_missing(faker):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_org_member_creation_raises_validation_error_if_id_missing():
 
     with pytest.raises(logic.ValidationError):
@@ -85,7 +79,6 @@ def test_org_member_creation_raises_validation_error_if_id_missing():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_org_member_creation_raises_validation_error_if_username_missing():
 
     with pytest.raises(logic.ValidationError):
@@ -96,7 +89,6 @@ def test_org_member_creation_raises_validation_error_if_username_missing():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_org_member_creation_raises_validation_error_if_role_missing(faker):
 
     with pytest.raises(logic.ValidationError):
@@ -107,7 +99,6 @@ def test_org_member_creation_raises_validation_error_if_role_missing(faker):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_group():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": True}
@@ -134,7 +125,6 @@ def test_create_group():
     ]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_group_validation_fail():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": True}
@@ -143,7 +133,6 @@ def test_create_group_validation_fail():
         helpers.call_action("group_create", context=context, name="")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_group_return_id():
 
     user = factories.User()
@@ -161,7 +150,6 @@ def test_create_group_return_id():
     assert re.match(r"([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)", group)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_matches_show():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": True}
@@ -181,7 +169,6 @@ def test_create_matches_show():
         assert created[k] == shown[k], k
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_cant_set_id():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": False}
@@ -192,7 +179,6 @@ def test_normal_user_cant_set_id():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_can_set_id():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -203,7 +189,6 @@ def test_sysadmin_can_set_id():
     assert result.get("id") == _id
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_id_cant_already_exist():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -220,7 +205,6 @@ def test_id_cant_already_exist():
     assert "Id already exists" in str(exception.value)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_cant_set_extras_id():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": False}
@@ -235,7 +219,6 @@ def test_normal_user_cant_set_extras_id():
     assert "The input field id was not expected" in str(exception.value)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_user_cant_set_extras_id():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -248,7 +231,6 @@ def test_sysadmin_user_cant_set_extras_id():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_index")
 def test_member_create_reindexes_package_groups():
     group = factories.Group()
@@ -271,7 +253,6 @@ def test_member_create_reindexes_package_groups():
     assert get_search_result_groups() == [group["name"]]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_create_accepts_object_name_or_id():
     org = factories.Organization()
     package = factories.Dataset()
@@ -291,7 +272,6 @@ def test_member_create_accepts_object_name_or_id():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_create_raises_if_user_unauthorized_to_update_group():
     org = factories.Organization()
     pkg = factories.Dataset()
@@ -308,7 +288,6 @@ def test_member_create_raises_if_user_unauthorized_to_update_group():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_create_raises_if_any_required_parameter_isnt_defined():
     org = factories.Organization()
     pkg = factories.Dataset()
@@ -325,7 +304,6 @@ def test_member_create_raises_if_any_required_parameter_isnt_defined():
             helpers.call_action("member_create", **payload)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_create_raises_if_group_wasnt_found():
     pkg = factories.Dataset()
     with pytest.raises(logic.NotFound):
@@ -338,7 +316,6 @@ def test_member_create_raises_if_group_wasnt_found():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_create_raises_if_object_wasnt_found():
     org = factories.Organization()
     with pytest.raises(logic.NotFound):
@@ -351,7 +328,6 @@ def test_member_create_raises_if_object_wasnt_found():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_create_raises_if_object_type_is_invalid():
     org = factories.Organization()
     pkg = factories.Dataset()
@@ -365,7 +341,6 @@ def test_member_create_raises_if_object_type_is_invalid():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_a_non_sysadmin_cant_purge_group():
     user = factories.User()
     group = factories.Group(user=user)
@@ -378,7 +353,6 @@ def test_a_non_sysadmin_cant_purge_group():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_purged_group_does_not_show():
     group = factories.Group()
 
@@ -388,7 +362,6 @@ def test_purged_group_does_not_show():
         helpers.call_action("group_show", context={}, id=group["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_db")
 def test_purged_group_is_not_listed():
     group = factories.Group()
@@ -398,7 +371,6 @@ def test_purged_group_is_not_listed():
     assert helpers.call_action("group_list", context={}) == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_dataset_in_a_purged_group_no_longer_shows_that_group():
     group = factories.Group()
     dataset = factories.Dataset(groups=[{"name": group["name"]}])
@@ -409,7 +381,6 @@ def test_dataset_in_a_purged_group_no_longer_shows_that_group():
     assert dataset_shown["groups"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_index")
 def test_purged_group_is_not_in_search_results_for_its_ex_dataset():
     group = factories.Group()
@@ -426,7 +397,6 @@ def test_purged_group_is_not_in_search_results_for_its_ex_dataset():
     assert get_search_result_groups() == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_purged_group_leaves_no_trace_in_the_model():
     parent = factories.Group()
     user = factories.User()
@@ -452,19 +422,16 @@ def test_purged_group_leaves_no_trace_in_the_model():
     assert model.Package.get(ds["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_missing_id_returns_error():
     with pytest.raises(logic.ValidationError):
         helpers.call_action("group_purge")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_bad_id_returns_404():
     with pytest.raises(logic.NotFound):
         helpers.call_action("group_purge", id="123")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_index")
 def test_member_delete_reindexes_package_groups():
     group = factories.Group()
@@ -486,7 +453,6 @@ def test_member_delete_reindexes_package_groups():
     assert get_search_result_groups() == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_delete_accepts_object_name_or_id():
     org = factories.Organization()
     user = factories.User()
@@ -506,7 +472,6 @@ def test_member_delete_accepts_object_name_or_id():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_delete_raises_if_user_unauthorized_to_update_group():
     org = factories.Organization()
     pkg = factories.Dataset()
@@ -523,7 +488,6 @@ def test_member_delete_raises_if_user_unauthorized_to_update_group():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_delete_raises_if_any_required_parameter_isnt_defined():
     org = factories.Organization()
     pkg = factories.Dataset()
@@ -540,7 +504,6 @@ def test_member_delete_raises_if_any_required_parameter_isnt_defined():
             helpers.call_action("member_delete", **payload)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_delete_raises_if_group_wasnt_found():
     pkg = factories.Dataset()
     with pytest.raises(logic.NotFound):
@@ -553,7 +516,6 @@ def test_member_delete_raises_if_group_wasnt_found():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_delete_raises_if_object_wasnt_found():
     org = factories.Organization()
     with pytest.raises(logic.NotFound):
@@ -566,7 +528,6 @@ def test_member_delete_raises_if_object_wasnt_found():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_member_delete_raises_if_object_type_is_invalid():
     org = factories.Organization()
     pkg = factories.Dataset()
@@ -1196,7 +1157,6 @@ def test_user_list_excludes_deleted_users_not_marked_membership_of_org_as_delete
     assert len(org_members) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_package_show():
     group = factories.Group()
     factories.Dataset()
@@ -1206,7 +1166,6 @@ def test_group_package_show():
     assert group_packages[0]["name"] == pkg["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_patch_updating_single_field():
     user = factories.User()
     group = factories.Group(description="some test now", user=user)
@@ -1227,7 +1186,6 @@ def test_group_patch_updating_single_field():
     assert group2["description"] == "somethingnew"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.public_user_details", "false")
 def test_group_patch_updating_single_field_when_public_user_details_is_false():
     user = factories.User()
@@ -1251,7 +1209,6 @@ def test_group_patch_updating_single_field_when_public_user_details_is_false():
     assert group2["users"][0]["name"] == user["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_patch_preserve_datasets():
     user = factories.User()
     group = factories.Group(description="some test now", user=user)
@@ -1278,7 +1235,6 @@ def test_group_patch_preserve_datasets():
     assert 0 == group4["package_count"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_update_image_url_field():
     user = factories.User()
     context = {"user": user["name"]}
@@ -1300,7 +1256,6 @@ def test_group_update_image_url_field():
     assert group["image_url"] == "new_image_url.jpg"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_update_locates_group_by_name(group, faker):
     description = faker.sentence()
     original_id = group["id"]
@@ -1312,7 +1267,6 @@ def test_group_update_locates_group_by_name(group, faker):
     assert group["description"] == description
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_update_cant_change_type():
     user = factories.User()
     context = {"user": user["name"]}
@@ -1328,7 +1282,6 @@ def test_group_update_cant_change_type():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_extras_removed_if_missing():
     group = factories.Group(extras=[{"key": "e", "value": "v"}])
     assert group["extras"] == [{"key": "e", "value": "v"}]
@@ -1340,7 +1293,6 @@ def test_extras_removed_if_missing():
     assert updated_group["extras"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_groups_unchanged_if_missing():
     group1 = factories.Group()
     group2 = factories.Group(groups=[{"name": group1["name"]}])
@@ -1353,7 +1305,6 @@ def test_groups_unchanged_if_missing():
     assert updated_group["groups"][0]["name"] == group1["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_groups_removed_if_empty_list():
     group1 = factories.Group()
     group2 = factories.Group(groups=[{"name": group1["name"]}])
@@ -1367,7 +1318,6 @@ def test_groups_removed_if_empty_list():
     assert updated_group["groups"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_users_unchanged_if_missing():
     user = factories.User()
     group = factories.Group(users=[user])
@@ -1380,7 +1330,6 @@ def test_users_unchanged_if_missing():
     assert user["name"] in (g["name"] for g in updated_group["users"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_users_removed_if_empty_list():
     user = factories.User()
     group = factories.Group(users=[user])

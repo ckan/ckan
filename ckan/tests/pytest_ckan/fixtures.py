@@ -29,6 +29,7 @@ from __future__ import annotations
 import copy
 import smtplib
 import itertools
+import os
 
 from io import BytesIO
 from typing import Any, IO, cast
@@ -36,6 +37,7 @@ from unittest import mock
 from collections.abc import Iterable, Callable
 import pytest
 import rq
+import sqlalchemy as sa
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 from pytest_factoryboy import register
@@ -45,8 +47,7 @@ import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
-import ckan.model as model
-from ckan import types
+from ckan import model, types
 from ckan.common import config
 from ckan.lib import redis, search, files
 
@@ -530,6 +531,11 @@ def with_plugins(
     This will automatically enable ``with_plugins`` for every test, even if
     it's not required explicitly.
 
+    Missing tables defined by mapped plugin models are created when the plugin
+    is loaded. If all of a plugin's mapped tables are newly created, its
+    migrations are stamped as applied rather than run. Plugins whose tables
+    are defined only by migrations still need ``migrate_db_for``.
+
     The fixture can be used as mark. It iterates over all arguments and appends
     them to the list of ``ckan.plugins`` before loading. This can be used to
     enable few plugins **in addition** to any plugins that are already
@@ -566,8 +572,41 @@ def with_plugins(
     monkeypatch.setitem(ckan_config, "ckan.plugins", current_plugins + names)
 
     ckan.plugins.load_all()
-    yield
-    ckan.plugins.unload_all()
+    try:
+        _initialize_plugin_models(ckan_config["ckan.plugins"])
+        yield
+    finally:
+        ckan.plugins.unload_all()
+
+
+def _initialize_plugin_models(names: list[str]):
+    from ckan.cli.db import _repo_for_plugin, _resolve_alembic_config
+
+    for name in names:
+        plugin = ckan.plugins.get_plugin(name)
+        if plugin is None:
+            raise RuntimeError(f"Plugin {name!r} was not loaded")
+        module = type(plugin).__module__.split(".")
+        package = ".".join(
+            module[:2] if module[0] == "ckanext" else module[:-1] or module
+        )
+        tables = {
+            mapper.local_table
+            for mapper in model.registry.mappers
+            if mapper.class_.__module__ == package
+            or mapper.class_.__module__.startswith(package + ".")
+        }
+        if not tables:
+            continue
+        inspector = sa.inspect(model.ensure_engine())
+        missing = [table for table in tables if not inspector.has_table(table.name)]
+        if missing:
+            with model.ensure_engine().begin() as connection:
+                model.repo.metadata.create_all(connection, tables=missing)
+            if (len(missing) == len(tables)
+                    and os.path.isfile(_resolve_alembic_config(name))):
+                with _repo_for_plugin(name) as repo:
+                    repo.stamp_alembic_head()
 
 
 @pytest.fixture
@@ -625,32 +664,6 @@ def with_extended_cli(
     # to apply per-test config changes to it without creating real
     # config file.
     monkeypatch.setattr(ckan.cli, u"load_config", lambda _: ckan_config)
-
-
-@pytest.fixture(scope="session")
-def reset_db_once(reset_db: types.FixtureResetDb):
-    """Internal fixture that cleans DB only the first time it's used.
-    """
-    reset_db()
-
-
-@pytest.fixture
-def non_clean_db(reset_db_once: types.FixtureResetDb):
-    """Guarantees that DB is initialized.
-
-    This fixture either initializes DB if it hasn't been done yet or does
-    nothing otherwise. If there is some data in DB, it stays intact. If your
-    tests need empty database, use `clean_db` instead, which is much slower,
-    but guarantees that there are no data left from the previous test session.
-
-    Example::
-
-        @pytest.mark.usefixtures("non_clean_db")
-        def test_example():
-            assert factories.User()
-
-    """
-    model.repo.init_db()
 
 
 class FakeFileStorage(FlaskFileStorage):

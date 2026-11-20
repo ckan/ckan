@@ -6,7 +6,6 @@ import ckan.model as model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroup(object):
     def test_basic(self):
         group = model.Group(
@@ -95,7 +94,7 @@ group_type = "organization"
 
 
 @pytest.fixture()
-def hierarchy(non_clean_db):
+def hierarchy():
     left = factories.Organization.model()
     left_leaf = factories.Organization.model(parent_id=left.id)
     left_branch = factories.Organization.model(parent_id=left.id)

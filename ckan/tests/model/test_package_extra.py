@@ -1,12 +1,10 @@
 # encoding: utf-8
 
-import pytest
 
 from ckan import model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures(u"non_clean_db")
 class TestPackageExtra(object):
     def test_create_extras(self):
         pkg = model.Package(name=factories.Dataset.stub().name)

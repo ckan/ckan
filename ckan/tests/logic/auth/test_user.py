@@ -11,28 +11,24 @@ from ckan.tests import factories, helpers
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_can_create_via_api():
     sysadmin = factories.Sysadmin()
     context = {"user": sysadmin["name"], "model": model, "api_version": 3}
     assert helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_anon_can_not_create_via_web():
     context = {"user": None, "model": model}
     with pytest.raises(logic.NotAuthorized):
         helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_anon_cannot_create_via_api():
     context = {"user": None, "model": model, "api_version": 3}
     with pytest.raises(logic.NotAuthorized):
         helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
 def test_anon_cannot_create_via_forbidden_web():
     context = {"user": None, "model": model}
@@ -40,14 +36,12 @@ def test_anon_cannot_create_via_forbidden_web():
         helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_api", True)
 def test_anon_not_create_via_allowed_api():
     context = {"user": None, "model": model, "api_version": 3}
     assert helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @mock.patch("ckan.logic.auth.group._group_or_org_member_create")
 def test_user_invite_delegates_correctly_to_group_member_create(gmc):
     user = factories.User()
@@ -67,7 +61,6 @@ def test_anon_is_not_allowed_to_create_tokens():
         helpers.call_auth("api_token_create", {"user": None, "model": model})
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_auth_user_is_allowed_to_create_tokens():
     user = factories.User()
     helpers.call_auth(
@@ -77,7 +70,6 @@ def test_auth_user_is_allowed_to_create_tokens():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_auth_deleted_users_are_always_unauthorized():
     def always_success(x, y):
         return {"success": True}
@@ -93,7 +85,6 @@ def test_auth_deleted_users_are_always_unauthorized():
     del authz._AuthFunctions._functions["always_success"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_only_sysadmins_can_delete_users():
     user = factories.User()
     sysadmin = factories.Sysadmin()
@@ -105,7 +96,6 @@ def test_only_sysadmins_can_delete_users():
     assert helpers.call_auth("user_delete", context=context, id=user["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_anon_cant_delete():
     context = {"user": None, "model": model}
     params = {}
@@ -113,7 +103,6 @@ def test_anon_cant_delete():
         helpers.call_auth("resource_delete", context=context, **params)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_no_org_user_cant_delete():
     user = factories.User()
     org = factories.Organization()
@@ -129,7 +118,6 @@ def test_no_org_user_cant_delete():
     assert not response["success"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_org_user_can_delete():
     user = factories.User()
     org_users = [{"name": user["name"], "capacity": "editor"}]
@@ -148,7 +136,6 @@ def test_org_user_can_delete():
     assert response["success"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_anon_cant_delete_2():
@@ -158,7 +145,6 @@ def test_anon_cant_delete_2():
         helpers.call_auth("resource_view_delete", context=context, **params)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_no_org_user_cant_delete_2():
@@ -178,7 +164,6 @@ def test_no_org_user_cant_delete_2():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("with_plugins")
 def test_org_user_can_delete_2():
@@ -209,7 +194,6 @@ def test_anon_cant_clear():
         helpers.call_auth("resource_view_clear", context=context, **params)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_cant_clear():
     user = factories.User()
 
@@ -219,7 +203,6 @@ def test_normal_user_cant_clear():
         helpers.call_auth("resource_view_clear", context=context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_user_can_clear():
     user = factories.User(sysadmin=True)
 
@@ -234,7 +217,6 @@ def test_anon_is_not_allowed_to_revoke_tokens():
         helpers.call_auth("api_token_revoke", {"user": None, "model": model})
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_auth_user_is_allowed_to_revoke_tokens():
     user = factories.User()
     token = model.ApiToken(user["id"])
@@ -248,7 +230,6 @@ def test_auth_user_is_allowed_to_revoke_tokens():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_auth_user_is_allowed_to_revoke_unowned_tokens():
     owner = factories.User()
     not_owner = factories.User()
@@ -264,7 +245,6 @@ def test_auth_user_is_allowed_to_revoke_unowned_tokens():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_auth_user_is_allowed_to_revoke_unexisting_tokens():
     user = factories.User()
 
@@ -297,7 +277,6 @@ def test_user_list_email_parameter():
         helpers.call_auth("user_list", email="a@example.com", context=context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
 @mock.patch("flask_login.utils._get_user")
 def test_restrict_anon_auth_when_user_is_anonymouus(current_user):
@@ -309,7 +288,6 @@ def test_restrict_anon_auth_when_user_is_anonymouus(current_user):
         helpers.call_auth("user_show", context=context, id=fred["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
 @mock.patch("flask_login.utils._get_user")
 def test_restrict_anon_auth_when_user_is_in_context(current_user):
@@ -320,7 +298,6 @@ def test_restrict_anon_auth_when_user_is_in_context(current_user):
     assert helpers.call_auth("user_show", context=context, id=fred["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_authed_user_show():
     fred = factories.User()
     fred["capacity"] = "editor"
@@ -328,7 +305,6 @@ def test_authed_user_show():
     assert helpers.call_auth("user_show", context=context, id=fred["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_anon_is_not_allowed_to_get_tokens():
     user = factories.User()
     with pytest.raises(logic.NotAuthorized):
@@ -337,7 +313,6 @@ def test_anon_is_not_allowed_to_get_tokens():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_auth_user_is_allowed_to_list_tokens():
     user = factories.User()
     helpers.call_auth(
@@ -359,7 +334,6 @@ class TestFollower:
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(func, context=context)
 
-    @pytest.mark.usefixtures("non_clean_db")
     @pytest.mark.parametrize("func", functions)
     def test_user_cannot_list_followers(self, func):
         user = factories.User()
@@ -367,7 +341,6 @@ class TestFollower:
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(func, context=context)
 
-    @pytest.mark.usefixtures("non_clean_db")
     @pytest.mark.parametrize("func", functions)
     def test_sysadmin_can_list_followers(self, func):
         sysadmin = factories.Sysadmin()
@@ -389,7 +362,6 @@ class TestFollowee:
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(func, context=context)
 
-    @pytest.mark.usefixtures("non_clean_db")
     @pytest.mark.parametrize("func", functions)
     def test_user_cannot_list_followees_of_another_user(self, func):
         user = factories.User()
@@ -397,14 +369,12 @@ class TestFollowee:
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(func, context=context)
 
-    @pytest.mark.usefixtures("non_clean_db")
     @pytest.mark.parametrize("func", functions)
     def test_user_can_list_own_followees(self, func):
         user = factories.User()
         context = {"user": user["name"], "model": model}
         assert helpers.call_auth(func, context=context, id=user["id"])
 
-    @pytest.mark.usefixtures("non_clean_db")
     @pytest.mark.parametrize("func", functions)
     def test_sysadmin_can_list_followees(self, func):
         sysadmin = factories.Sysadmin()
@@ -412,7 +382,6 @@ class TestFollowee:
         assert helpers.call_auth(func, context=context)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFolloweeCount:
     functions = [
         "dataset_followee_count",
@@ -429,7 +398,6 @@ class TestFolloweeCount:
         assert helpers.call_auth(func, context, id=user["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFollowerCount:
     functions = [
         "dataset_follower_count",
@@ -445,7 +413,6 @@ class TestFollowerCount:
         assert helpers.call_auth(func, context, id=user["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestAmFollowing:
     functions = [
         "am_following_dataset",
@@ -516,7 +483,6 @@ def test_user_update_user_cannot_update_another_user():
         helpers.call_auth("user_update", context=context, **params)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_update_user_can_update_her():
     """Users should be authorized to update their own accounts."""
     fred = factories.User()

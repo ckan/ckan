@@ -8,7 +8,6 @@ from ckan.tests import factories, helpers
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_show__deleted_group_is_hidden_to_public():
     group = factories.Group(state="deleted")
     context = {"model": model}
@@ -18,7 +17,6 @@ def test_group_show__deleted_group_is_hidden_to_public():
         helpers.call_auth("group_show", context=context, id=group["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_show__deleted_group_is_visible_to_its_member():
 
     fred = factories.User()
@@ -31,7 +29,6 @@ def test_group_show__deleted_group_is_visible_to_its_member():
     assert ret
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_show__deleted_org_is_visible_to_its_member():
 
     fred = factories.User()
@@ -44,7 +41,6 @@ def test_group_show__deleted_org_is_visible_to_its_member():
     assert ret
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
 def test_group_show__user_is_hidden_to_public():
     group = factories.Group()
@@ -60,7 +56,6 @@ def test_group_show__user_is_hidden_to_public():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_show__user_is_avail_to_public():
     group = factories.Group()
     context = {"model": model}
