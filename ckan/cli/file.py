@@ -366,7 +366,7 @@ def storage_remove_files(
     storage_name: str | None, remove_registered: bool, remove_not_registered: bool
 ):
     """Remove all files from the storage."""
-    user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
+    user = model.User.get_site_user()
     storage_name = storage_name or config["ckan.files.default_storages.default"]
     try:
         storage = files.get_storage(storage_name)
@@ -386,7 +386,7 @@ def storage_remove_files(
             with bar:
                 for id in bar:
                     bar.label = f"Removing {id}"
-                    logic.get_action("file_delete")({"user": user["name"]}, {"id": id})
+                    logic.get_action("file_delete")({"user": user.name}, {"id": id})
 
         else:
             click.echo(

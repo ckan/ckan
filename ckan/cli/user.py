@@ -49,17 +49,13 @@ def add_user(ctx: click.Context, username: str, args: list[str]):
         data_dict['password'] = click.prompt(u'Password ', hide_input=True,
                                              confirmation_prompt=True)
 
-    import ckan.logic as logic
+    site_user = model.User.get_site_user()
+    context: Context = {
+        u'ignore_auth': True,
+        u'user': site_user.name,
+    }
 
     try:
-        site_user = logic.get_action(u'get_site_user')(
-            {'ignore_auth': True},
-            {}
-        )
-        context: Context = {
-            u'ignore_auth': True,
-            u'user': site_user['name'],
-        }
         flask_app = ctx.meta['flask_app']
         # Current user is tested against sysadmin role during model
         # dictization, thus we need request context
@@ -81,7 +77,6 @@ def get_user_str(user: model.User):
 
 @user.command(u'list', short_help=u'List all users')
 def list_users():
-    import ckan.model as model
     click.secho(u'Users:')
     users = model.Session.query(model.User).filter_by(state=u'active')
     click.secho(u'count = %i' % users.count())
@@ -97,8 +92,8 @@ def remove_user(ctx: click.Context, username: str):
         error_shout(u'Please specify the username to be removed')
         return
 
-    site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
-    context: Context = {u'user': site_user[u'name']}
+    site_user = model.User.get_site_user()
+    context: Context = {u'user': site_user.name}
     with ctx.meta['flask_app'].test_request_context():
         logic.get_action(u'user_delete')(context, {u'id': username})
         click.secho(u'Deleted user: %s' % username, fg=u'green', bold=True)
@@ -107,7 +102,6 @@ def remove_user(ctx: click.Context, username: str):
 @user.command(u'show', short_help=u'Show user')
 @click.argument(u'username')
 def show_user(username: str):
-    import ckan.model as model
     if not username:
         error_shout(u'Please specify the username for the user')
         return

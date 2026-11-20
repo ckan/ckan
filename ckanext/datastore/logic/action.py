@@ -887,11 +887,8 @@ def _patch_resource_last_modified(resource_id: str, last_modified: datetime):
     ''' Job to patch a resource's last_modified value using the site user
     to prevent the creation of an activity record.
     '''
-    site_user = p.toolkit.get_action('get_site_user')(
-        {'ignore_auth': True}, {}
-    )
     p.toolkit.get_action('resource_patch')(
-        {'user': site_user['name'], 'ignore_auth': True},
+        {'user': p.toolkit.get_site_user().name, 'ignore_auth': True},
         {'id': resource_id, 'last_modified': last_modified},
     )
 

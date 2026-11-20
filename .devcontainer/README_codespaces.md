@@ -39,7 +39,7 @@ Additionally, you can install as many extensions as you want. Check the extensio
 3. Install the extension
     ```
     cd ckanext-dcat
-    python setup.py develop --user
+    pip install --user -e .
     ```
 3. Install extra requirements (if any)
     ```

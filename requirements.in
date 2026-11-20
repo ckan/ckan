@@ -3,7 +3,7 @@
 alembic==1.20.0
 Babel==2.18.0
 blinker==1.9.0
-certifi
+certifi>=2026.10.19
 click==8.5.0
 dominate==2.9.1
 feedgen==1.0.0

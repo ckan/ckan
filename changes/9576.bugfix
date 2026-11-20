@@ -1,1 +1,0 @@
-Fix ``dataset_purge`` failing with an ``IntegrityError`` for datasets that have collaborators.

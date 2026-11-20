@@ -35,27 +35,20 @@ def db():
 
 
 @db.command()
-@click.option('-v', '--version', help='Migration version', default='head')
-@click.option('--skip-plugins', is_flag=True, help='Skip plugin migrations')
-@click.option('--skip-core', is_flag=True, help='Skip core migrations')
 @click.pass_context
-@applies_to_plugin
-def init(
-        ctx: click.Context, version: str, plugin: str,
-        skip_core: bool, skip_plugins: bool
-):
-    """Initialize the database (alias of `ckan db upgrade`)
-    """
-    ctx.forward(upgrade)
+def init(ctx: click.Context):
+    """Initialize an empty database (alias of `ckan db create-from-model`)."""
+    ctx.invoke(create_from_model)
 
 
 @db.command()
 def create_from_model():
-    """Initialize database from the model instead of migrations.
+    """Initialize database from the models, plugins included.
     """
     try:
         model.repo.create_db()
         model.repo.stamp_alembic_head()
+        model.User.ensure_site_user()
 
         # also mark plugins as migrated
         # FIXME: move to model.repo?
@@ -104,6 +97,9 @@ def upgrade(
     """
     if not skip_core:
         _run_migrations(plugin, version, load_plugin=load_plugin)
+
+    if not skip_core and not plugin and version == "head":
+        model.User.ensure_site_user()
 
     if not skip_plugins and not plugin:
         _migrate_plugins(apply=True)

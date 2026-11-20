@@ -4,6 +4,7 @@ from typing import Any
 
 from ckan.cli.clean import clean
 from ckan import logic, types
+import ckan.plugins.toolkit as tk
 
 # ISO 8601 date and datetime formats (date-only and with time)
 _DATE_FORMATS = ["%Y-%m-%d", "%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"]
@@ -76,12 +77,8 @@ def activities(
                 click.secho("Operation cancelled.", fg="yellow")
                 return
 
-        site_user = logic.get_action("get_site_user")(
-            {"ignore_auth": True}, {}
-        )
-        context: types.Context = {
-            "user": site_user["name"],
-        }
+        context = types.Context(user=tk.get_site_user().name)
+
         data_dict: dict[str, Any] = {
             "start_date": start_date,
             "end_date": end_date,

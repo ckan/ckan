@@ -789,8 +789,7 @@ class PerformResetView(MethodView):
             # Users can not change their own state, so we need another edit
             if (updated_user["state"] == model.State.PENDING):
                 patch_context: Context = {
-                    'user': logic.get_action("get_site_user")(
-                        {"ignore_auth": True}, {})["name"]
+                    'user': model.User.get_site_user().name
                 }
                 logic.get_action("user_patch")(
                     patch_context,

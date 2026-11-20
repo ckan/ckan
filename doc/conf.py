@@ -257,14 +257,14 @@ def get_current_release_version():
 def get_previous_release_version() -> str:
     """Returns the version number of the previous release
 
-    eg if the latest release is 2.9.5, it returns 2.8.10
+    eg if the latest release is 2.9.5, it returns 2.8.10, even if on the 2.8 branch
 
     """
-    current_release_version = get_current_release_version()
-    if current_release_version:
-        current_version = version_parse(current_release_version)
+    latest_release_version = get_latest_release_version()
+    if latest_release_version:
+        latest_version = version_parse(latest_release_version)
 
-        previous_tag_prefix = f"ckan-{current_version.major}.{current_version.minor - 1}"
+        previous_tag_prefix = f"ckan-{latest_version.major}.{latest_version.minor - 1}"
 
         previous_version_tags = [
             r for r in get_release_tags() if r.startswith(previous_tag_prefix)

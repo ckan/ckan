@@ -126,7 +126,7 @@ def _get_action_user_name(kwargs: dict[str, Any]) -> Optional[str]:
     if "user" in kwargs:
         user = kwargs["user"]
     else:
-        user = helpers.call_action("get_site_user")
+        user = ckan.model.User.get_site_user().name
 
     if user is None:
         user_name = None
