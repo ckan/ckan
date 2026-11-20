@@ -28,7 +28,7 @@ log = logging.getLogger("ckan.logic")
 def resource_create(
     context: Context, data_dict: DataDict
 ) -> ActionResult.ResourceCreate:
-    """Appends a new resource to a datasets list of resources.
+    """Appends a new resource to a packages list of resources.
 
     :param package_id: id of package that the resource should be added to.
 
@@ -197,7 +197,7 @@ def resource_search(  # noqa: C901
     context: Context, data_dict: DataDict
 ) -> ActionResult.ResourceSearch:
     """
-    Searches for resources in public Datasets satisfying the search criteria.
+    Searches for resources in public packages satisfying the search criteria.
 
     It returns a dictionary with 2 fields: ``count`` and ``results``.  The
     ``count`` field contains the total number of Resources found without the
@@ -357,7 +357,7 @@ def resource_update(  # noqa: C901
 ) -> ActionResult.ResourceUpdate:
     """Update a resource.
 
-    To update a resource you must be authorized to update the dataset that the
+    To update a resource you must be authorized to update the package that the
     resource belongs to.
 
     .. note:: Update methods may delete parameters not explicitly provided in the
@@ -397,7 +397,7 @@ def resource_update(  # noqa: C901
         pkg_dict = _get_action("package_show")(package_show_context, {"id": package_id})
 
     update_context["original_package"] = dict(pkg_dict)
-    # allow dataset metadata_modified to be updated
+    # allow package metadata_modified to be updated
     pkg_dict.pop("metadata_modified", None)
     pkg_dict["resources"] = list(pkg_dict["resources"])
 
@@ -482,7 +482,7 @@ def resource_patch(context: Context, data_dict: DataDict) -> ActionResult.Resour
 def package_resource_reorder(
     context: Context, data_dict: DataDict
 ) -> ActionResult.PackageResourceReorder:
-    """Reorder resources against datasets.  If only partial resource ids are
+    """Reorder resources against packages.  If only partial resource ids are
     supplied then these are assumed to be first and the other resources will
     stay in their original order
 
@@ -538,7 +538,7 @@ def package_resource_reorder(
 def resource_delete(
     context: Context, data_dict: DataDict
 ) -> ActionResult.ResourceDelete:
-    """Delete a resource from a dataset.
+    """Delete a resource from a package.
 
     You must be a sysadmin or the owner of the resource to delete it.
 

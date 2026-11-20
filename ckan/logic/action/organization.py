@@ -64,11 +64,11 @@ def organization_create(
         each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
         string), and optionally ``'deleted'``
-    :type extras: list of dataset extra dictionaries
-    :param packages: the datasets (packages) that belong to the organization,
+    :type extras: list of package extra dictionaries
+    :param packages: the packages that belong to the organization,
         a list of dictionaries each with keys ``'name'`` (string, the id
-        or name of the dataset) and optionally ``'title'`` (string, the
-        title of the dataset)
+        or name of the package) and optionally ``'title'`` (string, the
+        title of the package)
     :type packages: list of dictionaries
     :param users: the users that belong to the organization, a list
         of dictionaries each with key ``'name'`` (string, the id or name
@@ -174,7 +174,7 @@ def organization_list_for_user(
     This function returns the list of organizations that the authorized user
     has a given permission for. For example the list of organizations that the
     user is an admin of, or the list of organizations that the user can create
-    datasets in. This takes account of when permissions cascade down an
+    packages in. This takes account of when permissions cascade down an
     organization hierarchy.
 
     :param id: the name or id of the user to get the organization list for
@@ -282,7 +282,7 @@ def organization_show(
 
     :param id: the id or name of the organization
     :type id: string
-    :param include_datasets: include a truncated list of the org's datasets
+    :param include_datasets: include a truncated list of the org's packages
          (optional, default: ``False``)
     :type include_datasets: bool
     :param include_dataset_count: include the full package_count
@@ -304,7 +304,7 @@ def organization_show(
 
     :rtype: dictionary
 
-    .. note:: Only its first 10 datasets are returned
+    .. note:: Only its first 10 packages are returned
     """
     return _group_or_org_show(context, data_dict, is_org=True)
 
@@ -419,7 +419,7 @@ def organization_delete(
     """Delete an organization.
 
     You must be authorized to delete the organization
-    and no datasets should belong to the organization
+    and no packages should belong to the organization
     unless 'ckan.auth.create_unowned_dataset=True'
 
     :param id: the name or id of the organization
@@ -439,7 +439,7 @@ def organization_purge(context: Context, data_dict: DataDict) -> None:
     deleted (it will no longer show up in the frontend, but is still in the
     db).
 
-    Datasets owned by the organization will remain, just not in an
+    Packages owned by the organization will remain, just not in an
     organization anymore.
 
     You must be authorized to purge the organization.

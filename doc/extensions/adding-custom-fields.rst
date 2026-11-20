@@ -60,10 +60,10 @@ override the schemas for creation, updating and displaying of datasets.
    ~ckan.plugins.interfaces.IDatasetForm.package_types
 
 CKAN allows you to have multiple IDatasetForm plugins, each handling different
-dataset types. So you could customize the CKAN web front end, for different
-types of datasets. In this tutorial we will be defining our plugin as the
-fallback plugin. This plugin is used if no other IDatasetForm plugin is found
-that handles that dataset type.
+package types. So you could customize the CKAN web front end, for different
+types of packages (the default package type is "dataset"). In this tutorial we
+will be defining our plugin as the fallback plugin. This plugin is used if no
+other IDatasetForm plugin is found that handles that package type.
 
 The IDatasetForm also has other additional functions that allow you to
 provide a custom template to be rendered for the CKAN frontend, but we will
@@ -117,14 +117,14 @@ converted *from* an extras field. So we want to use the
     :pyobject: ExampleIDatasetFormPlugin.show_package_schema
 
 
-Dataset types
+Package types
 ^^^^^^^^^^^^^
 
 The :py:meth:`~ckan.plugins.interfaces.IDatasetForm.package_types` function
-defines a list of dataset types that this plugin handles. Each dataset has a
+defines a list of package types that this plugin handles. Each package has a
 field containing its type. Plugins can register to handle specific types of
-dataset and ignore others. Since our plugin is not for any specific type of
-dataset and we want our plugin to be the default handler, we update the plugin
+package and ignore others. Since our plugin is not for any specific type of
+package and we want our plugin to be the default handler, we update the plugin
 code to contain the following:
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py

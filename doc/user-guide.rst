@@ -49,9 +49,11 @@ A dataset contains two things:
   they might contain the same data in different formats.
 
 
-.. note:: On early CKAN versions, datasets were called "packages" and this name
-    has stuck in some places, specially internally and on API calls. Package has
-    exactly the same meaning as "dataset".
+.. note::
+
+    In CKAN, a package is the generic catalogued object. A dataset is the
+    default package type, used for publishing data. Sites can define other
+    package types with their own schemas; this guide focuses on datasets.
 
 
 Users, organizations and authorization
@@ -622,4 +624,3 @@ CKAN displays the user settings page. Here you can change:
 * Your password
 
 Make the changes you require and then select the "Update Profile" button.
-
