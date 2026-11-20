@@ -1,0 +1,1 @@
+Default logger level for extensions is now `WARNING` (was `DEBUG`) in the ckan.ini generated file (`ckan generate config`).

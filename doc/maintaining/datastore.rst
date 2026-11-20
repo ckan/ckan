@@ -376,7 +376,7 @@ Example::
 Field types
 -----------
 
-The DataStore supports all types supported by PostgreSQL as well as a few additions. A list of the PostgreSQL types can be found in the `type section of the documentation`_. Below you can find a list of the most common data types. The ``json`` type has been added as a storage for nested data.
+The DataStore supports all types supported by PostgreSQL as well as a few additions. A list of the PostgreSQL types can be found in the `type section of the documentation`_. Below you can find a list of the most common data types.
 
 In addition to the listed types below, you can also use array types. They are defines by prepending a ``_`` or appending ``[]`` or ``[n]`` where n denotes the length of the array. An arbitrarily long array of integers would be defined as ``int[]``.
 
@@ -386,8 +386,7 @@ In addition to the listed types below, you can also use array types. They are de
 text
     Arbitrary text data, e.g. ``Here's some text``.
 json
-    Arbitrary nested json data, e.g ``{"foo": 42, "bar": [1, 2, 3]}``.
-    Please note that this type is a custom type that is wrapped by the DataStore.
+    Arbitrary JSON data, e.g. ``{"foo": 42, "bar": [1, 2, 3]}``.
 date
     Date without time, e.g ``2012-5-25``.
 time

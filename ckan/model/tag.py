@@ -157,7 +157,7 @@ class Tag(domain_object.DomainObject):
 
     @classmethod
     def all(cls, vocab_id_or_name: Optional[str]=None) -> Query[Self]:
-        '''Return all tags that are currently applied to any dataset.
+        '''Return all tags that are currently applied to any package.
 
         By default only free tags (tags which do not belong to any vocabulary)
         are returned. If the optional argument ``vocab_id_or_name`` is given
@@ -167,7 +167,7 @@ class Tag(domain_object.DomainObject):
             (optional, default: None)
         :type vocab_id_or_name: string
 
-        :returns: a list of all tags that are currently applied to any dataset
+        :returns: a list of all tags that are currently applied to any package
         :rtype: list of ckan.model.tag.Tag objects
 
         '''

@@ -13,7 +13,7 @@ from ckan.logic import get_action
 
 
 def translate_data_dict(data_dict: dict[str, Any]):
-    '''Return the given dict (e.g. a dataset dict) with as many of its fields
+    '''Return the given dict (e.g. a package dict) with as many of its fields
     as possible translated into the desired or the fallback language.
 
     '''
@@ -332,7 +332,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
     def before_dataset_view(self, dataset_dict: dict[str, Any]):
 
         # Translate any selected search facets (e.g. if we are rendering a
-        # group read page or the dataset index page): lookup translations of
+        # group read page or the package index page): lookup translations of
         # all the terms in c.fields (c.fields contains the selected facets)
         # and save them in c.translated_fields where the templates can
         # retrieve them later.
@@ -361,7 +361,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
                 translation = matching_translations[0]['term_translation']
                 g.translated_fields[(param, value)] = translation
 
-        # Now translate the fields of the dataset itself.
+        # Now translate the fields of the package itself.
         return translate_data_dict(dataset_dict)
 
 class MultilingualGroup(plugins.SingletonPlugin):
@@ -371,7 +371,7 @@ class MultilingualGroup(plugins.SingletonPlugin):
     For example on the page /de/group/david the title "Dave's Books" at the
     top of the page might be translated to "Dave's Bucher".
 
-    Datasets are also shown on group pages, but these are translated by the
+    Packages are also shown on group pages, but these are translated by the
     MultilingualDataset plugin.
 
     '''
@@ -389,7 +389,7 @@ class MultilingualTag(plugins.SingletonPlugin):
     For example on the page /de/tag/tolstoy the title "Tag: tolstoy" at the
     top of the page might be translated to "Tag: Tolstoi".
 
-    Datasets are also shown on tag pages, but these are translated by the
+    Packages are also shown on tag pages, but these are translated by the
     MultilingualDataset plugin.
 
     '''

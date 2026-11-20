@@ -503,7 +503,7 @@ def _create_atom_id(resource_path: str,
         And does not necessarily need to be resolvable.
 
         e.g. ``"/group/933f3857-79fd-4beb-a835-c0349e31ce76"`` could represent
-        the feed of datasets belonging to the identified group.
+        the feed of packages belonging to the identified group.
 
     authority_name
         The domain name or email address of the publisher of the feed.  See [3]

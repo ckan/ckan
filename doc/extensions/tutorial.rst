@@ -169,13 +169,13 @@ we can use our plugin, we must install our extension into our CKAN virtual
 environment.
 
 Make sure your virtualenv is activated, change to the extension's
-directory, and run ``python setup.py develop``:
+directory, and run ``pip install -e .``:
 
 .. parsed-literal::
 
    |activate|
    cd |virtualenv|/src/ckanext-iauthfunctions
-   python setup.py develop
+   pip install -e .
 
 
 Enabling the plugin
@@ -219,10 +219,10 @@ then:
 * Check that the name you've used for your plugin in your CKAN config file is
   the same as the name you've used in your extension's ``setup.py`` file
 
-* Check that you've run ``python setup.py develop`` in your extension's
+* Check that you've run ``pip install -e .`` in your extension's
   directory, with your CKAN virtual environment activated. Every time you add
   a new plugin to your extension's ``setup.py`` file, you need to run
-  ``python setup.py develop`` again before you can use the new plugin.
+  ``pip install -e .`` again before you can use the new plugin.
 
 ``ImportError``
 ---------------
