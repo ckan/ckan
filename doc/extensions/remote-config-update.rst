@@ -27,7 +27,7 @@ should check the :doc:`tutorial` first.
 
 This tutorial assumes that we have CKAN running on the paster development server at http://localhost:5000, and that we are using the :ref:`API key <api authentication>` of a sysadmin user.
 
-First of all, let's call the :py:func:`~ckan.logic.action.get.config_option_list` API action to see what configuration options are editable during runtime (the ``| python -m json.tool`` bit at the end is added to format the output nicely)::
+First of all, let's call the :py:func:`~ckan.logic.action.config_option.config_option_list` API action to see what configuration options are editable during runtime (the ``| python -m json.tool`` bit at the end is added to format the output nicely)::
 
     curl -H "Authorization: XXX" http://localhost:5000/api/action/config_option_list | python -m json.tool
     {
@@ -46,7 +46,7 @@ First of all, let's call the :py:func:`~ckan.logic.action.get.config_option_list
         "success": true
     }
 
-We can see that the two options that we want to make runtime-editable are not on the list. Trying to update one of them with the :py:func:`~ckan.logic.action.update.config_option_update` action would return an error.
+We can see that the two options that we want to make runtime-editable are not on the list. Trying to update one of them with the :py:func:`~ckan.logic.action.config_option.config_option_update` action would return an error.
 
 To include them, we need to add them to the schema that CKAN will use to decide which configuration options can be edited safely at runtime. This is done with the :py:meth:`~ckan.plugins.interfaces.IConfigurer.update_config_schema` method of the :py:class:`~ckan.plugins.interfaces.IConfigurer` interface.
 
@@ -61,7 +61,7 @@ of validator and converter functions to be applied to those keys. To get validat
 .. note:: Make sure that the first validator applied to each key is the ``ignore_missing`` one,
     otherwise this key will need to be always set when updating the configuration.
 
-Restart the web server and do another request to the :py:func:`~ckan.logic.action.get.config_option_list` API action::
+Restart the web server and do another request to the :py:func:`~ckan.logic.action.config_option.config_option_list` API action::
 
     curl -H "Authorization: XXX" http://localhost:5000/api/action/config_option_list | python -m json.tool
     {
@@ -82,7 +82,7 @@ Restart the web server and do another request to the :py:func:`~ckan.logic.actio
         "success": true
     }
 
-Our two new configuration options are available to be edited at runtime. We can test it calling the :py:func:`~ckan.logic.action.update.config_option_update` action::
+Our two new configuration options are available to be edited at runtime. We can test it calling the :py:func:`~ckan.logic.action.config_option.config_option_update` action::
 
     curl -X POST -H "Authorization: XXX" http://localhost:5000/api/action/config_option_update -d "{\"ckan.datasets_per_page\": 5}" | python -m json.tool
     {

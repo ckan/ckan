@@ -241,24 +241,24 @@ Once they are enqueued, background jobs can be managed via the
 List enqueues jobs
 ^^^^^^^^^^^^^^^^^^
 * :ref:`ckan jobs list <cli jobs list>`
-* :py:func:`ckan.logic.action.get.job_list`
+* :py:func:`ckan.logic.action.job.job_list`
 
 Show details about a job
 ^^^^^^^^^^^^^^^^^^^^^^^^
 * :ref:`ckan jobs show <cli jobs show>`
-* :py:func:`ckan.logic.action.get.job_show`
+* :py:func:`ckan.logic.action.job.job_show`
 
 Cancel a job
 ^^^^^^^^^^^^
 A job that hasn't been processed yet can be canceled via
 
 * :ref:`ckan jobs cancel <cli jobs cancel>`
-* :py:func:`ckan.logic.action.delete.job_cancel`
+* :py:func:`ckan.logic.action.job.job_cancel`
 
 Clear all enqueued jobs
 ^^^^^^^^^^^^^^^^^^^^^^^
 * :ref:`ckan jobs clear <cli jobs clear>`
-* :py:func:`ckan.logic.action.delete.job_clear`
+* :py:func:`ckan.logic.action.job.job_clear`
 
 Logging
 ^^^^^^^

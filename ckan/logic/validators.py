@@ -37,11 +37,11 @@ missing = df.missing
 
 def owner_org_validator(key: FlattenKey, data: FlattenDataDict,
                         errors: FlattenErrorDict, context: Context) -> Any:
-    """Validate organization for the dataset.
+    """Validate organization for the package.
 
     Depending on the settings and user's permissions, this validator checks
     whether organization is optional and ensures that specified organization
-    can be set as an owner of dataset.
+    can be set as an owner of package.
 
     """
     value = data.get(key)
@@ -82,7 +82,7 @@ def owner_org_validator(key: FlattenKey, data: FlattenDataDict,
     group_id = group.id
 
     if not package or (package and package.owner_org != group_id):
-        # This is a new dataset or we are changing the organization
+        # This is a new package or we are changing the organization
         if not context.get(u'ignore_auth', False) and (not user or not(
                 user.sysadmin or authz.has_user_permission_for_group_or_org(
                    group_id, user.name, 'create_dataset'))):
@@ -904,10 +904,10 @@ def datasets_with_no_organization_cannot_be_private(key: FlattenKey,
     check_passed = True
 
     if not dataset_id and private and not owner_org:
-        # When creating a dataset, enforce it directly
+        # When creating a package, enforce it directly
         check_passed = False
     elif dataset_id and private and not owner_org:
-        # Check if the dataset actually has an owner_org, even if not provided
+        # Check if the package actually has an owner_org, even if not provided
         try:
             dataset_dict = logic.get_action('package_show')({},
                             {'id': dataset_id})

@@ -512,7 +512,7 @@ def ckan_before_request() -> Optional[Response]:
     # header
     if g.get("login_via_auth_header"):
         # Get the actual view function, as it might not match the endpoint,
-        # eg "organization.edit" -> "group.edit", or custom dataset types
+        # eg "organization.edit" -> "group.edit", or custom package types
         endpoint = request.endpoint or ""
         if endpoint not in {"user.login", "user.register"}:
             view = current_app.view_functions.get(endpoint)
