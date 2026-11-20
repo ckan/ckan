@@ -717,9 +717,15 @@ class TestDatastoreUpsert(object):
                 {"id": "id", "type": "text"},
                 {"id": "movie", "type": "text"},
                 {"id": "directors", "type": "text"},
+                {"id": "metadata", "type": "json"},
             ],
             "force": True,
-            "records": [{"id": "1", "movie": "Cats", "director": "Tom Hooper"}]
+            "records": [{
+                "id": "1",
+                "movie": "Cats",
+                "director": "Tom Hooper",
+                "metadata": {"initial": True},
+            }]
         }
         helpers.call_action("datastore_create", **data)
 
@@ -728,7 +734,12 @@ class TestDatastoreUpsert(object):
             "force": True,
             "method": "upsert",
             "records": [
-                {"id": "1", "movie": "Cats the Musical", "director": "Tom Hooper"}
+                {
+                    "id": "1",
+                    "movie": "Cats the Musical",
+                    "director": "Tom Hooper",
+                    "metadata": {"updated": True},
+                }
             ],
             "include_records": True
         }
@@ -736,6 +747,7 @@ class TestDatastoreUpsert(object):
         assert 'records' in result
         for r in result['records']:
             assert '_id' in r
+            assert r['metadata'] == {"updated": True}
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1379,4 +1391,4 @@ def test_upsert_schedules_record_count():
             "select stats from _table_stats where resource_id=:resource_id"
             ), {'resource_id': resource['id']}
         )
-    assert list(stats) == [('{"rows": 7}',)]
+    assert list(stats) == [({"rows": 7},)]

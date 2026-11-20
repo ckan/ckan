@@ -35,23 +35,15 @@ def db():
 
 
 @db.command()
-@click.option('-v', '--version', help='Migration version', default='head')
-@click.option('--skip-plugins', is_flag=True, help='Skip plugin migrations')
-@click.option('--skip-core', is_flag=True, help='Skip core migrations')
 @click.pass_context
-@applies_to_plugin
-def init(
-        ctx: click.Context, version: str, plugin: str,
-        skip_core: bool, skip_plugins: bool
-):
-    """Initialize the database (alias of `ckan db upgrade`)
-    """
-    ctx.forward(upgrade)
+def init(ctx: click.Context):
+    """Initialize an empty database (alias of `ckan db create-from-model`)."""
+    ctx.invoke(create_from_model)
 
 
 @db.command()
 def create_from_model():
-    """Initialize database from the model instead of migrations.
+    """Initialize database from the models, plugins included.
     """
     try:
         model.repo.create_db()
