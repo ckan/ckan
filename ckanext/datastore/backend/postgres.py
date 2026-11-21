@@ -294,11 +294,13 @@ def _get_field_info(
             and pd.objsubid = pa.attnum and pc.relname = :res_id
             and pa.attnum > 0'''
     )
-    # the driver already decodes the json value
-    return dict(
-        (n, v) for (n, v) in
-        connection.execute(qtext, {"res_id": resource_id}).fetchall()
-        if v)
+    try:
+        return dict(
+            (n, v) for (n, v) in
+            connection.execute(qtext, {"res_id": resource_id}).fetchall()
+            if v)
+    except (TypeError, ValueError):  # don't die on non-json comments
+        return {}
 
 
 def _get_raw_field_info(
