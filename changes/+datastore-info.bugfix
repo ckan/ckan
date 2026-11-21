@@ -1,0 +1,1 @@
+Fix ``datastore_info`` and ``datastore_search`` not returning the data dictionary (``info``) of the fields.
