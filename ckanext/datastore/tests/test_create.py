@@ -1390,6 +1390,7 @@ class TestDatastoreCreateTriggers(object):
         helpers.call_action(
             u"datastore_function_create",
             name=u"spamexception_trigger",
+            or_replace=True,
             rettype=u"trigger",
             definition=u"""
                 BEGIN
@@ -1405,7 +1406,7 @@ class TestDatastoreCreateTriggers(object):
                     u"datastore_create",
                     resource={u"package_id": ds["id"]},
                     fields=[{u"id": u"spam", u"type": u"text"}],
-                    records=[{u"spam": u"spam"}, {u"spam": u"EGGS"}],
+                    records=[{"spam": "spam"}, {"spam": "EGGS"}, {"spam": "spam"}],
                     triggers=[{u"function": u"spamexception_trigger"}],
                 )
         assert error.value.error_dict == {
@@ -1421,6 +1422,7 @@ class TestDatastoreCreateTriggers(object):
         helpers.call_action(
             u"datastore_function_create",
             name=u"spamonly_trigger",
+            or_replace=True,
             rettype=u"trigger",
             definition=u"""
                 BEGIN
@@ -1442,7 +1444,7 @@ class TestDatastoreCreateTriggers(object):
                     u"datastore_upsert",
                     method=u"insert",
                     resource_id=res["resource_id"],
-                    records=[{u"spam": u"spam"}, {u"spam": u"BEANS"}],
+                    records=[{"spam": "spam"}, {"spam": "BEANS"}, {"spam": "spam"}],
                 )
             assert error.value.error_dict == {
                 "records": ['"BEANS"? Yeeeeccch!'],

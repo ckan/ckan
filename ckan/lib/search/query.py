@@ -429,7 +429,12 @@ class PackageSearchQuery(SearchQuery):
         # faceting
         query['facet'] = query.get('facet', 'true')
         query['facet.limit'] = query.get('facet.limit', config.get('search.facets.limit'))
-        query['facet.mincount'] = query.get('facet.mincount', 1)
+        if permission_labels is None:
+            query['facet.mincount'] = query.get('facet.mincount', 1)
+        else:
+            # Ensure facet.mincout > 0, otherwise Solr will include documents excluded
+            # by the filters
+            query['facet.mincount'] = max(1, int(query.get('facet.mincount', 1)))
 
         # return the package ID and search scores
         query['fl'] = query.get('fl', 'name')

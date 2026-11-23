@@ -1,0 +1,1 @@
+Don't crash when input data contains non-schema list of dicts fields

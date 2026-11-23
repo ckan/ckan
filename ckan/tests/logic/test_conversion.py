@@ -4,7 +4,8 @@
 """
 from ckan import model
 from ckan.lib.navl.dictization_functions import validate
-from ckan.logic.converters import convert_to_extras
+from ckan.lib.navl.validators import not_empty
+from ckan.logic.converters import convert_from_extras, convert_to_extras
 from ckan.logic.schema import default_extras_schema
 
 
@@ -138,3 +139,20 @@ def test_convert_to_extras_free_extra_can_not_have_the_same_key():
     assert errors["extras"] == [
         {"key": [u"There is a schema field with the same name"]}
     ]
+
+
+def test_convert_from_extras_does_not_crash_when_extras_row_has_no_id():
+
+    data_dict = {"extras": [{"key": "custom_text", "value": "Hi"}]}
+
+    schema = {
+        "custom_text": [convert_from_extras, not_empty],
+        "extras": default_extras_schema(),
+    }
+
+    context = {"model": model, "session": model.Session}
+
+    data, errors = validate(data_dict, schema, context)
+
+    assert data["custom_text"] == "Hi"
+    assert errors == {"extras": [{"key": [u"Missing value"]}]}

@@ -5,6 +5,7 @@ import ckan.model as model
 import ckan.lib.search as search
 import ckan.tests.factories as factories
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib.plugins import DefaultPermissionLabels
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -452,3 +453,58 @@ class TestPackageQuery:
         assert query.run({"q": "Flexible \u30a1"})["count"] == 2
         assert query.run({"q": "Flexible"})["count"] == 2
         assert query.run({"q": "flexible"})["count"] == 2
+
+    def test_private_datasets_in_facets(self):
+        user_obj1 = factories.User.model()
+        user_obj2 = factories.User.model()
+        sysadmin_obj = factories.Sysadmin.model()
+        org = factories.Organization(users=[{"name": user_obj2.name, "capacity": "member"}])
+        dataset_public = factories.Dataset(private=False)
+        dataset_private = factories.Dataset(private=True, owner_org=org["id"])
+
+        search_params = {
+            "facet": "on",
+            "facet.limit": -1,
+            "facet.mincount": 0,
+            "facet.field": ["name"],
+        }
+
+        query = search.query_for(model.Package)
+
+        # No permission labels, ignore_auth or sysadmin
+        query.run(search_params.copy())
+        facets = query.facets["name"]
+
+        assert dataset_public["name"] in facets
+        assert dataset_private["name"] in facets
+
+        # Anonymous request, only public dataset is returned
+        query.run(search_params.copy(), permission_labels=["public"])
+        facets = query.facets["name"]
+
+        assert dataset_public["name"] in facets
+        assert dataset_private["name"] not in facets
+
+        # User does not belong to org, only public dataset is returned
+        perm_labels = DefaultPermissionLabels().get_user_dataset_labels(user_obj1)
+        query.run(search_params.copy(), permission_labels=perm_labels)
+        facets = query.facets["name"]
+
+        assert dataset_public["name"] in facets
+        assert dataset_private["name"] not in facets
+
+        # User belongs to org, both datasets are returned
+        perm_labels = DefaultPermissionLabels().get_user_dataset_labels(user_obj2)
+        query.run(search_params.copy(), permission_labels=perm_labels)
+        facets = query.facets["name"]
+
+        assert dataset_public["name"] in facets
+        assert dataset_private["name"] in facets
+
+        # Sysadmin, both datasets are returned
+        perm_labels = DefaultPermissionLabels().get_user_dataset_labels(sysadmin_obj)
+        query.run(search_params.copy(), permission_labels=perm_labels)
+        facets = query.facets["name"]
+
+        assert dataset_public["name"] in facets
+        assert dataset_private["name"] in facets
