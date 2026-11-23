@@ -129,20 +129,32 @@ html[data-theme="dark"] #dtprv_wrapper .dt-paging li.dt-paging-button.active but
   pointer-events: none !important;
 }
 
+table.dataTable span.dtcc{
+  display: block !important;
+  width: 100% !important;
+}
+
+table.dataTable span.dtcc .dtcc-search-clear{
+  line-height: 1 !important;
+  height: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
 table.dataTable span.dtcc div.dtcc-searchNumber .dtcc-search-clear{
-  left: 5px !important;
+  left: 10px !important;
 }
 
 table.dataTable span.dtcc div.dtcc-searchNumber input{
-  padding-left: 26px;
+  padding-left: 26px !important;
 }
 
 table.dataTable span.dtcc div.dtcc-searchText .dtcc-search-clear{
-  right: 5px !important;
+  right: 10px !important;
 }
 
 table.dataTable span.dtcc div.dtcc-searchText input{
-  padding-right: 26px;
+  padding-right: 26px !important;
 }
 
 table.dataTable span.dtcc input::placeholder{
@@ -254,6 +266,18 @@ html[data-theme="dark"] #dtprv_processing{
   background-color: #e9f0f3 !important;
   color: #1d7075 !important;
 }
+
+#dtprv_wrapper .dt-abbrev-help{
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(0, 0, 0, 0.75);
+  cursor: help;
+}
+
+:root[data-bs-theme="dark"] #dtprv_wrapper .dt-abbrev-help,
+html[data-theme="dark"] #dtprv_wrapper .dt-abbrev-help{
+  text-decoration-color: rgba(255, 255, 255, 0.75);
+}
 /* END: Custom Layout :END */
 
 /* START: Mark Plugin :START */
@@ -263,7 +287,7 @@ html[data-theme="dark"] #dtprv_processing{
 }
 /* END: Mark Plugin :END */
 
-/* START: Midnight Blue Download Menu :START */
+/* START: Midnight Blue :START */
 :root[data-bs-theme="dark"] .dt-button-collection.dt-popup-download,
 html[data-theme="dark"] .dt-button-collection.dt-popup-download{
   background-color: var(--dm-surface) !important;
@@ -273,7 +297,13 @@ html[data-theme="dark"] .dt-button-collection.dt-popup-download{
 html[data-theme="dark"] .dt-button-collection.dt-popup-download a{
   color: white !important;
 }
-/* END: Midnight Blue Download Menu :END */
+
+:root[data-bs-theme="dark"] #datatables_buttons_info,
+html[data-theme="dark"] #datatables_buttons_info{
+  background-color: var(--dm-surface) !important;
+  color: white !important;
+}
+/* END: Midnight Blue :END */
 
 /* START: QoL Column Vis :START */
 .dt-button-background{

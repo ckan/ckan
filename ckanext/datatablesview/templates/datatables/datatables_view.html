@@ -33,8 +33,8 @@
     data-module-data-updated-date="{{ h.render_datetime(resource.last_modified, date_format='%Y-%m-%dT%H:%M:%S%z') }}"
     data-module-metadata-updated-date="{{ h.render_datetime(resource.metadata_modified, date_format='%Y-%m-%dT%H:%M:%S%z') }}"
     data-module-resource-format="{{ resource.format or resource.mimetype_inner or resource.mimetype or _('unknown') }}"
-    data-module-resource-file-size="{{ resource.size }}"
-    data-module-resource-file-size-humanized='{{ h.localised_filesize(resource.size) or "null" }}'
+    data-module-resource-file-size='{{ resource.size or "null" }}'
+    data-module-resource-file-size-humanized='{{ h.localised_filesize(resource.size) if resource.size else "null" }}'
     data-module-view-id="{{ resource_view.id }}"
     data-module-language-code="{{ h.lang() }}"
     data-module-language-object='{{ language_object or "null" }}'

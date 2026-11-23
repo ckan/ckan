@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import urlencode
 from html import escape
+from datetime import datetime
 
 from flask import Blueprint
 
@@ -80,6 +81,7 @@ def ajax(resource_view_id: str):
     except NotAuthorized:
         return json.dumps({'error': 'Not Authorized'}), 403
 
+    _ftypes = dict((f['id'], f['type']) for f in unfiltered_response['fields'])
     cols = [f['id'] for f in unfiltered_response['fields']]
     if 'show_fields' in resource_view:
         cols = [c for c in cols if c in resource_view['show_fields']]
@@ -106,18 +108,32 @@ def ajax(resource_view_id: str):
             break
         v = str(request.form['columns[%d][search][value]' % i])
         if v:
-            k = str(request.form['columns[%d][name]' % i])
-            # replace non-alphanumeric characters with FTS wildcard (_)
-            v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
-            # append ':*' so we can do partial FTS searches
-            colsearch_dict[k] = v + ':*'
+            k = str(request.form['columns[%d][name]' % i]).strip()
+            if k in _ftypes and _ftypes[k] in ['date', 'timestamp']:
+                # ts_query and ts_vectors index searches do not work
+                # with date types, so need to use filters.
+                try:
+                    datetime.strptime(v, '%Y-%m-%d')
+                    filters[k] = v
+                except ValueError:
+                    # ignore invalid date searches
+                    pass
+            else:
+                # replace non-alphanumeric characters with pSQL token separators
+                # allow for decimals for numeric searches
+                v = re.sub(r'[^0-9a-zA-Z\.\-]+', '-', v)
+                # append ':*' so we can do partial FTS searches
+                colsearch_dict[k] = v + ':*'
         i += 1
 
     if colsearch_dict:
         search_text = json.dumps(colsearch_dict)
     else:
-        search_text = re.sub(r'[^0-9a-zA-Z\-]+', '_',
-                             search_text) + u':*' if search_text else u''
+        # replace non-alphanumeric characters with pSQL token separators
+        # allow for decimals for numeric searches
+        # append ':*' so we can do partial FTS searches
+        search_text = re.sub(r'[^0-9a-zA-Z\.\-]+', '-',
+                             search_text) + ':*' if search_text else ''
 
     try:
         response = datastore_search(
@@ -129,7 +145,7 @@ def ajax(resource_view_id: str):
                 "offset": offset,
                 "limit": limit,
                 "sort": ', '.join(sort_list),
-                "filters": filters,
+                "filters": json.dumps(filters),
                 "total_estimation_threshold": ESTIMATION_THRESHOLD,
             }
         )

@@ -86,6 +86,7 @@ function load_datatable(CKAN_MODULE){
   const TABLE_LANGUAGE = {
     errors: {
       ajax: _('Error: Could not query records. Please try again.'),
+      date_search: _('Must search in the format: YYYY-MM-DD'),
     },
     buttons: {
       full: _('Full Table'),
@@ -115,6 +116,7 @@ function load_datatable(CKAN_MODULE){
     info: {
       column: {
         search: _('Search:'),
+        date_search: _(' (YYYY-MM-DD)'),
         sort: _('Sorting by:'),
         asc: _('Ascending'),
         desc: _('Descending'),
@@ -164,7 +166,7 @@ function load_datatable(CKAN_MODULE){
       _data.forEach(function(_val, _i, _arr){
         displayList.append($('<li>').text(_val));
       });
-      return displayList;
+      return displayList.prop('outerHTML');
     },
     'bool': function(_data, _type, _row, _meta, _dictionary_field){
       /**
@@ -186,10 +188,16 @@ function load_datatable(CKAN_MODULE){
       /**
        * Our custom Cell renderer for datetime type cells in the table.
        */
+      const _og_data = _data;
       if( ! _data.toString().includes('+0000') ){
         _data = _data.toString() + '+0000';  // add UTC offset if not present
       }
-      return DataTable.render.moment(window.moment.ISO_8601, dateFormat, languageCode)(_data, _type, _row, _meta);
+      let dateDisplay = $('<span>', {class: 'dt-abbrev-help', title: _og_data, 'aria-label': _og_data});
+      dateDisplay = dateDisplay.text(
+        DataTable.render.momentUTC(window.moment.ISO_8601, dateFormat, languageCode)(_data, _type, _row, _meta)
+        + ' UTC'
+      );
+      return dateDisplay.prop('outerHTML');
     },
   };
 
@@ -361,6 +369,23 @@ function load_datatable(CKAN_MODULE){
     return {text: output, links: linksFound};
   }
 
+  DataTable.render.momentUTC = function(_fromFormat, _toFormat, _locale){
+    /**
+     * Custom DataTables render function for datetime UTC.
+     *
+     * As the normal DataTable.render.moment always uses the user's local
+     * timezone, this causes issues when trying to filter/search datetime
+     * columns due to UTC offsets.
+     */
+    return function(_data, _type, _row, _meta) {
+      if( ! _data ){ return _data; }
+      if( _type == 'display'){
+        return window.moment.utc(_data, _fromFormat).locale(_locale).format(_toFormat);
+      }
+      return _data;
+    };
+  };
+
   DataTable.render.ellipsis = function(_cutoff, _rowIndex, _datatoreID){
     /**
      * Custom DataTable render function for ellipsis.
@@ -515,7 +540,7 @@ function load_datatable(CKAN_MODULE){
         text: '<i class="fa fa-copy"></i>',
         titleAttr: TABLE_LANGUAGE.buttons.copy,
         className: 'btn-secondary',
-        copySuccess: false,  // FIXME: enable, add dark theme styles...
+        copySuccess: true,
         messageTop: function(){
           /**
            * Add all of the table filter info to the clipboard
@@ -673,6 +698,8 @@ function load_datatable(CKAN_MODULE){
           tableState = void 0;  // clear local state variable
           dt.state.clear();
           dt.clear().destroy();
+          tableState.page_length = pageLengthChoices[0];  // reset page length
+          pageLength = pageLengthChoices[0];  // reset page length
           initialize_datatable();
         }
       },
@@ -702,7 +729,7 @@ function load_datatable(CKAN_MODULE){
                            .append($('<span>').text(TABLE_LANGUAGE.print.format + ' ' + resourceFormat))
                            .append($('<br>'))
                            .append($('<span>').text(TABLE_LANGUAGE.print.fileSize + ' ' + filesize))
-                           .append($('<br>')).html();
+                           .append($('<br>')).prop('outerHTML');
         },
         messageBottom: function(){
           /**
@@ -740,7 +767,7 @@ function load_datatable(CKAN_MODULE){
             printDictionaryList.append(printDictionaryListItem);
           }
           printDictionary.append(printDictionaryList);
-          return printDictionary.html();
+          return printDictionary.prop('outerHTML');
         },
         exportOptions: {
           columns: ':visible',
@@ -770,7 +797,7 @@ function load_datatable(CKAN_MODULE){
     ckan.toast({
       message: _message,
       type: _type,
-      title: _type,
+      title: _type.charAt(0).toUpperCase() + _type.slice(1),
     });
   }
 
@@ -905,11 +932,13 @@ function load_datatable(CKAN_MODULE){
 
       // set placeholder content
       let dsID = $(_column.header()).attr('data-name');
+      let dsType = keyedDataDictionary[dsID]['type'];
       let colLabel = _get_translated(keyedDataDictionary[dsID]['info'], 'label');
       if( colLabel == null ){
         colLabel = dsID;
       }
-      $(_inputObj).attr('placeholder', TABLE_LANGUAGE.info.column.search + ' ' + colLabel);
+      $(_inputObj).attr('placeholder', TABLE_LANGUAGE.info.column.search + ' ' + colLabel
+                        + (dateTypes.includes(dsType) ? TABLE_LANGUAGE.info.column.date_search : ''));
 
       let clearButton = $(_inputObj).parent().find('.dtcc-search-clear');
       $(clearButton).off('click.clearFilter');  // prevent duplicate events
@@ -917,6 +946,9 @@ function load_datatable(CKAN_MODULE){
         $(_inputObj).val('').focus().blur();
         _column.search(null).draw();
         $(clearButton).hide();
+        _event.preventDefault();
+        _event.stopImmediatePropagation();
+        _event.stopPropagation();
       });
 
       if( $(_inputObj).val().length > 0 ){
@@ -926,8 +958,17 @@ function load_datatable(CKAN_MODULE){
 
       $(_inputObj).off('keyup.filterCol');  // prevent duplicate events
       $(_inputObj).on('keyup.filterCol', function(_event){
+        $(_inputObj).removeClass('is-invalid');
         let _fVal = $(_inputObj).val();
         if( _event.keyCode == 13 && _column.search() !== _fVal ){
+          if( dateTypes.includes(dsType) && ! window.moment(_fVal, 'YYYY-MM-DD', true).isValid() ){
+            // ts_query and ts_vectors index searches do not work with date types,
+            // so need to use filters, thus must be in the YYYY-MM-DD format
+            _render_failure('Column filter value "' + _fVal + '" not in the format "YYYY-MM-DD"',
+                            TABLE_LANGUAGE.errors.date_search, 'warning');
+            $(_inputObj).addClass('is-invalid');
+            return;
+          }
           _column.search(_fVal).draw();
           if( _fVal.length > 0 ){
             $(clearButton).show();
@@ -1254,7 +1295,9 @@ function load_datatable(CKAN_MODULE){
         },
         {
           "target": "tfoot",
-          "content": ["search"]
+          // use searchText instead of search as datastore
+          // uses text value indices for columns.
+          "content": ["searchText"]
         }
       ],
       ordering: {
@@ -1263,7 +1306,6 @@ function load_datatable(CKAN_MODULE){
       },
       fixedColumns: isCompactView ? false : {leftColumns: 1},
       orderCellsTop: true,
-      mark: true,
       select: {
         style: 'os',
         blurable: true,
@@ -1280,6 +1322,7 @@ function load_datatable(CKAN_MODULE){
         return: true,
       },
       searching: true,
+      // TODO: make a custom marked render so we can match masked/renderer outputs...
       mark: true,
       order: sortOrder,
       columns: availableColumns,
