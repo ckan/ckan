@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
+{% set resource_view_available = True if h.resource_view_get_fields(resource) else False %}
+
 {% block title %}{{ h.dataset_display_name(package)}}&mdash;{{ h.resource_display_name(resource)}} - {{ super() }}{% endblock %}
 {% block bodytag %}
   {{ super() }}
-  {% if h.resource_view_get_fields(resource) %}class="dt-view"{% endif %}
+  {% if resource_view_available %}class="dt-view"{% endif %}
 {%- endblock -%}
 
 {%- block page -%}
-{% if h.resource_view_get_fields(resource) %} {# Skip the whole table if the datastore has errors #}
+{% if resource_view_available %} {# Skip the whole table if the datastore has errors #}
 {#- pass the datadictionary to javascript, so we can init columns there -#}
 {%- set datadictionary = h.datastore_dictionary(resource.id, resource_view.get('show_fields')) -%}
 {%- set nbspval = "&nbsp;"|safe -%}
