@@ -324,7 +324,7 @@ instance if ``image_view`` is defined, filters are added to the search to only
 get datasets with resources that have image formats (png, jpg, etc).
 
 You can also provide arbitrary search parameters like the ones supported by
-:py:func:`~ckan.logic.action.get.package_search`. This can be useful for
+:py:func:`~ckan.logic.action.package.package_search`. This can be useful for
 instance to only include datasets with resources of a certain format::
 
     ckan -c |ckan.ini| views create geojson_view -s '{"fq": "res_format:GEOJSON"}'

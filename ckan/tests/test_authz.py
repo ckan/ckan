@@ -60,10 +60,10 @@ def test_get_user_not_found():
 
 
 def test_no_attributes_set_on_imported_auth_members():
-    import ckan.logic.auth.get as auth_get
+    import ckan.logic.auth.package as auth_package
     logic.check_access("package_search", {})
-    assert hasattr(auth_get.package_search, "auth_allow_anonymous_access")
-    assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
+    assert hasattr(auth_package.package_search, "auth_allow_anonymous_access")
+    assert not hasattr(auth_package.authz, "auth_allow_anonymous_access")
 
 
 @pytest.mark.usefixtures("non_clean_db")

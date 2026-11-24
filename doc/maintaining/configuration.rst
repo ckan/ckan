@@ -48,7 +48,7 @@ CKAN configuration options are generally defined before starting the web applica
 `CKAN configuration file`_ or via `Environment variables`_).
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
-:ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
+:ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.config_option.config_option_update`
 API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored in the database and persisted when the server is restarted.
 
 Extensions can add (or remove) configuration options to the ones that can be edited at runtime. For more

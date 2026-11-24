@@ -166,13 +166,13 @@ def add_views_to_resource(context: Context,
     each one of them will be called to determine if a resource view should
     be created.
 
-    Resource views extensions get the resource dict and the parent dataset
+    Resource views extensions get the resource dict and the parent package
     dict. If the latter is not provided, `package_show` is called to get it.
 
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. This is only relevant when the default view
     plugins are used, not when explicitly passing view types. See
-    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    :py:func:`ckan.logic.action.resource_view.package_create_default_resource_views.``
     for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
@@ -227,7 +227,7 @@ def add_views_to_dataset_resources(
         view_types: Optional[list[str]] = None,
         create_datastore_views: bool = False) -> list[dict[str, Any]]:
     '''
-    Creates the provided views on all resources of the provided dataset
+    Creates the provided views on all resources of the provided package
 
     Views to create are provided as a list of ``view_types``. If no types are
     provided, the default views defined in the ``ckan.views.default_views``
@@ -238,7 +238,7 @@ def add_views_to_dataset_resources(
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. This is only relevant when the default view
     plugins are used, not when explicitly passing view types. See
-    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    :py:func:`ckan.logic.action.resource_view.package_create_default_resource_views.``
     for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)

@@ -10,7 +10,7 @@ using ``factory_boy``:
 https://factoryboy.readthedocs.org/en/latest/
 
 These are not meant to be used for the actual testing, e.g. if you're writing a
-test for the :py:func:`~ckan.logic.action.create.user_create` function then
+test for the :py:func:`~ckan.logic.action.user.user_create` function then
 call :py:func:`~ckan.tests.helpers.call_action`, don't test it via the
 :py:class:`~ckan.tests.factories.User` factory or
 :py:func:`~ckan.tests.pytest_ckan.fixtures.user_factory` fixture.

@@ -6,10 +6,10 @@ import ckan.plugins.toolkit as toolkit
 
 
 def most_popular_groups():
-    u'''Return a sorted list of the groups with the most datasets.'''
+    u'''Return a sorted list of the groups with the most packages.'''
 
     # Get a list of all the site's groups from CKAN, sorted by number of
-    # datasets.
+    # packages.
     groups = toolkit.get_action(u'group_list')(
         {}, {u'sort': u'package_count desc', u'all_fields': True})
 

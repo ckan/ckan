@@ -167,10 +167,10 @@ meta.registry.map_imperatively(UserFollowingUser, user_following_user_table)
 
 class UserFollowingDataset(
         ModelFollowingModel['ckan.model.User', 'ckan.model.Package']):
-    '''A many-many relationship between users and datasets (packages).
+    '''A many-many relationship between users and packages.
 
-    A relationship between a user (the follower) and a dataset (the object),
-    that means that the user is currently following the dataset.
+    A relationship between a user (the follower) and a package (the object),
+    that means that the user is currently following the package.
 
     '''
     @classmethod
