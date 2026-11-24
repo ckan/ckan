@@ -57,7 +57,8 @@
       <tr>
         <th><button id="refit-button" class="btn btn-secondary" title="{{- _('Refit') -}}" onclick="fitColText()"><i class="fa fa-text-width"></i></button></th>
         {% for field in datadictionary -%}
-          <th id="cdx{{ loop.index }}" class="fhead" data-type="{{ field.type }}">
+          <th id="cdx{{ loop.index }}" class="fhead" data-type="{{ field.type }}"
+              data-label="{{ field.info.label if data_dictionary_labels and field.info is defined and field.info.label|length else field.id }}">
               {{- field.id -}}
           </th>
         {% endfor -%}
