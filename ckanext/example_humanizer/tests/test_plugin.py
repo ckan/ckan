@@ -6,7 +6,7 @@ import ckan.tests.factories as factories
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_humanizer")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestExampleHumanizer(object):
     @pytest.mark.parametrize("url, breadcrumb, button", [
         ('/dataset', "Datasets", "Create new Dataset"),

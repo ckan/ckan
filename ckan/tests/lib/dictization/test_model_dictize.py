@@ -21,7 +21,6 @@ from ckan.tests import factories
 from ckan.tests import helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroupListDictize:
     def test_group_list_dictize(self):
         group = factories.Group.model()
@@ -138,7 +137,6 @@ def dataset_factory_cleanup():
         helpers.call_action("dataset_purge", context={"ignore_auth": True}, id=dataset_id)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroupDictize:
     def test_group_dictize(self):
         group_obj = factories.Group.model()
@@ -345,7 +343,6 @@ class TestGroupDictize:
         assert org["package_count"] == 2
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageDictize:
     def remove_changable_values(self, dict_):
         dict_ = copy.deepcopy(dict_)
@@ -599,7 +596,6 @@ def assert_equal_for_keys(dict1, dict2, *keys):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestTagDictize(object):
     """Unit tests for the tag_dictize() function."""
 
@@ -669,7 +665,6 @@ class TestVocabularyDictize(object):
             assert len(tag.get("packages", [])) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageSchema(object):
     def remove_changable_columns(self, dict):
         for key, value in list(dict.items()):

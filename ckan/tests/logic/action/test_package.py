@@ -15,7 +15,6 @@ from ckan.logic.action.package import package_show as core_package_show
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_private_package():
     org = factories.Organization()
     stub = factories.Dataset.stub()
@@ -40,7 +39,6 @@ def test_private_package():
     assert pkg["private"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_cant_set_id():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": False}
@@ -54,7 +52,6 @@ def test_normal_user_cant_set_id():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_can_set_id():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -65,7 +62,6 @@ def test_sysadmin_can_set_id():
     assert dataset["id"] == _id
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_context_is_not_polluted():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -77,7 +73,6 @@ def test_context_is_not_polluted():
     assert "package" not in context
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_id_cant_already_exist():
     dataset = factories.Dataset()
     factories.Sysadmin()
@@ -89,7 +84,6 @@ def test_id_cant_already_exist():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_name_not_changed_during_deletion():
     dataset = factories.Dataset()
     helpers.call_action("package_delete", id=dataset["id"])
@@ -97,7 +91,6 @@ def test_name_not_changed_during_deletion():
     assert deleted_dataset["name"] == dataset["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_name_not_changed_after_restoring():
     dataset = factories.Dataset()
     context = {"user": factories.Sysadmin()["name"]}
@@ -110,7 +103,6 @@ def test_name_not_changed_after_restoring():
     assert deleted_dataset["id"] == restored_dataset["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_creation_of_dataset_with_name_same_as_of_previously_removed():
     dataset = factories.Dataset()
     initial_name = dataset["name"]
@@ -123,13 +115,11 @@ def test_creation_of_dataset_with_name_same_as_of_previously_removed():
     assert deleted_dataset["name"] == deleted_dataset["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_missing_id():
     with pytest.raises(logic.ValidationError):
         helpers.call_action("package_create")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_name():
     stub = factories.Dataset.stub()
     dataset = helpers.call_action("package_create", name=stub.name)
@@ -138,7 +128,6 @@ def test_name():
     assert helpers.call_action("package_show", id=dataset["id"])["name"] == stub.name
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_title():
     dataset = helpers.call_action(
         "package_create",
@@ -150,7 +139,6 @@ def test_title():
     assert helpers.call_action("package_show", id=dataset["id"])["title"] == "New Title"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_extras():
     dataset = helpers.call_action(
         "package_create",
@@ -166,7 +154,6 @@ def test_extras():
     assert dataset["extras"][0]["value"] == '"book"'
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_can_set_extras_id():
     user = factories.Sysadmin()
     context = {"user": user["name"], "ignore_auth": False}
@@ -182,7 +169,6 @@ def test_sysadmin_can_set_extras_id():
     assert dataset["extras"][0]["key"] == "original media"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_can_not_set_extras_id():
     user = factories.User()
     context = {"user": user["name"], "ignore_auth": False}
@@ -198,7 +184,6 @@ def test_normal_user_can_not_set_extras_id():
     assert "The input field id was not expected" in str(exception.value)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_license():
     dataset = helpers.call_action(
         "package_create",
@@ -212,7 +197,6 @@ def test_license():
     assert dataset["license_id"] == "other-open"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_notes():
     dataset = helpers.call_action(
         "package_create",
@@ -226,7 +210,6 @@ def test_notes():
     assert dataset["notes"] == "some notes"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resources():
     dataset = helpers.call_action(
         "package_create",
@@ -282,7 +265,6 @@ def test_resources():
     assert resources[1]["position"] == 1
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_tags():
     tag1 = factories.Tag.stub().name
     tag2 = factories.Tag.stub().name
@@ -300,7 +282,6 @@ def test_tags():
     assert tag_names == sorted([tag1, tag2])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_return_id_only():
     dataset = helpers.call_action(
         "package_create",
@@ -311,7 +292,6 @@ def test_return_id_only():
     assert isinstance(dataset, str)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_non_string_extras():
     data_dict = {
         "name": "test-non-string-extras",
@@ -321,7 +301,6 @@ def test_non_string_extras():
     helpers.call_action("package_create", **data_dict)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)
 def test_create_package_collaborator_when_config_disabled():
 
@@ -338,7 +317,6 @@ def test_create_package_collaborator_when_config_disabled():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_create():
     initial = model.Session.query(model.PackageMember).count()
@@ -360,7 +338,6 @@ def test_create():
     assert model.Session.query(model.PackageMember).count() == initial + 1
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_update():
     dataset = factories.Dataset()
@@ -390,7 +367,6 @@ def test_update():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_create_wrong_capacity():
     dataset = factories.Dataset()
@@ -406,7 +382,6 @@ def test_create_wrong_capacity():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_create_dataset_not_found():
     dataset = {"id": "xxx"}
@@ -422,7 +397,6 @@ def test_create_dataset_not_found():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_create_user_not_found():
     dataset = factories.Dataset()
@@ -476,7 +450,6 @@ def test_ignored_on_create_if_non_sysadmin():
     assert plugin_data_from_db is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_a_non_sysadmin_cant_purge_dataset():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -489,7 +462,6 @@ def test_a_non_sysadmin_cant_purge_dataset():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_purged_dataset_does_not_show():
     dataset = factories.Dataset()
 
@@ -501,7 +473,6 @@ def test_purged_dataset_does_not_show():
         helpers.call_action("package_show", context={}, id=dataset["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_db")
 def test_purged_dataset_is_not_listed():
     dataset = factories.Dataset()
@@ -511,7 +482,6 @@ def test_purged_dataset_is_not_listed():
     assert helpers.call_action("package_list", context={}) == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_group_no_longer_shows_its_purged_dataset():
     group = factories.Group()
     dataset = factories.Dataset(groups=[{"name": group["name"]}])
@@ -524,7 +494,6 @@ def test_group_no_longer_shows_its_purged_dataset():
     assert dataset_shown["packages"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.usefixtures("clean_index", "with_plugins")
 def test_purged_dataset_is_not_in_search_results():
     dataset = factories.Dataset()
@@ -539,7 +508,6 @@ def test_purged_dataset_is_not_in_search_results():
     assert get_search_results() == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_purged_dataset_leaves_no_trace_in_the_model():
     group = factories.Group()
     org = factories.Organization()
@@ -579,7 +547,6 @@ def test_purged_dataset_leaves_no_trace_in_the_model():
     ) == sorted([("user", group["name"]), ("user", org["name"])])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_purged_dataset_removed_from_relationships():
     child = factories.Dataset()
     parent = factories.Dataset()
@@ -608,7 +575,6 @@ def test_purged_dataset_removed_from_relationships():
     assert model.Session.query(model.PackageRelationship).all() == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_purged_dataset_with_collaborators():
     dataset = factories.Dataset()
@@ -631,19 +597,16 @@ def test_purged_dataset_with_collaborators():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_missing_id_returns_error():
     with pytest.raises(logic.ValidationError):
         helpers.call_action("dataset_purge")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_bad_id_returns_404():
     with pytest.raises(logic.NotFound):
         helpers.call_action("dataset_purge", id="123")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)
 def test_delete_package_collaborator_when_config_disabled():
 
@@ -656,7 +619,6 @@ def test_delete_package_collaborator_when_config_disabled():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_delete():
 
@@ -690,7 +652,6 @@ def test_delete():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_delete_dataset_not_found():
     dataset = {"id": "xxx"}
@@ -704,7 +665,6 @@ def test_delete_dataset_not_found():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_delete_user_not_found():
     dataset = factories.Dataset()
@@ -718,7 +678,6 @@ def test_delete_user_not_found():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_package_delete_removes_collaborations():
 
@@ -747,7 +706,6 @@ def test_package_delete_removes_collaborations():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_show():
     # simple dataset, simple checks
     dataset1 = factories.Dataset()
@@ -759,7 +717,6 @@ def test_package_show():
     assert not missing_keys, missing_keys
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_show_with_full_dataset():
     # an full dataset
     org = factories.Organization()
@@ -901,7 +858,6 @@ def test_package_show_with_full_dataset():
     }
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_show_with_custom_schema():
     dataset1 = factories.Dataset()
     from ckan.logic.schema import default_show_package_schema
@@ -922,7 +878,6 @@ def test_package_show_with_custom_schema():
     assert dataset2["new_field"] == "foo"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_show_with_custom_schema_return_default_schema():
     dataset1 = factories.Dataset()
     from ckan.logic.schema import default_show_package_schema
@@ -1726,7 +1681,6 @@ class TestBadLimitQueryParameters(object):
             helpers.call_action("package_search", **kwargs)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", False)
 def test_package_collaborator_list_when_config_disabled():
 
@@ -2054,7 +2008,6 @@ def test_returned_if_sysadmin_and_include_plugin_data_only():
     assert "plugin_data" not in pkg_dict
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_patch_updating_single_field():
     user = factories.User()
     dataset = factories.Dataset(notes="some test now", user=user)
@@ -2070,7 +2023,6 @@ def test_package_patch_updating_single_field():
     assert dataset2["notes"] == "some test now"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_patch_invalid_characters_in_resource_id():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2089,7 +2041,6 @@ def test_package_patch_invalid_characters_in_resource_id():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_patch_for_update():
 
     dataset = factories.Dataset()
@@ -2104,7 +2055,6 @@ def test_package_patch_for_update():
         assert mock_package_show.call_args_list[0][0][0].get("for_update") is True
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUpdatePackage(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -2128,7 +2078,6 @@ class TestUpdatePackage(object):
         assert helpers.call_action("package_show", id="unchanging")["type"] == "dataset"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_missing_id():
     user = factories.User()
     factories.Dataset(user=user)
@@ -2137,7 +2086,6 @@ def test_datasetupdate_missing_id():
         helpers.call_action("package_update")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_name():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2152,7 +2100,6 @@ def test_datasetupdate_name():
     assert updated == helpers.call_action("package_show", id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_title():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2166,7 +2113,6 @@ def test_datasetupdate_title():
     assert updated == helpers.call_action("package_show", id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_extras():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2183,7 +2129,6 @@ def test_datasetupdate_extras():
     assert updated == helpers.call_action("package_show", id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_extra_can_be_restored_after_deletion():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2222,7 +2167,6 @@ def test_extra_can_be_restored_after_deletion():
     assert updated3["metadata_modified"] == "2024-04-24T14:00:00"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_license():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2236,7 +2180,6 @@ def test_datasetupdate_license():
     assert updated == helpers.call_action("package_show", id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_notes():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2250,7 +2193,6 @@ def test_datasetupdate_notes():
     assert updated == helpers.call_action("package_show", id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_resources():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2300,7 +2242,6 @@ def test_datasetupdate_resources():
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_invalid_characters_in_resource_id():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2319,7 +2260,6 @@ def test_invalid_characters_in_resource_id():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_tags():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2337,7 +2277,6 @@ def test_datasetupdate_tags():
     assert updated == helpers.call_action("package_show", id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_datasetupdate_return_id_only():
     user = factories.User()
     dataset = factories.Dataset(user=user)
@@ -2352,7 +2291,6 @@ def test_datasetupdate_return_id_only():
     assert updated_dataset == dataset["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resources_unchanged_if_missing():
     res = factories.Resource()
 
@@ -2366,7 +2304,6 @@ def test_resources_unchanged_if_missing():
     assert updated_dataset["resources"] == [res]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_resources_removed_if_empty_list():
     res = factories.Resource()
 
@@ -2381,7 +2318,6 @@ def test_resources_removed_if_empty_list():
     assert updated_dataset["resources"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_tags_removed_if_missing():
     dataset = factories.Dataset(tag_string="tagone,tagtwo")
     assert dataset["tags"]
@@ -2395,7 +2331,6 @@ def test_tags_removed_if_missing():
     assert updated_dataset["tags"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_groups_unchanged_if_missing():
     group = factories.Group()
     dataset = factories.Dataset(groups=[group])
@@ -2410,7 +2345,6 @@ def test_groups_unchanged_if_missing():
     assert updated_dataset["groups"] == dataset["groups"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_groups_removed_if_empty_list():
     group = factories.Group()
     dataset = factories.Dataset(groups=[group])
@@ -2426,7 +2360,6 @@ def test_groups_removed_if_empty_list():
     assert updated_dataset["groups"] == []
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_metadata_modified_unchanged_on_no_changes():
     with freeze_time("2020-02-25 12:00:00"):
         dataset = factories.Dataset()
@@ -2445,7 +2378,6 @@ def test_metadata_modified_unchanged_on_no_changes():
     assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_metadata_modified_can_be_updated():
     dataset = factories.Dataset()
     updated_dataset = helpers.call_action(
@@ -2464,7 +2396,6 @@ def test_metadata_modified_can_be_updated():
     assert unchanged["metadata_modified"] == "2020-02-25T12:00:00"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @mock.patch("ckan.logic.index_update_package")
 def test_reindex(index_update_package_mock):
     # test that authorized users can trigger a reindex
@@ -2483,7 +2414,6 @@ def test_reindex(index_update_package_mock):
         helpers.call_action("package_reindex", id="nonexistent")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_owner_org_added():
     """A package without an owner_org can have one added."""
     sysadmin = factories.Sysadmin()
@@ -2501,7 +2431,6 @@ def test_package_owner_org_added():
     assert dataset_obj.owner_org == org["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_owner_org_changed():
     """A package with an owner_org can have it changed."""
 
@@ -2521,7 +2450,6 @@ def test_package_owner_org_changed():
     assert dataset_obj.owner_org == org_2["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_owner_org_removed():
     """A package with an owner_org can have it removed."""
     sysadmin = factories.Sysadmin()
@@ -2539,7 +2467,6 @@ def test_package_owner_org_removed():
     assert dataset_obj.owner_org is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_bulk_make_private():
 
     org = factories.Organization()
@@ -2572,7 +2499,6 @@ def test_bulk_make_private():
         assert dataset.private
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_bulk_make_public():
 
     org = factories.Organization()
@@ -2605,7 +2531,6 @@ def test_bulk_make_public():
         assert not (dataset.private)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_bulk_delete():
 
     org = factories.Organization()
@@ -2637,7 +2562,6 @@ def test_bulk_delete():
         assert dataset.state == "deleted"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
 @pytest.mark.parametrize("role", ["admin", "editor"])
@@ -2671,7 +2595,6 @@ def test_collaborators_can_update_resources(role):
     assert updated_resource["description"] == "updated"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_collaborators_can_not_change_owner_org_by_default():
 
@@ -2703,7 +2626,6 @@ def test_collaborators_can_not_change_owner_org_by_default():
     ]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_collaborators_to_change_owner_org", True)
 def test_collaborators_can_change_owner_org_if_config_true():
@@ -2732,7 +2654,6 @@ def test_collaborators_can_change_owner_org_if_config_true():
     assert updated_dataset["owner_org"] == org2["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 @pytest.mark.ckan_config("ckan.auth.allow_collaborators_to_change_owner_org", True)
 def test_editors_can_change_owner_org_even_if_collaborators():
@@ -2763,7 +2684,6 @@ def test_editors_can_change_owner_org_even_if_collaborators():
     assert updated_dataset["owner_org"] == org2["id"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_description():
     dataset = factories.Dataset(notes="old notes")
     response = helpers.call_action(
@@ -2774,7 +2694,6 @@ def test_revise_description():
     assert response["package"]["notes"] == "new notes"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_failed_match():
     dataset = factories.Dataset(notes="old notes")
     with pytest.raises(logic.ValidationError):
@@ -2785,7 +2704,6 @@ def test_revise_failed_match():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_description_flattened():
     dataset = factories.Dataset(notes="old notes")
     response = helpers.call_action(
@@ -2797,7 +2715,6 @@ def test_revise_description_flattened():
     assert response["package"]["notes"] == "new notes"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_dataset_fields_only():
     dataset = factories.Dataset(
         notes="old notes",
@@ -2818,7 +2735,6 @@ def test_revise_dataset_fields_only():
     assert response["package"]["resources"][0]["url"] == "http://example.com"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_add_resource():
     dataset = factories.Dataset()
     response = helpers.call_action(
@@ -2831,7 +2747,6 @@ def test_revise_add_resource():
     assert response["package"]["resources"][0]["name"] == "new resource"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_invalid_resource_id():
     dataset = factories.Dataset()
     with pytest.raises(logic.ValidationError):
@@ -2848,7 +2763,6 @@ def test_revise_invalid_resource_id():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_resource_by_index():
     dataset = factories.Dataset(resources=[{"url": "http://example.com"}])
     response = helpers.call_action(
@@ -2859,7 +2773,6 @@ def test_revise_resource_by_index():
     assert response["package"]["resources"][0]["name"] == "new name"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_resource_by_id():
     _id = str(uuid.uuid4())
     dataset = factories.Dataset(
@@ -2881,7 +2794,6 @@ def test_revise_resource_by_id():
     assert response["package"]["resources"][0]["name"] == "new name"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_resource_replace_all():
 
     _id = str(uuid.uuid4())
@@ -2905,7 +2817,6 @@ def test_revise_resource_replace_all():
     assert response["package"]["resources"][0]["url"] == ""
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_revise_normal_user():
     user = factories.User()
     org = factories.Organization(users=[{"name": user["id"], "capacity": "admin"}])
@@ -2921,7 +2832,6 @@ def test_revise_normal_user():
     assert response["package"]["notes"] == "new notes"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_package_revise_resource_copies_other_resources():
     from ckan.lib.dictization import model_save
 

@@ -133,7 +133,6 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=description]').text == "description"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -200,7 +199,6 @@ class TestGroupControllerEdit(object):
         assert all([part.text for part in breadcrumbs])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroupRead(object):
     def test_group_read(self, app):
         group = factories.Group()
@@ -246,7 +244,6 @@ class TestGroupRead(object):
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroupDelete(object):
 
     def test_owner_delete(self, app, user):
@@ -306,7 +303,6 @@ class TestGroupDelete(object):
         assert group["state"] == "active"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
@@ -526,7 +522,6 @@ class TestGroupMembership(object):
             )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestGroupFollow:
     def test_group_follow_and_unfollow(self, app, user):
         headers = {"Authorization": user["token"]}

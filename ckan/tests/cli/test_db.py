@@ -24,7 +24,7 @@ def remove_extra_tables():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_database_migrations")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db", "remove_extra_tables")
+@pytest.mark.usefixtures("with_plugins", "remove_extra_tables")
 class TestMigrations:
 
     def test_path_to_alembic_config(self):
@@ -120,7 +120,7 @@ class TestMigrations:
         assert db._get_pending_plugins() == {"example_database_migrations": 2}
 
 
-@pytest.mark.usefixtures("with_plugins", "non_clean_db", "with_extended_cli")
+@pytest.mark.usefixtures("with_plugins", "with_extended_cli")
 class TestPluginOption:
     def test_disabled_plugins(self, cli: CliRunner):
         """Test that migration commands fail if plugin is not enabled."""

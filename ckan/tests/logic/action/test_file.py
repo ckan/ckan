@@ -19,7 +19,6 @@ from ckan.tests.helpers import call_action
 call_action: Any
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileCreate:
     def test_unknown_storage(self, file_factory: types.TestFactory, faker: Faker):
         """Unknown storage produces an error."""
@@ -92,7 +91,6 @@ class TestFileCreate:
         assert file["owner_type"] == "user"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileRegister:
     def test_unknown_storage(self, faker: Faker):
         """Unknown storage produces an error."""
@@ -216,7 +214,6 @@ class TestFileSearch:
         assert result["results"] == [big]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileDelete:
     def test_delete_non_existing(self, faker: Faker):
         """Attempt to remove non-existing file causes an error."""
@@ -252,7 +249,6 @@ class TestFileDelete:
         assert not existing
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileShow:
     def test_show_missing(self, faker: Faker):
         """Attempt to show non-existing file causes an error."""
@@ -265,7 +261,6 @@ class TestFileShow:
         assert result == file
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileRename:
     def test_rename_missing(self, faker: Faker):
         """Attempt to rename non-existing file causes an error."""
@@ -291,7 +286,6 @@ class TestFileRename:
         assert result["name"] == good_name
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFilePin:
     def test_pin_missing(self, faker: Faker):
         """Attempt to pin non-existing file causes an error."""
@@ -310,7 +304,6 @@ class TestFilePin:
         assert result["pinned"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileUnpin:
     def test_unpin_missing(self, faker: Faker):
         """Attempt to unpin non-existing file causes an error."""
@@ -329,7 +322,6 @@ class TestFileUnpin:
         assert not result["pinned"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileOwnershipTransfer:
     def test_transfer_missing(self, faker: Faker):
         """Attempt to transfer non-existing file causes an error."""
@@ -448,7 +440,6 @@ class TestFileOwnershipTransfer:
         assert file.owner
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestFileOwnerScan:
     def test_filter_by_owner(
         self, file_factory: types.TestFactory, faker: Faker, user: dict[str, Any]

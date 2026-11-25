@@ -14,7 +14,6 @@ from ckan.plugins.toolkit import config
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUserInvite(object):
     @mock.patch("ckan.lib.mailer.send_invite")
     def test_invited_user_is_created_as_pending(self, _):
@@ -141,7 +140,6 @@ class TestUserInvite(object):
         return model.User.get(result["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_create_with_password_hash():
     sysadmin = factories.Sysadmin()
     context = {"user": sysadmin["name"]}
@@ -158,7 +156,6 @@ def test_user_create_with_password_hash():
     assert user_obj.password == "pretend-this-is-a-valid-hash"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 def test_user_create_password_hash_not_for_normal_users():
     normal_user = factories.User()
@@ -177,7 +174,6 @@ def test_user_create_password_hash_not_for_normal_users():
     assert user_obj.password != "pretend-this-is-a-valid-hash"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_create_basic_fields():
     email = factories.User.stub().email
     name = factories.User.stub().name
@@ -192,7 +188,6 @@ def test_user_create_basic_fields():
     assert "password" not in user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_create_parameters_missing():
     with pytest.raises(logic.ValidationError) as err:
         helpers.call_action("user_create")
@@ -203,7 +198,6 @@ def test_user_create_parameters_missing():
     }
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_create_wrong_password():
     stub = factories.User.stub()
     user_dict = {
@@ -219,7 +213,6 @@ def test_user_create_wrong_password():
     }
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_create_defer_commit():
     stub = factories.User.stub()
     user_dict = {
@@ -237,7 +230,6 @@ def test_user_create_defer_commit():
         helpers.call_action("user_show", id=user_dict["name"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_user_with_apitoken():
     stub = factories.User.stub()
     context = {"ignore_auth": True}
@@ -255,7 +247,6 @@ def test_create_user_with_apitoken():
     assert len(token) == 1
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_create_user_with_apitoken_missing_flag():
     stub = factories.User.stub()
     context = {"ignore_auth": True}
@@ -272,7 +263,6 @@ def test_create_user_with_apitoken_missing_flag():
     assert not token
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_create_fails_with_duplicate_email_case_insensitive():
     factories.User(email="some_email@example.org")
 
@@ -433,7 +423,6 @@ def test_unique_emails():
         }
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_validation():
     user = factories.User()
     unfollow_actions = (
@@ -466,7 +455,6 @@ def test_validation():
                 helpers.call_action(action, context, id=object_id)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_auth():
     user = factories.User()
     dataset = factories.Dataset()
@@ -477,7 +465,6 @@ def test_auth():
     helpers.call_action("follow_dataset", context, id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_cannot_follow_private_dataset_without_read_access():
     owner = factories.User()
     org = factories.Organization(user=owner)
@@ -489,7 +476,6 @@ def test_cannot_follow_private_dataset_without_read_access():
         helpers.call_action("follow_dataset", context, id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_can_follow_private_dataset_with_read_access():
     owner = factories.User()
     org = factories.Organization(user=owner)
@@ -499,7 +485,6 @@ def test_can_follow_private_dataset_with_read_access():
     helpers.call_action("follow_dataset", context, id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_follow_dataset():
     user = factories.User()
     dataset = factories.Dataset()
@@ -522,7 +507,6 @@ def test_follow_dataset():
     assert not helpers.call_action("am_following_dataset", context, id=dataset["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_followgroup_auth():
     user = factories.User()
     group = factories.Group()
@@ -533,7 +517,6 @@ def test_followgroup_auth():
     helpers.call_action("follow_group", context, id=group["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_follow_group():
     user = factories.User()
     group = factories.Group()
@@ -555,7 +538,6 @@ def test_follow_group():
     assert not helpers.call_action("am_following_group", context, id=group["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_followorganization_auth_create():
     user = factories.User()
     organization = factories.Organization()
@@ -566,7 +548,6 @@ def test_followorganization_auth_create():
     helpers.call_action("follow_group", context, id=organization["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_follow_organization():
     user = factories.User()
     group = factories.Organization()
@@ -588,7 +569,6 @@ def test_follow_organization():
     assert not helpers.call_action("am_following_group", context, id=group["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_followuser_auth_create():
     user = factories.User()
     second_user = factories.User()
@@ -600,7 +580,6 @@ def test_followuser_auth_create():
     helpers.call_action("follow_user", context, id=second_user["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_cannot_follow_myself():
     user = factories.User()
     context = {"user": user["name"]}
@@ -608,7 +587,6 @@ def test_cannot_follow_myself():
         helpers.call_action("follow_user", context, id=user["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_follow_user():
     user = factories.User()
     another_user = factories.User()
@@ -631,7 +609,6 @@ def test_follow_user():
     assert not helpers.call_action("am_following_user", context, id=another_user["id"])
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_token_created():
     from ckan.lib.api_token import decode
 
@@ -650,7 +627,6 @@ def test_token_created():
     assert res.id == jti
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_token_created_insert():
     """
     Sysadmins should be able to insert id, created_at, last_access
@@ -706,7 +682,6 @@ def test_token_created_insert():
     assert res.id == "thisisthetoken"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 def test_stored_on_create_if_sysadmin():
 
@@ -755,7 +730,6 @@ def test_stored_on_create_if_sysadmin():
     }
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 def test_ignored_on_create_if_non_sysadmin():
 
@@ -787,7 +761,6 @@ def test_ignored_on_create_if_non_sysadmin():
     assert user["plugin_extras"] is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 def test_extensions_can_provide_custom_id():
 
@@ -965,7 +938,6 @@ def test_upload_picture_extension_enforced(create_with_upload, faker):
     assert user["image_display_url"].endswith(".jpg")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_delete():
     user = factories.User()
     context = {}
@@ -978,7 +950,6 @@ def test_user_delete():
     assert user_obj.state == "deleted"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_delete_but_user_doesnt_exist():
     context = {}
     params = {"id": "unknown"}
@@ -987,7 +958,6 @@ def test_user_delete_but_user_doesnt_exist():
         helpers.call_action("user_delete", context, **params)
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_delete_removes_memberships():
     user = factories.User()
     factories.Organization(users=[{"name": user["id"], "capacity": "admin"}])
@@ -1021,7 +991,6 @@ def test_user_delete_removes_memberships():
     assert [m.state for m in user_memberships] == ["deleted", "deleted"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_delete_removes_memberships_when_using_name():
     user = factories.User()
     factories.Organization(users=[{"name": user["id"], "capacity": "admin"}])
@@ -1045,7 +1014,6 @@ def test_user_delete_removes_memberships_when_using_name():
     assert [m.state for m in user_memberships] == ["deleted", "deleted"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 def test_user_delete_removes_collaborations():
     user = factories.User()
@@ -1067,7 +1035,6 @@ def test_user_delete_removes_collaborations():
     assert len(helpers.call_action("package_collaborator_list", id=dataset["id"])) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_token_revoke():
     user = factories.User()
     token = helpers.call_action(
@@ -1319,7 +1286,6 @@ def test_user_list_order_by_edits():
         helpers.call_action("user_list", order_by="edits")
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_default_values():
 
     user = factories.User()
@@ -1348,7 +1314,6 @@ def test_user_show_default_values():
     assert "password_hash" not in got_user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_keep_email():
 
     user = factories.User()
@@ -1367,7 +1332,6 @@ def test_user_show_keep_email():
     assert "reset_key" not in got_user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_keep_apikey():
 
     user = factories.User()
@@ -1386,7 +1350,6 @@ def test_user_show_keep_apikey():
     assert "reset_key" not in got_user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_normal_user_no_password_hash():
 
     user = factories.User()
@@ -1398,7 +1361,6 @@ def test_user_show_normal_user_no_password_hash():
     assert "password_hash" not in got_user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_for_myself():
 
     user = factories.User()
@@ -1413,7 +1375,6 @@ def test_user_show_for_myself():
     assert "reset_key" not in got_user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_sysadmin_values():
 
     user = factories.User()
@@ -1430,7 +1391,6 @@ def test_user_show_sysadmin_values():
     assert "reset_key" not in got_user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_sysadmin_password_hash():
 
     user = factories.User(password="TestPassword1")
@@ -1451,7 +1411,6 @@ def test_user_show_sysadmin_password_hash():
     assert "reset_key" not in got_user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_include_datasets():
 
     user = factories.User()
@@ -1463,7 +1422,6 @@ def test_user_show_include_datasets():
     assert got_user["datasets"][0]["name"] == dataset["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_include_datasets_excludes_draft_and_private():
 
     user = factories.User()
@@ -1480,7 +1438,6 @@ def test_user_show_include_datasets_excludes_draft_and_private():
     assert got_user["number_created_packages"] == 1
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_include_datasets_includes_draft_myself():
     # a user viewing his own user should see the draft and private datasets
 
@@ -1504,7 +1461,6 @@ def test_user_show_include_datasets_includes_draft_myself():
     assert got_user["number_created_packages"] == 3
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_include_datasets_includes_draft_sysadmin():
     # sysadmin should see the draft and private datasets
 
@@ -1529,7 +1485,6 @@ def test_user_show_include_datasets_includes_draft_sysadmin():
     assert got_user["number_created_packages"] == 3
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_show_for_myself_without_passing_id():
 
     user = factories.User()
@@ -1589,7 +1544,6 @@ def remove_pseudo_users(user_list):
     user_list[:] = [user for user in user_list if user["name"] not in pseudo_users]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_followee_list():
 
     group1 = factories.Group(title="Finance")
@@ -1612,7 +1566,6 @@ def test_followee_list():
     ]
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_followee_list_with_q():
 
     group1 = factories.Group(title="Finance")
@@ -1634,7 +1587,6 @@ def test_followee_list_with_q():
     assert followee_list[0]["display_name"] == "Environment"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_followee_list_excludes_datasets_user_cannot_read():
     owner = factories.User()
     org = factories.Organization(user=owner)
@@ -1666,7 +1618,6 @@ def test_followee_list_excludes_datasets_user_cannot_read():
     assert len(followees) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_followee_count_for_org_or_group():
     group = factories.Group(title="Finance")
     group2 = factories.Group(title="Environment")
@@ -1692,7 +1643,6 @@ def test_followee_count_for_org_or_group():
     assert organization_followee_count == 1
 
 
-@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.parametrize("num_tokens", [0, 1, 2, 5])
 def test_token_list(num_tokens):
     from ckan.lib.api_token import decode
@@ -1724,7 +1674,6 @@ def test_token_list(num_tokens):
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_returned_if_sysadmin_and_include_plugin_extras_only():
 
     sysadmin = factories.Sysadmin()
@@ -1757,7 +1706,6 @@ def test_returned_if_sysadmin_and_include_plugin_extras_only():
     assert "plugin_extras" not in user
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_get_site_user_not_authorized(ckan_config):
     with pytest.raises(logic.NotAuthorized):
         helpers.call_auth("get_site_user", {"model": model, "user": ""})
@@ -1767,7 +1715,6 @@ def test_get_site_user_not_authorized(ckan_config):
     )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_patch_updating_single_field():
     user = factories.User(
         fullname="Mr. Test User",
@@ -1790,7 +1737,6 @@ def test_user_patch_updating_single_field():
     assert user2["about"] == "somethingnew"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_extensions_successful_patch_updating_user_name():
     user = factories.User()
 
@@ -1808,7 +1754,6 @@ def test_extensions_successful_patch_updating_user_name():
     assert user2["name"] == "somethingnew"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_extensions_failed_patch_updating_user_name():
     user = factories.User()
 
@@ -1821,7 +1766,6 @@ def test_extensions_failed_patch_updating_user_name():
         )
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_patch_sysadmin():
 
     sysadmin = factories.Sysadmin()
@@ -1864,7 +1808,6 @@ def test_user_patch_sysadmin():
     assert new_sysadmin.sysadmin is True
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestUpdateUser(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -2149,7 +2092,6 @@ class TestUpdateUser(object):
         updated_user["state"] == "active"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_update_with_password_hash():
     sysadmin = factories.Sysadmin()
     context = {"user": sysadmin["name"]}
@@ -2166,7 +2108,6 @@ def test_user_update_with_password_hash():
     assert user_obj.password == "pretend-this-is-a-valid-hash"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_userupdate_user_create_password_hash_not_for_normal_users():
     normal_user = factories.User()
     context = {"user": normal_user["name"], "ignore_auth": False}
@@ -2184,7 +2125,6 @@ def test_userupdate_user_create_password_hash_not_for_normal_users():
     assert user_obj.password != "pretend-this-is-a-valid-hash"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_user_update_image_url():
     user = factories.User(image_url="user_image.jpg")
     context = {"user": user["name"]}
@@ -2200,7 +2140,6 @@ def test_user_update_image_url():
     assert user["image_url"] == "new_image_url.jpg"
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_stored_on_update_if_sysadmin():
 
     sysadmin = factories.Sysadmin()
@@ -2249,7 +2188,6 @@ def test_stored_on_update_if_sysadmin():
     }
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_ignored_on_update_if_non_sysadmin():
 
     sysadmin = factories.Sysadmin()
@@ -2276,7 +2214,6 @@ def test_ignored_on_update_if_non_sysadmin():
     assert user["plugin_extras"] == {"plugin1": {"key1": "value1"}}
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_ignored_on_update_if_non_sysadmin_when_empty():
 
     sysadmin = factories.Sysadmin()
@@ -2303,7 +2240,6 @@ def test_ignored_on_update_if_non_sysadmin_when_empty():
     assert user["plugin_extras"] is None
 
 
-@pytest.mark.usefixtures("non_clean_db")
 def test_nested_updates_are_reflected_in_db():
 
     user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})

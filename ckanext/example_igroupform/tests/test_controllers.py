@@ -24,7 +24,7 @@ def _get_group_new_page(app, headers, group_type):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestGroupController(object):
     def test_about(self, app, user):
         headers = {"Authorization": user["token"]}

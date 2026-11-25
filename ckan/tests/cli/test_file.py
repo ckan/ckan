@@ -75,7 +75,6 @@ class TestStorageScan:
         assert first in result.output
         assert second in result.output
 
-    @pytest.mark.usefixtures("non_clean_db")
     def test_known_and_unknown(
         self,
         cli: CKANCliRunner,
@@ -194,7 +193,6 @@ class TestStorageTransfer:
         assert not group.exists(info)
         assert user.exists(info)
 
-    @pytest.mark.usefixtures("non_clean_db")
     def test_move_registered_file(
         self,
         cli: CKANCliRunner,

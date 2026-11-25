@@ -47,7 +47,7 @@ class Activity(domain_object.DomainObject, BaseModel):
         Column("object_id", types.UnicodeText),
         Column("activity_type", types.UnicodeText),
         Column("data", _types.JsonDictType),
-        Column("permission_labels", types.Text),
+        Column("permission_labels", types.ARRAY(types.Text)),
     )
 
     # the line below handles cases when activity table was already loaded into

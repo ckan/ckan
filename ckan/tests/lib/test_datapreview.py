@@ -136,7 +136,7 @@ class TestDatapreviewWithWebpageView(object):
 
 @pytest.mark.provide_plugin("test_datastore_view", MockDatastoreBasedResourceView)
 @pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestDatapreview(object):
     def test_get_view_plugins(self):
 

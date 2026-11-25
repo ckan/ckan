@@ -1,13 +1,11 @@
 # encoding: utf-8
 
-import pytest
 
 import ckan.tests.factories as factories
 from ckan import model
 from ckan.model.system_info import SystemInfo, set_system_info
 
 
-@pytest.mark.usefixtures("non_clean_db")
 class TestSystemInfo(object):
     def test_set_value(self):
 
