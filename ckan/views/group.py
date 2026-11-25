@@ -724,12 +724,18 @@ def follow(id: str, group_type: str,
     extra_vars['error_message'] = error_message
     extra_vars['am_following'] = am_following
 
+    if not request.htmx:
+        if error_message:
+            h.flash_error(error_message)
+        return h.redirect_to(group_type + '.read', id=id)
+
     if is_organization:
         return base.render('organization/snippets/info.html', extra_vars)
     return base.render('group/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str, group_type: str, is_organization: bool) -> str:
+def unfollow(id: str, group_type: str,
+             is_organization: bool) -> Union[Response, str]:
     '''Stop following this group.'''
     data_dict = {
         'id': id,
@@ -762,6 +768,11 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
 
     extra_vars['error_message'] = error_message
     extra_vars['am_following'] = am_following
+
+    if not request.htmx:
+        if error_message:
+            h.flash_error(error_message)
+        return h.redirect_to(group_type + '.read', id=id)
 
     if is_organization:
         return base.render('organization/snippets/info.html', extra_vars)
