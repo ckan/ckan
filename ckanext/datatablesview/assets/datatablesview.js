@@ -460,6 +460,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid + '"' +
                 placeholderText +
                 ' class="fhead form-control input-sm" type="search" results="10" autocomplete="on" style="width:100%"/>')
+          .attr('aria-label', that._('Filter %(column)s', { column: thecol.dataset.label || colname }))
           .appendTo($(thecol).empty())
           .on('keyup search', function (event) {
             const colSelector = colname + ':name'
