@@ -210,6 +210,7 @@ class PFeedFactory(Protocol):
         feed_description: str,
         language: Optional[str],
         author_name: Optional[str],
+        author_link: Optional[str],
         feed_guid: Optional[str],
         feed_url: Optional[str],
         previous_page: Optional[str],

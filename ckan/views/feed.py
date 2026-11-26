@@ -77,6 +77,7 @@ class CKANFeed(FeedGenerator):
         feed_description: str,
         language: Optional[str],
         author_name: Optional[str],
+        author_link: Optional[str],
         feed_guid: Optional[str],
         feed_url: Optional[str],
         previous_page: Optional[str],
@@ -86,11 +87,15 @@ class CKANFeed(FeedGenerator):
     ) -> None:
         super(CKANFeed, self).__init__()
 
+        author: dict[str, Any] = {u"name": author_name}
+        if author_link:
+            author[u"uri"] = author_link
+
         self.title(feed_title)
         self.link(href=feed_link, rel=u"alternate")
         self.description(feed_description)
         self.language(language)
-        self.author({u"name": author_name})
+        self.author(author)
         self.id(feed_guid)
         self.link(href=feed_url, rel=u"self")
         links = (
@@ -136,6 +141,8 @@ def output_feed(
         feed_guid: str) -> Response:
     author_name = config.get(u'ckan.feeds.author_name').strip() or \
         config.get(u'ckan.site_id').strip()
+    author_link = config.get(u'ckan.feeds.author_link').strip() or \
+        config.get(u'ckan.site_url').strip()
 
     def remove_control_characters(s: str):
         if not s:
@@ -155,6 +162,7 @@ def output_feed(
         feed_description,
         language=u'en',
         author_name=author_name,
+        author_link=author_link,
         feed_guid=feed_guid,
         feed_url=feed_url,
         previous_page=navigation_urls[u'previous'],
