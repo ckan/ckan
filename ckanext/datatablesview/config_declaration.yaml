@@ -103,12 +103,16 @@ groups:
       The option defines the label used to display NoneType values for the front-end.
       This should be a string and can be translated via po files.
 
-  - key: ckan.datatables.responsive_modal
-    default: false
+  - key: ckan.datatables.show_histograms
+    default: true
     type: bool
-    example: 'true'
+    example: 'false'
     description: |
-      When a table is in list (responsive) view mode with some columns hidden
-      and the user clicks on the first cell, use a modal dialog to  display the
-      complete row contents instead of expanding the missing columns
-      in the table itself. Prior to CKAN 2.12 the default setting was "true".
+      Render histograms in the Datatables in the first row.
+
+  - key: ckan.datatables.request_timeout
+    default: 60000
+    type: int
+    example: 30000
+    description: |
+      Request timeout for the Datatables AJAX request in milliseconds.
