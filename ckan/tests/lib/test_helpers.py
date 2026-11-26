@@ -1191,3 +1191,30 @@ def test_resource_view_fields(monkeypatch):
         h.logic, 'get_action',
         lambda name: (lambda context, data_dict: raise_validation_error()))
     assert h.resource_view_get_fields(resource_dict) == []
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestFeaturedGroupOrg:
+    def test_organization_list_is_used_when_not_configured(self):
+        org = factories.Organization()
+        orgs = h.get_featured_organizations(count=6)
+        assert [o["id"] for o in orgs] == [org["id"]]
+
+    @pytest.mark.ckan_config("ckan.featured_orgs", ["featured"])
+    def test_only_configured_organizations(self):
+        factories.Organization()
+        factories.Organization(name="featured")
+        orgs = h.get_featured_organizations(count=6)
+        assert [o["name"] for o in orgs] == ["featured"]
+
+    @pytest.mark.ckan_config("ckan.featured_orgs", ["missing"])
+    def test_no_organizations_when_none_match(self):
+        factories.Organization()
+        assert h.get_featured_organizations(count=6) == []
+
+    @pytest.mark.ckan_config("ckan.featured_groups", ["featured"])
+    def test_only_configured_groups(self):
+        factories.Group()
+        factories.Group(name="featured")
+        groups = h.get_featured_groups(count=6)
+        assert [g["name"] for g in groups] == ["featured"]

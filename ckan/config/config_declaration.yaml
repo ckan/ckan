@@ -1239,7 +1239,8 @@ groups:
         description: |
           Defines a list of group names or group ids. This setting is used to display a
           group and datasets on the home page in the default templates (1 group and 2
-          datasets are displayed).
+          datasets are displayed). If empty, the first groups of the site are displayed;
+          otherwise only the listed groups are displayed.
 
       - key: ckan.featured_orgs
         type: list
@@ -1247,7 +1248,8 @@ groups:
         description: |
           Defines a list of organization names or ids. This setting is used to display
           an organization and datasets on the home page in the default templates (1
-          group and 2 datasets are displayed).
+          group and 2 datasets are displayed). If empty, the first organizations of the
+          site are displayed; otherwise only the listed organizations are displayed.
 
       - key: ckan.default_group_sort
         default: title
