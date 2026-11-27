@@ -17,6 +17,7 @@ from werkzeug.datastructures import MultiDict
 import ckan.model as model
 from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
+from ckan.lib.helpers import helper_functions as h
 from ckan.lib.i18n import get_locales_from_config, get_js_translations_dir
 from ckan.lib.lazyjson import LazyJSONObject
 
@@ -469,7 +470,9 @@ def i18n_js_translations(
         lang: str,
         ver: int = API_REST_DEFAULT_VERSION) -> Union[str, Response]:
 
-    if lang not in get_locales_from_config():
+    langs = [h.unix_locale_to_bcp47(lang) for lang in get_locales_from_config()]
+
+    if lang not in langs:
         return _finish_bad_request('Unknown locale: {}'.format(lang))
 
     js_translations_folder = get_js_translations_dir()
