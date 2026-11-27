@@ -1081,8 +1081,9 @@ class TestResourceDownload(object):
     def test_resource_download_content_type(self, create_with_upload, app):
 
         dataset = factories.Dataset()
+        content = "hello,world"
         resource = create_with_upload(
-            u"hello,world", u"file.csv",
+            content, u"file.csv",
             package_id=dataset[u"id"]
         )
 
@@ -1095,7 +1096,8 @@ class TestResourceDownload(object):
 
         response = app.get(url)
 
-        assert response.headers[u"Content-Type"] == u"text/csv; charset=utf-8"
+        assert response.headers["Content-Type"] == "text/csv; charset=utf-8"
+        assert response.headers["Content-Length"] == str(len(content))
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")

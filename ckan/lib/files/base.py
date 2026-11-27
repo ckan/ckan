@@ -101,10 +101,14 @@ class Reader(fk.Reader):
         if not self.storage.supports(Capability.STREAM):
             raise fk.exc.UnsupportedOperationError("stream", self)
 
+        # if caller was too lazy to set the size of the file, it remains 0 by
+        # default. In this case, fetch the real filesize and set content-length
+        # to display download progress
+        size = data.size or self.storage.size(data.location)
         return flask.Response(
             self.stream(data, extras),
             mimetype=data.content_type or None,
-            headers={"Content-length": str(data.size)},
+            headers={"Content-length": str(size)},
         )
 
 
