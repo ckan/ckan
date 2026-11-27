@@ -92,3 +92,20 @@ def test_api_info(app):
     content = page.get_data(as_text=True)
     for html in expected_html:
         assert html in content
+
+
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+def test_info_returns_data_dictionary():
+    resource = factories.Resource()
+    info = {"label": "Origin", "notes": "Country of origin"}
+    helpers.call_action(
+        "datastore_create",
+        resource_id=resource["id"],
+        force=True,
+        fields=[{"id": "from", "type": "text", "info": info}],
+    )
+
+    result = helpers.call_action("datastore_info", id=resource["id"])
+
+    assert result["fields"][0]["info"] == info
