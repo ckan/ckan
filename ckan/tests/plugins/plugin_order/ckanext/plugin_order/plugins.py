@@ -39,3 +39,6 @@ class SecondPlugin(p.SingletonPlugin):
     def helper(self):
         return "Second helper"
 
+
+class ThirdPlugin(p.SingletonPlugin):
+    pass
