@@ -225,11 +225,12 @@ jobs:
           verbose: false # optional (default = false)
 
       - name: Upload test results to Codecov
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ !cancelled() }}
         continue-on-error: true #don't fail if we can't upload (ie a fork that does not have integration plugged in)
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
           verbose: false # optional (default = false)
 
       # Each matrix job uploads its freshly updated partial test durations. We regroup them all
