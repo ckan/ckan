@@ -18,6 +18,7 @@ from ckan.plugins.toolkit import (
     request,
 )
 import re
+import unicodedata
 
 ESTIMATION_THRESHOLD = 100000
 
@@ -108,7 +109,8 @@ def ajax(resource_view_id: str):
         if v:
             k = str(request.form[u'columns[%d][name]' % i])
             # replace non-alphanumeric characters with FTS wildcard (_)
-            v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
+            # and preserve Unicode characters (especially useful for Latin languages)
+            v = re.sub(r'[^\w\-]+', '_', v, flags=re.UNICODE)
             # append ':*' so we can do partial FTS searches
             colsearch_dict[k] = v + u':*'
         i += 1
@@ -203,7 +205,8 @@ def filtered_download(resource_view_id: str):
             if v:
                 k = column[u'name']
                 # replace non-alphanumeric characters with FTS wildcard (_)
-                v = re.sub(r'[^0-9a-zA-Z\-]+', '_', v)
+                # and preserve Unicode characters (especially useful for Latin languages)
+                v = re.sub(r'[^\w\-]+', '_', v, flags=re.UNICODE)
                 # append ':*' so we can do partial FTS searches
                 colsearch_dict[k] = v + u':*'
 
