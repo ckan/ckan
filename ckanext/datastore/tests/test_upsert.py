@@ -532,7 +532,7 @@ class TestDatastoreUpsert(object):
             helpers.call_action(
                 "datastore_upsert",
                 resource_id=table["resource_id"],
-                records=[{"spam": "spam"}, {"spam": "EGGS"}, {"spam", "spam"}],
+                records=[{"spam": "spam"}, {"spam": "EGGS"}, {"spam": "spam"}],
                 dry_run=True,
             )
         assert exc.value.error_dict == {
@@ -751,7 +751,7 @@ class TestDatastoreUpsert(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
-    def test_upsert_include_records_return_no_duplicates(self):
+    def test_upsert_duplicate_keys_error(self):
         resource = factories.Resource(url_type="datastore")
         data = {
             "resource_id": resource["id"],
@@ -776,12 +776,8 @@ class TestDatastoreUpsert(object):
             ],
             "include_records": True
         }
-        result = helpers.call_action("datastore_upsert", **data)
-        assert 'records' in result
-        assert len(result['records']) == 1
-        for r in result['records']:
-            assert '_id' in r
-            assert r['movie'] == 'Cats: The Making Of'
+        with pytest.raises(ValidationError, match="second time"):
+            helpers.call_action("datastore_upsert", **data)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -1311,7 +1307,7 @@ class TestDatastoreUpdate(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
-    def test_update_include_records_return_no_duplicates(self):
+    def test_update_duplicate_keys_error(self):
         resource = factories.Resource(url_type="datastore")
         data = {
             "resource_id": resource["id"],
@@ -1336,12 +1332,8 @@ class TestDatastoreUpdate(object):
             ],
             "include_records": True
         }
-        result = helpers.call_action("datastore_upsert", **data)
-        assert 'records' in result
-        assert len(result['records']) == 1
-        for r in result['records']:
-            assert '_id' in r
-            assert r['movie'] == 'Cats: The Making Of'
+        with pytest.raises(ValidationError, match="Not all rows matched"):
+            helpers.call_action("datastore_upsert", **data)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
