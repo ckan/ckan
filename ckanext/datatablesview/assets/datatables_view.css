@@ -127,7 +127,7 @@ input[type="search"]::-webkit-search-cancel-button {
   cursor:pointer;
   height: 12px;
   width: 12px;
-  background-image: url('vendor/FontAwesome/images/times-circle-solid.svg');
+  background-image: url('../../datatablesview/vendor/FontAwesome/images/times-circle-solid.svg');
 }
 
 /* right align datatable buttons */
