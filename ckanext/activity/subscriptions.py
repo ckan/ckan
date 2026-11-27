@@ -90,7 +90,7 @@ def _create_package_activity(
     # When the user marks a package as deleted this comes through here as
     # a 'changed' package activity. We detect this and change it to a
     # 'deleted' activity.
-    if activity_type == "changed" and pkg.state == "deleted":
+    if activity_type == "changed" and pkg.is_deleted():
         q = context["session"].query(Activity).filter_by(
             object_id=pkg.id, activity_type="deleted"
         ).exists()
@@ -272,7 +272,7 @@ def group_or_org_changed(sender: str, **kwargs: Any):
         "object_id": group.id,
     }
 
-    if group.state == "deleted" or action == "delete":
+    if group.is_deleted() or action == "delete":
         activity_type = f"deleted {type_}"
     elif action == "create":
         activity_type = f"new {type_}"
